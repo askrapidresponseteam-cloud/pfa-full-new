@@ -12,7 +12,18 @@ const { KIND_LABELS } = require('../lib/submissions');
 
 const ROOT = path.join(__dirname, '..');
 
-test('no dead links, fragments, assets, forms, buttons or unmounted API calls on any page', () => {
+/* The library's PDFs live in the repository and deliberately never travel in
+   the site's zip: they are 302 MB and the zip is one file by request. Every
+   check below reads them, so from an unpacked zip they would fail, and
+   scripts/ship.sh refuses to ship on any failure at all. That turned "the zip
+   does not carry the PDFs", which is intended, into "this build cannot be
+   shipped", which is not. Skipped with a word when they are absent, run in
+   full in the repository, where they are the thing that matters. */
+const HAS_RESOURCES = fs.existsSync(path.join(ROOT, 'resources'));
+const whenResources = { skip: HAS_RESOURCES ? false : 'resources/ is not in this tree (an unpacked zip); run in the repository' };
+
+
+test('no dead links, fragments, assets, forms, buttons or unmounted API calls on any page', whenResources, () => {
   const { problems, pages, routes } = audit();
   /* This guard is here so a scan that silently found nothing cannot pass as a
      clean site. It read pages > 30, from when there were 46 pages; there are

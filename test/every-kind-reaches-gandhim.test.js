@@ -149,8 +149,8 @@ test('the kinds a payment opens are each proved to reach gandhim by name', () =>
   assert.match(e2e, /a paid membership: on record, in gandhim\\?'s inbox/);
   assert.match(e2e, /a paid colony caregiver application: on record with its photograph, in the inbox/);
   const thread = read('email-thread.test.js');
-  assert.match(thread, /a donation: a case under PFA-DON, gandhim gets it with Reply-To the donor/);
-  assert.match(thread, /a shop order: a case under its order number, gandhim gets it with Reply-To the shopper/);
+  assert.match(thread, /a donation: a case under PFA-DON, gandhim gets it with Reply-To the site/);
+  assert.match(thread, /a shop order: a case under its order number, gandhim gets it with Reply-To the site/);
   assert.deepEqual([...S.PAID_KINDS].sort(), ['PFA-CG', 'PFA-DON', 'PFA-MEM', 'PFA-SHP'],
     'a new paid kind needs its own proof above before it is added');
   /* and each payment path calls the same forward */

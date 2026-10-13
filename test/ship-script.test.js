@@ -16,6 +16,17 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
+
+/* The library's PDFs live in the repository and deliberately never travel in
+   the site's zip: they are 302 MB and the zip is one file by request. Every
+   check below reads them, so from an unpacked zip they would fail, and
+   scripts/ship.sh refuses to ship on any failure at all. That turned "the zip
+   does not carry the PDFs", which is intended, into "this build cannot be
+   shipped", which is not. Skipped with a word when they are absent, run in
+   full in the repository, where they are the thing that matters. */
+const HAS_RESOURCES = fs.existsSync(path.join(ROOT, 'resources'));
+const whenResources = { skip: HAS_RESOURCES ? false : 'resources/ is not in this tree (an unpacked zip); run in the repository' };
+
 const SHIP = path.join(ROOT, 'scripts', 'ship.sh');
 const ship = fs.readFileSync(SHIP, 'utf8');
 
@@ -104,8 +115,13 @@ test('the ship never copies or backs up built output, keeps one earlier backup, 
     assert.ok(swap.includes(`--exclude '${built}'`), `${built} is excluded from the copy and the backup`);
   }
   assert.doesNotMatch(swap, /cp -R "\$LIVE"/, 'the backup is not a full copy with .git and node_modules');
-  assert.match(swap, /rsync -a --exclude '\.git' --exclude 'node_modules' "\$\{BUILT_EXCLUDES\[@\]\}" "\$LIVE"\/ "\$BACKUP"\//);
-  assert.match(swap, /rsync -a --delete --exclude '\.git' --exclude 'node_modules' "\$\{BUILT_EXCLUDES\[@\]\}" "\$NEW"\/ "\$LIVE"\//);
+  /* KEEP_EXCLUDES joined BUILT_EXCLUDES on 13 Oct 2026: the repository holds
+     content the zip deliberately does not carry (the library's PDFs above
+     all), and --delete without it removed 309 MB from the live tree and
+     pushed the deletion to GitHub. The test below holds that list; these two
+     hold that both arrays reach both rsyncs. */
+  assert.match(swap, /rsync -a --exclude '\.git' --exclude 'node_modules' "\$\{BUILT_EXCLUDES\[@\]\}" "\$\{KEEP_EXCLUDES\[@\]\}" "\$LIVE"\/ "\$BACKUP"\//);
+  assert.match(swap, /rsync -a --delete --exclude '\.git' --exclude 'node_modules' "\$\{BUILT_EXCLUDES\[@\]\}" "\$\{KEEP_EXCLUDES\[@\]\}" "\$NEW"\/ "\$LIVE"\//);
   assert.match(swap, /PFA_Website_backup_\*' \| sort -r \| tail -n \+2/, 'older backups are cleared, the newest kept');
   const space = swap.indexOf('df -Pk');
   assert.ok(space > -1, 'free space is checked');
@@ -233,4 +249,55 @@ test('an ordinary ship, from a copy that is up to date, is an ordinary push', { 
   const out = runPush(live, remote);
   assert.doesNotMatch(out, /placing this release on top/);
   assert.equal(git(dir, '--git-dir', remote, 'log', '-1', '--format=%s', 'main'), 'v1.402: test release');
+});
+
+test('a placeholder address on a real domain is refused', () => {
+  /* On 13 Oct 2026 the example-address guard let
+     YOUR-EMAIL@peopleforanimalsindia.org through: it matches neither "your@"
+     nor an example domain. The run went as far as asking Firebase to grant the
+     claim before stopping, which is late, though nothing had been touched. */
+  const ship = fs.readFileSync(path.join(ROOT, 'scripts', 'ship.sh'), 'utf8');
+  const guard = ship.slice(ship.indexOf('A placeholder on a real domain'), ship.indexOf('# ------------------------------------------------------------- one project?'));
+  for (const placeholder of ['your-email', 'youremail', 'replace-me', 'changeme']) {
+    assert.ok(guard.includes(placeholder), `${placeholder} is not refused`);
+  }
+  assert.match(guard, /EMAIL%%@\*/, 'matched on the local part, so a real address on any domain is never caught');
+  assert.match(guard, /tr '\[:upper:\]' '\[:lower:\]'/, 'and in any case, since the one that got through was shouted');
+});
+
+test('shipping from a zip cannot delete what the zip does not carry', () => {
+  /* The zip is deliberately one file and the library's PDFs are too large to
+     travel in it, so the repository holds content the zip never will. ship.sh
+     replaces the live tree with `rsync -a --delete`. Until 13 Oct 2026 nothing
+     protected that content: a ship deleted 302 MB of the library's PDFs, all
+     30 of them, plus the campaign, campus and SGACC photographs and the
+     library's fixtures, and `git add -A` pushed the deletion to GitHub. */
+  const ship = fs.readFileSync(path.join(ROOT, 'scripts', 'ship.sh'), 'utf8');
+  const line = ship.split('\n').find((l) => l.startsWith('KEEP_EXCLUDES=('));
+  assert.ok(line, 'ship.sh no longer protects the content the zip does not carry');
+
+  for (const dir of ['/resources', '/media/site/campaign', '/media/site/campus', '/media/site/sgacc', '/test/fixtures/library']) {
+    assert.ok(line.includes(`--exclude '${dir}'`), `${dir} is in the repository but not in the zip, so --delete would remove it`);
+  }
+
+  /* every rsync, not just the one that deletes: the backup should not copy
+     302 MB onto the Desktop either */
+  const rsyncs = ship.split('\n').filter((l) => l.trim().startsWith('rsync -a'));
+  assert.equal(rsyncs.length, 3, 'ship.sh has three rsync invocations; a new one needs the same guard');
+  for (const r of rsyncs) {
+    assert.ok(r.includes('"${KEEP_EXCLUDES[@]}"'), `an rsync without the guard: ${r.trim().slice(0, 80)}`);
+  }
+});
+
+test('everything KEEP_EXCLUDES names is really in the repository', whenResources, () => {
+  /* A guard naming a path that does not exist is a guard nobody will notice
+     has gone stale. */
+  const ship = fs.readFileSync(path.join(ROOT, 'scripts', 'ship.sh'), 'utf8');
+  const line = ship.split('\n').find((l) => l.startsWith('KEEP_EXCLUDES=(')) || '';
+  const named = [...line.matchAll(/--exclude '\/([^']+)'/g)].map((m) => m[1]);
+  assert.ok(named.length >= 5, 'the guard lost entries');
+  for (const rel of named) {
+    assert.ok(fs.existsSync(path.join(ROOT, rel)),
+      `${rel} is guarded but not in the tree: either it was removed, or this guard is stale`);
+  }
 });

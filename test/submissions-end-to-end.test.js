@@ -555,15 +555,20 @@ function withMailbox(fn) {
   };
 }
 
-test('with the GoDaddy mailbox set up, a submission goes to gandhim from info@, Reply to the sender, photo attached', withMailbox(async (smtp) => {
+test('with the GoDaddy mailbox set up, a submission goes to gandhim from info@, Reply to the site, photo attached', withMailbox(async (smtp) => {
   const res = await submit('PFA-CR', FORMS['PFA-CR'].data, { photos: [PHOTO] });
   assert.equal(res.statusCode, 200, res.raw.slice(0, 300));
   assert.equal(res.json.confirmation.state, 'sent');
   const copy = smtp.sent.find((m) => m.message.to === INBOX);
   assert.ok(copy, 'the copy went to gandhim');
   assert.equal(copy.message.from, 'People for Animals <info@peopleforanimalsindia.org>');
-  /* the sender first, so Reply is addressed to them; the site's own mailbox after, so a copy of the reply comes back and is filed (v1.399) */
-  assert.deepEqual(copy.message.replyTo, ['tester.pfa@example.com', 'info@peopleforanimalsindia.org']);
+  /* the site's mailbox and nothing else (v1.422). It used to be the sender
+     first with the mailbox after, so Reply reached them directly and info@
+     rode along as a second address anybody could drop. Now the reply arrives
+     here, is filed, and is carried on to them as info@. */
+  assert.deepEqual(copy.message.replyTo, 'info@peopleforanimalsindia.org');
+  assert.ok(!String(copy.message.replyTo).includes('tester.pfa@example.com'),
+    'the sender is not addressed directly, so no Reply can leave the record');
   assert.equal(copy.message.attachments.length, 1);
   assert.ok(Buffer.isBuffer(copy.message.attachments[0].content) && copy.message.attachments[0].content.length > 1000);
   assert.equal(copy.options.host, 'smtpout.secureserver.net');
