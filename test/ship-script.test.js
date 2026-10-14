@@ -276,7 +276,7 @@ test('shipping from a zip cannot delete what the zip does not carry', () => {
   const line = ship.split('\n').find((l) => l.startsWith('KEEP_EXCLUDES=('));
   assert.ok(line, 'ship.sh no longer protects the content the zip does not carry');
 
-  for (const dir of ['/resources', '/media/site/campaign', '/media/site/campus', '/media/site/sgacc', '/test/fixtures/library']) {
+  for (const dir of ['/resources', '/media/site/campaign', '/media/site/campus', '/media/site/sgacc', '/test/fixtures/library', '/media/cinekind-2026/reels/*.mp4']) {
     assert.ok(line.includes(`--exclude '${dir}'`), `${dir} is in the repository but not in the zip, so --delete would remove it`);
   }
 
@@ -297,6 +297,15 @@ test('everything KEEP_EXCLUDES names is really in the repository', whenResources
   const named = [...line.matchAll(/--exclude '\/([^']+)'/g)].map((m) => m[1]);
   assert.ok(named.length >= 5, 'the guard lost entries');
   for (const rel of named) {
+    if (rel.includes('*')) {
+      /* a pattern, so the question is whether it still matches anything: a
+         glob that matches nothing protects nothing and nobody would notice */
+      const dir = path.join(ROOT, path.dirname(rel));
+      const re = new RegExp('^' + path.basename(rel).replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$');
+      assert.ok(fs.existsSync(dir) && fs.readdirSync(dir).some((f) => re.test(f)),
+        `${rel} is guarded but matches nothing: either it was removed, or this guard is stale`);
+      continue;
+    }
     assert.ok(fs.existsSync(path.join(ROOT, rel)),
       `${rel} is guarded but not in the tree: either it was removed, or this guard is stale`);
   }

@@ -172,9 +172,18 @@ BUILT_EXCLUDES=(--exclude '/public' --exclude '/functions/node_modules' --exclud
 # would have been down until somebody noticed. Recoverable from git history,
 # which is not the same as harmless.
 #
+# The films' reels are here for a second reason as well as size: 13 MB of .mp4
+# that has not changed in weeks, against a zip that has to stay under 30 MB to
+# be sent anywhere at all. A large binary that does not change need not travel
+# on every release; it needs to survive one.
+#
+# The videos only, not the folder. Their stills sit beside them, and
+# glimpse.jpg is the JPEG fixture half the test suite reads: excluding the
+# folder took the suite down with it.
+#
 # The test that holds this is test/ship-script.test.js. Anything added to the
 # repository that is not in the zip belongs in this list on the same day.
-KEEP_EXCLUDES=(--exclude '/resources' --exclude '/media/site/campaign' --exclude '/media/site/campus' --exclude '/media/site/sgacc' --exclude '/test/fixtures/library')
+KEEP_EXCLUDES=(--exclude '/resources' --exclude '/media/site/campaign' --exclude '/media/site/campus' --exclude '/media/site/sgacc' --exclude '/test/fixtures/library' --exclude '/media/cinekind-2026/reels/*.mp4')
 
 kb_of() { if [ -e "$1" ]; then du -sk "$1" 2>/dev/null | cut -f1; else echo 0; fi; }
 tree_kb() {

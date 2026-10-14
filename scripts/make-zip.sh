@@ -36,7 +36,7 @@ tar -cf - \
   --exclude='./.DS_Store' \
   --exclude='./resources' --exclude='./media/site/campaign' \
   --exclude='./media/site/campus' --exclude='./media/site/sgacc' \
-  --exclude='./test/fixtures/library' \
+  --exclude='./test/fixtures/library' --exclude='./media/cinekind-2026/reels/*.mp4' \
   . | (cd "$STAGE" && tar -xf -)
 
 rm -f "$OUT"
