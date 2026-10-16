@@ -190,6 +190,39 @@ KEEP_EXCLUDES=(--exclude '/resources' --exclude '/media/site/campaign' --exclude
 # 16 Oct 2026. See the guard below `git add -A`.
 KEEP_PATHS=(resources media/site/campaign media/site/campus media/site/sgacc test/fixtures/library media/cinekind-2026/reels)
 
+# Never commit the removal of protected content.
+#
+# 16 Oct 2026. The rsync guard above stops --delete emptying the live tree. It
+# does nothing when the live tree never had the content: the tree is assembled
+# from the zip, the zip does not carry the library, and so `git add -A` staged
+# 59 deletions against GitHub and the push carried them. main lost 302 MB of
+# PDFs, every reading copy, the campaign, campus and SGACC photographs and the
+# reels' videos, and every download on library.html answered 404 until they
+# were restored from history.
+#
+# So the question a release must answer is not "did rsync keep it" but "is
+# this commit about to delete something GitHub has and this tree does not".
+# Any staged deletion under KEEP_PATHS is unstaged and the file put back from
+# origin/main, the only copy that is certainly complete, with a count printed
+# rather than done quietly.
+#
+# Called at BOTH places the index can come to carry those deletions: after
+# `git add -A`, and inside on_top_of_github after `reset --soft origin/main`.
+# The second call is the one that matters on a tree whose .git did not come
+# across: at `git add -A` time that tree has no origin remote yet, so the
+# first call is a no-op there, and the deletions only materialise against
+# GitHub at the reset. With GitHub unreachable this does nothing, and then the
+# push fails too, so nothing can be deleted remotely either way.
+keep_protected() {
+  git rev-parse -q --verify origin/main >/dev/null 2>&1 || git fetch -q origin main 2>/dev/null || return 0
+  local rescued
+  rescued="$(git diff --cached --diff-filter=D -z --name-only -- "${KEEP_PATHS[@]}" 2>/dev/null | tr -d -c '\0' | wc -c | tr -d ' ')"
+  [ "${rescued:-0}" -gt 0 ] || return 0
+  git diff --cached --diff-filter=D -z --name-only -- "${KEEP_PATHS[@]}" 2>/dev/null \
+    | xargs -0 -r git checkout origin/main -- 2>/dev/null || true
+  echo "  kept $rescued file(s) GitHub has that this tree does not: the zip does not carry them, and a release must not delete them"
+}
+
 kb_of() { if [ -e "$1" ]; then du -sk "$1" 2>/dev/null | cut -f1; else echo 0; fi; }
 tree_kb() {
   local total
@@ -262,30 +295,11 @@ if ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "  new repository (the previous .git did not come across); it is placed on top of GitHub's history below"
 fi
 git add -A
-
-# Never commit the removal of protected content.
-#
-# 16 Oct 2026, and the reason this guard exists in two places now. The rsync
-# guard above stops --delete emptying the live tree. It does nothing when the
-# live tree never had the content: this tree is assembled from the zip, the zip
-# does not carry the library, and so `git add -A` staged 59 deletions against
-# GitHub and the push carried them. main lost 302 MB of PDFs, every reading
-# copy, the campaign, campus and SGACC photographs and the reels' videos, and
-# every download on library.html turned into a 404 until they were restored
-# from history.
-#
-# So the test is not "did rsync keep it" but "is this commit about to delete
-# something GitHub has and this tree does not". Any such deletion is unstaged
-# and the file is put back from GitHub, which is the only copy that is
-# certainly complete.
-if git rev-parse -q --verify origin/main >/dev/null 2>&1 || git fetch -q origin main 2>/dev/null; then
-  RESCUED="$(git diff --cached --diff-filter=D -z --name-only -- "${KEEP_PATHS[@]}" 2>/dev/null | tr -d -c '\0' | wc -c | tr -d ' ')"
-  if [ "${RESCUED:-0}" -gt 0 ]; then
-    git diff --cached --diff-filter=D -z --name-only -- "${KEEP_PATHS[@]}" 2>/dev/null \
-      | xargs -0 -r git checkout origin/main -- 2>/dev/null || true
-    echo "  kept $RESCUED file(s) GitHub has that this tree does not: the zip does not carry them, and a release must not delete them"
-  fi
-fi
+# What was just staged must not delete protected content GitHub still has.
+# On a tree whose .git did not come across there is no origin remote yet, so
+# this is a no-op here and the call inside on_top_of_github is the guard that
+# counts; see keep_protected above.
+keep_protected
 
 if git diff --cached --quiet; then
   echo "  nothing changed"
@@ -317,6 +331,10 @@ on_top_of_github() {
   if git merge-base --is-ancestor origin/main HEAD 2>/dev/null; then return 0; fi
   echo "  GitHub has commits this copy does not; placing this release on top of them"
   git reset -q --soft origin/main
+  # The index now stands against GitHub's tip, so a file GitHub has and this
+  # tree does not shows up as a staged deletion exactly here. On a fresh
+  # `git init` this is the first moment the deletions exist at all.
+  keep_protected
   if git diff --cached --quiet; then
     echo "  the files are already exactly what GitHub has"
   else

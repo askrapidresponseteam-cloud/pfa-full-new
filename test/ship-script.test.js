@@ -179,6 +179,8 @@ function runPush(live, remote, { fresh = false } = {}) {
     'MESSAGE="v1.402: test release"',
     `FRESH=${fresh ? 1 : 0}`,
     'sleep() { :; }',
+    `KEEP_PATHS=(${keepPaths().join(' ')})`,
+    keepGuard(),
     pushStep()
   ].join('\n');
   return execFileSync('bash', ['-c', script], { cwd: live, encoding: 'utf8', env: Object.assign({}, process.env, {
@@ -325,11 +327,14 @@ test('everything KEEP_EXCLUDES names is really in the repository', whenResources
    this commit about to delete something GitHub has and this tree does not".
    This runs the script's own guard against real repositories. */
 
-function keepStep() {
-  const from = ship.indexOf('# Never commit the removal of protected content.');
-  const to = ship.indexOf('if git diff --cached --quiet; then');
-  assert.ok(from > 0 && to > from, 'the guard after `git add -A` is where it was');
-  return ship.slice(from, to);
+function keepGuard() {
+  /* the function itself, cut from the script, so these tests run the real
+     guard and not a copy that can drift */
+  const from = ship.indexOf('keep_protected() {');
+  assert.ok(from > 0, 'keep_protected is where it was');
+  const to = ship.indexOf('\n}', from);
+  assert.ok(to > from, 'and whole');
+  return ship.slice(from, to + 2);
 }
 
 function keepPaths() {
@@ -371,8 +376,9 @@ test('a release never commits the deletion of content only GitHub has', { skip: 
     'set -euo pipefail',
     'step() { echo "== $1"; }',
     `KEEP_PATHS=(${keepPaths().join(' ')})`,
+    keepGuard(),
     'git add -A',
-    keepStep(),
+    'keep_protected',
     'git commit -q -m "v1.424: a release from a zip"',
     'git push -q origin HEAD:main'
   ].join('\n');
@@ -389,4 +395,53 @@ test('a release never commits the deletion of content only GitHub has', { skip: 
   /* the release itself still lands */
   const head = git(dir, '--git-dir', remote, 'show', 'main:index.html');
   assert.equal(head, 'v1.424', 'the files that did change still shipped');
+});
+
+test('a tree with no .git and no library ships without deleting the library', { skip: !hasGit() }, () => {
+  /* The second door. The guard after `git add -A` needs origin/main, and a
+     tree whose .git did not come across has no origin remote at that point:
+     the remote is added in the push step, and the deletions against GitHub
+     only materialise at `reset --soft origin/main` inside on_top_of_github.
+     That is where the guard must also stand, or the 16 Oct deletion happens
+     again through the fresh-init path with nothing to say so. */
+  const { dir, git, remote } = sandbox();
+
+  const seed = path.join(dir, 'seed3');
+  git(dir, 'clone', '-q', remote, seed);
+  fs.mkdirSync(path.join(seed, 'resources'), { recursive: true });
+  fs.writeFileSync(path.join(seed, 'resources', 'AWBI ULB.pdf'), 'pretend pdf');
+  git(seed, 'add', '-A'); git(seed, 'commit', '-q', '-m', 'the library');
+  git(seed, 'push', '-q', 'origin', 'HEAD:main');
+
+  /* the live tree: the zip's files, no .git, no library */
+  const live = path.join(dir, 'PFA_Website_fresh');
+  fs.mkdirSync(live);
+  fs.writeFileSync(path.join(live, 'index.html'), 'v1.425');
+
+  const script = [
+    'set -euo pipefail',
+    'step() { echo "== $1"; }',
+    'fail() { echo "STOPPED: $1" >&2; exit 1; }',
+    `REMOTE=${JSON.stringify(remote)}`,
+    'MESSAGE="v1.425: a fresh tree"',
+    'sleep() { :; }',
+    `KEEP_PATHS=(${keepPaths().join(' ')})`,
+    keepGuard(),
+    'git init -q',
+    'git add -A',
+    'keep_protected',
+    'git commit -q -m "$MESSAGE"',
+    pushStep()
+  ].join('\n');
+  const out = execFileSync('bash', ['-c', script], { cwd: live, encoding: 'utf8', env: Object.assign({}, process.env, {
+    GIT_AUTHOR_NAME: 'T', GIT_AUTHOR_EMAIL: 't@pfa.test', GIT_COMMITTER_NAME: 'T', GIT_COMMITTER_EMAIL: 't@pfa.test', GIT_TERMINAL_PROMPT: '0'
+  }) });
+
+  const onGitHub = git(dir, '--git-dir', remote, 'ls-tree', '-r', '--name-only', 'main').split('\n');
+  assert.ok(onGitHub.includes('resources/AWBI ULB.pdf'),
+    'the library survived a ship from a tree that never had it or a .git');
+  assert.equal(git(dir, '--git-dir', remote, 'show', 'main:index.html'), 'v1.425', 'the release itself landed');
+  assert.match(out, /kept 1 file\(s\)/, 'and the ship said what it kept');
+  assert.ok(fs.existsSync(path.join(live, 'resources', 'AWBI ULB.pdf')),
+    'the live tree gains the file back, so the next ship does not relive this');
 });
