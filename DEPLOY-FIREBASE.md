@@ -1,7 +1,42 @@
 # Deploying to Firebase
 
-The site runs on Vercel today. This adds Firebase as an alternative without
-removing that: `vercel.json` is untouched, so both work and you can move back.
+The site runs on Vercel. Firebase serves the admin panel and the API behind it,
+and nothing else. `vercel.json` is untouched, so both work and you can move back.
+
+## What Firebase Hosting serves, and why it matters
+
+`public/` is `admin.html`, the files `admin.html` loads, and an index that
+sends the bare domain to the panel. About 350 KB. It is not the website.
+
+This is worth knowing because `firebase deploy --only hosting` deploys the
+whole of `public/`, whatever is in it, and because Firebase keeps every version
+you have ever deployed, for ever, without deduping between them. Storage is the
+sum of all of them. Until 13 Oct 2026 `public/` was a full mirror of the site,
+all 31 pages plus `media/` plus a second copy of the library's PDFs, about
+480 MB, and ship.sh deployed it on every release. Twenty ships in five days put
+Hosting storage at 9.73 GB of the 10 GB that is free, for copies nobody
+downloaded: transfer for that month was 8.21 MB, because visitors are on Vercel.
+
+Two guards make that impossible to repeat, and neither needs remembering:
+
+    node scripts/build-firebase.js      refuses to build a bundle that, kept as
+                                        many times as Firebase keeps it, would
+                                        cross half the free allowance
+    node scripts/hosting-retention.js   sets how many versions Firebase keeps,
+                                        on every ship, before the deploy
+
+Both numbers are in `scripts/hosting-limits.js`, which explains itself. To see
+where the project stands without changing anything:
+
+    npm run check:hosting
+
+The whole site can still be built, for comparing the two deployments or for
+moving off Vercel:
+
+    npm run build:firebase:full
+
+That bundle is around 480 MB, so the budget refuses it. Serve the library's
+PDFs from somewhere that is not Hosting first.
 
 ## Once
 

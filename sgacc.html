@@ -521,7 +521,7 @@ if (root.document && root.document.head) apply(read());
     </div>
     <dialog class="m-lb" id="lightbox" aria-label="Photograph">
       <div class="m-lb__bar"><span data-lb-cap></span><button type="button" class="pfa-close" data-lb-close>Close</button></div>
-      <img src="data:," alt="">
+      <img src="data:," alt="" loading="lazy" decoding="async">
       <div class="m-lb__nav"><button type="button" data-lb-prev>Previous</button><button type="button" data-lb-next>Next</button></div>
     </dialog>
   </section>

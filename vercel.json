@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "regions": [
+    "bom1"
+  ],
   "buildCommand": "node scripts/minify.js",
   "outputDirectory": "dist",
   "rewrites": [

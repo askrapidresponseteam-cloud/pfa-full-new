@@ -3,10 +3,23 @@
 /* One conversation per submission, both ways, through PFA's own mailbox.
 
    Owner, 7 Oct 2026: Person A submits; gandhim@exmpls.sansad.in gets the
-   email from info@peopleforanimalsindia.org with Reply-To Person A; Madam
-   presses Reply and Person A is already in To; her reply reaches Person A
-   and is filed on the same record in the admin panel; nothing is filed
-   twice and no second record appears.
+   email from info@peopleforanimalsindia.org; Madam presses Reply; her reply
+   reaches Person A and is filed on the same record in the admin panel;
+   nothing is filed twice and no second record appears.
+
+   13 Oct 2026, how her reply reaches them changed. It used to go straight
+   from her mailbox to theirs, because Reply-To named Person A with info@
+   added after them. From that first reply the conversation belonged to two
+   mailboxes the site does not read, and info@ stayed in it only while every
+   person on every message kept a recipient they had not added. Owner: "if I
+   reply to gandhim without reply all.. things will go missing." They did.
+
+   Now Reply-To is the site and nothing else. Her reply arrives here, is
+   filed, and is carried on to Person A as info@; their answer is addressed
+   here too. Every message passes through this mailbox because there is no
+   other path, Reply All stops mattering, and her answer reaches them from
+   info@ rather than from a personal mailbox, which was the other half of
+   the ask. The tests below hold both ends of that.
 
    Everything below drives the real routes against the in-memory Firestore
    and the real mailer, with GoDaddy's SMTP server stood in for by a stub
@@ -159,7 +172,7 @@ async function caseOf(ref) {
 
 /* ---- 1 to 9: a caregiver application, both ways ------------------------- */
 
-test('a paid caregiver application: gandhim gets it from info@, Reply-To is Person A, and a thread id is on the record', async () => {
+test('a paid caregiver application: gandhim gets it from info@, Reply-To is the site alone, and a thread id is on the record', async () => {
   const docs = await call(require('../lib/routes/caregiver/documents'), { body: { photo: PHOTO } });
   assert.equal(docs.statusCode, 200, docs.raw.slice(0, 300));
   const page = await pay(Object.assign({ type: 'caregiver-application', documents: docs.json.token, animals: '12', notes: 'Feeding them for four years.' }, PERSON));
@@ -174,8 +187,10 @@ test('a paid caregiver application: gandhim gets it from info@, Reply-To is Pers
   assert.ok(copy, 'gandhim receives the notification');
   assert.equal(copy.to, INBOX);
   assert.equal(copy.from, 'People for Animals <info@peopleforanimalsindia.org>', 'sent as info@');
-  assert.equal(replyToList(copy)[0], PERSON_A, 'Reply-To is exactly the email Person A gave');
-  assert.deepEqual(replyToList(copy), [PERSON_A, SITE_MAILBOX], 'and the site mailbox follows it, so a copy of any reply comes back');
+  assert.deepEqual(replyToList(copy), [SITE_MAILBOX],
+    'Reply-To is the site and nothing else: a second address is a second path, and the path that skips the site is the one that loses the conversation');
+  assert.ok(!replyToList(copy).includes(PERSON_A),
+    'Person A is not addressed directly, so no Reply can take the conversation out of the record');
   assert.equal(copy.messageId, `<${ref}.${record.threadId}.forward@peopleforanimalsindia.org>`, 'Message-ID names the submission and the thread');
   assert.equal(copy.attachments.length, 1, 'the photograph is attached');
 
@@ -191,7 +206,7 @@ test('a paid caregiver application: gandhim gets it from info@, Reply-To is Pers
   assert.equal(thread[0].messageId, copy.messageId);
 });
 
-test('Madam presses Reply: Person A is in To; her reply is filed on the same record, nothing is duplicated', async () => {
+test('Madam presses Reply: it goes to the site, is filed on the same record, and is carried on to Person A as info@', async () => {
   const docs = await call(require('../lib/routes/caregiver/documents'), { body: { photo: PHOTO } });
   const page = await pay(Object.assign({ type: 'caregiver-application', documents: docs.json.token, animals: '3' }, PERSON));
   const ref = (page.match(/PFA-CG-\d{4}-\d{5}/) || [])[0];
@@ -199,9 +214,8 @@ test('Madam presses Reply: Person A is in To; her reply is filed on the same rec
   const copy = lastInboxCopy();
 
   const reply = replyTo(copy, { text: 'Thank you Asha. Please send a photograph of the feeding spot.' });
-  assert.ok(reply.to.includes(PERSON_A), 'Person A is addressed without Madam typing anything');
-  assert.equal(reply.to[0], PERSON_A, 'and first');
-  assert.ok(reply.to.includes(SITE_MAILBOX), 'the site gets its copy');
+  assert.deepEqual(reply.to, [SITE_MAILBOX],
+    'a plain Reply goes to the site: nothing to remember, nothing to drop, no Reply All');
 
   const filed = await arrives(reply);
   assert.equal(filed.statusCode, 200, filed.raw.slice(0, 300));
@@ -217,12 +231,13 @@ test('Madam presses Reply: Person A is in To; her reply is filed on the same rec
   assert.equal(record.status, 'under-review', 'a case answered is a case taken up, into its own kind\'s stage');
   assert.equal(record.replyCount, 1);
   const thread = messagesOf(ref);
-  assert.equal(thread.length, 2);
-  const m = thread[1];
+  assert.equal(thread.length, 3, 'the forward out, her reply in, and the note that it was carried on');
+  const m = thread.find((x) => x.party === 'staff');
+  assert.ok(m, 'her reply is on the record');
   assert.equal(m.type, 'reply');
   assert.equal(m.direction, 'in');
   assert.equal(m.from, INBOX);
-  assert.deepEqual(m.to, [PERSON_A, SITE_MAILBOX]);
+  assert.deepEqual(m.to, [SITE_MAILBOX]);
   assert.equal(m.text, 'Thank you Asha. Please send a photograph of the feeding spot.', 'the new text, without the quoted copy');
   assert.match(m.fullText, /wrote:/, 'the whole email is kept too');
   assert.equal(m.messageId, reply.messageId);
@@ -232,20 +247,29 @@ test('Madam presses Reply: Person A is in To; her reply is filed on the same rec
   const again = await arrives(reply);
   assert.equal(again.json.filed, false);
   assert.equal(again.json.reason, 'DUPLICATE');
-  assert.equal(messagesOf(ref).length, 2);
+  assert.equal(messagesOf(ref).length, 3);
   assert.equal(db.dump()['submissions/' + ref].replyCount, 1);
 
-  /* nothing went back out: Person A already has Madam's reply */
-  assert.equal(inboxCopies().length, 1);
-  assert.equal(toPersonA().filter((x) => /^Re:/.test(x.subject)).length, 0);
+  /* and it is carried on to Person A: the half that did not exist before.
+     Asserted after the duplicate above, so this also proves a second reading
+     of the same email does not send it to them twice. */
+  assert.equal(filed.json.answered, 'sent', 'her reply was carried on');
+  assert.equal(filed.json.answeredTo, PERSON_A);
+  assert.equal(inboxCopies().length, 1, 'nothing went back to the inbox');
+  const carried = toPersonA().filter((x) => /^Re:/.test(x.subject));
+  assert.equal(carried.length, 1, 'exactly one, however often the email is read again');
+  assert.equal(carried[0].from, 'People for Animals <info@peopleforanimalsindia.org>',
+    'it reaches them as info@, not from a personal mailbox');
+  assert.match(carried[0].text, /photograph of the feeding spot/, 'carrying what Madam wrote');
+  assert.deepEqual(replyToList(carried[0]), [SITE_MAILBOX], 'and their answer comes back here too');
 
   const c = await caseOf(ref);
-  assert.equal(c.messages.length, 2);
-  assert.equal(c.messages[1].party, 'staff');
+  assert.equal(c.messages.length, 3);
+  assert.equal(c.messages.filter((x) => x.party === 'staff').length, 1);
   assert.equal(c.replyCount, 1);
 });
 
-test('the conversation goes on: Madam again, Person A back (reply-all), Madam again; one thread, in order, relayed to the inbox', async () => {
+test('the conversation goes on: Madam again, Person A back with a plain Reply, Madam again; one thread, in order, nothing lost', async () => {
   const docs = await call(require('../lib/routes/caregiver/documents'), { body: { photo: PHOTO } });
   const page = await pay(Object.assign({ type: 'caregiver-application', documents: docs.json.token, animals: '3' }, PERSON));
   const ref = (page.match(/PFA-CG-\d{4}-\d{5}/) || [])[0];
@@ -257,14 +281,22 @@ test('the conversation goes on: Madam again, Person A back (reply-all), Madam ag
   const second = replyTo(copy, { text: 'Also, which pincode?' });
   assert.equal((await arrives(second)).json.filed, true);
 
-  /* Person A answers Madam's second email with Reply all: To gandhim and the site mailbox */
-  const madamsEmail = { from: INBOX, replyTo: [INBOX, SITE_MAILBOX], subject: second.subject, messageId: second.messageId, references: second.references + ' ' + second.messageId, text: second.text };
-  const fromA = replyTo(madamsEmail, { from: PERSON_A, name: 'Asha Rao', text: 'Pincode 110024. Photo attached.', all: true, attachments: [{ filename: 'spot.jpg', contentType: 'image/jpeg', content: PHOTO_BYTES.toString('base64') }] });
-  fromA.to = [INBOX, SITE_MAILBOX];
-  assert.equal(fromA.inReplyTo, second.messageId, 'answers Madam, not the site');
+  /* Both of Madam's replies reached Person A, as info@ */
+  const carried = toPersonA().filter((x) => /^Re:/.test(x.subject));
+  assert.equal(carried.length, 2, 'each of her replies was carried on');
+  assert.match(carried[0].text, /send a photograph/);
+  assert.match(carried[1].text, /which pincode/);
+
+  /* Person A answers what PFA actually sent them, with a plain Reply. This is
+     the case that used to lose the conversation: before 13 Oct it needed
+     Reply All, because the email they were answering came from Madam's own
+     mailbox and only carried info@ as a second address. Now the address they
+     are answering is the site's, so there is nothing to remember. */
+  const fromA = replyTo(carried[1], { from: PERSON_A, name: 'Asha Rao', text: 'Pincode 110024. Photo attached.', attachments: [{ filename: 'spot.jpg', contentType: 'image/jpeg', content: PHOTO_BYTES.toString('base64') }] });
+  assert.deepEqual(fromA.to, [SITE_MAILBOX], 'a plain Reply, to the site, with no Reply All anywhere');
   const filedA = await arrives(fromA);
   assert.equal(filedA.json.filed, true, filedA.raw);
-  assert.equal(filedA.json.reference, ref, 'found through References even though In-Reply-To is Madam\'s own id');
+  assert.equal(filedA.json.reference, ref, 'filed on the same record');
   assert.equal(filedA.json.party, 'sender');
   assert.equal(filedA.json.attachments, 1);
   assert.deepEqual(filedA.json.relayed, ['sent'], 'relayed to the inbox');
@@ -274,7 +306,7 @@ test('the conversation goes on: Madam again, Person A back (reply-all), Madam ag
   assert.equal(relay.inReplyTo, copy.messageId, 'in the same conversation as the copy');
   assert.ok(MT.idsIn(relay.references).includes(copy.messageId));
   assert.equal(relay.messageId, `<${ref}.${record.threadId}.relay.3@peopleforanimalsindia.org>`);
-  assert.equal(replyToList(relay)[0], PERSON_A, 'and a Reply to it answers Person A again');
+  assert.deepEqual(replyToList(relay), [SITE_MAILBOX], 'and a Reply to it comes back here, not to Person A directly');
   assert.match(relay.text, /Pincode 110024/);
 
   /* Madam answers the relay */
@@ -283,12 +315,22 @@ test('the conversation goes on: Madam again, Person A back (reply-all), Madam ag
 
   const thread = messagesOf(ref);
   const kinds = thread.map((m) => `${m.type}:${m.direction}:${m.party}`);
-  assert.deepEqual(kinds, ['email:out:site', 'reply:in:staff', 'reply:in:staff', 'reply:in:sender', 'email:out:site', 'reply:in:staff'], 'the whole exchange, oldest first');
+  assert.deepEqual(kinds, [
+    'email:out:site',    /* the submission, forwarded to the inbox */
+    'reply:in:staff',    /* Madam: please send a photograph */
+    'email:out:site',    /* carried on to Person A as info@ */
+    'reply:in:staff',    /* Madam: which pincode */
+    'email:out:site',    /* carried on */
+    'reply:in:sender',   /* Person A, a plain Reply, with the photograph */
+    'email:out:site',    /* relayed to the inbox */
+    'reply:in:staff',    /* Madam: got it, thank you */
+    'email:out:site'     /* carried on */
+  ], 'the whole exchange, oldest first, with every leg of it on the record');
   assert.equal(records().filter((k) => k.startsWith('submissions/PFA-CG')).length, 1, 'still one record');
   assert.equal(db.dump()['submissions/' + ref].replyCount, 4);
 
   /* the attachment is kept beside the submission's own photograph, and the panel can read it */
-  const stored = thread[3].files[0];
+  const stored = thread.find((m) => m.party === 'sender').files[0];
   assert.equal(stored.stored, true);
   assert.match(stored.id, /^in-[a-f0-9]{24}-1$/);
   const att = await call(require('../lib/routes/admin/attachment'), { method: 'GET', query: { reference: ref, n: stored.id }, headers: admin });
@@ -344,7 +386,7 @@ const SAME_WAY = {
 };
 
 for (const [kind, [page, data, label, subject]] of Object.entries(SAME_WAY)) {
-  test(`${label}: gandhim gets it from info@ with Reply-To Person A, the reply is filed on it, the letter threads`, async () => {
+  test(`${label}: gandhim gets it from info@ with Reply-To the site, the reply is filed on it, the letter threads`, async () => {
     const res = await submit(kind, data, page, kind === 'PFA-CR' ? { photos: [PHOTO] } : {});
     assert.equal(res.statusCode, 200, res.raw.slice(0, 300));
     const ref = res.json.reference;
@@ -353,7 +395,7 @@ for (const [kind, [page, data, label, subject]] of Object.entries(SAME_WAY)) {
     const copy = lastInboxCopy();
     assert.equal(copy.from, 'People for Animals <info@peopleforanimalsindia.org>');
     assert.equal(copy.to, INBOX);
-    assert.equal(replyToList(copy)[0], PERSON_A);
+    assert.deepEqual(replyToList(copy), [SITE_MAILBOX], 'every kind of submission is answered to the site, not to the person');
     assert.equal(copy.messageId, `<${ref}.${record.threadId}.forward@peopleforanimalsindia.org>`);
     const letter = toPersonA()[0];
     assert.equal(letter.subject, `${subject} - ${ref}`);
@@ -366,7 +408,7 @@ for (const [kind, [page, data, label, subject]] of Object.entries(SAME_WAY)) {
   });
 }
 
-test('a donation: a case under PFA-DON, gandhim gets it with Reply-To the donor, the receipt threads, a reply is filed on it, a repeated callback adds nothing', async () => {
+test('a donation: a case under PFA-DON, gandhim gets it with Reply-To the site, the receipt threads, a reply is filed on it, a repeated callback adds nothing', async () => {
   const page = await pay(Object.assign({ type: 'donate', amount: '500', cause: 'Where it is needed most', terms: 'yes', pan: 'ABCDE1234F' }, PERSON));
   assert.match(page, /Donation successful/);
   const refs = records().filter((k) => k.startsWith('submissions/PFA-DON-'));
@@ -380,7 +422,7 @@ test('a donation: a case under PFA-DON, gandhim gets it with Reply-To the donor,
   const copy = lastInboxCopy();
   assert.equal(copy.to, INBOX);
   assert.equal(copy.from, 'People for Animals <info@peopleforanimalsindia.org>');
-  assert.equal(replyToList(copy)[0], PERSON_A);
+  assert.deepEqual(replyToList(copy), [SITE_MAILBOX], 'every kind of submission is answered to the site, not to the person');
   assert.match(copy.subject, new RegExp('^' + ref + ': Donation from Asha Rao$'));
   assert.match(copy.text, /Amount paid: INR 500/);
   assert.match(copy.text, /PAN \(for the 80G certificate\): ABCDE1234F/);
@@ -400,7 +442,7 @@ test('a donation: a case under PFA-DON, gandhim gets it with Reply-To the donor,
   assert.equal(pays.json.rows.filter((r) => r.type === 'donate').length, 1);
 });
 
-test('a shop order: a case under its order number, gandhim gets it with Reply-To the shopper, the confirmation threads, a second callback adds nothing', async () => {
+test('a shop order: a case under its order number, gandhim gets it with Reply-To the site, the confirmation threads, a second callback adds nothing', async () => {
   const backend = require('../lib/shop-backend');
   const C = require('../lib/ccavenue');
   process.env.PFA_SHOP_FIREBASE_SERVICE_ACCOUNT = JSON.stringify({ project_id: 'pfa-oldsite', client_email: 's@pfa-oldsite.iam.gserviceaccount.com', private_key: 'x' });
@@ -447,7 +489,7 @@ test('a shop order: a case under its order number, gandhim gets it with Reply-To
     assert.ok(MT.isThreadId(record.threadId));
     const copy = lastInboxCopy();
     assert.equal(copy.to, INBOX);
-    assert.equal(replyToList(copy)[0], PERSON_A);
+    assert.deepEqual(replyToList(copy), [SITE_MAILBOX], 'every kind of submission is answered to the site, not to the person');
     assert.equal(copy.messageId, `<${ref}.${record.threadId}.forward@peopleforanimalsindia.org>`);
     assert.match(copy.subject, new RegExp('^' + ref + ': Shop order from Asha Rao$'));
     const confirmation = toPersonA().find((m) => m.subject === `Your PFA order ${ref} is placed`);

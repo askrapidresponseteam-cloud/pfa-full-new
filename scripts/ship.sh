@@ -55,6 +55,16 @@ case "$EMAIL" in
     fail "\"$EMAIL\" is the example address, not yours.
   Use the email of a real account in Firebase > Authentication > Users." ;;
 esac
+# A placeholder on a real domain. On 13 Oct 2026 the line above let
+# YOUR-EMAIL@peopleforanimalsindia.org through, because it matches neither
+# "your@" nor an example domain, and the run went as far as asking Firebase to
+# grant the claim before stopping. Matched on the local part, in any case, so
+# a real address is never caught by it.
+case "$(printf '%s' "${EMAIL%%@*}" | tr '[:upper:]' '[:lower:]')" in
+  your-email|youremail|your_email|real-email|yourname|your-name|email|replace-me|replaceme|changeme|change-me|example|admin@example)
+    fail "\"$EMAIL\" still has the placeholder in it, not your address.
+  Use the email of a real account in Firebase > Authentication > Users." ;;
+esac
 case "$EMAIL" in *@*.*) ;; *) fail "\"$EMAIL\" is not an email address." ;; esac
 
 # ------------------------------------------------------------- one project?
@@ -142,12 +152,38 @@ fi
 # all confirmed, does the live tree change.
 #
 # Built output is never part of the tree, and never copied or backed up:
-# public/ is the Firebase bundle and carries a second copy of the library's
-# PDFs (about 480 MB), functions/ holds a built copy of the API, and
+# public/ is the Firebase bundle, functions/ holds a built copy of the API, and
 # node_modules is reinstalled. On 8 Oct 2026 each ship backed up everything,
 # .git and all, every backup stayed on the Desktop, public/ was copied into
 # the live tree, and the Mac ran out of space half way through the update.
+# public/ was about 480 MB then, because it was a full mirror of the site
+# including the library's PDFs. Since 13 Oct it is the admin panel only, about
+# 350 KB, and the Desktop is quieter for it.
 BUILT_EXCLUDES=(--exclude '/public' --exclude '/functions/node_modules' --exclude '/functions/api' --exclude '/functions/lib' --exclude '/functions/assets' --exclude '/functions/product.html' --exclude '/functions/.env')
+
+# Content that lives in the repository and deliberately does not travel in the
+# zip, so the zip stays one file (owner, 7 Oct 2026: "need just 1 zip").
+#
+# These MUST be excluded from the rsync below, which runs with --delete. Until
+# 13 Oct 2026 they were not, and so shipping from a zip deleted them from the
+# live tree and `git add -A` pushed that deletion to GitHub: 302 MB of the
+# library's PDFs, all 30 of them, plus the campaign, campus and SGACC
+# photographs and the library's test fixtures. 309 MB in all, and the library
+# would have been down until somebody noticed. Recoverable from git history,
+# which is not the same as harmless.
+#
+# The films' reels are here for a second reason as well as size: 13 MB of .mp4
+# that has not changed in weeks, against a zip that has to stay under 30 MB to
+# be sent anywhere at all. A large binary that does not change need not travel
+# on every release; it needs to survive one.
+#
+# The videos only, not the folder. Their stills sit beside them, and
+# glimpse.jpg is the JPEG fixture half the test suite reads: excluding the
+# folder took the suite down with it.
+#
+# The test that holds this is test/ship-script.test.js. Anything added to the
+# repository that is not in the zip belongs in this list on the same day.
+KEEP_EXCLUDES=(--exclude '/resources' --exclude '/media/site/campaign' --exclude '/media/site/campus' --exclude '/media/site/sgacc' --exclude '/test/fixtures/library' --exclude '/media/cinekind-2026/reels/*.mp4')
 
 kb_of() { if [ -e "$1" ]; then du -sk "$1" 2>/dev/null | cut -f1; else echo 0; fi; }
 tree_kb() {
@@ -181,15 +217,15 @@ if [ -d "$LIVE" ]; then
   fi
 
   step "Backing up the current tree"
-  rsync -a --exclude '.git' --exclude 'node_modules' "${BUILT_EXCLUDES[@]}" "$LIVE"/ "$BACKUP"/
+  rsync -a --exclude '.git' --exclude 'node_modules' "${BUILT_EXCLUDES[@]}" "${KEEP_EXCLUDES[@]}" "$LIVE"/ "$BACKUP"/
   echo "  $BACKUP"
 
   step "Updating the tree, keeping .git and node_modules"
-  rsync -a --delete --exclude '.git' --exclude 'node_modules' "${BUILT_EXCLUDES[@]}" "$NEW"/ "$LIVE"/
+  rsync -a --delete --exclude '.git' --exclude 'node_modules' "${BUILT_EXCLUDES[@]}" "${KEEP_EXCLUDES[@]}" "$NEW"/ "$LIVE"/
 else
   step "No tree at $LIVE yet, creating it"
   mkdir -p "$LIVE"
-  rsync -a --exclude '.git' --exclude 'node_modules' "${BUILT_EXCLUDES[@]}" "$NEW"/ "$LIVE"/
+  rsync -a --exclude '.git' --exclude 'node_modules' "${BUILT_EXCLUDES[@]}" "${KEEP_EXCLUDES[@]}" "$NEW"/ "$LIVE"/
 fi
 cd "$LIVE"
 
@@ -317,6 +353,15 @@ else
 fi
 rm -f "$RULES_LOG"
 
+step "Capping how many Hosting versions Firebase keeps"
+# Firebase keeps every version ever deployed, for ever, by default, and storage
+# is the sum of all of them. On 13 Oct 2026 this project was at 9.73 GB of the
+# 10 GB that is free, from twenty copies of a 480 MB bundle nobody downloaded.
+# Set here, from the service account already in the environment, on every ship,
+# so a change made in the console cannot survive the next release. Never stops
+# a release: the build has already bounded the bundle.
+node scripts/hosting-retention.js || true
+
 step "Deploying the admin panel and the API to Firebase"
 # The admin panel is used at pfa-new-website.web.app, which is Firebase
 # Hosting and the Cloud Function in functions/, not Vercel. Until 8 Oct 2026
@@ -324,6 +369,11 @@ step "Deploying the admin panel and the API to Firebase"
 # the panel kept running whatever was last deployed to Firebase by hand: that
 # morning it was still showing "Mailbox could not be read: Command failed"
 # from code the site had already replaced. Now one ship updates both.
+#
+# `--only hosting` deploys the whole of public/, which is why what goes into
+# public/ matters so much: see the note at the top of firebase.json. It is the
+# panel and the files the panel loads, and no other page.
+#
 # The site is already pushed by this point; if Firebase refuses twice, that is
 # said plainly with the one command to finish, and nothing else is undone.
 FB_LOG="$(mktemp)"
