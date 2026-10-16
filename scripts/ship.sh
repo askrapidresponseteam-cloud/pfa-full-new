@@ -184,6 +184,11 @@ BUILT_EXCLUDES=(--exclude '/public' --exclude '/functions/node_modules' --exclud
 # The test that holds this is test/ship-script.test.js. Anything added to the
 # repository that is not in the zip belongs in this list on the same day.
 KEEP_EXCLUDES=(--exclude '/resources' --exclude '/media/site/campaign' --exclude '/media/site/campus' --exclude '/media/site/sgacc' --exclude '/test/fixtures/library' --exclude '/media/cinekind-2026/reels/*.mp4')
+# The same paths as git understands them. KEEP_EXCLUDES stops rsync deleting
+# them from the live tree; KEEP_PATHS stops git deleting them from GitHub,
+# which is a different hole and the one that actually swallowed the library on
+# 16 Oct 2026. See the guard below `git add -A`.
+KEEP_PATHS=(resources media/site/campaign media/site/campus media/site/sgacc test/fixtures/library media/cinekind-2026/reels)
 
 kb_of() { if [ -e "$1" ]; then du -sk "$1" 2>/dev/null | cut -f1; else echo 0; fi; }
 tree_kb() {
@@ -257,6 +262,31 @@ if ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "  new repository (the previous .git did not come across); it is placed on top of GitHub's history below"
 fi
 git add -A
+
+# Never commit the removal of protected content.
+#
+# 16 Oct 2026, and the reason this guard exists in two places now. The rsync
+# guard above stops --delete emptying the live tree. It does nothing when the
+# live tree never had the content: this tree is assembled from the zip, the zip
+# does not carry the library, and so `git add -A` staged 59 deletions against
+# GitHub and the push carried them. main lost 302 MB of PDFs, every reading
+# copy, the campaign, campus and SGACC photographs and the reels' videos, and
+# every download on library.html turned into a 404 until they were restored
+# from history.
+#
+# So the test is not "did rsync keep it" but "is this commit about to delete
+# something GitHub has and this tree does not". Any such deletion is unstaged
+# and the file is put back from GitHub, which is the only copy that is
+# certainly complete.
+if git rev-parse -q --verify origin/main >/dev/null 2>&1 || git fetch -q origin main 2>/dev/null; then
+  RESCUED="$(git diff --cached --diff-filter=D -z --name-only -- "${KEEP_PATHS[@]}" 2>/dev/null | tr -d -c '\0' | wc -c | tr -d ' ')"
+  if [ "${RESCUED:-0}" -gt 0 ]; then
+    git diff --cached --diff-filter=D -z --name-only -- "${KEEP_PATHS[@]}" 2>/dev/null \
+      | xargs -0 -r git checkout origin/main -- 2>/dev/null || true
+    echo "  kept $RESCUED file(s) GitHub has that this tree does not: the zip does not carry them, and a release must not delete them"
+  fi
+fi
+
 if git diff --cached --quiet; then
   echo "  nothing changed"
 else

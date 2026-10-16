@@ -310,3 +310,83 @@ test('everything KEEP_EXCLUDES names is really in the repository', whenResources
       `${rel} is guarded but not in the tree: either it was removed, or this guard is stale`);
   }
 });
+
+/* ---- the deletion the rsync guard did not cover -------------------------
+   16 Oct 2026. KEEP_EXCLUDES stopped `rsync --delete` emptying the live tree,
+   and the ship still deleted the library from GitHub. The guard was on the
+   wrong half of the path: the live tree is assembled from the zip, the zip
+   does not carry the library, so the content was never there to be deleted.
+   `git add -A` staged 59 deletions against GitHub and the push carried them.
+   main lost 302 MB of PDFs, every reading copy, the campaign, campus and
+   SGACC photographs and the reels' videos; every download on library.html
+   became a 404 until they were restored from history.
+
+   So the question a release must answer is not "did rsync keep it" but "is
+   this commit about to delete something GitHub has and this tree does not".
+   This runs the script's own guard against real repositories. */
+
+function keepStep() {
+  const from = ship.indexOf('# Never commit the removal of protected content.');
+  const to = ship.indexOf('if git diff --cached --quiet; then');
+  assert.ok(from > 0 && to > from, 'the guard after `git add -A` is where it was');
+  return ship.slice(from, to);
+}
+
+function keepPaths() {
+  const line = ship.split('\n').find((l) => l.startsWith('KEEP_PATHS=(')) || '';
+  return line.replace(/^KEEP_PATHS=\(|\)$/g, '').trim().split(/\s+/).filter(Boolean);
+}
+
+test('KEEP_PATHS covers everything KEEP_EXCLUDES protects', () => {
+  const excl = ship.split('\n').find((l) => l.startsWith('KEEP_EXCLUDES=(')) || '';
+  const named = [...excl.matchAll(/--exclude '\/([^']+)'/g)].map((m) => m[1].replace(/\/\*\.[a-z0-9]+$/i, ''));
+  const paths = keepPaths();
+  for (const rel of named) {
+    assert.ok(paths.includes(rel), `${rel} is protected from rsync but not from git: that is the hole that lost the library`);
+  }
+});
+
+test('a release never commits the deletion of content only GitHub has', { skip: !hasGit() }, () => {
+  const { dir, git, remote } = sandbox();
+
+  /* GitHub carries the library; nothing else does. */
+  const seed = path.join(dir, 'seed2');
+  git(dir, 'clone', '-q', remote, seed);
+  fs.mkdirSync(path.join(seed, 'resources'), { recursive: true });
+  fs.writeFileSync(path.join(seed, 'resources', 'PCA Act, 1960.pdf'), 'pretend pdf');
+  fs.writeFileSync(path.join(seed, 'resources', 'another.pdf'), 'pretend pdf 2');
+  fs.mkdirSync(path.join(seed, 'test', 'fixtures', 'library'), { recursive: true });
+  fs.writeFileSync(path.join(seed, 'test', 'fixtures', 'library', 'fixture.json'), '{}');
+  git(seed, 'add', '-A'); git(seed, 'commit', '-q', '-m', 'the library');
+  git(seed, 'push', '-q', 'origin', 'HEAD:main');
+
+  /* The live tree, as a zip leaves it: everything but the library. */
+  const live = path.join(dir, 'PFA_Website');
+  git(dir, 'clone', '-q', remote, live);
+  fs.rmSync(path.join(live, 'resources'), { recursive: true, force: true });
+  fs.rmSync(path.join(live, 'test', 'fixtures', 'library'), { recursive: true, force: true });
+  fs.writeFileSync(path.join(live, 'index.html'), 'v1.424');
+
+  const script = [
+    'set -euo pipefail',
+    'step() { echo "== $1"; }',
+    `KEEP_PATHS=(${keepPaths().join(' ')})`,
+    'git add -A',
+    keepStep(),
+    'git commit -q -m "v1.424: a release from a zip"',
+    'git push -q origin HEAD:main'
+  ].join('\n');
+  const out = execFileSync('bash', ['-c', script], { cwd: live, encoding: 'utf8', env: Object.assign({}, process.env, {
+    GIT_AUTHOR_NAME: 'T', GIT_AUTHOR_EMAIL: 't@pfa.test', GIT_COMMITTER_NAME: 'T', GIT_COMMITTER_EMAIL: 't@pfa.test', GIT_TERMINAL_PROMPT: '0'
+  }) });
+
+  const onGitHub = git(dir, '--git-dir', remote, 'ls-tree', '-r', '--name-only', 'main').split('\n');
+  assert.ok(onGitHub.includes('resources/PCA Act, 1960.pdf'), 'a PDF with a space in its name survived');
+  assert.ok(onGitHub.includes('resources/another.pdf'), 'the library survived the release');
+  assert.ok(onGitHub.includes('test/fixtures/library/fixture.json'), 'the fixtures survived');
+  assert.match(out, /kept 3 file\(s\)/, 'and the ship said so rather than doing it silently');
+
+  /* the release itself still lands */
+  const head = git(dir, '--git-dir', remote, 'show', 'main:index.html');
+  assert.equal(head, 'v1.424', 'the files that did change still shipped');
+});
