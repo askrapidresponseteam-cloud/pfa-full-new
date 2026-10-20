@@ -445,3 +445,17 @@ test('a tree with no .git and no library ships without deleting the library', { 
   assert.ok(fs.existsSync(path.join(live, 'resources', 'AWBI ULB.pdf')),
     'the live tree gains the file back, so the next ship does not relive this');
 });
+
+test('the zip carries everything the tests read, because ship.sh runs them from the unpacked zip', () => {
+  /* 21 Oct 2026: v1.427's ship stopped at five library tests. make-zip.sh left
+     out test/fixtures/library, four PDFs of 28 KB the extraction tests read,
+     and ship.sh runs the suite inside the unpacked zip before touching
+     anything, so a build that was green in the repository could not ship.
+     Large content may stay out of the zip only when every test that reads it
+     skips without it (resources/, the reels); the suite's own files never. */
+  const zip = fs.readFileSync(path.join(ROOT, 'scripts', 'make-zip.sh'), 'utf8');
+  const excluded = [...zip.matchAll(/--exclude='\.\/([^']+)'/g)].map((m) => m[1]);
+  assert.ok(excluded.length > 0, 'make-zip.sh no longer lists its exclusions where this test reads them');
+  const intoTests = excluded.filter((p) => p === 'test' || p.startsWith('test/'));
+  assert.deepEqual(intoTests, [], 'the zip leaves out files the suite needs');
+});
