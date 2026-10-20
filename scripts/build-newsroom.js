@@ -127,31 +127,61 @@ const ONERROR = 'onerror="var t=this.closest(\'[data-tile]\');if(t)t.setAttribut
 /* A report on another site opens in a new tab, without handing it this page. */
 const rel = (st) => (/^https:\/\//.test(st.link.href) ? ' target="_blank" rel="noopener noreferrer external"' : '');
 
+/* A story's date, set once (20 Oct 2026). The cards and tiles used to print
+   it twice: the large numerals for the eye, marked aria-hidden, and again in
+   small type at the foot as the <time>. Now the large numerals are the
+   <time>, carrying the full date for a screen reader, and the foot carries
+   only the source. A story with a photograph has no large numerals, so its
+   date stays at the foot. */
+function dateOf(d, iso, cls) {
+  return `<time class="${cls}" datetime="${esc(iso)}"><span aria-hidden="true">${dmy(d)}</span><span class="nr-vh">${esc(long(d))}</span></time>`;
+}
+
+/* The columns a desk is set in on a wide screen. Up to four stories share the
+   row between them, so a desk never sits on the left with empty columns
+   beside it (owner, 20 Oct 2026: "why is it at the left"). Beyond four, three
+   or four columns, whichever leaves the last row fuller, preferring four. */
+function columnsFor(n) {
+  if (n <= 4) return Math.max(1, n);
+  const empty = (c) => (c - (n % c)) % c;
+  return empty(3) < empty(4) ? 3 : 4;
+}
+
 function tile(st, size) {
   const d = parseDate(st.date);
   const H = size === 'lead' ? 'h2' : 'h3';
   const tag = `<span class="nr-tag" data-desk="${esc(st.desk)}">${esc(st.tag || DESKS[st.desk].tag)}</span>`;
-  const meta = `<p class="nr-tile__meta"><span>${esc(st.image ? st.place : (st.from || st.place))}</span><time datetime="${esc(st.date)}">${esc(long(d))}</time>${st.status ? `<span>${esc(st.status)}</span>` : ''}</p>`;
+  const when = st.image ? `<time datetime="${esc(st.date)}">${esc(long(d))}</time>` : '';
+  const meta = `<p class="nr-tile__meta"><span>${esc(st.image ? st.place : (st.from || st.place))}</span>${when}${st.status ? `<span>${esc(st.status)}</span>` : ''}</p>`;
   const title = `<${H} class="nr-tile__title"><a class="nr-tile__link" href="${esc(st.link.href)}"${rel(st)}>${esc(st.title)}</a></${H}>`;
   if (st.image) {
     const loading = size === 'lead' ? 'fetchpriority="high"' : 'loading="lazy"';
     return `<article class="nr-tile nr-tile--${size} nr-tile--photo" data-tile><figure class="nr-tile__img" data-shot><img src="${esc(st.image.src)}" alt="${esc(st.image.alt)}" ${loading} decoding="async" ${ONERROR}></figure><div class="nr-tile__body">${tag}${title}${meta}</div></article>`;
   }
-  return `<article class="nr-tile nr-tile--${size} nr-tile--text" data-tile><p class="nr-tile__date" aria-hidden="true">${dmy(d)}</p><div class="nr-tile__body">${tag}${title}${meta}</div></article>`;
+  return `<article class="nr-tile nr-tile--${size} nr-tile--text" data-tile>${dateOf(d, st.date, 'nr-tile__date')}<div class="nr-tile__body">${tag}${title}${meta}</div></article>`;
 }
 
-function card(st) {
+/* In a desk that carries any photograph, a story without one has its date
+   set as type in the same frame a photograph takes. The cards in a row share
+   their row heights, so a plain date beside a photograph left a hole the
+   photograph's height under it (CineKind, 20 Oct 2026). Set in type, never
+   given a stand-in picture. */
+function card(st, typeset) {
   const d = parseDate(st.date);
+  const framed = Boolean(st.image) || typeset;
   const top = st.image
     ? `<figure class="nr-card__img" data-shot><img src="${esc(st.image.src)}" alt="${esc(st.image.alt)}" loading="lazy" decoding="async" ${ONERROR}></figure>`
-    : `<p class="nr-card__date" aria-hidden="true">${dmy(d)}</p>`;
+    : typeset
+      ? `<div class="nr-card__img nr-card__type">${dateOf(d, st.date, 'nr-card__date')}</div>`
+      : dateOf(d, st.date, 'nr-card__date');
+  const when = st.image ? `<time datetime="${esc(st.date)}">${esc(long(d))}</time>` : '';
   return [
-    `<li class="nr-card${st.image ? ' nr-card--photo' : ''}" data-tile>`,
+    `<li class="nr-card${framed ? ' nr-card--photo' : ''}" data-tile>`,
     top,
     `<p class="nr-card__from"><span class="nr-tag" data-desk="${esc(st.desk)}">${esc(st.tag || DESKS[st.desk].tag)}</span><span>${esc(st.from || st.place)}</span></p>`,
     `<h3 class="nr-card__title"><a href="${esc(st.link.href)}"${rel(st)}>${esc(st.title)}</a></h3>`,
     `<p class="nr-card__dek">${esc(st.dek)}</p>`,
-    `<p class="nr-card__meta"><time datetime="${esc(st.date)}">${esc(long(d))}</time><span class="nr-card__more">${esc(st.link.label)}</span></p>`,
+    `<p class="nr-card__meta">${when}<span class="nr-card__more">${esc(st.link.label)}</span></p>`,
     '</li>'
   ].join('\n');
 }
@@ -181,7 +211,7 @@ function render(page, data) {
     desks.map((g) => [
       `<section class="nr-desk" id="desk-${g.id}" aria-labelledby="desk-${g.id}-title">`,
       `<div class="nr-desk__head"><h2 class="nr-desk__title" id="desk-${g.id}-title">${esc(g.title)}</h2><p class="nr-desk__count">${g.items.length} ${g.items.length === 1 ? 'story' : 'stories'}</p></div>`,
-      `<ol class="nr-cards">\n${g.items.map(card).join('\n')}\n</ol>`,
+      `<ol class="nr-cards" data-cols="${columnsFor(g.items.length)}">\n${g.items.map((st) => card(st, g.items.some((x) => x.image))).join('\n')}\n</ol>`,
       '</section>'
     ].join('\n')).join('\n'),
     hasCase ? '<div class="nr-desk nr-desk--file" id="case-file"><div class="nr-desk__head"><h2 class="nr-desk__title">Case file</h2><p class="nr-desk__count">Case 001, in full</p></div></div>' : '',
@@ -218,4 +248,5 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { DESKS, GROUPS, validate, render, parseDate, newestFirst };
+module.exports = {
+  columnsFor, DESKS, GROUPS, validate, render, parseDate, newestFirst };

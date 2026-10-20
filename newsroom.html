@@ -95,6 +95,10 @@
 html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 a:hover{opacity:.65}
+/* A story's whole card is its title's link, so the page-wide fade above
+   greyed only the title of whichever card the pointer rested on, which read
+   as a disabled story. The underline says hover; the colour stays. */
+.nr-card__title a:hover,.nr-tile__link:hover{opacity:1}
 img,svg{display:block}
 ul,ol{margin:0;padding:0;list-style:none}
 ::selection{background:var(--accent);color:#fff}
@@ -237,6 +241,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .nr-mast{padding:calc(var(--ann) + var(--nav) + 72px) var(--nr-gutter) 0;text-align:center}
 .nr-title{margin:0;font-family:var(--nr-display);font-weight:400;font-size:clamp(50px,9.6vw,140px);line-height:.84;letter-spacing:.02em;text-transform:uppercase;color:var(--nr-ink)}
 .nr-strap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 28px;margin:clamp(16px,2.2vw,28px) 0 0;padding:12px 0;border-top:1px solid var(--nr-ink);font-size:12px;letter-spacing:.07em;text-transform:uppercase}
+.nr-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .nr-desks{display:flex;flex-wrap:wrap;gap:6px 26px}
 .nr-desks a{color:var(--nr-ink);text-decoration:none;text-underline-offset:4px}
 .nr-desks a:hover{text-decoration:underline}
@@ -246,7 +251,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .nr-front__side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:8px;min-height:0}
 .nr-front[data-count="2"] .nr-front__side{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 .nr-front[data-count="3"] .nr-front__side{grid-template-columns:minmax(0,1fr)}
-.nr-tile{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:0;overflow:hidden;background:var(--nr-tint);color:var(--nr-ink)}
+.nr-tile{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:0;overflow:hidden;background:var(--nr-tint);color:var(--nr-ink);container-type:inline-size}
 .nr-tile--lead{min-height:clamp(420px,calc(100vh - 400px),520px)}
 .nr-tile--wide{grid-column:1 / 3}
 .nr-tile--small .nr-tile__title{font-size:clamp(20px,1.7vw,26px)}
@@ -256,7 +261,14 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .nr-tile--photo .nr-tile__body{padding:64px 22px 20px;color:#fff;background:linear-gradient(to top,rgba(0,0,0,.84),rgba(0,0,0,.52) 58%,rgba(0,0,0,0))}
 .nr-tile--photo[data-noimg] .nr-tile__body{color:var(--nr-ink);background:none}
 .nr-tile--text{justify-content:space-between}
-.nr-tile__date{margin:0;padding:20px 20px 0;font-family:var(--nr-display);font-size:clamp(34px,3vw,46px);line-height:.9;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+/* The large dates (20 Oct 2026). They were sized to the window, 3vw up to
+   46px, and allowed to wrap, so in one row of equal cards "13 01 2026" fitted
+   on one line and "27 06 2026" broke onto two. Marcellus has no tabular
+   figures, whatever font-variant-numeric asks for: its 0 is 0.81em wide and
+   its 1 is 0.30em, so dates of the same length differ by half an em. Now a
+   date never wraps, and is sized to its own card, against the widest date the
+   font can set, 04 04 2000 at 6.31em; 6.5 leaves room for the tracking. */
+.nr-tile__date{display:block;margin:0;padding:20px 20px 0;font-family:var(--nr-display);font-size:min(46px,calc((100cqi - 40px) / 6.5));line-height:1;letter-spacing:.01em;white-space:nowrap}
 .nr-tag{display:inline-block;padding:5px 8px 4px;background:var(--nr-ink);color:#fff;font-size:10.5px;letter-spacing:.12em;line-height:1;text-transform:uppercase;white-space:nowrap}
 .nr-tag[data-desk="case"]{background:var(--nr-pop);color:#111}
 .nr-tag[data-desk="cinekind"]{background:#fff;color:#111}
@@ -267,23 +279,58 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .nr-tile__link:hover,.nr-card__title a:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}
 .nr-tile:focus-within,.nr-card:focus-within,.nr-desks a:focus-visible{outline:3px solid #2634f5;outline-offset:2px}
 .nr-tile__meta,.nr-card__meta{display:flex;flex-wrap:wrap;gap:4px 14px;margin:12px 0 0;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;font-variant-numeric:tabular-nums}
-.nr-desk{padding:clamp(48px,6vw,84px) var(--nr-gutter) 0}
+.nr-desk{padding:clamp(48px,6vw,84px) var(--nr-gutter) 0;container:nr-desk / inline-size}
 .nr-desk__head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin:0 0 18px;padding-top:14px;border-top:1px solid var(--nr-ink)}
 .nr-desk__title{margin:0;font-family:var(--nr-display);font-weight:400;text-transform:uppercase;font-size:clamp(28px,2.8vw,42px);line-height:1}
 .nr-desk__count{margin:0;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--nr-muted);font-variant-numeric:tabular-nums}
 .nr-desk--file{padding-bottom:6px}
-.nr-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;margin:0;padding:0;list-style:none}
+/* A desk fills its row (20 Oct 2026). auto-fill kept every column that would
+   fit even with nothing to put in it: four stories in five columns at a
+   1440px measure, 292px of nothing on the right, and CineKind's two stories
+   in five, 875px of it. scripts/build-newsroom.js now writes data-cols, the
+   columns a desk takes on a wide screen; two on a tablet, the last card of
+   an odd count running across both; one on a phone. */
+.nr-cards{--cols:1;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:18px;margin:0;padding:0;list-style:none}
+@container nr-desk (min-width:620px){
+  .nr-cards{--cols:2}
+  .nr-cards[data-cols="1"]{--cols:1}
+  .nr-cards>:last-child:nth-child(odd){grid-column:1 / -1}
+}
+@container nr-desk (min-width:1000px){
+  .nr-cards>:last-child:nth-child(odd){grid-column:auto}
+  .nr-cards[data-cols="3"]{--cols:3}
+  .nr-cards[data-cols="4"]{--cols:4}
+}
 .nr-card{position:relative;display:flex;flex-direction:column;min-height:300px;padding:20px;background:var(--nr-tint)}
 .nr-card--photo{padding-top:0}
-.nr-card__img{margin:0 -20px 16px;aspect-ratio:16 / 10;overflow:hidden;background:#dfe3ea}
+/* The frame's height is worked out from its width, the card's inner width
+   plus the 20px it bleeds each side, at 16:10, and capped. aspect-ratio with a
+   max-height looked equivalent and was not: once the cap bit, Chrome kept the
+   ratio by narrowing the frame instead, 704px in a 711px card. */
+.nr-card__img{margin:0 -20px 16px;height:min(400px,calc((var(--inner) + 40px) * 10 / 16));overflow:hidden;background:#dfe3ea}
 .nr-card__img img{display:block;width:100%;height:100%;object-fit:cover}
 .nr-card[data-noimg]{padding-top:20px}
-.nr-card__date{margin:0;font-family:var(--nr-display);font-size:clamp(34px,3vw,46px);line-height:.95;font-variant-numeric:tabular-nums}
-.nr-card__from{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:14px 0 0;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--nr-muted)}
+/* Sized from the desk, not the card. A card cannot be its own size container:
+   that applies layout containment, and a contained element is never a
+   subgrid, so the shared rows that line up every title in a row switch off
+   (found 20 Oct 2026, with the titles 34px apart at 1280px). So the card's
+   inner width is worked out from the desk's (100cqi of nr-desk), its column
+   count and the 18px gap, less the card's 40px of padding. */
+.nr-card{--inner:calc((100cqi - (var(--cols) - 1) * 18px) / var(--cols) - 40px)}
+.nr-card__date{display:block;margin:0;font-family:var(--nr-display);font-size:min(46px,calc(var(--inner) / 6.5));line-height:1;white-space:nowrap}
+/* A story with no photograph, in a desk that has them: its date set as type in
+   the frame a photograph takes, so the row's tags and titles line up and no
+   card carries a hole a photograph's height under its date. */
+.nr-card__type{display:flex;align-items:flex-end;padding:0 20px 18px;background:var(--nr-ink);color:#fff}
+.nr-card__type .nr-card__date{font-size:min(88px,calc(var(--inner) / 6.5))}
+/* The tag above the source, in every card. It sat beside the source when they
+   fitted and above it when they did not, and centred in the row the cards
+   share, so a short source rode lower than its neighbours. */
+.nr-card__from{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;margin:14px 0 0;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--nr-muted)}
 .nr-card__title{margin:22px 0 0;font-family:var(--nr-body);font-size:17px;font-weight:700;line-height:1.25}
 .nr-card__title a{color:var(--nr-ink);text-decoration:none}
-.nr-card__dek{margin:8px 0 0;font-size:14px;line-height:1.5;color:#333}
-.nr-card__meta{justify-content:space-between;margin-top:auto;padding-top:16px;color:var(--nr-muted)}
+.nr-card__dek{margin:8px 0 0;max-width:62ch;font-size:14px;line-height:1.5;color:#333}
+.nr-card__meta{flex-direction:column;align-items:flex-start;gap:6px;margin-top:auto;padding-top:16px;color:var(--nr-muted)}
 .nr-card__more{color:var(--nr-ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
 /* Where subgrid is supported, cards in one row share their row tracks, so a
    two-line issuer never pushes one headline below its neighbours'. */
@@ -558,52 +605,52 @@ if (root.document && root.document.head) apply(read());
 <article class="nr-tile nr-tile--lead nr-tile--photo" data-tile><figure class="nr-tile__img" data-shot><img src="img/cinekind-landing.webp" alt="The CineKind trophy" fetchpriority="high" decoding="async" onerror="var t=this.closest('[data-tile]');if(t)t.setAttribute('data-noimg','');var f=this.closest('[data-shot]');if(f)f.remove()"></figure><div class="nr-tile__body"><span class="nr-tag" data-desk="cinekind">CineKind</span><h2 class="nr-tile__title"><a class="nr-tile__link" href="cinekind.html#honours-2026">CineKind 2026: eleven honours presented in Mumbai</a></h2><p class="nr-tile__meta"><span>Mumbai</span><time datetime="2026-10-04">4 October 2026</time></p></div></article>
 <div class="nr-front__side">
 <article class="nr-tile nr-tile--small nr-tile--photo" data-tile><figure class="nr-tile__img" data-shot><img src="img/case-001-protest.webp" alt="The protest at the gates: rows of people on the campus steps holding placards for the dogs" loading="lazy" decoding="async" onerror="var t=this.closest('[data-tile]');if(t)t.setAttribute('data-noimg','');var f=this.closest('[data-shot]');if(f)f.remove()"></figure><div class="nr-tile__body"><span class="nr-tag" data-desk="case">Case 001</span><h3 class="nr-tile__title"><a class="nr-tile__link" href="#case-001">Removed for a VIP visit. Returned by a city.</a></h3><p class="nr-tile__meta"><span>Chandigarh</span><time datetime="2026-08-08">8 August 2026</time><span>Resolved</span></p></div></article>
-<article class="nr-tile nr-tile--small nr-tile--text" data-tile><p class="nr-tile__date" aria-hidden="true">07 08 2026</p><div class="nr-tile__body"><span class="nr-tag" data-desk="work">Wildlife</span><h3 class="nr-tile__title"><a class="nr-tile__link" href="https://www.etvbharat.com/en/bharat/pfa-rescued-treated-and-released-over-52000-wild-animals-awareness-key-to-protecting-bengalurus-urban-wildlife-enn26080702977" target="_blank" rel="noopener noreferrer external">52,401 wild animals rescued, treated and released in Bengaluru</a></h3><p class="nr-tile__meta"><span>PFA Wildlife Hospital, Bengaluru</span><time datetime="2026-08-07">7 August 2026</time></p></div></article>
-<article class="nr-tile nr-tile--wide nr-tile--text" data-tile><p class="nr-tile__date" aria-hidden="true">07 06 2026</p><div class="nr-tile__body"><span class="nr-tag" data-desk="work">Rescue</span><h3 class="nr-tile__title"><a class="nr-tile__link" href="https://pioneeredge.in/four-donkeys-rescued-from-construction-site-in-doon/" target="_blank" rel="noopener noreferrer external">Four young donkeys rescued from a Dehradun building site</a></h3><p class="nr-tile__meta"><span>PFA Uttarakhand</span><time datetime="2026-06-07">7 June 2026</time></p></div></article>
+<article class="nr-tile nr-tile--small nr-tile--text" data-tile><time class="nr-tile__date" datetime="2026-08-07"><span aria-hidden="true">07 08 2026</span><span class="nr-vh">7 August 2026</span></time><div class="nr-tile__body"><span class="nr-tag" data-desk="work">Wildlife</span><h3 class="nr-tile__title"><a class="nr-tile__link" href="https://www.etvbharat.com/en/bharat/pfa-rescued-treated-and-released-over-52000-wild-animals-awareness-key-to-protecting-bengalurus-urban-wildlife-enn26080702977" target="_blank" rel="noopener noreferrer external">52,401 wild animals rescued, treated and released in Bengaluru</a></h3><p class="nr-tile__meta"><span>PFA Wildlife Hospital, Bengaluru</span></p></div></article>
+<article class="nr-tile nr-tile--wide nr-tile--text" data-tile><time class="nr-tile__date" datetime="2026-06-07"><span aria-hidden="true">07 06 2026</span><span class="nr-vh">7 June 2026</span></time><div class="nr-tile__body"><span class="nr-tag" data-desk="work">Rescue</span><h3 class="nr-tile__title"><a class="nr-tile__link" href="https://pioneeredge.in/four-donkeys-rescued-from-construction-site-in-doon/" target="_blank" rel="noopener noreferrer external">Four young donkeys rescued from a Dehradun building site</a></h3><p class="nr-tile__meta"><span>PFA Uttarakhand</span></p></div></article>
 </div>
 </div>
 <section class="nr-desk" id="desk-work" aria-labelledby="desk-work-title">
 <div class="nr-desk__head"><h2 class="nr-desk__title" id="desk-work-title">For the animals</h2><p class="nr-desk__count">4 stories</p></div>
-<ol class="nr-cards">
+<ol class="nr-cards" data-cols="4">
 <li class="nr-card" data-tile>
-<p class="nr-card__date" aria-hidden="true">27 06 2026</p>
+<time class="nr-card__date" datetime="2026-06-27"><span aria-hidden="true">27 06 2026</span><span class="nr-vh">27 June 2026</span></time>
 <p class="nr-card__from"><span class="nr-tag" data-desk="work">Welfare</span><span>PFA Public Policy Foundation</span></p>
 <h3 class="nr-card__title"><a href="https://garhwalpost.in/uttarakhand-pioneers-scientific-high-welfare-pig-farming-with-model-demonstration-unit/" target="_blank" rel="noopener noreferrer external">A high-welfare pig housing model opens in Rishikesh</a></h3>
 <p class="nr-card__dek">Built by the People for Animals Public Policy Foundation with Uttarakhand’s Animal Husbandry Department at Pashulok, the unit shows group housing and cage-free farrowing with room to nest, so that pigs can move freely and live healthier, calmer lives.</p>
-<p class="nr-card__meta"><time datetime="2026-06-27">27 June 2026</time><span class="nr-card__more">Read in Garhwal Post</span></p>
+<p class="nr-card__meta"><span class="nr-card__more">Read in Garhwal Post</span></p>
 </li>
 <li class="nr-card" data-tile>
-<p class="nr-card__date" aria-hidden="true">18 02 2026</p>
+<time class="nr-card__date" datetime="2026-02-18"><span aria-hidden="true">18 02 2026</span><span class="nr-vh">18 February 2026</span></time>
 <p class="nr-card__from"><span class="nr-tag" data-desk="work">Wildlife</span><span>People for Animals, Chandigarh</span></p>
 <h3 class="nr-card__title"><a href="https://www.tribuneindia.com/news/chandigarh/city-man-caught-with-protected-species-of-turtle/" target="_blank" rel="noopener noreferrer external">A protected Indian roofed turtle saved from sale in Chandigarh</a></h3>
 <p class="nr-card__dek">On a People for Animals complaint, police and the Forest and Wildlife Department stopped the sale of an Indian roofed turtle, a Schedule I species, registered an FIR under the Wildlife (Protection) Act and placed the turtle in the Department’s care.</p>
-<p class="nr-card__meta"><time datetime="2026-02-18">18 February 2026</time><span class="nr-card__more">Read in The Tribune</span></p>
+<p class="nr-card__meta"><span class="nr-card__more">Read in The Tribune</span></p>
 </li>
 <li class="nr-card" data-tile>
-<p class="nr-card__date" aria-hidden="true">13 01 2026</p>
+<time class="nr-card__date" datetime="2026-01-13"><span aria-hidden="true">13 01 2026</span><span class="nr-vh">13 January 2026</span></time>
 <p class="nr-card__from"><span class="nr-tag" data-desk="work">Birds</span><span>PFA Wildlife Hospital, Bengaluru</span></p>
 <h3 class="nr-card__title"><a href="https://thebetterindia.com/wildlife/people-for-animals-wildlife-hospital-bengaluru-treating-and-rescue-rehabilitation-of-birds-manjha-related-kite-injuries-10995687" target="_blank" rel="noopener noreferrer external">Birds hurt by kite string, flying again within days</a></h3>
 <p class="nr-card__dek">Over Sankranti, PFA’s wildlife hospital in Bengaluru treated birds cut by manja. A feather bank covering 32 species lets its vets replace damaged flight feathers, so a bird that once needed months to recover can fly again in days.</p>
-<p class="nr-card__meta"><time datetime="2026-01-13">13 January 2026</time><span class="nr-card__more">Read in The Better India</span></p>
+<p class="nr-card__meta"><span class="nr-card__more">Read in The Better India</span></p>
 </li>
 <li class="nr-card" data-tile>
-<p class="nr-card__date" aria-hidden="true">18 12 2024</p>
+<time class="nr-card__date" datetime="2024-12-18"><span aria-hidden="true">18 12 2024</span><span class="nr-vh">18 December 2024</span></time>
 <p class="nr-card__from"><span class="nr-tag" data-desk="work">Rescue</span><span>PFA and HSI/India</span></p>
 <h3 class="nr-card__title"><a href="https://www.humaneworld.org/en/news/nearly-400-animals-rescued-hsiindia-and" target="_blank" rel="noopener noreferrer external">Over 400 animals saved from the Gadhimai sacrifice given lifelong homes</a></h3>
 <p class="nr-card__dek">With the Sashastra Seema Bal and the Bihar government, PFA and Humane Society International/India stopped animals being taken across the border for the festival. 347 goats and 74 buffaloes were rehomed, including at PFA Uttarakhand’s Happy Home Sanctuary.</p>
-<p class="nr-card__meta"><time datetime="2024-12-18">18 December 2024</time><span class="nr-card__more">Read the report</span></p>
+<p class="nr-card__meta"><span class="nr-card__more">Read the report</span></p>
 </li>
 </ol>
 </section>
 <section class="nr-desk" id="desk-cinekind" aria-labelledby="desk-cinekind-title">
 <div class="nr-desk__head"><h2 class="nr-desk__title" id="desk-cinekind-title">CineKind</h2><p class="nr-desk__count">2 stories</p></div>
-<ol class="nr-cards">
-<li class="nr-card" data-tile>
-<p class="nr-card__date" aria-hidden="true">11 09 2026</p>
+<ol class="nr-cards" data-cols="2">
+<li class="nr-card nr-card--photo" data-tile>
+<div class="nr-card__img nr-card__type"><time class="nr-card__date" datetime="2026-09-11"><span aria-hidden="true">11 09 2026</span><span class="nr-vh">11 September 2026</span></time></div>
 <p class="nr-card__from"><span class="nr-tag" data-desk="cinekind">CineKind</span><span>Mumbai</span></p>
 <h3 class="nr-card__title"><a href="cinekind.html">CineKind’s second edition announced in Mumbai</a></h3>
 <p class="nr-card__dek">Maneka Gandhi, with the Film Federation of India's Abhay Sinha and Sandeep Marwah, announced the 2026 honours and called on cinema to become a voice for animals, since what audiences watch on screen shapes how they treat them.</p>
-<p class="nr-card__meta"><time datetime="2026-09-11">11 September 2026</time><span class="nr-card__more">About CineKind</span></p>
+<p class="nr-card__meta"><span class="nr-card__more">About CineKind</span></p>
 </li>
 <li class="nr-card nr-card--photo" data-tile>
 <figure class="nr-card__img" data-shot><img src="media/cinekind-2025/nitin.webp" alt="Nitin Vemupati, honoured with S. A. Chandrasekhar for Kooran" loading="lazy" decoding="async" onerror="var t=this.closest('[data-tile]');if(t)t.setAttribute('data-noimg','');var f=this.closest('[data-shot]');if(f)f.remove()"></figure>
