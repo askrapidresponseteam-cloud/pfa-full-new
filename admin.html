@@ -447,6 +447,7 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
           <option value="in-progress">In progress</option>
           <option value="handled">Handled</option>
           <option value="spam">Spam</option>
+          <option value="removed">Removed</option>
         </select>
         <button class="ghost" type="button" id="subGo">Find</button>
         <button class="ghost" type="button" id="subClear">Clear</button>
@@ -552,6 +553,14 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
     <button class="x pfa-close" type="button" id="caseShut">Close</button>
   </header>
   <div class="body" id="caseBody"></div>
+  <!-- A removed record: everything it holds is kept (nothing in this panel
+       deletes), it has simply left every list, count, search and public page.
+       This bar is all it shows in place of the actions, and Restore puts it
+       back exactly where it stood. -->
+  <div class="act" id="caseRemoved" hidden>
+    <p class="lab">Removed from the panel <span class="note" id="caseRemovedBy"></span></p>
+    <button class="ghost" type="button" id="caseRestore" style="width:auto">Restore this record</button>
+  </div>
   <div class="act" id="caseAct" hidden>
     <div class="decide" id="caseDecide" hidden>
       <p class="lab">Decision</p>
@@ -588,6 +597,10 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
            above: that list is about this queue, and most submissions end up
            handled without ever belonging on a public page. -->
       <button class="press" type="button" id="caseWall" style="width:auto" hidden></button>
+      <!-- Last on purpose, and it asks first. Remove is not delete: the
+           record keeps its messages, files and history, and Restore brings
+           it back; it just stops appearing anywhere. -->
+      <button class="ghost" type="button" id="caseRemove" style="width:auto">Remove from the panel</button>
     </div>
     <p class="say" id="caseSay" role="status" aria-live="polite"></p>
   </div>
@@ -2169,7 +2182,13 @@ window.addEventListener('unhandledrejection', function (event) {
     replyFiles(c);
     if (c.kind === 'PFA-CG') { previewCard(c); photoState(c); }
 
-    $('#caseAct').hidden = false;
+    var removed = c.status === 'removed';
+    $('#caseAct').hidden = removed;
+    $('#caseRemoved').hidden = !removed;
+    if (removed) {
+      var r = c.removed || {};
+      $('#caseRemovedBy').textContent = (r.by ? 'by ' + r.by : '') + (r.at ? ', ' + when(r.at) : '') + (r.was ? ' · was ' + statusWord(c, r.was) : '');
+    }
     var decide = $('#caseDecide');
     /* Not on a closed application either (8 Oct 2026): the server refuses
        to issue a card until it is reopened, so the button would only say no. */
@@ -2552,6 +2571,17 @@ window.addEventListener('unhandledrejection', function (event) {
   on('#caseStatus', 'change', function () {
     if (!openCase || !$('#caseStatus').value) return;
     act({ reference: openCase.reference, action: 'status', status: $('#caseStatus').value }, 'Moved.', $('#caseStatus'));
+  });
+
+  /* Remove asks first, in the record's own name, because it acts at once. */
+  on('#caseRemove', 'click', function () {
+    if (!openCase) return;
+    if (!window.confirm('Remove ' + openCase.reference + ' from the panel?\n\nNothing is deleted: it keeps its messages, files and history, and Restore brings it back. It stops appearing in the registers, the counts, search, the public wall and the tracker.')) return;
+    act({ reference: openCase.reference, action: 'remove' }, 'Removed. Restore brings it back.', $('#caseRemove'));
+  });
+  on('#caseRestore', 'click', function () {
+    if (!openCase) return;
+    act({ reference: openCase.reference, action: 'restore' }, 'Restored.', $('#caseRestore'));
   });
 
   on('#refresh', 'click', function () { panesOf(current).filter(paneAllowed).forEach(function (pane) { fill(pane, true); }); });
