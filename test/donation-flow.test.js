@@ -281,7 +281,7 @@ test('a gift goes through the same CCAvenue flow, and the certificate to post is
   const page = await callback(bankSays(sentOut));
   assert.match(page, /Donation successful/);
   assert.match(page, /A gift for/);
-  assert.match(page, /Ravi Menon \(Birthday\)/);
+  assert.ok(page.includes("<span>A gift for</span><strong>Ravi Menon</strong>"), "the name alone, no occasion");
   assert.match(page, /Certificate of Appreciation signed by Smt\. Maneka Sanjay Gandhi, posted to 12 Lake View Road, Indiranagar, Bengaluru, 560038/);
 
   const ref = transaction(sentOut.order_id).donationReference;
@@ -290,7 +290,8 @@ test('a gift goes through the same CCAvenue flow, and the certificate to post is
   assert.equal(record.fields.title, 'Gift of INR 2500 for Ravi Menon, from Asha Kumar');
   assert.equal(record.fields.giftTo, 'Ravi Menon');
   assert.equal(record.fields.giftAddress, '12 Lake View Road, Indiranagar, Bengaluru, 560038');
-  assert.equal(record.fields.giftOccasion, 'Birthday');
+  assert.equal(record.fields.giftOccasion, undefined, 'an occasion an old form still sends is not kept');
+  assert.equal(record.gift.occasion, undefined);
   assert.equal(record.fields.giftEmail, 'ravi@example.com');
   assert.match(record.fields.certificate, /Post a Certificate of Appreciation/);
   assert.equal(record.gift.certificate, 'to post');
@@ -304,7 +305,7 @@ test('a gift goes through the same CCAvenue flow, and the certificate to post is
   assert.match(rows['To do'], /Post a Certificate of Appreciation, signed by Smt\. Maneka Sanjay Gandhi/);
   assert.equal(rows['Certificate for'], 'Ravi Menon');
   assert.equal(rows['Post the certificate to'], '12 Lake View Road, Indiranagar, Bengaluru, 560038');
-  assert.equal(rows['Occasion'], 'Birthday');
+  assert.equal(rows['Occasion'], undefined, 'and is not in PFA\'s copy');
   assert.equal(rows['Digital copy to (if asked)'], 'ravi@example.com');
 
   const receipt = sent.find((m) => m.template === 'payment_received');
@@ -355,23 +356,17 @@ test('the gift is offered on the donate page, linked from every footer, and the 
   const page = fs.readFileSync(path.join(ROOT, 'donate.html'), 'utf8');
   assert.match(page, /data-kind="gift"[^>]*>Give as a gift</);
   assert.match(page, /<fieldset class="giftset" id="giftSet" hidden disabled>/, 'off, and not sent, until a gift is chosen');
-  for (const name of ['gift', 'giftTo', 'giftAddress', 'giftPin', 'giftOccasion', 'giftEmail']) {
+  for (const name of ['gift', 'giftTo', 'giftAddress', 'giftPin', 'giftEmail']) {
     assert.match(page, new RegExp(`name="${name}"`), name);
   }
-  const { GIFT_MIN_INR, GIFT_OCCASIONS } = require('../lib/payment');
+  const { GIFT_MIN_INR, parseGift } = require('../lib/payment');
   assert.match(page, new RegExp(`GIFT_MIN = ${GIFT_MIN_INR}\\b`), 'the page and the server hold the same floor');
-  const offered = [...page.matchAll(/<select id="giftOccasion"[\s\S]*?<\/select>/g)][0][0].match(/<option>([^<]+)<\/option>/g).map((o) => o.replace(/<\/?option>/g, ''));
-  assert.deepEqual([...offered].sort(), [...GIFT_OCCASIONS].sort(), 'every occasion offered is one the server accepts');
-  /* the occasion is optional: nothing chosen is nothing said (owner, 21 Oct
-     2026, of the old default: "what nonsense is just becoz?") */
-  assert.match(page, /<select id="giftOccasion"[^>]*>\s*<option value="">No particular occasion<\/option>/, 'the first choice is no occasion at all');
-  assert.ok(!GIFT_OCCASIONS.includes('Just because'));
-  assert.doesNotMatch(page, /Just because/, 'and the page never offers or prints it');
-  const { parseGift } = require('../lib/payment');
+  /* a gift asks for no occasion (owner, 21 Oct 2026: "let that section not
+     be there.. simply creates confusion.. be sensible"); it once defaulted to
+     "Just because" and showed on the check screen as if chosen */
+  assert.doesNotMatch(page, /giftOccasion|[Oo]ccasion|Just because/, 'no occasion is asked for, offered or printed');
   const base = { gift: 'yes', giftTo: 'Ravi Kumar', giftAddress: '12 MG Road, Bengaluru', giftPin: '560038' };
-  assert.equal(parseGift({ ...base }, 'inr', 1000).occasion, '', 'no occasion sent, none recorded');
-  assert.equal(parseGift({ ...base, giftOccasion: 'Just because' }, 'inr', 1000).occasion, '', 'nor the old default');
-  assert.equal(parseGift({ ...base, giftOccasion: 'Birthday' }, 'inr', 1000).occasion, 'Birthday');
+  assert.deepEqual(Object.keys(parseGift({ ...base, giftOccasion: 'Just because' }, 'inr', 1000)).sort(), ['address', 'email', 'pin', 'to'], 'an old form that still sends one is ignored');
   assert.match(page, /title: gift \? 'Check your gift before you pay' : 'Check your donation before you pay'/, 'a donation is checked as a donation');
   assert.match(fs.readFileSync(path.join(ROOT, 'assets', 'chrome-footer.html'), 'utf8'), /<a href="donate\.html\?gift=1">Make a gift<\/a>/);
   const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
@@ -395,7 +390,7 @@ test('a gift reads plainly and asks one thing per step: amount, who it is for, y
   assert.match(page, /function panes\(\)\{ return gift \? \['#p1', '#pG', '#p2'\]/, 'a gift has its own step');
   const step = page.slice(page.indexOf('<div class="pane" id="pG">'), page.indexOf('<div class="pane" id="p2">'));
   assert.match(step, /id="giftSet"/, 'who it is for is on that step');
-  for (const name of ['gift', 'giftTo', 'giftAddress', 'giftPin', 'giftOccasion', 'giftEmail']) {
+  for (const name of ['gift', 'giftTo', 'giftAddress', 'giftPin', 'giftEmail']) {
     assert.match(step, new RegExp(`name="${name}"[^>]*form="giveForm"`), `${name} still posts with the payment form`);
   }
   assert.match(page, /\['01 Amount', '02 Who it is for', '03 Your details'\]/);

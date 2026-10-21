@@ -758,21 +758,7 @@ if (root.document && root.document.head) apply(read());
             <input type="hidden" name="gift" value="yes" form="giveForm">
             <div class="field"><label for="giftTo">Their name</label><input id="giftTo" name="giftTo" type="text" autocomplete="off" required form="giveForm"><span class="error">Add the name of the person the gift is for.</span><span class="hint">As it should read on the certificate.</span></div>
             <div class="field"><label for="giftAddress">Their postal address</label><input id="giftAddress" name="giftAddress" type="text" autocomplete="off" required form="giveForm"><span class="error">Add the address the certificate should be posted to.</span></div>
-            <div class="field2">
-              <div class="field"><label for="giftPin">PIN code</label><input id="giftPin" name="giftPin" type="text" inputmode="numeric" maxlength="6" autocomplete="off" required form="giveForm"><span class="error">Enter the 6-digit PIN code.</span></div>
-              <div class="field"><label for="giftOccasion">The occasion <small>(optional)</small></label>
-                <select id="giftOccasion" name="giftOccasion" form="giveForm">
-                  <option value="">No particular occasion</option>
-                  <option>Birthday</option>
-                  <option>Anniversary</option>
-                  <option>Wedding</option>
-                  <option>A new baby</option>
-                  <option>Festival</option>
-                  <option>Thank you</option>
-                  <option>In memory</option>
-                </select>
-              </div>
-            </div>
+            <div class="field"><label for="giftPin">PIN code</label><input id="giftPin" name="giftPin" type="text" inputmode="numeric" maxlength="6" autocomplete="off" required form="giveForm"><span class="error">Enter the 6-digit PIN code.</span></div>
             <div class="field"><label for="giftEmail">Their email (optional)</label><input id="giftEmail" name="giftEmail" type="email" autocomplete="off" form="giveForm"><span class="error">Check this email address.</span><span class="hint">For a digital copy of the certificate as well as the one by post.</span></div>
             <button class="btn btn--full" type="button" id="nextGift">Continue</button>
           </fieldset>
@@ -1204,12 +1190,12 @@ if (root.document && root.document.head) apply(read());
          who the gift is for and where it is posted) is a new key, so the old
          transaction is never reused with stale details, and is never refused
          as a conflict (8 Oct 2026, review D7; the server compares them too). */
-      var cause = $('#gCause'), occasion = $('#giftOccasion');
+      var cause = $('#gCause');
       var details = [amt, (this.querySelector('[name="currency"]') || {}).value || 'inr',
         n.value.trim(), mob.value.replace(/\D/g, ''), m.value.trim().toLowerCase(), ad.value.trim(),
         cause ? cause.value : '', pan.value.trim().toUpperCase()]
         .concat(gift ? [$('#giftTo').value.trim(), $('#giftAddress').value.trim(), $('#giftPin').value.replace(/\D/g, ''),
-          occasion ? occasion.value : '', $('#giftEmail').value.trim().toLowerCase()] : []);
+          $('#giftEmail').value.trim().toLowerCase()] : []);
       $('#gRef').value = visitRef(gift ? 'gift' : 'donate', details.join('|'));
       /* The last look before paying, then the email and mobile on their own.
          Once confirmed, the browser posts to /api/payment/create, which answers
