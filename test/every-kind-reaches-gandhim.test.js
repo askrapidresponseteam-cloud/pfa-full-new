@@ -143,14 +143,17 @@ test('with PFA\'s own mailbox set up, the copy to gandhim is sent from info@', a
   assert.equal(mailer.sender().address, 'info@peopleforanimalsindia.org');
 });
 
-test('the kinds a payment opens are each proved to reach gandhim by name', () => {
+test('the kinds a payment opens are each proved to reach the payments inboxes, and not gandhim, by name', () => {
   const read = (f) => fs.readFileSync(path.join(ROOT, 'test', f), 'utf8');
   const e2e = read('submissions-end-to-end.test.js');
-  assert.match(e2e, /a paid membership: on record, in gandhim\\?'s inbox/);
-  assert.match(e2e, /a paid colony caregiver application: on record with its photograph, in the inbox/);
+  /* owner, 21 Oct 2026: records of money go to pfadcmho@gmail.com and
+     ozairhusain@gmail.com, never gandhim */
+  assert.match(e2e, /a paid membership: on record, in the payments inboxes \(never gandhim\\?'s\)/);
+  assert.match(e2e, /a paid colony caregiver application: on record with its photograph, in the payments inboxes/);
   const thread = read('email-thread.test.js');
-  assert.match(thread, /a donation: a case under PFA-DON, gandhim gets it with Reply-To the site/);
-  assert.match(thread, /a shop order: a case under its order number, gandhim gets it with Reply-To the site/);
+  assert.match(thread, /a donation: a case under PFA-DON, the payments inboxes get it \(never gandhim\) with Reply-To the site/);
+  assert.match(thread, /a shop order: a case under its order number, the payments inboxes get it \(never gandhim\) with Reply-To the site/);
+  assert.equal(require('../lib/submission-forward.js').PAID_KINDS, S.PAID_KINDS, 'the forward routes by the very list the intake refuses');
   assert.deepEqual([...S.PAID_KINDS].sort(), ['PFA-CG', 'PFA-DON', 'PFA-MEM', 'PFA-SHP'],
     'a new paid kind needs its own proof above before it is added');
   /* and each payment path calls the same forward */

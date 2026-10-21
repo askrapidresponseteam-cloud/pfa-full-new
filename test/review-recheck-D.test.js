@@ -78,12 +78,14 @@ test('D1 shop: a verified Success after a cancellation settles the order as paid
 });
 
 /* ---- D2 ---- */
-test('D2a two copies of one donation success at once: one record, one receipt, one inbox copy', async () => {
+test('D2a two copies of one donation success at once: one record, one receipt, one copy to each payments inbox', async () => {
   const out = await start(Object.assign({ type: 'donate', currency: 'inr', amount: '1500', terms: 'yes' }, PERSON));
   await Promise.all([callback(out), callback(out)]);
   assert.equal(subs('PFA-DON').length, 1);
   assert.equal(W.smtp.sent.filter((m) => m.to === 'asha@example.com').length, 1);
-  assert.equal(W.smtp.sent.filter((m) => m.to === H.INBOX).length, 1);
+  assert.equal(W.smtp.sent.filter((m) => m.to === 'pfadcmho@gmail.com').length, 1);
+  assert.equal(W.smtp.sent.filter((m) => m.to === 'ozairhusain@gmail.com').length, 1);
+  assert.equal(W.smtp.sent.filter((m) => m.to === H.INBOX).length, 0, 'a record of money never reaches gandhim');
   assert.equal(W.db.dump()[`transactions/${out.order_id}`].donationReference, subs('PFA-DON')[0].slice(12));
 });
 

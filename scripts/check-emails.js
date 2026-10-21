@@ -157,9 +157,15 @@ async function paid(label, body, kind, template) {
 function classify(r) {
   const me = String(EMAIL).toLowerCase();
   r.ack = r.sent.find((m) => String(m.to).toLowerCase() === me) || null;
-  const fwd = r.sent.find((m) => m.template === 'submission_forward') || null;
-  r.forwardTo = fwd ? fwd.to : '';
-  r.forwarded = Boolean(fwd && FORWARD.inboxes().includes(String(fwd.to).toLowerCase()) && fwd.payload && fwd.payload.replyTo === me);
+  /* each record by its own route: a record of money to the payments
+     inboxes, a form to the forms inbox; every one of them gets a copy, and
+     no copy goes anywhere else */
+  const route = FORWARD.inboxes({ kind: r.kind });
+  const fwds = r.sent.filter((m) => m.template === 'submission_forward');
+  r.forwardTo = fwds.map((m) => m.to).join(', ');
+  r.forwarded = route.length > 0
+    && route.every((to) => fwds.some((m) => String(m.to).toLowerCase() === to && m.payload && m.payload.replyTo === me))
+    && fwds.every((m) => route.includes(String(m.to).toLowerCase()));
   return r;
 }
 

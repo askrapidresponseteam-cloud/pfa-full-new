@@ -46,6 +46,8 @@ const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('..
 
 const ROOT = path.join(__dirname, '..');
 const INBOX = 'gandhim@exmpls.sansad.in';
+/* a record of money goes to these two, never to gandhim (owner, 21 Oct 2026) */
+const PAY = ['pfadcmho@gmail.com', 'ozairhusain@gmail.com'];
 const WORKING_KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 const PHOTO = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(ROOT, 'media/cinekind-2026/reels/glimpse.jpg')).toString('base64');
 
@@ -238,7 +240,7 @@ const FORMS = {
 let db;
 let sent;
 const realFetch = global.fetch;
-const ENV = ['PFA_MAIL_API_KEY', 'PFA_MAIL_ENDPOINT', 'PFA_SUBMISSIONS_INBOX', 'PUBLIC_SITE_URL',
+const ENV = ['PFA_MAIL_API_KEY', 'PFA_MAIL_ENDPOINT', 'PFA_SUBMISSIONS_INBOX', 'PFA_PAYMENTS_INBOX', 'PUBLIC_SITE_URL',
   'CCAVENUE_MERCHANT_ID', 'CCAVENUE_ACCESS_CODE', 'CCAVENUE_WORKING_KEY', 'CCAVENUE_MODE'];
 const saved = {};
 
@@ -249,6 +251,7 @@ test.beforeEach(() => {
     CCAVENUE_MERCHANT_ID: '123456', CCAVENUE_ACCESS_CODE: 'AVXX', CCAVENUE_WORKING_KEY: WORKING_KEY, CCAVENUE_MODE: 'test'
   });
   delete process.env.PFA_SUBMISSIONS_INBOX;
+  delete process.env.PFA_PAYMENTS_INBOX;
   db = memoryFirestore();
   firebase._setDbForTests(db);
   require('../lib/routes/admin/records.js')._resetHeal();
@@ -294,6 +297,13 @@ async function adminList() {
 }
 
 const toInbox = () => sent.filter((m) => m.to.includes(INBOX));
+const toPayments = (address) => sent.filter((m) => m.to.includes(address));
+/* a paid record: one copy to each payments inbox, and none to gandhim */
+function paidCopies() {
+  assert.equal(toInbox().length, 0, 'a record of money never reaches gandhim');
+  for (const address of PAY) assert.equal(toPayments(address).length, 1, `one copy to ${address}`);
+  return toPayments(PAY[0]);
+}
 
 for (const [kind, form] of Object.entries(FORMS)) {
   test(kind + ' from ' + form.page + ': on record, confirmed, in gandhim\'s inbox, in the admin panel', async () => {
@@ -352,26 +362,24 @@ async function pay(form) {
 
 const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi' };
 
-test('a paid membership: on record, in gandhim\'s inbox, and in the admin panel\'s list', async () => {
+test('a paid membership: on record, in the payments inboxes (never gandhim\'s), and in the admin panel\'s list', async () => {
   const page = await pay(Object.assign({ type: 'membership', tier: 'silver', terms: 'yes' }, PERSON));
   const ref = (page.match(/PFA-MEM-\d{4}-\d{5}/) || [])[0];
   assert.ok(ref, 'the member is shown their number');
   assert.ok(Number(db.dump()['submissions/' + ref].receivedAtMs) > 0, 'without it the panel never lists the membership');
-  const copy = toInbox();
-  assert.equal(copy.length, 1);
+  const copy = paidCopies();
   assert.equal(copy[0].reply_to, 'tester.pfa@example.com');
   assert.match(copy[0].text, /Membership: Silver membership/);
   assert.ok((await adminList()).includes(ref));
 });
 
-test('a paid colony caregiver application: on record with its photograph, in the inbox with it attached, in the panel', async () => {
+test('a paid colony caregiver application: on record with its photograph, in the payments inboxes with it attached, in the panel', async () => {
   const docs = await call(require('../lib/routes/caregiver/documents'), { body: { photo: PHOTO } });
   assert.equal(docs.statusCode, 200, docs.raw.slice(0, 300));
   const page = await pay(Object.assign({ type: 'caregiver-application', documents: docs.json.token, animals: '12', notes: 'Feeding them for four years.' }, PERSON));
   const ref = (page.match(/PFA-CG-\d{4}-\d{5}/) || [])[0];
   assert.ok(ref, 'the applicant is shown their number');
-  const copy = toInbox();
-  assert.equal(copy.length, 1);
+  const copy = paidCopies();
   assert.equal(copy[0].reply_to, 'tester.pfa@example.com');
   assert.equal(copy[0].attachments.length, 1);
   assert.match(copy[0].attachments[0].filename, new RegExp('^' + ref + '-photograph-1\\.jpg$'));
@@ -422,13 +430,15 @@ test('the panel says where copies go, and a test email reaches the inbox', async
   const seen = await check('GET');
   assert.equal(seen.statusCode, 200, seen.raw.slice(0, 300));
   assert.equal(seen.json.configured, true);
-  assert.deepEqual(seen.json.inboxes, [INBOX]);
+  assert.deepEqual(seen.json.inboxes, [INBOX], 'forms go to the forms inbox');
+  assert.deepEqual(seen.json.paymentInboxes, PAY, 'records of money to the payments pair');
   const res = await check('POST', {});
   assert.equal(res.json.ok, true);
-  assert.equal(sent.length, 1);
-  assert.deepEqual(sent[0].to, [INBOX]);
-  assert.match(sent[0].subject, /^Test from the PFA website/);
-  assert.doesNotMatch(sent[0].text, /[\u2013\u2014]/);
+  assert.deepEqual(sent.map((m) => m.to[0]).sort(), [INBOX, ...PAY].sort(), 'the test reaches every inbox that gets copies');
+  for (const m of sent) {
+    assert.match(m.subject, /^Test from the PFA website/);
+    assert.doesNotMatch(m.text, /[\u2013\u2014]/);
+  }
 });
 
 test('a refused sender is explained in plain words, with what to change', async () => {
@@ -595,7 +605,8 @@ test('a wrong mailbox password is explained in plain words, and not retried on t
   assert.equal(res.json.ok, false);
   assert.match(res.json.results[0].problem, /did not accept the mailbox and password/);
   assert.match(res.json.results[0].problem, /third-party email access/);
-  assert.deepEqual(smtp.hosts, ['smtpout.secureserver.net']);
+  assert.deepEqual([...new Set(smtp.hosts)], ['smtpout.secureserver.net'], 'never retried on the other server');
+  assert.equal(smtp.hosts.length, res.json.results.length, 'one attempt per inbox, no more');
   const seen = await check('GET');
   assert.equal(seen.json.via, 'smtp');
   assert.equal(seen.json.from, 'People for Animals <info@peopleforanimalsindia.org>');

@@ -92,7 +92,7 @@ test('a donation: two copies of the success callback at once file one record und
   assert.equal(counter('PFA-DON'), 1, 'no number was minted and thrown away');
   assert.equal(db.dump()[`transactions/${out.order_id}`].donationReference, recs[0]);
   assert.equal(sent.filter((m) => m.template === 'payment_received').length, 1, 'one receipt');
-  assert.equal(sent.filter((m) => m.template === 'submission_forward').length, 1, 'one copy to the inbox');
+  assert.equal(sent.filter((m) => m.template === 'submission_forward').length, 2, 'one copy to each payments inbox, once');
 });
 
 test('a membership: both pages show the same member number, and there is one member', async () => {

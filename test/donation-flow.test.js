@@ -170,8 +170,10 @@ test('a donation goes to CCAvenue with the server’s amount, comes back verifie
   assert.equal(receipts[0].payload.amount, 1500);
   assert.equal(receipts[0].payload.bankReference, 'BNK900');
   const copies = sent.filter((m) => m.template === 'submission_forward');
-  assert.equal(copies.length, 1, 'one copy to the inbox');
-  assert.equal(copies[0].to, 'gandhim@exmpls.sansad.in');
+  /* a record of money goes to the payments pair, never gandhim (owner,
+     21 Oct 2026) */
+  assert.deepEqual(copies.map((m) => m.to).sort(), ['ozairhusain@gmail.com', 'pfadcmho@gmail.com'], 'one copy to each payments inbox');
+  assert.ok(!sent.some((m) => m.to === 'gandhim@exmpls.sansad.in'), 'and nothing to gandhim');
   assert.equal(copies[0].payload.email, 'asha@example.com', 'Reply-To the donor');
   assert.equal(copies[0].payload.kind, 'PFA-DON');
 });
@@ -182,7 +184,7 @@ test('CCAvenue delivering the same success twice changes nothing and sends nothi
   const again = await callback(bankSays(sentOut));
   assert.match(again, /Donation successful/, 'the second visit still shows the donor their result');
   assert.equal(sent.filter((m) => m.template === 'payment_received').length, 1, 'one receipt');
-  assert.equal(sent.filter((m) => m.template === 'submission_forward').length, 1, 'one copy to the inbox');
+  assert.equal(sent.filter((m) => m.template === 'submission_forward').length, 2, 'one copy to each payments inbox, once');
   assert.equal(transaction(sentOut.order_id).status, 'success');
 });
 
@@ -298,8 +300,10 @@ test('a gift goes through the same CCAvenue flow, and the certificate to post is
   const keys = Object.keys(record.fields);
   assert.ok(keys.indexOf('certificate') === keys.indexOf('amount') + 1, 'what to post comes straight after the amount');
 
-  const copy = sent.find((m) => m.template === 'submission_forward');
-  assert.equal(copy.to, 'gandhim@exmpls.sansad.in');
+  const copy = sent.find((m) => m.template === 'submission_forward' && m.to === 'pfadcmho@gmail.com');
+  assert.ok(copy, 'the gift is a record of money: it goes to the payments inboxes');
+  assert.ok(sent.some((m) => m.template === 'submission_forward' && m.to === 'ozairhusain@gmail.com'));
+  assert.ok(!sent.some((m) => m.to === 'gandhim@exmpls.sansad.in'), 'never gandhim');
   assert.equal(copy.payload.email, 'asha@example.com', 'Reply-To is the donor, never the person the gift is for');
   const rows = Object.fromEntries(copy.payload.rows.map((r) => [r.label, r.value]));
   assert.match(rows['To do'], /Post a Certificate of Appreciation, signed by Smt\. Maneka Sanjay Gandhi/);

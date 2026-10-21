@@ -235,7 +235,8 @@ Check what's set: `npx vercel env ls`
 | `PFA_SHOPIFY_ADMIN_TOKEN` | order confirmation fallback (Admin `read_orders`) + catalogue stock levels | **set it** - the `shpat_…` value from the vendor PDF. Without it, PFA confirmation waits for the webhook. |
 | `PFA_ADMIN_TOKEN` | email worker manual trigger | set if you want §6 |
 | `PFA_SHOP_FIREBASE_SERVICE_ACCOUNT` | the PFA shop (shop.html): writes orders, stock and the store totals to **pfa-oldsite**, the backend its panel at pfa-oldsite.web.app reads | **add**: Firebase console, project pfa-oldsite, Project settings, Service accounts, Generate new private key; paste the JSON (or its base64). Refused if it belongs to any other project. Optional: without it, shop orders go to this site's own Firestore (shopOrders, shopStock, shopTotals), the database donations use, so the shop takes payment either way. Every shop order is also a row in the admin panel's Payments tab, type Shop order. `/api/payment/health` reports which store is in use as `shopOrders`. This is the only place pfa-oldsite is used; it stays retired as the site's own server key. |
-| `PFA_SUBMISSIONS_INBOX` | every form, paid application, donation and shop order (lib/submission-forward.js) | optional: where each submission is emailed, with Reply-To set to the sender, so a Reply from that inbox reaches them. Unset means gandhim@exmpls.sansad.in; several addresses may be given, separated by commas; `off` stops forwarding. Needs the mailbox below (or `PFA_MAIL_API_KEY`), like every email. |
+| `PFA_PAYMENTS_INBOX` | every record of money: donations and gifts, memberships, colony caregiver applications, shop orders (lib/submission-forward.js `PAID_KINDS`) | optional: unset means pfadcmho@gmail.com and ozairhusain@gmail.com (owner, 21 Oct 2026: "any record of money collected on the website to only go to pfadcmho@gmail.com ; ozairhusain@gmail.com not gandhim"); comma separated; `off` stops them. gandhim@exmpls.sansad.in is struck from it whatever it says, and from `PFA_SHOP_ORDERS_EMAIL` too, so no setting can send a record of money there. |
+| `PFA_SUBMISSIONS_INBOX` | every form that is not a payment (lib/submission-forward.js) | optional: where each submission is emailed, with Reply-To set to the sender, so a Reply from that inbox reaches them. Unset means gandhim@exmpls.sansad.in; several addresses may be given, separated by commas; `off` stops forwarding. Needs the mailbox below (or `PFA_MAIL_API_KEY`), like every email. |
 | `PFA_IMAP_USER`, `PFA_IMAP_PASS`, `PFA_IMAP_HOST`, `PFA_IMAP_PORT` | replies (lib/inbound-mail.js) | all optional: the mailbox replies are read from. Unset, the sending mailbox (`PFA_SMTP_USER`) is read, which is the normal case. |
 | `PFA_CAPTURE_REPLIES` | replies | optional: `off` stops the copy of a submission naming the site's mailbox as a second Reply-To. Replies then reach the person and are not kept in the panel. |
 | `CRON_SECRET` | the daily email worker and the mailbox check | **set it** (any long random string): Vercel's cron and Cloud Scheduler present it, and without it neither worker runs. |
@@ -314,7 +315,9 @@ curl -X POST -H "Authorization: Bearer $PFA_ADMIN_TOKEN" \
 Every submission, paid application, donation and shop order is one
 conversation (v1.399):
 
-1. The copy goes to gandhim@exmpls.sansad.in from info@peopleforanimalsindia.org.
+1. The copy goes to gandhim@exmpls.sansad.in from info@peopleforanimalsindia.org
+   (a record of money goes to pfadcmho@gmail.com and ozairhusain@gmail.com
+   instead, never to gandhim; owner, 21 Oct 2026).
    Reply-To is the person's own address first and info@ second, and the
    Message-ID names the submission and its thread id
    (`<PFA-CR-2026-00042.9f3a1c7e2b4d.forward@peopleforanimalsindia.org>`).

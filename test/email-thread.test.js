@@ -55,6 +55,10 @@ const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('..
 
 const ROOT = path.join(__dirname, '..');
 const INBOX = 'gandhim@exmpls.sansad.in';
+/* A record of money goes to the payments pair and never to gandhim (owner,
+   21 Oct 2026), so on those PFA's side of the conversation is one of them. */
+const PAY = 'pfadcmho@gmail.com';
+const PAY2 = 'ozairhusain@gmail.com';
 const SITE_MAILBOX = 'info@peopleforanimalsindia.org';
 const PERSON_A = 'asha.rao@example.com';
 const WORKING_KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
@@ -62,7 +66,7 @@ const PHOTO = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(ROOT, 'media
 const PHOTO_BYTES = fs.readFileSync(path.join(ROOT, 'media/cinekind-2026/reels/glimpse.jpg'));
 
 const ENV = ['PFA_SMTP_USER', 'PFA_SMTP_PASS', 'PFA_SMTP_HOST', 'PFA_MAIL_API_KEY', 'PFA_IMAP_USER', 'PFA_IMAP_PASS', 'PFA_CAPTURE_REPLIES',
-  'PFA_SUBMISSIONS_INBOX', 'PUBLIC_SITE_URL', 'CRON_SECRET', 'PFA_ADMIN_TOKEN',
+  'PFA_SUBMISSIONS_INBOX', 'PFA_PAYMENTS_INBOX', 'PFA_SHOP_ORDERS_EMAIL', 'PUBLIC_SITE_URL', 'CRON_SECRET', 'PFA_ADMIN_TOKEN',
   'CCAVENUE_MERCHANT_ID', 'CCAVENUE_ACCESS_CODE', 'CCAVENUE_WORKING_KEY', 'CCAVENUE_MODE', 'PFA_SHOP_FIREBASE_SERVICE_ACCOUNT'];
 const saved = {};
 let db;
@@ -74,7 +78,7 @@ test.beforeEach(() => {
     PFA_SMTP_USER: SITE_MAILBOX, PFA_SMTP_PASS: 'test-password', PUBLIC_SITE_URL: 'https://pfa.test', CRON_SECRET: 'cron-secret',
     CCAVENUE_MERCHANT_ID: '123456', CCAVENUE_ACCESS_CODE: 'AVXX', CCAVENUE_WORKING_KEY: WORKING_KEY, CCAVENUE_MODE: 'test'
   });
-  for (const k of ['PFA_MAIL_API_KEY', 'PFA_SMTP_HOST', 'PFA_IMAP_USER', 'PFA_IMAP_PASS', 'PFA_CAPTURE_REPLIES', 'PFA_SUBMISSIONS_INBOX', 'PFA_ADMIN_TOKEN', 'PFA_SHOP_FIREBASE_SERVICE_ACCOUNT']) delete process.env[k];
+  for (const k of ['PFA_MAIL_API_KEY', 'PFA_SMTP_HOST', 'PFA_IMAP_USER', 'PFA_IMAP_PASS', 'PFA_CAPTURE_REPLIES', 'PFA_SUBMISSIONS_INBOX', 'PFA_PAYMENTS_INBOX', 'PFA_SHOP_ORDERS_EMAIL', 'PFA_ADMIN_TOKEN', 'PFA_SHOP_FIREBASE_SERVICE_ACCOUNT']) delete process.env[k];
   db = memoryFirestore();
   firebase._setDbForTests(db);
   require('../lib/routes/admin/records.js')._resetHeal();
@@ -132,8 +136,8 @@ async function pay(form) {
 
 const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: PERSON_A, address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi' };
 
-const inboxCopies = () => smtp.sent.filter((m) => m.to === INBOX);
-const lastInboxCopy = () => inboxCopies()[inboxCopies().length - 1];
+const inboxCopies = (to = INBOX) => smtp.sent.filter((m) => m.to === to);
+const lastInboxCopy = (to = INBOX) => inboxCopies(to)[inboxCopies(to).length - 1];
 const toPersonA = () => smtp.sent.filter((m) => m.to === PERSON_A);
 /* where a mail client's Reply goes: the Reply-To list, or the From address */
 const bare = (v) => { const m = /<([^>]+)>/.exec(String(v || '')); return (m ? m[1] : String(v || '')).trim().toLowerCase(); };
@@ -172,7 +176,7 @@ async function caseOf(ref) {
 
 /* ---- 1 to 9: a caregiver application, both ways ------------------------- */
 
-test('a paid caregiver application: gandhim gets it from info@, Reply-To is the site alone, and a thread id is on the record', async () => {
+test('a paid caregiver application: the payments inboxes get it from info@, never gandhim, Reply-To is the site alone, and a thread id is on the record', async () => {
   const docs = await call(require('../lib/routes/caregiver/documents'), { body: { photo: PHOTO } });
   assert.equal(docs.statusCode, 200, docs.raw.slice(0, 300));
   const page = await pay(Object.assign({ type: 'caregiver-application', documents: docs.json.token, animals: '12', notes: 'Feeding them for four years.' }, PERSON));
@@ -183,9 +187,11 @@ test('a paid caregiver application: gandhim gets it from info@, Reply-To is the 
   assert.ok(MT.isThreadId(record.threadId), 'the record carries a thread id');
   assert.equal(record.threadSubject, 'Your caregiver card application is in - ' + ref);
 
-  const copy = lastInboxCopy();
-  assert.ok(copy, 'gandhim receives the notification');
-  assert.equal(copy.to, INBOX);
+  const copy = lastInboxCopy(PAY);
+  assert.ok(copy, 'the payments inbox receives the notification');
+  assert.ok(lastInboxCopy(PAY2), 'and so does the second');
+  assert.equal(inboxCopies(INBOX).length, 0, 'a record of money never reaches gandhim');
+  assert.equal(copy.to, PAY);
   assert.equal(copy.from, 'People for Animals <info@peopleforanimalsindia.org>', 'sent as info@');
   assert.deepEqual(replyToList(copy), [SITE_MAILBOX],
     'Reply-To is the site and nothing else: a second address is a second path, and the path that skips the site is the one that loses the conversation');
@@ -200,10 +206,9 @@ test('a paid caregiver application: gandhim gets it from info@, Reply-To is the 
   assert.equal(letter.subject, record.threadSubject);
 
   const thread = messagesOf(ref);
-  assert.equal(thread.length, 1);
-  assert.equal(thread[0].type, 'email');
-  assert.equal(thread[0].to, INBOX);
-  assert.equal(thread[0].messageId, copy.messageId);
+  assert.equal(thread.length, 2, 'one copy logged per payments inbox');
+  assert.ok(thread.every((m) => m.type === 'email' && m.messageId === copy.messageId));
+  assert.deepEqual(thread.map((m) => m.to).sort(), [PAY2, PAY].sort());
 });
 
 test('Madam presses Reply: it goes to the site, is filed on the same record, and is carried on to Person A as info@', async () => {
@@ -211,9 +216,9 @@ test('Madam presses Reply: it goes to the site, is filed on the same record, and
   const page = await pay(Object.assign({ type: 'caregiver-application', documents: docs.json.token, animals: '3' }, PERSON));
   const ref = (page.match(/PFA-CG-\d{4}-\d{5}/) || [])[0];
   const before = records();
-  const copy = lastInboxCopy();
+  const copy = lastInboxCopy(PAY);
 
-  const reply = replyTo(copy, { text: 'Thank you Asha. Please send a photograph of the feeding spot.' });
+  const reply = replyTo(copy, { from: PAY, name: 'PFA Accounts', text: 'Thank you Asha. Please send a photograph of the feeding spot.' });
   assert.deepEqual(reply.to, [SITE_MAILBOX],
     'a plain Reply goes to the site: nothing to remember, nothing to drop, no Reply All');
 
@@ -231,12 +236,12 @@ test('Madam presses Reply: it goes to the site, is filed on the same record, and
   assert.equal(record.status, 'under-review', 'a case answered is a case taken up, into its own kind\'s stage');
   assert.equal(record.replyCount, 1);
   const thread = messagesOf(ref);
-  assert.equal(thread.length, 3, 'the forward out, her reply in, and the note that it was carried on');
+  assert.equal(thread.length, 4, 'the two forwards out (one per payments inbox), her reply in, and the note that it was carried on');
   const m = thread.find((x) => x.party === 'staff');
   assert.ok(m, 'her reply is on the record');
   assert.equal(m.type, 'reply');
   assert.equal(m.direction, 'in');
-  assert.equal(m.from, INBOX);
+  assert.equal(m.from, PAY);
   assert.deepEqual(m.to, [SITE_MAILBOX]);
   assert.equal(m.text, 'Thank you Asha. Please send a photograph of the feeding spot.', 'the new text, without the quoted copy');
   assert.match(m.fullText, /wrote:/, 'the whole email is kept too');
@@ -247,7 +252,7 @@ test('Madam presses Reply: it goes to the site, is filed on the same record, and
   const again = await arrives(reply);
   assert.equal(again.json.filed, false);
   assert.equal(again.json.reason, 'DUPLICATE');
-  assert.equal(messagesOf(ref).length, 3);
+  assert.equal(messagesOf(ref).length, 4);
   assert.equal(db.dump()['submissions/' + ref].replyCount, 1);
 
   /* and it is carried on to Person A: the half that did not exist before.
@@ -255,7 +260,8 @@ test('Madam presses Reply: it goes to the site, is filed on the same record, and
      of the same email does not send it to them twice. */
   assert.equal(filed.json.answered, 'sent', 'her reply was carried on');
   assert.equal(filed.json.answeredTo, PERSON_A);
-  assert.equal(inboxCopies().length, 1, 'nothing went back to the inbox');
+  assert.equal(inboxCopies(PAY).length, 1, 'nothing went back to the inbox');
+  assert.equal(inboxCopies(INBOX).length, 0, 'and nothing to gandhim');
   const carried = toPersonA().filter((x) => /^Re:/.test(x.subject));
   assert.equal(carried.length, 1, 'exactly one, however often the email is read again');
   assert.equal(carried[0].from, 'People for Animals <info@peopleforanimalsindia.org>',
@@ -264,7 +270,7 @@ test('Madam presses Reply: it goes to the site, is filed on the same record, and
   assert.deepEqual(replyToList(carried[0]), [SITE_MAILBOX], 'and their answer comes back here too');
 
   const c = await caseOf(ref);
-  assert.equal(c.messages.length, 3);
+  assert.equal(c.messages.length, 4);
   assert.equal(c.messages.filter((x) => x.party === 'staff').length, 1);
   assert.equal(c.replyCount, 1);
 });
@@ -274,11 +280,11 @@ test('the conversation goes on: Madam again, Person A back with a plain Reply, M
   const page = await pay(Object.assign({ type: 'caregiver-application', documents: docs.json.token, animals: '3' }, PERSON));
   const ref = (page.match(/PFA-CG-\d{4}-\d{5}/) || [])[0];
   const record = db.dump()['submissions/' + ref];
-  const copy = lastInboxCopy();
+  const copy = lastInboxCopy(PAY);
 
-  const first = replyTo(copy, { text: 'Please send a photograph.' });
+  const first = replyTo(copy, { from: PAY, name: 'PFA Accounts', text: 'Please send a photograph.' });
   assert.equal((await arrives(first)).json.filed, true);
-  const second = replyTo(copy, { text: 'Also, which pincode?' });
+  const second = replyTo(copy, { from: PAY, name: 'PFA Accounts', text: 'Also, which pincode?' });
   assert.equal((await arrives(second)).json.filed, true);
 
   /* Both of Madam's replies reached Person A, as info@ */
@@ -299,9 +305,11 @@ test('the conversation goes on: Madam again, Person A back with a plain Reply, M
   assert.equal(filedA.json.reference, ref, 'filed on the same record');
   assert.equal(filedA.json.party, 'sender');
   assert.equal(filedA.json.attachments, 1);
-  assert.deepEqual(filedA.json.relayed, ['sent'], 'relayed to the inbox');
+  assert.deepEqual(filedA.json.relayed, ['sent', 'sent'], 'relayed to both payments inboxes');
 
-  const relay = lastInboxCopy();
+  const relay = lastInboxCopy(PAY);
+  assert.ok(lastInboxCopy(PAY2) && lastInboxCopy(PAY2).messageId === relay.messageId, 'the same relay to the second');
+  assert.equal(inboxCopies(INBOX).length, 0, 'the payer\'s answer never goes to gandhim');
   assert.match(relay.subject, new RegExp('^Re: ' + ref + ': Colony caregiver application from Asha Rao$'));
   assert.equal(relay.inReplyTo, copy.messageId, 'in the same conversation as the copy');
   assert.ok(MT.idsIn(relay.references).includes(copy.messageId));
@@ -310,13 +318,14 @@ test('the conversation goes on: Madam again, Person A back with a plain Reply, M
   assert.match(relay.text, /Pincode 110024/);
 
   /* Madam answers the relay */
-  const third = replyTo(relay, { text: 'Got it, thank you.' });
+  const third = replyTo(relay, { from: PAY, name: 'PFA Accounts', text: 'Got it, thank you.' });
   assert.equal((await arrives(third)).json.filed, true);
 
   const thread = messagesOf(ref);
   const kinds = thread.map((m) => `${m.type}:${m.direction}:${m.party}`);
   assert.deepEqual(kinds, [
-    'email:out:site',    /* the submission, forwarded to the inbox */
+    'email:out:site',    /* the submission, forwarded to the first payments inbox */
+    'email:out:site',    /* and to the second */
     'reply:in:staff',    /* Madam: please send a photograph */
     'email:out:site',    /* carried on to Person A as info@ */
     'reply:in:staff',    /* Madam: which pincode */
@@ -408,7 +417,7 @@ for (const [kind, [page, data, label, subject]] of Object.entries(SAME_WAY)) {
   });
 }
 
-test('a donation: a case under PFA-DON, gandhim gets it with Reply-To the site, the receipt threads, a reply is filed on it, a repeated callback adds nothing', async () => {
+test('a donation: a case under PFA-DON, the payments inboxes get it (never gandhim) with Reply-To the site, the receipt threads, a reply is filed on it, a repeated callback adds nothing', async () => {
   const page = await pay(Object.assign({ type: 'donate', amount: '500', cause: 'Where it is needed most', terms: 'yes', pan: 'ABCDE1234F' }, PERSON));
   assert.match(page, /Donation successful/);
   const refs = records().filter((k) => k.startsWith('submissions/PFA-DON-'));
@@ -419,8 +428,10 @@ test('a donation: a case under PFA-DON, gandhim gets it with Reply-To the site, 
   assert.equal(record.fields.email, PERSON_A);
   assert.equal(record.fields.amount, 'INR 500');
   assert.ok(MT.isThreadId(record.threadId));
-  const copy = lastInboxCopy();
-  assert.equal(copy.to, INBOX);
+  const copy = lastInboxCopy(PAY);
+  assert.equal(copy.to, PAY);
+  assert.ok(lastInboxCopy(PAY2), 'the second payments inbox too');
+  assert.equal(inboxCopies(INBOX).length, 0, 'never gandhim');
   assert.equal(copy.from, 'People for Animals <info@peopleforanimalsindia.org>');
   assert.deepEqual(replyToList(copy), [SITE_MAILBOX], 'every kind of submission is answered to the site, not to the person');
   assert.match(copy.subject, new RegExp('^' + ref + ': Donation from Asha Rao$'));
@@ -431,7 +442,7 @@ test('a donation: a case under PFA-DON, gandhim gets it with Reply-To the site, 
   assert.equal(receipt.messageId, `<${ref}.${record.threadId}.confirm@peopleforanimalsindia.org>`);
   assert.equal(record.threadSubject, receipt.subject);
 
-  const filed = await arrives(replyTo(copy, { text: 'Thank you for your gift. The 80G certificate follows.' }));
+  const filed = await arrives(replyTo(copy, { from: PAY, name: 'PFA Accounts', text: 'Thank you for your gift. The 80G certificate follows.' }));
   assert.equal(filed.json.filed, true);
   assert.equal(filed.json.reference, ref);
 
@@ -442,7 +453,7 @@ test('a donation: a case under PFA-DON, gandhim gets it with Reply-To the site, 
   assert.equal(pays.json.rows.filter((r) => r.type === 'donate').length, 1);
 });
 
-test('a shop order: a case under its order number, gandhim gets it with Reply-To the site, the confirmation threads, a second callback adds nothing', async () => {
+test('a shop order: a case under its order number, the payments inboxes get it (never gandhim) with Reply-To the site, the confirmation threads, a second callback adds nothing', async () => {
   const backend = require('../lib/shop-backend');
   const C = require('../lib/ccavenue');
   process.env.PFA_SHOP_FIREBASE_SERVICE_ACCOUNT = JSON.stringify({ project_id: 'pfa-oldsite', client_email: 's@pfa-oldsite.iam.gserviceaccount.com', private_key: 'x' });
@@ -487,8 +498,10 @@ test('a shop order: a case under its order number, gandhim gets it with Reply-To
     assert.equal(record.fields.email, PERSON_A);
     assert.match(record.fields.items, /Sabyasachi x PFA, size L \(₹2,500\)/);
     assert.ok(MT.isThreadId(record.threadId));
-    const copy = lastInboxCopy();
-    assert.equal(copy.to, INBOX);
+    const copy = lastInboxCopy(PAY);
+    assert.equal(copy.to, PAY);
+    assert.ok(lastInboxCopy(PAY2), 'the second payments inbox too');
+    assert.equal(inboxCopies(INBOX).length, 0, 'never gandhim');
     assert.deepEqual(replyToList(copy), [SITE_MAILBOX], 'every kind of submission is answered to the site, not to the person');
     assert.equal(copy.messageId, `<${ref}.${record.threadId}.forward@peopleforanimalsindia.org>`);
     assert.match(copy.subject, new RegExp('^' + ref + ': Shop order from Asha Rao$'));
@@ -496,12 +509,12 @@ test('a shop order: a case under its order number, gandhim gets it with Reply-To
     assert.ok(confirmation);
     assert.equal(confirmation.messageId, `<${ref}.${record.threadId}.confirm@peopleforanimalsindia.org>`);
 
-    const copies = inboxCopies().length;
+    const copies = inboxCopies(PAY).length;
     await answer();
-    assert.equal(inboxCopies().length, copies, 'a repeated callback sends nothing again');
+    assert.equal(inboxCopies(PAY).length, copies, 'a repeated callback sends nothing again');
     assert.equal(records().filter((k) => k.startsWith('submissions/PFA-SHP')).length, 1);
 
-    const filed = await arrives(replyTo(copy, { text: 'Your order is packed and leaves tomorrow.' }));
+    const filed = await arrives(replyTo(copy, { from: PAY, name: 'PFA Accounts', text: 'Your order is packed and leaves tomorrow.' }));
     assert.equal(filed.json.filed, true);
     assert.equal(filed.json.reference, ref);
     const c = await caseOf(ref);
