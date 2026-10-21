@@ -362,6 +362,17 @@ test('the gift is offered on the donate page, linked from every footer, and the 
   assert.match(page, new RegExp(`GIFT_MIN = ${GIFT_MIN_INR}\\b`), 'the page and the server hold the same floor');
   const offered = [...page.matchAll(/<select id="giftOccasion"[\s\S]*?<\/select>/g)][0][0].match(/<option>([^<]+)<\/option>/g).map((o) => o.replace(/<\/?option>/g, ''));
   assert.deepEqual([...offered].sort(), [...GIFT_OCCASIONS].sort(), 'every occasion offered is one the server accepts');
+  /* the occasion is optional: nothing chosen is nothing said (owner, 21 Oct
+     2026, of the old default: "what nonsense is just becoz?") */
+  assert.match(page, /<select id="giftOccasion"[^>]*>\s*<option value="">No particular occasion<\/option>/, 'the first choice is no occasion at all');
+  assert.ok(!GIFT_OCCASIONS.includes('Just because'));
+  assert.doesNotMatch(page, /Just because/, 'and the page never offers or prints it');
+  const { parseGift } = require('../lib/payment');
+  const base = { gift: 'yes', giftTo: 'Ravi Kumar', giftAddress: '12 MG Road, Bengaluru', giftPin: '560038' };
+  assert.equal(parseGift({ ...base }, 'inr', 1000).occasion, '', 'no occasion sent, none recorded');
+  assert.equal(parseGift({ ...base, giftOccasion: 'Just because' }, 'inr', 1000).occasion, '', 'nor the old default');
+  assert.equal(parseGift({ ...base, giftOccasion: 'Birthday' }, 'inr', 1000).occasion, 'Birthday');
+  assert.match(page, /title: gift \? 'Check your gift before you pay' : 'Check your donation before you pay'/, 'a donation is checked as a donation');
   assert.match(fs.readFileSync(path.join(ROOT, 'assets', 'chrome-footer.html'), 'utf8'), /<a href="donate\.html\?gift=1">Make a gift<\/a>/);
   const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
   const firebase = JSON.parse(fs.readFileSync(path.join(ROOT, 'firebase.json'), 'utf8'));

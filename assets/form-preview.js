@@ -163,7 +163,12 @@
       var type = String(field.type || '').toLowerCase();
       if (!/^(input|select|textarea)$/.test(tag)) return;
       if (/^(hidden|submit|button|reset|image|password|file)$/.test(type)) return;
-      if (field.disabled || (field.closest && field.closest('[data-preview="skip"]'))) return;
+      /* Switched off is switched off, by the field or by its section: a
+         field inside a disabled fieldset reports disabled === false, yet the
+         browser will not send it, so it must not be shown as if it would.
+         donate.html's gift section listed "The occasion" on a plain donation
+         this way (owner, 21 Oct 2026). */
+      if (field.disabled || (field.matches && field.matches(':disabled')) || (field.closest && field.closest('[data-preview="skip"]'))) return;
       if (type === 'radio') {
         if (!field.name || seen[field.name]) return;
         seen[field.name] = true;

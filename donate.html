@@ -760,9 +760,9 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="giftAddress">Their postal address</label><input id="giftAddress" name="giftAddress" type="text" autocomplete="off" required form="giveForm"><span class="error">Add the address the certificate should be posted to.</span></div>
             <div class="field2">
               <div class="field"><label for="giftPin">PIN code</label><input id="giftPin" name="giftPin" type="text" inputmode="numeric" maxlength="6" autocomplete="off" required form="giveForm"><span class="error">Enter the 6-digit PIN code.</span></div>
-              <div class="field"><label for="giftOccasion">The occasion</label>
+              <div class="field"><label for="giftOccasion">The occasion <small>(optional)</small></label>
                 <select id="giftOccasion" name="giftOccasion" form="giveForm">
-                  <option>Just because</option>
+                  <option value="">No particular occasion</option>
                   <option>Birthday</option>
                   <option>Anniversary</option>
                   <option>Wedding</option>
@@ -1222,10 +1222,11 @@ if (root.document && root.document.head) apply(read());
       if (!window.PFAPreview) { pay(); return; }
       e.preventDefault();
       window.PFAPreview.confirm(giveForm, {
-        title: 'Check your gift before you pay',
+        title: gift ? 'Check your gift before you pay' : 'Check your donation before you pay',
         send: $('#payBtn').textContent,
+        /* who the gift is for and where it is posted are listed from the
+           gift's own fields already; repeating them here showed each twice */
         extra: [['Amount', (dollars ? '$' : '\u20b9') + Number(amt).toLocaleString(dollars ? 'en-US' : 'en-IN')]]
-          .concat(gift ? [['A gift for', $('#giftTo').value.trim()], ['Their certificate is posted to', $('#giftAddress').value.trim() + ', ' + $('#giftPin').value.trim()]] : [])
       }).then(function(confirmed){ if (!confirmed) return; pay(); giveForm.submit(); });
     });
     $('#giveForm').addEventListener('input', function(e){ var t = e.target; if (t.closest('.field')) bad(t, false); });

@@ -260,3 +260,22 @@ test('every public form loads the preview and asks it before it sends, uploads o
   const wire = FORMS_JS.slice(FORMS_JS.indexOf('function wire('));
   assert.ok(wire.indexOf('preview(form, {') > -1 && wire.indexOf('preview(form, {') < wire.indexOf('submit(config.kind'), 'wire() asks before it sends');
 });
+
+test('a section that is switched off is not listed, even through form="..."', () => {
+  /* 21 Oct 2026: a plain ₹100 donation was checked under "The occasion: Just
+     because". donate.html's gift section is a fieldset, disabled unless a
+     gift is chosen, and its fields join the form through form="giveForm".
+     The browser does not send them, but a field inside a disabled fieldset
+     still reports disabled === false, so the check screen listed the one
+     that always has a value: the occasion dropdown. */
+  const p = boot({ html: `
+    <form id="f"><div class="field"><label for="n">Full name</label><input id="n" name="n" value="Asha"></div></form>
+    <fieldset id="extra" disabled>
+      <div class="field"><label for="occ">The occasion</label><select id="occ" name="occ" form="f"><option>Birthday</option></select></div>
+      <div class="field"><label for="to">Who it is for</label><input id="to" name="to" form="f" value="Ravi"></div>
+    </fieldset>` });
+  const labels = () => Array.from(p.w.PFAPreview.rowsOf(p.form), (r) => r.label);
+  assert.deepEqual(labels(), ['Full name'], 'nothing from the switched-off section');
+  p.$('#extra').disabled = false;
+  assert.deepEqual(labels(), ['Full name', 'The occasion', 'Who it is for'], 'and all of it once the section is on');
+});
