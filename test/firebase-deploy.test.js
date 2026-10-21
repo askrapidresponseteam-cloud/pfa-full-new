@@ -146,3 +146,17 @@ test('the function knows the mailbox and its own address without a functions/.en
   assert.ok(wrapper.indexOf('DEFAULTS') < wrapper.indexOf("require('./api/index.js')"), 'the defaults are set before the API reads them');
   assert.match(wrapper, /if \(!String\(process\.env\[key\] \|\| ''\)\.trim\(\)\)/, 'functions/.env still overrides');
 });
+
+test('a secret created with no value is not named, so it cannot fail the deploy', () => {
+  /* 21 Oct 2026: CCAVENUE_MERCHANT_ID existed with no version, was named,
+     and the deploy stopped twice on "not found or has no versions". */
+  const { stateOf } = require('../scripts/firebase-secrets.js');
+  const table = (rows) => ['┌─────────┬─────────┐', '│ Version │ State   │', '├─────────┼─────────┤', ...rows, '└─────────┴─────────┘'].join('\n');
+  assert.equal(stateOf({ status: 0, stdout: table(['│ 1       │ ENABLED │']) }), true, 'a value to mount');
+  assert.equal(stateOf({ status: 0, stdout: table([]) }), false, 'created, never given a value');
+  assert.equal(stateOf({ status: 0, stdout: table(['│ 1       │ DESTROYED │', '│ 2       │ DISABLED │']) }), false, 'no version that can be mounted');
+  assert.equal(stateOf({ status: 1, stderr: 'Error: Secret projects/x/secrets/A not found or has no versions.' }), false);
+  assert.equal(stateOf({ status: 1, stderr: 'HTTP Error: 404, Secret not found' }), false);
+  assert.equal(stateOf({ status: 1, stderr: 'Failed to authenticate, have you run firebase login?' }), null, 'unknown: leave functions/.env alone');
+  assert.equal(stateOf({ status: 0, stdout: 'something new the CLI prints' }), true, 'an unknown shape still counts, so email is never switched off by a wording change');
+});

@@ -40,13 +40,37 @@ function cli(args) {
   return spawnSync('npx', ['--yes', 'firebase-tools'].concat(args), { encoding: 'utf8' });
 }
 
-function exists(name) {
-  const r = cli(['functions:secrets:get', name, '--project', PROJECT]);
-  if (r.error) return null;
-  if (r.status === 0) return true;
+/* What `firebase functions:secrets:get NAME` answered, as true (there is a
+   value to mount), false (nothing to mount) or null (could not tell).
+
+   21 Oct 2026: a `functions:secrets:set` stopped at its prompt had created
+   CCAVENUE_MERCHANT_ID with no value in it. `secrets:get` answered it
+   happily with an empty table, so it was named, and naming a secret with
+   no version fails the whole deploy ("not found or has no versions"), twice.
+   A secret counts only when it lists a version that is ENABLED; one that
+   lists versions but none enabled (empty, or every one disabled or
+   destroyed) is skipped like a missing one. An answer in a shape this does
+   not recognise still counts, as before, so a change in the CLI's wording
+   cannot quietly switch email off. */
+function stateOf(r) {
+  if (!r || r.error) return null;
   const out = `${r.stdout || ''}${r.stderr || ''}`;
-  if (/not found|does not exist|404|NOT_FOUND/i.test(out)) return false;
+  if (r.status === 0) {
+    if (/\bENABLED\b/.test(out)) return true;
+    if (/\bVersion\b/i.test(out) || /no versions/i.test(out)) return false;
+    return true;
+  }
+  if (/not found|does not exist|404|NOT_FOUND|no versions/i.test(out)) return false;
   return null;   // anything else (login, network): unknown
+}
+
+function exists(name) {
+  return stateOf(cli(['functions:secrets:get', name, '--project', PROJECT]));
+}
+
+if (require.main !== module) {
+  module.exports = { stateOf, KNOWN };
+  return;
 }
 
 const found = [];
@@ -70,4 +94,4 @@ fs.mkdirSync(path.dirname(ENV), { recursive: true });
 fs.writeFileSync(ENV, kept.join('\n') + '\n');
 
 console.log(`Secrets named for the functions: ${found.length ? found.join(', ') : 'none'}`);
-if (absent.length) console.log(`Not created yet, so skipped: ${absent.join(', ')}`);
+if (absent.length) console.log(`Not set yet (missing, or created with no value), so skipped: ${absent.join(', ')}`);
