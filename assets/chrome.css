@@ -361,7 +361,7 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
 .pfa-footer__grid{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(5,minmax(0,1fr));gap:36px var(--ff-gap);align-items:start}
 .pfa-footer__label{margin:0 0 12px;
   font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ff-fg);white-space:nowrap}
-.pfa-footer__label::before{content:"";display:block;width:18px;height:2px;margin:0 0 14px;background:var(--ff-pop)}
+/* no short rule above the label: a dash-shaped mark is a long dash to the eye (owner's standing rule) */
 .pfa-footer ul{margin:0;padding:0;list-style:none;font-size:13.5px;line-height:1.45}
 .pfa-footer ul a{display:inline-block;padding:5px 0;color:#3a3a3a}
 .pfa-footer ul a:hover{color:var(--ff-fg);opacity:1;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}

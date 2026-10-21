@@ -1002,7 +1002,7 @@ window.addEventListener('unhandledrejection', function (event) {
       var vols = can('volunteers') && stat('volunteers', ((m.byKind || {})['PFA-V'] || {}).waiting || 0, 'volunteer applications waiting');
       if (vols) cells.push('<div class="cell" data-module="volunteers">' + vols + '</div>');
 
-      var gave = can('donations') && stat('donations', money(((m.payments || {}).byType || {}).donate ? m.payments.byType.donate.inr : 0), 'given in 30 days', (((m.payments || {}).byType || {}).donate || {}).count + ' gifts');
+      var gave = can('donations') && stat('donations', money(((m.payments || {}).byType || {}).donate ? m.payments.byType.donate.inr : 0), 'given in 30 days', (((m.payments || {}).byType || {}).donate || {}).count + ' donations');
       if (gave) cells.push('<div class="cell" data-module="donations">' + gave + '</div>');
 
       var cg = can('caregivers') && stat('caregivers', c.caregivers || 0, 'colony cards issued', ((m.caregivers || {}).unprinted || 0) + ' not printed');

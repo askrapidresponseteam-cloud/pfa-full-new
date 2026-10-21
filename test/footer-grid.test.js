@@ -71,7 +71,9 @@ test('one gutter with the header and the page, one gap, labels without rules', (
   assert.match(rule('.pfa-footer__grid'), /gap:36px var\(--ff-gap\)/);
   assert.doesNotMatch(rule('.pfa-footer__label'), /border/, 'no hairline under each label');
   assert.match(rule('.pfa-footer__label'), /white-space:nowrap/);
-  assert.match(rule('.pfa-footer__label::before'), /width:18px;height:2px;[^}]*background:var\(--ff-pop\)/);
+  /* no short red rule above each label: a dash-shaped mark reads as a long
+     dash, which the owner's standing rule forbids anywhere on the site */
+  assert.doesNotMatch(CSS, /\.pfa-footer__label::before\{/, 'no dash above the footer labels');
   /* the office's lines sit on the links' lines */
   assert.match(rule('.pfa-footer ul'), /font-size:13\.5px;line-height:1\.45/);
   assert.match(rule('.pfa-footer__where'), /font-style:normal;font-size:13\.5px;line-height:1\.45/);

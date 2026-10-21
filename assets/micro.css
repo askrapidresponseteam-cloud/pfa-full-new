@@ -83,7 +83,7 @@ a:hover .m-ph img,.m-ph--zoom:hover img{transform:scale(1.03)}
 .m-card p{margin:0;font-size:14px;line-height:1.65;color:rgba(17,17,17,.72)}
 .m-card ul{margin:4px 0 0;padding:0;list-style:none}
 .m-card li{position:relative;padding:7px 0 7px 16px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.5}
-.m-card li::before{content:"";position:absolute;left:0;top:15px;width:6px;height:1px;background:var(--ink)}
+.m-card li::before{content:"";position:absolute;left:0;top:13.5px;width:4px;height:4px;border-radius:50%;background:var(--ink)}
 .m-card__foot{margin-top:auto;padding-top:14px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
 .m-card__foot a{border-bottom:1px solid var(--ink);padding-bottom:2px}
 .m-card--photo{padding:0}

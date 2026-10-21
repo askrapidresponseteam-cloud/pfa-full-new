@@ -423,7 +423,7 @@
         var n = Number(v);
         if (!v || isNaN(n)) return 'Enter an amount in rupees.';
         if (n < 1) return 'Enter at least 1 rupee.';
-        if (n > 10000000) return 'For a gift above 1 crore, please contact the office directly.';
+        if (n > 10000000) return 'For a donation above 1 crore, please contact the office directly.';
         return null;
       }
     },

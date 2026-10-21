@@ -93,7 +93,7 @@ test('a reply is emailed to the sender, recorded on the case, and moves a new ca
 
   const rendered = mail.render('submission_reply', sent[0].payload);
   /* "Re:" the letter's own subject, so the reply threads with it in Gmail and Outlook (v1.399) */
-  assert.equal(rendered.subject, 'Re: Received by PFA - PFA-C-2026-00001');
+  assert.equal(rendered.subject, 'Re: Your request is in - PFA-C-2026-00001');
   assert.ok(rendered.html.includes('Please keep the dog in sight.') && rendered.html.includes('<br>') === false, 'paragraphs, not raw breaks, inside one paragraph');
   assert.ok(rendered.text.includes('Thank you. The Udupi unit will visit tomorrow.'));
 

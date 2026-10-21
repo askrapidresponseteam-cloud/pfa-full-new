@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Donate | People for Animals</title>
 <meta name="description" content="Give once or monthly. Every rupee funds rescue, treatment and lifelong care.">
-<link rel="stylesheet" href="assets/chrome.css?v=9b35cf091e">
+<link rel="stylesheet" href="assets/chrome.css?v=685af7fced">
 <style>
 :root{
   --paper:#fff;
@@ -271,7 +271,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 
 /* ---------- what a typed amount buys: one quiet line ---------- */
 .gift{display:flex;align-items:baseline;gap:10px;margin:14px 0 0;font-size:14px;line-height:1.5;color:var(--ink)}
-.gift::before{content:"";flex:none;width:14px;height:2px;background:var(--pop,#ff3b18);transform:translateY(-4px)}
 /* other amount is a fourth choice in the same group, not a second live field.
    Closed it is a quiet row; open it becomes the field, and the cards let go. */
 .other{margin-top:8px}
@@ -682,7 +681,7 @@ if (root.document && root.document.head) apply(read());
         <img src="img/donate-lifering.webp" width="1000" height="587" alt="A red and white life ring with a red heart and a paw print at its centre, its rope trailing away">
       </figure>
       <div class="impact" id="sideGive">
-        <p class="eyebrow" id="impactLabel">Your gift</p>
+        <p class="eyebrow" id="impactLabel">Your donation</p>
         <p id="impact" aria-live="polite">Rabies shots for five street dogs.</p>
       </div>
     </div>
@@ -720,7 +719,7 @@ if (root.document && root.document.head) apply(read());
               </div>
             </div>
             <a class="btn btn--full" id="usdGo" href="https://www.paypal.com/paypalme/Peopleforanimals/25USD" target="_blank" rel="noopener">Give $25 with PayPal</a>
-            <p class="fine">Dollar gifts go through PayPal to @Peopleforanimals; PayPal collects your details and sends the receipt. Section 80G applies to rupee gifts.</p>
+            <p class="fine">Dollar donations go through PayPal to @Peopleforanimals; PayPal collects your details and sends the receipt. Section 80G applies to rupee donations.</p>
           </div>
           <div class="seg" role="group" aria-label="How often"><button type="button" data-freq="once" aria-pressed="true">Give once</button><button type="button" data-freq="monthly" aria-pressed="false">Give monthly</button></div>
           <div class="amts" id="amts" role="group" aria-label="Choose an amount"></div>
@@ -797,16 +796,16 @@ if (root.document && root.document.head) apply(read());
               </select>
             </div>
             <div class="field"><label for="gPan">PAN (optional, for 80G)</label><input id="gPan" name="pan" type="text" autocomplete="off" maxlength="10" style="text-transform:uppercase"><span class="error">Enter a PAN in the form ABCDE1234F.</span></div>
-            <label class="agree"><input type="checkbox" id="gAgree" required><span>I confirm these details are mine and I accept the gift and receipt terms.</span></label>
-            <span class="error" id="gAgreeErr">Accept the gift and receipt terms to continue.</span>
+            <label class="agree"><input type="checkbox" id="gAgree" required><span id="gAgreeText">I confirm these details are mine and I accept the donation and receipt terms.</span></label>
+            <span class="error" id="gAgreeErr">Accept the donation and receipt terms to continue.</span>
             <button class="btn btn--full" type="submit" id="payBtn">Pay &#8377;1,500</button>
-            <p class="fine" id="payNote">You are handed to CCAvenue to pay. PFA never sees your card, bank or UPI credentials. Your 80G receipt is emailed as soon as the gift clears.</p>
+            <p class="fine" id="payNote">You are handed to CCAvenue to pay. PFA never sees your card, bank or UPI credentials. Your 80G receipt is emailed as soon as the donation clears.</p>
           </form>
         </div>
 
         <div class="pane done" id="p3">
           <p class="eyebrow">Thank you</p>
-          <h2 class="display" id="doneHead">Your gift is&nbsp;in.</h2>
+          <h2 class="display" id="doneHead">Your donation is&nbsp;in.</h2>
           <p id="doneText"></p>
           <div class="actions"><a class="btn" href="index.html">Back to PFA</a><a class="btn btn--ghost" href="wall.html">Watch the wall</a></div>
         </div>
@@ -1046,8 +1045,8 @@ if (root.document && root.document.head) apply(read());
       $('#payNote').textContent = gift
         ? 'You are handed to CCAvenue to pay. PFA never sees your card, bank or UPI credentials. Your 80G receipt is emailed to you as soon as the gift clears, and PFA posts their certificate.'
         : freq !== 'monthly'
-        ? 'You are handed to CCAvenue to pay. PFA never sees your card, bank or UPI credentials. Your 80G receipt is emailed as soon as the gift clears.'
-        : 'A monthly gift needs a mandate you approve once, in your UPI app or on your bank\'s page. Cancel any time with one email.';
+        ? 'You are handed to CCAvenue to pay. PFA never sees your card, bank or UPI credentials. Your 80G receipt is emailed as soon as the donation clears.'
+        : 'A monthly donation needs a mandate you approve once, in your UPI app or on your bank\'s page. Cancel any time with one email.';
     }
     function render(){
       chips();
@@ -1107,7 +1106,12 @@ if (root.document && root.document.head) apply(read());
       set.hidden = !wantGift;
       set.disabled = !wantGift;
       $('#sideHead').textContent = wantGift ? 'Make a gift.' : 'Donate.';
-      $('#impactLabel').textContent = wantGift ? 'A gift' : 'Your gift';
+      $('#impactLabel').textContent = wantGift ? 'A gift' : 'Your donation';
+      /* "gift" is the word for a donation given in someone's name, and only
+         for that (owner, 21 Oct 2026: "why donate also says gift. dont have
+         any such goof up anywhere on the site") */
+      $('#gAgreeText').textContent = 'I confirm these details are mine and I accept the ' + (wantGift ? 'gift' : 'donation') + ' and receipt terms.';
+      $('#gAgreeErr').textContent = 'Accept the ' + (wantGift ? 'gift' : 'donation') + ' and receipt terms to continue.';
       $('#youHead').hidden = !wantGift;
       $('#fine1').textContent = wantGift
         ? 'A gift starts at ' + fmt(GIFT_MIN) + '. The 80G receipt is issued in your name.'
@@ -1135,7 +1139,7 @@ if (root.document && root.document.head) apply(read());
       var clean = n ? String(n) : '';
       if (this.value !== clean) this.value = clean;
       amt = n;
-      err(over ? 'The most that can be given here is ' + fmt(MAX) + '. For a larger gift, ' : '', over);
+      err(over ? 'The most that can be given here is ' + fmt(MAX) + '. For a larger donation, ' : '', over);
       render();
     });
     input.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); $('#next1').click(); } });
