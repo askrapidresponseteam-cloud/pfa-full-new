@@ -28,7 +28,7 @@ async function callback(out) {
   const encResp = encrypt(encodeMerchantData({ order_id: out.order_id, merchant_id: '123456', amount: out.amount, currency: 'INR', order_status: 'Success', tracking_id: '310009876543', bank_ref_no: 'BNK1', payment_mode: 'UPI' }), KEY);
   return (await H.call(require('../lib/routes/payment/response'), { token: null, body: { encResp }, headers: FORM, url: '/api/payment/response' })).raw;
 }
-const PERSON = { name: 'Asha Kumar', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', district: 'Udupi' };
+const PERSON = { name: 'Asha Kumar', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', district: 'Udupi', pincode: '576101' };
 const Q = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', mobile: '9876543210', email: 'asha.rao@example.com' };
 
 /* ---- payment/response.js fileOnce + lib/submissions.js allocateReference ---- */

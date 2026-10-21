@@ -873,6 +873,8 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="memCity">City or town</label><input id="memCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us the city or town.</span></div>
             <div class="field"><label for="memState">State</label><select id="memState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="memDistrict">District</label><select id="memDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
+            <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
+            <div class="field"><label for="memPin">PIN code</label><input id="memPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span></div>
           </div>
         </div>
 
@@ -948,6 +950,8 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="cgCity">City or town</label><input id="cgCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us where.</span></div>
             <div class="field"><label for="cgState">State</label><select id="cgState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="cgDistrict">District</label><select id="cgDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
+            <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
+            <div class="field"><label for="cgPin">PIN code</label><input id="cgPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span></div>
             <div class="field"><label for="cgCount">Roughly how many animals <span class="opt">(optional)</span></label><input id="cgCount" name="animals" type="text" inputmode="numeric" maxlength="4"><span class="hint">An estimate is fine.</span></div>
           </div>
         </div>
@@ -1209,8 +1213,14 @@ if (root.document && root.document.head) apply(read());
         var v = el.value;
         var wrong = !String(v).trim() ||
           (el.type === 'tel' && !mobileOk(v)) ||
-          (el.type === 'email' && !emailOk(v));
+          (el.type === 'email' && !emailOk(v)) ||
+          (el.name === 'pincode' && !/^[1-9]\d{5}$/.test(String(v).replace(/\D/g, '')));
         errs += bad(el, wrong) ? 1 : 0;
+      });
+      /* a required dropdown (state, district) is checked on its own step,
+         not first discovered at Pay (21 Oct 2026) */
+      [].forEach.call(steps[at].querySelectorAll('select[required]'), function(el){
+        errs += bad(el, !el.value) ? 1 : 0;
       });
       [].forEach.call(steps[at].querySelectorAll('input[type="email"]:not([required])'), function(el){
         errs += bad(el, !!el.value.trim() && !emailOk(el.value)) ? 1 : 0;
@@ -1226,7 +1236,7 @@ if (root.document && root.document.head) apply(read());
         if (hint){ hint.textContent = 'Choose at least one area to continue.'; hint.style.color = '#b3261e'; }
         errs += 1;
       }
-      if (errs){ var f = steps[at].querySelector('.is-bad input:not([type="file"]), .is-bad textarea, .is-bad input'); if (f) f.focus(); }
+      if (errs){ var f = steps[at].querySelector('.is-bad input:not([type="file"]), .is-bad textarea, .is-bad select, .is-bad input'); if (f) f.focus(); }
       return !errs;
     }
     function go(n, focus){ at = Math.max(0, Math.min(steps.length - 1, n)); paint(focus); }
@@ -1367,6 +1377,7 @@ if (root.document && root.document.head) apply(read());
         if (el.type === 'checkbox') return !el.checked;
         if (el.name === 'mobile') return !/^[6-9]\d{9}$/.test(el.value.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, ''));
         if (el.type === 'email') return !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim());
+        if (el.name === 'pincode') return !/^[1-9]\d{5}$/.test(el.value.replace(/\D/g, ''));
         return !el.value.trim();
       });
       bad.forEach(function(el){ var f = el.closest('.field'); if (f) f.classList.add('is-bad'); });
@@ -1447,16 +1458,22 @@ if (root.document && root.document.head) apply(read());
     var sending = false;
     form.addEventListener('submit', function(e){
       var n=$('#cgName'), m=$('#cgMobile'), em=$('#cgEmail'), a=$('#cgAddress'), c=$('#cgCity');
+      var st=$('#cgState'), di=$('#cgDistrict'), pin=$('#cgPin');
       var errs = 0;
       errs += bad(n, !n.value.trim()) ? 1 : 0;
       errs += bad(m, !mobileOk(m.value)) ? 1 : 0;
       errs += bad(em, !emailOk(em.value)) ? 1 : 0;
       errs += bad(a, !a.value.trim()) ? 1 : 0;
       errs += bad(c, !c.value.trim()) ? 1 : 0;
+      /* the server's rules (lib/payment.js), here so a gap is shown on the
+         form rather than on an error page after the round trip */
+      errs += bad(st, !st.value) ? 1 : 0;
+      errs += bad(di, !di.value) ? 1 : 0;
+      errs += bad(pin, !/^[1-9]\d{5}$/.test(pin.value.replace(/\D/g, ''))) ? 1 : 0;
       ['photo'].forEach(function(kind){ var box = docBox(kind); if (box){ box.classList.toggle('is-bad', !docs[kind]); if (!docs[kind]) errs += 1; } });
       if (errs){
         e.preventDefault();
-        var first = form.querySelector('.is-bad input');
+        var first = form.querySelector('.is-bad input, .is-bad select');
         if (first) first.focus();
         return;
       }

@@ -40,7 +40,7 @@ const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('..
 
 const KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 const YEAR = new Date().getUTCFullYear();
-const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi' };
+const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi', pincode: '110024' };
 const DONOR = { type: 'donate', currency: 'inr', amount: '1500', terms: 'yes', cause: 'Where it is needed most', ...PERSON };
 const ADMIN = { authorization: 'Bearer test-admin' };
 const CCA_ENV = ['CCAVENUE_MERCHANT_ID', 'CCAVENUE_ACCESS_CODE', 'CCAVENUE_WORKING_KEY', 'CCAVENUE_MODE', 'PUBLIC_SITE_URL'];

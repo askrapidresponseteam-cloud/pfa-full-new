@@ -74,7 +74,7 @@ test('membership is a payment type, and every part of it is wired', () => {
   assert.deepEqual(Object.values(payment.MEMBERSHIP_TIERS).map((t) => t.amount), [500, 1000, 2500, 5000, 10000]);
   /* the amount comes from the tier, never from the form */
   const body = { type: 'membership', tier: 'golden', amount: '1', name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com',
-    address: '12 Lake Road', city: 'Pune', state: 'Maharashtra', district: 'Pune', terms: 'yes' };
+    address: '12 Lake Road', city: 'Pune', state: 'Maharashtra', district: 'Pune', pincode: '411004', terms: 'yes' };
   const tx = payment.parsePaymentRequest(body);
   assert.equal(tx.type, 'membership'); assert.equal(tx.amount, 2500); assert.equal(tx.metadata.tierLabel, 'Golden membership');
   assert.throws(() => payment.parsePaymentRequest({ ...body, tier: 'diamond' }), /Choose a membership/);

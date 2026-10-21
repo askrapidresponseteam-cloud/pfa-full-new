@@ -79,7 +79,7 @@ function recorder() {
 const DONOR = {
   type: 'donate', currency: 'inr', amount: '1500', terms: 'yes',
   name: 'Asha Kumar', mobile: '9876543210', email: 'Asha@Example.com',
-  address: '16 MG Road, Udupi', cause: 'Where it is needed most', pan: 'ABCDE1234F'
+  address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', cause: 'Where it is needed most', pan: 'ABCDE1234F'
 };
 
 let db;

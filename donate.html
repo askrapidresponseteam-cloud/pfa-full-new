@@ -779,6 +779,14 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="gMobile">Mobile number</label><input id="gMobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" required><span class="error">Enter a 10-digit Indian mobile number.</span><span class="hint">Used to trace the payment if anything goes wrong.</span></div>
             <div class="field"><label for="gEmail">Email</label><input id="gEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email for the receipt.</span></div>
             <div class="field"><label for="gAddress">Address</label><input id="gAddress" name="address" type="text" autocomplete="street-address" required><span class="error">Add the address your 80G receipt should carry.</span></div>
+            <!-- PIN, city and state go on to CCAvenue as billing_zip,
+                 billing_city and billing_state, so its page arrives filled in
+                 (owner, 21 Oct 2026: "so that user doesnt have to fill again") -->
+            <div class="field2">
+              <div class="field"><label for="gCity">City or town</label><input id="gCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us the city or town.</span></div>
+              <div class="field"><label for="gPin">PIN code</label><input id="gPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span></div>
+            </div>
+            <div class="field"><label for="gState">State</label><select id="gState" name="state" autocomplete="address-level1" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="gCause">Where it should go</label>
               <select id="gCause" name="cause">
                 <option>Where it is needed most</option>
@@ -1160,22 +1168,34 @@ if (root.document && root.document.head) apply(read());
     });
     $('#giftSet').addEventListener('input', function(e){ var t = e.target; if (t.closest('.field')) bad(t, false); });
 
+    /* the state list every form on the site uses (assets/india-districts.js) */
+    (function(){
+      var st = $('#gState');
+      if (!st || !window.PFA_INDIA) return;
+      (window.PFA_INDIA.STATES || []).forEach(function(name){ var o = document.createElement('option'); o.value = name; o.textContent = name; st.appendChild(o); });
+    })();
     function bad(el, on){ el.closest('.field').classList.toggle('is-bad', on); return on; }
     $('#giveForm').addEventListener('submit', function(e){
       var n = $('#gName'), mob = $('#gMobile'), m = $('#gEmail'), ad = $('#gAddress'), pan = $('#gPan'), errs = 0;
+      var city = $('#gCity'), pin = $('#gPin'), st = $('#gState');
       errs += bad(n, !n.value.trim()) ? 1 : 0;
       /* Same rule the server applies in assets/field-rules.js: ten digits
          starting 6-9. Catching it here saves a round trip to an error page. */
       errs += bad(mob, !/^[6-9]\d{9}$/.test(mob.value.replace(/\D/g, ''))) ? 1 : 0;
       errs += bad(m, !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m.value)) ? 1 : 0;
       errs += bad(ad, ad.value.trim().length < 6) ? 1 : 0;
+      /* the server's rules (lib/payment.js): a real city, a 6-digit PIN not
+         starting with 0, a state from the list */
+      errs += bad(city, city.value.trim().length < 2) ? 1 : 0;
+      errs += bad(pin, !/^[1-9]\d{5}$/.test(pin.value.replace(/\D/g, ''))) ? 1 : 0;
+      errs += bad(st, !st.value) ? 1 : 0;
       errs += bad(pan, !!pan.value.trim() && !/^[A-Za-z]{5}[0-9]{4}[A-Za-z]$/.test(pan.value.trim())) ? 1 : 0;
       if (gift && !giftOk()){ e.preventDefault(); step(2); return; }
       var agreed = $('#gAgree').checked;
       $('#gAgreeErr').classList.toggle('on', !agreed);
       if (errs || !agreed){
         e.preventDefault();
-        var first = this.querySelector('.is-bad input');
+        var first = this.querySelector('.is-bad input, .is-bad select');
         if (first) first.focus(); else $('#gAgree').focus();
         return;
       }
@@ -1193,6 +1213,7 @@ if (root.document && root.document.head) apply(read());
       var cause = $('#gCause');
       var details = [amt, (this.querySelector('[name="currency"]') || {}).value || 'inr',
         n.value.trim(), mob.value.replace(/\D/g, ''), m.value.trim().toLowerCase(), ad.value.trim(),
+        city.value.trim(), pin.value.replace(/\D/g, ''), st.value,
         cause ? cause.value : '', pan.value.trim().toUpperCase()]
         .concat(gift ? [$('#giftTo').value.trim(), $('#giftAddress').value.trim(), $('#giftPin').value.replace(/\D/g, ''),
           $('#giftEmail').value.trim().toLowerCase()] : []);

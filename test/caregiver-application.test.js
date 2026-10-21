@@ -16,7 +16,7 @@ const ROOT = path.join(__dirname, '..');
 const good = {
   type: 'caregiver-application', name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com',
   address: 'Car Street colony, near the temple', city: 'Udupi', animals: '12',
-  district: 'Udupi', state: 'Karnataka',
+  district: 'Udupi', state: 'Karnataka', pincode: '576101',
   documents: 'a'.repeat(48)   // the token /api/caregiver/documents issued for the photograph
 };
 

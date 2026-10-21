@@ -322,6 +322,13 @@ for (const [kind, form] of Object.entries(FORMS)) {
     assert.ok(confirm, 'the sender is sent a confirmation');
     assert.equal(res.json.confirmation.state, 'sent');
 
+    /* a volunteer application is kept in the panel only (owner, 21 Oct
+       2026): the person is confirmed, and nobody at PFA is emailed */
+    if (require('../lib/submission-forward').panelOnly({ kind })) {
+      assert.deepEqual(sent.filter((m) => !m.to.includes('tester.pfa@example.com')).map((m) => m.to), [], 'no email to anyone at PFA');
+      assert.ok((await adminList()).includes(ref), 'the admin panel lists it');
+      return;
+    }
     const copy = toInbox();
     assert.equal(copy.length, 1, 'one copy to the inbox');
     assert.equal(copy[0].reply_to, 'tester.pfa@example.com', 'Reply answers the sender');
@@ -360,16 +367,18 @@ async function pay(form) {
   return back.raw;
 }
 
-const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi' };
+const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi', pincode: '110024' };
 
-test('a paid membership: on record, in the payments inboxes (never gandhim\'s), and in the admin panel\'s list', async () => {
+test('a paid membership: on record and in the admin panel\'s list, emailed to nobody at PFA (never gandhim\'s)', async () => {
   const page = await pay(Object.assign({ type: 'membership', tier: 'silver', terms: 'yes' }, PERSON));
   const ref = (page.match(/PFA-MEM-\d{4}-\d{5}/) || [])[0];
   assert.ok(ref, 'the member is shown their number');
   assert.ok(Number(db.dump()['submissions/' + ref].receivedAtMs) > 0, 'without it the panel never lists the membership');
-  const copy = paidCopies();
-  assert.equal(copy[0].reply_to, 'tester.pfa@example.com');
-  assert.match(copy[0].text, /Membership: Silver membership/);
+  /* kept in the panel only (owner, 21 Oct 2026): the member gets their
+     welcome letter, and no copy goes to gandhim or the payments inboxes */
+  assert.equal(toInbox().length, 0);
+  for (const address of PAY) assert.equal(toPayments(address).length, 0, `nothing to ${address}`);
+  assert.ok(sent.some((m) => m.to.includes('tester.pfa@example.com')), 'the member is written to');
   assert.ok((await adminList()).includes(ref));
 });
 

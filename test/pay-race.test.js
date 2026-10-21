@@ -28,7 +28,7 @@ const YEAR = new Date().getUTCFullYear();
 const PHOTO = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(__dirname, '..', 'media/cinekind-2026/reels/glimpse.jpg')).toString('base64');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi' };
+const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi', pincode: '110024' };
 const DONOR = { type: 'donate', currency: 'inr', amount: '1500', terms: 'yes', cause: 'Where it is needed most', pan: 'ABCDE1234F', ...PERSON };
 const MEMBER = { type: 'membership', tier: 'silver', terms: 'yes', ...PERSON };
 

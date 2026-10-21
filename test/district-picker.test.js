@@ -129,7 +129,7 @@ test('the server refuses the pair the picker prevents', () => {
   const payment = require(path.join(ROOT, 'lib', 'payment.js'));
   const good = {
     type: 'caregiver-application', name: 'Asha Rao', mobile: '9876543210', email: 'a@b.in',
-    address: 'Car Street colony', city: 'Udupi', district: 'Udupi', state: 'Karnataka',
+    address: 'Car Street colony', city: 'Udupi', district: 'Udupi', state: 'Karnataka', pincode: '576101',
     documents: 'b'.repeat(48)
   };
   assert.doesNotThrow(() => payment.parsePaymentRequest(good));

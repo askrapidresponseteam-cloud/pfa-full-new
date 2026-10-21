@@ -97,7 +97,7 @@ test('B2c a photo write failing (both tries) after the record is on file never a
 
 /* ---- paid flows ---- */
 function cb(form) { return form; }
-const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi', pin: '110024' };
+const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi', pincode: '110024', pin: '110024' };
 async function handoff(form) {
   const create = require('../lib/routes/payment/create');
   const res = await H.call(create, { token: null, body: form, headers: { 'content-type': 'application/x-www-form-urlencoded' } });

@@ -122,13 +122,18 @@ test('the list below is the server\'s own, not a copy', () => {
 });
 
 for (const kind of PUBLIC) {
-  test(kind + ' (' + S.KIND_LABELS[kind] + '): filed, and one copy reaches gandhim with Reply-To the sender', async () => {
+  test(kind + ' (' + S.KIND_LABELS[kind] + '): filed, and ' + (FORWARD.panelOnly({ kind }) ? 'kept in the panel only, emailed to nobody at PFA' : 'one copy reaches gandhim with Reply-To the sender'), async () => {
     const res = await call(require('../lib/routes/pfa-submissions'), { kind, data: payloadFor(kind), page: 'contract-test', clientRequestId: 'contract-' + kind });
     assert.equal(res.statusCode, 200, kind + ' was refused: ' + res.raw.slice(0, 300));
     const ref = res.json.reference;
     assert.match(ref, new RegExp('^' + kind + '-\\d{4}-\\d{5}$'));
     assert.ok(db.dump()['submissions/' + ref], 'on record');
     const copies = sent.filter((m) => [].concat(m.to).includes(INBOX));
+    if (FORWARD.panelOnly({ kind })) {
+      /* kept in the admin panel only (owner, 21 Oct 2026) */
+      assert.deepEqual(sent.filter((m) => ![].concat(m.to).includes(SENDER)).map((m) => m.to), [], kind + ' is emailed to nobody at PFA');
+      return;
+    }
     assert.equal(copies.length, 1, 'exactly one copy to gandhim');
     assert.equal(copies[0].reply_to, SENDER, 'Reply goes to the sender');
     assert.ok(copies[0].subject.startsWith(ref + ':'), copies[0].subject);
@@ -148,7 +153,7 @@ test('the kinds a payment opens are each proved to reach the payments inboxes, a
   const e2e = read('submissions-end-to-end.test.js');
   /* owner, 21 Oct 2026: records of money go to pfadcmho@gmail.com and
      ozairhusain@gmail.com, never gandhim */
-  assert.match(e2e, /a paid membership: on record, in the payments inboxes \(never gandhim\\?'s\)/);
+  assert.match(e2e, /a paid membership: on record and in the admin panel\\?'s list, emailed to nobody at PFA \(never gandhim\\?'s\)/, 'a membership is kept in the panel only (21 Oct 2026)');
   assert.match(e2e, /a paid colony caregiver application: on record with its photograph, in the payments inboxes/);
   const thread = read('email-thread.test.js');
   assert.match(thread, /a donation: a case under PFA-DON, the payments inboxes get it \(never gandhim\) with Reply-To the site/);

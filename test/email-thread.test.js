@@ -134,7 +134,7 @@ async function pay(form) {
   return back.raw;
 }
 
-const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: PERSON_A, address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi' };
+const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: PERSON_A, address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi', pincode: '110024' };
 
 const inboxCopies = (to = INBOX) => smtp.sent.filter((m) => m.to === to);
 const lastInboxCopy = (to = INBOX) => inboxCopies(to)[inboxCopies(to).length - 1];
@@ -717,4 +717,130 @@ test('once the mailbox is open, a refusal is that mailbox\'s answer, reported as
   const out = await call(require('../lib/routes/inbound-mail'), { body: {}, headers: cron });
   assert.deepEqual(tried, ['imap.secureserver.net']);
   assert.match(out.json.error, /imap\.secureserver\.net answered SEARCH not allowed/);
+});
+
+/* ---- kept in the admin panel only: volunteers and memberships ----------
+
+   Owner, 21 Oct 2026: "Keep volunteer and membership submissions in the
+   admin panel only; do not forward them by email. Add a Reply feature using
+   the email service so admins can email applicants and receive their
+   replies within the same admin conversation (entirely within admin panel
+   without having to go to email service provider UI). Test the entire flow
+   end to end: submission, admin visibility, outgoing email, incoming reply,
+   and conversation history."
+
+   Each kind is driven the whole way through the real routes: the form (or
+   CCAvenue's callback, for a membership), the panel's register and record,
+   the Reply box sending through the mailbox, the person answering with a
+   plain Reply, the mailbox reading filing it on the same record, and a
+   second round of both. Nothing at any point is emailed to anyone at PFA. */
+
+const VOLUNTEER = { name: 'Asha Rao', mobile: '9876543210', email: PERSON_A, city: 'New Delhi, Delhi', title: 'Volunteer: Head Office', notes: 'Free on weekends. I can help with feeding drives and first aid.' };
+
+const register = async () => (await call(require('../lib/routes/admin/records.js'), { method: 'GET', query: { type: 'submissions', limit: '50' }, headers: admin })).json.rows;
+const panelReply = (reference, text) => call(require('../lib/routes/admin/case'), { body: { reference, action: 'reply', text, requestId: 'r-' + Math.random() }, headers: admin });
+const toPFA = () => smtp.sent.filter((m) => m.to !== PERSON_A);
+
+async function conversationInThePanel(ref, firstLetter) {
+  /* 2. admin visibility: in the register, not marked, and readable */
+  let row = (await register()).find((r) => r.reference === ref);
+  assert.ok(row, 'the register lists it');
+  assert.equal(row.awaitingReply, false, 'nobody has written back yet');
+  let c = await caseOf(ref);
+  assert.equal(c.reference, ref);
+  assert.equal(c.messages.length, 0, 'no copy to any inbox opens the conversation');
+
+  /* 3. outgoing: the Reply box sends through the mailbox, threaded on the
+     letter the person already has */
+  const r1 = await panelReply(ref, 'Thank you for writing in. Could you come in on Saturday at 10?');
+  assert.equal(r1.statusCode, 200, r1.raw.slice(0, 300));
+  assert.equal(r1.json.delivered, true);
+  const out1 = toPersonA().find((m) => /^Re: /.test(m.subject));
+  assert.ok(out1, 'the reply reached the person');
+  assert.equal(out1.from, 'People for Animals <info@peopleforanimalsindia.org>', 'from PFA\'s own mailbox');
+  assert.equal(out1.subject, `Re: ${firstLetter.subject}`, 'in the same conversation in their mail app');
+  assert.equal(out1.inReplyTo, firstLetter.messageId);
+  assert.deepEqual(replyToList(out1), [SITE_MAILBOX], 'their Reply comes back to the mailbox the site reads');
+  assert.match(out1.text, /come in on Saturday at 10/);
+
+  /* 4. incoming: a plain Reply from the person, read from the mailbox */
+  const back1 = replyTo(out1, { from: PERSON_A, name: 'Asha Rao', text: 'Saturday works. See you then.' });
+  assert.deepEqual(back1.to, [SITE_MAILBOX]);
+  const filed1 = await arrives(back1);
+  assert.equal(filed1.statusCode, 200, filed1.raw.slice(0, 300));
+  assert.equal(filed1.json.filed, true);
+  assert.equal(filed1.json.reference, ref, 'filed on the same record');
+  assert.equal(filed1.json.party, 'sender');
+  assert.deepEqual(filed1.json.relayed || [], [], 'carried on to nobody: the panel is where it is read');
+  row = (await register()).find((r) => r.reference === ref);
+  assert.equal(row.awaitingReply, true, 'the register marks it: the person wrote back');
+
+  /* a second round: PFA again, the person again */
+  const r2 = await panelReply(ref, 'Wonderful. Please bring an ID.');
+  assert.equal(r2.json.delivered, true);
+  row = (await register()).find((r) => r.reference === ref);
+  assert.equal(row.awaitingReply, false, 'answered: the mark goes');
+  const out2 = toPersonA().filter((m) => /^Re: /.test(m.subject))[1];
+  assert.ok(out2 && /bring an ID/.test(out2.text));
+  assert.ok(MT.idsIn(out2.references).includes(firstLetter.messageId), 'still the same conversation');
+  const filed2 = await arrives(replyTo(out2, { from: PERSON_A, name: 'Asha Rao', text: 'Will do.' }));
+  assert.equal(filed2.json.reference, ref);
+  assert.equal((await register()).find((r) => r.reference === ref).awaitingReply, true);
+
+  /* the same email read twice is one message */
+  assert.equal((await arrives(replyTo(out2, { from: PERSON_A, name: 'Asha Rao', text: 'Will do.' }))).json.filed, true, 'a second, different email is filed');
+  const dup = await arrives(back1);
+  assert.equal(dup.json.reason, 'DUPLICATE');
+
+  /* 5. conversation history: every leg, oldest first, on the one record */
+  c = await caseOf(ref);
+  const legs = c.messages.map((m) => `${m.type}:${m.direction}:${m.party}`);
+  assert.deepEqual(legs, ['reply:out:staff', 'reply:in:sender', 'reply:out:staff', 'reply:in:sender', 'reply:in:sender']);
+  assert.deepEqual(c.messages.map((m) => m.text), [
+    'Thank you for writing in. Could you come in on Saturday at 10?',
+    'Saturday works. See you then.',
+    'Wonderful. Please bring an ID.',
+    'Will do.',
+    'Will do.'
+  ]);
+  assert.equal(records().filter((k) => k.startsWith('submissions/' + ref.slice(0, 6))).length, 1, 'still one record');
+
+  /* and at no point was anyone at PFA emailed */
+  assert.deepEqual(toPFA().map((m) => m.to), [], 'no copy, no relay, nothing to gandhim or the payments inboxes');
+}
+
+test('a volunteer application: kept in the panel only, answered from it, and the whole conversation is there', async () => {
+  /* 1. submission */
+  const res = await submit('PFA-V', VOLUNTEER, 'get-involved.html');
+  assert.equal(res.statusCode, 200, res.raw.slice(0, 300));
+  const ref = res.json.reference;
+  assert.match(ref, /^PFA-V-\d{4}-\d{5}$/);
+  const record = db.dump()['submissions/' + ref];
+  assert.ok(record && MT.isThreadId(record.threadId), 'on record, with a conversation');
+  assert.deepEqual(toPFA().map((m) => m.to), [], 'no copy to anyone at PFA');
+  const letter = toPersonA()[0];
+  assert.ok(letter, 'the volunteer is sent their confirmation');
+  assert.equal(letter.messageId, `<${ref}.${record.threadId}.confirm@peopleforanimalsindia.org>`);
+  await conversationInThePanel(ref, letter);
+});
+
+test('a paid membership: kept in the panel only, answered from it, and the whole conversation is there', async () => {
+  /* 1. submission, through CCAvenue */
+  const page = await pay(Object.assign({ type: 'membership', tier: 'silver', terms: 'yes' }, PERSON));
+  const ref = (page.match(/PFA-MEM-\d{4}-\d{5}/) || [])[0];
+  assert.ok(ref, 'the member is shown their number');
+  const record = db.dump()['submissions/' + ref];
+  assert.ok(record && MT.isThreadId(record.threadId));
+  assert.deepEqual(toPFA().map((m) => m.to), [], 'no copy to anyone at PFA, the payments inboxes included');
+  const letter = toPersonA().find((m) => m.messageId === `<${ref}.${record.threadId}.confirm@peopleforanimalsindia.org>`);
+  assert.ok(letter, 'the member is sent their welcome letter, which opens the conversation');
+  await conversationInThePanel(ref, letter);
+});
+
+test('the panel shows who wrote back, and says that volunteers and memberships stay in it', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
+  assert.match(html, /function wrote\(r\) \{\s*return r && r\.awaitingReply \?/);
+  assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n      \+ '<td>' \+ esc\(r\.assignedTo/, 'in the register');
+  assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n          \+ '<td>' \+ esc\(when\(r\.createdAt\)\)/, 'and in the volunteers list');
+  assert.match(html, /Volunteer applications and memberships are not emailed to anyone at PFA: they are kept here only/);
 });

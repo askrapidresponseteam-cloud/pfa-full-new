@@ -182,6 +182,7 @@ td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .flag[data-s="in-progress"]{border-color:var(--working);color:var(--working)}
 .flag[data-s="handled"]{color:var(--done)}
 .flag[data-s="spam"]{color:var(--muted);text-decoration:line-through}
+.flag[data-s="wrote"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
 .empty{padding:56px 20px;text-align:center;color:var(--muted)}
 .empty b{display:block;font-family:var(--display);font-size:18px;color:var(--ink);font-weight:400;margin:0 0 6px}
 .more{display:flex;justify-content:center;padding:16px 0 0}
@@ -1125,7 +1126,8 @@ window.addEventListener('unhandledrejection', function (event) {
         var pay = (m.paymentInboxes || []).join(', ');
         out.push('<p class="state">A copy of every form goes to <b>' + esc(to) + '</b>'
           + (pay ? '. Every record of money (donations, gifts, memberships, caregiver applications and shop orders) goes to <b>' + esc(pay) + '</b> instead, and never to ' + esc(to) : '')
-          + ', with Reply set to the person who sent it, and any photographs attached. It is sent as ' + esc(m.from) + (m.via === 'smtp' ? ', through that mailbox at GoDaddy' : ', through Resend') + '.</p>');
+          + ', with Reply set to the person who sent it, and any photographs attached. It is sent as ' + esc(m.from) + (m.via === 'smtp' ? ', through that mailbox at GoDaddy' : ', through Resend') + '.'
+          + ' Volunteer applications and memberships are not emailed to anyone at PFA: they are kept here only, answered from the Reply box on the record, and their answers come back onto it.</p>');
         var sc = m.sentCopies || {};
         if (m.via === 'smtp' && sc.on) {
           out.push('<p class="note">Everything the site sends is also saved in the Sent folder of ' + esc((m.from.match(/<([^>]+)>/) || [])[1] || 'the mailbox') + '.'
@@ -1347,6 +1349,12 @@ window.addEventListener('unhandledrejection', function (event) {
     var text = label || STATUS_WORDS[status] || status;
     return '<span class="flag" data-s="' + esc(status) + '">' + esc(text) + '</span>';
   }
+  /* The person answered and PFA has not yet: the only sign of it for a
+     record kept in the panel only (volunteers, memberships), which reaches
+     no inbox (21 Oct 2026). Gone once PFA replies. */
+  function wrote(r) {
+    return r && r.awaitingReply ? ' <span class="flag" data-s="wrote" title="' + esc('Wrote back ' + when(r.lastInboundAt || r.lastReplyAt)) + '">Wrote back</span>' : '';
+  }
 
   function subRow(r) {
     var c = contactOf(r.fields);
@@ -1354,7 +1362,7 @@ window.addEventListener('unhandledrejection', function (event) {
       + '<td class="ref"><button class="rowopen" type="button" data-open-case="' + esc(r.reference) + '">' + esc(r.reference) + '</button></td>'
       + '<td>' + esc(r.kindLabel || r.kind) + (r.attachments ? ' <span class="flag">' + (r.kind === 'PFA-CG' && r.attachments >= 2 ? 'photo + proof' : r.attachments + ' photo') + '</span>' : '') + '</td>'
       + '<td>' + esc(c.name || '-') + '<br><span class="note">' + esc(c.email || c.mobile || '') + '</span></td>'
-      + '<td>' + flag(r.status, r.statusLabel) + '</td>'
+      + '<td>' + flag(r.status, r.statusLabel) + wrote(r) + '</td>'
       + '<td>' + esc(r.assignedTo || '-') + '</td>'
       + '<td>' + esc(when(r.createdAt)) + '</td>'
       + '</tr>';
@@ -1406,7 +1414,7 @@ window.addEventListener('unhandledrejection', function (event) {
         return '<tr><td class="ref"><button class="rowopen" type="button" data-open-case="' + esc(r.reference) + '">' + esc(r.reference) + '</button></td>'
           + '<td>' + esc(c.name || '-') + '</td>'
           + '<td>' + esc(c.email || c.mobile || '-') + '</td>'
-          + '<td>' + flag(r.status, r.statusLabel) + '</td>'
+          + '<td>' + flag(r.status, r.statusLabel) + wrote(r) + '</td>'
           + '<td>' + esc(when(r.createdAt)) + '</td></tr>';
       }).join(''));
       volCursor = data.cursor || null;

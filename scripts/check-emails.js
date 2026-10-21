@@ -163,7 +163,10 @@ function classify(r) {
   const route = FORWARD.inboxes({ kind: r.kind });
   const fwds = r.sent.filter((m) => m.template === 'submission_forward');
   r.forwardTo = fwds.map((m) => m.to).join(', ');
-  r.forwarded = route.length > 0
+  /* a volunteer application or a membership is kept in the panel only:
+     right when nothing at all was forwarded */
+  r.panelOnly = route.length === 0 && FORWARD.panelOnly({ kind: r.kind });
+  r.forwarded = r.panelOnly ? fwds.length === 0 : route.length > 0
     && route.every((to) => fwds.some((m) => String(m.to).toLowerCase() === to && m.payload && m.payload.replyTo === me))
     && fwds.every((m) => route.includes(String(m.to).toLowerCase()));
   return r;
@@ -191,8 +194,8 @@ async function run() {
       r.ok = r.filed && Boolean(r.ack) && r.state === 'sent' && r.forwarded;
       rows.push(r);
     }
-    rows.push(await paid('Become a member (paid)', { type: 'membership', tier: 'golden', amount: '2500', name: PERSON.name, mobile: PERSON.mobile, email: EMAIL, address: '16 MG Road', city: 'Udupi', state: 'Karnataka', district: 'Udupi', terms: 'yes' }, 'PFA-MEM', TEMPLATES['PFA-MEM']));
-    rows.push(await paid('Colony caregiver card (paid)', { type: 'caregiver-application', name: PERSON.name, mobile: PERSON.mobile, email: EMAIL, address: 'Car Street colony, near the temple', city: 'Udupi', animals: '12', district: 'Udupi', state: 'Karnataka', documents: 'a'.repeat(48), terms: 'yes' }, 'PFA-CG', TEMPLATES['PFA-CG']));
+    rows.push(await paid('Become a member (paid)', { type: 'membership', tier: 'golden', amount: '2500', name: PERSON.name, mobile: PERSON.mobile, email: EMAIL, address: '16 MG Road', city: 'Udupi', state: 'Karnataka', district: 'Udupi', pincode: '576101', terms: 'yes' }, 'PFA-MEM', TEMPLATES['PFA-MEM']));
+    rows.push(await paid('Colony caregiver card (paid)', { type: 'caregiver-application', name: PERSON.name, mobile: PERSON.mobile, email: EMAIL, address: 'Car Street colony, near the temple', city: 'Udupi', animals: '12', district: 'Udupi', state: 'Karnataka', pincode: '576101', documents: 'a'.repeat(48), terms: 'yes' }, 'PFA-CG', TEMPLATES['PFA-CG']));
     for (const r of rows.filter((x) => !x.free)) { classify(r); r.ok = r.filed && Boolean(r.ack) && r.ack.template === r.template && r.forwarded; }
   } finally {
     console.warn = saved.warn; console.info = saved.info;
@@ -217,7 +220,7 @@ function print(rows, brief) {
     console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.doing.padEnd(30)} ${r.kind.padEnd(8)} ${r.page}`);
     console.log(`      admin panel: ${r.filed ? `filed in Submissions as ${r.ref}` : 'NOT FILED'}`);
     console.log(`      email:       ${ack ? `sent to ${ack.to}, "${subjectOf(ack)}"` : 'NONE SENT'}`);
-    console.log(`      forwarded:   ${r.forwarded ? `to ${r.forwardTo}, Reply-To ${EMAIL}` : 'NOT FORWARDED to the inbox with Reply-To set'}`);
+    console.log(`      forwarded:   ${r.panelOnly ? (r.forwarded ? 'not emailed, kept in the admin panel only (as it should be)' : `EMAILED to ${r.forwardTo}, but it should stay in the panel only`) : r.forwarded ? `to ${r.forwardTo}, Reply-To ${EMAIL}` : 'NOT FORWARDED to the inbox with Reply-To set'}`);
     if (r.free) {
       console.log(`      no email given: ${r.noEmailRefused ? `refused (${r.noEmailField}), nothing filed` : 'FILED WITHOUT AN EMAIL'}`);
       console.log(`      mail switched off: still filed (${r.unconfiguredFiled ? 'yes' : 'NO'}), email ${r.unconfiguredState}, and the page tells the person`);

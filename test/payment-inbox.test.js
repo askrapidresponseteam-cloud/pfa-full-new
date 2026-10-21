@@ -48,10 +48,14 @@ test('every kind a payment files is a record of money', () => {
 
 test('a record of money goes to both payments inboxes; a form to gandhim, as before', () => {
   withEnv({}, (F) => {
-    for (const kind of ['PFA-MEM', 'PFA-CG', 'PFA-DON', 'PFA-SHP']) {
+    for (const kind of ['PFA-CG', 'PFA-DON', 'PFA-SHP']) {
       assert.deepEqual(F.inboxes({ kind, reference: `${kind}-1` }), PAY, kind);
     }
-    for (const kind of ['PFA-CR', 'PFA-Q', 'PFA-V', 'PFA-A', 'PFA-EV', 'PFA-CK']) {
+    /* a membership, though paid, is kept in the panel only (owner, 21 Oct
+       2026), as is a volunteer application */
+    assert.deepEqual(F.inboxes({ kind: 'PFA-MEM' }), [], 'PFA-MEM goes nowhere');
+    assert.deepEqual(F.inboxes({ kind: 'PFA-V' }), [], 'PFA-V goes nowhere');
+    for (const kind of ['PFA-CR', 'PFA-Q', 'PFA-A', 'PFA-EV', 'PFA-CK']) {
       assert.deepEqual(F.inboxes({ kind }), [GANDHIM], kind);
     }
     assert.deepEqual(F.inboxes(), [GANDHIM], 'no record: the forms inbox, as before');

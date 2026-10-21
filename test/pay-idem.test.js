@@ -83,7 +83,7 @@ function callback(out, { url = '/api/payment/response', key = KEY, currency = 'I
 
 const create = () => require('../lib/routes/payment/create');
 const GIFT = {
-  type: 'donate', currency: 'inr', amount: '2500', terms: 'yes', name: 'Asha Kumar', mobile: '9876543210', address: '16 MG Road, Udupi',
+  type: 'donate', currency: 'inr', amount: '2500', terms: 'yes', name: 'Asha Kumar', mobile: '9876543210', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101',
   gift: 'yes', giftTo: 'Ravi Menon', giftPin: '560038', client_ref: 'gift-VISIT-abc'
 };
 
@@ -114,7 +114,7 @@ test('D7: the same request posted twice is still one transaction, and a paid one
 });
 
 test('D7: switching currency under the same key is a new transaction, not a 409', async () => {
-  const base = { type: 'donate', amount: '50', terms: 'yes', name: 'Asha Kumar', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Udupi', client_ref: 'donate-VISIT-xyz' };
+  const base = { type: 'donate', amount: '50', terms: 'yes', name: 'Asha Kumar', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', client_ref: 'donate-VISIT-xyz' };
   const rupees = await handoff(create(), { ...base, currency: 'inr' });
   const res = await call(create(), { body: { ...base, currency: 'usd' } });
   assert.equal(res.statusCode, 200, res.raw.slice(0, 300));
@@ -143,11 +143,15 @@ test('D7: donate.html makes a new key when any detail that matters changes, and 
     return d.getElementById('gRef').value;
   };
   set('gName', 'Asha Kumar'); set('gMobile', '9876543210'); set('gEmail', 'asha@exmaple.com'); set('gAddress', '16 MG Road, Udupi'); set('gPan', 'ABCDE1234F');
+  set('gCity', 'Udupi'); set('gPin', '576101');
+  const st = d.getElementById('gState');
+  for (const name of ['Karnataka', 'Kerala']) if (![...st.options].some((o) => o.value === name)) st.add(new dom.window.Option(name, name));
+  st.value = 'Karnataka';
   d.getElementById('gAgree').checked = true;
   const first = key();
   assert.match(first, /^donate-/);
   assert.equal(key(), first, 'pressing Pay again unchanged is the same request');
-  for (const [id, value] of [['gEmail', 'asha@example.com'], ['gPan', 'ABCDE9999Z'], ['gAddress', '22 Car Street, Udupi'], ['gName', 'Asha K Rao'], ['gMobile', '9123456780']]) {
+  for (const [id, value] of [['gEmail', 'asha@example.com'], ['gPan', 'ABCDE9999Z'], ['gAddress', '22 Car Street, Udupi'], ['gName', 'Asha K Rao'], ['gMobile', '9123456780'], ['gCity', 'Kundapura'], ['gPin', '576201'], ['gState', 'Kerala']]) {
     const before = key();
     set(id, value);
     assert.notEqual(key(), before, `changing ${id} is a new key`);

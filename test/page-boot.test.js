@@ -137,6 +137,13 @@ test('donate: the script holds no reference to an element that no longer exists'
 
 /* ---------------------------------------------------- driving the flows */
 
+/* PIN, city and state, which go on to CCAvenue (21 Oct 2026) */
+function fillPlace(doc) {
+  doc.getElementById('gCity').value = 'Udupi';
+  doc.getElementById('gPin').value = '576101';
+  doc.getElementById('gState').value = 'Karnataka';
+}
+
 test('donate: a valid gift populates every hidden field the server reads', () => {
   const { doc } = boot('donate.html');
   const form = doc.getElementById('giveForm');
@@ -145,6 +152,7 @@ test('donate: a valid gift populates every hidden field the server reads', () =>
   doc.getElementById('gMobile').value = '9876543210';
   doc.getElementById('gEmail').value = 'asha@example.com';
   doc.getElementById('gAddress').value = '12 Car Street, Udupi';
+  fillPlace(doc);
   doc.getElementById('gAgree').checked = true;
 
   let prevented = false;
@@ -163,6 +171,7 @@ test('donate: an invalid mobile blocks the post rather than failing at the gatew
   doc.getElementById('gMobile').value = '1234567890';      // not 6-9 leading
   doc.getElementById('gEmail').value = 'asha@example.com';
   doc.getElementById('gAddress').value = '12 Car Street, Udupi';
+  fillPlace(doc);
   doc.getElementById('gAgree').checked = true;
 
   let prevented = false;
@@ -178,6 +187,7 @@ test('donate: an unticked box blocks the post', () => {
   doc.getElementById('gMobile').value = '9876543210';
   doc.getElementById('gEmail').value = 'asha@example.com';
   doc.getElementById('gAddress').value = '12 Car Street, Udupi';
+  fillPlace(doc);
   doc.getElementById('gAgree').checked = false;
 
   let prevented = false;

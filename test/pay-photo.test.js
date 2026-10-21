@@ -32,7 +32,7 @@ const KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 const YEAR = new Date().getUTCFullYear();
 const JPEG = fs.readFileSync(path.join(__dirname, '..', 'media/cinekind-2026/reels/glimpse.jpg'));
 const PHOTO = 'data:image/jpeg;base64,' + JPEG.toString('base64');
-const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi' };
+const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi', pincode: '110024' };
 
 /* A Storage bucket held in memory, in the shape lib/file-store.js uses. */
 function memoryBucket(name) {

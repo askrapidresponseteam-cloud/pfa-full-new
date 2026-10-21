@@ -11,7 +11,7 @@ const customer = { name: 'Asha Kumar', mobile: '9876543210', email: 'asha@exampl
 
 test('donation is parsed with server-validated amount and donor metadata', () => {
   const parsed = parsePaymentRequest({
-    type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', cause: 'Hospitals', terms: 'yes'
+    type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', cause: 'Hospitals', terms: 'yes'
   });
   assert.equal(parsed.type, 'donate');
   assert.equal(parsed.amount, '365.00');
@@ -24,19 +24,19 @@ test('the PAN a donor gives for their 80G certificate reaches the receipt', () =
      never read it, so payment/response.js put an empty PAN on every receipt
      and the "including for your 80G certificate" line never appeared. */
   const parsed = parsePaymentRequest({
-    type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', terms: 'yes', pan: 'abcde1234f'
+    type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', terms: 'yes', pan: 'abcde1234f'
   });
   assert.equal(parsed.customer.pan, 'ABCDE1234F', 'the PAN is kept, upper case, as it is printed');
   assert.equal(Object.keys(parsed.merchantValues).some((k) => /pan/i.test(k)), false,
     'a donor tax number has no business going to CCAvenue');
 
   assert.throws(
-    () => parsePaymentRequest({ type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', terms: 'yes', pan: 'NOTAPAN' }),
+    () => parsePaymentRequest({ type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', terms: 'yes', pan: 'NOTAPAN' }),
     /five letters, four digits/
   );
 
   /* Optional: leaving it blank is not an error. */
-  const without = parsePaymentRequest({ type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', terms: 'yes' });
+  const without = parsePaymentRequest({ type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', terms: 'yes' });
   assert.equal(without.customer.pan, '');
 });
 
@@ -67,7 +67,7 @@ test('USD donation is parsed with USD-scale amount bounds', () => {
 
 
 test('omitting currency still defaults every flow to INR, unchanged from before', () => {
-  const donate = parsePaymentRequest({ type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', terms: 'yes' });
+  const donate = parsePaymentRequest({ type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', terms: 'yes' });
   assert.equal(donate.currency, 'inr');
   assert.equal(donate.merchantValues.currency, 'INR');
 });

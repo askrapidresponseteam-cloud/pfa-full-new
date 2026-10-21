@@ -32,7 +32,7 @@ async function callback(out, extra) {
   return r.raw;
 }
 const subs = (kind) => Object.keys(W.db.dump()).filter((k) => new RegExp(`^submissions/${kind}-\\d{4}-\\d+$`).test(k));
-const PERSON = { name: 'Asha Kumar', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', district: 'Udupi' };
+const PERSON = { name: 'Asha Kumar', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', district: 'Udupi', pincode: '576101' };
 async function stagePhoto() {
   const r = await H.call(require('../lib/routes/caregiver/documents'), { token: null, body: { photo: 'data:image/jpeg;base64,' + H.jpeg(5000).toString('base64') } });
   assert.equal(r.statusCode, 200, r.raw);
@@ -167,7 +167,7 @@ test('D6 a published field note photo is served through the real lib/firebase.js
 
 /* ---- D7 ---- */
 test('D7 corrected donor and gift details under the same page key are the ones used', async () => {
-  const base = { type: 'donate', currency: 'inr', amount: '2500', terms: 'yes', name: 'Asha Kumar', mobile: '9876543210', address: '16 MG Road, Udupi', gift: 'yes', giftTo: 'Ravi Menon', giftPin: '560038', client_ref: 'gift-VISIT-abc' };
+  const base = { type: 'donate', currency: 'inr', amount: '2500', terms: 'yes', name: 'Asha Kumar', mobile: '9876543210', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', gift: 'yes', giftTo: 'Ravi Menon', giftPin: '560038', client_ref: 'gift-VISIT-abc' };
   const a = await start(Object.assign({}, base, { email: 'asha@exmaple.com', pan: 'ABCDE1234F', giftAddress: '12 Lake View Road, Indiranagar, Bengaluru' }));
   const b = await start(Object.assign({}, base, { email: 'asha@example.com', pan: 'ABCDE9999Z', giftAddress: '99 New Road, Koramangala, Bengaluru' }));
   /* the same request twice (before paying) is still one transaction */
