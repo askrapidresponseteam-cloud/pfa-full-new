@@ -227,9 +227,16 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .stepbar span.on{color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:3px}
 .stepbar span.done{color:var(--ink)}
 .stepbar em{font-style:normal}
-.give__top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:6px 20px;margin:30px 0 36px}
+/* The way to reach PFA has one place: its own line under the steps. Beside
+   them it only fitted sometimes (not in Gift mode, whose labels are longer,
+   nor between 900 and 1024 px), so it jumped under the bar with 3 px to spare
+   the moment Gift was chosen (owner, 21 Oct 2026: "too close to the line
+   above"). On its own line it never moves, at any width or in either mode. */
+.give__top{display:flex;flex-direction:column;align-items:flex-start;gap:18px;margin:30px 0 36px}
 .give__top .stepbar{margin:0}
-.give__help{min-height:0;margin-top:-3px}
+.give__help{min-height:0;font-size:13px;line-height:1.4}
+.give__top .give__help .pfa-flow-bar__q{display:inline}
+.give__top .give__help b{margin-left:4px}
 .pane{display:none}.pane.on{display:block}
 /* ---------- the amount step, calm (owner, 9 Oct 2026, of black switches,
    a black card and a row of black marks: "looks a bit hard and uneasy on the
