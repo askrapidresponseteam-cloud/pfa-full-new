@@ -131,6 +131,7 @@ button{font:inherit;color:inherit}
 .gr .l{color:var(--muted);flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gr .s{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;flex:0 0 auto}
 .gres .gnote{padding:12px 14px;color:var(--muted);font-size:12px;margin:0}
+.gres .gnear{color:var(--ink);border-bottom:1px solid var(--line)}
 .bar .spring{margin-left:0}
 .pane{padding:30px 34px 64px;display:none}
 .pane[data-live]{display:block}
@@ -141,7 +142,7 @@ button{font:inherit;color:inherit}
 .pane[data-pane="donations"]::before{content:"Donations"}
 .pane[data-pane="verify"]::before{content:"Verify a card"}
 .pane[data-pane="cards"]::before{content:"Issue cards"}
-.pane[data-pane="audit"]::before{content:"Audit log"}
+.pane[data-pane="audit"]::before{content:"History"}
 .pane[data-pane="donations"]::before,.pane[data-pane="verify"]::before,.pane[data-pane="cards"]::before,.pane[data-pane="audit"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
 
 /* ---------- overview ---------- */
@@ -149,14 +150,14 @@ button{font:inherit;color:inherit}
 .lead .huge{font-family:var(--display);font-size:76px;line-height:.86;letter-spacing:-.01em}
 .lead .said{max-width:34ch;color:var(--muted);font-size:13px;padding-bottom:6px}
 .lead .said b{color:var(--ink);font-weight:400;display:block;font-size:15px;margin:0 0 3px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
-.cell{background:var(--paper);padding:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.cell{background:var(--paper);padding:20px;border:0;margin:0;text-align:left;font:inherit;color:inherit;cursor:pointer;display:block;width:100%;transition:background .15s}
+button.cell:hover{background:var(--stone,#f4f3f1)}
+.lead .go{margin-left:auto;align-self:center;background:var(--ink);color:#fff;border:0;padding:14px 26px;font:inherit;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.lead .go:hover{opacity:.85}
 .cell .n{font-family:var(--display);font-size:32px;line-height:1.1;display:block;margin:0 0 3px}
 .cell .n small{font-size:14px;color:var(--muted)}
 .cell .sub{color:var(--muted);font-size:12px}
-.spark{display:flex;align-items:flex-end;gap:2px;height:38px;margin:14px 0 0}
-.spark i{flex:1;background:var(--stone);min-height:2px;display:block}
-.spark i[data-hot]{background:var(--ink)}
 
 /* ---------- tables ---------- */
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
@@ -195,6 +196,10 @@ td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .mailbox .state b{font-weight:600}
 .mailbox .act{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 16px}
 .mailbox .act .say{margin:0;max-width:70ch}
+.mailbox .act:not(:has(button)):not(:has(.say:not(:empty))){display:none}
+.mailbox > .say:empty,.pend > .say:empty,#pplSay:empty{display:none}
+.mailbox details.fold{margin:4px 0 0}
+.mailbox .state[data-tone="good"]::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#2f7d4f;margin:0 8px 1px 0}
 .mailbox .detail{display:block;color:var(--muted);font-size:11px;margin-top:4px;overflow-wrap:anywhere}
 .mailbox table{margin-top:4px}
 .flag[data-s="sent"]{color:var(--done)}
@@ -220,6 +225,25 @@ td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pend p.lab{margin:18px 0 8px}
 .pend .note{font-size:13px;margin:0}
 .pend td .ghost{height:32px;white-space:nowrap}
+.pend{margin-top:22px}
+.pend .note{max-width:70ch;line-height:1.55}
+.pend > .say:empty{display:none}
+.pend__list{margin-top:12px}
+.pend__list summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;list-style:none}
+.pend__list summary::-webkit-details-marker{display:none}
+.pend__list summary::before{content:"+";display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid var(--line,#ddd);font-weight:400;transition:transform .2s}
+.pend__list[open] summary::before{transform:rotate(45deg)}
+.pend__list[open] summary{margin-bottom:10px}
+button.parts{display:flex;align-items:center;gap:6px;margin:6px 0 0;padding:0;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);cursor:pointer}
+button.parts::before{content:"+";display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--line,#ddd);transition:transform .2s}
+button.parts[aria-expanded="true"]::before{transform:rotate(45deg)}
+button.parts:hover{color:var(--ink)}
+label.tick{display:inline-flex;align-items:center;gap:8px;margin-left:auto;font-size:13px;cursor:pointer}
+label.tick input{width:18px;height:18px;margin:0;flex:0 0 auto}
+.tools label.tick{flex:0 0 auto;width:auto;justify-content:flex-start;border:0;padding:0}
+.tools label.tick input{flex:0 0 auto;width:18px;min-width:0;padding:0}
+.sheet > .empty{grid-column:1 / -1}
+.site-page td{vertical-align:top}
 
 /* ---------- case drawer ---------- */
 .veil{position:fixed;inset:0;background:rgba(10,10,10,.42);z-index:80;opacity:0;pointer-events:none;transition:opacity .24s}
@@ -302,6 +326,25 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
 .panel{border:1px solid var(--line);padding:22px;margin:0 0 22px}
 .panel h3{font-family:var(--display);font-weight:400;font-size:17px;margin:0 0 4px}
 .panel p.hint{color:var(--muted);font-size:12px;margin:0 0 18px}
+
+/* ---------- plain by default (21 Oct 2026) ----------
+   Owner: "dont show long stories ... show these only when one clicks on i or
+   +.. it should be usable by any and all from age 5-80". Every explanation
+   (.hint, wherever it is drawn, now or later) is folded behind a small round
+   (i) beside its heading; a list or a block of detail folds under a + (a
+   <details class="fold">). The text is all still there for a screen reader
+   and for search; only the eye is spared it until asked. */
+.info{display:inline-grid;place-items:center;width:22px;height:22px;margin:0 0 0 8px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--paper,#fff);color:var(--muted);font:italic 600 12px/1 Georgia,'Times New Roman',serif;cursor:pointer;vertical-align:middle;flex:0 0 auto;transition:background .15s,color .15s,border-color .15s}
+.info:hover{border-color:var(--ink);color:var(--ink)}
+.info[aria-expanded="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.hint.is-folded{display:none!important}
+.hint.is-open{display:block;background:var(--stone,#f4f3f1);padding:12px 14px;margin:8px 0 14px;font-size:13px;line-height:1.55;color:var(--ink);max-width:72ch}
+details.fold{margin:12px 0 0}
+details.fold > summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;list-style:none;padding:6px 0}
+details.fold > summary::-webkit-details-marker{display:none}
+details.fold > summary::before{content:"+";display:inline-grid;place-items:center;width:22px;height:22px;border:1px solid var(--line,#ddd);font-weight:400;font-size:15px;transition:transform .2s}
+details.fold[open] > summary::before{transform:rotate(45deg)}
+details.fold[open] > summary{margin-bottom:8px}
 .mods{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .mods label{display:flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);padding:7px 11px;cursor:pointer}
 .mods label:hover{border-color:var(--ink)}
@@ -342,8 +385,17 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
 
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
-  .rail{position:static;height:auto;flex-direction:column}
-  .railfoot{margin-top:18px}
+  /* a phone: the sections are one row to swipe under the logo, not a
+     screenful of menu before anything else (21 Oct 2026) */
+  .rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:12px 0 12px}
+  .rail .mark{padding:0 20px;order:1}
+  .rail .mark img{height:34px}
+  .railfoot{order:2;margin:0 20px 0 auto;padding:0;border:0;display:flex;align-items:center;gap:10px}
+  .railfoot b,.railfoot .role{display:none}
+  .railgroup{order:3;flex-basis:100%;display:flex;gap:6px;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .railgroup::-webkit-scrollbar{display:none}
+  .railgroup > p{display:none}
+  .railgroup .tab{width:auto;flex:0 0 auto;white-space:nowrap;border:1px solid var(--line);padding:9px 13px}
   .bar,.pane{padding-left:20px;padding-right:20px}
   .gsearch{flex-basis:100%;max-width:none;order:3;margin-left:0}
   .bar .spring{margin-left:auto}
@@ -352,6 +404,8 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
   .gr .t{max-width:none;flex:1 1 auto}
   .gr .l{flex-basis:100%;order:3;white-space:normal}
   .lead .huge{font-size:56px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cell .n{font-size:26px}
 }
 @media (prefers-reduced-motion:reduce){
   .drawer,.veil,.press,.tab{transition:none!important}
@@ -434,7 +488,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <span class="note" id="paneNote"></span>
       <div class="gsearch" role="search">
         <input type="search" id="gq" autocomplete="off" spellcheck="false" enterkeyhint="search"
-          placeholder="Search everything: a name, number, email, reference or words"
+          placeholder="Search anything: a name, phone, email, number or word"
           aria-label="Search everything: names, mobiles, emails, references, order and card numbers, words in a report, a reply or a note"
           role="combobox" aria-controls="gres" aria-expanded="false" aria-autocomplete="list">
         <kbd class="gkey" aria-hidden="true">/</kbd>
@@ -502,10 +556,6 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="cards" role="region" aria-label="Issue cards"><div class="loading">Reading the register&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
-      <!-- Payments still waiting for CCAvenue's answer, and paid applications
-           whose photograph is not on the record yet (8 Oct 2026). Filled by
-           pendingPayments() from /api/admin/payments-pending. -->
-      <div id="payPending" aria-live="polite"></div>
       <div class="tools">
         <select id="payType" aria-label="Purpose">
           <option value="">Every purpose</option><option value="donate">Donation</option>
@@ -513,17 +563,23 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         </select>
         <select id="payStatus" aria-label="Outcome">
           <option value="">Every outcome</option><option value="paid">Paid</option>
-          <option value="failed">Failed</option><option value="unverified">Unverified</option>
-          <option value="abandoned">Abandoned</option><option value="started">Started, not finished</option>
+          <option value="failed">Failed</option><option value="unverified">Not confirmed</option>
+          <option value="abandoned">Abandoned</option><option value="started">Not finished</option>
         </select>
         <input type="search" id="payQ" placeholder="Name, email, mobile or order" aria-label="Find a payment by name, email, mobile, order or bank reference">
         <button class="ghost" type="button" id="payGo">Apply</button>
-        <button class="ghost" type="button" id="payCsv">Download CSV</button>
+        <button class="ghost" type="button" id="payCsv">Download the list</button>
       </div>
       <div class="wrap"><table><thead><tr>
         <th>Order</th><th>Purpose</th><th>Name</th><th class="num">Amount</th><th>Outcome</th><th>Bank reference</th><th>When</th>
       </tr></thead><tbody id="payRows"></tbody></table></div>
       <div class="more"><button class="ghost" type="button" id="payMore" hidden>Load more</button></div>
+      <!-- Under the register (21 Oct 2026, "super complex for a non tech
+           savvy person"): payments started and never finished, folded under
+           a +, and paid applications missing their photograph. Filled by
+           pendingPayments() from /api/admin/payments-pending; empty when
+           there is nothing. -->
+      <div id="payPending" aria-live="polite"></div>
     </div>
 
     <div class="pane" data-pane="donations" role="region" aria-label="Donations">
@@ -538,6 +594,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="people"><div class="loading">Reading the accounts&#8230;</div></div>
 
     <div class="pane" data-pane="audit" role="region" aria-label="Audit log">
+      <details class="fold" id="auFold"><summary>Show who changed what</summary>
       <div class="tools">
         <input type="search" id="auQ" placeholder="Filter by who did it, e.g. asha@…" aria-label="Filter by person">
         <button class="ghost" type="button" id="auGo">Filter</button>
@@ -547,6 +604,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         <th>When</th><th>Who</th><th>Did what</th><th>To what</th><th>Detail</th>
       </tr></thead><tbody id="auRows"></tbody></table></div>
       <div class="more"><button class="ghost" type="button" id="auMore" hidden>Load more</button></div>
+      </details>
     </div>
   </main>
 </div>
@@ -928,6 +986,9 @@ window.addEventListener('unhandledrejection', function (event) {
     }
     current = tab;
     var live = panesOf(tab).filter(paneAllowed);
+    /* Donations is the payments register again, filtered to donations: shown
+       only to someone who cannot see Payments itself, never twice. */
+    if (live.indexOf('payments') !== -1) live = live.filter(function (p) { return p !== 'donations'; });
     $$('.tab').forEach(function (b) {
       if (b.getAttribute('data-tab') === tab) { b.setAttribute('aria-current', 'page'); } else { b.removeAttribute('aria-current'); }
     });
@@ -971,16 +1032,6 @@ window.addEventListener('unhandledrejection', function (event) {
       + '<span class="sub">' + esc(label) + (sub ? ' \u00b7 ' + esc(sub) : '') + '</span>';
   }
 
-  function spark(days) {
-    if (!days || !days.length) return '';
-    var top = days.reduce(function (a, d) { return Math.max(a, Number(d.count || d.total) || 0); }, 0) || 1;
-    return '<div class="spark">' + days.map(function (d) {
-      var v = Number(d.count || d.total) || 0;
-      var pct = Math.round((v / top) * 100);
-      return '<i style="height:' + Math.max(pct, 3) + '%"' + (v ? ' data-hot' : '') + ' title="' + esc(d.day || '') + ': ' + v + '"></i>';
-    }).join('') + '</div>';
-  }
-
   function overview() {
     var node = $('#paneOverview');
     node.innerHTML = '<div class="loading">Reading the registers\u2026</div>';
@@ -989,31 +1040,31 @@ window.addEventListener('unhandledrejection', function (event) {
       var waiting = Number(c.submissionsWaiting) || 0;
       var out = [];
 
+      /* Plain words and one way in (21 Oct 2026, "usable by any and all
+         from age 5-80"): what is new, a button to it, and a few tiles that
+         each open their own page. One money tile, not two. */
       out.push('<div class="lead"><div class="huge">' + waiting + '</div><div class="said"><b>'
-        + (waiting === 1 ? 'One submission is waiting' : waiting === 0 ? 'Nothing is waiting' : waiting + ' submissions are waiting')
-        + '</b>' + (waiting ? 'Nobody has picked these up yet. Open one from Submissions.' : 'Everything that has come in has been picked up.')
-        + '</div></div>');
+        + (waiting === 1 ? 'One new form to look at' : waiting === 0 ? 'Nothing new to look at' : waiting + ' new forms to look at')
+        + '</b>' + (waiting ? 'Nobody has opened ' + (waiting === 1 ? 'it' : 'these') + ' yet.' : 'Everything that came in has been seen.')
+        + '</div>' + (waiting && can('submissions') ? '<button class="go" type="button" data-go="submissions">Open ' + (waiting === 1 ? 'it' : 'them') + '</button>' : '') + '</div>');
 
       var cells = [];
-
-      var subs = can('submissions') && stat('submissions', c.submissionsTotal || 0, 'submissions in all', (c.submissionsLast7 || 0) + ' in the last 7 days');
-      if (subs) cells.push('<div class="cell" data-module="submissions">' + subs + (m.submissions ? spark(m.submissions.arrivals) : '') + '</div>');
-
-      var vols = can('volunteers') && stat('volunteers', ((m.byKind || {})['PFA-V'] || {}).waiting || 0, 'volunteer applications waiting');
-      if (vols) cells.push('<div class="cell" data-module="volunteers">' + vols + '</div>');
-
-      var gave = can('donations') && stat('donations', money(((m.payments || {}).byType || {}).donate ? m.payments.byType.donate.inr : 0), 'given in 30 days', (((m.payments || {}).byType || {}).donate || {}).count + ' donations');
-      if (gave) cells.push('<div class="cell" data-module="donations">' + gave + '</div>');
-
-      var cg = can('caregivers') && stat('caregivers', c.caregivers || 0, 'colony cards issued', ((m.caregivers || {}).unprinted || 0) + ' not printed');
-      if (cg) cells.push('<div class="cell" data-module="caregivers">' + cg + '</div>');
-
-      var pay = can('payments') && stat('payments', money((m.revenue30d || {}).inr), 'taken in 30 days', (c.paymentsPaid || 0) + ' payments');
-      if (pay) cells.push('<div class="cell" data-module="payments">' + pay + ((m.payments || {}).byDay ? spark(m.payments.byDay) : '') + '</div>');
-
+      var cell = function (module, tab, body) { return '<button class="cell" type="button" data-go="' + tab + '" ' + body; };
+      var subs = can('submissions') && stat('submissions', c.submissionsTotal || 0, (c.submissionsTotal === 1 ? 'form' : 'forms') + ' in all', (c.submissionsLast7 || 0) + ' this week');
+      if (subs) cells.push(cell('submissions', 'submissions', 'data-module="submissions">' + subs + '</button>'));
+      var vw = ((m.byKind || {})['PFA-V'] || {}).waiting || 0;
+      var vols = can('volunteers') && stat('volunteers', vw, vw === 1 ? 'volunteer waiting' : 'volunteers waiting');
+      if (vols) cells.push(cell('volunteers', 'volunteers', 'data-module="volunteers">' + vols + '</button>'));
+      var pay = can('payments') && stat('payments', money((m.revenue30d || {}).inr), 'received in 30 days', (c.paymentsPaid || 0) + ((c.paymentsPaid || 0) === 1 ? ' payment' : ' payments'));
+      if (pay) cells.push(cell('payments', 'payments', 'data-module="payments">' + pay + '</button>'));
+      /* one money tile: donations alone only for someone who cannot see Payments */
+      var gave = !pay && can('donations') && stat('donations', money(((m.payments || {}).byType || {}).donate ? m.payments.byType.donate.inr : 0), 'given in 30 days', ((((m.payments || {}).byType || {}).donate || {}).count || 0) + ' donations');
+      if (gave) cells.push(cell('donations', 'payments', 'data-module="donations">' + gave + '</button>'));
+      var cg = can('caregivers') && stat('caregivers', c.caregivers || 0, (c.caregivers === 1 ? 'colony card' : 'colony cards'), ((m.caregivers || {}).unprinted || 0) + ' to print');
+      if (cg) cells.push(cell('caregivers', 'caregivers', 'data-module="caregivers">' + cg + '</button>'));
 
       out.push('<div class="grid">' + cells.join('') + '</div>');
-      if (can('submissions')) out.push('<section class="mailbox" id="mailbox" aria-live="polite"><h2>Copies to PFA\u2019s inbox</h2><p class="state">Checking\u2026</p></section>');
+      if (can('submissions')) out.push('<section class="mailbox" id="mailbox" aria-live="polite"><h2>Email</h2><p class="state">Checking\u2026</p></section>');
       if (can('submissions')) out.push('<section class="mailbox" id="replies" aria-live="polite"><h2>Replies</h2><p class="state">Checking\u2026</p></section>');
       node.innerHTML = out.join('');
       if (can('submissions')) { mailbox(); replies(); }
@@ -1100,7 +1151,7 @@ window.addEventListener('unhandledrejection', function (event) {
       /* Sending again is not about the inbox alone: the list holds every
          kind of email (confirmations, receipts, relayed replies). */
       var canSend = Boolean(me && me.role === 'super' && m.configured);
-      var out = ['<h2>Copies to PFA’s inbox</h2>'];
+      var out = ['<h2>Email</h2>'];
       /* The headline first (8 Oct 2026), from the one word the server gives
          for the state of the mail. A refused login blocks every email, so it
          is said once, here, and not left to fifty separate rows below. */
@@ -1124,14 +1175,19 @@ window.addEventListener('unhandledrejection', function (event) {
         out.push('<p class="state" data-tone="bad"><b>Copies of forms are switched off</b> (PFA_SUBMISSIONS_INBOX is off). Every record of money still goes to <b>' + esc((m.paymentInboxes || []).join(', ')) + '</b>.</p>');
       } else {
         var pay = (m.paymentInboxes || []).join(', ');
-        out.push('<p class="state">A copy of every form goes to <b>' + esc(to) + '</b>'
+        /* the whole story behind the (i); the eye gets one line */
+        out.splice(1, 0, '<p class="hint">A copy of every form goes to <b>' + esc(to) + '</b>'
           + (pay ? '. Every record of money (donations, gifts, memberships, caregiver applications and shop orders) goes to <b>' + esc(pay) + '</b> instead, and never to ' + esc(to) : '')
           + ', with Reply set to the person who sent it, and any photographs attached. It is sent as ' + esc(m.from) + (m.via === 'smtp' ? ', through that mailbox at GoDaddy' : ', through Resend') + '.'
-          + ' Volunteer applications and memberships are not emailed to anyone at PFA: they are kept here only, answered from the Reply box on the record, and their answers come back onto it.</p>');
+          + ' Volunteer applications and memberships are not emailed to anyone at PFA: they are kept here only, answered from the Reply box on the record, and their answers come back onto it.'
+          + (m.via === 'smtp' && (m.sentCopies || {}).on ? ' Everything the site sends is also saved in the Sent folder of ' + esc((m.from.match(/<([^>]+)>/) || [])[1] || 'the mailbox') + '.' : '') + '</p>');
+        if (state !== 'login-failing' && state !== 'some-failed') out.push('<p class="state" data-tone="good">Emails are going out.</p>');
         var sc = m.sentCopies || {};
+        if (m.via === 'smtp' && sc.on && sc.waiting) {
+          out.push('<p class="note">' + esc((m.from.match(/<([^>]+)>/) || [])[1] || 'the mailbox') + '.'
+            + esc(sc.waiting) + (sc.waiting === 1 ? ' copy is' : ' copies are') + ' on the way to the Sent folder; the mailbox is tried again every ten minutes' + (sc.lastError ? ' (last answer: ' + esc(sc.lastError) + ')' : '') + '.</p>');
+        }
         if (m.via === 'smtp' && sc.on) {
-          out.push('<p class="note">Everything the site sends is also saved in the Sent folder of ' + esc((m.from.match(/<([^>]+)>/) || [])[1] || 'the mailbox') + '.'
-            + (sc.waiting ? ' ' + esc(sc.waiting) + (sc.waiting === 1 ? ' copy is' : ' copies are') + ' on the way there; the mailbox is tried again every ten minutes' + (sc.lastError ? ' (last answer: ' + esc(sc.lastError) + ')' : '') + '.' : '') + '</p>');
           /* A copy the mailbox refused five times (lib/sent-copy.js
              MAX_REFUSALS) is no longer tried. The email itself went; only
              its copy in Sent is missing, and the line says exactly that. */
@@ -1155,7 +1211,6 @@ window.addEventListener('unhandledrejection', function (event) {
           + '<p class="note">' + missed.map(function (x) { return '<span class="ref">' + esc(x.reference) + '</span>' + (x.kindLabel ? ' ' + esc(x.kindLabel) : '') + (x.createdAt ? ', ' + esc(when(x.createdAt)) : ''); }).join('<br>') + '</p>');
       }
       out.push('<div class="act">'
-        + (boss ? '<button class="ghost" type="button" id="mailTest">Send a test email</button>' : '')
         + (canSend && resendable.length ? '<button class="ghost" type="button" id="mailResend">Send the emails that did not go</button>' : '')
         + (boss && missed.length ? '<button class="ghost" type="button" id="mailMissed">Send ' + (missed.length === 1 ? 'that submission' : 'those ' + missed.length + ' submissions') + ' to the inbox</button>' : '')
         + '<p class="say" id="mailSay"></p></div>');
@@ -1165,8 +1220,10 @@ window.addEventListener('unhandledrejection', function (event) {
       } else if (m.failingError) {
         out.push('<p class="state" data-tone="bad">' + esc(m.failingError) + '</p>');
       }
+      out.push('<details class="fold"><summary>Recent emails</summary>'
+        + (boss ? '<div class="act"><button class="ghost" type="button" id="mailTest">Send a test email</button></div>' : ''));
       if (rows.length) {
-        out.push('<p class="lab">The last copies to the inbox</p><div class="wrap"><table><thead><tr><th>Submission</th><th>To</th><th>What happened</th><th>When</th></tr></thead><tbody>'
+        out.push('<div class="wrap"><table><thead><tr><th>Submission</th><th>To</th><th>What happened</th><th>When</th></tr></thead><tbody>'
           + rows.map(function (r) {
             return '<tr><td class="ref">' + esc(r.reference || '-') + '</td><td>' + esc(r.to) + '</td>'
               + '<td><span class="flag" data-s="' + esc(r.status) + '">' + esc(MAIL_STATUS[r.status] || r.status || '-') + '</span>'
@@ -1177,6 +1234,7 @@ window.addEventListener('unhandledrejection', function (event) {
       } else {
         out.push('<p class="note">' + esc(m.recentError || 'No copies sent yet. They appear here as submissions arrive.') + '</p>');
       }
+      out.push('</details>');
       box.innerHTML = out.join('');
       if (after) say($('#mailSay'), after.text, after.tone);
       on('#mailTest', 'click', function () {
@@ -1211,7 +1269,7 @@ window.addEventListener('unhandledrejection', function (event) {
       });
       on('#mailResend', 'click', function () { resendMail($('#mailResend'), ''); });
     }).catch(function (e) {
-      box.innerHTML = '<h2>Copies to PFA’s inbox</h2><p class="state" data-tone="bad">' + esc((e && e.message) || 'That could not be read.') + '</p>';
+      box.innerHTML = '<h2>Email</h2><p class="state" data-tone="bad">' + esc((e && e.message) || 'That could not be read.') + '</p>';
     });
   }
 
@@ -1251,8 +1309,11 @@ window.addEventListener('unhandledrejection', function (event) {
         var kinds = [];
         if (last.autoReplies) kinds.push(last.autoReplies === 1 ? 'one an automatic reply' : last.autoReplies + ' automatic replies');
         if (last.bounces) kinds.push(last.bounces === 1 ? 'one a report of an email not delivered' : last.bounces + ' reports of emails not delivered');
-        out.push('<p class="state">A Reply from the inbox goes to the person and a copy comes back to <b>' + esc(r.mailbox) + '</b>, where the site files it on the submission. '
+        out.push('<p class="hint">A Reply from the inbox goes to the person and a copy comes back to <b>' + esc(r.mailbox) + '</b>, where the site files it on the submission. '
           + (r.lastRunAt ? 'Last read ' + esc(when(r.lastRunAt)) + (r.lastError ? ': <span class="flag" data-s="failed">' + esc(r.lastError) + '</span>' : ': ' + esc(last.fetched || 0) + ' new, ' + esc(last.filed || 0) + ' filed on a submission' + (kinds.length ? ' (' + esc(kinds.join(', ')) + ')' : '') + '.') : 'Not read yet.') + '</p>');
+        out.push(r.lastError
+          ? '<p class="state" data-tone="bad">Replies could not be read last time: ' + esc(r.lastError) + '</p>'
+          : '<p class="state" data-tone="good">When someone answers an email, their answer is added to their form here.' + (r.lastRunAt ? ' Last checked ' + esc(when(r.lastRunAt)) + '.' : '') + '</p>');
       }
       /* What the reading could not file (8 Oct 2026, lib/inbound-mail.js):
          an email that fails is read again on every run, and after five
@@ -1266,6 +1327,7 @@ window.addEventListener('unhandledrejection', function (event) {
           + ' (' + retrying.map(function (w) { return esc(w.messageId || ('message ' + w.uid)) + ': ' + esc(w.error || 'failed') + ', ' + (Number(w.count) || 1) + (Number(w.count) === 1 ? ' try' : ' tries'); }).join('; ') + ').</p>');
       }
       var parked = Array.isArray(r.parked) ? r.parked : [];
+      out.push('<details class="fold"><summary>More</summary>');
       if (parked.length) {
         out.push('<p class="lab">Set aside, not filed</p><div class="wrap"><table><thead><tr><th>Email</th><th>What went wrong</th><th>Tries</th><th>Set aside</th></tr></thead><tbody>'
           + parked.slice().reverse().map(function (p) {
@@ -1275,7 +1337,7 @@ window.addEventListener('unhandledrejection', function (event) {
               + '<td>' + esc(when(p.parkedAt)) + '</td></tr>';
           }).join('') + '</tbody></table></div>');
       }
-      out.push('<div class="act">' + (r.configured && !r.captureOff ? '<button class="ghost" type="button" id="mailRead">Read the mailbox now</button>' : '') + '<p class="say" id="readSay"></p></div>');
+      out.push('<div class="act">' + (r.configured && !r.captureOff ? '<button class="ghost" type="button" id="mailRead">Check for replies now</button>' : '') + '</div></details><p class="say" id="readSay"></p>');
       box.innerHTML = out.join('');
       if (after) say($('#readSay'), after.text, after.tone);
       on('#mailRead', 'click', function () {
@@ -1428,7 +1490,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function payRow(r, short) {
     var cells = '<tr><td class="ref">' + esc(r.orderId || r.id) + '</td>';
-    if (!short) cells += '<td>' + esc(r.type || '-') + '</td>';
+    if (!short) cells += '<td>' + esc({ donate: 'Donation', membership: 'Membership', shop: 'Shop order', caregiver: 'Colony card postage', 'caregiver-application': 'Caregiver application fee' }[r.type] || r.type || '-') + '</td>';
     cells += '<td>' + esc(r.name || '-') + '</td>';
     if (short) cells += '<td>' + esc(r.email || r.mobile || '-') + '</td>';
     /* A shop payment that settled an order already cancelled or failed is
@@ -1436,7 +1498,7 @@ window.addEventListener('unhandledrejection', function (event) {
        needsAttention when the stock it had given back was sold meanwhile,
        with the note that says what is short. Shown when the line has them. */
     cells += '<td class="num">' + esc(money(r.amount, r.currency)) + '</td>'
-      + '<td><span class="flag" data-s="' + (r.status === 'success' ? 'handled' : 'spam') + '">' + esc(r.abandoned ? 'Abandoned' : (r.status || '-')) + '</span>'
+      + '<td><span class="flag" data-s="' + (r.status === 'success' ? 'handled' : ['failed', 'aborted', 'cancelled'].indexOf(r.status) !== -1 ? 'failed' : 'queued') + '">' + esc(r.abandoned ? 'Abandoned' : ({ success: 'Paid', paid: 'Paid', initiated: 'Not finished', pending: 'Not finished', awaited: 'Not finished', verification_failed: 'Not confirmed', failed: 'Failed', aborted: 'Cancelled', cancelled: 'Cancelled' }[r.status] || r.status || '-')) + '</span>'
       + (r.needsAttention ? ' <span class="flag" data-s="failed">Needs attention</span>' : '')
       + (r.attentionNote ? '<span class="detail">' + esc(r.attentionNote) + '</span>'
         : r.settledAfter ? '<span class="detail">Settled after the order was ' + esc(r.settledAfter) + '.</span>' : '')
@@ -1549,49 +1611,45 @@ window.addEventListener('unhandledrejection', function (event) {
     return checks[currency] !== false;
   }
 
-  var CHECKS_OFF = 'CCAvenue status checks are not set up on this server';
+  var CHECKS_OFF = 'Checking by hand is not available here';
 
+  /* Payments that were started and never came back from CCAvenue (owner, 21
+     Oct 2026: "this dashboard is super complex for a non tech savvy
+     person"). One plain sentence says what they are and that nothing needs
+     doing; the list itself folds under a + and opens only if someone wants
+     it. No technical warning: when this server cannot ask CCAvenue, the
+     site does it by itself once a day (Vercel's daily run), so the row has
+     no button rather than a greyed one with a message on every line. */
   function pendingPayments() {
     var box = $('#payPending');
     if (!box) return Promise.resolve();
-    if (!box.innerHTML) box.innerHTML = '<div class="panel pend"><h3>Pending payments</h3><p class="note">Asking which payments are still waiting…</p></div>';
     return readPending(true).then(function (data) {
       var rows = data.pending || [];
       var photos = data.photoPending || [];
       var checks = data.statusCheck || null;
-      var off = rows.filter(function (r) { return !canCheck(checks, r); });
-      var out = ['<div class="panel pend"><h3>Pending payments</h3>'];
-      out.push('<p class="hint">Payments started ' + esc(data.olderThanMinutes || 30) + ' minutes or more ago, in the last ' + esc(data.days || 14)
-        + ' days, that CCAvenue has not reported back on. The site asks CCAvenue about each of them by itself every ten minutes and records the ones that went through, receipt and all; one CCAvenue has no record of after two hours is marked abandoned and leaves this list. Check one to ask now: a final answer is recorded exactly as CCAvenue’s own report would have been, and an answer that is not final changes nothing.</p>');
-      /* Said of exactly the payments it is true of: the keys are per
-         currency, so a server may check rupees and not dollars. */
-      if (off.length && off.length === rows.length) {
-        out.push('<p class="say" data-tone="bad">' + CHECKS_OFF + ', so ' + (rows.length === 1 ? 'this payment' : 'these payments') + ' can only be looked up in the CCAvenue dashboard, and nothing is settled automatically. To turn it on, set CCAVENUE_WORKING_KEY, CCAVENUE_ACCESS_CODE and CCAVENUE_MERCHANT_ID on Firebase (the same values as in Vercel) and ship again.</p>');
-      } else if (off.length) {
-        var currencies = off.map(function (r) { return r.type === 'shop' ? 'INR' : String(r.currency || 'INR').toUpperCase(); })
-          .filter(function (c, i, all) { return all.indexOf(c) === i; });
-        out.push('<p class="say" data-tone="bad">CCAvenue status checks for ' + esc(currencies.join(' and ')) + ' payments are not set up on this server, so '
-          + (off.length === 1 ? 'that payment' : 'those ' + off.length + ' payments') + ' can only be looked up in the CCAvenue dashboard.</p>');
-      }
-      if (!rows.length) {
-        out.push('<p class="note">Nothing is waiting for an answer from CCAvenue.</p>');
-      } else {
-        out.push('<div class="wrap"><table><thead><tr><th>Order</th><th>Purpose</th><th>Name</th><th class="num">Amount</th><th>Status</th><th>Waiting</th><th>CCAvenue</th></tr></thead><tbody>'
+      if (!rows.length && !photos.length) { box.innerHTML = '<p class="say" id="pendSay" role="status" aria-live="polite"></p>'; return; }
+      var auto = checks && checks.inr !== false ? 'within ten minutes' : 'within a day';
+      var out = ['<div class="panel pend">'];
+      if (rows.length) {
+        var anyCheck = rows.some(function (r) { return canCheck(checks, r); });
+        out.push('<h3>Not finished</h3>'
+          + '<p class="note">' + (rows.length === 1 ? 'One payment was' : esc(rows.length) + ' payments were') + ' started but not completed. If one was in fact paid, it moves up by itself ' + auto + '. Nothing to do here.</p>'
+          + '<details class="pend__list"><summary>' + (rows.length === 1 ? 'Show it' : 'Show all ' + esc(rows.length)) + '</summary>'
+          + '<div class="wrap"><table><thead><tr><th>For</th><th>Name</th><th class="num">Amount</th><th>Started</th>' + (anyCheck ? '<th></th>' : '') + '</tr></thead><tbody>'
           + rows.map(function (r) {
             var able = canCheck(checks, r);
-            return '<tr><td class="ref">' + esc(r.orderId) + '</td>'
-              + '<td>' + esc(purposeWord(r.type)) + '</td>'
+            return '<tr><td>' + esc(purposeWord(r.type)) + '<span class="detail ref">' + esc(r.orderId) + '</span></td>'
               + '<td>' + esc(r.name || '-') + (r.email ? '<span class="detail">' + esc(r.email) + '</span>' : '') + '</td>'
               + '<td class="num">' + esc(money(r.amount, r.currency)) + '</td>'
-              + '<td><span class="flag" data-s="queued">' + esc(PAY_WORDS[r.status] || r.status || '-') + '</span></td>'
-              + '<td>' + esc(waited(r.minutesWaiting) || when(r.startedAt)) + (r.startedAt ? '<span class="detail">Started ' + esc(when(r.startedAt)) + '</span>' : '') + '</td>'
-              + '<td><button class="ghost" type="button" data-pay-check="' + esc(r.orderId) + '"' + (able ? '' : ' disabled title="' + CHECKS_OFF + '"') + '>Check with CCAvenue</button>'
-              + '<span class="detail" data-answer="' + esc(r.orderId) + '">' + (able ? '' : CHECKS_OFF + '.') + '</span></td></tr>';
-          }).join('') + '</tbody></table></div>');
+              + '<td>' + esc(r.startedAt ? when(r.startedAt) : (waited(r.minutesWaiting) + ' ago')) + '</td>'
+              + (anyCheck ? '<td>' + (able ? '<button class="ghost" type="button" data-pay-check="' + esc(r.orderId) + '">Check now</button>' : '')
+                + '<span class="detail" data-answer="' + esc(r.orderId) + '"></span></td>' : '')
+              + '</tr>';
+          }).join('') + '</tbody></table></div></details>');
       }
       if (photos.length) {
-        out.push('<p class="lab">Paid applications waiting for their photograph</p>'
-          + '<p class="hint">The fee was paid and the application is on record, but the photograph sent with it could not be copied onto it yet. Attaching it again tries once more, under the same reference.</p>'
+        out.push((rows.length ? '<p class="lab">' : '<h3>') + 'Paid, photograph missing' + (rows.length ? '</p>' : '</h3>')
+          + '<p class="note">The fee was paid and the application is saved, but its photograph did not come across. Press the button to try again.</p>'
           + '<div class="wrap"><table><thead><tr><th>Application</th><th>Order</th><th>Paid</th><th></th></tr></thead><tbody>'
           + photos.map(function (p) {
             return '<tr><td class="ref">' + (can('submissions') ? '<button class="rowopen" type="button" data-open-case="' + esc(p.reference) + '">' + esc(p.reference) + '</button>' : esc(p.reference)) + '</td>'
@@ -1603,8 +1661,8 @@ window.addEventListener('unhandledrejection', function (event) {
       out.push('<p class="say" id="pendSay" role="status" aria-live="polite"></p></div>');
       box.innerHTML = out.join('');
     }).catch(function (e) {
-      box.innerHTML = '<div class="panel pend"><h3>Pending payments</h3><p class="say" data-tone="bad">'
-        + esc(e && e.denied ? 'Your account does not carry Payments.' : (e && e.message) || 'The payments could not be read just now.') + '</p></div>';
+      box.innerHTML = e && e.denied ? '' : '<div class="panel pend"><p class="say" data-tone="bad">'
+        + esc((e && e.message) || 'The unfinished payments could not be read just now.') + '</p></div>';
     });
   }
 
@@ -1617,18 +1675,19 @@ window.addEventListener('unhandledrejection', function (event) {
     say(answer, 'Asking CCAvenue…');
     api('/api/admin/payments-pending', { method: 'POST', body: { action: 'check', orderId: orderId } }).then(function (r) {
       if (r.applied) {
-        say(answer, 'CCAvenue reports ' + (r.ccavenue || 'an answer') + '. Recorded here as ' + (PAY_WORDS[r.status] || r.status || 'settled')
-          + (r.reference ? ', ' + r.reference : '') + '.' + (r.needsAttention ? ' The order needs attention before it is dispatched: see its line in the register.' : ''), 'good');
+        var paid = (PAY_WORDS[r.status] || '') === 'Paid';
+        say(answer, (paid ? 'Paid' + (r.reference ? ', ' + r.reference : '') + '. Moved to the list above with its receipt.' : 'Not paid. Recorded as ' + (PAY_WORDS[r.status] || r.status || 'not paid') + '.')
+          + (r.needsAttention ? ' The order needs a look before it is sent: see its line above.' : ''), paid ? 'good' : '');
         payments(true);
       } else {
-        say(answer, r.message || ('CCAvenue reports ' + (r.ccavenue || 'nothing') + ' for this order. Nothing was changed.'));
+        say(answer, 'Still not finished on CCAvenue' + (r.ccavenue ? ' (' + r.ccavenue + ')' : '') + '. Nothing changed.');
         button.disabled = false;
       }
     }).catch(function (e) {
       if (e && e.code === 'NOT_CONFIGURED') {
         /* Every check on this server would get the same answer. */
-        $$('#payPending [data-pay-check]').forEach(function (b) { b.disabled = true; b.title = CHECKS_OFF; });
-        say(answer, CHECKS_OFF + '. Nothing was changed.', 'bad');
+        $$('#payPending [data-pay-check]').forEach(function (b) { b.hidden = true; });
+        say(answer, CHECKS_OFF + '. The site checks these by itself once a day.');
         return;
       }
       say(answer, (e && e.message) || 'CCAvenue could not be asked just now. Nothing was changed.', 'bad');
@@ -1719,7 +1778,7 @@ window.addEventListener('unhandledrejection', function (event) {
       if (!data.mailConfigured) {
         out.push('<div class="warn">Email is not configured, so an invitation shows its link here instead of being sent.</div>');
       }
-      out.push('<div class="panel"><h3>Give someone the panel</h3>'
+      var form = ('<details class="fold" id="pplAdd"><summary>Add a person</summary><div class="panel"><h3>Give someone the panel</h3>'
         + '<p class="hint">A super administrator sees everything, including this page. Staff see only what is ticked.</p>'
         + '<div class="tools"><input id="pplEmail" type="email" placeholder="name@peopleforanimalsindia.org" aria-label="Email">'
         + '<input id="pplName" type="text" placeholder="Their name" aria-label="Name">'
@@ -1734,7 +1793,7 @@ window.addEventListener('unhandledrejection', function (event) {
           return '<label title="' + esc(m.blurb || '') + '"><input type="checkbox" value="' + esc(m.key) + '"> ' + esc(m.label) + '</label>';
         }).join('') + '</div>'
         + '<button class="ghost" type="button" data-ppl="set">Give access</button>'
-        + '<p class="say" id="pplSay" role="status" aria-live="polite"></p></div>');
+        + '</div></details>');
 
       out.push('<div class="wrap"><table><thead><tr><th>Person</th><th>Role</th><th>Sections</th><th>Last signed in</th><th></th></tr></thead><tbody>'
         + (data.people || []).map(function (p) {
@@ -1747,6 +1806,7 @@ window.addEventListener('unhandledrejection', function (event) {
               : '<button class="ghost" type="button" data-ppl="reset" data-email="' + esc(p.email) + '">Password link</button> '
                 + '<button class="ghost" type="button" data-ppl="remove" data-email="' + esc(p.email) + '">Remove</button>') + '</td></tr>';
         }).join('') + '</tbody></table></div>');
+      out.push(form + '<p class="say" id="pplSay" role="status" aria-live="polite"></p>');
       node.innerHTML = out.join('');
     }).catch(function (e) { fail(node, e); });
   }
@@ -1773,7 +1833,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function siteMark(key) {
     var m = ((site.state || {}).marks || {})[key];
-    if (!m || !m.at) return '<span class="note">Never changed</span>';
+    if (!m || !m.at) return '';
     return esc(m.visible ? 'Shown' : 'Hidden') + ' by ' + esc(m.by || 'someone') + '<br><span class="note">' + esc(when(m.at)) + '</span>';
   }
 
@@ -1813,7 +1873,7 @@ window.addEventListener('unhandledrejection', function (event) {
     var count = Object.keys(hiddenPages).length + Object.keys(hiddenParts).length;
 
     var out = [];
-    out.push('<div class="panel"><h3>What the public site shows</h3>'
+    out.push('<div class="panel"><h3>Show or hide parts of the website</h3>'
       + '<p class="hint">Every page of the site and every section on it, grouped as the site\u2019s menus group them. '
       + 'Hide a page and it leaves the site, its menus, its footer and its search; hide a section and it leaves its page. '
       + 'Each change is saved as you press it and is live on the site within a few seconds. Show it again and it comes back exactly as it was. '
@@ -1829,17 +1889,22 @@ window.addEventListener('unhandledrejection', function (event) {
       var pages = (site.pages || []).filter(function (p) { return p.group === group; });
       if (!pages.length) return;
       out.push('<p class="lab">' + esc(group) + '</p><div class="wrap site-group"><table><thead><tr>'
-        + '<th>Page or section</th><th>On the site</th><th>Last changed</th></tr></thead><tbody>');
+        + '<th>Page</th><th>On the site</th><th>Changed</th></tr></thead><tbody>');
       pages.forEach(function (p) {
         var off = hiddenPages[p.id] === true;
-        out.push('<tr class="site-page"' + (off ? ' data-off' : '') + '><td><span class="ttl">' + esc(p.title) + '</span> <span class="note">' + esc(p.file) + '</span>'
-          + (p.menu && p.menu !== p.title ? '<span class="detail">In the menu as \u201c' + esc(p.menu) + '\u201d</span>' : '')
-          + (p.locked ? '<span class="detail">' + esc(p.locked) + '</span>' : '') + '</td>'
+        /* A page is one row; its sections fold under its own + (21 Oct 2026),
+           opened by itself when one of them is hidden. File names and section
+           ids stay out of sight, on hover. */
+        var parts = p.modules || [];
+        var partHidden = parts.some(function (m) { return hiddenParts[m.key] === true; });
+        out.push('<tr class="site-page"' + (off ? ' data-off' : '') + '><td><span class="ttl" title="' + esc(p.file) + '">' + esc(p.title) + '</span>'
+          + (p.locked ? '<span class="detail">' + esc(p.locked) + '</span>' : '')
+          + (parts.length ? '<button class="parts" type="button" data-parts="' + esc(p.id) + '" aria-expanded="' + String(partHidden) + '">' + parts.length + (parts.length === 1 ? ' part' : ' parts') + '</button>' : '') + '</td>'
           + '<td>' + siteToggle('page', p.id, p.title, off, p.locked) + '</td>'
           + '<td>' + siteMark('page:' + p.id) + '</td></tr>');
         (p.modules || []).forEach(function (m) {
           var partOff = hiddenParts[m.key] === true;
-          out.push('<tr class="site-part"' + (partOff || off ? ' data-off' : '') + '><td>' + esc(m.label) + ' <span class="note">#' + esc(m.id) + '</span>'
+          out.push('<tr class="site-part" data-of="' + esc(p.id) + '"' + (partHidden ? '' : ' hidden') + (partOff || off ? ' data-off' : '') + '><td><span title="#' + esc(m.id) + '">' + esc(m.label) + '</span>'
             + (off && !partOff ? '<span class="detail">Hidden with its page.</span>' : '') + '</td>'
             + '<td>' + siteToggle('module', m.key, m.label, partOff, p.partsLocked) + '</td>'
             + '<td>' + siteMark('module:' + m.key) + '</td></tr>');
@@ -1848,6 +1913,13 @@ window.addEventListener('unhandledrejection', function (event) {
       out.push('</tbody></table></div>');
     });
     node.innerHTML = out.join('');
+    Array.prototype.forEach.call(node.querySelectorAll ? node.querySelectorAll('[data-parts]') : [], function (b) {
+      b.addEventListener('click', function () {
+        var open = b.getAttribute('aria-expanded') !== 'true';
+        b.setAttribute('aria-expanded', String(open));
+        Array.prototype.forEach.call(node.querySelectorAll('tr[data-of="' + b.getAttribute('data-parts') + '"]'), function (tr) { tr.hidden = !open; });
+      });
+    });
     on('#siteAll', 'click', showEverything);
     say($('#paneNote'), count ? (count === 1 ? 'One thing hidden' : count + ' things hidden') : 'Everything is shown');
     if (focus) {
@@ -2501,6 +2573,11 @@ window.addEventListener('unhandledrejection', function (event) {
     button.addEventListener('click', function () { show(button.getAttribute('data-tab')); });
   });
 
+  /* A tile or a button on Overview that names a page opens it. */
+  document.addEventListener('click', function (e) {
+    var go = e.target.closest ? e.target.closest('[data-go]') : null;
+    if (go && document.getElementById('app').contains(go)) { show(go.getAttribute('data-go')); window.scrollTo(0, 0); }
+  });
   $$('#caseAct .tabs button').forEach(function (button) {
     button.addEventListener('click', function () {
       caseMode = button.getAttribute('data-mode');
@@ -2614,6 +2691,8 @@ window.addEventListener('unhandledrejection', function (event) {
   on('#volMore', 'click', function () { volunteers(false); });
   on('#donMore', 'click', function () { donations(false); });
   on('#payGo', 'click', function () { payments(true); });
+  on('#payType', 'change', function () { payments(true); });
+  on('#payStatus', 'change', function () { payments(true); });
   on('#payQ', 'keydown', function (e) { if (e.key === 'Enter') payments(true); });
   on('#payMore', 'click', function () { payments(false); });
   on('#payCsv', 'click', function () {
@@ -2652,18 +2731,18 @@ window.addEventListener('unhandledrejection', function (event) {
     ['person', 'People'], ['audit', 'Audit log'], ['page', 'Website: pages and sections'], ['panel', 'In the panel']];
   var GS_PANEL = [
     { title: 'Overview', line: 'What is waiting, what arrived', tab: 'overview', words: 'dashboard home today waiting numbers' },
-    { title: 'Submissions', line: 'Every case from the site’s forms', tab: 'submissions', words: 'cases reports inbox tickets queries register' },
+    { title: 'Submissions', line: 'Every case from the site’s forms', tab: 'submissions', words: 'cases reports inbox tickets queries register forms messages complaints cruelty questions help new' },
     { title: 'Volunteers', line: 'Volunteer applications', tab: 'volunteers', words: 'volunteer applications shortlisted' },
-    { title: 'Payments & donations', line: 'Every card payment', tab: 'payments', words: 'payments donations money ccavenue receipts transactions orders' },
-    { title: 'Pending payments', line: 'Payments still waiting for CCAvenue', tab: 'payments', anchor: '#payPending', words: 'pending stuck awaited ccavenue check status photograph' },
+    { title: 'Payments & donations', line: 'Every card payment', tab: 'payments', words: 'payments donations money ccavenue receipts transactions orders gifts paid rupees given received' },
+    { title: 'Not finished payments', line: 'Payments started and never completed on CCAvenue', tab: 'payments', anchor: '#payPending', words: 'pending stuck awaited ccavenue check status photograph unfinished incomplete started abandoned' },
     { title: 'Download payments as CSV', line: 'Payments & donations', tab: 'payments', anchor: '#payCsv', words: 'csv export download spreadsheet excel' },
     { title: 'Colony cards', line: 'Issued caregiver cards', tab: 'caregivers', words: 'caregiver cards colony cct' },
     { title: 'Verify a card', line: 'The same answer the public check gives', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid' },
     { title: 'Issue cards', line: 'Print and email cards', tab: 'caregivers', anchor: '[data-pane="cards"]', words: 'issue print pdf bulk email cards' },
     { title: 'Website', line: 'Show or hide pages and sections', tab: 'website', words: 'website visibility visible hidden hide show pages sections public site' },
-    { title: 'People & audit', line: 'Who can use the panel, and what they did', tab: 'people', words: 'people staff admins accounts access permissions invite roles' },
-    { title: 'Audit log', line: 'Every action taken in the panel', tab: 'people', anchor: '#auQ', words: 'audit log history actions who did' },
-    { title: 'Copies to PFA’s inbox', line: 'Email to gandhim, failures and Send again', tab: 'overview', anchor: '#mailbox', module: 'submissions', words: 'email mail inbox gandhim smtp godaddy sent failed resend send again test copies' },
+    { title: 'People & audit', line: 'Who can use the panel, and what they did', tab: 'people', words: 'people staff admins accounts access permissions invite roles add person user login password team' },
+    { title: 'History', line: 'Who changed what in the panel', tab: 'people', anchor: '#auQ', words: 'audit log history actions who did changed changes' },
+    { title: 'Email', line: 'Copies to PFA\u2019s inbox, failures and Send again', tab: 'overview', anchor: '#mailbox', module: 'submissions', words: 'email mail inbox gandhim smtp godaddy sent failed resend send again test copies' },
     { title: 'Replies', line: 'Emails read back from the mailbox', tab: 'overview', anchor: '#replies', module: 'submissions', words: 'replies imap mailbox read inbound parked' }
   ];
 
@@ -2675,9 +2754,29 @@ window.addEventListener('unhandledrejection', function (event) {
   }
   /* every word but the last must appear whole or as a word's beginning; the
      last may still be being typed */
+  /* one letter apart: dropped, added, changed or two swapped */
+  function gsOneOff(a, b) {
+    if (a === b) return true;
+    var la = a.length, lb = b.length, i;
+    if (Math.abs(la - lb) > 1) return false;
+    if (la === lb) {
+      var diff = [];
+      for (i = 0; i < la; i += 1) if (a[i] !== b[i]) { diff.push(i); if (diff.length > 2) return false; }
+      return diff.length === 1 || (diff.length === 2 && diff[1] === diff[0] + 1 && a[diff[0]] === b[diff[1]] && a[diff[1]] === b[diff[0]]);
+    }
+    var s1 = la < lb ? a : b, s2 = la < lb ? b : a;
+    for (i = 0; i < s2.length; i += 1) if (s2.slice(0, i) + s2.slice(i + 1) === s1) return true;
+    return false;
+  }
   function gsHits(hay, words) {
     var text = ' ' + gsFold(hay).replace(/[^\p{L}\p{M}\p{N}@.+-]+/gu, ' ') + ' ';
-    return words.every(function (w) { return text.indexOf(' ' + w) !== -1 || (text.indexOf(w) !== -1 && w.length >= 4); });
+    var own = null;
+    return words.every(function (w) {
+      if (text.indexOf(' ' + w) !== -1 || (text.indexOf(w) !== -1 && w.length >= 4)) return true;
+      if (w.length < 4) return false;
+      own = own || text.trim().split(' ');
+      return own.some(function (x) { return x.length >= 3 && (gsOneOff(x, w) || (x.length > w.length && gsOneOff(x.slice(0, w.length), w))); });
+    });
   }
 
   function gsSite() {
@@ -2723,6 +2822,7 @@ window.addEventListener('unhandledrejection', function (event) {
       gs.busy = false;
       gs.server = data.results || [];
       gs.more = Boolean(data.more);
+      gs.near = Boolean(data.near);
       gs.failed = '';
       gsPaint();
     }).catch(function (e) {
@@ -2749,6 +2849,8 @@ window.addEventListener('unhandledrejection', function (event) {
     var all = gs.server.concat(gs.client);
     gs.rows = [];
     var html = [];
+    /* spelling forgiven, and said so, as a search engine says it */
+    if (!gs.busy && gs.near && gs.server.length) html.push('<p class="gnote gnear">No exact match for \u201c' + esc(gs.q) + '\u201d. Showing close spellings.</p>');
     GS_GROUPS.forEach(function (g) {
       var rows = all.filter(function (r) { return r.type === g[0]; });
       if (!rows.length) return;
@@ -2791,6 +2893,8 @@ window.addEventListener('unhandledrejection', function (event) {
     })();
   }
   function gsLand(node) {
+    /* inside a folded block: open it first, so the place landed on is seen */
+    for (var d = node.closest ? node.closest('details') : null; d; d = d.parentElement ? d.parentElement.closest('details') : null) d.open = true;
     try { node.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_) { node.scrollIntoView(); }
     if (typeof node.focus === 'function' && /^(INPUT|BUTTON|SELECT|TEXTAREA|A)$/.test(node.tagName)) node.focus({ preventScroll: true });
   }
@@ -3042,7 +3146,7 @@ window.addEventListener('unhandledrejection', function (event) {
         + '<button class="ghost" type="button" id="cardPdf">Download PDF</button>'
         + '<button class="ghost" type="button" id="cardMail">Email the holders</button>'
         + '<button class="ghost" type="button" id="cardPrinted">Mark as printed</button>'
-        + '<span class="flag" style="margin-left:auto"><label><input type="checkbox" id="cardShowAll"' + (cardFilter === 'current' ? ' checked' : '') + '> Show printed cards too</label></span>'
+        + '<label class="tick"><input type="checkbox" id="cardShowAll"' + (cardFilter === 'current' ? ' checked' : '') + '> Show printed cards too</label>'
         + '</div><p class="say" id="cardSay" role="status" aria-live="polite"></p></div>'
         + '<div class="sheet" id="cardSheet"></div>';
       paint();
@@ -3060,6 +3164,8 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function paint() {
     var box = $('#cardSheet');
+    /* nothing to tick: the batch buttons are not offered (21 Oct 2026) */
+    ['#cardPick', '#cardAll', '#cardPdf', '#cardMail', '#cardPrinted'].forEach(function (id) { var b = $(id); if (b) b.hidden = !sheet.length; });
     if (!sheet.length) {
       box.innerHTML = '<div class="empty"><b>' + (cardFilter === 'unprinted' ? 'Nothing left to print' : 'No cards to issue') + '</b>'
         + (cardFilter === 'unprinted' ? 'Every current card is marked as printed. Tick "Show printed cards too" to see them.' : 'Cards appear here once an application is approved.') + '</div>';
@@ -3167,6 +3273,57 @@ window.addEventListener('unhandledrejection', function (event) {
       .catch(function (e) { say($('#cardSay'), e.message, 'bad'); });
   }
 }());
+</script>
+<script>
+/* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by
+   the panel later, is folded behind a round (i) at the end of the heading
+   above it (or just before it when there is none). One press shows it, a
+   second hides it. */
+(function () {
+  'use strict';
+  var HEAD = /^(H1|H2|H3|H4|LEGEND)$/;
+  function headingFor(hint) {
+    for (var el = hint.previousElementSibling; el; el = el.previousElementSibling) {
+      if (HEAD.test(el.tagName) || (el.classList && el.classList.contains('lab'))) return el;
+      if (el.tagName !== 'BUTTON') break;
+    }
+    return null;
+  }
+  var n = 0;
+  function fold(hint) {
+    if (hint.hasAttribute('data-folded')) return;
+    hint.setAttribute('data-folded', '');
+    if (!hint.id) { n += 1; hint.id = 'hint' + n; }
+    hint.classList.add('is-folded');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'info';
+    b.textContent = 'i';
+    b.setAttribute('aria-expanded', 'false');
+    b.setAttribute('aria-controls', hint.id);
+    b.setAttribute('aria-label', 'What is this?');
+    b.title = 'What is this?';
+    b.addEventListener('click', function () {
+      var open = hint.classList.contains('is-folded');
+      hint.classList.toggle('is-folded', !open);
+      hint.classList.toggle('is-open', open);
+      b.setAttribute('aria-expanded', String(open));
+    });
+    var head = headingFor(hint);
+    if (head) head.appendChild(b); else hint.parentNode.insertBefore(b, hint);
+  }
+  function sweep(root) {
+    if (!root || !root.querySelectorAll) return;
+    if (root.classList && root.classList.contains('hint')) fold(root);
+    Array.prototype.forEach.call(root.querySelectorAll('.hint'), fold);
+  }
+  sweep(document.body);
+  if (window.MutationObserver) {
+    new MutationObserver(function (list) {
+      list.forEach(function (m) { Array.prototype.forEach.call(m.addedNodes, function (node) { if (node.nodeType === 1) sweep(node); }); });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+})();
 </script>
 </body>
 </html>

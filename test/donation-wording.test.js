@@ -47,5 +47,5 @@ test('the server and the shared field rules speak of a donation too', () => {
   assert.match(read('lib/payment.js'), /throw new Error\('Accept the donation and receipt terms to continue\.'\)/);
   assert.match(read('assets/field-rules.js'), /'For a donation above 1 crore, please contact the office directly\.'/);
   assert.match(read('campaign.html'), /Donations through PFA's <a href="donate\.html">donate page<\/a> get an 80G receipt\./);
-  assert.match(read('admin.html'), /\.count \+ ' donations'\)/, 'the dashboard counts donations');
+  assert.match(read('admin.html'), /\.count \|\| 0\) \+ ' donations'\)/, 'the dashboard counts donations');
 });

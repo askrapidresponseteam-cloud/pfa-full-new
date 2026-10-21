@@ -477,7 +477,8 @@ function pendingList(extra) {
   }, extra || {});
 }
 
-test('Payments lists the payments still waiting for CCAvenue and asks CCAvenue about one', async () => {
+test('Payments: the unfinished ones sit under the register in plain words, folded, and can be checked', async () => {
+  /* owner, 21 Oct 2026: "this dashboard is super complex for a non tech savvy person" */
   const p = await panel((url, method, body) => {
     if (url === '/api/admin/payments-pending' && method === 'GET') return pendingList();
     if (url === '/api/admin/payments-pending' && method === 'POST' && body.action === 'check') {
@@ -486,27 +487,31 @@ test('Payments lists the payments still waiting for CCAvenue and asks CCAvenue a
     return undefined;
   });
   await p.tab('payments');
-  assert.match(p.text('#payPending h3'), /^Pending payments$/);
-  const rows = [...p.w.document.querySelectorAll('#payPending tbody tr')];
-  assert.equal(rows.length, 4, 'three payments and one application');
-  const check = (id) => p.$(`#payPending [data-pay-check="${id}"]`);
-  assert.equal(check('PFA-DON-AB12CD34').disabled, false);
-  assert.equal(check('PFA-DON-US55AA11').disabled, true, 'no dollar check on this server');
-  assert.match(p.text('[data-answer="PFA-DON-US55AA11"]'), /CCAvenue status checks are not set up on this server/);
-  assert.match(p.text('#payPending'), /CCAvenue status checks for USD payments are not set up on this server, so that payment can only be looked up in the CCAvenue dashboard\./,
-    'said of the one payment it is true of, not of all three');
-  assert.equal(check('PFA-SHP-QW12ER34').disabled, false, 'a shop order is in rupees');
+  const pane = p.$('[data-pane="payments"]');
+  assert.ok(pane.querySelector('#payRows').compareDocumentPosition(p.$('#payPending')) & 4, 'under the register, not above it');
+  assert.equal(p.text('#payPending h3'), 'Not finished');
+  const note = p.text('#payPending .note');
+  assert.equal(note, '3 payments were started but not completed. If one was in fact paid, it moves up by itself within ten minutes. Nothing to do here.');
+  assert.doesNotMatch(p.text('#payPending'), /not set up|server|CCAVENUE_|Firebase|Vercel/, 'no technical warning');
+  const list = p.$('#payPending details.pend__list');
+  assert.ok(list && !list.open, 'the list is folded until asked for');
+  assert.equal(list.querySelector('summary').textContent, 'Show all 3');
+  const rows = [...list.querySelectorAll('tbody tr')];
+  assert.equal(rows.length, 3);
   assert.match(rows[0].textContent, /Donation/);
-  assert.match(rows[0].textContent, /3 h/);
+  assert.match(rows[0].textContent, /PFA-DON-AB12CD34/);
+  const check = (id) => p.$(`#payPending [data-pay-check="${id}"]`);
+  assert.equal(check('PFA-DON-US55AA11'), null, 'no button where this server cannot ask, rather than a greyed one');
+  assert.ok(check('PFA-SHP-QW12ER34'), 'a shop order is in rupees');
+  assert.equal(check('PFA-DON-AB12CD34').textContent, 'Check now');
 
   check('PFA-DON-AB12CD34').click();
   await settle();
   const posted = p.calls.find((c) => c.method === 'POST' && c.url === '/api/admin/payments-pending');
   assert.deepEqual(posted.body, { action: 'check', orderId: 'PFA-DON-AB12CD34' });
-  assert.equal(p.text('[data-answer="PFA-DON-AB12CD34"]'), 'CCAvenue reports Successful. Recorded here as Paid, PFA-DON-2026-00011.');
+  assert.equal(p.text('[data-answer="PFA-DON-AB12CD34"]'), 'Paid, PFA-DON-2026-00011. Moved to the list above with its receipt.');
   assert.equal(check('PFA-DON-AB12CD34').disabled, true, 'settled: not asked again');
 
-  /* an answer that is not final changes nothing, and says so */
   const q = await panel((url, method, body) => {
     if (url === '/api/admin/payments-pending' && method === 'GET') return pendingList();
     if (method === 'POST') return { ok: true, orderId: body.orderId, ccavenue: 'Awaited', applied: false, status: 'initiated', message: 'CCAvenue reports "Awaited" for this order. Nothing was changed.' };
@@ -515,21 +520,41 @@ test('Payments lists the payments still waiting for CCAvenue and asks CCAvenue a
   await q.tab('payments');
   q.$('#payPending [data-pay-check="PFA-SHP-QW12ER34"]').click();
   await settle();
-  assert.equal(q.text('[data-answer="PFA-SHP-QW12ER34"]'), 'CCAvenue reports "Awaited" for this order. Nothing was changed.');
+  assert.equal(q.text('[data-answer="PFA-SHP-QW12ER34"]'), 'Still not finished on CCAvenue (Awaited). Nothing changed.');
   assert.equal(q.$('#payPending [data-pay-check="PFA-SHP-QW12ER34"]').disabled, false, 'free to ask again later');
 });
 
-test('a server without the CCAvenue status keys answers NOT_CONFIGURED: the panel says so and stops offering the check', async () => {
+test('a server that cannot ask CCAvenue shows no buttons and no warning, and says the site checks once a day', async () => {
   const p = await panel((url, method) => {
+    if (url === '/api/admin/payments-pending' && method === 'GET') return pendingList({ statusCheck: { inr: false, usd: false } });
+    return undefined;
+  });
+  await p.tab('payments');
+  assert.equal(p.$('#payPending [data-pay-check]'), null);
+  assert.match(p.text('#payPending .note'), /moves up by itself within a day\./);
+  assert.doesNotMatch(p.text('#payPending'), /not set up|server|CCAVENUE_/);
+
+  /* the GET said yes but the server answers NOT_CONFIGURED: the buttons go */
+  const q = await panel((url, method) => {
     if (url === '/api/admin/payments-pending' && method === 'GET') return pendingList({ statusCheck: { inr: true, usd: true } });
     if (method === 'POST') return { status: 503, body: { code: 'NOT_CONFIGURED', message: 'The CCAvenue status check is not configured on this server (no access code). Nothing was changed.' } };
     return undefined;
   });
-  await p.tab('payments');
-  p.$('#payPending [data-pay-check="PFA-DON-AB12CD34"]').click();
+  await q.tab('payments');
+  q.$('#payPending [data-pay-check="PFA-DON-AB12CD34"]').click();
   await settle();
-  assert.equal(p.text('[data-answer="PFA-DON-AB12CD34"]'), 'CCAvenue status checks are not set up on this server. Nothing was changed.');
-  assert.ok([...p.w.document.querySelectorAll('#payPending [data-pay-check]')].every((b) => b.disabled), 'every check would get the same answer');
+  assert.equal(q.text('[data-answer="PFA-DON-AB12CD34"]'), 'Checking by hand is not available here. The site checks these by itself once a day.');
+  assert.ok([...q.w.document.querySelectorAll('#payPending [data-pay-check]')].every((b) => b.hidden));
+});
+
+test('nothing unfinished and nothing missing: the block is not there at all', async () => {
+  const p = await panel((url, method) => {
+    if (url === '/api/admin/payments-pending' && method === 'GET') return pendingList({ pending: [], photoPending: [] });
+    return undefined;
+  });
+  await p.tab('payments');
+  assert.equal(p.$('#payPending .panel'), null);
+  assert.equal(p.text('#payPending'), '');
 });
 
 test('a paid application waiting for its photograph is listed with Attach the photograph again', async () => {
@@ -540,7 +565,7 @@ test('a paid application waiting for its photograph is listed with Attach the ph
     return undefined;
   });
   await p.tab('payments');
-  assert.match(p.text('#payPending'), /Nothing is waiting for an answer from CCAvenue\./);
+  assert.equal(p.text('#payPending h3'), 'Paid, photograph missing');
   const button = p.$('#payPending [data-refile]');
   assert.equal(button.textContent, 'Attach the photograph again');
   assert.ok(p.$('#payPending [data-open-case="PFA-CG-2026-00005"]'), 'the application opens from its row');
@@ -548,7 +573,7 @@ test('a paid application waiting for its photograph is listed with Attach the ph
   await settle();
   const posted = p.calls.find((c) => c.method === 'POST' && c.url === '/api/admin/payments-pending');
   assert.deepEqual(posted.body, { action: 'refile', orderId: 'PFA-CGA-ZX98YW76' });
-  assert.equal(p.text('#pendSay'), 'The photograph is attached to PFA-CG-2026-00005 now.');
+  assert.equal(p.text('#pendSay'), 'The photograph is attached to PFA-CG-2026-00005 now.', 'said even though the block itself is gone');
   assert.equal(p.$('#payPending [data-refile]'), null);
 });
 
@@ -606,4 +631,64 @@ test('no long dashes in the panel or in this test', () => {
     const long = [String.fromCharCode(0x2013), String.fromCharCode(0x2014)];
     assert.ok(!long.some((d) => text.includes(d)), `${file} carries an en or em dash`);
   }
+});
+
+/* ---- plain by default (owner, 21 Oct 2026: "dont show long stories ...
+   show these only when one clicks on i or +.. it should be usable by any
+   and all from age 5-80") ------------------------------------------------ */
+
+test('every explanation is folded behind an (i), the email story included, and one press shows it', async () => {
+  const p = await panel((url, method) => (url === '/api/admin/mail-check' && method === 'GET'
+    ? mailCheck({ state: 'ok', failing: [], login: { failing: false }, paymentInboxes: ['pfadcmho@gmail.com', 'ozairhusain@gmail.com'], sentCopies: { on: true, waiting: 0, parked: 0 } }) : undefined));
+  await settle();
+  const story = [...p.w.document.querySelectorAll('#mailbox .hint')].find((h) => /A copy of every form goes to/.test(h.textContent));
+  assert.ok(story, 'the routing story is still there, for whoever asks');
+  assert.ok(story.classList.contains('is-folded'), 'but folded');
+  const i = p.$('#mailbox h2 .info');
+  assert.ok(i, 'an (i) beside the heading');
+  assert.equal(i.textContent, 'i');
+  assert.equal(i.getAttribute('aria-expanded'), 'false');
+  assert.equal(p.text('#mailbox .state'), 'Emails are going out.', 'the eye gets one line');
+  i.click();
+  assert.equal(story.classList.contains('is-folded'), false);
+  assert.equal(i.getAttribute('aria-expanded'), 'true');
+  i.click();
+  assert.ok(story.classList.contains('is-folded'));
+  assert.ok(p.$('#mailbox details.fold'), 'recent emails fold under a +');
+  assert.equal(p.$('#mailbox details.fold').open, false);
+  /* a hint drawn later (another tab) is folded too */
+  await p.tab('people');
+  const later = p.$('[data-pane="people"] .hint');
+  assert.ok(later && later.classList.contains('is-folded'));
+  assert.ok(p.$('#pplAdd') && !p.$('#pplAdd').open, 'Add a person is folded under a +');
+  assert.ok(p.$('#auFold') && !p.$('#auFold').open, 'and so is the history');
+});
+
+test('Overview says what is new in plain words, with one button to it and one money tile', async () => {
+  const p = await panel((url) => (url.includes('/api/admin/metrics')
+    ? { ok: true, cards: { submissionsWaiting: 3, submissionsTotal: 9, submissionsLast7: 4, paymentsPaid: 2, caregivers: 1 }, revenue30d: { inr: 2000 }, payments: { byType: { donate: { inr: 2000, count: 2 } } }, byKind: { 'PFA-V': { waiting: 1 } }, caregivers: { unprinted: 1 } }
+    : undefined));
+  await settle();
+  assert.match(p.text('.lead'), /3 new forms to look at/);
+  const open = p.$('.lead [data-go="submissions"]');
+  assert.equal(open.textContent, 'Open them');
+  const tiles = [...p.w.document.querySelectorAll('.grid .cell')];
+  assert.equal(tiles.filter((t) => /in 30 days/.test(t.textContent)).length, 1, 'one money tile, not two');
+  assert.ok(tiles.every((t) => t.tagName === 'BUTTON' && t.getAttribute('data-go')), 'every tile opens its page');
+  assert.equal(p.$('.spark'), null, 'no little charts to decode');
+  open.click();
+  await settle();
+  assert.equal(p.$('.tab[data-tab="submissions"]').getAttribute('aria-current'), 'page');
+});
+
+test('the search box says so when it forgives a spelling', async () => {
+  const p = await panel((url) => (url.includes('/api/admin/search')
+    ? { ok: true, q: 'karthk', near: true, more: false, results: [{ type: 'case', id: 'PFA-V-2026-00011', title: 'PFA-V-2026-00011', line: 'Volunteer application from Karthik Dhanya', status: 'Waiting', at: 0 }] }
+    : undefined));
+  p.$('#gq').value = 'karthk';
+  p.$('#gq').dispatchEvent(new p.w.Event('input', { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 300));
+  await settle();
+  assert.match(p.text('#gres'), /No exact match for .karthk.\. Showing close spellings\./);
+  assert.match(p.text('#gres'), /Karthik Dhanya/);
 });
