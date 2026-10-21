@@ -82,7 +82,7 @@ test('no setting can send a record of money to gandhim', () => {
 
 test('the shop\'s packing note obeys the same rule', () => {
   const src = read('lib/routes/shop/response.js');
-  assert.match(src, /const staff = FORWARD\.forPayments\(cleanText\(process\.env\.PFA_SHOP_ORDERS_EMAIL, 160\)\.split\(','\)\)\.join\(', '\);/,
+  assert.match(src, /const staff = FORWARD\.forPayments\(cleanText\(process\.env\.PFA_SHOP_ORDERS_EMAIL, 160\)\.split\(','\)\)/,
     'PFA_SHOP_ORDERS_EMAIL is passed through forPayments before anything is sent');
 });
 
@@ -126,5 +126,61 @@ test('the last door: no email about money is delivered to gandhim, whatever queu
   /* and a form's copy to gandhim is untouched by it */
   const src = read('lib/caregiver-mail.js');
   assert.match(src, /if \(!MONEY_TEMPLATES\.has\(template\)\) return false;/);
-  assert.match(src, /return FORWARD\.isPaid\(\{ kind \}\);/, 'only a record of money is stopped');
+  assert.match(src, /return require\('\.\/submission-forward'\)\.isPaid\(\{ kind: kindOf\(payload\) \}\);/, 'only a record of money is stopped');
+});
+
+/* ---- the independent review of v1.433 (21 Oct 2026) found these gaps,
+   each open only through a setting; each is closed here ---------------- */
+
+function freshMail(env) {
+  const keep = {};
+  const names = ['PFA_SMTP_USER', 'PFA_SMTP_PASS', 'PFA_MAIL_REPLY_TO', 'PFA_PAYMENTS_INBOX', 'PFA_SUBMISSIONS_INBOX', 'PFA_IMAP_USER', 'PFA_CAPTURE_REPLIES'];
+  for (const k of names) { keep[k] = process.env[k]; delete process.env[k]; }
+  Object.assign(process.env, { PFA_SMTP_USER: 'info@peopleforanimalsindia.org', PFA_SMTP_PASS: 'x' }, env);
+  delete require.cache[require.resolve('../lib/caregiver-mail.js')];
+  const mail = require('../lib/caregiver-mail.js');
+  const sent = [];
+  mail._setSmtpTransport(() => ({ async sendMail(m) { sent.push(m); return { messageId: m.messageId || 'x' }; }, close() {} }));
+  const done = () => {
+    mail._setSmtpTransport(null);
+    for (const k of names) { if (keep[k] === undefined) delete process.env[k]; else process.env[k] = keep[k]; }
+    delete require.cache[require.resolve('../lib/caregiver-mail.js')];
+  };
+  return { mail, sent, done };
+}
+
+test('an allow-list, not a deny-list: money goes to the payments inboxes and to no other address', () => {
+  const { mail, done } = freshMail({ PFA_SUBMISSIONS_INBOX: 'forms-alias@peopleforanimalsindia.org' });
+  try {
+    const m = mail.moneyToWrongInbox;
+    assert.equal(m('forms-alias@peopleforanimalsindia.org', 'submission_forward', { kind: 'PFA-DON' }), true, 'another forms address is refused for money');
+    assert.equal(m('someone@example.com', 'shop_order_staff', {}), true, 'so is any third address');
+    assert.equal(m('pfadcmho@gmail.com', 'submission_forward', { kind: 'PFA-DON' }), false);
+    assert.equal(m('OZAIRHUSAIN@gmail.com', 'submission_followup', { reference: 'pfa-cg-2026-00002' }), false, 'any case, in the address or the reference');
+    assert.equal(m('forms-alias@peopleforanimalsindia.org', 'submission_forward', { kind: 'PFA-CR' }), false, 'a form is untouched');
+    assert.equal(m('asha@example.com', 'payment_received', {}), false, 'the payer\'s own receipt is not a copy and is untouched');
+  } finally { done(); }
+});
+
+test('a payer\'s Reply on their receipt never goes to gandhim, whatever PFA_MAIL_REPLY_TO says', async () => {
+  const { mail, sent, done } = freshMail({ PFA_MAIL_REPLY_TO: GANDHIM });
+  try {
+    await mail.deliver({ to: 'asha@example.com', template: 'payment_received', payload: { name: 'Asha', amount: '500', orderId: 'PFA-DON-AB12CD34', reference: 'PFA-DON-AB12CD34' } });
+    assert.equal(sent.length, 1);
+    assert.ok(![].concat(sent[0].replyTo || []).some((a) => String(a).toLowerCase().includes(GANDHIM)), `Reply-To was ${sent[0].replyTo}`);
+  } finally { done(); }
+});
+
+test('the shop\'s packing note goes only to payments inboxes, one email each', () => {
+  const src = read('lib/routes/shop/response.js');
+  assert.match(src, /const allowed = FORWARD\.paymentInboxes\(\);/);
+  assert.match(src, /\.filter\(\(a\) => allowed\.includes\(a\)\);/, 'an address that is not a payments inbox gets no note');
+  assert.match(src, /staff\.map\(\(to\) => CONFIRM\.send\(\{ to, template: 'shop_order_staff'/, 'one email per address, not a comma list in one "to"');
+});
+
+test('the panel neither resends old payments as "missed" nor chases copies the rule now refuses', () => {
+  const src = read('lib/routes/admin/mail-check.js');
+  assert.match(src, /&& !\(FORWARD\.isPaid\(d\) && copied\(d, FORWARD\.DEFAULT_INBOX\)\)\)/, 'a payment copied under the old route had its copy');
+  assert.match(src, /\.filter\(\(d\) => !mail\.moneyToWrongInbox\(d\.to, d\.template, d\.payload\)\)/, 'a superseded copy is not listed as failing');
+  assert.match(read('admin.html'), /Copies of forms are switched off<\/b> \(PFA_SUBMISSIONS_INBOX is off\)\. Every record of money still goes to/);
 });

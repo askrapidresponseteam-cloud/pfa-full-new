@@ -1095,7 +1095,7 @@ window.addEventListener('unhandledrejection', function (event) {
       var to = (m.inboxes || []).join(', ');
       var failing = m.failing || [];
       var resendable = failing.filter(function (r) { return r.canResend; });
-      var boss = me && me.role === 'super' && m.configured && to;
+      var boss = me && me.role === 'super' && m.configured && (to || (m.paymentInboxes || []).length);
       /* Sending again is not about the inbox alone: the list holds every
          kind of email (confirmations, receipts, relayed replies). */
       var canSend = Boolean(me && me.role === 'super' && m.configured);
@@ -1117,8 +1117,10 @@ window.addEventListener('unhandledrejection', function (event) {
       }
       if (!m.configured) {
         out.push('<p class="state" data-tone="bad"><b>No email can leave the site.</b> Neither the copies to ' + esc(to || 'the inbox') + ' nor the confirmations to the people who write in are sent; every submission is still on record here. ' + esc(m.settingsHelp || '') + '.</p>');
+      } else if (!to && !(m.paymentInboxes || []).length) {
+        out.push('<p class="state" data-tone="bad"><b>Forwarding is switched off.</b> PFA_SUBMISSIONS_INBOX and PFA_PAYMENTS_INBOX are set to off ' + (m.host === 'firebase' ? 'in functions/.env' : 'in Vercel') + '.</p>');
       } else if (!to) {
-        out.push('<p class="state" data-tone="bad"><b>Forwarding is switched off.</b> PFA_SUBMISSIONS_INBOX is set to off ' + (m.host === 'firebase' ? 'in functions/.env' : 'in Vercel') + '.</p>');
+        out.push('<p class="state" data-tone="bad"><b>Copies of forms are switched off</b> (PFA_SUBMISSIONS_INBOX is off). Every record of money still goes to <b>' + esc((m.paymentInboxes || []).join(', ')) + '</b>.</p>');
       } else {
         var pay = (m.paymentInboxes || []).join(', ');
         out.push('<p class="state">A copy of every form goes to <b>' + esc(to) + '</b>'
