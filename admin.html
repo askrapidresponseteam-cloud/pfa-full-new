@@ -357,6 +357,13 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
 }
 /* 16px fields on a phone, or an iPhone zooms the page on every tap */
 @media (pointer:coarse),(max-width:700px){input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=hidden]):not([type=button]):not([type=submit]):not([type=reset]):not([type=color]),select,textarea{font-size:16px!important}}
+
+/* Dropdowns and label notes, drawn as on the public site (its shared
+   stylesheet, which the panel does not load): the arrow 20 px in from the edge, the text
+   clear of it, and a note inside a label never taller than the label. */
+body select:not([multiple]):not([size]){-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:right 20px center;background-size:12px 7px;background-repeat:no-repeat;padding-right:46px;text-overflow:ellipsis;cursor:pointer}
+body select:not([multiple]):not([size]):disabled{cursor:not-allowed;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:baseline}
 </style>
 </head>
 <body>

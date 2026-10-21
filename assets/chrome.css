@@ -583,3 +583,26 @@ html:not(.pfa-flows) .pfa-steps__tabs,html:not(.pfa-flows) .pfa-steps__bar,html:
 .pfa-follow-line{margin:0;padding:clamp(22px,3vw,32px) var(--gutter,max(clamp(16px,4vw,72px),(100% - 1440px) / 2));border-top:1px solid var(--line,#e4e2df);font-size:14px;line-height:1.5;color:rgba(17,17,17,.62)}
 .pfa-follow-line a{margin-left:4px;color:#111;text-decoration:none;border-bottom:1px solid rgba(17,17,17,.35);padding-bottom:1px}
 .pfa-follow-line a:hover{border-bottom-color:#111}
+
+/* Every dropdown on the site, drawn one way (owner, 21 Oct 2026: "dropdown
+   cannot be so close to the edge.. anywhere across the site.. fix it
+   wholistically"). Five pages left the arrow to the browser, which Safari
+   draws hard against the right edge, and six drew their own 13 px in, each
+   page with its own copy. This is the only copy now: the arrow sits 20 px in,
+   matching the breathing room on the left, a thin chevron like the site's other line
+   icons (grey on a disabled dropdown), and the text stops 46 px from the
+   edge so a long choice never runs under it. `body` puts it above a page's
+   own `.field select` rule, whose padding shorthand would otherwise put the
+   text back under the arrow. A list box (multiple, or a size) has no arrow. */
+body select:not([multiple]):not([size]){-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:right 20px center;background-size:12px 7px;background-repeat:no-repeat;padding-right:46px;text-overflow:ellipsis;cursor:pointer}
+body select:not([multiple]):not([size]):disabled{cursor:not-allowed;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+
+/* A note inside a label, "(optional)" or a line of guidance, takes the
+   label's own size and line height. Pages style `.field small` for the hint
+   under an input, 12 px on an 18 px line, and that rule caught the note
+   inside the label too, so "Mobile (optional)" stood 4 px taller than "Your
+   name" beside it and its box started 4 px lower (owner, 21 Oct 2026: "look
+   at the pos of your mobile number field and name.. they are at diff pos.
+   fix across the site"). :is() lends this the weight of a class, and body
+   one step more, so it outranks those page rules without !important. */
+body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:baseline}
