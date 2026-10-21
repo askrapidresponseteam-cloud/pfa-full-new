@@ -228,97 +228,17 @@ test('the stage refuses the browser its gestures, so a double tap is the theatre
   assert.match(THEATRE_CSS, /\.th-stage\{[^}]*touch-action:none/);
 });
 
-/* ------------------------------------------------------ the screening room */
+/* ----------------------------------------- CineKind's PR film, in the theatre */
 
-function screening() {
-  const vc = new VirtualConsole();
-  const errors = [];
-  vc.on('jsdomError', (e) => errors.push(e.message));
-  const built = [];
-  const dom = new JSDOM(CINEKIND, {
-    runScripts: 'dangerously', pretendToBeVisual: true, virtualConsole: vc,
-    url: 'https://pfa.test/cinekind.html',
-    beforeParse(w) {
-      matchMediaFor(w, []);
-      w.scrollTo = () => {};
-      w.Element.prototype.scrollTo = function () {};
-      w.Element.prototype.scrollIntoView = function () {};
-      /* The YouTube player, already here: the room takes hold of the frame
-         it builds and asks it what it is doing. */
-      w.YT = {
-        PlayerState: { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 },
-        Player: function (frame, opts) {
-          const me = this;
-          me.state = -1;
-          me.calls = [];
-          me.playVideo = () => { me.calls.push('play'); };
-          me.pauseVideo = () => { me.calls.push('pause'); me.state = 2; opts.events.onStateChange({ data: 2 }); };
-          me.mute = () => {}; me.unMute = () => {}; me.setVolume = () => {}; me.isMuted = () => false;
-          me.getDuration = () => 0; me.getCurrentTime = () => 0; me.seekTo = () => {};
-          me.getPlayerState = () => me.state;
-          me.destroy = () => {};
-          me.go = () => { me.state = 1; opts.events.onStateChange({ data: 1 }); };
-          built.push(me);
-          setTimeout(() => opts.events.onReady(), 0);
-        }
-      };
-    }
-  });
-  const w = dom.window;
-  windows.push(w);
-  const $ = (s) => w.document.querySelector(s);
-  return { w, d: w.document, $, built, errors, open: () => { $('[data-film]').click(); } };
-}
-
-test('a film the phone refused to start says Play, and lets the tap through to the player that can start it', async () => {
-  /* The room showed Pause over a picture that had never moved; the only way
-     to start the film was to press Pause and then Play. */
-  const p = screening();
-  p.open();
-  await wait(20);
-  assert.equal(p.built.length, 1, 'the room took hold of the frame');
-  assert.equal(p.$('#cinePause').textContent, 'Pause', 'before the moment has passed, nothing is concluded');
-  assert.ok(!p.$('#cineScreen').classList.contains('is-handoff'));
-  await wait(1600);
-  assert.equal(p.$('#cinePause').textContent, 'Play', 'a film that has not started is not one that can be paused');
-  assert.equal(p.$('#cinePause').getAttribute('aria-pressed'), 'true');
-  assert.ok(p.$('#cineScreen').classList.contains('is-handoff'), 'and the frame takes the tap');
-  assert.match(CINEKIND, /\.screen\.is-handoff \.screen__frame iframe\{pointer-events:auto\}/);
-
-  p.$('#cinePause').click();
-  assert.deepEqual(p.built[0].calls.slice(-1), ['play'], 'Play asks the player to play, not to pause');
-  p.built[0].go();
-  assert.equal(p.$('#cinePause').textContent, 'Pause', 'and once it moves the control says so');
-  assert.ok(!p.$('#cineScreen').classList.contains('is-handoff'), 'the frame goes back to taking no pointer');
+test('the PR film on CineKind plays in the shared theatre, not a room of its own', () => {
+  /* owner, 21 Oct 2026: "every video that streams from YT on the website
+     should play like this. across the website". Its own room (a looped
+     takeover with three buttons) is gone; the theatre's phone mode, full
+     screen and controls are what it gets, like every other film. */
+  assert.doesNotMatch(CINEKIND, /id="cineScreen"|\.screen\{|function screen\(\)/);
+  assert.match(CINEKIND, /<script src="assets\/theatre\.js"><\/script>/);
+  assert.match(CINEKIND, /yt: 'GgrFF97F8_s'/);
 });
-
-test('a film that autoplays is left alone: no flicker to Play on the way', async () => {
-  const p = screening();
-  p.open();
-  await wait(20);
-  p.built[0].go();
-  await wait(1600);
-  assert.equal(p.$('#cinePause').textContent, 'Pause');
-  assert.ok(!p.$('#cineScreen').classList.contains('is-handoff'));
-});
-
-test('the screening room has no full screen control: the room is already the whole viewport', () => {
-  /* One was added and taken out the same day (owner, 16 Sep 2026): a
-     takeover at inset:0 is the screen, and a button promising more of it
-     was redundant. Pinned so a half-removal - a listener on a missing id,
-     which would take every control wired after it down - cannot ship. */
-  assert.doesNotMatch(CINEKIND, /cineFull|fullToggle|paintFull|requestFullscreen/);
-});
-
-test('the screening room is sized to the visible viewport, wraps its bar on a phone, and fits a 16:9 film to a portrait screen', () => {
-  assert.match(CINEKIND, /@supports \(height:100dvh\)\{\.screen\{bottom:auto;height:100dvh\}\}/, 'the bar sat under Safari\'s toolbar');
-  assert.match(CINEKIND, /\.screen__bar\{[^}]*env\(safe-area-inset-bottom\)/, 'and off the home indicator');
-  assert.match(CINEKIND, /@media \(max-width:720px\)\{\s*\.screen__bar\{flex-wrap:wrap/, 'clock, bar and three buttons do not fit one row on a phone');
-  assert.match(CINEKIND, /@media \(orientation:portrait\) and \(max-width:860px\)\{\s*\.screen__frame iframe\{width:100vw;height:56\.25vw\}/, 'a portrait phone showed the middle third of the film');
-  assert.match(CINEKIND, /\.screen__frame\{[^}]*touch-action:none/);
-});
-
-/* ------------------------------------------------------------- the reel box */
 
 test('the reel frame is capped by the stage it sits in, not the viewport, so a phone held sideways does not squash it', () => {
   assert.match(FOUNDER, /\.rbox__stage\{container-type:size\}/);

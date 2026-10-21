@@ -102,3 +102,16 @@ test('the theatre on a phone: the film has the screen, the controls float over i
   assert.match(css, /\.theatre\.is-phone \.th-strip,\.theatre\.is-phone \.th-rule,\.theatre\.is-phone \.th-foot\{display:none\}/);
   assert.match(css, /\.theatre\.is-phone \.th-row \.r > :not\(#thFull\)\{display:none\}/, 'Full screen stays; the desktop extras go');
 });
+
+test('every film from YouTube on the site plays in the one theatre: no page builds a YouTube player of its own', () => {
+  /* owner, 21 Oct 2026: "every video that streams from YT on the website
+     should play like this. across the website" */
+  const pages = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && f !== 'admin.html');
+  const own = /youtube(?:-nocookie)?\.com\/embed|youtube\.com\/iframe_api|youtube-nocookie\.com/;
+  for (const f of pages) assert.doesNotMatch(fs.readFileSync(path.join(ROOT, f), 'utf8'), own, `${f} builds its own YouTube player`);
+  for (const f of ['founder.html', 'wall.html', 'cinekind.html']) {
+    const html = fs.readFileSync(path.join(ROOT, f), 'utf8');
+    assert.match(html, /<script src="assets\/theatre\.js"><\/script>/, `${f} plays its films in the theatre`);
+    assert.match(html, /PFA_THEATRE\.mount\(/, `${f} hands its films to it`);
+  }
+});

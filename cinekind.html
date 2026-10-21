@@ -363,103 +363,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .roll li{transition:background .5s ease}
 .roll li.is-lit{background:var(--stone)}
 
-/* ---------- the screening ----------
-   The film's poster opens it: a fixed takeover at z-index 70, over the
-   announce bar (60) and the header (50), under the theatre (90), and under
-   the drawn cursor's own layer, which paints above every z-index there is.
-   Deliberately not the Fullscreen API, for that last reason: a fullscreened
-   element paints above the cursor layer too (chrome.css says so in as many
-   words) and would swallow the pointer. The embed mounts on the press and
-   is torn out on Exit, so the film starts with sound, as a gesture allows,
-   and stops when the room is left. The 16:9 frame overfills whichever way
-   the screen is taller or wider; pointer-events stay off so the only
-   controls are this page's own. */
-.screen{position:fixed;inset:0;z-index:70;background:var(--stone)}
-/* inset:0 measures the large viewport, the one that assumes the browser's
-   bars are hidden. On a phone they are not, so the bar below sat under
-   Safari's toolbar and Exit could not be reached; the same fix the theatre
-   carries (assets/theatre.css). */
-@supports (height:100dvh){.screen{bottom:auto;height:100dvh}}
-.screen[hidden]{display:none}
-.screen__frame,.screen__frame iframe{position:absolute;border:0}
-/* The picture takes no gesture of its own, so none is lost: this stops a
-   drag on it from scrolling the page behind the room on iOS, and a double
-   tap from being the browser's zoom. */
-.screen__frame{inset:0;touch-action:none}
-.screen__frame iframe{top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;
-  width:max(100vw,177.78vh);height:max(100vh,56.25vw)}
-/* Container units measure the room, not the viewport, so in full screen and
-   behind a browser bar the box is sized to what is actually there. */
-@supports (width:1cqw){
-  .screen{container-type:size}
-  .screen__frame iframe{width:max(100cqw,177.78cqh);height:max(100cqh,56.25cqw)}
-}
-/* A phone held upright is taller than it is wide by more than two to one;
-   overfilling it with a 16:9 film left the middle third of the picture and
-   cropped the rest away. On that one shape the film is fitted to the width
-   instead and the stone shows above and below it. */
-@media (orientation:portrait) and (max-width:860px){
-  .screen__frame iframe{width:100vw;height:56.25vw}
-  @supports (width:1cqw){.screen__frame iframe{width:100cqw;height:56.25cqw}}
-}
-/* Autoplay refused: YouTube is showing its own play button under a frame
-   that takes no pointer. For as long as the film has not started, the frame
-   takes the tap, so the one control that can start it can be reached. */
-.screen.is-handoff .screen__frame iframe{pointer-events:auto}
-/* The foot of the room: the clock, the seek bar, and the three buttons at
-   the end, on one line. The bar is the theatre's (assets/theatre.css,
-   .th-seek), redrawn here under this room's names because this page does
-   not load that stylesheet and half of it would be wrong for a room with
-   one film in it. The seek and the clock are hidden until the player has
-   said how long the film is: a bar that cannot be dragged anywhere is a
-   promise the room cannot keep. */
-.screen__bar{position:absolute;left:max(clamp(14px,2vw,30px),env(safe-area-inset-left));right:max(clamp(14px,2vw,30px),env(safe-area-inset-right));
-  bottom:max(clamp(14px,2vw,30px),env(safe-area-inset-bottom));z-index:2;
-  display:flex;align-items:center;gap:18px;transition:opacity .45s ease}
-/* On a phone the clock, the bar and the three buttons did not fit one line:
-   the buttons are fixed width, so the seek collapsed to nothing and the row
-   ran off the right edge. Two rows: the clock and the bar, then the buttons. */
-@media (max-width:720px){
-  .screen__bar{flex-wrap:wrap;gap:10px 12px}
-  .screen__seek{flex:1 1 60%;min-width:0}
-  .screen__ctl{flex:1 1 100%;justify-content:flex-end}
-  .screen__ctl button{padding:0 12px}
-}
-.screen__time{font-size:12px;letter-spacing:.06em;color:var(--ink);white-space:nowrap;visibility:hidden}
-.screen__time .sep{margin:0 6px;opacity:.5}
-.screen__seek{position:relative;flex:1;height:26px;display:flex;align-items:center;cursor:pointer;visibility:hidden}
-.screen__bar.is-live .screen__time,.screen__bar.is-live .screen__seek{visibility:visible}
-.screen__seek::before{content:"";position:absolute;left:0;right:0;height:3px;background:rgba(17,17,17,.28)}
-.screen__seek-fill{position:absolute;left:0;height:3px;width:0;background:#fff;pointer-events:none}
-.screen__seek-knob{position:absolute;left:0;width:12px;height:12px;margin-left:-6px;background:#fff;transform:scale(0);transition:transform .15s;pointer-events:none}
-.screen__seek:hover .screen__seek-knob,.screen__seek:focus-within .screen__seek-knob,.screen__seek.is-drag .screen__seek-knob{transform:scale(1)}
-.screen__seek input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
-.screen__seek input:focus-visible ~ .screen__seek-knob{outline:2px solid #fff;outline-offset:3px}
-.screen__seek-tip{position:absolute;bottom:calc(100% + 2px);transform:translateX(-50%);padding:4px 8px;background:#fff;color:var(--deep);font-size:11px;letter-spacing:.06em;pointer-events:none;z-index:2}
-.screen__seek-tip[hidden]{display:none}
-.screen__ctl{display:flex;gap:8px;flex:none}
-.screen__ctl button{height:44px;padding:0 18px;background:rgba(244,243,241,.55);border:1px solid rgba(17,17,17,.55);
-  color:var(--ink);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;
-  backdrop-filter:blur(6px);transition:background .2s,color .2s}
-.screen__ctl button:hover{background:#fff;color:var(--deep)}
-/* The sound control, when the browser refused the ask. The room is dark and
-   the film is running, so this points rather than explains: the button turns
-   to paper and breathes twice, which is enough to find in the corner of an
-   eye, and stops. A press of anything at all puts it back to a control among
-   controls. Reduced motion gets the paper without the breathing, because the
-   thing being said is "press this", not "look at this moving". */
-.screen.is-hushed #cineSound{background:#fff;color:var(--deep);animation:cine-hush 1.6s ease-in-out 2}
-@keyframes cine-hush{0%,100%{box-shadow:0 0 0 0 rgba(17,17,17,0)}50%{box-shadow:0 0 0 7px rgba(17,17,17,.22)}}
-@media (prefers-reduced-motion: reduce){
-  .screen.is-hushed #cineSound{animation:none}
-}
-/* During a screening, stillness clears the room: a moment without the
-   mouse and the controls fade, and the drawn cursor sleeps with them
-   (the native one is already hidden site-wide, so nothing is left on
-   the picture). Any movement, key or touch wakes both at once. */
-.screen.is-idle .screen__bar{opacity:0;pointer-events:none}
-html.pfa-screen-idle .cursor-layer{opacity:0;transition:opacity .45s ease}
-
 /* ---------- bands ---------- */
 .band{padding:var(--band) var(--gutter)}
 .band--stone{background:var(--stone)}
@@ -1740,25 +1643,6 @@ if (root.document && root.document.head) apply(read());
   </div>
 </main>
 
-<!-- The screening. Empty until the film button is pressed; the embed is
-     mounted then and torn out on Exit, so nothing plays behind the wall. -->
-<div class="screen" id="cineScreen" hidden>
-  <div class="screen__frame" id="cineFrame"></div>
-  <div class="screen__bar" id="cineBar">
-    <span class="screen__time num"><span id="cineT">00:00</span><span class="sep">/</span><span id="cineD">00:00</span></span>
-    <div class="screen__seek" id="cineSeekWrap">
-      <i class="screen__seek-fill" id="cineFill"></i><i class="screen__seek-knob" id="cineKnob"></i>
-      <input type="range" id="cineSeek" min="0" max="1000" value="0" step="1" aria-label="Seek" aria-valuetext="00:00">
-      <span class="screen__seek-tip num" id="cineTip" hidden></span>
-    </div>
-    <div class="screen__ctl">
-      <button type="button" id="cineSound" aria-pressed="true">Sound on</button>
-      <button type="button" id="cinePause" aria-pressed="false">Pause</button>
-      <button type="button" id="cineExit">Exit</button>
-    </div>
-  </div>
-</div>
-
 <!-- The nomination room. Hidden until a [data-nominate] control is pressed
      (the wall's Nominate, or the 2027 band's button); a sheet from the
      right, the page dimmed behind it. The form goes through pfa-forms.js
@@ -2741,29 +2625,42 @@ if (root.document && root.document.head) apply(read());
     items.forEach(function(el){ io.observe(el); });
   })();
 
-  /* ---------- the night: the red carpet film, in the theatre ----------
-     The same player as the wall, the founder page and the academy
-     (assets/theatre.js), not a frame dropped into the page: the still is a
-     link to the film on YouTube, and with the player here a press opens it
-     in the theatre instead. Nothing from YouTube loads until then. */
-  (function night(){
-    var a = document.querySelector('.night__play[data-yt]');
-    if (!a || !window.PFA_THEATRE || !window.PFA_THEATRE.mount) return;
-    var id = a.getAttribute('data-yt');
-    if (!/^[\w-]{11}$/.test(id)) return;
+  /* ---------- the films: the PR film and the red carpet, in the theatre ----------
+     Every film from YouTube on the site plays in one player (owner, 21 Oct
+     2026: "every video that streams from YT on the website should play like
+     this. across the website"): the theatre of the wall, the founder page
+     and the academy (assets/theatre.js), not a room of this page's own.
+     The PR button by the wall and the red carpet poster are the two ways in,
+     to the same two films, so Next goes from one to the other. Nothing from
+     YouTube loads until one is pressed. Without the player the poster is a
+     plain link to the film on YouTube. */
+  (function films(){
+    if (!window.PFA_THEATRE || !window.PFA_THEATRE.mount) return;
+    var night = document.querySelector('.night__play[data-yt]');
+    var nightId = night ? night.getAttribute('data-yt') : '';
+    var list = [{ wall: 'long', title: 'CineKind 2026', credit: 'People for Animals and the Film Federation of India', yt: 'GgrFF97F8_s' }];
+    if (/^[\w-]{11}$/.test(nightId)) list.push({ wall: 'long', title: 'CineKind 2026: on the red carpet at The Leela', credit: 'BollywoodHelpline', yt: nightId });
     var T = window.PFA_THEATRE.mount({
-      films: [{ wall: 'long', title: 'CineKind 2026: on the red carpet at The Leela', credit: 'BollywoodHelpline', yt: id }],
+      films: list,
       progKey: 'pfa:cinekind:progress',
       name: 'CineKind 2026',
       credit: 'People for Animals \u00b7 CineKind Awards 2026',
       foot: [{ href: '#honours-2026', text: 'The 2026 honours' }]
     });
     if (!T) return;
-    a.removeAttribute('target');
-    a.addEventListener('click', function(e){
+    document.addEventListener('click', function(e){
+      var a = e.target.closest ? e.target.closest('[data-film]') : null;
+      if (!a || e.defaultPrevented) return;
       e.preventDefault();
       T.open(0, 'long');
     });
+    if (night && list.length > 1) {
+      night.removeAttribute('target');
+      night.addEventListener('click', function(e){
+        e.preventDefault();
+        T.open(1, 'long');
+      });
+    }
   })();
 
   /* ---------- the reels: Instagram, in a frame of their own ----------
@@ -2859,344 +2756,6 @@ if (root.document && root.document.head) apply(read());
     });
   })();
 
-  /* ---------- the screening: the film over the wall ----------
-     The film button beside the wall is the way in, and a press is a
-     gesture, so the embed is mounted on the press and not before: nothing
-     autoplays behind the wall, muted or otherwise. Looped, because a
-     ceiling has no ending; the player's own controls are off and the frame
-     takes no pointer, so the only controls are this page's own three -
-     sound, pause, exit - the Escape key and M. Exit tears the embed out,
-     which is how the film stops, and hands the focus back to the poster
-     that opened it. Whether the sound arrives with the picture is not this
-     page's to decide; see the long note below. */
-  (function screen(){
-    var FILM = 'GgrFF97F8_s';
-    var ORIGIN = 'https://www.youtube-nocookie.com';
-    var API = 'https://www.youtube.com/iframe_api';
-    var room = $('#cineScreen'), frame = $('#cineFrame'),
-        pauseBtn = $('#cinePause'), exitBtn = $('#cineExit'), soundBtn = $('#cineSound');
-    if (!room || !frame || !pauseBtn || !exitBtn || !soundBtn) return;
-    var iframe = null, player = null, api = null;
-    var bar = $('#cineBar'), seekWrap = $('#cineSeekWrap'), seek = $('#cineSeek'), fill = $('#cineFill'), knob = $('#cineKnob'), tip = $('#cineTip'), tT = $('#cineT'), tD = $('#cineD');
-    var dragging = false, pollT = null, SKIP = 10;
-    var paused = false, muted = false, open = false, scrollAt = 0, opener = null, hushT = null, startT = null;
-
-    function send(func, args){
-      if (!iframe || !iframe.contentWindow) return;
-      try {
-        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args || [] }), ORIGIN);
-      } catch (_) { /* a player that cannot hear cannot be paused either */ }
-    }
-
-    /* ---- the sound ----
-       mute=0 in the address was the whole of it, and the whole of it was a
-       request. A browser grants unmuted playback to a frame it believes a
-       person asked for, and the press on The film is that ask - but the
-       press lands on this page and the film plays in a frame belonging to
-       someone else, so what crosses the boundary is permission to autoplay,
-       not a guarantee of sound. Chrome weighs the site's own history as
-       well, and where the scales come down the wrong way YouTube does the
-       only thing left that is not silence: it starts the film muted. No
-       error, no event, a picture and nothing to hear. That is what was
-       happening, and no spelling of the address fixes it, because nothing
-       was wrong with the address.
-
-       What answers it is a handle on the player. The frame is built inside
-       the click, where the permission is strongest, and the API is fetched
-       alongside to take hold of that same frame once it lands. Then the
-       player is told, in as many words, to unmute - and a moment later
-       asked whether it did, because a refusal here is silent and a button
-       that claims sound the room does not have is worse than no button.
-       Whatever the answer, the control below says the truth and one press
-       of it is a gesture in its own right, which no browser refuses. */
-    function loadApi(){
-      if (window.YT && window.YT.Player) return Promise.resolve(true);
-      if (api) return api;
-      api = new Promise(function(resolve){
-        var prev = window.onYouTubeIframeAPIReady;
-        window.onYouTubeIframeAPIReady = function(){
-          if (prev) { try { prev(); } catch (_) {} }
-          resolve(!!(window.YT && window.YT.Player));
-        };
-        var sc = document.createElement('script');
-        sc.src = API; sc.async = true;
-        sc.onerror = function(){ resolve(false); };
-        document.head.appendChild(sc);
-        /* A blocked script never errors and never loads. The film is already
-           playing by then; only the handle is missing, and postMessage
-           still carries every command this room sends. */
-        window.setTimeout(function(){ resolve(!!(window.YT && window.YT.Player)); }, 6000);
-      });
-      return api;
-    }
-    function paintSound(){
-      soundBtn.textContent = muted ? 'Sound off' : 'Sound on';
-      soundBtn.setAttribute('aria-pressed', muted ? 'false' : 'true');
-    }
-    function paintPause(){
-      pauseBtn.textContent = paused ? 'Play' : 'Pause';
-      pauseBtn.setAttribute('aria-pressed', paused ? 'true' : 'false');
-    }
-    /* What the player is actually doing, which on a phone is not always
-       what the address asked for: a mobile browser may refuse to start a
-       film with sound, and the room then showed Pause over a picture that
-       had never moved, so the way to start it was to press Pause and then
-       Play. The button now says what is true. While the film has not
-       started at all, the frame is also let through to the tap, because the
-       one control that can start it on such a browser is YouTube's own big
-       play button, and the frame otherwise takes no pointer. */
-    function readState(state, settled){
-      if (!open || typeof state !== 'number') return;
-      var S = (window.YT && window.YT.PlayerState) || {};
-      var PLAYING = S.PLAYING != null ? S.PLAYING : 1, BUFFERING = S.BUFFERING != null ? S.BUFFERING : 3,
-          UNSTARTED = S.UNSTARTED != null ? S.UNSTARTED : -1, CUED = S.CUED != null ? S.CUED : 5;
-      var running = state === PLAYING || state === BUFFERING;
-      var unstarted = state === UNSTARTED || state === CUED;
-      if (running) { room.classList.remove('is-handoff'); if (startT) { clearTimeout(startT); startT = null; } }
-      /* Unstarted is also what a film reports in the instant before it
-         starts; it is read as a refusal only once the moment has passed. */
-      if (unstarted && !settled) return;
-      if (running === paused) { paused = !running; paintPause(); }
-      if (unstarted) { room.classList.add('is-handoff'); wake(); }
-    }
-    function stateNow(){
-      if (!player || !player.getPlayerState) return null;
-      try { return player.getPlayerState(); } catch (_) { return null; }
-    }
-    /* Said to the player if there is one, posted through the wall if not. */
-    function tellSound(){
-      if (player && player.unMute) {
-        try {
-          if (muted) player.mute();
-          else { player.unMute(); player.setVolume(100); }
-          return;
-        } catch (_) { /* fall through to the message */ }
-      }
-      send(muted ? 'mute' : 'unMute');
-      if (!muted) send('setVolume', [100]);
-    }
-    /* What the player actually did, which is not always what it was told. */
-    function readSound(){
-      if (!open || !player || !player.isMuted) return;
-      var m;
-      try { m = player.isMuted(); } catch (_) { return; }
-      if (typeof m !== 'boolean' || m === muted) return;
-      muted = m;
-      paintSound();
-      /* Refused. The control is pointed at rather than explained: the room
-         is dark, the film is running, and a sentence is more than anyone
-         wants to read. It stops asking after a few seconds. */
-      if (muted) {
-        room.classList.add('is-hushed');
-        wake();                          /* the room may already have gone dark */
-        if (hushT) clearTimeout(hushT);
-        hushT = window.setTimeout(function(){ room.classList.remove('is-hushed'); }, 6000);
-      }
-    }
-    /* ---- the seek ----
-       The same bar the theatre has, driven the same way: the player is asked
-       for its time and length four times a second, the bar is drawn from the
-       answer, and a drag on the bar is turned back into a seek. YouTube
-       answers these calls synchronously once the API has hold of the frame,
-       which is why the bar waits for that and not for the film. */
-    function pad(n){ return (n < 10 ? '0' : '') + n; }
-    function tc(sec){ sec = Math.max(0, Math.floor(sec || 0)); var h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60, x = sec % 60; return (h ? pad(h) + ':' : '') + pad(m) + ':' + pad(x); }
-    function clock(){
-      var d = 0, t = 0;
-      if (player && player.getDuration) { try { d = Number(player.getDuration()) || 0; t = Number(player.getCurrentTime()) || 0; } catch (_) {} }
-      return { d: d, t: t, known: d > 0 };
-    }
-    function paintSeek(f, t, d){
-      fill.style.width = (f * 100) + '%'; knob.style.left = (f * 100) + '%';
-      seek.value = Math.round(f * 1000); seek.setAttribute('aria-valuetext', tc(t) + ' of ' + tc(d));
-      tT.textContent = tc(t); tD.textContent = tc(d);
-    }
-    function tick(){
-      var c = clock();
-      bar.classList.toggle('is-live', c.known);
-      if (!c.known || dragging) return;
-      paintSeek(c.t / c.d, c.t, c.d);
-    }
-    function seekTo(t){
-      var c = clock(); if (!c.known) return;
-      t = Math.max(0, Math.min(c.d, t));
-      try { player.seekTo(t, true); } catch (_) {}
-      paintSeek(t / c.d, t, c.d);
-    }
-    function skip(delta){ var c = clock(); if (c.known) seekTo(c.t + delta); wake(); }
-    seek.addEventListener('input', function(){
-      dragging = true; seekWrap.classList.add('is-drag');
-      var f = Number(seek.value) / 1000, c = clock();
-      fill.style.width = (f * 100) + '%'; knob.style.left = (f * 100) + '%';
-      if (c.known) tT.textContent = tc(f * c.d);
-    });
-    seek.addEventListener('change', function(){
-      dragging = false; seekWrap.classList.remove('is-drag');
-      var c = clock(); if (c.known) seekTo(Number(seek.value) / 1000 * c.d);
-    });
-    /* Arrow keys on the bar are the bar's: ten seconds a press, not a
-       thousandth of the film. */
-    seek.addEventListener('keydown', function(e){
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); skip(e.key === 'ArrowLeft' ? -SKIP : SKIP); }
-    });
-    seekWrap.addEventListener('pointermove', function(e){
-      var c = clock(); if (!c.known || e.pointerType === 'touch') { tip.hidden = true; return; }
-      var r = seekWrap.getBoundingClientRect(), f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-      tip.textContent = tc(f * c.d); tip.style.left = (f * 100) + '%'; tip.hidden = false;
-    });
-    seekWrap.addEventListener('pointerleave', function(){ tip.hidden = true; });
-    function hold(f){
-      loadApi().then(function(ok){
-        if (!ok || f !== iframe || !open) return;
-        try {
-          player = new window.YT.Player(f, {
-            events: {
-              onReady: function(){
-                if (f !== iframe) return;
-                tellSound();
-                if (!paused) { try { player.playVideo(); } catch (_) {} }
-                window.setTimeout(readSound, 1200);
-                /* A film that has still not started a moment after being
-                   told to has been refused, not delayed. */
-                if (startT) clearTimeout(startT);
-                startT = window.setTimeout(function(){ if (f === iframe) { var st = stateNow(); if (st !== null) readState(st, true); } }, 1500);
-                if (pollT) clearInterval(pollT);
-                pollT = setInterval(tick, 250);
-                tick();
-              },
-              onStateChange: function(e){ if (f !== iframe) return; readSound(); readState(e && e.data); }
-            }
-          });
-        } catch (_) { player = null; }
-      });
-    }
-    function mount(){
-      var org = '';
-      try { org = /^https?:$/.test(location.protocol) ? '&origin=' + encodeURIComponent(location.origin) : ''; } catch (_) {}
-      iframe = document.createElement('iframe');
-      iframe.id = 'cinePlayer';
-      iframe.src = ORIGIN + '/embed/' + FILM
-        + '?autoplay=1&mute=0&loop=1&playlist=' + FILM
-        + '&controls=0&disablekb=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1' + org;
-      /* setAttribute, not .allow = . This attribute is the whole hinge of the
-         sound: it is what hands this page's permission to autoplay across
-         the origin boundary into YouTube's frame, and without it the film is
-         muted no matter what anything below asks for. The property that
-         mirrors it is not reflected everywhere, and a silent failure here
-         looks exactly like the bug this was written to fix. */
-      iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
-      iframe.title = 'CineKind film';
-      iframe.setAttribute('tabindex', '-1');
-      frame.appendChild(iframe);
-      hold(iframe);
-    }
-    /* The projectionist's rule: 2.6 seconds of stillness and the room goes
-       dark around the picture. Listeners are cheap and guarded, so outside
-       a screening this whole block is inert. */
-    var idleTimer = null;
-    function sleep(){
-      if (!open) return;
-      /* Not while the sound control is asking to be pressed. A nudge that
-         fades out two seconds after it appears is a nudge nobody sees, and
-         the API can easily take longer than that to land and report back. */
-      if (room.classList.contains('is-hushed')) { idleTimer = setTimeout(sleep, 1200); return; }
-      room.classList.add('is-idle');
-      document.documentElement.classList.add('pfa-screen-idle');
-    }
-    function wake(){
-      if (!open) return;
-      room.classList.remove('is-idle');
-      document.documentElement.classList.remove('pfa-screen-idle');
-      if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(sleep, 2600);
-    }
-    ['mousemove', 'pointerdown', 'keydown', 'touchstart'].forEach(function(type){
-      document.addEventListener(type, wake, { passive: true });
-    });
-    function enter(from){
-      if (open) return;
-      open = true;
-      opener = from || null;
-      paused = false;
-      muted = false;                     /* every screening starts asking for sound */
-      paintSound();
-      room.classList.remove('is-hushed');
-      room.classList.remove('is-handoff');
-      paintPause();
-      scrollAt = window.pageYOffset || 0;
-      mount();
-      room.hidden = false;
-      document.documentElement.style.overflow = 'hidden';
-      exitBtn.focus();
-      wake();
-    }
-    function exit(){
-      if (!open) return;
-      open = false;
-      if (idleTimer) clearTimeout(idleTimer);
-      if (hushT) { clearTimeout(hushT); hushT = null; }
-      if (startT) { clearTimeout(startT); startT = null; }
-      room.classList.remove('is-idle');
-      room.classList.remove('is-hushed');
-      room.classList.remove('is-handoff');
-      document.documentElement.classList.remove('pfa-screen-idle');
-      send('stopVideo');
-      /* destroy() takes the frame out with it, so the frame is only removed
-         if it is somehow still standing. Either way the room is emptied:
-         a film left mounted behind a shut door is a film still playing. */
-      if (pollT) { clearInterval(pollT); pollT = null; }
-      dragging = false; bar.classList.remove('is-live'); seekWrap.classList.remove('is-drag'); tip.hidden = true; paintSeek(0, 0, 0);
-      if (player) { try { player.destroy(); } catch (_) {} player = null; }
-      if (iframe && iframe.parentNode) iframe.remove();
-      iframe = null;
-      frame.textContent = '';
-      room.hidden = true;
-      document.documentElement.style.overflow = '';
-      window.scrollTo(0, scrollAt);
-      if (opener && opener.focus) opener.focus();
-      opener = null;
-    }
-    function pauseToggle(){
-      paused = !paused;
-      if (player && player.pauseVideo) {
-        try { if (paused) player.pauseVideo(); else player.playVideo(); }
-        catch (_) { send(paused ? 'pauseVideo' : 'playVideo'); }
-      } else send(paused ? 'pauseVideo' : 'playVideo');
-      paintPause();
-    }
-    /* A press here is a gesture of its own, which is the one thing no
-       autoplay policy argues with: wherever the film started, this turns
-       the sound on. */
-    function soundToggle(){
-      muted = !muted;
-      tellSound();
-      paintSound();
-      room.classList.remove('is-hushed');
-      if (hushT) { clearTimeout(hushT); hushT = null; }
-    }
-    document.addEventListener('click', function(e){
-      var a = e.target.closest ? e.target.closest('[data-film]') : null;
-      if (!a || e.defaultPrevented) return;
-      e.preventDefault();
-      enter(a);
-    });
-    exitBtn.addEventListener('click', exit);
-    pauseBtn.addEventListener('click', pauseToggle);
-    soundBtn.addEventListener('click', soundToggle);
-    document.addEventListener('keydown', function(e){
-      if (!open) return;
-      if (e.key === 'Escape' || e.key === 'Esc') { exit(); return; }
-      /* The same key the theatre uses, so the one habit works in both rooms.
-         Not while a control holds focus and the key is a space or an enter:
-         those belong to the button. */
-      if (e.key === 'm' || e.key === 'M') { e.preventDefault(); soundToggle(); }
-      /* the theatre's keys for the same things, so one habit works in both rooms */
-      if (e.target === seek) return;
-      if (e.key === 'ArrowRight' || e.key === 'l' || e.key === 'L') { e.preventDefault(); skip(SKIP); }
-      if (e.key === 'ArrowLeft' || e.key === 'j' || e.key === 'J') { e.preventDefault(); skip(-SKIP); }
-      if (e.key === ' ' || e.key === 'k' || e.key === 'K') { if (e.target.closest && e.target.closest('button') && e.key === ' ') return; e.preventDefault(); pauseToggle(); }
-    });
-  })();
 
   /* ---------- page chrome, shared with the other pages ---------- */
   /* A nomination form used to sit on this page, and at its worst it showed

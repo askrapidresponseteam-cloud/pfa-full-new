@@ -21,9 +21,16 @@ test('the red carpet film sits at the head of the 2026 honours', () => {
 test('it plays in the same theatre as the wall and the founder page', () => {
   assert.match(page, /<link rel="stylesheet" href="assets\/theatre\.css">/);
   assert.match(page, /<script src="assets\/theatre\.js"><\/script>/);
-  assert.match(page, /window\.PFA_THEATRE\.mount\(\{\s*films: \[\{ wall: 'long', title: 'CineKind 2026: on the red carpet at The Leela', credit: 'BollywoodHelpline', yt: id \}\]/);
+  /* owner, 21 Oct 2026: "every video that streams from YT on the website
+     should play like this. across the website": the PR film by the wall and
+     the red carpet film, one theatre, two films */
+  assert.match(page, /var list = \[\{ wall: 'long', title: 'CineKind 2026', credit: 'People for Animals and the Film Federation of India', yt: 'GgrFF97F8_s' \}\];/);
+  assert.match(page, /list\.push\(\{ wall: 'long', title: 'CineKind 2026: on the red carpet at The Leela', credit: 'BollywoodHelpline', yt: nightId \}\)/);
+  assert.match(page, /window\.PFA_THEATRE\.mount\(\{\s*films: list,/);
   assert.match(page, /progKey: 'pfa:cinekind:progress'/);
-  assert.match(page, /T\.open\(0, 'long'\)/);
+  assert.match(page, /closest\('\[data-film\]'\)[\s\S]{0,120}T\.open\(0, 'long'\)/, 'the PR button opens the theatre');
+  assert.match(page, /T\.open\(1, 'long'\)/, 'the poster opens the red carpet film');
+  assert.doesNotMatch(page, /cineScreen|youtube-nocookie|iframe_api|class="screen"/, 'no screening room of its own any more');
   assert.doesNotMatch(page, /night__frame/, 'no second, page-made player beside it');
 });
 
