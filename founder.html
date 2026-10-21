@@ -66,7 +66,7 @@
 <title>Founder | People for Animals</title>
 <meta name="description" content="Maneka Sanjay Gandhi founded People for Animals and built it into India's largest animal welfare organisation.">
 <link rel="stylesheet" href="assets/theatre.css">
-<link rel="stylesheet" href="assets/chrome.css?v=685af7fced">
+<link rel="stylesheet" href="assets/chrome.css?v=4bc624d03c">
 <style>
 :root{
   --paper:#fff;
@@ -358,7 +358,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .watch__stage.is-swap{opacity:0;transform:translateY(8px)}
 .watch__hint{margin:14px 0 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(17,17,17,.45)}
 /* There is no hovering on a touch screen: there the line says what to do. */
-@media (hover:none){.watch__hint{font-size:0!important}.watch__hint::after{content:"Tap a frame to play";font-size:11px}}
+@media (hover:none){.watch__hint{font-size:0!important}.watch__hint::after{content:"Swipe the row \00b7  tap a frame to play";font-size:11px}}
 /* The reels strip below still wears these two, so they keep their type
    even though the film tiles carry no text of their own: the owner chose
    the hover-spoken stage over per-tile captions (15 Sep 2026), so the
@@ -498,6 +498,22 @@ body.theatre-lock{overflow:hidden}
   .search input{height:100%}
 }
 /* ---- end phone pass ---- */
+/* Phones: no reading line under 11px (owner, 21 Oct 2026: "IT NEEDS TO BE SUPREME" on a phone). */
+@media (max-width:719px){html body .vtile__no,html body .vtile__src,html body .vtile__go,html body .vapp,html body figcaption small{font-size:11px}}
+/* Phones (owner, 21 Oct 2026: "MAKE THE MOBILE VIDEO PLAYING EXPERIENCE
+   PERFECTLY LIKE NETFLIX"): the films and the reels are each one row to swipe,
+   edge to edge, the next frame peeking in, rather than sixteen frames stacked
+   down the page. */
+@media (max-width:719px){
+  .vgrid,.reels{display:grid;grid-template-columns:none;grid-auto-flow:column;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 calc(-1 * var(--gutter-lg));padding:2px var(--gutter-lg) 8px;scroll-padding:0 var(--gutter-lg)}
+  .vgrid::-webkit-scrollbar,.reels::-webkit-scrollbar{display:none}
+  .vgrid{grid-auto-columns:80%}
+  .reels{grid-auto-columns:62%;margin-top:22px}
+  .vtile{padding:0;gap:0;scroll-snap-align:start}
+  .reel{scroll-snap-align:start;padding:16px}
+  .reel:hover{transform:none}
+  .watch__stage{margin-top:18px;min-height:0;font-size:17px}
+}
 </style>
 <link rel="stylesheet" href="pfa-search.css">
 <script src="pfa-search.js" defer></script>
@@ -745,8 +761,9 @@ if (root.document && root.document.head) apply(read());
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
 </header>
-<script src="assets/chrome.js?v=c4a39f89b1"></script>
+<script src="assets/chrome.js?v=22b285715b"></script>
 <script src="assets/theatre.js"></script>
+<script src="assets/reels.js"></script>
 
 <main>
 
@@ -1076,7 +1093,6 @@ if (root.document && root.document.head) apply(read());
     <button type="button" class="rbox__x pfa-close" id="rboxX">Close</button>
   </div>
   <div class="rbox__stage"><div class="rbox__frame" id="rboxFrame"></div></div>
-  <div class="rbox__foot"><a id="rboxOut" href="#" target="_blank" rel="noopener noreferrer">Open on Instagram &rarr;</a></div>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -1340,13 +1356,14 @@ if (root.document && root.document.head) apply(read());
     var rbox = document.getElementById('rbox'),
         rframe = document.getElementById('rboxFrame'),
         rttl = document.getElementById('rboxTtl'),
-        rout = document.getElementById('rboxOut'),
-        rlast = null;
+        rlast = null, rcur = -1;
     function reelOpen(i){
       var v = REELS[i]; if (!v || !rbox) return;
-      rlast = document.activeElement;
+      /* focus goes back to the tile that opened the box, however many reels
+         were swiped through on the way (assets/reels.js) */
+      if (rbox.hidden) rlast = document.activeElement;
+      rcur = i;
       rttl.textContent = v.title;
-      rout.href = v.url;
       /* The site's own copy when there is one (v.file, media/founder-reels/):
          Play starts it at once, exactly as the CineKind reels do (owner,
          7 Oct 2026: "how is cinekind reel playing automatically when clicked
@@ -1397,6 +1414,12 @@ if (root.document && root.document.head) apply(read());
       document.getElementById('rboxX').addEventListener('click', reelShut);
       rbox.addEventListener('click', function(e){ if (e.target === rbox) reelShut(); });
       document.addEventListener('keydown', function(e){ if (e.key === 'Escape') reelShut(); });
+      /* On a phone the box is a full-screen reel player: tap to pause, swipe
+         up or down between reels, sound on (assets/reels.js). */
+      if (window.PFA_REELS) window.PFA_REELS.wire({
+        box: rbox, frame: rframe, close: reelShut,
+        step: function(d){ var j = rcur + d; if (j < 0 || j >= REELS.length) return false; reelOpen(j); return true; }
+      });
     }
 
     /* ---------- the player ----------

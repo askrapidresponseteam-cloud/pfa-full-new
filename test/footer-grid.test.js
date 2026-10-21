@@ -81,13 +81,19 @@ test('one gutter with the header and the page, one gap, labels without rules', (
   assert.match(rule('.pfa-footer__where div'), /padding:5px 0/);
 });
 
-test('three columns below 1440, two on phones', () => {
+test('three columns below 1440; on a phone one column, each group a row that opens', () => {
+  /* owner, 21 Oct 2026: "THE FOOTER ON THE MOBILE SUCKS. SO LONG" */
   const at = (w) => (CSS.match(new RegExp(`@media \\(max-width:${w}px\\)\\{([\\s\\S]*?)\\n\\}`)) || [])[1] || '';
   assert.match(at(1439), /\.pfa-footer__grid\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   const phone = at(719);
-  assert.match(phone, /\.pfa-footer__grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(phone, /\.pfa-footer__office\{grid-column:1 \/ -1\}/);
-  assert.match(phone, /\.pfa-footer ul a,\.pfa-footer__where div\{padding:6px 0\}/, 'finger-sized rows');
+  assert.match(phone, /\.pfa-footer__grid\{grid-template-columns:1fr;gap:0\}/);
+  assert.match(phone, /\.pfa-footer\.is-folding \.pfa-footer__col ul\{display:none\}/, 'a group is closed until tapped');
+  assert.match(phone, /\.pfa-footer\.is-folding \.pfa-footer__col\.is-open ul\{display:block\}/);
+  assert.match(phone, /\.pfa-footer ul a\{padding:7px 0\}/, 'finger-sized rows');
+  assert.doesNotMatch(phone, /::after\{[^}]*height:1\.5px;[^}]*\}/, 'no lone minus sign: the mark is a plus that turns into a cross');
+  const JS = fs.readFileSync(path.join(ROOT, 'assets', 'chrome.js'), 'utf8');
+  assert.match(JS, /foot\.classList\.toggle\('is-folding', on\)/, 'folding only where the script can open the groups');
+  assert.match(JS, /label\.setAttribute\('aria-expanded', String\(open\)\)/, 'and a screen reader hears open and closed');
 });
 
 test('the counter is one framed instrument, and the script turns the wheels by the height the stylesheet gives them', () => {

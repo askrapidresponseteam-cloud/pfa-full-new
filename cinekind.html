@@ -90,7 +90,7 @@
 })();
 </script>
 <link rel="stylesheet" href="assets/theatre.css">
-<link rel="stylesheet" href="assets/chrome.css?v=685af7fced">
+<link rel="stylesheet" href="assets/chrome.css?v=4bc624d03c">
 <style>
 :root{
   --paper:#fff;
@@ -1011,6 +1011,8 @@ html{scroll-behavior:smooth}
   
 }
 /* ---- end phone pass ---- */
+/* Phones: no reading line under 11px (owner, 21 Oct 2026: "IT NEEDS TO BE SUPREME" on a phone). */
+@media (max-width:719px){html body .honours .roll .t,html body .ckreel__src,html body .ckreel__no,html body .ckreel__go{font-size:11px}}
 </style>
 <link rel="stylesheet" href="pfa-search.css">
 <script src="pfa-search.js" defer></script>
@@ -1258,8 +1260,9 @@ if (root.document && root.document.head) apply(read());
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
 </header>
-<script src="assets/chrome.js?v=c4a39f89b1"></script>
+<script src="assets/chrome.js?v=22b285715b"></script>
 <script src="assets/theatre.js"></script>
+<script src="assets/reels.js"></script>
 
 <main>
   <section class="marquee" id="marquee" aria-label="CineKind: the awards" data-cursor="light">
@@ -1407,7 +1410,7 @@ if (root.document && root.document.head) apply(read());
          link to the film on YouTube. -->
     <figure class="night" id="night-2026" data-cursor="light">
       <a class="night__play" href="https://www.youtube.com/watch?v=LCwIbbSg-8E" data-yt="LCwIbbSg-8E" target="_blank" rel="noopener noreferrer" aria-label="Play in theatre: the CineKind 2026 red carpet film">
-        <img src="https://i.ytimg.com/vi/LCwIbbSg-8E/maxresdefault.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="if(!this.dataset.lo){this.dataset.lo=1;this.setAttribute('src','https://i.ytimg.com/vi/LCwIbbSg-8E/hqdefault.jpg')}">
+        <img src="https://i.ytimg.com/vi/LCwIbbSg-8E/maxresdefault.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="if(!this.dataset.lo){this.dataset.lo=1;this.setAttribute('src','https://i.ytimg.com/vi/LCwIbbSg-8E/hqdefault.jpg')}else{this.style.visibility='hidden'}">
         <span class="night__icon" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 2.5l9.5 5.5L4 13.5z" fill="currentColor"/></svg></span>
         <span class="night__label"><span class="night__kick">The night</span><span class="night__t">On the red carpet at The Leela</span></span>
       </a>
@@ -1769,7 +1772,6 @@ if (root.document && root.document.head) apply(read());
     <button type="button" class="rbox__x pfa-close" id="rboxX">Close</button>
   </div>
   <div class="rbox__stage"><div class="rbox__frame" id="rboxFrame"></div></div>
-  <div class="rbox__foot"><a id="rboxOut" href="https://www.instagram.com/reel/DeKJ9RQzhf0/" target="_blank" rel="noopener noreferrer">Open on Instagram &rarr;</a></div>
 </div>
 <div class="nom" id="nomRoom" hidden data-cursor="dark">
   <div class="nom__panel" role="dialog" aria-modal="true" aria-labelledby="nomTitle">
@@ -2770,8 +2772,8 @@ if (root.document && root.document.head) apply(read());
      the tile that opened it. */
   (function reels(){
     var box = document.getElementById('rbox'), frame = document.getElementById('rboxFrame'),
-        ttl = document.getElementById('rboxTtl'), out = document.getElementById('rboxOut'),
-        x = document.getElementById('rboxX'), last = null;
+        ttl = document.getElementById('rboxTtl'),
+        x = document.getElementById('rboxX'), last = null, cur = -1;
     var tiles = [].slice.call(document.querySelectorAll('.ckreel[data-reel]'));
     if (!box || !frame || !tiles.length) return;
     var LOCAL = /^media\/cinekind-2026\/reels\/[\w-]+\.(jpg|mp4)$/;
@@ -2780,11 +2782,9 @@ if (root.document && root.document.head) apply(read());
     function open(t){
       var id = t.getAttribute('data-reel'), film = t.getAttribute('data-video');
       if (!/^[\w-]{2,40}$/.test(id) || !LOCAL.test(film)) return;
-      last = t.querySelector('.ckreel__go');
+      if (box.hidden) last = t.querySelector('.ckreel__go');
+      cur = tiles.indexOf(t);
       ttl.textContent = t.getAttribute('data-title');
-      var ig = t.getAttribute('data-ig');
-      if (ig && /^[\w-]{6,20}$/.test(ig)) { out.setAttribute('href', 'https://www.instagram.com/reel/' + ig + '/'); out.hidden = false; }
-      else out.hidden = true;
       var ratio = t.getAttribute('data-ratio');
       frame.style.aspectRatio = /^\d+\/\d+$/.test(ratio || '') ? ratio.replace('/', ' / ') : '';
       var v = document.createElement('video');
@@ -2844,6 +2844,18 @@ if (root.document && root.document.head) apply(read());
     document.addEventListener('keydown', function(e){
       if (box.hidden) return;
       if (e.key === 'Escape' || e.key === 'Esc') shut();
+    });
+    /* On a phone the box is a full-screen reel player: tap to pause, swipe
+       up or down between reels, sound on (assets/reels.js). */
+    if (window.PFA_REELS) window.PFA_REELS.wire({
+      box: box, frame: frame, close: shut,
+      step: function(d){
+        var live = tiles.filter(function(t){ return t.isConnected; });
+        var next = live[live.indexOf(tiles[cur]) + d];
+        if (!next) return false;
+        open(next);
+        return true;
+      }
     });
   })();
 

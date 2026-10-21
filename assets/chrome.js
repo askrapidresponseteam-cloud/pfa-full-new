@@ -1207,3 +1207,59 @@
   }
   ready(function () { [].forEach.call(document.querySelectorAll('form[data-steps]'), wire); });
 })();
+
+/* The footer on a phone: each link group is one row that opens when tapped
+   (owner, 21 Oct 2026: "THE FOOTER ON THE MOBILE SUCKS. SO LONG"). The
+   styles are in assets/chrome.css, under .is-folding, which is added here so
+   a page whose script does not run keeps every group open. Wide screens are
+   untouched: the rows are only buttons while the phone layout is showing. */
+(function () {
+  'use strict';
+  function ready(fn) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once: true });
+    else fn();
+  }
+  ready(function () {
+    var foot = document.querySelector('.pfa-footer');
+    if (!foot || !window.matchMedia) return;
+    var phone = window.matchMedia('(max-width:719px)');
+    var cols = [].slice.call(foot.querySelectorAll('.pfa-footer__col'));
+    function wire(col, i) {
+      var label = col.querySelector('.pfa-footer__label');
+      var list = col.querySelector('ul');
+      if (!label || !list) return;
+      if (!list.id) list.id = 'pfaFootList' + i;
+      label.addEventListener('click', function () {
+        if (!phone.matches) return;
+        var open = !col.classList.contains('is-open');
+        col.classList.toggle('is-open', open);
+        label.setAttribute('aria-expanded', String(open));
+      });
+      label.addEventListener('keydown', function (e) {
+        if (!phone.matches || (e.key !== 'Enter' && e.key !== ' ')) return;
+        e.preventDefault();
+        label.click();
+      });
+    }
+    function apply() {
+      var on = phone.matches;
+      foot.classList.toggle('is-folding', on);
+      cols.forEach(function (col) {
+        var label = col.querySelector('.pfa-footer__label');
+        var list = col.querySelector('ul');
+        if (!label || !list) return;
+        if (on) {
+          label.setAttribute('role', 'button');
+          label.setAttribute('tabindex', '0');
+          label.setAttribute('aria-controls', list.id);
+          label.setAttribute('aria-expanded', String(col.classList.contains('is-open')));
+        } else {
+          ['role', 'tabindex', 'aria-controls', 'aria-expanded'].forEach(function (a) { label.removeAttribute(a); });
+        }
+      });
+    }
+    cols.forEach(wire);
+    apply();
+    if (phone.addEventListener) phone.addEventListener('change', apply); else if (phone.addListener) phone.addListener(apply);
+  });
+})();

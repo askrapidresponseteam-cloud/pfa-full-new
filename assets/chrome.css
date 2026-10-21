@@ -230,7 +230,7 @@ header.site{transition:background .35s ease,border-color .35s ease,color .35s ea
   .navlinks{gap:0;margin-left:auto}
 }
 @media (max-width:560px){
-  .announce{font-size:10px;padding:6px 34px 6px 10px;letter-spacing:0}
+  .announce{font-size:11px;line-height:1.35;padding:6px 34px 6px 10px;letter-spacing:0}
   .announce button{right:2px;width:32px}
   .wordmark img{height:46px}
   .donate{padding:11px 18px;letter-spacing:.08em;text-indent:.08em}
@@ -443,18 +443,41 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
 @media (max-width:1439px){
   .pfa-footer__grid{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:40px}
 }
-/* Phones: two columns. The office across the width, the groups in pairs,
-   About as one line. */
+/* Phones (owner, 21 Oct 2026: "THE FOOTER ON THE MOBILE SUCKS. SO LONG"):
+   it stood a full screen tall, every group open in two cramped columns. Now
+   the office is a compact block, and each group is one row that opens when
+   tapped, the rule for the whole site: show little, reveal on interest.
+   assets/chrome.js adds .is-folding only when it can open them, so with no
+   script every group simply stays open. The mark is a plus that turns into
+   a cross: a minus sign would be a dash to the eye. */
 @media (max-width:719px){
-  .pfa-footer__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 20px}
-  .pfa-footer__office{grid-column:1 / -1}
-  .pfa-footer__col:last-child{grid-column:1 / -1}
-  .pfa-footer__col:last-child ul{display:flex;flex-wrap:wrap;gap:0 24px}
-  /* finger-sized targets: 13px text with 6px above and below */
-  .pfa-footer ul,.pfa-footer__where{font-size:13px}
-  .pfa-footer ul a,.pfa-footer__where div{padding:6px 0}
-  .pfa-footer__base{flex-direction:column;gap:4px}
-  .pfa-footer__base p:last-child{margin-left:0;margin-top:6px}
+  .pfa-footer{padding-top:28px}
+  .pfa-footer__grid{grid-template-columns:1fr;gap:0}
+  .pfa-footer__office{padding-bottom:18px}
+  .pfa-footer__office .pfa-footer__label{margin-bottom:6px}
+  .pfa-footer__where{max-width:none;font-size:13px;line-height:1.5}
+  .pfa-footer__where div{padding:2px 0}
+  .pfa-footer__where div:first-child{margin-bottom:2px}
+  .pfa-footer__tel a{display:inline}
+  .pfa-footer__tel a + .pfa-footer__dot + a{margin-top:0}
+  .pfa-footer__dot{display:inline}
+  .pfa-footer__social{margin-top:8px;gap:0 20px}
+  .pfa-footer__col{border-top:1px solid var(--ff-line)}
+  .pfa-footer__col:last-of-type{border-bottom:1px solid var(--ff-line)}
+  .pfa-footer__col .pfa-footer__label{margin:0;padding:15px 0}
+  .pfa-footer ul{font-size:14px;padding:0 0 12px}
+  .pfa-footer ul a{padding:7px 0}
+  .pfa-footer.is-folding .pfa-footer__col .pfa-footer__label{position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;padding-right:32px}
+  .pfa-footer.is-folding .pfa-footer__col .pfa-footer__label::after{content:"";position:absolute;right:2px;top:50%;width:12px;height:12px;margin-top:-6px;
+    background:linear-gradient(currentColor,currentColor) center/12px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 12px no-repeat;transition:transform .25s ease}
+  .pfa-footer.is-folding .pfa-footer__col.is-open .pfa-footer__label::after{transform:rotate(45deg)}
+  .pfa-footer.is-folding .pfa-footer__col ul{display:none}
+  .pfa-footer.is-folding .pfa-footer__col.is-open ul{display:block}
+  .pfa-footer__base{flex-direction:row;flex-wrap:wrap;gap:2px 14px;margin-top:18px;padding-top:0;border-top:0;font-size:11.5px}
+  .pfa-footer__base p:last-child{margin-left:0}
+}
+@media (max-width:719px) and (prefers-reduced-motion: reduce){
+  .pfa-footer.is-folding .pfa-footer__col .pfa-footer__label::after{transition:none}
 }
 
 /* ======================================================================
@@ -596,6 +619,11 @@ html:not(.pfa-flows) .pfa-steps__tabs,html:not(.pfa-flows) .pfa-steps__bar,html:
    text back under the arrow. A list box (multiple, or a size) has no arrow. */
 body select:not([multiple]):not([size]){-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:right 20px center;background-size:12px 7px;background-repeat:no-repeat;padding-right:46px;text-overflow:ellipsis;cursor:pointer}
 body select:not([multiple]):not([size]):disabled{cursor:not-allowed;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+/* A photo picker wears the site's button, not the browser's grey one
+   (21 Oct 2026, the phone pass). */
+body input[type=file]{font:inherit;font-size:13px;color:var(--muted,#6b6b6b);max-width:100%}
+body input[type=file]::file-selector-button{font:inherit;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:#111;color:#fff;border:0;border-radius:0;padding:11px 16px;margin:0 14px 0 0;cursor:pointer;transition:background .2s}
+body input[type=file]::file-selector-button:hover{background:#333}
 
 /* A note inside a label, "(optional)" or a line of guidance, takes the
    label's own size and line height. Pages style `.field small` for the hint

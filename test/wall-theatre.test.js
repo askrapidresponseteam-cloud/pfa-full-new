@@ -163,7 +163,13 @@ test('every fact on the screen is drawn once: one play control, one volume, one 
     .filter((el) => /sound|mute|volume/i.test((el.getAttribute('aria-label') || '') + el.id));
   assert.deepEqual(volumeControls.map((el) => el.id), ['thSound'], 'the Sound toggle is the one volume control');
   const playButtons = [...d.querySelectorAll('#theatre button')].filter((b) => /^(play|pause)$/i.test(b.getAttribute('aria-label') || ''));
-  assert.deepEqual(playButtons.map((b) => b.id), ['thPlay'], 'one play control');
+  /* one on any one screen (owner, 21 Oct 2026, "PERFECTLY LIKE NETFLIX"):
+     the bar's on a wide screen, the big one in the middle on a phone, each
+     hidden where the other shows (assets/theatre.css) */
+  assert.deepEqual(playButtons.map((b) => b.id), ['thMidPlay', 'thPlay'], 'one play control per layout');
+  const CSS = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'assets', 'theatre.css'), 'utf8');
+  assert.match(CSS, /^\.th-mid\{display:none\}$/m, 'the middle controls are hidden unless on a phone');
+  assert.match(CSS, /\.theatre\.is-phone #thPrev,\.theatre\.is-phone #thPlay,\.theatre\.is-phone #thBack,\.theatre\.is-phone #thFwd\{display:none\}/, 'and on a phone the bar\'s own are');
   p.video.currentTime = 90;
   const times = p.$('#theatre').textContent.match(/00:01:30/g) || [];
   assert.equal(times.length, 1, 'the elapsed time is written in one place');

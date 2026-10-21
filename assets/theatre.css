@@ -264,3 +264,83 @@
   .theatre{--th-pad:12px}
 }
 body.theatre-lock{overflow:hidden}
+
+/* ---------- phone mode (theatre.js adds .is-phone on a touch phone) ----------
+   Owner, 21 Oct 2026: "MAKE THE MOBILE VIDEO PLAYING EXPERIENCE PERFECTLY
+   LIKE NETFLIX". The film has the whole screen and the controls float over
+   it, fading together when the film plays and coming back on a tap. Only
+   what a thumb needs is shown: Close and the title, Sound, back ten, play,
+   forward ten, the scrubber and time, Next, Full screen. The rest of the
+   desktop bar (clock, Frame, the strip, the ruler, Autoplay, speed, Copy
+   link, keyboard help, the page's links) stays on wide screens. */
+.th-mid{display:none}
+.theatre.is-phone{--th-pad:14px}
+.theatre.is-phone .th-stage{position:absolute;inset:0;flex:none}
+.theatre.is-phone .th-stage::after{background:linear-gradient(to bottom,rgba(0,0,0,.6),transparent 24%,transparent 62%,rgba(0,0,0,.72));transition:opacity .3s}
+.theatre.is-phone.is-idle .th-stage::after{opacity:0}
+.theatre.is-phone .th-top{z-index:5;grid-template-columns:1fr auto;padding-bottom:10px}
+.theatre.is-phone .th-top .mark{grid-column:1;grid-row:1;justify-self:start;text-align:left;font-size:17px;max-width:62vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.theatre.is-phone .th-top .mark::after{display:none}
+.theatre.is-phone .th-top .r{grid-column:2;grid-row:1}
+.theatre.is-phone .th-top .l{grid-column:1 / -1;grid-row:2;margin-top:6px}
+.theatre.is-phone #thClock,.theatre.is-phone .th-top .fit{display:none}
+.theatre.is-phone .th-top .sound{margin-left:0;font-size:11px}
+.theatre.is-phone .th-caption{display:none}
+.theatre.is-phone .th-bottom{position:absolute;left:0;right:0;bottom:0;z-index:5;
+  padding:0 max(var(--th-pad),env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(var(--th-pad),env(safe-area-inset-left));
+  transition:opacity .3s,transform .3s}
+.theatre.is-phone .th-bottom.away{opacity:0;transform:translateY(14px);pointer-events:none}
+.theatre.is-phone .th-strip,.theatre.is-phone .th-rule,.theatre.is-phone .th-foot{display:none}
+.theatre.is-phone .th-row .r > :not(#thFull){display:none}
+.theatre.is-phone #thPrev,.theatre.is-phone #thPlay,.theatre.is-phone #thBack,.theatre.is-phone #thFwd{display:none}
+.theatre.is-phone .th-row{align-items:center}
+.theatre.is-phone .th-row button{min-width:44px;min-height:44px}
+.theatre.is-phone .th-row .l .th-time{font-size:12px;margin-left:4px}
+.theatre.is-phone .th-mid{position:absolute;left:50%;top:50%;z-index:4;display:flex;align-items:center;gap:clamp(28px,12vw,64px);
+  transform:translate(-50%,-50%);transition:opacity .3s}
+.theatre.is-phone.is-idle .th-mid{opacity:0;pointer-events:none}
+.th-mid button{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;color:#fff;-webkit-tap-highlight-color:transparent}
+.th-mid button svg{width:34px;height:34px;fill:currentColor}
+.th-mid #thMidPlay{width:78px;height:78px;background:rgba(0,0,0,.38)}
+.th-mid #thMidPlay svg{width:44px;height:44px}
+.th-mid .i-pause{display:none}
+.theatre.is-playing .th-mid .i-play{display:none}
+.theatre.is-playing .th-mid .i-pause{display:block}
+.th-mid button:active{transform:scale(.92)}
+/* sideways, the film is the screen and the controls are smaller */
+@media (max-height:500px){
+  .theatre.is-phone .th-mid button{width:48px;height:48px}
+  .theatre.is-phone .th-mid #thMidPlay{width:64px;height:64px}
+}
+.theatre.is-phone.is-single #thNext{display:none}
+
+/* ---------- the reel box on a phone (assets/reels.js adds .is-reel-phone) ----------
+   Black and edge to edge, the bar floating over the reel, the reel itself
+   as large as the screen allows, and the reel's own controls drawn here:
+   Sound top right, a play or pause mark that shows for a moment on a tap,
+   and a thin bar along the bottom that can be dragged. html raises these
+   over each page's own .rbox rules. */
+html .rbox.is-reel-phone{background:#000;color:#fff;gap:0;padding:0}
+html .rbox.is-reel-phone .rbox__bar{position:absolute;left:0;right:0;top:0;z-index:3;
+  padding:max(14px,env(safe-area-inset-top)) 16px 28px;background:linear-gradient(rgba(0,0,0,.6),transparent);color:#fff}
+html .rbox.is-reel-phone .rbox__src{color:rgba(255,255,255,.7)}
+html .rbox.is-reel-phone .rbox__ttl{color:#fff}
+html .rbox.is-reel-phone .rbox__x{color:#fff}
+html .rbox.is-reel-phone .rbox__stage{position:absolute;inset:0;padding:0}
+html .rbox.is-reel-phone .rbox__frame{width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:auto !important;background:#000;border:0;box-shadow:none}
+html .rbox.is-reel-phone .rbox__frame video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+html .rbox.is-reel-phone .rbox__foot{display:none}
+.rv-ui{position:absolute;inset:0;z-index:2;pointer-events:none}
+.rv-sound{position:absolute;right:14px;top:calc(max(14px,env(safe-area-inset-top)) + 44px);pointer-events:auto;
+  padding:8px 12px;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.35);color:#fff;
+  font:inherit;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;-webkit-tap-highlight-color:transparent}
+.rv-sound[aria-pressed="false"]{background:#fff;color:#111;border-color:#fff}
+.rv-icon{position:absolute;left:50%;top:50%;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:rgba(0,0,0,.45);opacity:0;transform:scale(.8);transition:opacity .2s,transform .2s}
+.rv-icon.show{opacity:1;transform:none}
+.rv-icon::before{content:"";position:absolute;inset:0;margin:auto;width:34px;height:34px;background:#fff}
+.rv-icon.is-play::before{clip-path:polygon(18% 8%,92% 50%,18% 92%)}
+.rv-icon.is-pause::before{clip-path:polygon(14% 8%,40% 8%,40% 92%,14% 92%,14% 8%,60% 8%,86% 8%,86% 92%,60% 92%,60% 8%)}
+.rv-prog{position:absolute;left:0;right:0;bottom:0;height:28px;pointer-events:auto;padding-bottom:env(safe-area-inset-bottom);touch-action:none}
+.rv-prog::before{content:"";position:absolute;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom));height:3px;background:rgba(255,255,255,.3)}
+.rv-prog i{position:absolute;left:0;bottom:calc(10px + env(safe-area-inset-bottom));height:3px;width:0;background:#fff}
+@media (prefers-reduced-motion:reduce){.rv-icon{transition:none}}

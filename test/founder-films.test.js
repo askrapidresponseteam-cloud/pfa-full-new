@@ -190,7 +190,10 @@ test('a reel plays here, on a press, and asks Instagram for nothing before it', 
   assert.ok(frame, 'and builds the frame only then');
   assert.match(frame.src, /instagram\.com\/reel\/[\w-]+\/embed\//);
   assert.ok(p.$('#rboxTtl').textContent.length > 0, 'the reel is named while it plays');
-  assert.match(p.$('#rboxOut').href, /instagram\.com/, 'opening it on Instagram stays available, as a choice');
+  /* no way out to Instagram from the box (owner: videos and reels play
+     inside the site and never send anyone to Instagram) */
+  assert.equal(p.$('#rboxOut'), null, 'no Open on Instagram link');
+  assert.equal(p.d.querySelectorAll('#rbox a[href*="instagram.com"]').length, 0);
 });
 
 test('closing the reel player takes the frame with it', () => {

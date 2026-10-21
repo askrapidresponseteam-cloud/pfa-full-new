@@ -1436,7 +1436,7 @@ window.addEventListener('unhandledrejection', function (event) {
        needsAttention when the stock it had given back was sold meanwhile,
        with the note that says what is short. Shown when the line has them. */
     cells += '<td class="num">' + esc(money(r.amount, r.currency)) + '</td>'
-      + '<td><span class="flag" data-s="' + (r.status === 'success' ? 'handled' : 'spam') + '">' + esc(r.status || '-') + '</span>'
+      + '<td><span class="flag" data-s="' + (r.status === 'success' ? 'handled' : 'spam') + '">' + esc(r.abandoned ? 'Abandoned' : (r.status || '-')) + '</span>'
       + (r.needsAttention ? ' <span class="flag" data-s="failed">Needs attention</span>' : '')
       + (r.attentionNote ? '<span class="detail">' + esc(r.attentionNote) + '</span>'
         : r.settledAfter ? '<span class="detail">Settled after the order was ' + esc(r.settledAfter) + '.</span>' : '')
@@ -1562,11 +1562,11 @@ window.addEventListener('unhandledrejection', function (event) {
       var off = rows.filter(function (r) { return !canCheck(checks, r); });
       var out = ['<div class="panel pend"><h3>Pending payments</h3>'];
       out.push('<p class="hint">Payments started ' + esc(data.olderThanMinutes || 30) + ' minutes or more ago, in the last ' + esc(data.days || 14)
-        + ' days, that CCAvenue has not reported back on. Check one to ask CCAvenue how it ended: a final answer is recorded exactly as CCAvenue’s own report would have been, and an answer that is not final changes nothing.</p>');
+        + ' days, that CCAvenue has not reported back on. The site asks CCAvenue about each of them by itself every ten minutes and records the ones that went through, receipt and all; one CCAvenue has no record of after two hours is marked abandoned and leaves this list. Check one to ask now: a final answer is recorded exactly as CCAvenue’s own report would have been, and an answer that is not final changes nothing.</p>');
       /* Said of exactly the payments it is true of: the keys are per
          currency, so a server may check rupees and not dollars. */
       if (off.length && off.length === rows.length) {
-        out.push('<p class="say" data-tone="bad">' + CHECKS_OFF + ', so ' + (rows.length === 1 ? 'this payment' : 'these payments') + ' can only be looked up in the CCAvenue dashboard.</p>');
+        out.push('<p class="say" data-tone="bad">' + CHECKS_OFF + ', so ' + (rows.length === 1 ? 'this payment' : 'these payments') + ' can only be looked up in the CCAvenue dashboard, and nothing is settled automatically. To turn it on, set CCAVENUE_WORKING_KEY, CCAVENUE_ACCESS_CODE and CCAVENUE_MERCHANT_ID on Firebase (the same values as in Vercel) and ship again.</p>');
       } else if (off.length) {
         var currencies = off.map(function (r) { return r.type === 'shop' ? 'INR' : String(r.currency || 'INR').toUpperCase(); })
           .filter(function (c, i, all) { return all.indexOf(c) === i; });

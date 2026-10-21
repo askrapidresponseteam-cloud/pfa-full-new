@@ -113,7 +113,9 @@ exports.inboundMailCheck = onSchedule(
          ran until the night). A refused login backs off on its own
          (lib/caregiver-store.js), so this never hammers the mailbox.
        - The panel's search index takes in what changed since the last run
-         (lib/admin-search.js). */
+         (lib/admin-search.js).
+       - Payments whose callback never came are asked about and settled, by
+         the email worker (lib/payment-reconcile.js, 21 Oct 2026). */
     try {
       const worker = require('./lib/routes/caregiver/email-worker.js');
       const out = { statusCode: 200, _body: '', setHeader() {}, end(body) { this._body = body || ''; } };
