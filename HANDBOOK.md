@@ -228,7 +228,7 @@ Check what's set: `npx vercel env ls`
 | --- | --- | --- |
 | `CCAVENUE_MERCHANT_ID`, `CCAVENUE_ACCESS_CODE`, `CCAVENUE_WORKING_KEY`, `CCAVENUE_MODE` | donate / membership | set ✔ (health reports true) |
 | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` | everything | set ✔ |
-| `PUBLIC_SITE_URL` | payment return URLs | should be the live domain |
+| `PUBLIC_SITE_URL` | payment return URLs, links in emails | must be `https://peopleforanimalsindia.org`. Until 21 Oct 2026 it said `https://book.pfaevents.buzz`, which no longer serves the site, so CCAvenue sent every payer back to a dead address and paid payments stayed Started. Check it with `vercel env pull` (it is not a secret). |
 | `PFA_SHOPIFY_STORE_DOMAIN` | store checkout, webhooks | `sg37v1-ta.myshopify.com` - **add** |
 | `PFA_SHOPIFY_STOREFRONT_ACCESS_TOKEN` | store checkout (address prefilled) | Optional since v1.41: without it checkout falls back to a cart permalink. The seller's **public** storefront token is visible in pawsandtails24.com page source (`storefrontAccessToken`); using it is fine but tell the vendor. |
 | `PFA_SHOPIFY_WEBHOOK_SECRET` | webhooks | **waiting on vendor** |
