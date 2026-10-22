@@ -67,7 +67,7 @@ const PAGES = {
   'newsroom.html':     { current: 'newsroom.html',    group: 'units.html',       announce: DEFAULT_ANNOUNCE },
   'wall.html':         { current: 'wall.html',        group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'get-involved.html': { current: 'get-involved.html#volunteer', group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* the menu's Volunteer opens the one volunteer application, as the footer's does (9 Oct 2026) */
-  'cinekind.html':     { current: 'cinekind.html',    group: 'get-involved.html', announce: 'CineKind 2026 · Mumbai · 4 October' }, /* the credit went back over the photograph and above the trophy, where it reads; putting it here cost the hero 115px of black and left the bar saying the same sentence twice. The bar keeps the where and the when */
+  'cinekind.html':     { current: 'cinekind.html',    group: 'get-involved.html', announce: '' }, /* no bar (22 Oct 2026): the page is the logo and the menu over the trophy, and "4 October" read as a date still to come once it had passed. Before that: */ /* the credit went back over the photograph and above the trophy, where it reads; putting it here cost the hero 115px of black and left the bar saying the same sentence twice. The bar keeps the where and the when */
   'donate.html':       { current: 'donate.html',      group: null,               announce: DEFAULT_ANNOUNCE },
   'events.html':       { current: 'events.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'shop.html':         { current: 'shop.html',        group: null,               announce: 'Every purchase supports PFA\u2019s work for animals' },

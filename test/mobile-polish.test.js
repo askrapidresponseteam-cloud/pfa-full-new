@@ -56,3 +56,26 @@ test('newsroom: the four desks sit on one line on a phone', () => {
 test('the CineKind red carpet poster hides rather than showing a broken image', () => {
   assert.match(read('cinekind.html'), /hqdefault\.jpg'\)\}else\{this\.style\.visibility='hidden'\}/);
 });
+
+test('no page carries its pictures, fonts or styles written into itself: every page stays light', () => {
+  /* 22 Oct 2026: achievements.html arrived at 17.5 MB, every picture, font
+     and stylesheet inlined. A phone downloaded all of it before a word. */
+  for (const f of fs.readdirSync(ROOT).filter((x) => x.endsWith('.html'))) {
+    const html = read(f);
+    assert.ok(html.length < 1200000, `${f} is ${Math.round(html.length / 1024)} KB`);
+    assert.doesNotMatch(html, /data:(?:image\/(?:jpeg|png|webp)|font\/woff2?);base64,[A-Za-z0-9+/]{20000}/, `${f} has a picture or font written into it`);
+  }
+  const ach = read('achievements.html');
+  assert.equal((ach.match(/<img class="rec__image" src="img\/achievements\/rec-\d{3}\.webp"/g) || []).length, 103, 'one picture per achievement, from a file');
+  assert.ok(ach.includes('loading="lazy"'));
+  for (let n = 1; n <= 103; n += 1) assert.ok(fs.existsSync(path.join(ROOT, `img/achievements/rec-${String(n).padStart(3, '0')}.webp`)), `rec-${n}`);
+});
+
+test('CineKind: only the logo and the menu at the top, and no bar with a date already gone', () => {
+  const ck = read('cinekind.html');
+  assert.doesNotMatch(ck, /id="announce"/);
+  assert.match(ck, /header\.site \.navlinks\{display:none!important\}/, 'no Donate, no Shop, no menu words');
+  assert.match(ck, /header\.site \.burger\{display:inline-flex;/, 'the menu button at every width');
+  assert.match(ck, /html body \.mnav:not\(\[hidden\]\)\{display:block!important\}/, 'and its menu opens on a wide screen too');
+  assert.match(ck, /<img class="marquee__plate" src="img\/cinekind-landing\.webp"/);
+});
