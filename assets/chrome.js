@@ -152,6 +152,11 @@
 
     var hadDark = false;
     var timer = 0;
+    /* Back closes the menu, as a phone's Back closes a screen in an app
+       (22 Oct 2026): opening it adds a step to the history, Back takes it
+       away, and a row chosen in it replaces that step, so Back from the page
+       it opened comes here, not here with the menu open. */
+    var pushed = false;
     function expanded(on) {
       openers.forEach(function (o) { o.setAttribute('aria-expanded', on ? 'true' : 'false'); });
       burger.setAttribute('aria-label', on ? 'Close the menu' : 'Open the menu');
@@ -169,20 +174,54 @@
       expanded(true);
       var first = panel.querySelector('a');
       if (first) first.focus({ preventScroll: true });
+      if (window.history && history.pushState && !(history.state && history.state.pfaMenu)) {
+        try { history.pushState({ pfaMenu: 1 }, ''); pushed = true; } catch (_) { pushed = false; }
+      }
     }
-    function close(returnFocus) {
+    function close(returnFocus, fromHistory) {
       if (panel.hidden) return;
       panel.classList.remove('is-open');
       root.classList.remove('mnav-open');
       if (hadDark) root.classList.add('header-on-dark');
       expanded(false);
       timer = window.setTimeout(function () { panel.hidden = true; }, 260);
+      if (pushed) {
+        pushed = false;
+        if (fromHistory !== true && history.state && history.state.pfaMenu) history.back();
+      }
       if (returnFocus) btn.focus({ preventScroll: true });
     }
     openers.forEach(function (o) {
       o.addEventListener('click', function () { if (panel.hidden) open(o); else close(true); });
     });
-    panel.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) close(false); });
+    panel.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      var step = pushed && history.state && history.state.pfaMenu;
+      var plain = !e.defaultPrevented && !e.metaKey && !e.ctrlKey && !e.shiftKey && a.target !== '_blank';
+      var page = (a.getAttribute('href') || '').charAt(0) !== '#';
+      if (step && plain && page) {
+        /* the menu's step becomes the page chosen */
+        e.preventDefault();
+        pushed = false;
+        close(false, true);
+        location.replace(a.href);
+        return;
+      }
+      if (step && plain) {
+        /* this page's own entry (#top): the step becomes that place on it */
+        e.preventDefault();
+        pushed = false;
+        close(false, true);
+        var id = (a.getAttribute('href') || '').slice(1);
+        try { history.replaceState(null, '', '#' + id); } catch (_) {}
+        var to = id && document.getElementById(id);
+        if (to) to.scrollIntoView(); else window.scrollTo(0, 0);
+        return;
+      }
+      close(false);
+    });
+    window.addEventListener('popstate', function () { if (!panel.hidden) close(false, true); });
     document.addEventListener('keydown', function (e) {
       if (panel.hidden) return;
       if (e.key === 'Escape') { close(true); return; }
@@ -198,7 +237,7 @@
       if (wide.addEventListener) wide.addEventListener('change', onWide); else if (wide.addListener) wide.addListener(onWide);
     }
     /* Back from a page reached through the menu, the menu is shut. */
-    window.addEventListener('pageshow', function () { close(false); });
+    window.addEventListener('pageshow', function () { close(false, true); });
   }
 
   /* ---------- the tab bar steps aside for the keyboard ----------

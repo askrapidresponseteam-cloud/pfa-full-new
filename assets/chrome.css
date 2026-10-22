@@ -408,7 +408,9 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
   html.mnav-open .pfa-tab--menu svg{stroke-width:2}
 
   /* the menu, as an app's list screen */
-  html[data-pfa-tabs] .mnav{top:calc(var(--ann,0px) + var(--nav,59px));bottom:var(--tabbar);background:var(--stone,#f4f3f1);
+  /* its own ground, not the page's --stone: most pages set --stone to
+     white, and the white cards vanished into it */
+  html[data-pfa-tabs] .mnav{top:calc(var(--ann,0px) + var(--nav,59px));bottom:var(--tabbar);background:#f1f0ed;
     padding-top:4px;padding-bottom:28px;transform:translateY(10px)}
   html[data-pfa-tabs] .mnav.is-open{transform:none}
   html[data-pfa-tabs] .mnav__group{padding:18px 0 0;border:0}
@@ -609,6 +611,15 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
 }
 @media (max-width:719px) and (prefers-reduced-motion: reduce){
   .pfa-footer.is-folding .pfa-footer__col .pfa-footer__label::after{transition:none}
+}
+/* A thumb-sized target round the small links on a phone (22 Oct 2026: the
+   two numbers and the email were 16px tall, and X was 9px wide). The target
+   grows, not the line: an invisible layer round each, so the office block
+   reads exactly as it did. */
+@media (pointer:coarse),(max-width:719px){
+  .pfa-footer__where a,.pfa-footer__social a,.pfa-flow-bar__help{position:relative}
+  .pfa-footer__where a::after,.pfa-flow-bar__help::after{content:"";position:absolute;left:-4px;right:-4px;top:-12px;bottom:-12px}
+  .pfa-footer__social a::after{content:"";position:absolute;left:-10px;right:-10px;top:-6px;bottom:-6px}
 }
 
 /* ======================================================================

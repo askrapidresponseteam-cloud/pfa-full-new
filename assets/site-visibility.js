@@ -116,14 +116,21 @@
          a menu, a phone-menu group or a footer column left with no link. */
       css += 'li:has(>:is(' + list + '):only-child){display:none!important}';
       css += '.navitem:not(:has(.menu>a:not(' + list + '))){display:none!important}';
-      css += '.mnav__group:not(:has(>a:not(' + list + '))){display:none!important}';
+      /* The phone menu keeps its rows in cards (.mnav__list, 22 Oct 2026),
+         so a group is looked into, not just at its children: written for
+         the old flat list, this hid every group the moment anything at all
+         was hidden, and the phone menu opened empty. A card left with no
+         row goes, and so does the caption over it. */
+      css += '.mnav__group:not(:has(a:not(' + list + '))){display:none!important}';
+      css += '.mnav__list:not(:has(>a:not(' + list + '))){display:none!important}';
       css += '.pfa-footer__col:not(:has(li>a:not(' + list + '))){display:none!important}';
-      css += '.menu-label:has(+a:is(' + list + ')),.menu-label:has(+a:is(' + list + '))~.menu-sep,.mnav__sub:has(+a:is(' + list + ')){display:none!important}';
+      css += '.menu-label:has(+a:is(' + list + ')),.menu-label:has(+a:is(' + list + '))~.menu-sep,.mnav__sub:has(+a:is(' + list + ')),.mnav__sub:has(+.mnav__list:not(:has(>a:not(' + list + ')))){display:none!important}';
     }
     if (gone) {
       /* Everything the page itself brought, gone; the bar, the header, the
-         menus, search and the footer stay, so there is a way on. */
-      css += 'body>:not(.announce):not(header):not(.pfa-footer):not(.mnav):not(.cursor-layer):not(.pfa-search):not(#pfa-gone){display:none!important}'
+         phone's tab bar, the menus, search and the footer stay, so there is
+         a way on. */
+      css += 'body>:not(.announce):not(header):not(.pfa-tabs):not(.pfa-footer):not(.mnav):not(.cursor-layer):not(.pfa-search):not(#pfa-gone){display:none!important}'
         + '#pfa-gone{display:block!important;box-sizing:border-box;min-height:62vh;padding:calc(var(--ann,34px) + var(--nav,81px) + 72px) var(--gutter,20px) 96px;text-align:center;color:var(--ink,#111);background:#fff}'
         + '#pfa-gone h1{font-family:var(--display,Georgia,serif);font-weight:400;font-size:clamp(28px,4vw,44px);line-height:1.15;margin:0 0 20px}'
         + '#pfa-gone p{margin:0;font-size:16px}'

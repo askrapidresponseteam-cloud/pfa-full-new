@@ -928,7 +928,8 @@
       if (!q) { e.preventDefault(); return; }
       remember(q);
       var pick = active > -1 ? list.children[active] : (list.children[0] && list.dataset.mode === 'results' ? list.children[0] : null);
-      if (pick) { e.preventDefault(); go(pick, q); }
+      if (pick) { e.preventDefault(); go(pick, q); return; }
+      if (pushed) { e.preventDefault(); to('search.html?q=' + encodeURIComponent(q)); }
     });
     overlay.addEventListener('click', function (e) {
       if (e.target.closest('[data-search-close]')) { close(); return; }
@@ -936,9 +937,11 @@
       if (chip) { e.preventDefault(); input.value = chip.getAttribute('data-fill'); render(input.value); input.focus(); return; }
       if (e.target.closest('[data-forget]')) { e.preventDefault(); forget(); render(''); return; }
       var quick = e.target.closest('.pfa-search__quick a');
-      if (quick) { emit('pfa:search-click', { query: input.value, title: quick.textContent, url: quick.getAttribute('href'), surface: 'quick' }); recordOpen(quick.getAttribute('href')); return; }
+      if (quick) { emit('pfa:search-click', { query: input.value, title: quick.textContent, url: quick.getAttribute('href'), surface: 'quick' }); recordOpen(quick.getAttribute('href')); leave(e, quick); return; }
       var li = e.target.closest('#pfa-results li');
-      if (li) { e.preventDefault(); remember(input.value); go(li, input.value); }
+      if (li) { e.preventDefault(); remember(input.value); go(li, input.value); return; }
+      var a = e.target.closest('a[href]');
+      if (a) leave(e, a);
     });
     list.addEventListener('mousemove', function (e) {
       var li = e.target.closest('li'); if (!li) return;
@@ -950,8 +953,24 @@
     var row = INDEX[+li.getAttribute('data-id')];
     emit('pfa:search-click', { query: q, title: row.t, url: row.u, position: Array.prototype.indexOf.call(list.children, li) + 1 });
     recordOpen(row.u);
-    location.href = row.u;
+    to(row.u);
   }
+  /* Back closes the search, as a phone's Back closes a screen in an app
+     (22 Oct 2026): opening it adds a step to the history, Back takes it
+     away, and leaving for a result replaces that step, so Back from the
+     result comes to this page, not to this page with search open. */
+  var pushed = false;
+  function to(url) {
+    if (pushed && history.state && history.state.pfaSearch) { pushed = false; location.replace(url); }
+    else location.href = url;
+  }
+  function leave(e, a) {
+    var href = a.getAttribute('href') || '';
+    if (!href || href.charAt(0) === '#' || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || a.target === '_blank') return;
+    e.preventDefault();
+    to(a.href);
+  }
+  window.addEventListener('popstate', function () { if (overlay && !overlay.hidden) close(true); });
   function render(q) {
     q = q.trim();
     var rows, mode = 'results';
@@ -1027,17 +1046,30 @@
       top = Math.max(top, el.getBoundingClientRect().bottom);
     });
     overlay.style.top = Math.max(0, Math.round(top)) + 'px';
+    var was = !overlay.hidden;
     overlay.hidden = false;
     document.documentElement.classList.add('pfa-search-open');
     render(input.value);
     if (!liveHits) loadPopular(function () { if (overlay && !overlay.hidden && !input.value.trim()) render(''); });
-    requestAnimationFrame(function () { overlay.classList.add('is-open'); input.focus(); input.select(); });
+    /* Focused now, inside the tap that opened it: an iPhone raises the
+       keyboard only for a field focused in the tap itself, and a focus one
+       frame later left the box with no keyboard, to be tapped again. */
+    try { input.focus({ preventScroll: true }); } catch (_) { input.focus(); }
+    input.select();
+    requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+    if (!was && !(history.state && history.state.pfaSearch) && history.pushState) {
+      try { history.pushState({ pfaSearch: 1 }, ''); pushed = true; } catch (_) { pushed = false; }
+    }
   }
-  function close() {
+  function close(fromHistory) {
     if (!overlay || overlay.hidden) return;
     overlay.classList.remove('is-open');
     overlay.hidden = true;
     document.documentElement.classList.remove('pfa-search-open');
+    if (pushed) {
+      pushed = false;
+      if (fromHistory !== true && history.state && history.state.pfaSearch) history.back();
+    }
     if (opener && opener.focus) opener.focus();
   }
 

@@ -198,6 +198,8 @@ td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .mailbox .act .say{margin:0;max-width:70ch}
 .mailbox .act:not(:has(button)):not(:has(.say:not(:empty))){display:none}
 .mailbox > .say:empty,.pend > .say:empty,#pplSay:empty{display:none}
+.ppl-link{display:flex;gap:8px;align-items:center;margin-top:10px;max-width:760px}
+.ppl-link input{flex:1;min-width:0;font:inherit;font-size:13px;padding:9px 10px;border:1px solid var(--line,#e4e2df);background:#fff;color:var(--ink,#111)}
 .mailbox details.fold{margin:4px 0 0}
 .mailbox .state[data-tone="good"]::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#2f7d4f;margin:0 8px 1px 0}
 .mailbox .detail{display:block;color:var(--muted);font-size:11px;margin-top:4px;overflow-wrap:anywhere}
@@ -721,6 +723,31 @@ window.addEventListener('unhandledrejection', function (event) {
   function esc(value) {
     return String(value == null ? '' : value)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  /* What became of an invitation or a password link: the server's own
+     sentence, and, when the email did not certainly go, the link itself
+     with a Copy button, so "send them this link" always has a link. */
+  function inviteSaid(data) {
+    var node = $('#pplSay');
+    if (!node) return;
+    var invite = (data && data.invite) || null;
+    var sent = invite ? invite.sent : true;
+    say(node, (data && data.note) || '', sent ? 'good' : 'bad');
+    if (!invite || !invite.link) return;
+    var box = document.createElement('span');
+    box.className = 'ppl-link';
+    var field = document.createElement('input');
+    field.type = 'text'; field.readOnly = true; field.value = invite.link; field.setAttribute('aria-label', 'The link to send');
+    var copy = document.createElement('button');
+    copy.type = 'button'; copy.className = 'ghost'; copy.textContent = 'Copy link';
+    copy.addEventListener('click', function () {
+      field.select();
+      var done = function () { copy.textContent = 'Copied'; };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(invite.link).then(done, function () { try { document.execCommand('copy'); done(); } catch (_) {} });
+      else { try { document.execCommand('copy'); done(); } catch (_) {} }
+    });
+    box.appendChild(field); box.appendChild(copy);
+    node.appendChild(box);
   }
   function say(node, text, tone) {
     if (!node) return;
@@ -1766,7 +1793,7 @@ window.addEventListener('unhandledrejection', function (event) {
   function people() {
     var node = $('[data-pane="people"]');
     node.innerHTML = '<div class="loading">Reading the accounts\u2026</div>';
-    api('/api/admin/people').then(function (data) {
+    return api('/api/admin/people').then(function (data) {
       var mods = data.modules || [];
       /* The API names every section; the panel should not keep a second list. */
       var label = {};
@@ -2554,7 +2581,7 @@ window.addEventListener('unhandledrejection', function (event) {
       if (what === 'reset') {
         say($('#pplSay'), 'Sending\u2026');
         api('/api/admin/people', { method: 'POST', body: { action: 'reset', email: ppl.getAttribute('data-email') } })
-          .then(function (data) { say($('#pplSay'), data.note || 'Password link sent.', 'good'); })
+          .then(inviteSaid)
           .catch(function (e) { say($('#pplSay'), e.message, 'bad'); });
         return;
       }
@@ -2564,8 +2591,7 @@ window.addEventListener('unhandledrejection', function (event) {
         action: 'set', email: $('#pplEmail').value.trim(), name: $('#pplName').value.trim(),
         role: $('#pplRole').value, modules: picked
       } }).then(function (data) {
-        say($('#pplSay'), data.link ? 'Access given. Send them this link: ' + data.link : 'Access given, and they have been emailed.', 'good');
-        people();
+        people().then(function () { inviteSaid(data); });
       }).catch(function (e) { say($('#pplSay'), e.message, 'bad'); });
     }
   });

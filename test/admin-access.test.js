@@ -162,6 +162,60 @@ test('inviting someone creates the account, sets the claims, and hands over a pa
   assert.equal((await run(handler, request({ method: 'POST', body: { action: 'set', email: 'nope', role: 'staff', modules: ['verify'] } }))).statusCode, 400);
 });
 
+test('a password link that is not emailed says why, truthfully, and comes back to be copied', async () => {
+  /* Owner, 22 Oct 2026, a screenshot: "Email is not set up, so send them this
+     link." on a panel whose email was set up, and no link shown: "why does
+     it say this. email to go from info@ ... which is already in use". */
+  const quiet = console.error; console.error = () => {};
+  try {
+    const anushka = { uid: 'a1', email: 'anushka@pfa.org', displayName: 'Anushka', customClaims: { admin: true, role: 'super' }, metadata: {} };
+    const ask = (handler) => run(handler, request({ method: 'POST', body: { action: 'reset', email: 'anushka@pfa.org' } }));
+
+    /* sent: no link echoed */
+    const ok = await ask(peopleHandler(fakeAuth([KARTHIK, anushka]), ME, { mail: true, deliver: async () => ({}) }));
+    assert.equal(ok.body.invite.sent, true);
+    assert.equal(ok.body.invite.link, '');
+    assert.match(ok.body.note, /^Password link sent to anushka@pfa\.org from the PFA mailbox\.$/);
+
+    /* the mailbox refused it: its own words, and the link */
+    const refused = await ask(peopleHandler(fakeAuth([KARTHIK, anushka]), ME, { mail: true, deliver: async () => {
+      const e = new Error('Mailbox server refused: 550 5.7.1 message rejected'); e.kind = 'recipient'; throw e;
+    } }));
+    assert.equal(refused.body.invite.sent, false);
+    assert.equal(refused.body.invite.why, 'failed');
+    assert.match(refused.body.invite.link, /resetPassword/);
+    assert.match(refused.body.note, /refused by the mailbox: Mailbox server refused: 550 5\.7\.1 message rejected/);
+    assert.doesNotMatch(refused.body.note, /not set up/, 'a refusal is not "not set up"');
+
+    /* taken and not confirmed: it may have arrived */
+    const unsure = await ask(peopleHandler(fakeAuth([KARTHIK, anushka]), ME, { mail: true, deliver: async () => {
+      const e = new Error('Mailbox server stopped answering after the email was handed over (outcome not known): timeout'); e.kind = 'unknown'; e.uncertain = true; throw e;
+    } }));
+    assert.equal(unsure.body.invite.why, 'unknown');
+    assert.match(unsure.body.note, /may reach anushka@pfa\.org/);
+    assert.match(unsure.body.invite.link, /resetPassword/);
+
+    /* no mailbox on this server at all */
+    const off = await ask(peopleHandler(fakeAuth([KARTHIK, anushka]), ME, { mail: false }));
+    assert.equal(off.body.invite.why, 'off');
+    assert.match(off.body.note, /no mailbox to send from/);
+
+    /* a new person whose invitation failed is not told they were emailed */
+    const created = await run(peopleHandler(fakeAuth([KARTHIK]), ME, { mail: true, deliver: async () => { const e = new Error('Mailbox server refused: 554'); e.kind = 'recipient'; throw e; } }),
+      request({ method: 'POST', body: { action: 'set', email: 'new@pfa.org', role: 'staff', modules: ['payments'] } }));
+    assert.equal(created.body.invite.sent, false);
+    assert.match(created.body.note, /^Access given\. The email to new@pfa\.org was refused/);
+  } finally { console.error = quiet; }
+
+  /* the panel shows the note, and the link with a Copy button, for both */
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'admin.html'), 'utf8');
+  assert.match(html, /function inviteSaid\(data\)/);
+  assert.match(html, /\.then\(inviteSaid\)/, 'a password link');
+  assert.match(html, /people\(\)\.then\(function \(\) \{ inviteSaid\(data\); \}\)/, 'an invitation');
+  assert.match(html, /copy\.textContent = 'Copy link'/);
+  assert.doesNotMatch(html, /Access given, and they have been emailed/, 'the panel no longer claims an email it was not told went');
+});
+
 test('giving somebody the panel is recorded, not only taking it away', async () => {
   /* An audit log is read to find out who granted somebody access. Removal was
      recorded and the grant was not, so it could not answer that question. */

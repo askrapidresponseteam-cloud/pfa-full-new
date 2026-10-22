@@ -90,7 +90,7 @@
 })();
 </script>
 <link rel="stylesheet" href="assets/theatre.css">
-<link rel="stylesheet" href="assets/chrome.css?v=19ffa7c82d">
+<link rel="stylesheet" href="assets/chrome.css?v=bdc17b65b9">
 <style>
 :root{
   --paper:#fff;
@@ -951,6 +951,8 @@ html{scroll-behavior:smooth}
 @media(max-width:720px){.ck-sound{bottom:calc(12px + env(safe-area-inset-bottom));right:12px;padding:0 13px;gap:8px;min-height:44px}.hoarding__map{margin-bottom:62px}}
 @media(prefers-reduced-motion:reduce){.ck-wave i{animation:none!important}.ck-motion .marquee__plate,.ck-motion .shot img{transform:none!important;scale:1!important;translate:none!important}.ck-motion .band__head .display{clip-path:none!important;translate:none!important;transition:none!important}}
 @media print{.ck-sound,.ck-progress{display:none}}
+/* the menu, open, is not covered by the sound button */
+html.mnav-open .ck-sound{display:none}
 </style>
 
 <style id="ck-cinematic-style">
@@ -1080,12 +1082,13 @@ css += list + '{display:none!important}';
 css += links.map(function (l) { return '.navitem>' + l; }).join(',') + '{display:revert!important;pointer-events:none;cursor:default}';
 css += 'li:has(>:is(' + list + '):only-child){display:none!important}';
 css += '.navitem:not(:has(.menu>a:not(' + list + '))){display:none!important}';
-css += '.mnav__group:not(:has(>a:not(' + list + '))){display:none!important}';
+css += '.mnav__group:not(:has(a:not(' + list + '))){display:none!important}';
+css += '.mnav__list:not(:has(>a:not(' + list + '))){display:none!important}';
 css += '.pfa-footer__col:not(:has(li>a:not(' + list + '))){display:none!important}';
-css += '.menu-label:has(+a:is(' + list + ')),.menu-label:has(+a:is(' + list + '))~.menu-sep,.mnav__sub:has(+a:is(' + list + ')){display:none!important}';
+css += '.menu-label:has(+a:is(' + list + ')),.menu-label:has(+a:is(' + list + '))~.menu-sep,.mnav__sub:has(+a:is(' + list + ')),.mnav__sub:has(+.mnav__list:not(:has(>a:not(' + list + ')))){display:none!important}';
 }
 if (gone) {
-css += 'body>:not(.announce):not(header):not(.pfa-footer):not(.mnav):not(.cursor-layer):not(.pfa-search):not(#pfa-gone){display:none!important}'
+css += 'body>:not(.announce):not(header):not(.pfa-tabs):not(.pfa-footer):not(.mnav):not(.cursor-layer):not(.pfa-search):not(#pfa-gone){display:none!important}'
 + '#pfa-gone{display:block!important;box-sizing:border-box;min-height:62vh;padding:calc(var(--ann,34px) + var(--nav,81px) + 72px) var(--gutter,20px) 96px;text-align:center;color:var(--ink,#111);background:#fff}'
 + '#pfa-gone h1{font-family:var(--display,Georgia,serif);font-weight:400;font-size:clamp(28px,4vw,44px);line-height:1.15;margin:0 0 20px}'
 + '#pfa-gone p{margin:0;font-size:16px}'
@@ -1228,7 +1231,7 @@ if (root.document && root.document.head) apply(read());
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
 </header>
-<script src="assets/chrome.js?v=e05914ccb6"></script>
+<script src="assets/chrome.js?v=00e9c4151a"></script>
 <script src="assets/theatre.js"></script>
 <script src="assets/reels.js"></script>
 
@@ -3142,7 +3145,14 @@ shutter.addEventListener('animationend',function(){shutter.remove();},{once:true
 var gl=window.WebGLRenderingContext?canvas.getContext('webgl',{alpha:false,antialias:false,powerPreference:'low-power'}):null,program,texture,ready=false;
 var uniforms={},w=1,h=1,dpr=1,raf=0,active=true,previous=0,clock=0,pointer=[0,0],target=[0,0],progress=0;
 var vertex='attribute vec2 a; varying vec2 v; void main(){v=a*.5+.5;gl_Position=vec4(a,0.,1.);}';
-var fragment=`precision mediump float;
+/* Full precision where the phone has it (owner, 22 Oct 2026: "the image at
+   the top of cinekind landing page isnt proper (above trophy, the clouds look
+   distorted)"). mediump is 16 bits on a phone's GPU: the photo's coordinates
+   came out in steps coarser than its pixels, and the motes' noise turned to
+   patterns. A desktop GPU quietly runs mediump as highp, which is why it only
+   showed on phones. */
+var hp=gl&&(function(){try{var f=gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER,gl.HIGH_FLOAT);return f&&f.precision>0;}catch(e){return false;}})();
+var fragment=(hp?'precision highp float;':'precision mediump float;')+`
 varying vec2 v;
 uniform sampler2D photo;
 uniform vec2 viewport;
@@ -3158,13 +3168,18 @@ void main(){
  vec2 fit=vec2(min(1.,aspect/imageAspect),min(1.,imageAspect/aspect));
  float intro=exp(-time*.8)*.075;
  float zoom=1.035+intro+travel*.19;
- vec2 uv=(screen-.5)*fit/zoom+.5;
+ // The window onto the photo, and how far it can move without leaving it.
+ // On a phone the photo's whole height is in view, so there is almost no
+ // room above or below; the framing below used to push the window past the
+ // top edge, and the last row of sky was smeared down the screen in streaks.
+ vec2 span=.5*fit/zoom;
+ vec2 room=max(vec2(0.),.5-span-.001);
  // Set the sky/trophy framing at different viewport shapes.
  float yFocus=aspect>1.65?.22:.50;
- uv.y+=(1.-fit.y)*(yFocus-.5);
  // A gently orbiting camera; the light field moves on a separate plane.
- uv+=vec2(sin(time*.18)*.003,cos(time*.14)*.002)+mouse*vec2(.009,.006);
- uv.y-=.04+travel*.022;
+ vec2 shift=vec2(sin(time*.18)*.003,cos(time*.14)*.002)+mouse*vec2(.009,.006);
+ shift.y+=(1.-fit.y)*(yFocus-.5)-(.04+travel*.022);
+ vec2 uv=(screen-.5)*fit/zoom+.5+clamp(shift,-room,room);
  vec3 color=texture2D(photo,clamp(uv,.001,.999)).rgb;
  // Slow light passing across the clouds, kept away from the gold sculpture.
  float gold=smoothstep(.035,.13,color.r-color.b)*smoothstep(.01,.08,color.g-color.b);

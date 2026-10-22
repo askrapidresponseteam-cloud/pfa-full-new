@@ -303,6 +303,16 @@ function applyChrome(html, page) {
   if (spec.root) footer = rootify(footer);
   html = html.slice(0, footOpen) + footer + html.slice(footClose + '</footer>'.length);
 
+  /* 1c. Site search on every page (22 Oct 2026). The phone's top bar has a
+         search button on every page, and on four pages (academy, get
+         involved, library, quiz) it led away to search.html because they
+         never loaded the overlay. A page that lacks it gets it, at the end
+         of <head>, as the others carry it. */
+  if (!/<script src="\/?pfa-search\.js"/.test(html)) {
+    const r = spec.root ? '/' : '';
+    html = html.replace('</head>', `<link rel="stylesheet" href="${r}pfa-search.css">\n<script src="${r}pfa-search.js" defer></script>\n</head>`);
+  }
+
   /* 2. The stylesheet link: once, in <head>, before the page's own <style>. */
   const linkTag = LINK(spec.root);
   html = html.replace(/[ \t]*<link rel="stylesheet" href="\/?assets\/chrome\.css(?:\?v=[a-f0-9]+)?">\n?/g, '');

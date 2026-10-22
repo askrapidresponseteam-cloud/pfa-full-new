@@ -77,7 +77,8 @@ test('a hidden page: every link to it goes, in every form the site writes one, a
   /* A list item that is only that link goes; an emptied menu, phone group or footer column goes. */
   assert.ok(all.some(([sel]) => sel.startsWith('li:has(>:is(') && sel.endsWith(':only-child)')));
   assert.ok(all.some(([sel]) => sel.startsWith('.navitem:not(:has(.menu>a:not(')));
-  assert.ok(all.some(([sel]) => sel.startsWith('.mnav__group:not(:has(>a:not(')));
+  assert.ok(all.some(([sel]) => sel.startsWith('.mnav__group:not(:has(a:not(')), 'a phone-menu group is looked into, not just at: its rows sit in cards');
+  assert.ok(all.some(([sel]) => sel.startsWith('.mnav__list:not(:has(>a:not(')), 'and a card left empty goes');
   assert.ok(all.some(([sel]) => sel.startsWith('.pfa-footer__col:not(:has(li>a:not(')));
   assert.ok(!css.includes('#pfa-gone'), 'no notice on a page that is shown');
 });
@@ -85,7 +86,7 @@ test('a hidden page: every link to it goes, in every form the site writes one, a
 test('the hidden page itself: everything it brought goes, the notice and the way on stay', () => {
   const { css, gone } = V.plan({ pages: ['units'] }, 'units');
   assert.equal(gone, true);
-  assert.match(css, /body>:not\(\.announce\):not\(header\):not\(\.pfa-footer\):not\(\.mnav\):not\(\.cursor-layer\):not\(\.pfa-search\):not\(#pfa-gone\)\{display:none!important\}/);
+  assert.match(css, /body>:not\(\.announce\):not\(header\):not\(\.pfa-tabs\):not\(\.pfa-footer\):not\(\.mnav\):not\(\.cursor-layer\):not\(\.pfa-search\):not\(#pfa-gone\)\{display:none!important\}/, 'the phone tab bar stays as a way on');
   assert.match(css, /#pfa-gone\{display:block!important/);
   assert.match(css, /a\[aria-current="page"\]/, 'its own menu entry, which says #top there, goes too');
   assert.equal(V.NOTICE, 'This page is not available right now.');
