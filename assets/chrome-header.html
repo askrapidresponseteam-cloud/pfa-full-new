@@ -9,6 +9,11 @@
        {{CURRENT:x}} a destination; sync-chrome marks the page's own
        {{ALERT}}     the bell beside Shop, on the pages whose PAGES entry has
                      an alert (the home page): it opens the current appeal
+     On a phone or tablet the page reads like an app (owner, 22 Oct 2026:
+     "make it look like app on mobile screen"): this bar keeps the mark, the
+     search and the bell, and sync-chrome adds the tab bar after the header
+     (Home, Find help, Donate, Shop, Menu). The search here is shown only
+     then; on a wide screen the header is as it was.
        -->
 {{VISIBILITY}}
 {{ANNOUNCE}}
@@ -67,6 +72,7 @@
       {{CURRENT:shop.html|Shop|shop}}
       {{ALERT}}
     </div>
+    <a class="appsearch" href="search.html" data-open-search aria-label="Search the site"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg></a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
 </header>

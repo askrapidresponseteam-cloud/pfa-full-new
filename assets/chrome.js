@@ -97,12 +97,20 @@
      Open: the page under it stops scrolling, focus moves to the first link,
      and the header goes back to paper if a dark section had turned it
      clear. Closed by the button, Escape, choosing a link, or the window
-     growing past 900px. */
+     growing past 900px.
+
+     On a page with the phone's tab bar (22 Oct 2026), its Menu tab is what
+     opens it, and the stylesheet draws it as an app's list screen: each run
+     of links is a .mnav__list, a card of rows, so a section's captions
+     ("Join the tribe") sit between cards rather than inside one. */
   function initMobileNav() {
     var head = header();
-    var btn = head && head.querySelector('.burger');
+    var burger = head && head.querySelector('.burger');
     var links = head && head.querySelector('.navlinks');
-    if (!btn || !links) return;
+    if (!burger || !links) return;
+    var tab = document.querySelector('.pfa-tabs [data-tab="menu"]');
+    var openers = [burger].concat(tab ? [tab] : []);
+    var btn = burger;
 
     var panel = document.createElement('nav');
     panel.className = 'mnav';
@@ -119,18 +127,23 @@
       label.className = 'mnav__head';
       label.textContent = top.textContent.trim();
       group.appendChild(label);
+      var list = null;
       [].forEach.call(menu.children, function (child) {
         if (child.tagName === 'A') {
+          if (!list) { list = document.createElement('div'); list.className = 'mnav__list'; group.appendChild(list); }
           var a = document.createElement('a');
           a.href = child.getAttribute('href');
           a.textContent = child.textContent.trim();
           if (child.classList.contains('current')) { a.className = 'current'; a.setAttribute('aria-current', 'page'); }
-          group.appendChild(a);
+          list.appendChild(a);
         } else if (child.classList.contains('menu-label')) {
           var sub = document.createElement('p');
           sub.className = 'mnav__sub';
           sub.textContent = child.textContent.trim();
           group.appendChild(sub);
+          list = null;
+        } else if (child.classList.contains('menu-sep')) {
+          list = null;
         }
       });
       panel.appendChild(group);
@@ -139,8 +152,13 @@
 
     var hadDark = false;
     var timer = 0;
-    function open() {
+    function expanded(on) {
+      openers.forEach(function (o) { o.setAttribute('aria-expanded', on ? 'true' : 'false'); });
+      burger.setAttribute('aria-label', on ? 'Close the menu' : 'Open the menu');
+    }
+    function open(from) {
       if (!panel.hidden) return;
+      btn = from || burger;
       measure();
       hadDark = root.classList.contains('header-on-dark');
       root.classList.remove('header-on-dark');
@@ -148,8 +166,7 @@
       panel.hidden = false;
       window.clearTimeout(timer);
       window.requestAnimationFrame(function () { panel.classList.add('is-open'); });
-      btn.setAttribute('aria-expanded', 'true');
-      btn.setAttribute('aria-label', 'Close the menu');
+      expanded(true);
       var first = panel.querySelector('a');
       if (first) first.focus({ preventScroll: true });
     }
@@ -158,12 +175,13 @@
       panel.classList.remove('is-open');
       root.classList.remove('mnav-open');
       if (hadDark) root.classList.add('header-on-dark');
-      btn.setAttribute('aria-expanded', 'false');
-      btn.setAttribute('aria-label', 'Open the menu');
+      expanded(false);
       timer = window.setTimeout(function () { panel.hidden = true; }, 260);
       if (returnFocus) btn.focus({ preventScroll: true });
     }
-    btn.addEventListener('click', function () { if (panel.hidden) open(); else close(true); });
+    openers.forEach(function (o) {
+      o.addEventListener('click', function () { if (panel.hidden) open(o); else close(true); });
+    });
     panel.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) close(false); });
     document.addEventListener('keydown', function (e) {
       if (panel.hidden) return;
@@ -181,6 +199,27 @@
     }
     /* Back from a page reached through the menu, the menu is shut. */
     window.addEventListener('pageshow', function () { close(false); });
+  }
+
+  /* ---------- the tab bar steps aside for the keyboard ----------
+     On a phone a bar pinned to the foot rides up on the keyboard and covers
+     the field being typed in. While a field has focus, <html> carries
+     pfa-typing and the stylesheet slides the tab bar away (only where there
+     is one, and only at phone widths). */
+  function isField(el) {
+    if (!el || !el.tagName) return false;
+    if (el.isContentEditable) return true;
+    var tag = el.tagName;
+    if (tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (tag !== 'INPUT') return false;
+    return !/^(checkbox|radio|button|submit|reset|range|file|color|hidden|image)$/i.test(el.type || '');
+  }
+  function initTyping() {
+    if (!document.querySelector('.pfa-tabs')) return;
+    document.addEventListener('focusin', function (e) { if (isField(e.target)) root.classList.add('pfa-typing'); });
+    document.addEventListener('focusout', function () {
+      window.setTimeout(function () { if (!isField(document.activeElement)) root.classList.remove('pfa-typing'); }, 0);
+    });
   }
 
 
@@ -684,6 +723,7 @@
 
   initAnnouncement();
   initMobileNav();
+  initTyping();
   measure();
   window.addEventListener('resize', measure);
   window.addEventListener('load', measure);

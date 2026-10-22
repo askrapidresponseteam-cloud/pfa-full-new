@@ -67,7 +67,7 @@ const PAGES = {
   'newsroom.html':     { current: 'newsroom.html',    group: 'units.html',       announce: DEFAULT_ANNOUNCE },
   'wall.html':         { current: 'wall.html',        group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'get-involved.html': { current: 'get-involved.html#volunteer', group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* the menu's Volunteer opens the one volunteer application, as the footer's does (9 Oct 2026) */
-  'cinekind.html':     { current: 'cinekind.html',    group: 'get-involved.html', announce: '' }, /* no bar (22 Oct 2026): the page is the logo and the menu over the trophy, and "4 October" read as a date still to come once it had passed. Before that: */ /* the credit went back over the photograph and above the trophy, where it reads; putting it here cost the hero 115px of black and left the bar saying the same sentence twice. The bar keeps the where and the when */
+  'cinekind.html':     { current: 'cinekind.html',    group: 'get-involved.html', announce: '', bare: true }, /* bare: no tab bar on a phone either; the page keeps its menu button (owner: "let this page be clean.. only log and ham menu") */ /* no bar (22 Oct 2026): the page is the logo and the menu over the trophy, and "4 October" read as a date still to come once it had passed. Before that: */ /* the credit went back over the photograph and above the trophy, where it reads; putting it here cost the hero 115px of black and left the bar saying the same sentence twice. The bar keeps the where and the when */
   'donate.html':       { current: 'donate.html',      group: null,               announce: DEFAULT_ANNOUNCE },
   'events.html':       { current: 'events.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'shop.html':         { current: 'shop.html',        group: null,               announce: 'Every purchase supports PFA\u2019s work for animals' },
@@ -112,6 +112,56 @@ function alertMarkup() {
     '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4M12 2V1"/></svg>' +
     '<span class="pfa-notification__dot" aria-hidden="true"></span></a>';
 }
+
+/* The tab bar: the site on a phone or tablet, read like an app (owner,
+   22 Oct 2026: "right now on the landing page, there is shop, donate,
+   notification and hamburger menu.. looks so shitty on mobile screen.. it is
+   distracting.. make it look like app on mobile screen"). Five tabs at the
+   foot of every page at 900px and under, where the header keeps only the
+   mark, the search and the bell: Home, Find help (the units, where help near
+   you is found; report.html is in it too), Donate in the middle as the one
+   filled thing, Shop with the offer's badge, and Menu, which opens the
+   sections as a list. The page's own tab is marked; a page that is none of
+   the four marks none (Menu is marked only while it is open: marked when
+   shut, it read as a menu stuck open). On a wide screen it is not shown at all
+   (assets/chrome.css), and a bare page (CineKind) has none. */
+const TAB_ICON = {
+  home: '<path d="M3.5 10.2 12 3.5l8.5 6.7"/><path d="M5.5 8.8V20.5h4.6v-5.6h3.8v5.6h4.6V8.8"/>',
+  help: '<path d="M12 21s-6.8-6-6.8-11.3a6.8 6.8 0 0 1 13.6 0C18.8 15 12 21 12 21Z"/><path d="M12 6.9v5.4M9.3 9.6h5.4"/>',
+  donate: '<path d="M12 19.6s-7.1-4.3-7.1-9.5a4.1 4.1 0 0 1 7.1-2.8 4.1 4.1 0 0 1 7.1 2.8c0 5.2-7.1 9.5-7.1 9.5Z" fill="currentColor"/>',
+  shop: '<path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>'
+};
+const TABS = [
+  { key: 'home', href: 'index.html', label: 'Home', pages: ['index.html'] },
+  { key: 'help', href: 'units.html', label: 'Find help', pages: ['units.html', 'report.html'] },
+  { key: 'donate', href: 'donate.html', label: 'Donate', pages: ['donate.html'] },
+  { key: 'shop', href: 'shop.html', label: 'Shop', pages: ['shop.html'] },
+  { key: 'menu', label: 'Menu' }
+];
+function tabOf(page) {
+  const own = TABS.find((t) => t.pages && t.pages.includes(page));
+  return own ? own.key : null;
+}
+function tabsMarkup(page) {
+  const on = tabOf(page);
+  const svg = (key) => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TAB_ICON[key]}</svg>`;
+  const items = TABS.map((t) => {
+    const mine = t.key === on;
+    /* a modifier only where the stylesheet has one: Donate's circle, Menu's open state */
+    const cls = `pfa-tab${t.key === 'donate' || t.key === 'menu' ? ` pfa-tab--${t.key}` : ''}${mine ? ' is-on' : ''}`;
+    const face = t.key === 'donate' ? `<span class="pfa-tab__give">${svg(t.key)}</span>` : svg(t.key);
+    const badge = t.key === 'shop' ? '<span class="pfa-tab__badge" aria-hidden="true"></span>' : '';
+    if (!t.href) {
+      return `  <button class="${cls}" type="button" data-tab="${t.key}" aria-controls="mnav" aria-expanded="false">${face}<span class="pfa-tab__label">${t.label}</span></button>`;
+    }
+    /* the tab of the page you are on goes back to its top, as an app's does */
+    const href = mine && t.href === page ? '#top' : t.href;
+    return `  <a class="${cls}" href="${href}" data-tab="${t.key}"${mine ? ' aria-current="page"' : ''}>${face}${badge}<span class="pfa-tab__label">${t.label}</span></a>`;
+  });
+  return `<nav class="pfa-tabs" aria-label="Main sections">\n${items.join('\n')}\n</nav>`;
+}
+const TABS_TAG = /[ \t]*<nav class="pfa-tabs"[\s\S]*?<\/nav>\n?/g;
 
 function announceMarkup(text) {
   if (!text) return '';
@@ -179,6 +229,7 @@ function renderChrome(page) {
       }
       return classes.length ? `<a href="${dest}" data-nav="${href}" class="${classes.join(' ')}">${label}</a>` : `<a href="${dest}" data-nav="${href}">${label}</a>`;
     });
+  if (!spec.bare) out = out.replace(/<\/header>\s*$/, `</header>\n${tabsMarkup(page)}\n`);
   return visibilityScript() + (spec.root ? rootify(out) : out);
 }
 
@@ -206,12 +257,28 @@ function applyChrome(html, page) {
   const spec = PAGES[page];
   if (!spec) throw new Error(`sync-chrome: ${page} is not in PAGES; add it`);
 
+  /* 0. The page as a phone shows it. <html data-pfa-tabs> says the tab bar is
+        there, so the stylesheet can stand the header's Donate, Shop and menu
+        button down before a single pixel is painted (a class set by script
+        would show them first). viewport-fit=cover gives the tab bar the
+        iPhone's home-bar inset to clear, and theme-color paints the browser's
+        own bar paper, as an app's would be. */
+  html = html.replace(/<html\b([^>]*)>/, (m, attrs) => {
+    const rest = attrs.replace(/\s+data-pfa-tabs\b/g, '');
+    return `<html${rest}${spec.bare ? '' : ' data-pfa-tabs'}>`;
+  });
+  html = html.replace('<meta name="viewport" content="width=device-width, initial-scale=1">', '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">');
+  if (!/<meta name="theme-color"/.test(html)) {
+    html = html.replace(/(<meta name="viewport"[^>]*>)/, '$1\n<meta name="theme-color" content="#ffffff">');
+  }
+
   /* 1. The block: from the announcement bar (if any) to </header> and the
         chrome script right after it. Anything in between is chrome. The
         visibility script in front of the bar is chrome too: taken out here
         wherever it is, and put back at the top of the block. */
   html = html.replace(/[ \t]*<script src="\/?assets\/chrome\.js(?:\?v=[a-f0-9]+)?"( defer)?><\/script>\n?/g, '');
   html = html.replace(VIS_TAG, '');
+  html = html.replace(TABS_TAG, '');
   const headerOpen = html.indexOf('<header');
   const headerClose = html.indexOf('</header>', headerOpen);
   if (headerOpen < 0 || headerClose < 0) throw new Error(`sync-chrome: ${page} has no <header>`);
@@ -265,7 +332,7 @@ function run({ check } = {}) {
   return stale;
 }
 
-module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, ALERT, run };
+module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, ALERT, TABS, tabOf, run };
 
 if (require.main === module) {
   const check = process.argv.includes('--check');

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-pfa-tabs>
 <head>
 <!-- Marcellus self-hosted, same files as the home page, so every display heading renders identically even when Google Fonts is slow or blocked -->
 <!-- Requested at parse time rather than when layout first needs it. Without this the
@@ -61,10 +61,11 @@
 </style>
 <meta charset="utf-8">
 <meta name="pfa-build" content="v1.305">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
 <title>Get Involved &#183; People for Animals</title>
 <meta name="description" content="Volunteer with People for Animals, become a member, or apply for a colony caregiver card. Every application is read by a named person and you are told where yours has got to.">
-<link rel="stylesheet" href="assets/chrome.css?v=6816dd55bc">
+<link rel="stylesheet" href="assets/chrome.css?v=19ffa7c82d">
 <style>
 :root{
   --paper:#fff;
@@ -717,10 +718,18 @@ if (root.document && root.document.head) apply(read());
       <a href="donate.html" data-nav="donate.html" class="donate">Donate</a>
       <a href="shop.html" data-nav="shop.html" class="shop">Shop</a>
     </div>
+    <a class="appsearch" href="search.html" data-open-search aria-label="Search the site"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg></a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
 </header>
-<script src="assets/chrome.js?v=cfa6fc50ea"></script>
+<nav class="pfa-tabs" aria-label="Main sections">
+  <a class="pfa-tab" href="index.html" data-tab="home"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7"/><path d="M5.5 8.8V20.5h4.6v-5.6h3.8v5.6h4.6V8.8"/></svg><span class="pfa-tab__label">Home</span></a>
+  <a class="pfa-tab" href="units.html" data-tab="help"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.8-6-6.8-11.3a6.8 6.8 0 0 1 13.6 0C18.8 15 12 21 12 21Z"/><path d="M12 6.9v5.4M9.3 9.6h5.4"/></svg><span class="pfa-tab__label">Find help</span></a>
+  <a class="pfa-tab pfa-tab--donate" href="donate.html" data-tab="donate"><span class="pfa-tab__give"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19.6s-7.1-4.3-7.1-9.5a4.1 4.1 0 0 1 7.1-2.8 4.1 4.1 0 0 1 7.1 2.8c0 5.2-7.1 9.5-7.1 9.5Z" fill="currentColor"/></svg></span><span class="pfa-tab__label">Donate</span></a>
+  <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
+  <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
+</nav>
+<script src="assets/chrome.js?v=e05914ccb6"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 

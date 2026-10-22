@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-pfa-tabs>
 <head>
 <meta charset="utf-8">
-<meta name="pfa-build" content="v1.450">
+<meta name="pfa-build" content="v1.451">
 <title>People for Animals | India’s largest animal welfare organisation</title>
 <meta name="description" content="Report cruelty, find your nearest unit, read what the law actually says, or give. People for Animals turns moments of crisis into second chances for animals across the country.">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
 
 <!-- Requested at parse time rather than when layout first needs it. Without this the
      browser does not ask for the file until it lays out a heading, which is why the
      display face arrived a beat late and swapped in over the fallback. Only the latin
      file: latin-ext covers characters these pages do not use. -->
 <link rel="preload" href="fonts/marcellus-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/chrome.css?v=6816dd55bc">
+<link rel="stylesheet" href="assets/chrome.css?v=19ffa7c82d">
 <style>/* latin-ext */
 @font-face {
   font-family: 'Marcellus';
@@ -99,7 +100,7 @@ a:hover{opacity:.65}
 /* ---------- hero: fits the viewport below the pinned bar. One photo, cover,
    anchored to the top; monochrome until the person stirs, then two seconds
    into colour; the words rise off a bottom-weighted scrim. ---------- */
-section[data-screen-label="Hero"]{margin-top:var(--bar,115px)!important;height:calc(100svh - var(--bar,115px))!important;min-height:520px!important;background:var(--stone)}
+section[data-screen-label="Hero"]{margin-top:var(--bar,115px)!important;height:calc(100svh - var(--bar,115px) - var(--tabbar,0px))!important;min-height:520px!important;background:var(--stone)}
 section[data-screen-label="Hero"] #hero-media{position:relative;width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block;filter:grayscale(1);transition:filter 2s ease}
 section[data-screen-label="Hero"].is-colour #hero-media{filter:grayscale(0)}
 section[data-screen-label="Hero"].is-veiled h1{opacity:0;transform:translateY(28px);letter-spacing:.06em;transition:none}
@@ -400,10 +401,18 @@ if (root.document && root.document.head) apply(read());
       <a href="shop.html" data-nav="shop.html" class="shop">Shop</a>
       <a class="pfa-notification" href="lab-animal-rules.html" data-until="2026-11-06T00:00:00+05:30" aria-label="Animal welfare alert: object to the draft lab animal rules by 5 November 2026" title="Speak up for animals, by 5 November 2026"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4M12 2V1"/></svg><span class="pfa-notification__dot" aria-hidden="true"></span></a>
     </div>
+    <a class="appsearch" href="search.html" data-open-search aria-label="Search the site"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg></a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
 </header>
-<script src="assets/chrome.js?v=cfa6fc50ea"></script>
+<nav class="pfa-tabs" aria-label="Main sections">
+  <a class="pfa-tab is-on" href="#top" data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7"/><path d="M5.5 8.8V20.5h4.6v-5.6h3.8v5.6h4.6V8.8"/></svg><span class="pfa-tab__label">Home</span></a>
+  <a class="pfa-tab" href="units.html" data-tab="help"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.8-6-6.8-11.3a6.8 6.8 0 0 1 13.6 0C18.8 15 12 21 12 21Z"/><path d="M12 6.9v5.4M9.3 9.6h5.4"/></svg><span class="pfa-tab__label">Find help</span></a>
+  <a class="pfa-tab pfa-tab--donate" href="donate.html" data-tab="donate"><span class="pfa-tab__give"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19.6s-7.1-4.3-7.1-9.5a4.1 4.1 0 0 1 7.1-2.8 4.1 4.1 0 0 1 7.1 2.8c0 5.2-7.1 9.5-7.1 9.5Z" fill="currentColor"/></svg></span><span class="pfa-tab__label">Donate</span></a>
+  <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
+  <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
+</nav>
+<script src="assets/chrome.js?v=e05914ccb6"></script>
 
 <section id="welcome" data-screen-label="Hero" style="position:relative;height:100svh;min-height:640px;display:flex;overflow:hidden;isolation:isolate">
   <div style="position:absolute;inset:0;z-index:0">

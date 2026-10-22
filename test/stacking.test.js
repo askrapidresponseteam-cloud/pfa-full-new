@@ -10,7 +10,7 @@
      44        floating page buttons
      45        the search overlay
      49        the phone menu
-     50        the header and its menus
+     50        the header and its menus; the phone's tab bar
      60        the announcement bar
      70 and up things that cover the whole page on purpose (toasts, drawers,
                lightboxes, players)
@@ -28,8 +28,10 @@ const ROOT = path.join(__dirname, '..');
 const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
 
 /* The chrome's own layers, which define the scale. */
+/* The phone's tab bar (22 Oct 2026) is chrome too: at the foot, at the
+   header's own 50, where nothing of the header's ever opens. */
 const CHROME = new Map([
-  ['.pfa-search', 45], ['.mnav', 49], ['header.site', 50], ['.announce', 60]
+  ['.pfa-search', 45], ['.mnav', 49], ['header.site', 50], ['html[data-pfa-tabs] .pfa-tabs', 50], ['.announce', 60]
 ]);
 /* Pages with no site header: the reader and the panel have their own. */
 const NO_HEADER = new Set(['read.html', 'admin.html', 'submission-collage.html', 'product.html']);
