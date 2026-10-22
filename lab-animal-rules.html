@@ -60,7 +60,7 @@
 }
 </style>
 <meta charset="utf-8">
-<meta name="pfa-build" content="v1.451">
+<meta name="pfa-build" content="v1.452">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Speak up for animals | People for Animals</title>
@@ -619,6 +619,7 @@ if (root.document && root.document.head) apply(read());
 
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
+<script src="assets/lab-letters.js"></script>
 <script>
 /* The objection letter (#write). It is written in the page, opened in the
    visitor's own email and sent by them: nothing is posted to this site. The
@@ -628,7 +629,6 @@ if (root.document && root.document.head) apply(read());
   'use strict';
   var TO = ['cpcsea-mef@gov.in', 'js-nlm@dahd.nic.in', 'sk.dutta@nic.in', 'minister-fahdpr@nic.in', 'rrsingh@sansad.nic.in', 'mos-fahd@dahd.nic.in', 'secyahd@nic.in'];
   var CC = ['gandhim@exmpls.sansad.in'];
-  var SUBJECT = 'Objections to draft Laboratory Animals Rules, 2026, G.S.R. 864(E)';
   var PAGE = 'https://peopleforanimalsindia.org/lab-animal-rules';
   /* the end of 5 November, India time */
   var CLOSES = Date.UTC(2026, 10, 6) - 5.5 * 3600e3;
@@ -638,37 +638,25 @@ if (root.document && root.document.head) apply(read());
   if (!form) return;
   var edited = false;
 
-  function letter(){
-    var name = $('labName').value.trim() || '[Your full name]';
-    var city = $('labCity').value.trim() || '[Your city]';
-    return [
-      'To',
-      'The Secretary, Department of Animal Husbandry and Dairying, Government of India',
-      'Through: The Member Secretary, CCSEA',
-      '',
-      'Sir/Madam,',
-      '',
-      'I am ' + name + ', a resident of ' + city + '. I submit my objections and suggestions on the draft Prevention of Cruelty to Animals (Control and Supervision of Experiment, Breeding and Trading of Laboratory Animals) Rules, 2026, notified as G.S.R. 864(E) on 6 October 2026.',
-      '',
-      'Please revise the draft before finalisation to strengthen animal protection. I request:',
-      '',
-      '1. Independent review of experiments and severity assessments, with safeguards against conflicts of interest when institutions authorise their own work.',
-      '',
-      '2. Clear, enforceable protection for stray and feral animals, and strict traceability and scrutiny of every animal source. Exceptions must not enable capture or exploitation of community animals.',
-      '',
-      '3. Mandatory pain prevention, veterinary supervision, humane endpoints and transparent compliance monitoring, with effective action against violations.',
-      '',
-      '4. A demonstrable search for scientifically suitable non-animal methods before authorising animal use, measurable reduction targets and investment in replacement methods.',
-      '',
-      '5. Publicly accessible, non-identifying summaries of animal use, severity, inspections and compliance, alongside meaningful independent animal-welfare representation.',
-      '',
-      'I ask that these concerns be considered and that a reasoned response to public submissions be published. Scientific progress should reduce avoidable suffering. Please strengthen the rules accordingly, and acknowledge receipt of this objection.',
-      '',
-      'Yours faithfully,',
-      name,
-      city
-    ].join('\n').replace(/\n{3,}/g, '\n\n');
-  }
+  /* Which letter (owner, 22 Oct 2026: "Randomly select one of the provided
+     email drafts each time, with varied subject lines and natural wording so
+     emails don't feel repetitive or template-based to the recipient ...
+     avoid consecutive repeats"). One of three drafts, with its own subject
+     and wording, chosen once as the page opens (assets/lab-letters.js), and
+     never the draft this visitor was given last time: that is remembered in
+     this browser only. The name and city are written into it as they are
+     typed. */
+  var L = window.PFALabLetters;
+  if (!L) return;
+  var LAST = 'pfa:lab-letter:last';
+  var last = '';
+  try { last = localStorage.getItem(LAST) || ''; } catch (_) {}
+  var plan = L.plan({ lastId: last });
+  try { localStorage.setItem(LAST, plan.draft); } catch (_) {}
+  form.setAttribute('data-letter', plan.draft);
+  function written(){ return L.render(plan, { name: $('labName').value, city: $('labCity').value }); }
+  function letter(){ return written().body; }
+  var SUBJECT = written().subject;
   function refresh(){ if (!edited) $('labLetter').value = letter(); }
   function subject(){ return $('labSubject').value.trim() || SUBJECT; }
   function body(){ return edited ? $('labLetter').value : letter(); }

@@ -88,6 +88,7 @@ function boot(now) {
   if (now) w.Date.now = () => now;
   w.eval(read('assets/field-rules.js'));
   w.eval(read('assets/field-validate.js'));
+  w.eval(read('assets/lab-letters.js'));
   w.eval(html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</script>')));
   return { w, doc: w.document, errors, opened };
 }
@@ -110,11 +111,13 @@ test('what opens in Gmail and Outlook carries the To, the Cc, the subject and th
   const gmail = new URL(opened[0]);
   assert.equal(gmail.searchParams.get('to'), RAPID_RESPONSE_TO.join(','));
   assert.equal(gmail.searchParams.get('cc'), RAPID_RESPONSE_CC.join(','));
-  assert.equal(gmail.searchParams.get('su'), 'Objections to draft Laboratory Animals Rules, 2026, G.S.R. 864(E)');
+  /* one of the owner's three drafts, with its own subject (test/lab-letters.test.js) */
+  const draft = require('../assets/lab-letters.js').DRAFTS.find((d) => d.id === doc.getElementById('labForm').getAttribute('data-letter'));
+  assert.ok(draft.subjects.includes(gmail.searchParams.get('su')));
   const body = gmail.searchParams.get('body');
-  assert.match(body, /^To\r\nThe Secretary, Department of Animal Husbandry and Dairying, Government of India\r\nThrough: The Member Secretary, CCSEA/);
-  assert.match(body, /I am Asha Rao, a resident of Udupi\./);
-  assert.match(body, /Yours faithfully,\r\nAsha Rao\r\nUdupi$/);
+  assert.match(body, /^To,\r\nThe Member Secretary/);
+  assert.match(body, /Draft Animal Experimentation Rules, 2026/);
+  assert.match(body, /,\r\nAsha Rao\r\nUdupi$/);
   const outlook = new URL(opened[1]);
   assert.equal(outlook.searchParams.get('to'), RAPID_RESPONSE_TO.join(','));
   assert.equal(outlook.searchParams.get('cc'), RAPID_RESPONSE_CC.join(','));
