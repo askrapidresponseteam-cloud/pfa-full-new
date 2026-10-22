@@ -897,7 +897,7 @@
           '<input id="pfa-q" name="q" type="search" autocomplete="off" spellcheck="false" ' +
             'placeholder="Report cruelty, a unit near you, laws, a gift…" ' +
             'role="combobox" aria-expanded="false" aria-controls="pfa-results" aria-autocomplete="list">' +
-          '<button type="submit" aria-label="Search">→</button>' +
+          '<button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>' +
         '</div>' +
         '<ul class="pfa-search__chips" data-chips aria-label="Suggestions"></ul>' +
         '<p class="pfa-search__hint" aria-hidden="true">Enter opens the top result · ↑ ↓ to move · Tab completes · Esc closes</p>' +
@@ -969,7 +969,7 @@
       if (comps.length) chips.innerHTML = comps.map(function (c) {
         return '<li><a href="search.html?q=' + encodeURIComponent(c) + '" data-fill="' + esc(c) + '">' + mark(c, q) + '</a></li>';
       }).join('');
-      var seeAll = ' <a href="search.html?q=' + encodeURIComponent(q) + '">See all results →</a>';
+      var seeAll = ' <a href="search.html?q=' + encodeURIComponent(q) + '">See all results</a>';
       if (res.via === 'corrected') {
         label.innerHTML = 'Showing results for <a href="#" data-fill="' + esc(res.corrected) + '">' + esc(res.corrected) + '</a>. No pages match “' + esc(q) + '”.';
       } else if (res.via === 'closest') {

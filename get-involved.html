@@ -304,7 +304,7 @@ a.card__tile:hover{opacity:1;border-color:var(--ink)}
 .gi__stage{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
   border:1px solid var(--line);padding:7px 12px}
 .gi__stage:first-child{border-color:var(--ink);color:var(--ink)}
-.gi__arrow{font-size:12px;color:var(--muted)}
+.gi__arrow{display:inline-flex;align-items:center;font-size:12px;color:var(--muted)}
 .gi__form{margin-top:clamp(20px,3vw,36px)}
 
 /* ---- the journey as one screen at a time ----
@@ -799,7 +799,7 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__copy">
             <p class="eyebrow">Where an application goes</p>
             <h2>Send it.</h2>
-            <ul class="gi__stages"><li class="gi__stage">Submitted</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Under review</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Shortlisted</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Approved or not taken forward</li></ul>
+            <ul class="gi__stages"><li class="gi__stage">Submitted</li><li class="gi__arrow" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4 1.5 8.5 6 4 10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></li><li class="gi__stage">Under review</li><li class="gi__arrow" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4 1.5 8.5 6 4 10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></li><li class="gi__stage">Shortlisted</li><li class="gi__arrow" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4 1.5 8.5 6 4 10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></li><li class="gi__stage">Approved or not taken forward</li></ul>
             <p class="fine">You get a reference number. Every application appears in PFA's admin record under
               Volunteers, and its stage is updated there as it moves.</p>
           </div>
@@ -882,7 +882,7 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__copy">
             <p class="eyebrow">Where a membership goes</p>
             <h2>Pay and join.</h2>
-            <ul class="gi__stages"><li class="gi__stage">Paid</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Kit dispatched</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Kit delivered</li></ul>
+            <ul class="gi__stages"><li class="gi__stage">Paid</li><li class="gi__arrow" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4 1.5 8.5 6 4 10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></li><li class="gi__stage">Kit dispatched</li><li class="gi__arrow" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4 1.5 8.5 6 4 10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></li><li class="gi__stage">Kit delivered</li></ul>
           </div>
           <div class="gi__body">
             <div class="field"><label class="agree"><input type="checkbox" name="terms" value="yes" required><span>I accept the membership terms above, and that PFA may contact me as a member.</span></label><span class="error">Accept the membership terms to continue.</span></div>
@@ -960,7 +960,7 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__copy">
             <p class="eyebrow">Where an application goes</p>
             <h2>Pay and apply.</h2>
-            <ul class="gi__stages"><li class="gi__stage">Submitted</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Under review</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Verified</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Card issued</li></ul>
+            <ul class="gi__stages"><li class="gi__stage">Submitted</li><li class="gi__arrow" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4 1.5 8.5 6 4 10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></li><li class="gi__stage">Under review</li><li class="gi__arrow" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4 1.5 8.5 6 4 10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></li><li class="gi__stage">Verified</li><li class="gi__arrow" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4 1.5 8.5 6 4 10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></li><li class="gi__stage">Card issued</li></ul>
             <!-- "Not issued on the spot" is a promise the tests guard: paying
                  must never read as buying. It lived in a hero meta row that
                  fell in the intro cull of 15 Sep 2026; it belongs here, next
