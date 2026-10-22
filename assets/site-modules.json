@@ -729,6 +729,27 @@
    ]
   },
   {
+   "id": "lab-animal-rules",
+   "file": "lab-animal-rules.html",
+   "title": "Speak up for animals",
+   "group": "Not in the menus",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "They cannot write this letter. You can."
+    },
+    {
+     "id": "asks",
+     "label": "Three changes."
+    },
+    {
+     "id": "write",
+     "label": "Lend them your voice."
+    }
+   ]
+  },
+  {
    "id": "track",
    "file": "track.html",
    "title": "Track a submission",
@@ -1383,6 +1404,15 @@
    "reach": "policy",
    "done": "request",
    "doneRef": "request"
+  },
+  "lab-animal-rules": {
+   "sources": "asks",
+   "labTo": "write",
+   "labEdited": "write",
+   "labWays": "write",
+   "labStatus": "write",
+   "labAfter": "write",
+   "labClosed": "write"
   }
  }
 }

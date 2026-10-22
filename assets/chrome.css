@@ -178,6 +178,23 @@ html.header-on-dark header.site .shop{background-color:transparent;color:#fff;bo
   .shop:hover::before,.shop:hover::after{transform:none}
 }
 
+/* ---------- the bell beside Shop ----------
+   Owner, 22 Oct 2026: "notification icon next to shop on the landing page
+   should open this page". A bell drawn in currentColor with one pop dot on
+   it, as the campaign page itself was drawn; it carries no words, so its
+   aria-label says what it opens and until when. The home page only
+   (scripts/sync-chrome.js, alert: true), and assets/chrome.js takes it away
+   when its data-until has passed. */
+.pfa-notification{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box;
+  width:44px;height:44px;margin-left:10px;color:inherit;border:1px solid transparent;transition:border-color .2s}
+.pfa-notification:hover,.pfa-notification:focus-visible{opacity:1;border-color:currentColor}
+.pfa-notification:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.pfa-notification__dot{position:absolute;top:8px;right:8px;width:6px;height:6px;background:var(--pop,#ff3b18);border-radius:50%;box-shadow:0 0 0 2px var(--paper,#fff)}
+html.header-on-dark header.site .pfa-notification__dot{box-shadow:none}
+@media (max-width:560px){.pfa-notification{width:36px;height:40px;margin-left:4px}.pfa-notification__dot{top:7px;right:5px}}
+@media (max-width:440px){.pfa-notification{width:30px;margin-left:2px}.pfa-notification svg{width:19px;height:19px}.pfa-notification__dot{right:2px}}
+@media (prefers-reduced-motion:reduce){.pfa-notification{transition:none}}
+
 /* ---------- the header over a dark background ----------
    The header is paper: white bar, ink type, the coloured mark with its
    black wordmark. Over a dark surface every part of that is wrong, and the

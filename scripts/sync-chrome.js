@@ -51,7 +51,7 @@ const DEFAULT_ANNOUNCE = 'Every drive, camp and open day is free to attend';
    belongs to Our Work but is not listed there), which is why the two columns
    are separate rather than one derived from the other. */
 const PAGES = {
-  'index.html':        { current: null,               group: null,               announce: 'Every donation funds rescue, treatment, and lifelong care' },
+  'index.html':        { current: null,               group: null,               announce: 'Every donation funds rescue, treatment, and lifelong care', alert: true },
   'founder.html':      { current: 'founder.html',     group: 'founder.html',     announce: DEFAULT_ANNOUNCE },
   'laws.html':         { current: 'laws.html',        group: 'laws.html',        announce: DEFAULT_ANNOUNCE },
   'academy.html':      { current: 'academy.html',     group: 'laws.html',        announce: DEFAULT_ANNOUNCE },
@@ -79,7 +79,10 @@ const PAGES = {
   'legacy.html':       { current: 'legacy.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'csr.html':          { current: 'csr.html',         group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'sgacc.html':        { current: 'sgacc.html',       group: 'founder.html',     announce: DEFAULT_ANNOUNCE },
-  'privacy.html':      { current: null,               group: null,               announce: DEFAULT_ANNOUNCE }
+  'privacy.html':      { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },
+  /* The objection to the draft lab animal rules (22 Oct 2026), opened by the
+     bell beside Shop on the home page. */
+  'lab-animal-rules.html': { current: null,           group: null,               announce: DEFAULT_ANNOUNCE }
 };
 
 /* submission-collage.html is a full-viewport piece with no site chrome.
@@ -90,6 +93,25 @@ const PAGES = {
    being read. It links back to library.html, which carries the chrome. */
 const SKIP = new Set(['submission-collage.html', 'admin.html', 'read.html']);
 
+
+/* The bell beside Shop (owner, 22 Oct 2026: "notification icon next to shop
+   on the landing page should open this page"). On the pages whose PAGES
+   entry says alert: true, which is the home page. It opens the appeal that is
+   open now, and data-until takes it away when that closes: assets/chrome.js
+   removes it once the date has passed, so nothing has to be shipped on the
+   day. Change ALERT when the next appeal opens. */
+const ALERT = {
+  href: 'lab-animal-rules.html',
+  until: '2026-11-06T00:00:00+05:30',
+  label: 'Animal welfare alert: object to the draft lab animal rules by 5 November 2026',
+  title: 'Speak up for animals, by 5 November 2026'
+};
+function alertMarkup() {
+  return `<a class="pfa-notification" href="${ALERT.href}" data-until="${ALERT.until}" aria-label="${ALERT.label}" title="${ALERT.title}">` +
+    '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4M12 2V1"/></svg>' +
+    '<span class="pfa-notification__dot" aria-hidden="true"></span></a>';
+}
 
 function announceMarkup(text) {
   if (!text) return '';
@@ -130,6 +152,7 @@ function renderChrome(page) {
     .replace(/<!--[\s\S]*?-->\n?/, '')             // the explanatory comment at the top
     .replace('{{VISIBILITY}}\n', '')               // put back below, after rootify, which would rewrite its selectors
     .replace('{{ANNOUNCE}}\n', announceMarkup(spec.announce))
+    .replace(/[ \t]*\{\{ALERT\}\}\n/, spec.alert ? `      ${alertMarkup()}\n` : '')
     /* The four top-level items. They are signposts to a section, not the
        page itself, so they take .in-section and never aria-current: a page
        that is its own group's landing page (laws.html under Learn) would
@@ -242,7 +265,7 @@ function run({ check } = {}) {
   return stale;
 }
 
-module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, run };
+module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, ALERT, run };
 
 if (require.main === module) {
   const check = process.argv.includes('--check');

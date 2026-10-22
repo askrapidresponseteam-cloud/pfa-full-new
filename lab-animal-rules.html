@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Marcellus self-hosted, same files as the home page, so every display heading renders identically even when Google Fonts is slow or blocked -->
+<!-- Requested at parse time rather than when layout first needs it. Without this the
+     browser does not ask for the file until it lays out a heading, which is why the
+     display face arrived a beat late and swapped in over the fallback. Only the latin
+     file: latin-ext covers characters these pages do not use. -->
+<link rel="preload" href="fonts/marcellus-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* No black grounds (owner's instruction, 15 Sep 2026): the deep sections
+   now stand on stone with ink type, converted through the page's own
+   tokens; buttons, tags and photographs keep their weight. */
+/* latin-ext */
+@font-face {
+  font-family: 'Marcellus';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/marcellus-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Marcellus';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/marcellus-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* What a cold load paints while Marcellus arrives is the next face in the
+   stack, and the flash is the difference between the two: Georgia runs about
+   2% wider per line and sits on different vertical metrics, so the swap
+   rewrapped every heading and the boxes around them moved - the flash of
+   unstyled text, back on every hard refresh. These two faces are Georgia and
+   Times dressed in Marcellus's measurements (ascent 1995, descent 573, gap 0,
+   weighted advance 932.4, all per 2048 em, read from the woff2 itself;
+   Georgia 913, Times 832 per capsize). Scaled and overridden to occupy the
+   same lines and the same boxes, the swap exchanges glyphs in place and
+   moves nothing. The preload makes the window short; these make it
+   invisible. Keep the numbers and the font in step: they are pinned by
+   test/fout.test.js against the file on disk. */
+@font-face {
+  font-family: 'Marcellus Fallback';
+  src: local('Georgia');
+  size-adjust: 102.13%;
+  ascent-override: 95.38%;
+  descent-override: 27.39%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Marcellus Fallback Times';
+  src: local('Times New Roman'), local('Times'), local('Liberation Serif'), local('Tinos');
+  size-adjust: 112.07%;
+  ascent-override: 86.92%;
+  descent-override: 24.96%;
+  line-gap-override: 0%;
+}
+</style>
+<meta charset="utf-8">
+<meta name="pfa-build" content="v1.446">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Speak up for animals | People for Animals</title>
+<meta name="description" content="Object to India's draft Laboratory Animals Rules, 2026 (G.S.R. 864(E)) by 5 November 2026. Write your letter here and send it from your own email.">
+<link rel="stylesheet" href="assets/chrome.css?v=6816dd55bc">
+<style>
+:root{
+  --paper:#fff;
+  --ink:#111;
+  --deep:#0a0a0a;
+  --muted:#6a6a6a;
+  --stone:#fff;
+  --line:#e4e2df;
+  --accent:#111;
+  --pop:#ff3b18;
+  --display:Marcellus,'Marcellus Fallback','Marcellus Fallback Times',Georgia,'Times New Roman',serif;
+  --body:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --ann:34px;
+  /* 81px: the nav is 80px and the header carries a 1px rule under it. This is
+     only what the first paint uses; assets/chrome.js measures the real height
+     into --nav and overwrites it. */
+  --nav:81px;
+  --max:1440px;
+  --gutter:max(clamp(16px,4vw,72px),(100% - 1440px) / 2);
+  --band:clamp(64px,7.5vw,112px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img,svg{display:block}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.display{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:1.02;letter-spacing:.01em;margin:0;text-wrap:balance}
+.eyebrow{margin:0;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 30px;border:1px solid var(--ink);background:var(--ink);color:#fff;
+  font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.16em;line-height:1.2;text-transform:uppercase;text-align:center;cursor:pointer;transition:background .2s,color .2s}
+.btn--light{background:#fff;color:var(--ink)}
+.btn--light:hover{background:var(--ink);color:#fff}
+.btn[disabled]{opacity:.45;cursor:default}
+.link{display:inline;padding:0;border:0;background:none;font:inherit;color:var(--ink);border-bottom:1px solid rgba(17,17,17,.35);cursor:pointer}
+.link:hover{border-bottom-color:var(--ink)}
+
+/* ============================================================ the page
+   Owner, 22 Oct 2026, with the campaign page: "this has to be there.
+   notification icon next to shop on the landing page should open this page.
+   keep the page short. who the email should go to should be exactly as in
+   https://www.rapid-response.in/lab-animal-rules". Three things, then: why
+   (the hero and three asks), the letter (a flow, opened by its button), and
+   the sources under a plus. The portrait building and the shared count of
+   the uploaded design are left out: both need a server this site does not
+   have, and neither is needed to send a letter. */
+.lab-hero{background:var(--stone);border-bottom:1px solid var(--line);padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) 64px}
+.lab-hero h1.pfa-title.pfa-title{max-width:16ch}
+.lab-hero p.lab-lede{margin:26px 0 0;max-width:52ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.78)}
+.lab-acts{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;margin-top:32px}
+.lab-left{font-size:13px;color:var(--ink)}
+.lab-left b{font-weight:700}
+@media (max-width:720px){.lab-hero{padding-top:calc(var(--ann) + var(--nav) + 36px);padding-bottom:48px}}
+
+.band{padding:var(--band) var(--gutter)}
+.band__head h2{font-size:clamp(26px,3.2vw,46px);margin-top:14px;max-width:18ch}
+.lab-asks{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.45fr);column-gap:clamp(32px,5vw,88px);align-items:start}
+.lab-asks > .band__head{margin:0}
+.lab-points{margin:0;padding:0;list-style:none;display:grid;gap:0;border-top:1px solid var(--line)}
+.lab-points li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 12px;padding:20px 0;border-bottom:1px solid var(--line)}
+.lab-points .n{grid-row:span 2;font-family:var(--display);font-size:19px;color:rgba(17,17,17,.4);font-variant-numeric:tabular-nums}
+.lab-points h3{margin:0;font-size:15px;font-weight:700;line-height:1.4}
+.lab-points p{margin:0;font-size:14px;line-height:1.6;color:rgba(17,17,17,.78)}
+.lab-more{margin-top:18px;border-bottom:1px solid var(--line)}
+.lab-more summary{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:52px;cursor:pointer;list-style:none;font-size:14px;font-weight:600}
+.lab-more summary::-webkit-details-marker{display:none}
+.lab-more summary::after{content:"+";flex:none;display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--line);border-radius:50%;font-size:18px;font-weight:300;transition:transform .25s}
+.lab-more[open] summary::after{transform:rotate(45deg)}
+.lab-more summary .opt{color:var(--muted);font-weight:400}
+.lab-more .body{padding:0 0 18px;font-size:14px;line-height:1.65;color:rgba(17,17,17,.78)}
+.lab-more .body ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.lab-more .body a{border-bottom:1px solid rgba(17,17,17,.35)}
+.lab-more .body a:hover{border-bottom-color:var(--ink)}
+.lab-more .body p{margin:12px 0 0}
+@media (max-width:860px){.lab-asks{grid-template-columns:minmax(0,1fr)}.lab-asks > .band__head{margin-bottom:28px}}
+
+/* ---- the letter: closed until "Write your objection" opens it (assets/
+   chrome.js, PFAFlow), then two steps: who you are, and send */
+.lab-write{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.45fr);column-gap:clamp(32px,5vw,88px);align-items:start}
+.lab-write::before{content:"";grid-column:1 / -1;height:1px;background:var(--ink);margin-bottom:22px}
+.band.lab-write > .band__head{margin:0;padding-top:0;border-top:0}
+.lab-write > .band__head p.lab-note{margin:18px 0 0;max-width:40ch;font-size:14px;line-height:1.65;color:var(--muted)}
+.lab-form{display:grid;min-width:0;max-width:760px;margin:0}
+.lab-form .pfa-step{gap:22px}
+.lab-form h3{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(24px,2.4vw,34px);line-height:1.05;text-transform:uppercase;letter-spacing:.01em}
+.lab-form .ask{margin:-10px 0 0;font-size:14px;line-height:1.6;color:var(--muted)}
+.lab-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 18px}
+.field{display:grid;gap:8px;min-width:0;align-content:start}
+.field > label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;line-height:1.5}
+.field .opt{color:var(--muted);font-weight:400}
+.field input,.field textarea{width:100%;border:1px solid var(--line);background:#fff;padding:14px;font-family:inherit;font-size:14px;color:inherit;outline:none;border-radius:0;-webkit-appearance:none;appearance:none}
+.field textarea{line-height:1.55;resize:vertical}
+.field input:focus,.field textarea:focus{border-color:var(--ink)}
+.field .error{display:none;font-size:12px;line-height:1.5;color:#b3261e}
+.field.is-bad input,.field.is-bad textarea{border-color:#b3261e}
+.field.is-bad .error{display:block}
+.lab-to{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13px;line-height:1.5}
+.lab-to li{overflow-wrap:anywhere}
+.lab-to span{color:var(--muted)}
+.lab-ways{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;font-size:13px;color:var(--muted)}
+.lab-ways .link{font-size:13px}
+.lab-small{margin:0;font-size:13px;line-height:1.6;color:var(--muted)}
+.lab-status{margin:0;font-size:13px;line-height:1.5;color:var(--ink)}
+.lab-status[data-state="bad"]{color:#b3261e}
+.lab-after{display:grid;gap:12px;padding:20px 22px;border:1px solid var(--ink)}
+.lab-after h4{margin:0;font-family:var(--display);font-weight:400;font-size:22px;line-height:1.15}
+.lab-after p{margin:0;font-size:14px;line-height:1.6;color:rgba(17,17,17,.78)}
+.lab-after .acts{display:flex;flex-wrap:wrap;gap:12px}
+#write .pfa-steps__nav .btn{min-width:200px}
+@media (max-width:860px){.lab-write{grid-template-columns:minmax(0,1fr)}.band.lab-write > .band__head{margin-bottom:28px}}
+@media (max-width:620px){
+  .lab-row{grid-template-columns:minmax(0,1fr)}
+  #write .pfa-steps__nav .btn{flex:1 1 auto;min-width:0}
+  .lab-acts .btn{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
+@media (max-width:700px),(pointer:coarse){
+  
+}
+/* ---- end phone pass ---- */
+</style>
+<link rel="stylesheet" href="pfa-search.css">
+<script src="pfa-search.js" defer></script>
+<link rel="stylesheet" href="assets/pfa-theme.css">
+  <!-- seo:start  generated by scripts/build-seo.js - do not edit by hand -->
+  <link rel="canonical" href="https://peopleforanimalsindia.org/lab-animal-rules">
+  <meta property="og:site_name" content="People for Animals">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Speak up for animals">
+  <meta property="og:description" content="Object to India's draft Laboratory Animals Rules, 2026 (G.S.R. 864(E)) by 5 November 2026. Write your letter here and send it from your own email.">
+  <meta property="og:url" content="https://peopleforanimalsindia.org/lab-animal-rules">
+  <meta property="og:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="A People for Animals caregiver with a rescued animal">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@pfaindia">
+  <meta name="twitter:title" content="Speak up for animals">
+  <meta name="twitter:description" content="Object to India's draft Laboratory Animals Rules, 2026 (G.S.R. 864(E)) by 5 November 2026. Write your letter here and send it from your own email.">
+  <meta name="twitter:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://peopleforanimalsindia.org/"},{"@type":"ListItem","position":2,"name":"Speak up for animals","item":"https://peopleforanimalsindia.org/lab-animal-rules"}]}</script>
+  <!-- seo:end -->
+</head>
+<body>
+<script id="pfa-vis">
+(function (root) {
+'use strict';
+var KEY = 'pfa:visibility';
+var LOCKED = { index: 1, track: 2, search: 2 };
+var NOTICE = 'This page is not available right now.';
+var HOME = 'Go to the home page';
+var CSS_ID = 'pfa-vis-css';
+var ROBOTS_ID = 'pfa-vis-robots';
+var GONE_ID = 'pfa-gone';
+var PAGE = /^[a-z0-9][a-z0-9-]*$/;
+var PART = /^[A-Za-z][A-Za-z0-9_-]*$/;
+var applied = { version: 0, pages: [], modules: [] };
+var title = null;
+function pagesOf(state) {
+return (state && Array.isArray(state.pages) ? state.pages : []).filter(function (p) {
+return typeof p === 'string' && PAGE.test(p) && !LOCKED[p];
+});
+}
+function modulesOf(state) {
+return (state && Array.isArray(state.modules) ? state.modules : []).filter(function (m) {
+var at = typeof m === 'string' ? m.indexOf('#') : -1;
+return at > 0 && PAGE.test(m.slice(0, at)) && PART.test(m.slice(at + 1)) && LOCKED[m.slice(0, at)] !== 2;
+});
+}
+function clean(state) {
+return { version: Number(state && state.version) || 0, pages: pagesOf(state), modules: modulesOf(state) };
+}
+function pageOf(url) {
+var p = String(url == null ? '' : url).split('#')[0].split('?')[0];
+p = p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/, '');
+try { p = decodeURIComponent(p); } catch (e) {}
+return p || 'index';
+}
+function linksTo(page) {
+var f = page + '.html';
+return ['a[href="' + f + '"]', 'a[href^="' + f + '#"]', 'a[href^="' + f + '?"]',
+'a[href$="/' + f + '"]', 'a[href*="/' + f + '#"]', 'a[href*="/' + f + '?"]'];
+}
+function plan(state, page) {
+var s = clean(state);
+var here = String(page || 'index');
+var gone = s.pages.indexOf(here) > -1;
+var links = [];
+var own = [];
+var css = '';
+s.pages.forEach(function (p) { links = links.concat(linksTo(p)); });
+s.modules.forEach(function (m) {
+var at = m.indexOf('#');
+var p = m.slice(0, at);
+var id = m.slice(at + 1);
+links.push('a[href$="' + p + '.html#' + id + '"]');
+if (p === here) {
+own.push('[id="' + id + '"]', '[data-module="' + id + '"]');
+links.push('a[href="#' + id + '"]:not([aria-current])');
+}
+});
+if (gone) links.push('a[aria-current="page"]');
+if (own.length) css += own.join(',') + '{display:none!important}';
+if (links.length) {
+var list = links.join(',');
+css += list + '{display:none!important}';
+css += links.map(function (l) { return '.navitem>' + l; }).join(',') + '{display:revert!important;pointer-events:none;cursor:default}';
+css += 'li:has(>:is(' + list + '):only-child){display:none!important}';
+css += '.navitem:not(:has(.menu>a:not(' + list + '))){display:none!important}';
+css += '.mnav__group:not(:has(>a:not(' + list + '))){display:none!important}';
+css += '.pfa-footer__col:not(:has(li>a:not(' + list + '))){display:none!important}';
+css += '.menu-label:has(+a:is(' + list + ')),.menu-label:has(+a:is(' + list + '))~.menu-sep,.mnav__sub:has(+a:is(' + list + ')){display:none!important}';
+}
+if (gone) {
+css += 'body>:not(.announce):not(header):not(.pfa-footer):not(.mnav):not(.cursor-layer):not(.pfa-search):not(#pfa-gone){display:none!important}'
++ '#pfa-gone{display:block!important;box-sizing:border-box;min-height:62vh;padding:calc(var(--ann,34px) + var(--nav,81px) + 72px) var(--gutter,20px) 96px;text-align:center;color:var(--ink,#111);background:#fff}'
++ '#pfa-gone h1{font-family:var(--display,Georgia,serif);font-weight:400;font-size:clamp(28px,4vw,44px);line-height:1.15;margin:0 0 20px}'
++ '#pfa-gone p{margin:0;font-size:16px}'
++ '#pfa-gone a{color:inherit;text-decoration:underline;text-underline-offset:4px}';
+}
+return { css: css, gone: gone };
+}
+function blocked(url, state, anchors) {
+var s = clean(state || applied);
+var u = String(url == null ? '' : url);
+var page = pageOf(u);
+if (s.pages.indexOf(page) > -1) return true;
+var at = u.indexOf('#');
+if (at < 0 || !s.modules.length) return false;
+var hash = u.slice(at + 1);
+var part = (anchors && anchors[page] && anchors[page][hash]) || hash;
+return s.modules.indexOf(page + '#' + part) > -1;
+}
+function read() {
+try {
+var raw = root.localStorage.getItem(KEY);
+return raw ? clean(JSON.parse(raw)) : null;
+} catch (e) { return null; }
+}
+function save(state) {
+try { root.localStorage.setItem(KEY, JSON.stringify(clean(state))); } catch (e) {}
+}
+function drop(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
+function apply(state) {
+var d = root.document;
+if (!d || !d.head) return null;
+applied = clean(state);
+var p = plan(applied, pageOf(root.location && root.location.pathname));
+var tag = d.getElementById(CSS_ID);
+if (!tag && p.css) {
+tag = d.createElement('style');
+tag.setAttribute('id', CSS_ID);
+d.head.appendChild(tag);
+}
+if (tag) tag.textContent = p.css;
+var robots = d.getElementById(ROBOTS_ID);
+var box = d.getElementById(GONE_ID);
+if (p.gone) {
+if (!robots) {
+robots = d.createElement('meta');
+robots.setAttribute('id', ROBOTS_ID);
+robots.setAttribute('name', 'robots');
+robots.setAttribute('content', 'noindex');
+d.head.appendChild(robots);
+}
+if (!box && d.body) {
+box = d.createElement('div');
+box.setAttribute('id', GONE_ID);
+var h = d.createElement('h1');
+h.textContent = NOTICE;
+var line = d.createElement('p');
+var home = d.createElement('a');
+home.setAttribute('href', '/');
+home.textContent = HOME;
+line.appendChild(home);
+box.appendChild(h);
+box.appendChild(line);
+d.body.insertBefore(box, d.body.firstChild);
+}
+if (title === null) title = d.title;
+d.title = 'Not available right now · People for Animals';
+} else {
+drop(robots);
+drop(box);
+if (title !== null) { d.title = title; title = null; }
+}
+return p;
+}
+root.PFA_VISIBILITY = {
+KEY: KEY, LOCKED: LOCKED, NOTICE: NOTICE,
+clean: clean, pageOf: pageOf, plan: plan, blocked: blocked,
+read: read, save: save, apply: apply,
+state: function () { return applied; }
+};
+try {
+if (root.document && root.document.head) apply(read());
+} catch (e) {}
+}(this));
+</script>
+<div class="announce" id="announce" data-cursor="light">
+  <p>Every drive, camp and open day is free to attend</p>
+  <button type="button" aria-label="Close" id="annClose">✕</button>
+</div>
+<header class="site" id="header" data-cursor="dark">
+  <nav aria-label="Main navigation">
+    <a class="wordmark" href="index.html" aria-label="People for Animals"><img src="img/logo.png" alt="People for Animals" width="231" height="79"></a>
+    <div class="navlinks">
+      <div class="navitem">
+        <a href="units.html" data-nav="units.html">Our Work</a>
+        <div class="menu">
+          <a href="units.html" data-nav="units.html">Units: find help near you</a>
+          <a href="report.html" data-nav="report.html">Report cruelty</a>
+          <a href="newsroom.html" data-nav="newsroom.html">Newsroom and cases</a>
+          <a href="achievements.html" data-nav="achievements.html">Policies and achievements</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="laws.html" data-nav="laws.html">Learn</a>
+        <div class="menu">
+          <a href="laws.html" data-nav="laws.html">What the law says</a>
+          <a href="library.html" data-nav="library.html">Resources library</a>
+          <a href="academy.html" data-nav="academy.html">Academy</a>
+          <a href="someone.html" data-nav="someone.html">Someone, not something</a>
+          <a href="quiz.html" data-nav="quiz.html">Test yourself</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="get-involved.html" data-nav="get-involved.html">Get Involved</a>
+        <div class="menu">
+          <span class="menu-label">Join the tribe</span>
+          <a href="get-involved.html#volunteer" data-nav="get-involved.html#volunteer">Volunteer</a>
+          <a href="get-involved.html#membership" data-nav="get-involved.html#membership">Become a member</a>
+          <a href="get-involved.html#caregiver" data-nav="get-involved.html#caregiver">Colony caregiver</a>
+          <a href="campus.html" data-nav="campus.html">PFA Campus</a>
+          <span class="menu-sep" aria-hidden="true"></span>
+          <span class="menu-label">Give and partner</span>
+          <a href="campaign.html" data-nav="campaign.html">Plan a campaign</a>
+          <a href="legacy.html" data-nav="legacy.html">Leave a legacy</a>
+          <a href="csr.html" data-nav="csr.html">CSR partnerships</a>
+          <span class="menu-sep" aria-hidden="true"></span>
+          <a href="wall.html" data-nav="wall.html">The Wall</a>
+          <a href="events.html" data-nav="events.html">Events</a>
+          <a href="cinekind.html" data-nav="cinekind.html">CineKind</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="founder.html" data-nav="founder.html">About</a>
+        <div class="menu right">
+          <a href="founder.html" data-nav="founder.html">The founder</a>
+          <a href="sgacc.html" data-nav="sgacc.html">Sanjay Gandhi Animal Care Centre</a>
+          <a href="careers.html" data-nav="careers.html">Careers</a>
+          <a href="ask.html" data-nav="ask.html">Contact</a>
+        </div>
+      </div>
+      <a href="donate.html" data-nav="donate.html" class="donate">Donate</a>
+      <a href="shop.html" data-nav="shop.html" class="shop">Shop</a>
+    </div>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
+  </nav>
+</header>
+<script src="assets/chrome.js?v=cfa6fc50ea"></script>
+
+<main>
+
+  <section class="lab-hero" id="top">
+    <p class="eyebrow pfa-kicker">Public consultation · G.S.R. 864(E)</p>
+    <h1 class="pfa-title display">They cannot write this letter. You can.</h1>
+    <p class="lab-lede">India has drafted new rules for animals used in laboratories. Until 5 November 2026 anyone can object. Ask for independent oversight, protection for community animals, and alternatives to animal experiments, in a letter sent from your own email.</p>
+    <div class="lab-acts">
+      <a class="btn" href="#write" id="labOpen">Write your objection</a>
+      <span class="lab-left" id="labLeft" role="status">Last date <b>5 November 2026</b></span>
+    </div>
+  </section>
+
+  <section class="band lab-asks" id="asks">
+    <div class="band__head">
+      <p class="eyebrow">What to ask for</p>
+      <h2 class="display">Three changes.</h2>
+    </div>
+    <div>
+      <ol class="lab-points">
+        <li><span class="n" aria-hidden="true">01</span><h3>Keep oversight independent.</h3><p>The draft would let an institution's own ethics committee approve mild and moderate experiments. Ask for outside review and open severity assessments.</p></li>
+        <li><span class="n" aria-hidden="true">02</span><h3>Close the gaps in sourcing.</h3><p>Its exceptions for "stray or feral" animals need scrutiny. Ask for traceable sources, and no capture of community animals.</p></li>
+        <li><span class="n" aria-hidden="true">03</span><h3>Make alternatives the priority.</h3><p>Replacement, reduction and refinement must mean action: enforceable welfare standards, public reporting, and investment in methods without animals.</p></li>
+      </ol>
+      <details class="lab-more" id="sources">
+        <summary>The draft and the sources</summary>
+        <div class="body">
+          <ul>
+            <li><a href="https://animalwrites.in/wp-content/uploads/2026/10/draft-laboratory-animals-rules-2026.pdf" target="_blank" rel="noopener noreferrer">The Gazette notification: G.S.R. 864(E), 6 October 2026</a></li>
+            <li><a href="https://www.linkedin.com/pulse/we-have-until-5th-november-speak-up-animals-shreya-ghodawat--im3bc" target="_blank" rel="noopener noreferrer">Shreya Ghodawat: the case for stronger safeguards</a></li>
+            <li><a href="https://www.rapid-response.in/lab-animal-rules" target="_blank" rel="noopener noreferrer">Rapid Response: the public objection campaign</a></li>
+          </ul>
+          <p>The notification gives 30 days from publication for objections; the last date is 5 November 2026. These are proposals, not final rules, and the Gazette is the authoritative text.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- The letter. Its recipients are exactly those of
+       https://www.rapid-response.in/lab-animal-rules (owner, 22 Oct 2026):
+       seven addresses in To and gandhim in Cc, written once, in the script
+       below (TO and CC). test/lab-animal-rules.test.js holds them to it. -->
+  <section class="band lab-write" id="write" data-flow data-flow-back="Lab animal rules">
+    <div class="band__head">
+      <p class="eyebrow">One person, one letter</p>
+      <h2 class="display">Lend them your voice.</h2>
+      <p class="lab-note">It opens in your own email, filled in. You read it, then press Send. Nothing you type here is sent to or kept by this site.</p>
+    </div>
+    <form class="lab-form" id="labForm" data-steps novalidate>
+      <ol class="pfa-steps__tabs" aria-hidden="true"><li><span>01</span>You</li><li><span>02</span>Send</li></ol>
+      <div class="pfa-steps__bar" aria-hidden="true"><span></span></div>
+
+      <div class="pfa-step" data-step="You">
+        <h3>Your name and city</h3>
+        <p class="ask">Objections from named people are the ones recorded.</p>
+        <div class="lab-row">
+          <div class="field"><label for="labName">Your full name</label><input id="labName" name="name" autocomplete="name" required><span class="error">Add your name.</span></div>
+          <div class="field"><label for="labCity">City or town</label><input id="labCity" name="city" autocomplete="address-level2" required><span class="error">Add your city or town.</span></div>
+        </div>
+        <div class="field"><label for="labOwn">A line in your own words <span class="opt">(optional)</span></label><textarea id="labOwn" rows="3" maxlength="1000" placeholder="Why stronger protection matters to you"></textarea></div>
+      </div>
+
+      <div class="pfa-step" data-step="Send">
+        <h3>Send it from your email</h3>
+        <p class="ask">Your email opens with the letter filled in. Read it, then press Send.</p>
+        <details class="lab-more">
+          <summary><span>Who it goes to <span class="opt" id="labToCount"></span></span></summary>
+          <div class="body"><ul class="lab-to" id="labTo"></ul></div>
+        </details>
+        <details class="lab-more">
+          <summary><span>Read the letter <span class="opt">(you can change anything)</span></span></summary>
+          <div class="body">
+            <div class="field"><label for="labSubject">Subject</label><input id="labSubject" maxlength="180"></div>
+            <div class="field"><label for="labLetter">The letter</label><textarea id="labLetter" rows="16" maxlength="12000"></textarea></div>
+            <p class="lab-small" id="labEdited" hidden>You changed the letter, so your name and city above no longer update it. <button type="button" class="link" id="labReset">Start again</button></p>
+          </div>
+        </details>
+        <div class="lab-ways" id="labWays"><span>No email app on this device? Use</span><button type="button" class="link" data-way="gmail">Gmail</button><button type="button" class="link" data-way="outlook">Outlook</button><span>or</span><button type="button" class="link" data-way="copy">copy it</button></div>
+        <p class="lab-status" id="labStatus" role="status" aria-live="polite"></p>
+        <div class="lab-after" id="labAfter" hidden>
+          <h4>Did your email go?</h4>
+          <p>Opening it does not send it: press Send in your email app. Then ask three people to write their own.</p>
+          <div class="acts"><a class="btn btn--light" id="labShare" href="https://wa.me/" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a><button type="button" class="btn btn--light" id="labCopyLink">Copy the page link</button></div>
+        </div>
+      </div>
+
+      <div class="pfa-steps__nav">
+        <button class="pfa-steps__back" type="button" data-step-back hidden>Back</button>
+        <button class="btn" type="button" data-step-next>Continue</button>
+        <button class="btn" type="submit" id="labSend" hidden>Open my email app</button>
+        <span class="pfa-steps__count" data-step-count></span>
+      </div>
+      <p class="lab-small" id="labClosed" hidden>The consultation closed on 5 November 2026. You can still read and copy the letter.</p>
+    </form>
+  </section>
+
+</main>
+
+<footer class="pfa-footer" data-cursor="dark" id="donate" data-screen-label="Footer">
+  <!-- Redrawn on 9 Oct 2026 (owner: "footer looking nasty"), then cut back
+       the same day (owner, the PFA name large in the header and again large
+       in the footer, under a form: "pfa on top and again below.. looks
+       confusing"). The header is where PFA's name and Donate live; the
+       footer is the directory: the office with the social links, five link
+       groups each opened by a pop tick and a label, and the legal line with
+       the privacy policy. It stands on the page's gutter, with the header.
+
+       The groups follow the header: Our Work, Learn, Get Involved, then its
+       "Give and partner" list as a group of its own, and About.
+
+       Every block is block-level in the markup: assets/ is cached for an hour
+       and the HTML is not, so for up to an hour after a deploy this markup
+       meets the previous chrome.css, and it still reads top to bottom. -->
+  <div class="pfa-footer__grid">
+    <div class="pfa-footer__office">
+      <p class="pfa-footer__label">Registered office</p>
+      <!-- As published on peopleforanimalsindia.org. tel: and mailto: so a
+           phone dials and a mail client opens; the numbers hold together with
+           non-breaking spaces, because a number split across two lines cannot
+           be dialled. -->
+      <address class="pfa-footer__where" id="contact">
+        <div>4-T, DCM Building, 16 Barakhamba Road, New Delhi 110001, India</div>
+        <div class="pfa-footer__tel"><a href="tel:+911120818191">+91&nbsp;11&nbsp;2081&nbsp;8191</a><span class="pfa-footer__dot"> · </span><a href="tel:+911120818194">+91&nbsp;11&nbsp;2081&nbsp;8194</a></div>
+        <div><a href="mailto:gandhim@exmpls.sansad.in">gandhim@exmpls.sansad.in</a></div>
+      </address>
+      <nav class="pfa-footer__social" aria-label="Social media">
+        <a href="https://www.instagram.com/pfa.official/" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a href="https://www.facebook.com/people4animals/" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://x.com/pfaindia" target="_blank" rel="noopener noreferrer">X</a>
+        <a href="https://www.youtube.com/@peopleforanimals9047" target="_blank" rel="noopener noreferrer">YouTube</a>
+      </nav>
+      <!-- Real count, from /api/visits. Hidden until a number actually
+           arrives, so a counter that cannot reach the server shows nothing
+           rather than a zero or an invented figure. No caption; the
+           aria-label names it for a screen reader. -->
+      <div class="pfa-tally" id="pfaTally" hidden>
+        <div class="pfa-tally__odo" id="pfaTallyOdo" role="status" aria-live="polite" aria-label="Visit counter"></div>
+      </div>
+    </div>
+    <nav class="pfa-footer__col" aria-label="Our Work">
+      <p class="pfa-footer__label">Our Work</p>
+      <ul>
+        <li><a href="units.html">Units near you</a></li>
+        <li><a href="report.html">Report cruelty</a></li>
+        <li><a href="newsroom.html">Newsroom and cases</a></li>
+        <li><a href="achievements.html">Policies and achievements</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Learn">
+      <p class="pfa-footer__label">Learn</p>
+      <ul>
+        <li><a href="laws.html">What the law says</a></li>
+        <li><a href="library.html">Resources library</a></li>
+        <li><a href="academy.html">Academy</a></li>
+        <li><a href="quiz.html">Test yourself</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Get Involved">
+      <p class="pfa-footer__label">Get Involved</p>
+      <ul>
+        <li><a href="get-involved.html#volunteer">Volunteer</a></li>
+        <li><a href="get-involved.html#membership">Become a member</a></li>
+        <li><a href="caregiver-card.html">Colony caregiver card</a></li>
+        <li><a href="campus.html">PFA Campus</a></li>
+        <li><a href="wall.html">The Wall</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="cinekind.html">CineKind</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Give and partner">
+      <p class="pfa-footer__label">Give and partner</p>
+      <ul>
+        <li><a href="donate.html">Donate</a></li>
+        <li><a href="donate.html?gift=1">Make a gift</a></li>
+        <li><a href="campaign.html">Plan a campaign</a></li>
+        <li><a href="legacy.html">Leave a legacy</a></li>
+        <li><a href="csr.html">CSR partnerships</a></li>
+        <li><a href="shop.html">Shop</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="About">
+      <p class="pfa-footer__label">About</p>
+      <ul>
+        <li><a href="founder.html">Founder</a></li>
+        <li><a href="sgacc.html">Animal Care Centre</a></li>
+        <li><a href="careers.html">Careers</a></li>
+        <li><a href="ask.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="pfa-footer__base">
+    <p>People for Animals © 2026</p>
+    <p>Registered charity · All donations tax-deductible</p>
+    <p><a href="privacy.html">Privacy policy</a></p>
+  </div>
+</footer>
+
+<script src="assets/field-rules.js"></script>
+<script src="assets/field-validate.js"></script>
+<script>
+/* The objection letter (#write). It is written in the page, opened in the
+   visitor's own email and sent by them: nothing is posted to this site. The
+   recipients are exactly those of rapid-response.in/lab-animal-rules
+   (owner, 22 Oct 2026), and are written once, here. */
+(function(){
+  'use strict';
+  var TO = ['cpcsea-mef@gov.in', 'js-nlm@dahd.nic.in', 'sk.dutta@nic.in', 'minister-fahdpr@nic.in', 'rrsingh@sansad.nic.in', 'mos-fahd@dahd.nic.in', 'secyahd@nic.in'];
+  var CC = ['gandhim@exmpls.sansad.in'];
+  var SUBJECT = 'Objections to draft Laboratory Animals Rules, 2026, G.S.R. 864(E)';
+  var PAGE = 'https://peopleforanimalsindia.org/lab-animal-rules';
+  /* the end of 5 November, India time */
+  var CLOSES = Date.UTC(2026, 10, 6) - 5.5 * 3600e3;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var form = $('labForm');
+  if (!form) return;
+  var edited = false;
+
+  function letter(){
+    var name = $('labName').value.trim() || '[Your full name]';
+    var city = $('labCity').value.trim() || '[Your city]';
+    var own = $('labOwn').value.trim();
+    return [
+      'To',
+      'The Secretary, Department of Animal Husbandry and Dairying, Government of India',
+      'Through: The Member Secretary, CCSEA',
+      '',
+      'Sir/Madam,',
+      '',
+      'I am ' + name + ', a resident of ' + city + '. I submit my objections and suggestions on the draft Prevention of Cruelty to Animals (Control and Supervision of Experiment, Breeding and Trading of Laboratory Animals) Rules, 2026, notified as G.S.R. 864(E) on 6 October 2026.',
+      '',
+      'Please revise the draft before finalisation to strengthen animal protection. I request:',
+      '',
+      '1. Independent review of experiments and severity assessments, with safeguards against conflicts of interest when institutions authorise their own work.',
+      '',
+      '2. Clear, enforceable protection for stray and feral animals, and strict traceability and scrutiny of every animal source. Exceptions must not enable capture or exploitation of community animals.',
+      '',
+      '3. Mandatory pain prevention, veterinary supervision, humane endpoints and transparent compliance monitoring, with effective action against violations.',
+      '',
+      '4. A demonstrable search for scientifically suitable non-animal methods before authorising animal use, measurable reduction targets and investment in replacement methods.',
+      '',
+      '5. Publicly accessible, non-identifying summaries of animal use, severity, inspections and compliance, alongside meaningful independent animal-welfare representation.',
+      own ? '\n' + own : '',
+      '',
+      'I ask that these concerns be considered and that a reasoned response to public submissions be published. Scientific progress should reduce avoidable suffering. Please strengthen the rules accordingly, and acknowledge receipt of this objection.',
+      '',
+      'Yours faithfully,',
+      name,
+      city
+    ].join('\n').replace(/\n{3,}/g, '\n\n');
+  }
+  function refresh(){ if (!edited) $('labLetter').value = letter(); }
+  function subject(){ return $('labSubject').value.trim() || SUBJECT; }
+  function body(){ return edited ? $('labLetter').value : letter(); }
+  function closed(){ return Date.now() >= CLOSES; }
+
+  $('labSubject').value = SUBJECT;
+  $('labToCount').textContent = '(' + (TO.length + CC.length) + ' addresses)';
+  var list = $('labTo');
+  TO.forEach(function(a){ var li = document.createElement('li'); li.textContent = a; list.appendChild(li); });
+  CC.forEach(function(a){ var li = document.createElement('li'); li.textContent = a + ' '; var s = document.createElement('span'); s.textContent = '(cc)'; li.appendChild(s); list.appendChild(li); });
+  refresh();
+  ['labName', 'labCity', 'labOwn'].forEach(function(id){ $(id).addEventListener('input', refresh); $(id).addEventListener('blur', function(){ setTimeout(refresh, 0); }); });
+  $('labLetter').addEventListener('input', function(){ edited = true; $('labEdited').hidden = false; });
+  $('labReset').addEventListener('click', function(){ edited = false; $('labEdited').hidden = true; refresh(); });
+
+  /* the ways to send: every one carries the same To, Cc, subject and letter */
+  function enc(s){ return encodeURIComponent(String(s).replace(/\r?\n/g, '\r\n')); }
+  var WAYS = {
+    app: function(s, b){ return 'mailto:' + TO.join(',') + '?cc=' + encodeURIComponent(CC.join(',')) + '&subject=' + enc(s) + '&body=' + enc(b); },
+    gmail: function(s, b){ return 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(TO.join(',')) + '&cc=' + encodeURIComponent(CC.join(',')) + '&su=' + enc(s) + '&body=' + enc(b); },
+    outlook: function(s, b){ return 'https://outlook.live.com/mail/0/deeplink/compose?to=' + encodeURIComponent(TO.join(',')) + '&cc=' + encodeURIComponent(CC.join(',')) + '&subject=' + enc(s) + '&body=' + enc(b); }
+  };
+  function say(text, bad){ $('labStatus').textContent = text || ''; $('labStatus').setAttribute('data-state', bad ? 'bad' : ''); }
+  function named(){
+    var bad = null;
+    ['labName', 'labCity'].forEach(function(id){
+      var el = $(id), miss = !el.value.trim();
+      el.closest('.field').classList.toggle('is-bad', miss);
+      if (miss && !bad) bad = el;
+    });
+    return bad;
+  }
+  function after(){ $('labAfter').hidden = false; }
+  function copy(text){
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text).then(function(){ return true; }, function(){ return false; });
+    var t = document.createElement('textarea');
+    t.value = text; t.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(t); t.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+    t.remove();
+    return Promise.resolve(ok);
+  }
+  function send(way){
+    if (closed()){ say('The consultation closed on 5 November 2026.', true); return; }
+    var bad = named();
+    if (bad && !edited){ say('Add your name and city first.', true); return; }
+    say('');
+    var s = subject(), b = body();
+    if (way === 'copy'){
+      copy('To: ' + TO.join(', ') + '\nCc: ' + CC.join(', ') + '\nSubject: ' + s + '\n\n' + b).then(function(ok){
+        say(ok ? 'Copied. Paste it into a new email, check the addresses, then press Send.' : 'Copy did not work here. Open "Who it goes to" and "Read the letter" and copy them by hand.', !ok);
+        if (ok) after();
+      });
+      return;
+    }
+    var url = WAYS[way](s, b);
+    after();
+    if (way === 'app') window.location.href = url;
+    else window.open(url, '_blank', 'noopener');
+  }
+  form.addEventListener('submit', function(e){ e.preventDefault(); send('app'); });
+  [].forEach.call(document.querySelectorAll('#labWays [data-way]'), function(b){ b.addEventListener('click', function(){ send(b.getAttribute('data-way')); }); });
+
+  $('labShare').href = 'https://wa.me/?text=' + encodeURIComponent('Speak up for animals. Object to the draft Laboratory Animals Rules, 2026, by 5 November 2026: ' + PAGE);
+  $('labCopyLink').addEventListener('click', function(){
+    copy(PAGE).then(function(ok){ $('labCopyLink').textContent = ok ? 'Link copied' : PAGE; });
+  });
+
+  /* how long is left, and after the last day, a letter to read, not to send */
+  function days(){
+    var left = CLOSES - Date.now();
+    if (left <= 0){
+      $('labLeft').innerHTML = 'Closed on <b>5 November 2026</b>';
+      $('labOpen').textContent = 'Read the letter';
+      $('labClosed').hidden = false;
+      $('labSend').disabled = true;
+      $('labWays').hidden = true;
+      return;
+    }
+    var n = Math.ceil(left / 864e5);
+    $('labLeft').innerHTML = (n === 1 ? '<b>Last day</b> to object' : '<b>' + n + ' days</b> left to object') + ', until 5 November 2026';
+  }
+  days();
+  setInterval(days, 60000);
+})();
+</script>
+</body>
+</html>

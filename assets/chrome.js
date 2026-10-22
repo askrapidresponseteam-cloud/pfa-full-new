@@ -1263,3 +1263,23 @@
     if (phone.addEventListener) phone.addEventListener('change', apply); else if (phone.addListener) phone.addListener(apply);
   });
 })();
+
+/* ---------- what ends on a date ------------------------------------------
+   The bell beside Shop opens an appeal that closes on a date (22 Oct 2026,
+   the lab animal rules, until the end of 5 November). Anything in the page
+   carrying data-until is taken away once that moment has passed, so an
+   appeal that has closed is not still being rung for the day after, and
+   nothing has to be shipped on the day. A date that cannot be read leaves
+   the element where it is. */
+(function () {
+  'use strict';
+  function sweep() {
+    var now = Date.now();
+    [].forEach.call(document.querySelectorAll('[data-until]'), function (el) {
+      var at = Date.parse(el.getAttribute('data-until'));
+      if (!isNaN(at) && now >= at && el.parentNode) el.parentNode.removeChild(el);
+    });
+  }
+  sweep();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sweep, { once: true });
+})();

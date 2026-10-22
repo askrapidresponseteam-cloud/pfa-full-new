@@ -7,6 +7,8 @@
                      it .in-section when the page belongs to that group, and
                      never aria-current (the menu item below it carries that)
        {{CURRENT:x}} a destination; sync-chrome marks the page's own
+       {{ALERT}}     the bell beside Shop, on the pages whose PAGES entry has
+                     an alert (the home page): it opens the current appeal
        -->
 {{VISIBILITY}}
 {{ANNOUNCE}}
@@ -63,6 +65,7 @@
       </div>
       {{CURRENT:donate.html|Donate|donate}}
       {{CURRENT:shop.html|Shop|shop}}
+      {{ALERT}}
     </div>
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
