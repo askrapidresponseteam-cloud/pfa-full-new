@@ -72,7 +72,11 @@ test('achievements, the founder gallery and the newsroom case photos show every 
     }
     return null;
   };
+  /* media/site/sgacc stays in the repository and out of the zip (KEEP_EXCLUDES
+     in scripts/ship.sh): from an unpacked zip the shapes cannot be read, and
+     are checked where the pictures are */
   for (const [, r, src] of frames) {
+    if (!fs.existsSync(path.join(ROOT, src))) continue;
     const s = jpegSize(path.join(ROOT, src));
     assert.ok(s, `${src} read`);
     assert.ok(Math.abs(s.w / s.h - Number(r)) < 0.01, `${src}: --r ${r} is its own shape (${s.w}x${s.h})`);
