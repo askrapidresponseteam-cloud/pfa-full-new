@@ -259,7 +259,7 @@ function compressJS(src, label) {
 /* api/ and lib/ are the serverless function's source; Vercel builds it from
    the project root, and everything under dist/ is served as a public file.
    So server code never goes into dist/, nor do the deploy configs. */
-const SKIP_DIRS = new Set(['dist', 'public', 'node_modules', 'test', 'scripts', 'tools', '_inline-extracts', '_retired-assets', '.claude', '.git', '.github', '.vercel', 'functions', 'api', 'lib']);
+const SKIP_DIRS = new Set(['dist', 'public', 'node_modules', 'test', 'scripts', 'tools', '_inline-extracts', '_retired-assets', '.git', '.github', '.vercel', 'functions', 'api', 'lib']);
 /* robots.txt is the one .txt that must ship: it is what keeps admin.html out of
    search results, and until 30 Aug 2026 the .txt rule below silently dropped it. */
 /* Two .txt files must ship. robots.txt is what keeps admin.html out of search

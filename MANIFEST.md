@@ -13,7 +13,6 @@ Together the two zips reconstitute the original archive exactly.
 
 | Path | Files | Size |
 | --- | ---: | ---: |
-| `.claude/` | 1 | 5 KB |
 | `_inline-extracts/` | 9 | 273 KB |
 | `_retired-assets/` | 14 | scripts no page loads; see its README |
 | `api/` | 1 | 6 KB |

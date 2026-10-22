@@ -15,7 +15,7 @@
 
    It CANNOT tell you whether a section number is the right section, whether a
    holding is stated accurately, or whether a rule has been amended since. **No
-   script, and no assistant, can certify this page as legally correct.** That
+   script can certify this page as legally correct.** That
    needs an advocate practising in this area, and this report exists to make
    their pass shorter by putting every provision and every answer that relies
    on it in one list. */

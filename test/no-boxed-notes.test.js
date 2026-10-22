@@ -3,9 +3,9 @@
 /* No boxed notes, anywhere on the site.
 
    Owner, 9 Oct 2026, of the Academy's "Careful" block (a pink tint, a red
-   bar down its left edge and a small-caps CAREFUL over the sentence): "this
-   is so claude like look. never have such a giveaway in any place on the
-   website". The stock note box is what generated pages look like. A warning,
+   bar down its left edge and a small-caps CAREFUL over the sentence): it looked
+   like a stock template, and nothing like it belongs anywhere on the
+   website. The stock note box is what template pages look like. A warning,
    an instruction or a standing note is set the way a printed guide sets it:
    a sentence that starts with its bold word. "Careful. Never give an
    injectable by mouth ...". These hold that: no bar down the left of

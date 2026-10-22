@@ -156,7 +156,7 @@ tracking link, and a direct link to the order in Shopify; search by
 
 **Working folder is `~/PFA_Full_Website`** (a git clone). Not the Desktop -
 the Desktop copy was wiped twice on 22 Aug, most likely by iCloud Desktop sync.
-Changes from Claude arrive as small `.patch` files: `patch -p1 < file.patch`,
+Changes arrive as small `.patch` files: `patch -p1 < file.patch`,
 then `npm test`, commit, push.
 
 **Deploy by `git push` only.** The Vercel project is connected to GitHub and
@@ -429,7 +429,7 @@ New collections added 22 Aug: `storeOrders` (admin-readable),
 | `test/shopify-webhooks.test.js` | Full order lifecycle tests |
 | `firestore.rules` | Access rules incl. new store collections |
 | `ARCHITECTURE.md` | Architecture and security reference |
-| `.claude/skills/pfa-website/SKILL.md` | Instructions for AI assistants working on this repo |
+| `CONTRIBUTING.md` | Working rules for anyone changing this repo |
 
 ## 10. Adding an event to the events page
 

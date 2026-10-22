@@ -2,7 +2,7 @@
 
 /* How the site speaks about animals (owner, 5 Oct 2026): as sentient beings
    whose safety, welfare and humane treatment stay central, with facts kept
-   as facts. The full rules are in .claude/skills/pfa-website/SKILL.md. This
+   as facts. The full rules are in CONTRIBUTING.md. This
    holds the phrasing that must never come back into what a visitor reads. */
 
 const test = require('node:test');

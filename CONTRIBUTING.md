@@ -1,9 +1,4 @@
----
-name: pfa-website
-description: Working rules for the People for Animals (PFA) website repo - a static site plus ONE Vercel serverless function on the Hobby plan, with CCAvenue payments, Firestore, and a Shopify (Paws & Tails) store integration. Use whenever editing, deploying, or debugging this repository.
----
-
-# PFA website - rules for assistants
+# PFA website - working rules
 
 Read `HANDBOOK.md` (operations) and `ARCHITECTURE.md` (design + security) at the repo root first. The non-negotiables:
 
