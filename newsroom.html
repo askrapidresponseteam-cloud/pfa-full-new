@@ -344,6 +344,18 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 @media (max-width:900px){.nr-front{grid-template-columns:minmax(0,1fr)}.nr-tile--lead{min-height:400px}.nr-front__side{grid-template-rows:none;grid-auto-rows:minmax(230px,auto)}}
 @media (max-width:720px){.nr-mast{padding-top:calc(var(--ann) + var(--nav) + 36px)}}
 @media (max-width:560px){.nr-front__side{grid-template-columns:minmax(0,1fr)}.nr-tile--wide{grid-column:auto}.nr-tile--lead{min-height:420px}.nr-strap{justify-content:center;text-align:center}.nr-desks{justify-content:center}}
+/* On a phone the headline laid over a photograph covered the people in it:
+   the protest at the gates is a crowd, and its headline sat across a row of
+   faces (22 Oct 2026: "fix these kinda issues comprehensively"). The
+   photograph comes first, whole and undarkened, and the words follow on
+   the tile's dark ground. To 900px wide, where the front is one column: at
+   768 the same headline sat on the same crowd. */
+@media (max-width:900px){
+  .nr-tile--photo,.nr-tile--photo.nr-tile--lead{justify-content:flex-start;min-height:0;background:#111;color:#fff}
+  .nr-tile--photo .nr-tile__img{position:relative;inset:auto;aspect-ratio:4/3}
+  .nr-tile--photo .nr-tile__body{padding:16px 18px 20px;background:none}
+  .nr-tile--photo[data-noimg]{background:var(--nr-tint);color:var(--nr-ink)}
+}
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
   .search{height:44px}

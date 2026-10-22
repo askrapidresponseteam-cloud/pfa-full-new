@@ -640,6 +640,25 @@ html{scroll-behavior:smooth}
 .honours .roll li.reveal.is-in{transition:transform .55s cubic-bezier(.2,.7,.2,1),opacity .55s ease,outline-color .3s}
 @media (max-width:860px){.honours .roll{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:560px){.honours .roll{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.honours .roll li{aspect-ratio:4/5}.honours .roll .cap{left:12px;right:12px;bottom:12px;gap:5px}.honours .roll .t{font-size:9.5px}.honours .roll .w{font-size:15px}}
+/* On a phone the two-across cards are small, and the award and name laid
+   over the foot of the photograph covered the faces of anyone standing low in
+   it (Genelia Deshmukh's, 22 Oct 2026: "fix these kinda issues
+   comprehensively"). The words go under the photograph instead, on the
+   card's own dark ground, number and all; the photograph keeps its shape and
+   is not darkened. To 1100px wide, where the roll is two or four across:
+   at 768 Amit Rai's face was under his own name. */
+@media (max-width:1100px){
+  .honours .roll li{aspect-ratio:auto;display:flex;flex-direction:column}
+  .honours .roll img{position:relative;inset:auto;flex:none;height:auto;aspect-ratio:3/4}
+  .honours .roll li::after{display:none}
+  .honours .roll .n{position:static;order:1;padding:12px 14px 0;font-size:12px}
+  .honours .roll .cap{position:static;order:2;padding:6px 14px 16px}
+}
+@media (max-width:560px){
+  .honours .roll img{aspect-ratio:4/5}
+  .honours .roll .n{padding:10px 12px 0}
+  .honours .roll .cap{padding:5px 12px 14px}
+}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.honours .roll li,.honours .roll img{transition:none}}
 
 

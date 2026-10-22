@@ -182,3 +182,44 @@ test('the footer\'s numbers, email and social links are thumb-sized on a phone, 
   assert.match(css, /\.pfa-footer__where a::after,\.pfa-flow-bar__help::after\{content:"";position:absolute;left:-4px;right:-4px;top:-12px;bottom:-12px\}/);
   assert.match(css, /\.pfa-footer__social a::after\{content:"";position:absolute;left:-10px;right:-10px;top:-6px;bottom:-6px\}/);
 });
+
+/* ---- words on faces ---------------------------------------------------------- */
+
+/* Owner, 22 Oct 2026: "on mobile screens the limited edition label is sitting
+   on people's faces in the shop section., can you fix this.. fix these kinda
+   issues comprehensively". Every page was photographed at 360, 390, 768 and
+   1440 wide with the words over each picture hidden, faces were found in
+   what was under them, and the words that sat on a face were moved. */
+
+test('shop: the edition label is over the name, never on the photograph', () => {
+  const doc = new JSDOM(read('shop.html')).window.document;
+  const items = [...doc.querySelectorAll('article.item')];
+  assert.ok(items.length >= 15);
+  assert.equal(doc.querySelectorAll('.item__media .item__tag').length, 0, 'no label inside a picture');
+  const tagged = items.filter((it) => it.querySelector('.item__tag'));
+  assert.ok(tagged.length >= 15);
+  tagged.forEach((it) => {
+    const tag = it.querySelector('.item__tag');
+    assert.ok(tag.parentElement.classList.contains('item__bd'), `${it.id}: in the card's words`);
+    assert.ok(tag.nextElementSibling && tag.nextElementSibling.classList.contains('item__name'), `${it.id}: just over the name`);
+  });
+  assert.doesNotMatch(read('shop.html'), /\.item__tag\{position:absolute/);
+});
+
+test('CineKind: on a phone the honours cards carry the award and name under the photograph', () => {
+  const html = read('cinekind.html');
+  const at = html.indexOf('.honours .roll li{aspect-ratio:auto;display:flex;flex-direction:column}');
+  assert.ok(at > 0);
+  const block = html.slice(html.lastIndexOf('@media (max-width:1100px){', at), html.indexOf('}\n}', at) + 3);
+  assert.match(block, /\.honours \.roll \.n\{position:static/, 'the number too');
+  assert.match(block, /\.honours \.roll \.cap\{position:static/);
+  assert.match(block, /\.honours \.roll li::after\{display:none\}/, 'and the photograph is not darkened');
+});
+
+test('Newsroom: on a phone a photograph tile shows the photograph whole, then its headline', () => {
+  const html = read('newsroom.html');
+  const at = html.indexOf('.nr-tile--photo .nr-tile__img{position:relative;inset:auto;aspect-ratio:4/3}');
+  assert.ok(at > 0);
+  assert.ok(html.lastIndexOf('@media (max-width:900px){', at) > at - 200, 'to 900px wide');
+  assert.match(html, /\.nr-tile--photo \.nr-tile__body\{padding:16px 18px 20px;background:none\}/);
+});

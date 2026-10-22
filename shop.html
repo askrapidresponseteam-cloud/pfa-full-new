@@ -160,7 +160,11 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .item__fallback{position:absolute;inset:0;display:none;place-items:center;padding:12%;font-family:var(--display);font-size:clamp(22px,2vw,30px);line-height:1.05;text-transform:uppercase;text-align:center;color:var(--ink)}
 .item__media.is-bare .item__fallback{display:grid}
 .item__media.is-bare img{display:none}
-.item__tag{position:absolute;left:10px;top:10px;padding:5px 8px;background:#fff;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+/* The edition label sits over the name, not on the photograph (owner,
+   22 Oct 2026: "on mobile screens the limited edition label is sitting on
+   people's faces in the shop section"). It sat in the photograph's top left
+   corner, which in a picture of someone wearing the shirt is their head. */
+.item__tag{align-self:flex-start;margin:0 0 9px;padding:4px 7px 3px;border:1px solid var(--ink);font-size:10px;font-weight:700;letter-spacing:.14em;line-height:1.2;text-transform:uppercase;color:var(--ink)}
 .item__bd{display:flex;flex-direction:column;flex:1;padding-top:16px}
 .item__name{font-size:clamp(16px,1.25vw,19px);line-height:1.12}
 .item__name a:hover{opacity:.65}
@@ -665,9 +669,9 @@ if (root.document && root.document.head) apply(read());
         <button class="item__media" type="button" data-open aria-label="Look closer at Sabyasachi x PFA">
           <img class="item__img" src="media/shop/v2/sabyasachi-x-pfa-front.webp" alt="Sabyasachi x PFA T-shirt" loading="eager" decoding="async">
           <span class="item__fallback" aria-hidden="true">Sabyasachi</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#sabyasachi" data-open>Sabyasachi x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -688,9 +692,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/1745704396.webp" alt="Gaurav Gupta x PFA T-shirt" loading="eager" decoding="async">
           <img class="item__alt" src="media/shop/160937322-1744522642.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Gaurav Gupta</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#gaurav-gupta" data-open>Gaurav Gupta x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -711,9 +715,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/v2/t-shirt-red-front.webp" alt="PFA logo T-shirt" loading="eager" decoding="async">
           <img class="item__alt" src="media/shop/v2/t-shirt-red-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">People for Animals</span>
-          <span class="item__tag">Everyday</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Everyday</span>
           <h3 class="item__name display"><a href="#pfa-logo-tee" data-open>PFA logo T-shirt</a></h3>
           <p class="item__meta dots"><span>Logo T-shirt</span><span>colour chosen for you at dispatch</span></p>
           <p class="item__price"><b>₹350</b> <s class="item__was">₹450</s> <span class="item__off">22% off</span></p>
@@ -734,9 +738,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/1745706391.webp" alt="Varun Bahl x PFA T-shirt" loading="eager" decoding="async">
           <img class="item__alt" src="media/shop/1662351743-1744522686.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Varun Bahl</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#varun-bahl" data-open>Varun Bahl x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -756,9 +760,9 @@ if (root.document && root.document.head) apply(read());
         <button class="item__media" type="button" data-open aria-label="Look closer at Rocky Star x PFA">
           <img class="item__img" src="media/shop/v2/rocky-star-x-pfa-front.webp" alt="Rocky Star x PFA T-shirt" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Rocky Star</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#rocky-star" data-open>Rocky Star x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -779,9 +783,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/v2/geisha-designs-x-pfa-front.webp" alt="Geisha Designs x PFA T-shirt" loading="lazy" decoding="async">
           <img class="item__alt" src="media/shop/v2/geisha-designs-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Geisha Designs</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#geisha-designs" data-open>Geisha Designs x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -802,9 +806,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/v2/muzaffar-ali-x-pfa-front.webp" alt="Muzaffar Ali x PFA T-shirt" loading="lazy" decoding="async">
           <img class="item__alt" src="media/shop/v2/muzaffar-ali-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Muzaffar Ali</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#muzaffar-ali" data-open>Muzaffar Ali x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -825,9 +829,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/v2/nida-mahmood-x-pfa-front.webp" alt="Nida Mahmood x PFA T-shirt" loading="lazy" decoding="async">
           <img class="item__alt" src="media/shop/v2/nida-mahmood-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Nida Mahmood</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#nida-mahmood" data-open>Nida Mahmood x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -848,9 +852,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/v2/j-j-valaya-x-pfa-front.webp" alt="J J Valaya x PFA T-shirt" loading="lazy" decoding="async">
           <img class="item__alt" src="media/shop/v2/j-j-valaya-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">J J Valaya</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#jj-valaya" data-open>J J Valaya x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -871,9 +875,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/v2/gaurav-gupta-x-pfa-charcoal-front.webp" alt="Gaurav Gupta x PFA, Charcoal T-shirt" loading="lazy" decoding="async">
           <img class="item__alt" src="media/shop/v2/gaurav-gupta-x-pfa-charcoal-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Gaurav Gupta</span>
-          <span class="item__tag">Charcoal</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Charcoal</span>
           <h3 class="item__name display"><a href="#gaurav-gupta-charcoal" data-open>Gaurav Gupta x PFA, Charcoal</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -893,9 +897,9 @@ if (root.document && root.document.head) apply(read());
         <button class="item__media" type="button" data-open aria-label="Look closer at Monisha Jaisingh x PFA">
           <img class="item__img" src="media/shop/v2/monisha-jaisingh-x-pfa-front.webp" alt="Monisha Jaisingh x PFA T-shirt" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Monisha Jaisingh</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#monisha-jaisingh" data-open>Monisha Jaisingh x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -915,9 +919,9 @@ if (root.document && root.document.head) apply(read());
         <button class="item__media" type="button" data-open aria-label="Look closer at Varun Bahl x PFA, Design 2">
           <img class="item__img" src="media/shop/v2/varun-bahl-x-pfa-design-2-front.webp" alt="Varun Bahl x PFA, Design 2 T-shirt" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Varun Bahl</span>
-          <span class="item__tag">Design 2</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Design 2</span>
           <h3 class="item__name display"><a href="#varun-bahl-2" data-open>Varun Bahl x PFA, Design 2</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -938,9 +942,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/v2/raw-mango-x-pfa-front.webp" alt="Raw Mango x PFA T-shirt" loading="lazy" decoding="async">
           <img class="item__alt" src="media/shop/v2/raw-mango-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Raw Mango</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#raw-mango" data-open>Raw Mango x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -961,9 +965,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/1745705914.webp" alt="Masaba Gupta x PFA T-shirt" loading="lazy" decoding="async">
           <img class="item__alt" src="media/shop/1811195198-1745705914.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Masaba Gupta</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#masaba-gupta" data-open>Masaba Gupta x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
@@ -984,9 +988,9 @@ if (root.document && root.document.head) apply(read());
           <img class="item__img" src="media/shop/v2/ashima-singh-x-pfa-front.webp" alt="Ashima Singh x PFA T-shirt" loading="lazy" decoding="async">
           <img class="item__alt" src="media/shop/v2/ashima-singh-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Ashima Singh</span>
-          <span class="item__tag">Limited edition</span>
         </button>
         <div class="item__bd">
+          <span class="item__tag">Limited edition</span>
           <h3 class="item__name display"><a href="#ashima-singh" data-open>Ashima Singh x PFA</a></h3>
           <p class="item__meta dots"><span>Unisex drop shoulder T-shirt</span><span>100% cotton</span></p>
           <p class="item__price"><b>₹2,500</b> <s class="item__was">₹5,000</s> <span class="item__off">50% off</span></p>
