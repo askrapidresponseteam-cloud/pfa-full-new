@@ -177,6 +177,12 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
 .leg__figs{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:0}
 .leg__figs .frame{aspect-ratio:3/2}
+/* The two under the banner, each its own shape (22 Oct 2026): their columns
+   are as wide as the pictures are wide for their height, so the two stand
+   the same height and neither is cut (the protest lost 30% to 3:2). */
+.leg__figs{grid-template-columns:105fr 184fr}
+.leg__figs .frame.frame--pair-a{aspect-ratio:1800/1715}
+.leg__figs .frame.frame--pair-b{aspect-ratio:1690/920}
 /* The wide frame is the panorama's own shape, so the banner and the placards
    at its edges are whole (10 Oct 2026). It was 8:3 in name only: the 3:2
    rule above came after it with the same weight and won, cutting a third of
@@ -686,8 +692,8 @@ if (root.document && root.document.head) apply(read());
       </div>
       <figure class="leg__figs">
         <div class="frame frame--wide"><img loading="lazy" decoding="async" src="img/case-001-banner.webp" alt="Protesters with placards reading Let them live free, Compassion not confinement and They belong here, before a banner addressed to the Department of Education, Chandigarh"></div>
-        <div class="frame"><img loading="lazy" decoding="async" src="img/case-001-protest.webp" alt="The protest at the gates: rows of people on the campus steps holding placards for the dogs"></div>
-        <div class="frame"><img loading="lazy" decoding="async" src="img/case-001-dog.webp" alt="A community dog lying at the protesters&rsquo; feet beside a placard reading They belong here"></div>
+        <div class="frame frame--pair-a"><img loading="lazy" decoding="async" src="img/case-001-protest.webp" alt="The protest at the gates: rows of people on the campus steps holding placards for the dogs"></div>
+        <div class="frame frame--pair-b"><img loading="lazy" decoding="async" src="img/case-001-dog.webp" alt="A community dog lying at the protesters&rsquo; feet beside a placard reading They belong here"></div>
         <figcaption class="dots"><span>At the gates: Let them live free</span><span>Compassion not confinement</span><span>They belong here.</span></figcaption>
       </figure>
       <div class="rows">

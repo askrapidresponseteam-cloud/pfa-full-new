@@ -47,3 +47,39 @@ test('the newsroom panorama is the shape of the picture, at every width', () => 
   assert.ok(html.indexOf('.leg__figs .frame{aspect-ratio:3/2}') < html.indexOf('.leg__figs .frame.frame--wide{'));
   assert.doesNotMatch(html, /\.leg__figs \.frame--wide\{aspect-ratio:2\/1\}/, 'no phone ratio cutting it again');
 });
+
+test('achievements, the founder gallery and the newsroom case photos show every photograph whole', () => {
+  /* owner, 22 Oct 2026, of the achievements on a phone: "these photos are
+     getting clipped.. can you fix this issue across the site". A browser
+     scan of every page found the founder gallery cutting 88% of one picture
+     away and the newsroom's protest losing 30%. */
+  const ach = read('achievements.html');
+  assert.match(ach, /\.rec__image\{display:block;width:100%;height:auto;background:#f5f3ef\}/, 'its own shape');
+  assert.doesNotMatch(ach, /\.rec__image\{[^}]*(aspect-ratio|object-fit:cover)/, 'no frame shape forced on it, at any width');
+  assert.match(ach, /\.arcc__photo\{[^}]*object-fit:contain/, 'whole inside each carousel card');
+  const f = read('founder.html');
+  const gal = f.slice(f.indexOf('<section class="gal" id="gallery"'), f.indexOf('</section>', f.indexOf('<section class="gal" id="gallery"')));
+  const frames = [...gal.matchAll(/<div class="frame" style="--r:([\d.]+)"[^>]*><img[^>]*?\ssrc="([^"]+)"/g)];
+  assert.equal(frames.length, 5, 'every frame carries its picture\'s shape');
+  /* a JPEG's width and height, from its frame header */
+  const jpegSize = (file) => {
+    const b = fs.readFileSync(file);
+    for (let i = 2; i < b.length - 9;) {
+      if (b[i] !== 0xff) { i += 1; continue; }
+      const m = b[i + 1];
+      if (m >= 0xc0 && m <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(m)) return { h: b.readUInt16BE(i + 5), w: b.readUInt16BE(i + 7) };
+      i += 2 + b.readUInt16BE(i + 2);
+    }
+    return null;
+  };
+  for (const [, r, src] of frames) {
+    const s = jpegSize(path.join(ROOT, src));
+    assert.ok(s, `${src} read`);
+    assert.ok(Math.abs(s.w / s.h - Number(r)) < 0.01, `${src}: --r ${r} is its own shape (${s.w}x${s.h})`);
+  }
+  assert.match(f, /\.gal \.gal__grid > \.frame\{flex:var\(--r,1\.5\) 1 calc\(var\(--r,1\.5\) \* clamp\(150px,18vw,260px\)\);aspect-ratio:var\(--r,1\.5\)/);
+  const n = read('newsroom.html');
+  assert.match(n, /\.leg__figs \.frame\.frame--pair-a\{aspect-ratio:1800\/1715\}/);
+  assert.match(n, /\.leg__figs \.frame\.frame--pair-b\{aspect-ratio:1690\/920\}/);
+  assert.match(n, /class="frame frame--pair-a"><img[^>]*case-001-protest\.webp/);
+});

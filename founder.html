@@ -279,9 +279,17 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 
 .gal{padding:0 var(--gutter-lg) var(--band)}
 .gal__grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:clamp(140px,15vw,215px);gap:12px}
-.gal .frame:nth-child(1){grid-column:span 2;grid-row:span 2}
-.gal .frame:nth-child(4){grid-column:span 2}
-.gal .frame:nth-child(5){grid-column:span 4}
+/* Each photograph at its own shape (22 Oct 2026: the owner found photos
+   "getting clipped"; this grid cut 88% of one away, leaving a sign and no
+   people). Rows are justified: a frame's width grows with its picture's
+   width to height (--r, written beside each frame), so every frame in a row
+   is the same height and no picture is cut. */
+.gal .gal__grid{display:flex;flex-wrap:wrap;gap:12px}
+.gal .gal__grid > .frame{flex:var(--r,1.5) 1 calc(var(--r,1.5) * clamp(150px,18vw,260px));aspect-ratio:var(--r,1.5);grid-column:auto;grid-row:auto}
+/* two rows that each fill the width: the two wide pictures, then the three
+   taller ones */
+.gal__br{flex:0 0 100%;height:0;margin-top:-12px}
+@media (max-width:620px){.gal .gal__grid{gap:8px}.gal .gal__grid > .frame{flex-basis:calc(var(--r,1.5) * 80px)}.gal__br{margin-top:-8px}}
 
 /* ---------- watch: facade tiles that open a theatre ----------
    The embeds are not loaded with the page. Three social iframes cost megabytes
@@ -479,15 +487,12 @@ body.theatre-lock{overflow:hidden}
   .fhero__in{grid-template-columns:1fr;gap:26px}
   .plate .frame{aspect-ratio:4/3;max-height:none}
   .msg__in,.close{grid-template-columns:1fr}
-  .gal__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .gal .frame:nth-child(4),.gal .frame:nth-child(5){grid-column:span 2}
 }
 @media (max-width:620px){
   .figs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .figs div:nth-child(odd){border-left:0}
   .figs div:nth-child(-n+2){border-bottom:1px solid var(--line)}
   .aims__grid{grid-template-columns:1fr}
-  .gal .frame:nth-child(1){grid-column:span 2}
 }
 /* the title block starts where every page's does: 72px under the header, 36px on a phone (10 Oct 2026) */
 @media (max-width:720px){.fhero{padding-top:calc(var(--ann) + var(--nav) + 36px)}}
@@ -888,11 +893,12 @@ if (root.document && root.document.head) apply(read());
 
   <section class="gal" id="gallery" aria-label="The work">
     <div class="gal__grid">
-      <div class="frame" data-label="Flagship hospital and shelter"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-01.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/center1.jpg" alt="Inside the flagship People for Animals hospital and shelter" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
-      <div class="frame" data-label="Shelter"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-02.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/center2.jpg" alt="Rescued animals at a People for Animals shelter" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
-      <div class="frame" data-label="Care"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-04.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/center5.jpeg" alt="A rescued animal receiving care" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
-      <div class="frame" data-label="Treatment"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-05.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/center6.jpeg" alt="Treatment under way at a People for Animals centre" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
-      <div class="frame" data-label="Rescue"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-07.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/gallery10.jpg" alt="A rescue in progress" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
+      <div class="frame" style="--r:1.744" data-label="Flagship hospital and shelter"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-01.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/center1.jpg" alt="Inside the flagship People for Animals hospital and shelter" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
+      <div class="frame" style="--r:1.496" data-label="Shelter"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-02.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/center2.jpg" alt="Rescued animals at a People for Animals shelter" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
+      <i class="gal__br" aria-hidden="true"></i>
+      <div class="frame" style="--r:0.667" data-label="Care"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-04.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/center5.jpeg" alt="A rescued animal receiving care" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
+      <div class="frame" style="--r:1.333" data-label="Treatment"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-05.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/center6.jpeg" alt="Treatment under way at a People for Animals centre" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
+      <div class="frame" style="--r:0.750" data-label="Rescue"><img loading="lazy" decoding="async" src="media/site/sgacc/centre-07.jpg" data-alt-src="https://www.peopleforanimalsindia.org/front/img/gallery10.jpg" alt="A rescue in progress" onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}"></div>
     </div>
   </section>
   <script>
