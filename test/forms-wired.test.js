@@ -26,7 +26,9 @@ const FORMS = [
   /* The CineKind nomination form, back for the 2027 edition (16 Sep 2026)
      with its wiring reviewed: pfa-forms.js, kind PFA-CK, the reference from
      the server, and a per-kind spec in lib/submission-fields.js. */
-  { page: 'cinekind.html', kind: 'PFA-CK', id: 'ckNominate' }
+  { page: 'cinekind.html', kind: 'PFA-CK', id: 'ckNominate' },
+  /* units.html (22 Oct 2026): the application for a new PFA unit */
+  { page: 'units.html', kind: 'PFA-U', id: 'unitForm' }
 ];
 
 test('every form posts to the submissions API with a kind the server knows', () => {
@@ -80,7 +82,7 @@ test('no form claims success without a reference from the server', () => {
 });
 
 test('a missing helper disables the form instead of leaving a dead button', () => {
-  for (const page of ['events.html']) {
+  for (const page of ['events.html', 'units.html']) {
     assert.match(read(page), /!window\.PFAForms/,
       `${page} must notice if the helper did not load`);
   }

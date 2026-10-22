@@ -60,7 +60,7 @@
 }
 </style>
 <meta charset="utf-8">
-<meta name="pfa-build" content="v1.305">
+<meta name="pfa-build" content="v1.444">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Units | People for Animals</title>
@@ -247,7 +247,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .u-first{display:grid;gap:12px}
 .u-first li{position:relative;padding:0 0 12px 20px;border-bottom:1px solid rgba(17,17,17,.14);font-size:13.5px;line-height:1.6;color:rgba(17,17,17,.82)}
 .u-first li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;background:#fff}
-.u-setup__acts{margin-top:22px}
 @media (max-width:860px){.u-setup{grid-template-columns:1fr}}
 
 /* ============================================================ what units do */
@@ -275,8 +274,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .u-btn:hover{background:transparent;color:var(--ink)}
 .u-btn--ghost{background:transparent;color:var(--ink)}
 .u-btn--ghost:hover{background:#fff;color:var(--ink)}
-.u-cta__addr{margin:34px 0 0;padding-top:22px;border-top:1px solid rgba(17,17,17,.18);
-  font-size:13px;line-height:1.7;color:rgba(17,17,17,.6);font-style:normal}
 
 /* ============================================================ responsive */
 @media (max-width:1080px){
@@ -387,6 +384,138 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
   html body #uchips{display:flex!important;flex:1 0 100%;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * var(--gutter));padding:0 var(--gutter);scroll-padding:0 var(--gutter);overscroll-behavior-x:contain}
   #uchips::-webkit-scrollbar{display:none}
   .u-chip{height:34px;padding:0 11px}
+}
+/* ============================================================ applying for a unit
+   Owner, 22 Oct 2026: "there should be an option to download this form. fill
+   it in and send it to gandhim. and there should be a ditto digital version,
+   which on submission should go to gandhim eail email ID.. it should be
+   within PFA units page". Two ways, side by side under the section's line:
+   online (the flow below, #apply) and on paper (the PDF in media/forms). */
+.u-hero__line{margin:26px 0 0;font-size:15px;line-height:1.6;color:rgba(17,17,17,.76)}
+.u-hero__line a{color:var(--ink);border-bottom:1px solid rgba(17,17,17,.35);padding-bottom:1px}
+.u-hero__line a:hover{opacity:1;border-bottom-color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 30px;border:1px solid var(--ink);
+  background:var(--ink);color:#fff;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.16em;line-height:1.2;
+  text-transform:uppercase;text-align:center;cursor:pointer;transition:background .2s,color .2s}
+.btn:hover{opacity:1}
+.btn--light{background:#fff;color:var(--ink)}
+.btn--light:hover{background:var(--ink);color:#fff}
+.btn[disabled]{opacity:.5;cursor:default}
+.u-ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:clamp(28px,3.4vw,44px)}
+.u-way{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0;padding:24px 24px 26px;border:1px solid var(--line);background:#fff}
+.u-cta .u-way p{margin:0}
+.u-cta .u-way .u-way__k{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);line-height:1.4}
+.u-way__name{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,2vw,28px);line-height:1.08;text-transform:uppercase;letter-spacing:.01em}
+.u-cta .u-way .u-way__t{font-size:14px;line-height:1.6;color:rgba(17,17,17,.76);max-width:48ch}
+.u-way__t a{color:var(--ink);border-bottom:1px solid rgba(17,17,17,.35);overflow-wrap:anywhere}
+.u-way__t a:hover{opacity:1;border-bottom-color:var(--ink)}
+.u-way .btn{margin-top:auto}
+@media (max-width:720px){
+  .u-ways{grid-template-columns:minmax(0,1fr)}
+  .u-way{padding:20px 18px 22px}
+  .u-way .btn{width:100%}
+}
+
+/* ---- the online application (#apply): closed until asked for, then the
+   page (assets/chrome.js, PFAFlow); its heading beside it, as on the
+   microsites, so a short screen never leaves half the page empty. */
+.u-flow{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.45fr);column-gap:clamp(32px,5vw,88px);align-items:start;
+  padding:clamp(28px,3vw,40px) var(--gutter) var(--band)}
+.u-flow::before{content:"";grid-column:1 / -1;height:1px;background:var(--ink);margin-bottom:22px}
+.u-flow__head{position:sticky;top:calc(var(--ann) + var(--nav) + 24px);min-width:0}
+.u-flow__head .eyebrow{margin:0 0 14px}
+.u-flow__head h2{font-size:clamp(28px,3vw,46px)}
+.u-flow__head p.u-flow__lede{margin:18px 0 0;max-width:40ch;font-size:14px;line-height:1.65;color:var(--muted)}
+.u-flow__head p.u-flow__alt{margin:14px 0 0;font-size:13px;line-height:1.6;color:var(--muted)}
+.u-flow__alt a{color:var(--ink);border-bottom:1px solid rgba(17,17,17,.35)}
+.u-flow__alt a:hover{opacity:1;border-bottom-color:var(--ink)}
+.u-flow__body{min-width:0;max-width:760px}
+.u-form{margin:0}
+.u-step{display:grid;gap:22px;min-width:0}
+.u-screen{display:grid;gap:22px;min-width:0}
+.u-form.is-paged .u-step:not(.is-current),.u-form.is-paged .u-screen:not(.is-on){display:none}
+.u-form.is-paged .u-screen.is-on{animation:pfaStepIn .35s cubic-bezier(.2,.7,.2,1)}
+html:not(.pfa-flows) .u-form .pfa-steps__tabs,html:not(.pfa-flows) .u-form .pfa-steps__bar,html:not(.pfa-flows) .u-form [data-next],
+html:not(.pfa-flows) .u-form .pfa-steps__count{display:none}
+.u-form__q{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(24px,2.4vw,34px);line-height:1.05;text-transform:uppercase;letter-spacing:.01em}
+.u-form__ask{margin:-10px 0 0;font-size:14px;line-height:1.6;color:var(--muted)}
+.u-screen__k{margin:0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.u-screen__k b{color:var(--ink);font-weight:700}
+.u-form__row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 18px}
+.u-form__row--3{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr)}
+.u-form .field{display:grid;gap:8px;min-width:0;align-content:start}
+.u-form .field > label,.u-form .u-legend{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;line-height:1.5}
+.u-form .field .opt{color:var(--muted);font-weight:400}
+.u-form .field input:not([type="radio"]):not([type="checkbox"]),.u-form .field select,.u-form .field textarea{width:100%;border:1px solid var(--line);background:#fff;padding:14px;
+  font-family:inherit;font-size:14px;color:inherit;outline:none;border-radius:0;-webkit-appearance:none;appearance:none}
+.u-form .field textarea{min-height:52px;line-height:1.5;resize:vertical}
+.u-form .field input:not([type="radio"]):not([type="checkbox"]):focus,.u-form .field select:focus,.u-form .field textarea:focus{border-color:var(--ink)}
+.u-form .field .error{display:none;font-size:12px;line-height:1.5;color:#b3261e}
+.u-form .field.is-bad input:not([type="radio"]):not([type="checkbox"]),.u-form .field.is-bad select,.u-form .field.is-bad textarea{border-color:#b3261e}
+.u-form .field.is-bad .error{display:block}
+.u-form .field .hint{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}
+.u-pair{display:grid;grid-template-columns:minmax(120px,.42fr) minmax(0,1fr);gap:10px}
+/* choices are cards, as on the microsites: a dressed radio */
+.u-picks{display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.u-pick{position:relative;min-width:0}
+.u-pick input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.u-pick label{display:flex;flex-direction:column;justify-content:center;gap:6px;height:100%;min-height:52px;padding:14px 40px 14px 16px;
+  border:1px solid var(--line);background:#fff;cursor:pointer;font-size:14px;line-height:1.3;transition:border-color .15s,background .15s,color .15s}
+.u-pick label:hover{border-color:var(--ink)}
+.u-pick b{font-weight:700}
+.u-pick small{font-size:12px;line-height:1.5;color:var(--muted)}
+.u-pick label::after{content:"";position:absolute;top:50%;right:14px;width:14px;height:14px;margin-top:-7px;border:1px solid var(--line);border-radius:50%;background:#fff}
+.u-pick input:checked + label{background:var(--ink);border-color:var(--ink);color:#fff}
+.u-pick input:checked + label small{color:rgba(255,255,255,.72)}
+.u-pick input:checked + label::after{border-color:#fff;box-shadow:inset 0 0 0 3px var(--ink)}
+.u-pick input:focus-visible + label{outline:2px solid var(--ink);outline-offset:2px}
+.u-picks.is-bad .u-pick label{border-color:#b3261e}
+.u-err{margin:0;font-size:12px;line-height:1.5;color:#b3261e}
+.u-err[hidden]{display:none}
+/* the undertaking, as the paper words it, with the blanks filled in */
+.u-oath{margin:0;padding:20px 22px;border:1px solid var(--line);background:#fff;font-size:14px;line-height:1.7;color:rgba(17,17,17,.86)}
+.u-oath p{margin:0}
+.u-oath b{font-weight:600;color:var(--ink)}
+.u-oath ol{margin:14px 0 0;padding:0 0 0 20px;list-style:decimal}
+.u-oath li{margin:0 0 8px;padding-left:4px}
+.u-oath li:last-child{margin-bottom:0}
+.u-check{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.55;cursor:pointer}
+.u-check input{flex:none;width:20px;height:20px;margin:1px 0 0;accent-color:var(--ink)}
+.u-check.is-bad{color:#b3261e}
+.u-today{margin:0;font-size:13px;color:var(--muted)}
+.u-today b{color:var(--ink);font-weight:600}
+/* photographs: the site's black button, and the list of what is chosen */
+.u-files{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.u-files li{display:flex;align-items:center;gap:12px;min-width:0;padding:10px 12px;border:1px solid var(--line);font-size:13px}
+.u-files li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.u-files li button{flex:none;min-height:32px;padding:0 10px;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.u-files li button:hover{color:var(--ink)}
+.u-pickfile{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;background:var(--ink);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;justify-self:start}
+.u-pickfile:hover{background:#333}
+.u-pickfile input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.u-pickfile:focus-within{outline:2px solid var(--ink);outline-offset:2px}
+.u-note{margin:0;font-size:13px;line-height:1.6;color:var(--muted)}
+#apply .pfa-steps__nav .btn{min-width:180px}
+#apply .formstatus{margin:12px 0 0;font-size:13px;line-height:1.5}
+#apply .formstatus[hidden]{display:none}
+#apply .formstatus[data-state="bad"]{color:#b3261e}
+/* sent: the number the server issued, and where the email went */
+.u-done{display:grid;gap:16px;padding-top:4px}
+.u-done[hidden]{display:none}
+.u-done p{margin:0;font-size:14px;line-height:1.65;color:var(--muted);max-width:60ch}
+.u-done .u-done__ref{font-family:var(--display);font-size:clamp(28px,4vw,46px);letter-spacing:.02em;line-height:1.1;color:var(--ink)}
+.u-done__acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+@media (max-width:860px){
+  .u-flow{grid-template-columns:minmax(0,1fr)}
+  .u-flow__head{position:static;margin-bottom:28px}
+}
+@media (max-width:620px){
+  .u-form__row,.u-form__row--3{grid-template-columns:minmax(0,1fr)}
+  .u-picks{--cols:1}
+  .u-picks--3{--cols:3}
+  .u-pair{grid-template-columns:minmax(0,1fr)}
+  #apply .pfa-steps__nav .btn{flex:1 1 auto}
 }
 </style>
 <link rel="stylesheet" href="pfa-search.css">
@@ -643,6 +772,7 @@ if (root.document && root.document.head) apply(read());
       <div class="u-hero__copy">
         <p class="eyebrow pfa-kicker">The network</p>
         <h1 class="pfa-title display">Find a&nbsp;unit.</h1>
+        <p class="u-hero__line">No unit near you? <a href="#setup">Start one in your district</a>.</p>
       </div>
     </div>
   </section>
@@ -702,6 +832,25 @@ if (root.document && root.document.head) apply(read());
      from 50 to 41 in December 2024. So it is stated as about 800 and said
      to move, rather than given a precision it does not have. -->
       <p>The aim is an animal welfare centre in every district in India. There are about 800, and the number moves as states draw new ones and merge others. A unit begins with six board members, a bank account and one campaign, and the first priority is always the animal in front of you rather than the poster about it.</p>
+      <!-- The two ways to apply (owner, 22 Oct 2026): the same form online,
+           which files the application in the admin panel and copies it to
+           gandhim, or the paper form to download, fill in and email there.
+           The PDF used to be linked from PFA's old site, which this site now
+           replaces at that address; it is served from here. -->
+      <div class="u-ways" id="apply-ways">
+        <div class="u-way">
+          <p class="u-way__k">Online</p>
+          <h3 class="u-way__name">Apply here</h3>
+          <p class="u-way__t">The same form, one step at a time. It reaches the head office as soon as you send it, with a number to follow it by.</p>
+          <a class="btn" href="#apply">Apply online</a>
+        </div>
+        <div class="u-way">
+          <p class="u-way__k">On paper</p>
+          <h3 class="u-way__name">Download the form</h3>
+          <p class="u-way__t">Fill it in, sign it, and email it with the attachments to <a href="mailto:gandhim@exmpls.sansad.in?subject=Application%20for%20a%20new%20PFA%20unit">gandhim@exmpls.sansad.in</a>.</p>
+          <a class="btn btn--light" href="media/forms/pfa-unit-application.pdf" download="PFA unit application form.pdf">Download the form (PDF)</a>
+        </div>
+      </div>
       <div class="u-setup">
         <div class="u-setup__col">
           <h3>The path</h3>
@@ -727,16 +876,336 @@ if (root.document && root.document.head) apply(read());
             <li>Find the place where rescued animals will be housed, fed, vaccinated and adopted out. Look for land that can be donated or allotted for a shelter, and have it registered in PFA's name.</li>
             <li>Put a copy of the animal laws in every member's pocket, with their ID card, before they walk into a police station.</li>
           </ul>
-          <div class="u-setup__acts">
-            <a class="u-btn" href="https://peopleforanimalsindia.org/public/front/file/PFA_unit.pdf" target="_blank" rel="noopener noreferrer">Download the application form</a>
-          </div>
         </div>
       </div>
       <div class="u-cta__acts">
         <a class="u-btn" href="get-involved.html">Get involved</a>
         <a class="u-btn u-btn--ghost" href="ask.html">Ask us how</a>
       </div>
-      <address class="u-cta__addr">Applications go to the head office:<br>People for Animals, 14 Ashoka Road, New Delhi 110001</address>
+    </div>
+  </section>
+
+  <!-- The application form for approval of a new PFA unit, online. Owner,
+       22 Oct 2026: "there should be a ditto digital version, which on
+       submission should go to gandhim eail email ID.. it should be within PFA
+       units page". The paper form's fields in its own words and order, one
+       screen at a time: closed until Apply online asks for it (assets/chrome.js,
+       PFAFlow), then the page, with the way back and Contact PFA in the bar
+       over it. Sent as PFA-U to /api/pfa-submissions, which files it for the
+       admin panel and copies it, photographs attached, to gandhim
+       (lib/submission-forward.js). The script at the end of the page steps it,
+       checks each screen, and puts each board member, case and rescue on one
+       line, as the email reads it. -->
+  <section class="u-flow" id="apply" data-flow data-flow-back="Units">
+    <div class="u-flow__head">
+      <p class="eyebrow">Apply online</p>
+      <h2 class="display">A new PFA unit.</h2>
+      <p class="u-flow__lede">The paper form, a screen at a time. Keep your seven board members' details at hand.</p>
+      <p class="u-flow__alt">Prefer paper? <a href="media/forms/pfa-unit-application.pdf" download="PFA unit application form.pdf">Download the form</a></p>
+    </div>
+    <div class="u-flow__body">
+      <form class="u-form" id="unitForm" data-preview="skip" novalidate>
+        <ol class="pfa-steps__tabs" aria-hidden="true"><li><span>01</span>You</li><li><span>02</span>Board</li><li><span>03</span>Your work</li><li><span>04</span>Undertaking</li><li><span>05</span>Send</li></ol>
+        <div class="pfa-steps__bar" aria-hidden="true"><span></span></div>
+
+        <div class="u-step" data-step="You">
+          <div class="u-screen" data-screen="you">
+            <h3 class="u-form__q">The applicant</h3>
+            <div class="field"><label for="uaName">Name of the applicant</label><input id="uaName" name="name" autocomplete="name" required><span class="error">Add your name, as the applicant.</span></div>
+            <div class="field"><label for="uaAddress">Address of the applicant</label><textarea id="uaAddress" name="address" rows="2" autocomplete="street-address" required></textarea><span class="error">Add your address.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="uaCity">City</label><input id="uaCity" name="city" autocomplete="address-level2" required><span class="error">Add your city.</span></div>
+              <div class="field"><label for="uaDistrict">District</label><input id="uaDistrict" name="district" autocomplete="off" required><span class="error">Add your district.</span></div>
+            </div>
+            <div class="u-form__row">
+              <div class="field"><label for="uaMobile">Phone number (1)</label><input id="uaMobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" required placeholder="10 digit mobile"><span class="error">Enter a 10-digit Indian mobile number.</span></div>
+              <div class="field"><label for="uaPhone2">Phone number (2) <span class="opt">(optional)</span></label><input id="uaPhone2" name="phone2" inputmode="tel" autocomplete="off" data-check="phone"><span class="error">Check this number.</span></div>
+            </div>
+            <div class="field"><label for="uaEmail">Email</label><input id="uaEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email, so the head office can reply.</span></div>
+          </div>
+        </div>
+
+        <div class="u-step" data-step="Board">
+          <h3 class="u-form__q">The proposed board</h3>
+          <p class="u-form__ask">Seven members, one of them an advocate. An address proof is needed for each.</p>
+          <div class="u-screen" data-screen="member" data-n="1">
+            <p class="u-screen__k">Board member <b>1</b> of 7</p>
+            <div class="field"><label for="m1Name">Name</label><input id="m1Name" autocomplete="off" required><span class="error">Add their name.</span></div>
+            <div class="field"><label for="m1Addr">Address</label><textarea id="m1Addr" rows="2" required></textarea><span class="error">Add their address.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="m1Phone">Phone number</label><input id="m1Phone" inputmode="tel" autocomplete="off" required data-check="phone"><span class="error">Add a phone number they answer.</span></div>
+              <div class="field"><label for="m1Email">Email Id <span class="opt">(if they have one)</span></label><input id="m1Email" type="email" autocomplete="off"><span class="error">Check this email address.</span></div>
+            </div>
+            <div class="u-form__row">
+              <div class="field"><label for="m1Age">Age</label><input id="m1Age" inputmode="numeric" maxlength="3" autocomplete="off" required data-check="age"><span class="error">Their age in years, 18 or over.</span></div>
+              <div class="field"><label for="m1Prof">Profession</label><input id="m1Prof" autocomplete="off" required><span class="error">Add their profession.</span></div>
+            </div>
+          </div>
+          <div class="u-screen" data-screen="member" data-n="2">
+            <p class="u-screen__k">Board member <b>2</b> of 7</p>
+            <div class="field"><label for="m2Name">Name</label><input id="m2Name" autocomplete="off" required><span class="error">Add their name.</span></div>
+            <div class="field"><label for="m2Addr">Address</label><textarea id="m2Addr" rows="2" required></textarea><span class="error">Add their address.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="m2Phone">Phone number</label><input id="m2Phone" inputmode="tel" autocomplete="off" required data-check="phone"><span class="error">Add a phone number they answer.</span></div>
+              <div class="field"><label for="m2Email">Email Id <span class="opt">(if they have one)</span></label><input id="m2Email" type="email" autocomplete="off"><span class="error">Check this email address.</span></div>
+            </div>
+            <div class="u-form__row">
+              <div class="field"><label for="m2Age">Age</label><input id="m2Age" inputmode="numeric" maxlength="3" autocomplete="off" required data-check="age"><span class="error">Their age in years, 18 or over.</span></div>
+              <div class="field"><label for="m2Prof">Profession</label><input id="m2Prof" autocomplete="off" required><span class="error">Add their profession.</span></div>
+            </div>
+          </div>
+          <div class="u-screen" data-screen="member" data-n="3">
+            <p class="u-screen__k">Board member <b>3</b> of 7</p>
+            <div class="field"><label for="m3Name">Name</label><input id="m3Name" autocomplete="off" required><span class="error">Add their name.</span></div>
+            <div class="field"><label for="m3Addr">Address</label><textarea id="m3Addr" rows="2" required></textarea><span class="error">Add their address.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="m3Phone">Phone number</label><input id="m3Phone" inputmode="tel" autocomplete="off" required data-check="phone"><span class="error">Add a phone number they answer.</span></div>
+              <div class="field"><label for="m3Email">Email Id <span class="opt">(if they have one)</span></label><input id="m3Email" type="email" autocomplete="off"><span class="error">Check this email address.</span></div>
+            </div>
+            <div class="u-form__row">
+              <div class="field"><label for="m3Age">Age</label><input id="m3Age" inputmode="numeric" maxlength="3" autocomplete="off" required data-check="age"><span class="error">Their age in years, 18 or over.</span></div>
+              <div class="field"><label for="m3Prof">Profession</label><input id="m3Prof" autocomplete="off" required><span class="error">Add their profession.</span></div>
+            </div>
+          </div>
+          <div class="u-screen" data-screen="member" data-n="4">
+            <p class="u-screen__k">Board member <b>4</b> of 7</p>
+            <div class="field"><label for="m4Name">Name</label><input id="m4Name" autocomplete="off" required><span class="error">Add their name.</span></div>
+            <div class="field"><label for="m4Addr">Address</label><textarea id="m4Addr" rows="2" required></textarea><span class="error">Add their address.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="m4Phone">Phone number</label><input id="m4Phone" inputmode="tel" autocomplete="off" required data-check="phone"><span class="error">Add a phone number they answer.</span></div>
+              <div class="field"><label for="m4Email">Email Id <span class="opt">(if they have one)</span></label><input id="m4Email" type="email" autocomplete="off"><span class="error">Check this email address.</span></div>
+            </div>
+            <div class="u-form__row">
+              <div class="field"><label for="m4Age">Age</label><input id="m4Age" inputmode="numeric" maxlength="3" autocomplete="off" required data-check="age"><span class="error">Their age in years, 18 or over.</span></div>
+              <div class="field"><label for="m4Prof">Profession</label><input id="m4Prof" autocomplete="off" required><span class="error">Add their profession.</span></div>
+            </div>
+          </div>
+          <div class="u-screen" data-screen="member" data-n="5">
+            <p class="u-screen__k">Board member <b>5</b> of 7</p>
+            <div class="field"><label for="m5Name">Name</label><input id="m5Name" autocomplete="off" required><span class="error">Add their name.</span></div>
+            <div class="field"><label for="m5Addr">Address</label><textarea id="m5Addr" rows="2" required></textarea><span class="error">Add their address.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="m5Phone">Phone number</label><input id="m5Phone" inputmode="tel" autocomplete="off" required data-check="phone"><span class="error">Add a phone number they answer.</span></div>
+              <div class="field"><label for="m5Email">Email Id <span class="opt">(if they have one)</span></label><input id="m5Email" type="email" autocomplete="off"><span class="error">Check this email address.</span></div>
+            </div>
+            <div class="u-form__row">
+              <div class="field"><label for="m5Age">Age</label><input id="m5Age" inputmode="numeric" maxlength="3" autocomplete="off" required data-check="age"><span class="error">Their age in years, 18 or over.</span></div>
+              <div class="field"><label for="m5Prof">Profession</label><input id="m5Prof" autocomplete="off" required><span class="error">Add their profession.</span></div>
+            </div>
+          </div>
+          <div class="u-screen" data-screen="member" data-n="6">
+            <p class="u-screen__k">Board member <b>6</b> of 7</p>
+            <div class="field"><label for="m6Name">Name</label><input id="m6Name" autocomplete="off" required><span class="error">Add their name.</span></div>
+            <div class="field"><label for="m6Addr">Address</label><textarea id="m6Addr" rows="2" required></textarea><span class="error">Add their address.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="m6Phone">Phone number</label><input id="m6Phone" inputmode="tel" autocomplete="off" required data-check="phone"><span class="error">Add a phone number they answer.</span></div>
+              <div class="field"><label for="m6Email">Email Id <span class="opt">(if they have one)</span></label><input id="m6Email" type="email" autocomplete="off"><span class="error">Check this email address.</span></div>
+            </div>
+            <div class="u-form__row">
+              <div class="field"><label for="m6Age">Age</label><input id="m6Age" inputmode="numeric" maxlength="3" autocomplete="off" required data-check="age"><span class="error">Their age in years, 18 or over.</span></div>
+              <div class="field"><label for="m6Prof">Profession</label><input id="m6Prof" autocomplete="off" required><span class="error">Add their profession.</span></div>
+            </div>
+          </div>
+          <div class="u-screen" data-screen="member" data-n="7">
+            <p class="u-screen__k">Board member <b>7</b> of 7</p>
+            <div class="field"><label for="m7Name">Name</label><input id="m7Name" autocomplete="off" required><span class="error">Add their name.</span></div>
+            <div class="field"><label for="m7Addr">Address</label><textarea id="m7Addr" rows="2" required></textarea><span class="error">Add their address.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="m7Phone">Phone number</label><input id="m7Phone" inputmode="tel" autocomplete="off" required data-check="phone"><span class="error">Add a phone number they answer.</span></div>
+              <div class="field"><label for="m7Email">Email Id <span class="opt">(if they have one)</span></label><input id="m7Email" type="email" autocomplete="off"><span class="error">Check this email address.</span></div>
+            </div>
+            <div class="u-form__row">
+              <div class="field"><label for="m7Age">Age</label><input id="m7Age" inputmode="numeric" maxlength="3" autocomplete="off" required data-check="age"><span class="error">Their age in years, 18 or over.</span></div>
+              <div class="field"><label for="m7Prof">Profession</label><input id="m7Prof" autocomplete="off" required><span class="error">Add their profession.</span></div>
+            </div>
+          </div>
+          <p class="u-err" id="uaAdvocate" hidden>One of the seven must be an advocate. Write Advocate as their profession; Back takes you to the others.</p>
+        </div>
+
+        <div class="u-step" data-step="Your work">
+          <h3 class="u-form__q">Your work so far</h3>
+          <div class="u-screen" data-screen="criteria">
+            <p class="u-form__ask">You must qualify under A or B.</p>
+            <ul class="u-picks" data-need="criteria" role="radiogroup" aria-label="You qualify under">
+              <li class="u-pick"><input type="radio" name="criteria" id="uaCritA" value="A. Cases lodged"><label for="uaCritA"><b>A. Cases lodged</b><small>Five cases you lodged to prevent cruelty to animals</small></label></li>
+              <li class="u-pick"><input type="radio" name="criteria" id="uaCritB" value="B. Rescue work"><label for="uaCritB"><b>B. Rescue work</b><small>Animals you rescued, and what you did</small></label></li>
+              <li class="u-pick"><input type="radio" name="criteria" id="uaCritAB" value="Both A and B"><label for="uaCritAB"><b>Both</b><small>Cases lodged and rescue work</small></label></li>
+            </ul>
+            <p class="u-err" data-err-for="criteria" hidden>Choose A or B, the criterion you qualify under.</p>
+            <p class="u-note">Photocopies of the cases and photographs of the rescues go with the application; you can attach photographs at the end.</p>
+          </div>
+          <div class="u-screen" data-screen="case" data-n="1" data-when="A">
+            <p class="u-screen__k">A) Case <b>1</b> of 5</p>
+            <div class="u-form__row">
+              <div class="field"><label for="c1No">Case number</label><input id="c1No" autocomplete="off" required><span class="error">Add the case number.</span></div>
+              <div class="field"><label for="c1Date">Date</label><input id="c1Date" type="date" required data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="c1Ps">Police station</label><input id="c1Ps" autocomplete="off" required><span class="error">Add the police station.</span></div>
+          </div>
+          <div class="u-screen" data-screen="case" data-n="2" data-when="A">
+            <p class="u-screen__k">A) Case <b>2</b> of 5</p>
+            <div class="u-form__row">
+              <div class="field"><label for="c2No">Case number</label><input id="c2No" autocomplete="off" required><span class="error">Add the case number.</span></div>
+              <div class="field"><label for="c2Date">Date</label><input id="c2Date" type="date" required data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="c2Ps">Police station</label><input id="c2Ps" autocomplete="off" required><span class="error">Add the police station.</span></div>
+          </div>
+          <div class="u-screen" data-screen="case" data-n="3" data-when="A">
+            <p class="u-screen__k">A) Case <b>3</b> of 5</p>
+            <div class="u-form__row">
+              <div class="field"><label for="c3No">Case number</label><input id="c3No" autocomplete="off" required><span class="error">Add the case number.</span></div>
+              <div class="field"><label for="c3Date">Date</label><input id="c3Date" type="date" required data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="c3Ps">Police station</label><input id="c3Ps" autocomplete="off" required><span class="error">Add the police station.</span></div>
+          </div>
+          <div class="u-screen" data-screen="case" data-n="4" data-when="A">
+            <p class="u-screen__k">A) Case <b>4</b> of 5</p>
+            <div class="u-form__row">
+              <div class="field"><label for="c4No">Case number</label><input id="c4No" autocomplete="off" required><span class="error">Add the case number.</span></div>
+              <div class="field"><label for="c4Date">Date</label><input id="c4Date" type="date" required data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="c4Ps">Police station</label><input id="c4Ps" autocomplete="off" required><span class="error">Add the police station.</span></div>
+          </div>
+          <div class="u-screen" data-screen="case" data-n="5" data-when="A">
+            <p class="u-screen__k">A) Case <b>5</b> of 5</p>
+            <div class="u-form__row">
+              <div class="field"><label for="c5No">Case number</label><input id="c5No" autocomplete="off" required><span class="error">Add the case number.</span></div>
+              <div class="field"><label for="c5Date">Date</label><input id="c5Date" type="date" required data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="c5Ps">Police station</label><input id="c5Ps" autocomplete="off" required><span class="error">Add the police station.</span></div>
+          </div>
+          <div class="u-screen" data-screen="rescue" data-n="1" data-when="B">
+            <p class="u-screen__k">B) Rescue <b>1</b> of 5</p>
+            <div class="u-form__row">
+              <div class="field"><label for="r1Animal">Animal rescued</label><input id="r1Animal" autocomplete="off" required><span class="error">Which animal?</span></div>
+              <div class="field"><label for="r1Date">Date</label><input id="r1Date" type="date" required data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="r1Problem">Nature of the problem</label><textarea id="r1Problem" rows="2" required></textarea><span class="error">Say what was wrong.</span></div>
+            <div class="field"><label for="r1Action">Action taken</label><textarea id="r1Action" rows="2" required></textarea><span class="error">Say what you did.</span></div>
+          </div>
+          <div class="u-screen" data-screen="rescue" data-n="2" data-when="B" data-optional>
+            <p class="u-screen__k">B) Rescue <b>2</b> of 5 <span class="opt">(if you have more)</span></p>
+            <div class="u-form__row">
+              <div class="field"><label for="r2Animal">Animal rescued</label><input id="r2Animal" autocomplete="off"><span class="error">Which animal?</span></div>
+              <div class="field"><label for="r2Date">Date</label><input id="r2Date" type="date" data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="r2Problem">Nature of the problem</label><textarea id="r2Problem" rows="2"></textarea><span class="error">Say what was wrong.</span></div>
+            <div class="field"><label for="r2Action">Action taken</label><textarea id="r2Action" rows="2"></textarea><span class="error">Say what you did.</span></div>
+            <p class="u-note">Leave this one blank and continue if that is all your rescue work.</p>
+          </div>
+          <div class="u-screen" data-screen="rescue" data-n="3" data-when="B" data-optional>
+            <p class="u-screen__k">B) Rescue <b>3</b> of 5 <span class="opt">(if you have more)</span></p>
+            <div class="u-form__row">
+              <div class="field"><label for="r3Animal">Animal rescued</label><input id="r3Animal" autocomplete="off"><span class="error">Which animal?</span></div>
+              <div class="field"><label for="r3Date">Date</label><input id="r3Date" type="date" data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="r3Problem">Nature of the problem</label><textarea id="r3Problem" rows="2"></textarea><span class="error">Say what was wrong.</span></div>
+            <div class="field"><label for="r3Action">Action taken</label><textarea id="r3Action" rows="2"></textarea><span class="error">Say what you did.</span></div>
+            <p class="u-note">Leave this one blank and continue if that is all your rescue work.</p>
+          </div>
+          <div class="u-screen" data-screen="rescue" data-n="4" data-when="B" data-optional>
+            <p class="u-screen__k">B) Rescue <b>4</b> of 5 <span class="opt">(if you have more)</span></p>
+            <div class="u-form__row">
+              <div class="field"><label for="r4Animal">Animal rescued</label><input id="r4Animal" autocomplete="off"><span class="error">Which animal?</span></div>
+              <div class="field"><label for="r4Date">Date</label><input id="r4Date" type="date" data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="r4Problem">Nature of the problem</label><textarea id="r4Problem" rows="2"></textarea><span class="error">Say what was wrong.</span></div>
+            <div class="field"><label for="r4Action">Action taken</label><textarea id="r4Action" rows="2"></textarea><span class="error">Say what you did.</span></div>
+            <p class="u-note">Leave this one blank and continue if that is all your rescue work.</p>
+          </div>
+          <div class="u-screen" data-screen="rescue" data-n="5" data-when="B" data-optional>
+            <p class="u-screen__k">B) Rescue <b>5</b> of 5 <span class="opt">(if you have more)</span></p>
+            <div class="u-form__row">
+              <div class="field"><label for="r5Animal">Animal rescued</label><input id="r5Animal" autocomplete="off"><span class="error">Which animal?</span></div>
+              <div class="field"><label for="r5Date">Date</label><input id="r5Date" type="date" data-check="date"><span class="error">Add the date, not later than today.</span></div>
+            </div>
+            <div class="field"><label for="r5Problem">Nature of the problem</label><textarea id="r5Problem" rows="2"></textarea><span class="error">Say what was wrong.</span></div>
+            <div class="field"><label for="r5Action">Action taken</label><textarea id="r5Action" rows="2"></textarea><span class="error">Say what you did.</span></div>
+            <p class="u-note">Leave this one blank and continue if that is all your rescue work.</p>
+          </div>
+        </div>
+
+        <div class="u-step" data-step="Undertaking">
+          <div class="u-screen" data-screen="undertaking">
+            <h3 class="u-form__q">The undertaking</h3>
+            <p class="u-form__ask">The blanks in it, as the paper form has them.</p>
+            <div class="field">
+              <span class="u-legend" id="uaSalLabel">Dr. / Mr. / Ms.</span>
+              <ul class="u-picks u-picks--3" data-need="salutation" role="radiogroup" aria-labelledby="uaSalLabel">
+                <li class="u-pick"><input type="radio" name="salutation" id="uaSalDr" value="Dr."><label for="uaSalDr"><b>Dr.</b></label></li>
+                <li class="u-pick"><input type="radio" name="salutation" id="uaSalMr" value="Mr."><label for="uaSalMr"><b>Mr.</b></label></li>
+                <li class="u-pick"><input type="radio" name="salutation" id="uaSalMs" value="Ms."><label for="uaSalMs"><b>Ms.</b></label></li>
+              </ul>
+              <p class="u-err" data-err-for="salutation" hidden>Choose Dr., Mr. or Ms.</p>
+            </div>
+            <div class="field">
+              <label for="uaRelName">Son, daughter or wife of</label>
+              <div class="u-pair">
+                <select id="uaRelation" aria-label="Son, daughter or wife" required>
+                  <option value="">Choose</option>
+                  <option>Son of</option>
+                  <option>Daughter of</option>
+                  <option>Wife of</option>
+                </select>
+                <input id="uaRelName" autocomplete="off" required placeholder="Their name">
+              </div>
+              <span class="error">Choose son, daughter or wife, and add their name.</span>
+            </div>
+            <div class="field"><label for="uaWork">Presently working as</label><input id="uaWork" autocomplete="organization-title" required><span class="error">Say what you presently work as.</span></div>
+            <div class="u-form__row">
+              <div class="field"><label for="uaUnitPlace">A unit of PFA in</label><input id="uaUnitPlace" autocomplete="off" required placeholder="Town or city"><span class="error">Say where the unit would be.</span></div>
+              <div class="field"><label for="uaUnitDistrict">District</label><input id="uaUnitDistrict" autocomplete="off" required><span class="error">Add the district of the unit.</span></div>
+            </div>
+          </div>
+          <div class="u-screen" data-screen="sign">
+            <h3 class="u-form__q">Read and sign</h3>
+            <div class="u-oath" id="uaOath" aria-live="polite">
+              <p id="uaOathLead"></p>
+              <ol>
+                <li>I shall be the member in-charge for the Unit and agree to undertake the responsibility of making and sending the Quarterly progress report in the prescribed format as required by the Head Office.</li>
+                <li>I shall make at least 100 members of People for Animals, using the form available on the website. Thereafter I will keep an account of how the membership money is spent for the welfare of animals.</li>
+                <li>I shall strive to rescue and rehabilitate all kinds of animals that may be in distress.</li>
+                <li>I shall abide by the directions and guidelines for rescue and rehabilitation of animals set forth by the Head Office of People for Animals, as intimated to me through their website www.peopleforanimalsindia.org or through any other means of communication.</li>
+                <li>I shall make it convenient for all 7 members of the proposed Board to be available for a training session to be conducted at New Delhi, within 6 months of receiving a provisional approval.</li>
+              </ol>
+            </div>
+            <label class="u-check" id="uaAgreeBox"><input type="checkbox" id="uaAgree" required> <span>I agree to this undertaking.</span></label>
+            <p class="u-err" data-err-for="uaAgree" hidden>Agree to the undertaking before sending.</p>
+            <div class="field"><label for="uaSign">Signature of the applicant</label><input id="uaSign" autocomplete="off" required placeholder="Type your full name"><span class="error" id="uaSignErr">Type your name as your signature.</span></div>
+            <p class="u-today">Date: <b id="uaToday"></b></p>
+          </div>
+        </div>
+
+        <div class="u-step" data-step="Send">
+          <div class="u-screen" data-screen="send">
+            <h3 class="u-form__q">Attach and send</h3>
+            <p class="u-form__ask">Up to six photographs: address proofs, case papers, rescues. Optional.</p>
+            <label class="u-pickfile" for="uaPhotos">Choose photographs<input type="file" id="uaPhotos" accept="image/*" multiple></label>
+            <ul class="u-files" id="uaFiles" aria-live="polite"></ul>
+            <p class="u-err" id="uaFilesErr" hidden></p>
+            <p class="u-note">More than six, or a PDF? Send them by replying to the confirmation email, with them attached. They reach the head office under your application number.</p>
+          </div>
+        </div>
+
+        <div class="pfa-steps__nav">
+          <button class="pfa-steps__back" type="button" data-back hidden>Back</button>
+          <button class="btn" type="button" data-next>Continue</button>
+          <button class="btn" type="submit" id="uaSend" hidden>Send the application</button>
+          <span class="pfa-steps__count" data-count></span>
+        </div>
+        <p class="formstatus" data-form-status hidden></p>
+      </form>
+
+      <div class="u-done" id="uaDone" hidden>
+        <p class="eyebrow">Application sent</p>
+        <p class="u-done__ref" id="uaRef"></p>
+        <p>The head office has your application. They will use the mobile and email you gave.</p>
+        <p>Address proofs, case papers or more photographs: reply to the confirmation email with them attached. They reach the head office under this number.</p>
+        <div class="u-done__acts">
+          <button class="btn btn--light" type="button" id="uaCopy">Copy the number</button>
+          <a class="btn btn--light" href="track.html" id="uaTrack">Follow it</a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1486,6 +1955,467 @@ if (root.document && root.document.head) apply(read());
   var chipsEl = document.getElementById('uchips');
   if (chipsEl) chipsEl.addEventListener('click', function(){ setTimeout(foldCheck, 0); });
   foldCheck();
+})();
+</script>
+<script src="assets/field-rules.js"></script>
+<script src="assets/field-validate.js"></script>
+<script src="assets/form-preview.js"></script>
+<script src="pfa-forms.js"></script>
+<script>
+/* The online application for a new PFA unit (#apply).
+
+   One screen at a time: the applicant; the seven board members, one each;
+   A or B, then the five cases or the rescues, one each; the blanks of the
+   undertaking; the undertaking to read and sign; photographs and Send. Each
+   screen is checked before the next. A rescue after the first is optional:
+   left blank, Continue ends the list there.
+
+   What is sent is the paper form, field for field, with each board member,
+   case and rescue on one line (lib/submission-fields.js, PFA-U). It goes
+   through pfa-forms.js, which shows the last look first and reports success
+   only with the number the server issued. */
+(function(){
+  'use strict';
+  var form = document.getElementById('unitForm');
+  if (!form) return;
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return [].slice.call((r || document).querySelectorAll(s)); };
+  var R = window.PFA_RULES || null;
+  var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var MOBILE = /^[6-9]\d{9}$/;
+  var ADVOCATE = /advoc|lawyer|attorney|barrister|legal|\blaw\b|\bll\.?\s?[bm]\b/i;
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var MAX_FILES = 6;
+  /* the server takes 2600 KB of photographs in all; this leaves room */
+  var MAX_BYTES = 2300 * 1024;
+
+  var status = $('[data-form-status]', form);
+  var sendBtn = $('#uaSend');
+  var back = $('[data-back]', form);
+  var next = $('[data-next]', form);
+  var count = $('[data-count]', form);
+  var bar = $('.pfa-steps__bar span', form);
+  var tabs = $$('.pfa-steps__tabs li', form);
+  var steps = $$('.u-step', form);
+  var screens = $$('.u-screen', form);
+  var advocateErr = $('#uaAdvocate');
+
+  function say(el, message){
+    if (!el) return;
+    el.textContent = message || '';
+    el.hidden = !message;
+  }
+
+  /* A page whose sending script did not arrive must not look as if it can send. */
+  if (!window.PFAForms){
+    say(status, 'This form cannot be sent right now. Please reload the page, or download the paper form.');
+    if (status) status.setAttribute('data-state', 'bad');
+    if (sendBtn) sendBtn.disabled = true;
+  }
+
+  /* ---------- small helpers ---------- */
+  function val(id){
+    var el = document.getElementById(id);
+    return el ? String(el.value || '').split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean).join(', ').replace(/\s+/g, ' ').trim() : '';
+  }
+  function digits(v){ return String(v || '').replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '').replace(/^0(?=\d{10}$)/, ''); }
+  function two(n){ return (n < 10 ? '0' : '') + n; }
+  function isoToday(){ var d = new Date(); return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate()); }
+  function longToday(){ var d = new Date(); return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+  function longDate(iso){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    return m ? Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1] : String(iso || '');
+  }
+  function goodDate(iso){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (!m) return false;
+    var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return d.getMonth() === Number(m[2]) - 1 && Number(m[1]) >= 1950 && iso <= isoToday();
+  }
+  /* a town or district, in the form the server stores it */
+  function place(v){ return R ? R.normaliseField('city', v) : v; }
+  function picked(name){ var c = $('input[name="' + name + '"]:checked', form); return c ? c.value : ''; }
+  function plain(s){ return String(s || '').toLowerCase().replace(/[\s.,'-]+/g, ''); }
+
+  /* ---------- which screens are in play ---------- */
+  var cut = {};   /* an optional run ended here: rescues from this number on are skipped */
+  var at = 0;
+  function group(sc){ return sc.getAttribute('data-screen'); }
+  function numberOf(sc){ return Number(sc.getAttribute('data-n') || 0); }
+  function wants(letter){ var c = picked('criteria'); return c === 'Both A and B' || c.charAt(0) === letter; }
+  function inPlay(sc){
+    var when = sc.getAttribute('data-when');
+    if (when && !wants(when)) return false;
+    var g = group(sc);
+    return !(cut[g] && numberOf(sc) >= cut[g]);
+  }
+  function nextFrom(i){ for (var j = i + 1; j < screens.length; j++) if (inPlay(screens[j])) return j; return -1; }
+  function prevFrom(i){ for (var j = i - 1; j >= 0; j--) if (inPlay(screens[j])) return j; return -1; }
+  function controls(sc){ return $$('input, select, textarea', sc).filter(function(el){ return el.type !== 'file' && el.type !== 'radio' && el.type !== 'checkbox'; }); }
+  function anyIn(sc){ return controls(sc).some(function(el){ return String(el.value || '').trim(); }); }
+  function optionalBlank(sc){ return sc.hasAttribute('data-optional') && !anyIn(sc); }
+
+  /* ---------- checking a screen ---------- */
+  function boxOf(el){ return el.closest('.field') || el.closest('.u-check'); }
+  function flag(box, message){
+    if (!box) return;
+    var err = box.querySelector('.error');
+    if (err && err.dataset.pfaWording === undefined) err.dataset.pfaWording = err.textContent;
+    if (message === false){
+      box.classList.remove('is-bad');
+      if (err) err.textContent = err.dataset.pfaWording;
+      return;
+    }
+    box.classList.add('is-bad');
+    if (err) err.textContent = typeof message === 'string' && message ? message : err.dataset.pfaWording;
+  }
+  function verdict(el, filledScreen){
+    var v = String(el.value || '').trim();
+    var needed = el.required || filledScreen;
+    if (!v) return needed ? true : '';
+    if (el.type === 'email' && !EMAIL.test(v)) return 'That does not look like an email address.';
+    if (el.type === 'tel' && !MOBILE.test(digits(v))) return 'An Indian mobile number is 10 digits, starting 6, 7, 8 or 9.';
+    var check = el.getAttribute('data-check');
+    if (check === 'phone'){
+      var d = v.replace(/\D/g, '');
+      if (d.length < 8 || d.length > 13 || /[^\d\s+()-]/.test(v)) return 'A phone number is 8 to 13 digits.';
+    }
+    if (check === 'age' && (!/^\d{1,3}$/.test(v) || Number(v) < 18 || Number(v) > 110)) return 'Their age in years, 18 or over.';
+    if (check === 'date' && !goodDate(v)) return 'Add the date, not later than today.';
+    /* the same rules the server holds, for the boxes it has rules for */
+    var key = window.PFAFieldValidate && window.PFAFieldValidate.keyOf ? window.PFAFieldValidate.keyOf(el) : '';
+    if (R && key){
+      var said = R.checkField(key, v, { required: false, type: el.type });
+      if (said) return said;
+    }
+    return '';
+  }
+  function check(sc){
+    var first = null;
+    var filled = sc.hasAttribute('data-optional') && anyIn(sc);
+    var boxes = [];
+    controls(sc).forEach(function(el){
+      if (el.disabled || el.closest('[hidden]')) return;
+      var box = boxOf(el);
+      if (box && boxes.indexOf(box) < 0){ boxes.push(box); flag(box, false); }
+    });
+    controls(sc).forEach(function(el){
+      if (el.disabled || el.closest('[hidden]')) return;
+      var said = verdict(el, filled);
+      if (!said) return;
+      flag(boxOf(el), said);
+      if (!first) first = el;
+    });
+    $$('[data-need]', sc).forEach(function(set){
+      var name = set.getAttribute('data-need');
+      var err = form.querySelector('[data-err-for="' + name + '"]');
+      var bad = !picked(name);
+      set.classList.toggle('is-bad', bad);
+      if (err) err.hidden = !bad;
+      if (bad && !first) first = $('input[name="' + name + '"]', set);
+    });
+    $$('input[type="checkbox"][required]', sc).forEach(function(box){
+      var err = form.querySelector('[data-err-for="' + box.id + '"]');
+      var bad = !box.checked;
+      var wrap = box.closest('.u-check');
+      if (wrap) wrap.classList.toggle('is-bad', bad);
+      if (err) err.hidden = !bad;
+      if (bad && !first) first = box;
+    });
+    var own = first ? null : extra(sc);
+    return first || own;
+  }
+  /* what one screen asks beyond its boxes */
+  function extra(sc){
+    var g = group(sc);
+    if (g === 'member' && numberOf(sc) === 7){
+      var any = [1, 2, 3, 4, 5, 6, 7].some(function(n){ return ADVOCATE.test(val('m' + n + 'Prof')); });
+      say(advocateErr, any ? '' : advocateErr.getAttribute('data-say') || advocateErr.textContent);
+      if (!any) return $('#m7Prof');
+    }
+    if (g === 'sign'){
+      var sign = $('#uaSign');
+      if (sign.value.trim() && plain(sign.value) !== plain(val('uaName'))){
+        flag(boxOf(sign), 'Type your name as you gave it: ' + val('uaName') + '.');
+        return sign;
+      }
+    }
+    return null;
+  }
+  if (advocateErr){ advocateErr.setAttribute('data-say', advocateErr.textContent); }
+
+  /* ---------- showing one screen ---------- */
+  function paint(focus){
+    var sc = screens[at];
+    var step = sc.closest('.u-step');
+    var si = steps.indexOf(step);
+    steps.forEach(function(s, i){ s.classList.toggle('is-current', i === si); });
+    screens.forEach(function(s, i){ s.classList.toggle('is-on', i === at); });
+    tabs.forEach(function(t, i){ t.classList.toggle('is-current', i === si); t.classList.toggle('is-done', i < si); });
+    if (bar) bar.style.width = Math.round(((si + 1) / steps.length) * 100) + '%';
+    var last = nextFrom(at) === -1;
+    back.hidden = prevFrom(at) === -1;
+    next.hidden = last;
+    if (sendBtn) sendBtn.hidden = !last;
+    if (count) count.textContent = 'Step ' + (si + 1) + ' of ' + steps.length;
+    if (group(sc) !== 'member' && advocateErr) say(advocateErr, '');
+    if (group(sc) === 'undertaking'){
+      /* most apply for their own town: offered, never forced */
+      if (!$('#uaUnitPlace').value.trim()) $('#uaUnitPlace').value = val('uaCity');
+      if (!$('#uaUnitDistrict').value.trim()) $('#uaUnitDistrict').value = val('uaDistrict');
+    }
+    if (group(sc) === 'sign') oath();
+    if (!focus) return;
+    if (form.getBoundingClientRect().top < 90) form.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    var f = $('input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea', sc) || $('input', sc);
+    if (f){ try { f.focus({ preventScroll: true }); } catch (_) {} }
+  }
+
+  next.addEventListener('click', function(){
+    var sc = screens[at];
+    if (optionalBlank(sc)){
+      /* a blank optional rescue: the list ends here */
+      cut[group(sc)] = numberOf(sc);
+      controls(sc).forEach(function(el){ flag(boxOf(el), false); });
+    } else {
+      var bad = check(sc);
+      if (bad){ if (bad.focus) bad.focus(); return; }
+      /* filled in: the one after it is offered again */
+      var g = group(sc);
+      if (cut[g] && cut[g] <= numberOf(sc) + 1) delete cut[g];
+    }
+    var j = nextFrom(at);
+    if (j < 0) return;
+    at = j;
+    paint(true);
+  });
+  back.addEventListener('click', function(){
+    var j = prevFrom(at);
+    if (j < 0) return;
+    at = j;
+    paint(true);
+  });
+  /* Enter in a box moves on, as Continue does; it never sends from an earlier screen */
+  form.addEventListener('keydown', function(e){
+    if (e.key !== 'Enter' || nextFrom(at) < 0) return;
+    var t = e.target;
+    if (!t || t.tagName === 'TEXTAREA' || t.tagName === 'BUTTON' || t.tagName === 'A') return;
+    e.preventDefault();
+    next.click();
+  });
+  form.addEventListener('input', function(e){
+    var box = e.target && e.target.closest ? boxOf(e.target) : null;
+    if (box && box.classList.contains('is-bad') && !(window.PFAFieldValidate && window.PFAFieldValidate.keyOf(e.target))) flag(box, false);
+    if (/Prof$/.test(e.target.id || '') && advocateErr) say(advocateErr, '');
+  });
+  form.addEventListener('change', function(e){
+    var name = e.target && e.target.name;
+    if (name){
+      var err = form.querySelector('[data-err-for="' + name + '"]');
+      if (err) err.hidden = true;
+      var set = e.target.closest('[data-need]');
+      if (set) set.classList.remove('is-bad');
+    }
+    if (e.target && e.target.type === 'checkbox'){
+      var own = form.querySelector('[data-err-for="' + e.target.id + '"]');
+      if (own && e.target.checked) own.hidden = true;
+      var wrap = e.target.closest('.u-check');
+      if (wrap && e.target.checked) wrap.classList.remove('is-bad');
+    }
+  });
+
+  /* ---------- the undertaking, in the paper's words with the blanks filled ---------- */
+  function sentenceParts(){
+    var relation = val('uaRelation');
+    var resident = [val('uaAddress'), place(val('uaCity')), place(val('uaDistrict'))].filter(Boolean).join(', ');
+    return [
+      ['I, '], [(picked('salutation') + ' ' + val('uaName')).trim(), 1], [', '],
+      [(relation ? relation.toLowerCase() + ' ' : '') + val('uaRelName'), 1],
+      [', resident of '], [resident, 1],
+      [', and presently working as '], [val('uaWork'), 1],
+      [', am desirous of forming a Unit of PFA in '], [place(val('uaUnitPlace')), 1],
+      [', District '], [place(val('uaUnitDistrict')), 1], ['.']
+    ];
+  }
+  function oath(){
+    var lead = $('#uaOathLead');
+    if (!lead) return;
+    lead.textContent = '';
+    sentenceParts().forEach(function(part){
+      if (part[1]){ var b = document.createElement('b'); b.textContent = part[0]; lead.appendChild(b); }
+      else lead.appendChild(document.createTextNode(part[0]));
+    });
+  }
+  function oathText(){ return sentenceParts().map(function(p){ return p[0]; }).join(''); }
+
+  /* ---------- photographs ---------- */
+  var photos = [];
+  var preparing = 0;
+  var photoInput = $('#uaPhotos');
+  var fileList = $('#uaFiles');
+  var fileErr = $('#uaFilesErr');
+  function bytesOf(url){ var i = String(url).indexOf(','); return Math.round((String(url).length - i - 1) * 0.75); }
+  function total(){ return photos.reduce(function(sum, p){ return sum + (p.data ? bytesOf(p.data) : 0); }, 0); }
+  function drawFiles(){
+    fileList.textContent = '';
+    photos.forEach(function(p, i){
+      var li = document.createElement('li');
+      var name = document.createElement('span');
+      name.textContent = p.data ? p.name : p.name + ' (preparing…)';
+      var drop = document.createElement('button');
+      drop.type = 'button';
+      drop.textContent = 'Remove';
+      drop.setAttribute('aria-label', 'Remove ' + p.name);
+      drop.addEventListener('click', function(){ photos.splice(i, 1); drawFiles(); });
+      li.appendChild(name);
+      li.appendChild(drop);
+      fileList.appendChild(li);
+    });
+    if (sendBtn && window.PFAForms) sendBtn.disabled = preparing > 0;
+  }
+  /* shrunk once more, harder, if together they are past what the server takes */
+  function fit(){
+    if (total() <= MAX_BYTES) return Promise.resolve();
+    return Promise.all(photos.map(function(p){
+      return window.PFAForms.shrink(p.file, 1000, 0.6).then(function(url){ p.data = url; }).catch(function(){});
+    })).then(function(){
+      if (total() > MAX_BYTES) say(fileErr, 'These photographs are too large together. Remove one, and send it by replying to the confirmation email.');
+    });
+  }
+  if (photoInput) photoInput.addEventListener('change', function(){
+    var chosen = [].slice.call(photoInput.files || []);
+    photoInput.value = '';
+    say(fileErr, '');
+    if (!window.PFAForms) return;
+    chosen.forEach(function(file){
+      if (photos.length >= MAX_FILES){ say(fileErr, 'Six is the most here. Send the rest by replying to the confirmation email.'); return; }
+      if (!/^image\//.test(file.type)){ say(fileErr, '"' + file.name + '" is not a photograph. Send PDFs by replying to the confirmation email.'); return; }
+      var entry = { name: file.name, file: file, data: '' };
+      photos.push(entry);
+      preparing += 1;
+      window.PFAForms.shrink(file, 1280, 0.7).then(function(url){ entry.data = url; }).catch(function(){
+        var i = photos.indexOf(entry);
+        if (i > -1) photos.splice(i, 1);
+        say(fileErr, '"' + file.name + '" could not be opened. Try a JPEG, or send it by replying to the confirmation email.');
+      }).then(function(){
+        preparing -= 1;
+        return preparing ? null : fit();
+      }).then(drawFiles);
+    });
+    drawFiles();
+  });
+
+  /* ---------- what is sent ---------- */
+  function memberLine(n){
+    var k = 'm' + n;
+    return val(k + 'Name') + ', age ' + val(k + 'Age') + ', ' + val(k + 'Prof')
+      + ' · Address: ' + val(k + 'Addr') + ' · Phone: ' + val(k + 'Phone')
+      + (val(k + 'Email') ? ' · Email: ' + val(k + 'Email') : '');
+  }
+  function caseLine(n){
+    var k = 'c' + n;
+    return 'Case number: ' + val(k + 'No') + ' · Police station: ' + val(k + 'Ps') + ' · Date: ' + longDate(val(k + 'Date'));
+  }
+  function rescueLine(n){
+    var k = 'r' + n;
+    return 'Animal: ' + val(k + 'Animal') + ' · Nature of the problem: ' + val(k + 'Problem')
+      + ' · Date: ' + longDate(val(k + 'Date')) + ' · Action taken: ' + val(k + 'Action');
+  }
+  function data(){
+    var d = {
+      unitPlace: place(val('uaUnitPlace')),
+      unitDistrict: place(val('uaUnitDistrict')),
+      name: val('uaName'),
+      address: val('uaAddress'),
+      city: place(val('uaCity')),
+      district: place(val('uaDistrict')),
+      mobile: digits(val('uaMobile')),
+      phone2: val('uaPhone2'),
+      email: val('uaEmail')
+    };
+    var n;
+    for (n = 1; n <= 7; n++) d['member' + n] = memberLine(n);
+    d.criteria = picked('criteria');
+    screens.forEach(function(sc){
+      if (!inPlay(sc) || optionalBlank(sc)) return;
+      if (group(sc) === 'case') d['case' + numberOf(sc)] = caseLine(numberOf(sc));
+      if (group(sc) === 'rescue') d['rescue' + numberOf(sc)] = rescueLine(numberOf(sc));
+    });
+    d.salutation = picked('salutation');
+    d.relation = (val('uaRelation') + ' ' + val('uaRelName')).trim();
+    d.workingAs = val('uaWork');
+    d.undertaking = oathText() + ' I agree to this undertaking.';
+    d.signature = val('uaSign');
+    d.signedOn = longToday();
+    return d;
+  }
+  /* the last look lists the application as the head office will read it */
+  var LABELS = [
+    ['unitPlace', 'A unit of PFA in'], ['unitDistrict', 'District of the unit'],
+    ['name', 'Name of the applicant'], ['address', 'Address of the applicant'], ['city', 'City'], ['district', 'District'],
+    ['mobile', 'Phone number (1)'], ['phone2', 'Phone number (2)'], ['email', 'Email']
+  ].concat([1, 2, 3, 4, 5, 6, 7].map(function(n){ return ['member' + n, 'Board member ' + n]; }))
+    .concat([['criteria', 'Qualifies under']])
+    .concat([1, 2, 3, 4, 5].map(function(n){ return ['case' + n, 'A) Case ' + n]; }))
+    .concat([1, 2, 3, 4, 5].map(function(n){ return ['rescue' + n, 'B) Rescue ' + n]; }))
+    .concat([['undertaking', 'Undertaking'], ['signature', 'Signature of the applicant'], ['signedOn', 'Date']]);
+
+  function collect(){
+    for (var i = 0; i < screens.length; i++){
+      var sc = screens[i];
+      if (!inPlay(sc) || optionalBlank(sc)) continue;
+      var bad = check(sc);
+      if (bad){ at = i; paint(false); if (bad.focus) bad.focus(); return null; }
+    }
+    if (preparing){
+      say(status, 'The photographs are still being prepared. Give it a moment, then send.');
+      return null;
+    }
+    if (total() > MAX_BYTES){
+      say(fileErr, 'These photographs are too large together. Remove one, and send it by replying to the confirmation email.');
+      return null;
+    }
+    return data();
+  }
+
+  if (window.PFAForms) window.PFAForms.wire(form, {
+    kind: 'PFA-U',
+    page: 'units.html',
+    button: sendBtn,
+    status: status,
+    sending: 'Sending…',
+    previewTitle: 'Check your application before it is sent',
+    previewExtra: function(d){
+      var rows = LABELS.filter(function(r){ return d[r[0]]; }).map(function(r){ return [r[1], d[r[0]]]; });
+      var n = photos.filter(function(p){ return p.data; }).length;
+      rows.push(['Photographs', n ? n + ' attached' : 'None attached']);
+      return rows;
+    },
+    collect: collect,
+    photos: function(){ return photos.filter(function(p){ return p.data; }).map(function(p){ return p.data; }); },
+    onSent: function(reference){
+      var done = $('#uaDone');
+      form.hidden = true;
+      $('#uaRef').textContent = reference;
+      var acts = $('.u-done__acts', done);
+      var mailNote = window.PFAForms.emailNote && window.PFAForms.emailNote(reference);
+      if (mailNote) done.insertBefore(mailNote, acts);
+      $('#uaTrack').setAttribute('href', 'track.html#ref=' + encodeURIComponent(reference));
+      var copy = $('#uaCopy');
+      copy.addEventListener('click', function(){
+        try { navigator.clipboard.writeText(reference).then(function(){ copy.textContent = 'Copied'; }); } catch (_) {}
+      });
+      done.hidden = false;
+      done.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+  });
+
+  /* ---------- start ---------- */
+  $$('input[type="date"]', form).forEach(function(el){ el.max = isoToday(); el.min = '1950-01-01'; });
+  var today = $('#uaToday');
+  if (today) today.textContent = longToday();
+  form.classList.add('is-paged');
+  paint(false);
 })();
 </script>
 </body>

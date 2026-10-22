@@ -840,7 +840,7 @@ test('a paid membership: kept in the panel only, answered from it, and the whole
 test('the panel shows who wrote back, and says that volunteers and memberships stay in it', () => {
   const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
   assert.match(html, /function wrote\(r\) \{\s*return r && r\.awaitingReply \?/);
-  assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n      \+ '<td>' \+ esc\(r\.assignedTo/, 'in the register');
-  assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n          \+ '<td>' \+ esc\(when\(r\.createdAt\)\)/, 'and in the volunteers list');
+  assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n {6}\+ '<td>' \+ esc\(r\.assignedTo/, 'in the register');
+  assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n {10}\+ '<td>' \+ esc\(when\(r\.createdAt\)\)/, 'and in the volunteers list');
   assert.match(html, /Volunteer applications and memberships are not emailed to anyone at PFA: they are kept here only/);
 });

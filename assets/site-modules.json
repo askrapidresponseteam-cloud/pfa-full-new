@@ -33,6 +33,10 @@
      "label": "Start the next one."
     },
     {
+     "id": "apply",
+     "label": "A new PFA unit."
+    },
+    {
      "id": "unit-list",
      "label": "Find a unit"
     }
@@ -746,7 +750,15 @@
    "galStrip": "gallery",
    "ulist": "unit-list",
    "uempty": "unit-list",
-   "uwork": "the-work"
+   "uwork": "the-work",
+   "apply-ways": "setup",
+   "uaAdvocate": "apply",
+   "uaOath": "apply",
+   "uaOathLead": "apply",
+   "uaFiles": "apply",
+   "uaFilesErr": "apply",
+   "uaDone": "apply",
+   "uaRef": "apply"
   },
   "report": {
    "shots": "report-now",

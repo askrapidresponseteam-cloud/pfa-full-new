@@ -3,7 +3,7 @@
 
 /* Bring every unit's own photograph from the official directory.
    ------------------------------------------------------------------------
-   peopleforanimalsindia.org keeps one page per unit at
+   PFA's old site keeps one page per unit at
    units/details/<id>.html, and each page carries that unit's photograph
    under /uploads/unit/ with an arbitrary timestamp filename (everything
    else on the page is site chrome under /front/img/). The filename cannot
@@ -30,15 +30,21 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const http = require('http');
 
-const HOST = 'https://www.peopleforanimalsindia.org';
+/* The old site, where every unit has its page. It was
+   peopleforanimalsindia.org until that address became this site (Oct 2026);
+   it lives on, unchanged, at pf-acurrent.vercel.app (owner, 22 Oct 2026),
+   built from github.com/askrapidresponseteam-cloud/PFAcurrent.
+   PFA_OLD_SITE points it elsewhere, a local copy of that repository say. */
+const HOST = String(process.env.PFA_OLD_SITE || 'https://pf-acurrent.vercel.app').replace(/\/+$/, '');
 const OUT = path.join(__dirname, '..', 'media', 'units');
 const PAGE = path.join(__dirname, '..', 'units.html');
 const FORCE = process.argv.includes('--force');
 
 function get(url, redirectsLeft = 3) {
   return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers: { 'User-Agent': 'PFA-site-build' }, timeout: 20000 }, (res) => {
+    const req = (/^http:/.test(url) ? http : https).get(url, { headers: { 'User-Agent': 'PFA-site-build' }, timeout: 20000 }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && redirectsLeft) {
         res.resume();
         return resolve(get(new URL(res.headers.location, url).href, redirectsLeft - 1));

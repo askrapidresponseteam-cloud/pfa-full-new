@@ -35,6 +35,7 @@ const FORMS = [
   ['legacy.html',       'legacyForm', 'PFA-LEG', 'asking about a legacy'],
   ['campaign.html',     'campForm',   'PFA-CMP', 'planning a campaign'],
   ['privacy.html',      'privacyForm', 'PFA-PRV', 'asking for their data'],
+  ['units.html',        'unitForm',   'PFA-U',  'applying for a new PFA unit'],
 ];
 
 test('every kind a form sends has a name the panel can print', () => {

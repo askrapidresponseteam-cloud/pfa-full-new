@@ -40,7 +40,11 @@ cd "$(dirname "$0")"
 step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
 
 EMAIL="${1:-karthik.dhanya11@gmail.com}"
-LIVE_URL="https://book.pfaevents.buzz/index.html"
+# The public address since Oct 2026 (book.pfaevents.buzz no longer serves the
+# site, so the read-back below could never find a build there). -L follows
+# Vercel's clean-URL redirect.
+SITE_URL="https://peopleforanimalsindia.org"
+LIVE_URL="$SITE_URL/"
 
 command -v node >/dev/null || { printf '\n\033[31mSTOPPED: node is not installed or not on PATH.\033[0m\n  Install it from nodejs.org or via Homebrew, then double-click again.\n'; exit 1; }
 
@@ -49,24 +53,48 @@ step "Deploying from $(pwd) as $EMAIL"
 step "Installing dependencies"
 npm install --silent
 
-step "Making sure the library's documents are here"
-# resources/ (the library PDFs) and test/fixtures/ (the PDFs the reader's
-# tests read) live on GitHub, not in the zip. A deploy without them fails its
-# tests, and if it ever got past them it would delete the PDFs from the site.
-# Taken from the live tree when it has them, otherwise from GitHub.
-# (8 Oct 2026: the live tree on the Desktop had lost resources/ and the
-# one-line command stopped at the copy.)
-if [ ! -d resources ] || [ ! -d test/fixtures ]; then
-  if [ -d "$HOME/Desktop/PFA_Website/resources" ] && [ -d "$HOME/Desktop/PFA_Website/test/fixtures" ]; then
-    cp -R "$HOME/Desktop/PFA_Website/resources" . && mkdir -p test && cp -R "$HOME/Desktop/PFA_Website/test/fixtures" test/
-  else
-    TMP_RES="$(mktemp -d)"
-    git clone -q --depth 1 --filter=blob:none --sparse https://github.com/askrapidresponseteam-cloud/pfa-demo.git "$TMP_RES/repo"
-    git -C "$TMP_RES/repo" sparse-checkout set resources test/fixtures
-    cp -R "$TMP_RES/repo/resources" . && mkdir -p test && cp -R "$TMP_RES/repo/test/fixtures" test/
-    rm -rf "$TMP_RES"
+step "Making sure the content the zip does not carry is here"
+# Six folders live in the repository and never travel in the zip, so the zip
+# stays one file: the library's PDFs, its test PDFs, the campaign, campus and
+# SGACC photographs, and the CineKind reels' videos. They are KEEP_PATHS in
+# scripts/ship.sh, and this reads that list rather than keeping a second one.
+# Each is taken from the live tree when it has it, and whatever is still
+# missing from GitHub, so the tests see the whole site and the push deletes
+# nothing.
+# 8 Oct 2026: the live tree had lost resources/ and the copy stopped.
+# 22 Oct 2026: only the library was restored here, so a tree without the
+# reels' videos or a microsite's photographs stopped the ship at "everything
+# KEEP_EXCLUDES names is really in the repository".
+eval "$(grep '^KEEP_PATHS=(' scripts/ship.sh)"
+LIVE_TREE="$HOME/Desktop/PFA_Website"
+# a folder counts as here when it holds what the zip leaves out of it
+have() {
+  case "$1" in
+    media/cinekind-2026/reels) ls "$1"/*.mp4 >/dev/null 2>&1 ;;
+    *) [ -n "$(ls -A "$1" 2>/dev/null)" ] ;;
+  esac
+}
+NEED=""
+for p in "${KEEP_PATHS[@]}"; do
+  if ! have "$p" && [ -d "$LIVE_TREE/$p" ]; then
+    mkdir -p "$p" && { cp -R -n "$LIVE_TREE/$p/." "$p/" 2>/dev/null || true; }
   fi
+  have "$p" || NEED="$NEED $p"
+done
+if [ -n "$NEED" ]; then
+  REPO_URL="$(git -C "$LIVE_TREE" remote get-url origin 2>/dev/null || echo https://github.com/askrapidresponseteam-cloud/pfa-demo.git)"
+  echo "  from GitHub ($REPO_URL):$NEED"
+  TMP_RES="$(mktemp -d)"
+  if git clone -q --depth 1 --filter=blob:none --sparse "$REPO_URL" "$TMP_RES/repo" && git -C "$TMP_RES/repo" sparse-checkout set $NEED; then
+    for p in $NEED; do
+      if [ -d "$TMP_RES/repo/$p" ]; then mkdir -p "$p" && { cp -R -n "$TMP_RES/repo/$p/." "$p/" 2>/dev/null || true; }; fi
+    done
+  fi
+  rm -rf "$TMP_RES"
 fi
+for p in "${KEEP_PATHS[@]}"; do
+  have "$p" || echo "  still missing: $p (the tests below will name it)"
+done
 # Documents taken off the shelves on purpose (data/library-withdrawn.json):
 # their PDFs are deleted here, so the deploy removes them from the repository.
 node scripts/withdraw-library.js
@@ -97,7 +125,7 @@ bash scripts/ship.sh "$EMAIL"
 
 step "Reading the live build stamp back"
 sleep 45
-LIVE="$(curl -s "$LIVE_URL" | grep -o 'pfa-build" content="[^"]*"' || true)"
+LIVE="$(curl -sL "$LIVE_URL" | grep -o 'pfa-build" content="[^"]*"' || true)"
 if [ -n "$LIVE" ]; then
   printf '\nLIVE BUILD IS: %s\n' "$LIVE"
 else
@@ -105,7 +133,7 @@ else
 fi
 
 step "Checking automated email is switched on in production"
-HEALTH_URL="${LIVE_URL%/index.html}/api/payment/health"
+HEALTH_URL="$SITE_URL/api/payment/health"
 HEALTH="$(curl -s "$HEALTH_URL" || true)"
 case "$HEALTH" in
   *'"mail":true'*)  printf 'EMAIL IS ON: acknowledgements, receipts and welcome letters can be sent.\n' ;;

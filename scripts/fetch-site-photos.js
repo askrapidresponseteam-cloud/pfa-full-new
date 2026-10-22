@@ -3,8 +3,12 @@
 
 /* Bring the microsites' photographs and documents from PFA's old site.
    ------------------------------------------------------------------------
-   data/site-photos.json names each file, where it comes from on
-   peopleforanimalsindia.org, and what it shows. The release zip does not
+   data/site-photos.json names each file, where it comes from on the old
+   site, and what it shows. The old site was peopleforanimalsindia.org until
+   that address became this site (Oct 2026); it lives on, unchanged, at
+   pf-acurrent.vercel.app (owner, 22 Oct 2026), built from
+   github.com/askrapidresponseteam-cloud/PFAcurrent. PFA_OLD_SITE points the
+   fetch at another copy of it (a local one, say) without editing the list. The release zip does not
    carry them (the sandbox that builds it cannot reach that site), so
    DEPLOY.command first copies media/site/ from the live tree when it has it,
    then runs this for whatever is still missing. Once a deploy has fetched a
@@ -21,6 +25,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const http = require('http');
 
 const ROOT = path.join(__dirname, '..');
 const MANIFEST = path.join(ROOT, 'data', 'site-photos.json');
@@ -28,7 +33,7 @@ const FORCE = process.argv.includes('--force');
 
 function get(url, redirectsLeft = 3) {
   return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers: { 'User-Agent': 'PFA-site-build' }, timeout: 25000 }, (res) => {
+    const req = (/^http:/.test(url) ? http : https).get(url, { headers: { 'User-Agent': 'PFA-site-build' }, timeout: 25000 }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && redirectsLeft) {
         res.resume();
         resolve(get(new URL(res.headers.location, url).href, redirectsLeft - 1));
@@ -44,6 +49,15 @@ function get(url, redirectsLeft = 3) {
     req.on('timeout', () => req.destroy(new Error('timed out after 25s')));
     req.on('error', reject);
   });
+}
+
+/* Where a listed file is fetched from: as listed, or the same path on
+   PFA_OLD_SITE when that is set. */
+function sourceOf(from) {
+  const other = String(process.env.PFA_OLD_SITE || '').replace(/\/+$/, '');
+  if (!other) return from;
+  const u = new URL(from);
+  return other + u.pathname + u.search;
 }
 
 const sleep = (ms) => new Promise((r) => { setTimeout(r, ms); });
@@ -66,7 +80,7 @@ async function fetchOne(entry) {
   let last;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      const { bytes } = await get(entry.from);
+      const { bytes } = await get(sourceOf(entry.from));
       if (!looksRight(entry.file, bytes)) throw new Error('the answer was not the file');
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.writeFileSync(target, bytes);
@@ -96,4 +110,4 @@ async function main() {
 
 if (require.main === module) main();
 
-module.exports = { looksRight, MANIFEST };
+module.exports = { looksRight, sourceOf, MANIFEST };

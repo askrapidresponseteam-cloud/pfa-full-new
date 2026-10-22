@@ -234,6 +234,36 @@ const FORMS = {
       "references": "PFA-Q-2026-00012",
       "details": "Please send what you hold about my question from March"
     }
+  },
+  /* units.html (22 Oct 2026): what the page sent when filled in, criterion B */
+  "PFA-U": {
+    "page": "units.html",
+    "data": {
+      "unitPlace": "Kundapur",
+      "unitDistrict": "Udupi",
+      "name": "Asha Rao",
+      "address": "12 Main Road, Koteshwara",
+      "city": "Kundapur",
+      "district": "Udupi",
+      "mobile": "9876543210",
+      "phone2": "0820 252 0000",
+      "email": "tester.pfa@example.com",
+      "member1": "Meena Iyer, age 41, Advocate \u00b7 Address: 1 Temple Street, Udupi \u00b7 Phone: 9845010001 \u00b7 Email: meena@example.com",
+      "member2": "Ravi Shetty, age 38, Farmer \u00b7 Address: 2 Temple Street, Udupi \u00b7 Phone: 9845010002",
+      "member3": "Lata Rao, age 52, Teacher \u00b7 Address: 3 Temple Street, Udupi \u00b7 Phone: 9845010003",
+      "member4": "Kiran Nayak, age 29, Veterinary doctor \u00b7 Address: 4 Temple Street, Udupi \u00b7 Phone: 9845010004",
+      "member5": "Divya Bhat, age 33, Accountant \u00b7 Address: 5 Temple Street, Udupi \u00b7 Phone: 9845010005",
+      "member6": "Suresh Pai, age 61, Retired banker \u00b7 Address: 6 Temple Street, Udupi \u00b7 Phone: 9845010006",
+      "member7": "Nisha Kamath, age 27, Engineer \u00b7 Address: 7 Temple Street, Udupi \u00b7 Phone: 9845010007",
+      "criteria": "B. Rescue work",
+      "rescue1": "Animal: Dog \u00b7 Nature of the problem: Hit by a bus near the market, leg fractured \u00b7 Date: 3 January 2026 \u00b7 Action taken: Taken to the vet, treated, and released where she lives",
+      "salutation": "Ms.",
+      "relation": "Daughter of Ramesh Rao",
+      "workingAs": "Teacher",
+      "undertaking": "I, Ms. Asha Rao, daughter of Ramesh Rao, resident of 12 Main Road, Koteshwara, Kundapur, Udupi, and presently working as Teacher, am desirous of forming a Unit of PFA in Kundapur, District Udupi. I agree to this undertaking.",
+      "signature": "Asha Rao",
+      "signedOn": "22 October 2026"
+    }
   }
 };
 

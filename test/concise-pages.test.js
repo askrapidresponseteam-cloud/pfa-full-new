@@ -112,7 +112,7 @@ test('no photograph frame ever asks for a photo', () => {
     assert.doesNotMatch(read(file), /add photo/i, `${file} shows "add photo" where a photograph did not arrive`);
   }
   const founder = read('founder.html');
-  assert.match(founder, /src="media\/site\/sgacc\/centre-01\.jpg" data-alt-src="https:\/\/www\.peopleforanimalsindia\.org\/front\/img\/center1\.jpg"/);
+  assert.match(founder, /src="media\/site\/sgacc\/centre-01\.jpg" data-alt-src="https:\/\/pf-acurrent\.vercel\.app\/front\/img\/center1\.jpg"/);
   /* a quiet plate: the faint PFA mark, as on the microsites */
   assert.match(founder, /\.frame\.is-empty::before\{[^}]*background:url\("img\/mail\/logo-mark\.png"\)[^}]*opacity:\.16;filter:grayscale\(1\)\}/);
   /* and no wall of plates: with none arrived, the gallery steps aside */

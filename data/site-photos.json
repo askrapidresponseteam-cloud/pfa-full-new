@@ -1,101 +1,101 @@
 {
-  "about": "Photographs and documents the microsites (campus, sgacc, csr, legacy, campaign, careers) use, taken from PFA's own old site. They are not in the release zip: DEPLOY.command copies media/site/ from the live tree when it has it, and scripts/fetch-site-photos.js fetches whatever is still missing (npm run media:site). Every frame that shows one turns into a plain plate with its caption if the file is not there, so a page never shows a broken image; scripts/audit-site.js and scripts/check-media.js accept a missing file only if it is listed here.",
+  "about": "Photographs and documents the microsites (campus, sgacc, csr, legacy, campaign, careers) use, taken from PFA's own old site, which lives on at pf-acurrent.vercel.app (repository askrapidresponseteam-cloud/PFAcurrent) since peopleforanimalsindia.org became this site in Oct 2026. They are not in the release zip: DEPLOY.command copies media/site/ from the live tree when it has it, and scripts/fetch-site-photos.js fetches whatever is still missing (npm run media:site). Every frame that shows one turns into a plain plate with its caption if the file is not there, so a page never shows a broken image; scripts/audit-site.js and scripts/check-media.js accept a missing file only if it is listed here.",
   "photos": [
     {
       "file": "media/site/sgacc/centre-01.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/center1.jpg",
+      "from": "https://pf-acurrent.vercel.app/front/img/center1.jpg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-02.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/center2.jpg",
+      "from": "https://pf-acurrent.vercel.app/front/img/center2.jpg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-03.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/center4.jpeg",
+      "from": "https://pf-acurrent.vercel.app/front/img/center4.jpeg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-04.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/center5.jpeg",
+      "from": "https://pf-acurrent.vercel.app/front/img/center5.jpeg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-05.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/center6.jpeg",
+      "from": "https://pf-acurrent.vercel.app/front/img/center6.jpeg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-06.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/gallery9.jpg",
+      "from": "https://pf-acurrent.vercel.app/front/img/gallery9.jpg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-07.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/gallery10.jpg",
+      "from": "https://pf-acurrent.vercel.app/front/img/gallery10.jpg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-08.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/gallery11.jpg",
+      "from": "https://pf-acurrent.vercel.app/front/img/gallery11.jpg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-09.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/gallery12.jpg",
+      "from": "https://pf-acurrent.vercel.app/front/img/gallery12.jpg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/sgacc/centre-10.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/gallery13.jpg",
+      "from": "https://pf-acurrent.vercel.app/front/img/gallery13.jpg",
       "what": "The Sanjay Gandhi Animal Care Centre, from the old site's gallery \"Glimpse of the flagship animal hospital cum shelter\""
     },
     {
       "file": "media/site/campus/campus.jpg",
-      "from": "https://www.peopleforanimalsindia.org/front/img/pfa-main-focus.jpg",
+      "from": "https://pf-acurrent.vercel.app/front/img/pfa-main-focus.jpg",
       "what": "The PFA Campus banner on the old site's PFA Campus page"
     },
     {
       "file": "media/site/campaign/gau-seva-01.jpg",
-      "from": "https://www.peopleforanimalsindia.org/uploads/campaign/540585601-1663585282.jpeg",
+      "from": "https://pf-acurrent.vercel.app/uploads/campaign/540585601-1663585282.jpeg",
       "what": "The old site's \"Gau Seva Ab Aur Bhi Asaan\" campaign"
     },
     {
       "file": "media/site/campaign/gau-seva-02.jpg",
-      "from": "https://www.peopleforanimalsindia.org/uploads/campaign/366330273-1663585282.jpeg",
+      "from": "https://pf-acurrent.vercel.app/uploads/campaign/366330273-1663585282.jpeg",
       "what": "The old site's \"Gau Seva Ab Aur Bhi Asaan\" campaign"
     },
     {
       "file": "media/site/campaign/gau-seva-03.jpg",
-      "from": "https://www.peopleforanimalsindia.org/uploads/campaign/112764791-1663585282.jpeg",
+      "from": "https://pf-acurrent.vercel.app/uploads/campaign/112764791-1663585282.jpeg",
       "what": "The old site's \"Gau Seva Ab Aur Bhi Asaan\" campaign"
     },
     {
       "file": "media/site/campaign/gau-seva-04.jpg",
-      "from": "https://www.peopleforanimalsindia.org/uploads/campaign/1077292000-1663585331.jpeg",
+      "from": "https://pf-acurrent.vercel.app/uploads/campaign/1077292000-1663585331.jpeg",
       "what": "The old site's \"Gau Seva Ab Aur Bhi Asaan\" campaign"
     },
     {
       "file": "media/site/campaign/gau-seva-05.jpg",
-      "from": "https://www.peopleforanimalsindia.org/uploads/campaign/888857807-1663601916.jpeg",
+      "from": "https://pf-acurrent.vercel.app/uploads/campaign/888857807-1663601916.jpeg",
       "what": "The old site's \"Gau Seva Ab Aur Bhi Asaan\" campaign"
     },
     {
       "file": "media/site/campaign/gau-seva-06.jpg",
-      "from": "https://www.peopleforanimalsindia.org/uploads/campaign/1504042491-1663601916.jpeg",
+      "from": "https://pf-acurrent.vercel.app/uploads/campaign/1504042491-1663601916.jpeg",
       "what": "The old site's \"Gau Seva Ab Aur Bhi Asaan\" campaign"
     },
     {
       "file": "media/site/campaign/gau-seva-07.jpg",
-      "from": "https://www.peopleforanimalsindia.org/uploads/campaign/927403368-1663601916.jpeg",
+      "from": "https://pf-acurrent.vercel.app/uploads/campaign/927403368-1663601916.jpeg",
       "what": "The old site's \"Gau Seva Ab Aur Bhi Asaan\" campaign"
     }
   ],
   "documents": [
     {
       "file": "media/site/campus/pfa-campus-guide.pdf",
-      "from": "https://www.peopleforanimalsindia.org/front/img/PFA-Campus.pdf",
+      "from": "https://pf-acurrent.vercel.app/front/img/PFA-Campus.pdf",
       "what": "The PFA Campus Guide, linked from the old site's PFA Campus page"
     }
   ]

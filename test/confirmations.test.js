@@ -288,7 +288,7 @@ test('a paid caregiver application is sent its application number, once', async 
 test('every page that shows a number shows the email note under it', () => {
   /* newsroom.html left the list on 16 Sep 2026 with its form; cinekind.html
      joined it the same day with the 2027 nomination form. */
-  for (const page of ['report.html', 'ask.html', 'careers.html', 'events.html', 'cinekind.html', 'get-involved.html', 'wall.html']) {
+  for (const page of ['report.html', 'ask.html', 'careers.html', 'events.html', 'cinekind.html', 'get-involved.html', 'wall.html', 'units.html']) {
     assert.match(read(page), /PFAForms\.emailNote\(reference\)/, `${page} shows a number and never says where the email went`);
   }
   const result = read('lib/routes/payment/response.js');

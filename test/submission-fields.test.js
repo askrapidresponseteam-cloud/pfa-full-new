@@ -91,7 +91,8 @@ const MARKUP = {
   'PFA-LEG': { interest: ['radio', 'interest'], contactBy: ['radio', 'contactBy'] },
   'PFA-CMP': { cause: ['radio', 'cause'], format: ['radio', 'format'], goalType: ['radio', 'goalType'] },
   'PFA-SG': { offer: ['radio', 'offer'] },
-  'PFA-PRV': { request: ['radio', 'request'] }
+  'PFA-PRV': { request: ['radio', 'request'] },
+  'PFA-U': { salutation: ['radio', 'salutation'], criteria: ['radio', 'criteria'] }
 };
 
 test('every list of choices the API enforces is the list the page offers', () => {

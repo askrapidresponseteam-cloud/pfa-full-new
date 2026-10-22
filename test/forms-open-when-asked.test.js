@@ -30,7 +30,7 @@ const PAGES = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !['admin
 const FLOWS = {
   'campus.html': 'start', 'csr.html': 'start', 'legacy.html': 'start', 'campaign.html': 'plan',
   'sgacc.html': 'help', 'privacy.html': 'request', 'careers.html': 'apply', 'events.html': 'request',
-  'wall.html': 'submit', 'report.html': 'follow', 'ask.html': 'follow'
+  'wall.html': 'submit', 'report.html': 'follow', 'ask.html': 'follow', 'units.html': 'apply'
 };
 
 test('no button points at a form that is already on the screen', () => {

@@ -21,7 +21,7 @@ const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 test('every public form asks for an email, required, and never calls it optional', () => {
   const fields = [['report.html', 'email'], ['ask.html', 'email'], ['careers.html', 'email'], ['wall.html', 'wallEmail'],
     ['events.html', 'evEmail'], ['cinekind.html', 'ckEmail'], ['get-involved.html', 'volEmail'], ['get-involved.html', 'memEmail'],
-    ['get-involved.html', 'cgEmail'], ['donate.html', 'gEmail']];
+    ['get-involved.html', 'cgEmail'], ['donate.html', 'gEmail'], ['units.html', 'uaEmail']];
   for (const [page, id] of fields) {
     const html = read(page);
     const input = new RegExp(`<input[^>]*\\bid="${id}"[^>]*>`).exec(html);

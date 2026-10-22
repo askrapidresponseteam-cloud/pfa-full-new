@@ -40,7 +40,7 @@ test('on a phone the founder films and reels are rows to swipe, not a stack', ()
   assert.match(phone, /\.vgrid,\.reels\{display:grid;grid-template-columns:none;grid-auto-flow:column;[^}]*overflow-x:auto;[^}]*scroll-snap-type:x mandatory/);
   assert.match(phone, /\.vgrid\{grid-auto-columns:80%\}/, 'the next film peeks in');
   assert.match(phone, /\.vtile\{padding:0;gap:0;scroll-snap-align:start\}/);
-  assert.match(f, /content:"Swipe the row \\00b7  tap a frame to play"/, 'a touch screen is told to swipe and tap, not hover');
+  assert.match(f, /content:"Swipe the row \\00b7 {2}tap a frame to play"/, 'a touch screen is told to swipe and tap, not hover');
 });
 
 test('units: the search takes the width on a phone and the regions swipe under it', () => {

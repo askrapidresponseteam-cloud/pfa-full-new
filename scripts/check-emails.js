@@ -90,7 +90,13 @@ const FORMS = [
   ['csr.html', 'Propose a CSR partnership', 'PFA-CSR', { focus: 'Rural animal hospitals', company: 'Udupi Foods Limited' }],
   ['legacy.html', 'Ask about a legacy', 'PFA-LEG', { interest: 'I am only exploring', contactBy: 'Email' }],
   ['campaign.html', 'Plan a campaign', 'PFA-CMP', { cause: 'Community dogs', format: 'A birthday or celebration', title: 'A birthday for the dogs', city: 'Udupi' }],
-  ['privacy.html', 'Ask for my data', 'PFA-PRV', { request: 'A copy of what PFA holds about me' }]
+  ['privacy.html', 'Ask for my data', 'PFA-PRV', { request: 'A copy of what PFA holds about me' }],
+  ['units.html', 'Apply for a new PFA unit', 'PFA-U', Object.assign({
+    unitPlace: 'Kundapur', unitDistrict: 'Udupi', address: '12 Main Road, Koteshwara', city: 'Kundapur', district: 'Udupi',
+    criteria: 'B. Rescue work', rescue1: 'Animal: Dog · Nature of the problem: Hit by a bus · Date: 3 Jan 2026 · Action taken: Treated and released',
+    salutation: 'Ms.', relation: 'Daughter of Ramesh Rao', workingAs: 'Teacher',
+    undertaking: 'I agree to this undertaking.', signature: 'Asha Rao', signedOn: '22 October 2026'
+  }, Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [`member${n}`, `Member ${n}, age 40, ${n === 1 ? 'Advocate' : 'Teacher'} · Address: ${n} Main Road, Udupi · Phone: 9876543210`])))]
 ];
 
 function request(body, headers = {}) {

@@ -59,7 +59,7 @@ test('every submission kind a public form sends is one the server accepts and th
   /* PFA-CK is back: the CineKind nomination form returned for the 2027
      edition (16 Sep 2026), wired through pfa-forms.js the way the note on the
      page demanded, so deleting its submit call is a failure here again. */
-  const EXPECTED = ['PFA-CG', 'PFA-CK', 'PFA-CR', 'PFA-EV', 'PFA-J', 'PFA-Q', 'PFA-S', 'PFA-V'];
+  const EXPECTED = ['PFA-CG', 'PFA-CK', 'PFA-CR', 'PFA-EV', 'PFA-J', 'PFA-Q', 'PFA-S', 'PFA-U', 'PFA-V'];
   const missing = EXPECTED.filter((k) => !sent.has(k));
   assert.deepEqual(missing, [], `these no longer reach the panel: ${missing.join(', ')}`);
   const unknown = [...sent].filter((k) => !KIND_LABELS[k]);

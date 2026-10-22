@@ -65,7 +65,7 @@ document.documentElement.classList.remove('no-js');document.documentElement.clas
   function renderSearch(q){
     q=(q||'').trim().toLowerCase();
     var matches=items.filter(function(x){return !q||x.join(' ').toLowerCase().indexOf(q)>-1});
-    searchResults.innerHTML=matches.length?matches.map(function(x){return '<a class="search-result" href="'+x[1]+'"><small>'+x[3]+'</small><div><strong>'+x[0]+'</strong><p>'+x[2]+'</p></div></a>'}).join(''):'<div class="search-empty">No matching PFA destination found.</div>';
+    searchResults.innerHTML=matches.length?matches.map(function(x){return '<a class="search-result" href="'+x[1]+'"><small>'+x[3]+'</small><div><strong>'+x[0]+'</strong><p>'+x[2]+'</p></div><span>↗</span></a>'}).join(''):'<div class="search-empty">No matching PFA destination found.</div>';
   }
   function setSearch(open){if(!overlay)return;overlay.classList.toggle('open',open);body.classList.toggle('search-open',open);if(open){renderSearch('');window.setTimeout(function(){searchInput.focus()},20)}}
   if(searchOpen)searchOpen.addEventListener('click',function(){setSearch(true)});

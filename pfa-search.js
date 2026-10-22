@@ -111,6 +111,12 @@
       d: 'Join People for Animals as a member: a card in your name, and a say in the work near you.',
       k: 'member membership join card sign up subscribe',
       q: ['member', 'membership', 'become a member', 'join', 'join pfa', 'membership card'] },
+    /* units.html#apply (22 Oct 2026): the application for a new unit, online,
+       with the paper form beside it on the same page. */
+    { t: 'Start a PFA unit in your district', s: 'Do something', y: 'action', u: 'units.html#apply',
+      d: 'Apply to set up a PFA unit: the application form online, a screen at a time, or the paper form to download and email.',
+      k: 'start new unit set up open form application apply approval board district chapter branch undertaking paper pdf download',
+      q: ['start a unit', 'new unit', 'set up a unit', 'start pfa unit', 'pfa unit application', 'unit application', 'unit application form', 'start pfa in my district', 'unit form'] },
     { t: 'Send a rescue story to The Wall', s: 'Do something', y: 'action', u: 'wall.html#submit',
       d: 'Submit a video of an animal you helped, long or short form.',
       k: 'submit send upload video story rescue wall reel instagram' },
@@ -897,7 +903,7 @@
           '<input id="pfa-q" name="q" type="search" autocomplete="off" spellcheck="false" ' +
             'placeholder="Report cruelty, a unit near you, laws, a gift…" ' +
             'role="combobox" aria-expanded="false" aria-controls="pfa-results" aria-autocomplete="list">' +
-          '<button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>' +
+          '<button type="submit" aria-label="Search">→</button>' +
         '</div>' +
         '<ul class="pfa-search__chips" data-chips aria-label="Suggestions"></ul>' +
         '<p class="pfa-search__hint" aria-hidden="true">Enter opens the top result · ↑ ↓ to move · Tab completes · Esc closes</p>' +
@@ -969,7 +975,7 @@
       if (comps.length) chips.innerHTML = comps.map(function (c) {
         return '<li><a href="search.html?q=' + encodeURIComponent(c) + '" data-fill="' + esc(c) + '">' + mark(c, q) + '</a></li>';
       }).join('');
-      var seeAll = ' <a href="search.html?q=' + encodeURIComponent(q) + '">See all results</a>';
+      var seeAll = ' <a href="search.html?q=' + encodeURIComponent(q) + '">See all results →</a>';
       if (res.via === 'corrected') {
         label.innerHTML = 'Showing results for <a href="#" data-fill="' + esc(res.corrected) + '">' + esc(res.corrected) + '</a>. No pages match “' + esc(q) + '”.';
       } else if (res.via === 'closest') {

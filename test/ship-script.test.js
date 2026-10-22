@@ -459,3 +459,75 @@ test('the zip carries everything the tests read, because ship.sh runs them from 
   const intoTests = excluded.filter((p) => p === 'test' || p.startsWith('test/'));
   assert.deepEqual(intoTests, [], 'the zip leaves out files the suite needs');
 });
+
+/* ---- what the zip leaves out, put back before the tests run --------------
+   22 Oct 2026: v1.444's ship stopped at "everything KEEP_EXCLUDES names is
+   really in the repository". DEPLOY.command put back the library and its test
+   PDFs, and nothing else the zip leaves out, so an unpacked tree without the
+   reels' videos or a microsite's photographs failed the guard's own test and
+   could not ship. It now puts back every KEEP_PATHS folder, read from
+   ship.sh: from the live tree first, then whatever is still missing from
+   GitHub. This runs that step against a live tree and a repository in a
+   temporary folder. */
+
+function restoreStep() {
+  const deploy = fs.readFileSync(path.join(ROOT, 'DEPLOY.command'), 'utf8');
+  const from = deploy.indexOf('step "Making sure the content the zip does not carry is here"');
+  const to = deploy.indexOf('# Documents taken off the shelves on purpose');
+  assert.ok(from > 0 && to > from, 'the restore step is where it was, before the library withdrawals');
+  return deploy.slice(from, to);
+}
+
+test('the deploy reads the protected list from ship.sh, not a copy of its own', () => {
+  const step = restoreStep();
+  assert.match(step, /eval "\$\(grep '\^KEEP_PATHS=\(' scripts\/ship\.sh\)"/);
+  assert.match(step, /for p in "\$\{KEEP_PATHS\[@\]\}"; do/);
+  assert.match(step, /media\/cinekind-2026\/reels\) ls "\$1"\/\*\.mp4/, 'the reels folder counts only with its videos in it');
+  const deploy = fs.readFileSync(path.join(ROOT, 'DEPLOY.command'), 'utf8');
+  assert.ok(deploy.indexOf('Making sure the content the zip does not carry') < deploy.indexOf('bash scripts/ship.sh'), 'before ship.sh runs the tests');
+});
+
+test('every folder the zip leaves out is put back: from the live tree, and from GitHub what the live tree lacks', { skip: !hasGit() }, () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pfa-restore-'));
+  const env = Object.assign({}, process.env, {
+    HOME: dir, GIT_AUTHOR_NAME: 'T', GIT_AUTHOR_EMAIL: 't@pfa.test', GIT_COMMITTER_NAME: 'T', GIT_COMMITTER_EMAIL: 't@pfa.test', GIT_TERMINAL_PROMPT: '0'
+  });
+  const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8', env, stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  const put = (root, rel, body) => { fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true }); fs.writeFileSync(path.join(root, rel), body || rel); };
+
+  /* GitHub has everything */
+  const remote = path.join(dir, 'github.git');
+  git(dir, 'init', '-q', '--bare', '-b', 'main', remote);
+  const seed = path.join(dir, 'seed');
+  git(dir, 'clone', '-q', remote, seed);
+  for (const rel of ['resources/AWBI ULB.pdf', 'media/site/campaign/c.jpg', 'media/site/campus/u.jpg', 'media/site/sgacc/s.jpg',
+    'test/fixtures/library/legal.pdf', 'media/cinekind-2026/reels/glimpse.mp4', 'media/cinekind-2026/reels/glimpse.jpg']) put(seed, rel);
+  git(seed, 'add', '-A'); git(seed, 'commit', '-q', '-m', 'the repository'); git(seed, 'push', '-q', 'origin', 'HEAD:main');
+
+  /* the live tree on the Desktop has all of it but the SGACC photographs */
+  const live = path.join(dir, 'Desktop', 'PFA_Website');
+  for (const rel of ['resources/AWBI ULB.pdf', 'media/site/campaign/c.jpg', 'media/site/campus/u.jpg',
+    'test/fixtures/library/legal.pdf', 'media/cinekind-2026/reels/glimpse.mp4']) put(live, rel);
+  git(live, 'init', '-q', '-b', 'main');
+  git(live, 'remote', 'add', 'origin', remote);
+
+  /* the unpacked zip: the stills and the test PDFs, no videos, no library, no photographs */
+  const tree = path.join(dir, 'PFA_Full_Website');
+  put(tree, 'scripts/ship.sh', fs.readFileSync(path.join(ROOT, 'scripts', 'ship.sh'), 'utf8'));
+  put(tree, 'media/cinekind-2026/reels/glimpse.jpg');
+  put(tree, 'test/fixtures/library/legal.pdf');
+
+  const out = execFileSync('bash', ['-c', ['set -euo pipefail', 'step() { echo "== $1"; }', restoreStep()].join('\n')], { cwd: tree, encoding: 'utf8', env });
+  for (const rel of ['resources/AWBI ULB.pdf', 'media/site/campaign/c.jpg', 'media/site/campus/u.jpg', 'media/site/sgacc/s.jpg',
+    'test/fixtures/library/legal.pdf', 'media/cinekind-2026/reels/glimpse.mp4']) {
+    assert.ok(fs.existsSync(path.join(tree, rel)), `${rel} is back in the tree`);
+  }
+  assert.match(out, /from GitHub \([^)]*\): media\/site\/sgacc\n/, 'only what the live tree lacked came from GitHub');
+  assert.doesNotMatch(out, /still missing/);
+  /* and the guard's own test now holds in that tree */
+  const excl = ship.split('\n').find((l) => l.startsWith('KEEP_EXCLUDES=(')) || '';
+  for (const rel of [...excl.matchAll(/--exclude '\/([^']+)'/g)].map((m) => m[1])) {
+    if (!rel.includes('*')) { assert.ok(fs.existsSync(path.join(tree, rel)), `${rel} is in the tree`); continue; }
+    assert.ok(fs.readdirSync(path.join(tree, path.dirname(rel))).some((f) => f.endsWith(path.extname(rel))), `${rel} matches something`);
+  }
+});
