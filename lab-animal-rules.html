@@ -60,7 +60,7 @@
 }
 </style>
 <meta charset="utf-8">
-<meta name="pfa-build" content="v1.446">
+<meta name="pfa-build" content="v1.448">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Speak up for animals | People for Animals</title>
@@ -148,10 +148,8 @@ img,svg{display:block}
 .lab-write::before{content:"";grid-column:1 / -1;height:1px;background:var(--ink);margin-bottom:22px}
 .band.lab-write > .band__head{margin:0;padding-top:0;border-top:0}
 .lab-write > .band__head p.lab-note{margin:18px 0 0;max-width:40ch;font-size:14px;line-height:1.65;color:var(--muted)}
-.lab-form{display:grid;min-width:0;max-width:760px;margin:0}
-.lab-form .pfa-step{gap:22px}
-.lab-form h3{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(24px,2.4vw,34px);line-height:1.05;text-transform:uppercase;letter-spacing:.01em}
-.lab-form .ask{margin:-10px 0 0;font-size:14px;line-height:1.6;color:var(--muted)}
+.lab-form{display:grid;gap:20px;min-width:0;max-width:760px;margin:0}
+.lab-status:empty{display:none}
 .lab-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 18px}
 .field{display:grid;gap:8px;min-width:0;align-content:start}
 .field > label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;line-height:1.5}
@@ -174,11 +172,11 @@ img,svg{display:block}
 .lab-after h4{margin:0;font-family:var(--display);font-weight:400;font-size:22px;line-height:1.15}
 .lab-after p{margin:0;font-size:14px;line-height:1.6;color:rgba(17,17,17,.78)}
 .lab-after .acts{display:flex;flex-wrap:wrap;gap:12px}
-#write .pfa-steps__nav .btn{min-width:200px}
+.lab-send .btn{min-width:240px}
 @media (max-width:860px){.lab-write{grid-template-columns:minmax(0,1fr)}.band.lab-write > .band__head{margin-bottom:28px}}
 @media (max-width:620px){
   .lab-row{grid-template-columns:minmax(0,1fr)}
-  #write .pfa-steps__nav .btn{flex:1 1 auto;min-width:0}
+  .lab-send .btn{width:100%;min-width:0}
   .lab-acts .btn{width:100%}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -477,23 +475,24 @@ if (root.document && root.document.head) apply(read());
       <h2 class="display">Lend them your voice.</h2>
       <p class="lab-note">It opens in your own email, filled in. You read it, then press Send. Nothing you type here is sent to or kept by this site.</p>
     </div>
-    <form class="lab-form" id="labForm" data-steps novalidate>
-      <ol class="pfa-steps__tabs" aria-hidden="true"><li><span>01</span>You</li><li><span>02</span>Send</li></ol>
-      <div class="pfa-steps__bar" aria-hidden="true"><span></span></div>
-
-      <div class="pfa-step" data-step="You">
-        <h3>Your name and city</h3>
-        <p class="ask">Objections from named people are the ones recorded.</p>
-        <div class="lab-row">
-          <div class="field"><label for="labName">Your full name</label><input id="labName" name="name" autocomplete="name" required><span class="error">Add your name.</span></div>
-          <div class="field"><label for="labCity">City or town</label><input id="labCity" name="city" autocomplete="address-level2" required><span class="error">Add your city or town.</span></div>
-        </div>
-        <div class="field"><label for="labOwn">A line in your own words <span class="opt">(optional)</span></label><textarea id="labOwn" rows="3" maxlength="1000" placeholder="Why stronger protection matters to you"></textarea></div>
+    <!-- One screen (owner, 22 Oct 2026: "ensure minimal clicks"): the
+         button above opens it, the name and city go in, and the send button
+         is right under them. The addresses and the letter are there to read
+         under their plus signs, and nobody has to open them. -->
+    <form class="lab-form" id="labForm" novalidate>
+      <div class="lab-row">
+        <div class="field"><label for="labName">Your full name</label><input id="labName" name="name" autocomplete="name" required><span class="error">Add your name.</span></div>
+        <div class="field"><label for="labCity">City or town</label><input id="labCity" name="city" autocomplete="address-level2" required><span class="error">Add your city or town.</span></div>
       </div>
-
-      <div class="pfa-step" data-step="Send">
-        <h3>Send it from your email</h3>
-        <p class="ask">Your email opens with the letter filled in. Read it, then press Send.</p>
+      <div class="lab-send"><button class="btn" type="submit" id="labSend">Open my email app</button></div>
+      <div class="lab-ways" id="labWays"><span>No email app on this device? Use</span><button type="button" class="link" data-way="gmail">Gmail</button><button type="button" class="link" data-way="outlook">Outlook</button><span>or</span><button type="button" class="link" data-way="copy">copy it</button></div>
+      <p class="lab-status" id="labStatus" role="status" aria-live="polite"></p>
+      <div class="lab-after" id="labAfter" hidden>
+        <h4>Did your email go?</h4>
+        <p>Opening it does not send it: press Send in your email app. Then ask three people to write their own.</p>
+        <div class="acts"><a class="btn btn--light" id="labShare" href="https://wa.me/" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a><button type="button" class="btn btn--light" id="labCopyLink">Copy the page link</button></div>
+      </div>
+      <div>
         <details class="lab-more">
           <summary><span>Who it goes to <span class="opt" id="labToCount"></span></span></summary>
           <div class="body"><ul class="lab-to" id="labTo"></ul></div>
@@ -506,23 +505,8 @@ if (root.document && root.document.head) apply(read());
             <p class="lab-small" id="labEdited" hidden>You changed the letter, so your name and city above no longer update it. <button type="button" class="link" id="labReset">Start again</button></p>
           </div>
         </details>
-        <div class="lab-ways" id="labWays"><span>No email app on this device? Use</span><button type="button" class="link" data-way="gmail">Gmail</button><button type="button" class="link" data-way="outlook">Outlook</button><span>or</span><button type="button" class="link" data-way="copy">copy it</button></div>
-        <p class="lab-status" id="labStatus" role="status" aria-live="polite"></p>
-        <div class="lab-after" id="labAfter" hidden>
-          <h4>Did your email go?</h4>
-          <p>Opening it does not send it: press Send in your email app. Then ask three people to write their own.</p>
-          <div class="acts"><a class="btn btn--light" id="labShare" href="https://wa.me/" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a><button type="button" class="btn btn--light" id="labCopyLink">Copy the page link</button></div>
-        </div>
-      </div>
-
-      <div class="pfa-steps__nav">
-        <button class="pfa-steps__back" type="button" data-step-back hidden>Back</button>
-        <button class="btn" type="button" data-step-next>Continue</button>
-        <button class="btn" type="submit" id="labSend" hidden>Open my email app</button>
-        <span class="pfa-steps__count" data-step-count></span>
       </div>
       <p class="lab-small" id="labClosed" hidden>The consultation closed on 5 November 2026. You can still read and copy the letter.</p>
-    </form>
   </section>
 
 </main>
@@ -643,14 +627,13 @@ if (root.document && root.document.head) apply(read());
   var CLOSES = Date.UTC(2026, 10, 6) - 5.5 * 3600e3;
 
   var $ = function(id){ return document.getElementById(id); };
-  var form = $('labForm');
+  var form = document.getElementById('labForm');
   if (!form) return;
   var edited = false;
 
   function letter(){
     var name = $('labName').value.trim() || '[Your full name]';
     var city = $('labCity').value.trim() || '[Your city]';
-    var own = $('labOwn').value.trim();
     return [
       'To',
       'The Secretary, Department of Animal Husbandry and Dairying, Government of India',
@@ -671,7 +654,6 @@ if (root.document && root.document.head) apply(read());
       '4. A demonstrable search for scientifically suitable non-animal methods before authorising animal use, measurable reduction targets and investment in replacement methods.',
       '',
       '5. Publicly accessible, non-identifying summaries of animal use, severity, inspections and compliance, alongside meaningful independent animal-welfare representation.',
-      own ? '\n' + own : '',
       '',
       'I ask that these concerns be considered and that a reasoned response to public submissions be published. Scientific progress should reduce avoidable suffering. Please strengthen the rules accordingly, and acknowledge receipt of this objection.',
       '',
@@ -691,7 +673,12 @@ if (root.document && root.document.head) apply(read());
   TO.forEach(function(a){ var li = document.createElement('li'); li.textContent = a; list.appendChild(li); });
   CC.forEach(function(a){ var li = document.createElement('li'); li.textContent = a + ' '; var s = document.createElement('span'); s.textContent = '(cc)'; li.appendChild(s); list.appendChild(li); });
   refresh();
-  ['labName', 'labCity', 'labOwn'].forEach(function(id){ $(id).addEventListener('input', refresh); $(id).addEventListener('blur', function(){ setTimeout(refresh, 0); }); });
+  function typed(){
+    refresh();
+    /* the reminder goes once both are in */
+    if ($('labStatus').getAttribute('data-state') === 'bad' && $('labName').value.trim() && $('labCity').value.trim()) say('');
+  }
+  ['labName', 'labCity'].forEach(function(id){ $(id).addEventListener('input', typed); $(id).addEventListener('blur', function(){ setTimeout(refresh, 0); }); });
   $('labLetter').addEventListener('input', function(){ edited = true; $('labEdited').hidden = false; });
   $('labReset').addEventListener('click', function(){ edited = false; $('labEdited').hidden = true; refresh(); });
 
@@ -725,7 +712,7 @@ if (root.document && root.document.head) apply(read());
   function send(way){
     if (closed()){ say('The consultation closed on 5 November 2026.', true); return; }
     var bad = named();
-    if (bad && !edited){ say('Add your name and city first.', true); return; }
+    if (bad && !edited){ say('Add your name and city first.', true); bad.focus(); return; }
     say('');
     var s = subject(), b = body();
     if (way === 'copy'){
@@ -742,6 +729,11 @@ if (root.document && root.document.head) apply(read());
   }
   form.addEventListener('submit', function(e){ e.preventDefault(); send('app'); });
   [].forEach.call(document.querySelectorAll('#labWays [data-way]'), function(b){ b.addEventListener('click', function(){ send(b.getAttribute('data-way')); }); });
+
+  /* opened: the name box is ready for typing, so the next touch is a letter */
+  document.getElementById('write').addEventListener('pfa:flow-open', function(){
+    setTimeout(function(){ try { $('labName').focus({ preventScroll: true }); } catch (_) { $('labName').focus(); } }, 0);
+  });
 
   $('labShare').href = 'https://wa.me/?text=' + encodeURIComponent('Speak up for animals. Object to the draft Laboratory Animals Rules, 2026, by 5 November 2026: ' + PAGE);
   $('labCopyLink').addEventListener('click', function(){

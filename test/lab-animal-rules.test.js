@@ -48,15 +48,24 @@ test('the page is short: the why, the letter behind its button, the sources unde
   const write = doc.getElementById('write');
   assert.ok(write.hasAttribute('data-flow'), 'the letter opens when it is asked for');
   assert.ok(doc.querySelector('main a[href="#write"]'), 'by its button');
-  assert.deepEqual([...write.querySelectorAll('.pfa-step')].map((s) => s.getAttribute('data-step')), ['You', 'Send']);
+  /* one screen (owner, 22 Oct 2026: "remove this..ensure minimal clicks"):
+     name, city and the send button, with no steps and no optional line */
+  const form = doc.getElementById('labForm');
+  assert.equal(form.querySelectorAll('.pfa-step, [data-step-next], [data-step-back]').length, 0, 'no steps to click through');
+  assert.ok(!form.hasAttribute('data-steps'));
+  assert.deepEqual([...form.querySelectorAll('input:not([type=hidden]), textarea')].filter((el) => !el.closest('details')).map((el) => el.id), ['labName', 'labCity'], 'only the name and the city to fill in');
   for (const id of ['labName', 'labCity']) assert.ok(doc.getElementById(id).hasAttribute('required'), `${id} is required`);
+  const sendBtn = doc.getElementById('labSend');
+  assert.ok(sendBtn && !sendBtn.hidden && !sendBtn.closest('details'), 'the send button is right there');
+  assert.ok(doc.getElementById('labCity').compareDocumentPosition(sendBtn) & 4, 'under the name and city');
+  assert.equal(doc.getElementById('labOwn'), null, 'the optional line is gone');
   /* nothing is posted to this site, and nothing heavy is carried */
   const html = read(PAGE);
   const own = html.slice(html.lastIndexOf('<script>'));
   assert.doesNotMatch(own, /\/api\/|PFAForms|fetch\(|XMLHttpRequest|sendBeacon/, 'the letter is sent by the visitor, not by this site');
   assert.doesNotMatch(html, /data:image\/[a-z]+;base64/, 'no pictures written into the page');
   assert.ok(Buffer.byteLength(html) < 80 * 1024, 'and it stays small');
-  assert.doesNotMatch(html, /[–—]/, 'no long dashes');
+  assert.doesNotMatch(html, /[\u2013\u2014]/, 'no long dashes');
 });
 
 /* ---- the page's script, booted --------------------------------------------- */
@@ -90,6 +99,7 @@ test('what opens in Gmail and Outlook carries the To, the Cc, the subject and th
   doc.getElementById('labName').value = 'Asha Rao';
   doc.getElementById('labCity').value = 'Udupi';
   doc.getElementById('labCity').dispatchEvent(new w.Event('input', { bubbles: true }));
+  assert.equal(doc.getElementById('labStatus').textContent, '', 'the reminder goes once both are in');
   doc.querySelector('[data-way="gmail"]').click();
   doc.querySelector('[data-way="outlook"]').click();
   assert.equal(opened.length, 2);

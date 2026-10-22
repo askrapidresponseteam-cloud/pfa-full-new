@@ -1407,11 +1407,11 @@
   },
   "lab-animal-rules": {
    "sources": "asks",
-   "labTo": "write",
-   "labEdited": "write",
    "labWays": "write",
    "labStatus": "write",
    "labAfter": "write",
+   "labTo": "write",
+   "labEdited": "write",
    "labClosed": "write"
   }
  }

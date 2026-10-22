@@ -13,18 +13,26 @@ const { KIND_LABELS } = require('../lib/submissions');
 const ROOT = path.join(__dirname, '..');
 
 /* The library's PDFs live in the repository and deliberately never travel in
-   the site's zip: they are 302 MB and the zip is one file by request. Every
-   check below reads them, so from an unpacked zip they would fail, and
-   scripts/ship.sh refuses to ship on any failure at all. That turned "the zip
-   does not carry the PDFs", which is intended, into "this build cannot be
-   shipped", which is not. Skipped with a word when they are absent, run in
-   full in the repository, where they are the thing that matters. */
+   the site's zip: they are 302 MB and the zip is one file by request. The scan
+   below reads links into them, so from an unpacked zip those links would fail
+   and scripts/ship.sh refuses to ship on any failure at all. Links into the
+   folders that stay behind are left to the repository's run; everything else
+   is checked everywhere. */
 const HAS_RESOURCES = fs.existsSync(path.join(ROOT, 'resources'));
-const whenResources = { skip: HAS_RESOURCES ? false : 'resources/ is not in this tree (an unpacked zip); run in the repository' };
 
+/* The folders that live in the repository and never travel in the zip, read
+   from scripts/ship.sh so the two cannot drift. */
+const KEEP_PATHS = ((fs.readFileSync(path.join(ROOT, 'scripts', 'ship.sh'), 'utf8').match(/^KEEP_PATHS=\(([^)]*)\)/m) || [])[1] || '').trim().split(/\s+/).filter(Boolean);
+const INTO_KEPT = new RegExp('\\s(?:' + KEEP_PATHS.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')/');
 
-test('no dead links, fragments, assets, forms, buttons or unmounted API calls on any page', whenResources, () => {
-  const { problems, pages, routes } = audit();
+/* This used to be skipped whole in an unpacked zip, so a page's own mistake
+   (v1.447: a form the audit could not see submitted) passed here and stopped
+   the ship on the owner's machine. It now always runs; in an unpacked zip only
+   the links into the kept folders are left to the repository's run. */
+test('no dead links, fragments, assets, forms, buttons or unmounted API calls on any page', () => {
+  const all = audit();
+  const { pages, routes } = all;
+  const problems = HAS_RESOURCES ? all.problems : all.problems.filter((p) => !INTO_KEPT.test(p));
   /* This guard is here so a scan that silently found nothing cannot pass as a
      clean site. It read pages > 30, from when there were 46 pages; there are
      21, so the guard failed and the scan it protects never ran at all. The
@@ -33,6 +41,12 @@ test('no dead links, fragments, assets, forms, buttons or unmounted API calls on
   assert.ok(pages > 15, `the audit scanned ${pages} pages, which is too few to be a real walk`);
   assert.ok(routes > 20, `the audit found ${routes} mounted routes, which is too few`);
   assert.deepEqual(problems, []);
+});
+
+test('the integrity scan knows which folders stay behind in the repository', () => {
+  assert.ok(KEEP_PATHS.includes('resources') && KEEP_PATHS.length >= 5, `KEEP_PATHS read from scripts/ship.sh: ${KEEP_PATHS.join(' ')}`);
+  assert.ok(INTO_KEPT.test('library.html: link to missing page resources/ABC%20Bluebook.pdf'));
+  assert.ok(!INTO_KEPT.test('lab-animal-rules.html: form #labForm has no action and nothing submits it'));
 });
 
 test('every submission kind a public form sends is one the server accepts and the panel can name', () => {
