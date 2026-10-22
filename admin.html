@@ -2073,6 +2073,7 @@ window.addEventListener('unhandledrejection', function (event) {
     var data = {
       cardId: c.cardId || 'PFA-CCT-PREVIEW',
       name: f.name || '', address: address, mobile: f.mobile || '', email: f.email || '',
+      district: f.district || '', state: f.state || '',
       issuedOn: c.cardId ? (c.handledAt || c.createdAt || '') : new Date().toISOString(),
       photo: previewPhoto.reference === c.reference ? previewPhoto.data : ''
     };
@@ -3122,6 +3123,8 @@ window.addEventListener('unhandledrejection', function (event) {
       cardId: row.id,
       name: row.name || '',
       address: [row.address, row.pin].filter(Boolean).join('\n'),
+      /* printed under DISTRICT and STATE; row.state is the card's standing */
+      district: row.district || '', state: row.placeState || '',
       mobile: row.mobile || '',
       email: row.email || '',
       issuedOn: row.issuedAt || '',

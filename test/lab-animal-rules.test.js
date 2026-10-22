@@ -39,12 +39,16 @@ test('the letter goes exactly where Rapid Response\'s goes: seven in To, gandhim
   assert.equal((html.match(/&cc=' \+ encodeURIComponent\(CC\.join\(','\)\)/g) || []).length, 2, 'Gmail and Outlook get it too');
 });
 
-test('the page is short: the why, the letter behind its button, the sources under a plus', () => {
+test('the page is short: the why, the letter behind its button, the draft under a plus', () => {
   const doc = new JSDOM(read(PAGE)).window.document;
   const main = doc.querySelector('main');
   assert.deepEqual([...main.children].filter((n) => n.tagName === 'SECTION').map((s) => s.id), ['top', 'asks', 'write']);
   assert.equal(doc.querySelectorAll('.lab-points li').length, 3);
-  assert.ok(doc.querySelector('#sources').tagName === 'DETAILS' && !doc.querySelector('#sources').hasAttribute('open'), 'the sources are closed until opened');
+  assert.ok(doc.querySelector('#sources').tagName === 'DETAILS' && !doc.querySelector('#sources').hasAttribute('open'), 'the draft is closed until opened');
+  /* owner, 22 Oct 2026, of the LinkedIn article and the Rapid Response page
+     listed there: "remove these sources". The Gazette stays. */
+  assert.deepEqual([...doc.querySelectorAll('#sources a')].map((a) => a.textContent), ['The Gazette notification: G.S.R. 864(E), 6 October 2026']);
+  assert.doesNotMatch(read(PAGE), /linkedin\.com|Ghodawat|>Rapid Response:/, 'the two sources are gone');
   const write = doc.getElementById('write');
   assert.ok(write.hasAttribute('data-flow'), 'the letter opens when it is asked for');
   assert.ok(doc.querySelector('main a[href="#write"]'), 'by its button');
