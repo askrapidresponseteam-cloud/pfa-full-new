@@ -196,8 +196,9 @@ a:hover .m-ph img,.m-ph--zoom:hover img{transform:scale(1.03)}
 .m-acc details{border-bottom:1px solid var(--line)}
 .m-acc summary{display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:56px;padding:14px 0;cursor:pointer;list-style:none;font-size:15px;font-weight:700;line-height:1.4}
 .m-acc summary::-webkit-details-marker{display:none}
-.m-acc summary::after{content:"+";flex:none;font-size:20px;font-weight:400;color:var(--muted)}
-.m-acc details[open] summary::after{content:"\2212"}
+/* drawn, not typed: a "+" from the font sits where the font puts it, a pixel or two off the middle of its circle (owner, 23 Oct 2026: "that + inside the circle is not perfectly centered. we can never have such silly mistakes anywhere on the site"). Two bars from the centre are in the centre. */
+.m-acc summary::after{content:"";flex:none;width:12px;height:12px;background:linear-gradient(currentColor,currentColor) center/12px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 12px no-repeat;color:var(--muted);transition:transform .25s}
+.m-acc details[open] summary::after{transform:rotate(45deg)}
 .m-acc details > :not(summary){margin:0 0 18px;max-width:72ch;font-size:14px;line-height:1.7;color:rgba(17,17,17,.78)}
 .m-acc details ul{padding-left:18px;list-style:disc}
 .m-acc details li{margin:0 0 6px}

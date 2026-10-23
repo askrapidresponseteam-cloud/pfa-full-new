@@ -109,7 +109,9 @@ const ALERT = {
 function alertMarkup() {
   return `<a class="pfa-notification" href="${ALERT.href}" data-until="${ALERT.until}" aria-label="${ALERT.label}" title="${ALERT.title}">` +
     '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4M12 2V1"/></svg>' +
+    /* drawn one unit lower than it was: its ink ran from 1 to 21 of 24, a
+       pixel above the middle of its button (23 Oct 2026); now 2 to 22 */
+    '<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 22h4M12 3V2"/></svg>' +
     '<span class="pfa-notification__dot" aria-hidden="true"></span></a>';
 }
 
@@ -167,7 +169,7 @@ function announceMarkup(text) {
   if (!text) return '';
   return '<div class="announce" id="announce" data-cursor="light">\n' +
     '  <p>' + text + '</p>\n' +
-    '  <button type="button" aria-label="Close" id="annClose">\u2715</button>\n' +
+    '  <button type="button" aria-label="Close" id="annClose"></button>\n' +
     '</div>\n';
 }
 

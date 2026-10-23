@@ -903,7 +903,9 @@
           '<input id="pfa-q" name="q" type="search" autocomplete="off" spellcheck="false" ' +
             'placeholder="Report cruelty, a unit near you, laws, a gift…" ' +
             'role="combobox" aria-expanded="false" aria-controls="pfa-results" aria-autocomplete="list">' +
-          '<button type="submit" aria-label="Search">→</button>' +
+          /* drawn, not typed: a font's arrow sits on its baseline, below the
+             middle of its square (23 Oct 2026) */
+          '<button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>' +
         '</div>' +
         '<ul class="pfa-search__chips" data-chips aria-label="Suggestions"></ul>' +
         '<p class="pfa-search__hint" aria-hidden="true">Enter opens the top result · ↑ ↓ to move · Tab completes · Esc closes</p>' +

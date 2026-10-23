@@ -22,7 +22,8 @@
    blank margin. */
 .announce{position:fixed;left:0;right:0;top:0;z-index:60;min-height:34px;background:#fff;border-bottom:1px solid var(--line,#e4e2df);color:#111;display:flex;align-items:center;justify-content:center;padding:0 48px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
 .announce p{margin:0;text-align:center}
-.announce button{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:none;border:none;color:rgba(17,17,17,.55);cursor:pointer;font-size:12px;line-height:1;padding:0;transition:color .25s}
+/* its cross is drawn, so it sits in the middle of its button */
+.announce button{position:absolute;right:8px;top:50%;transform:translateY(-50%) rotate(45deg);display:block;width:40px;height:40px;background:linear-gradient(currentColor,currentColor) center/12px 1.2px no-repeat,linear-gradient(currentColor,currentColor) center/1.2px 12px no-repeat;border:none;color:rgba(17,17,17,.55);cursor:pointer;font-size:0;line-height:0;padding:0;transition:color .25s}
 .announce button:hover{color:#111}
 /* The bar is the one piece of chrome that is ink rather than paper, so the
    ink selection every page sets would be invisible on it. */
@@ -295,6 +296,7 @@ header.site{transition:background .35s ease,border-color .35s ease,color .35s ea
   overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:8px var(--gutter,20px) 48px;
   opacity:0;transform:translateY(-8px);transition:opacity .25s ease,transform .3s cubic-bezier(.2,.7,.2,1)}
 .mnav.is-open{opacity:1;transform:none}
+.mnav:focus,.mnav:focus-visible{outline:none}
 .mnav[hidden]{display:none}
 .mnav__group{padding:18px 0 14px;border-bottom:1px solid rgba(17,17,17,.12)}
 .mnav__group:last-child{border-bottom:0}
@@ -425,6 +427,10 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
   html[data-pfa-tabs] .mnav__list a + a::before{content:"";position:absolute;left:16px;right:0;top:0;height:1px;background:rgba(17,17,17,.09)}
   html[data-pfa-tabs] .mnav__list a::after{content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;margin-top:-4px;border-top:1.6px solid #b3b3b3;border-right:1.6px solid #b3b3b3;transform:rotate(45deg)}
   html[data-pfa-tabs] .mnav__list a:active{background:rgba(17,17,17,.06);opacity:1}
+  /* a row reached by keyboard is ringed inside its own edges, where the
+     card cannot cut the ring down to a stray line */
+  html[data-pfa-tabs] .mnav__list a:focus{outline:none}
+  html[data-pfa-tabs] .mnav__list a:focus-visible{outline:2px solid var(--ink,#111);outline-offset:-4px;border-radius:10px}
   html[data-pfa-tabs] .mnav__list a.current{text-decoration:none;font-weight:600}
   html[data-pfa-tabs] .mnav__list a.current::after{border-color:var(--ink,#111)}
 

@@ -172,8 +172,14 @@
       window.clearTimeout(timer);
       window.requestAnimationFrame(function () { panel.classList.add('is-open'); });
       expanded(true);
-      var first = panel.querySelector('a');
-      if (first) first.focus({ preventScroll: true });
+      /* Focus goes to the panel itself, not to its first row (owner,
+         23 Oct 2026, a screenshot of a black line under "Units: find help
+         near you": "why that black line below units ... seems like a bug").
+         A row given focus by the script wore the site's focus outline, and
+         the card it sits in cut that outline down to one line under it. Tab
+         still goes to the first row from here. */
+      if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
+      try { panel.focus({ preventScroll: true }); } catch (_) { panel.focus(); }
       if (window.history && history.pushState && !(history.state && history.state.pfaMenu)) {
         try { history.pushState({ pfaMenu: 1 }, ''); pushed = true; } catch (_) { pushed = false; }
       }

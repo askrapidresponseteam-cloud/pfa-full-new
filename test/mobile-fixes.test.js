@@ -223,3 +223,52 @@ test('Newsroom: on a phone a photograph tile shows the photograph whole, then it
   assert.ok(html.lastIndexOf('@media (max-width:900px){', at) > at - 200, 'to 900px wide');
   assert.match(html, /\.nr-tile--photo \.nr-tile__body\{padding:16px 18px 20px;background:none\}/);
 });
+
+/* ---- marks in the middle ------------------------------------------------------ */
+
+/* Owner, 23 Oct 2026, two screenshots: "why that black line below units. we
+   dont need that things. it looks odd. seems like a bug. fix it .that +
+   inside the circle is not perfectly centered. we can never have such silly
+   mistakes anywhere on the site pls". */
+
+test('the menu opens with the panel focused, not its first row, so no focus ring is cut to a line', () => {
+  const js = read('assets/chrome.js');
+  assert.match(js, /panel\.setAttribute\('tabindex', '-1'\)/);
+  assert.match(js, /panel\.focus\(\{ preventScroll: true \}\)/);
+  assert.doesNotMatch(js, /first\.focus\(\{ preventScroll: true \}\)/);
+  const css = read('assets/chrome.css');
+  assert.match(css, /\.mnav:focus,\.mnav:focus-visible\{outline:none\}/);
+  assert.match(css, /html\[data-pfa-tabs\] \.mnav__list a:focus-visible\{outline:2px solid var\(--ink,#111\);outline-offset:-4px/, 'a keyboard ring sits inside the row');
+  const { w, doc } = dom(read('units.html'), 'https://pfa.test/units.html');
+  w.eval(read('assets/chrome.js'));
+  doc.querySelector('.pfa-tabs [data-tab="menu"]').click();
+  assert.equal(doc.activeElement, doc.getElementById('mnav'));
+});
+
+test('no plus, minus, cross, arrow or chevron in a button is a typed character: each is drawn from the middle', () => {
+  /* A character sits where its font puts it, a pixel or two off the middle
+     of its circle or square. Drawn (two bars from the centre, or an SVG
+     drawn about the centre of its box), it is in the middle by construction.
+     Measured on every page at 390 and 1440 wide, at 3x. */
+  const files = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !SKIP.has(f))
+    .concat(['assets/chrome.css', 'assets/micro.css', 'pfa-search.css', 'pfa-search.js', 'assets/shop.js', 'scripts/sync-chrome.js', 'scripts/build-events.js']);
+  const TYPED = [
+    [/content:"[+\u00d7\u2715\u2212]"/, 'a pseudo-element typing a plus, cross or minus'],
+    [/content:"\\2212"/, 'a typed minus (a dash to the eye, too)'],
+    [/>[+\u00d7\u2715\u2212\u2192\u2190\u203a\u2039]<\/(?:button|span)>/, 'a button or span holding a typed mark'],
+    [/&(?:rsaquo|lsaquo|minus|#10005|times);<\/(?:button|span)>/, 'an entity typed as a mark'],
+    [/\\u2715<\/button>|\\u2212' : '\+'|el\('button', (?:null|'[^']*'), '[-+]'\)/, 'a script typing a mark'],
+    [/<button type="submit" aria-label="Search">\u2192<\/button>/, 'the search arrow typed']
+  ];
+  const bad = [];
+  for (const f of files) {
+    const s = read(f);
+    for (const [re, what] of TYPED) if (re.test(s)) bad.push(`${f}: ${what}`);
+  }
+  assert.deepEqual(bad, []);
+  /* and the circles that carry them draw them from their centre */
+  assert.match(read('lab-animal-rules.html'), /\.lab-more summary::after\{content:"";[^}]*background:linear-gradient\(currentColor,currentColor\) center\/12px 1\.5px no-repeat,linear-gradient\(currentColor,currentColor\) center\/1\.5px 12px no-repeat/);
+  assert.match(read('units.html'), /\.u-fold\{[^}]*background:linear-gradient\(currentColor,currentColor\) center\/12px 1\.5px no-repeat/);
+  /* the bell's ink runs 2 to 22 of its 24, the middle of its button */
+  assert.match(read('scripts/sync-chrome.js'), /<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"\/><path d="M10 22h4M12 3V2"\/>/);
+});

@@ -148,7 +148,7 @@ function card(ev) {
 function bar(kind, name, count, pressed) {
   const k = KINDS[kind];
   const about = k ? ` data-none="${esc(k.none)}" data-choice="${esc(k.choice)}" data-choice-label="${esc(k.choiceLabel)}"` : '';
-  return `<button class="ev-bar" type="button" data-kind="${kind}" aria-pressed="${pressed}"${about}><span class="ev-bar__name">${esc(name)}</span><span class="ev-bar__n">${count}</span><span class="ev-bar__plus" aria-hidden="true">${pressed ? '&minus;' : '+'}</span></button>`;
+  return `<button class="ev-bar" type="button" data-kind="${kind}" aria-pressed="${pressed}"${about}><span class="ev-bar__name">${esc(name)}</span><span class="ev-bar__n">${count}</span><span class="ev-bar__plus" aria-hidden="true"></span></button>`;
 }
 
 function nowBar(ev) {
@@ -237,7 +237,8 @@ function render(page, data) {
     '</div>',
     '<div class="ev-tally">',
     `<p class="ev-count"><b>${events.length}</b> on the record</p>`,
-    '<div class="ev-nav" hidden><button type="button" data-step="-1" aria-controls="evScroll" aria-label="Newer events">&lsaquo;</button><button type="button" data-step="1" aria-controls="evScroll" aria-label="Older events">&rsaquo;</button></div>',
+    /* drawn chevrons, not typed ones: a font's chevron sits off the middle of its square (23 Oct 2026) */
+    '<div class="ev-nav" hidden><button type="button" data-step="-1" aria-controls="evScroll" aria-label="Newer events"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" data-step="1" aria-controls="evScroll" aria-label="Older events"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M9 6l6 6-6 6"/></svg></button></div>',
     '</div>',
     '</div>',
     '<div class="ev-scroll" id="evScroll" role="region" aria-label="Events, newest first" tabindex="0">',

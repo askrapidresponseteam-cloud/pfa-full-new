@@ -101,7 +101,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Events 2026 | People for Animals</title>
 <meta name="description" content="Adoption drives, free sterilisation and vaccination camps, CineKind screenings, and shelter open days across India.">
-<link rel="stylesheet" href="assets/chrome.css?v=bdc17b65b9">
+<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
 <style>
 :root{
   --paper:#fff;
@@ -263,7 +263,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .ev-count b{font-weight:400;color:var(--ev-ink)}
 .ev-nav{display:flex;gap:6px}
 .ev-nav[hidden],.ev-card[hidden],.ev-empty[hidden],.ev-now[hidden]{display:none}
-.ev-nav button{width:44px;height:44px;padding:0;border:1px solid var(--ev-ink);background:#fff;color:var(--ev-ink);font:inherit;font-size:22px;line-height:1;cursor:pointer}
+.ev-nav button{display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:1px solid var(--ev-ink);background:#fff;color:var(--ev-ink);font:inherit;font-size:22px;line-height:1;cursor:pointer}
 .ev-nav button:disabled{opacity:.28;cursor:default}
 .ev-scroll{display:flex;align-items:stretch;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--ev-gutter);padding:0 var(--ev-gutter) 14px;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:rgba(17,17,17,.3) transparent}
 .ev-scroll:focus-visible,.ev-bar:focus-visible,.ev-nav button:focus-visible,.ev-btn:focus-visible,.ev-now:focus-visible,.ev-card__link:focus-visible,.ev-next__link:focus-visible{outline:3px solid #2634f5;outline-offset:2px}
@@ -301,7 +301,9 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .ev-bar[aria-pressed="true"]{background:var(--ev-card);border-bottom-color:var(--ev-ink)}
 .ev-bar__name{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .ev-bar__n{margin-left:auto;color:var(--ev-muted);font-variant-numeric:tabular-nums}
-.ev-bar__plus{width:14px;font-size:17px;line-height:1;text-align:center}
+/* drawn, not typed: a "+" from the font sits where the font puts it, a pixel or two off the middle of its circle (owner, 23 Oct 2026: "that + inside the circle is not perfectly centered. we can never have such silly mistakes anywhere on the site"). Two bars from the centre are in the centre. */
+.ev-bar__plus{flex:none;width:12px;height:12px;background:linear-gradient(currentColor,currentColor) center/12px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 12px no-repeat;transition:transform .2s}
+.ev-bar[aria-pressed="true"] .ev-bar__plus{transform:rotate(45deg)}
 .ev-now{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin:10px var(--ev-gutter) 0;min-height:46px;padding:8px 14px;background:var(--ev-tint);color:var(--ev-ink);text-decoration:none}
 .ev-now__label{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.07em;text-transform:uppercase}
 .ev-now__label::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--ev-accent)}
@@ -539,7 +541,7 @@ if (root.document && root.document.head) apply(read());
 </script>
 <div class="announce" id="announce" data-cursor="light">
   <p>Every drive, camp and open day is free to attend</p>
-  <button type="button" aria-label="Close" id="annClose">✕</button>
+  <button type="button" aria-label="Close" id="annClose"></button>
 </div>
 <header class="site" id="header" data-cursor="dark">
   <nav aria-label="Main navigation">
@@ -606,7 +608,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=00e9c4151a"></script>
+<script src="assets/chrome.js?v=3af64eeb87"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -621,7 +623,7 @@ if (root.document && root.document.head) apply(read());
 </div>
 <div class="ev-tally">
 <p class="ev-count"><b>2</b> on the record</p>
-<div class="ev-nav" hidden><button type="button" data-step="-1" aria-controls="evScroll" aria-label="Newer events">&lsaquo;</button><button type="button" data-step="1" aria-controls="evScroll" aria-label="Older events">&rsaquo;</button></div>
+<div class="ev-nav" hidden><button type="button" data-step="-1" aria-controls="evScroll" aria-label="Newer events"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" data-step="1" aria-controls="evScroll" aria-label="Older events"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M9 6l6 6-6 6"/></svg></button></div>
 </div>
 </div>
 <div class="ev-scroll" id="evScroll" role="region" aria-label="Events, newest first" tabindex="0">
@@ -653,12 +655,12 @@ if (root.document && root.document.head) apply(read());
 </div>
 </div>
 <div class="ev-bars" role="group" aria-label="Show one kind of event">
-<button class="ev-bar" type="button" data-kind="all" aria-pressed="true"><span class="ev-bar__name">Every event</span><span class="ev-bar__n">2</span><span class="ev-bar__plus" aria-hidden="true">&minus;</span></button>
-<button class="ev-bar" type="button" data-kind="awards" aria-pressed="false" data-none="No awards evening is on the record yet." data-choice="A CineKind screening" data-choice-label="Ask for a CineKind screening"><span class="ev-bar__name">Awards</span><span class="ev-bar__n">2</span><span class="ev-bar__plus" aria-hidden="true">+</span></button>
-<button class="ev-bar" type="button" data-kind="adoption" aria-pressed="false" data-none="No adoption drive is on the record yet." data-choice="An adoption drive" data-choice-label="Ask for an adoption drive"><span class="ev-bar__name">Adoption drives</span><span class="ev-bar__n">0</span><span class="ev-bar__plus" aria-hidden="true">+</span></button>
-<button class="ev-bar" type="button" data-kind="camp" aria-pressed="false" data-none="No camp is on the record yet." data-choice="A sterilisation or vaccination camp" data-choice-label="Ask for a camp"><span class="ev-bar__name">Camps</span><span class="ev-bar__n">0</span><span class="ev-bar__plus" aria-hidden="true">+</span></button>
-<button class="ev-bar" type="button" data-kind="openday" aria-pressed="false" data-none="No open day is on the record yet." data-choice="Something else" data-choice-label="Ask for an open day"><span class="ev-bar__name">Open days</span><span class="ev-bar__n">0</span><span class="ev-bar__plus" aria-hidden="true">+</span></button>
-<button class="ev-bar" type="button" data-kind="talk" aria-pressed="false" data-none="No talk is on the record yet." data-choice="A talk or a school session" data-choice-label="Ask for a talk"><span class="ev-bar__name">Talks</span><span class="ev-bar__n">0</span><span class="ev-bar__plus" aria-hidden="true">+</span></button>
+<button class="ev-bar" type="button" data-kind="all" aria-pressed="true"><span class="ev-bar__name">Every event</span><span class="ev-bar__n">2</span><span class="ev-bar__plus" aria-hidden="true"></span></button>
+<button class="ev-bar" type="button" data-kind="awards" aria-pressed="false" data-none="No awards evening is on the record yet." data-choice="A CineKind screening" data-choice-label="Ask for a CineKind screening"><span class="ev-bar__name">Awards</span><span class="ev-bar__n">2</span><span class="ev-bar__plus" aria-hidden="true"></span></button>
+<button class="ev-bar" type="button" data-kind="adoption" aria-pressed="false" data-none="No adoption drive is on the record yet." data-choice="An adoption drive" data-choice-label="Ask for an adoption drive"><span class="ev-bar__name">Adoption drives</span><span class="ev-bar__n">0</span><span class="ev-bar__plus" aria-hidden="true"></span></button>
+<button class="ev-bar" type="button" data-kind="camp" aria-pressed="false" data-none="No camp is on the record yet." data-choice="A sterilisation or vaccination camp" data-choice-label="Ask for a camp"><span class="ev-bar__name">Camps</span><span class="ev-bar__n">0</span><span class="ev-bar__plus" aria-hidden="true"></span></button>
+<button class="ev-bar" type="button" data-kind="openday" aria-pressed="false" data-none="No open day is on the record yet." data-choice="Something else" data-choice-label="Ask for an open day"><span class="ev-bar__name">Open days</span><span class="ev-bar__n">0</span><span class="ev-bar__plus" aria-hidden="true"></span></button>
+<button class="ev-bar" type="button" data-kind="talk" aria-pressed="false" data-none="No talk is on the record yet." data-choice="A talk or a school session" data-choice-label="Ask for a talk"><span class="ev-bar__name">Talks</span><span class="ev-bar__n">0</span><span class="ev-bar__plus" aria-hidden="true"></span></button>
 </div>
 <p class="ev-sr" aria-live="polite"></p>
 <a class="ev-now" id="evNow" href="#event-002" hidden><span class="ev-now__label">Coming next</span><span class="ev-now__title">CineKind Awards 2026</span><span class="ev-now__where">Mumbai</span><span class="ev-now__meta"><span class="ev-no">No. 002</span><time datetime="2026-10-04">04 10 2026</time><span class="ev-now__count"></span></span></a>
@@ -939,7 +941,6 @@ if (root.document && root.document.head) apply(read());
       bars.forEach(function(bar){
         var on = bar.getAttribute('data-kind') === kind;
         bar.setAttribute('aria-pressed', on ? 'true' : 'false');
-        put(bar, '.ev-bar__plus', on ? '\u2212' : '+');
         if (on) { name = (bar.querySelector('.ev-bar__name') || {}).textContent || ''; none = bar.getAttribute('data-none') || ''; }
         if (on && empty && !shown && kind !== 'all') {
           put(empty, '.ev-empty__title', none);

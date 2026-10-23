@@ -161,8 +161,9 @@
       mid.appendChild(meta);
       if (p.atDispatch) mid.appendChild(el('p', 'line__note', AT_DISPATCH));
       var q = el('div', 'qty');
-      var minus = el('button', null, '-'); minus.type = 'button'; minus.setAttribute('aria-label', 'One fewer');
-      var plus = el('button', null, '+'); plus.type = 'button'; plus.setAttribute('aria-label', 'One more');
+      /* drawn by shop.html's styles, so each sits in the middle of its box */
+      var minus = el('button', 'qty__less', ''); minus.type = 'button'; minus.setAttribute('aria-label', 'One fewer');
+      var plus = el('button', 'qty__more', ''); plus.type = 'button'; plus.setAttribute('aria-label', 'One more');
       q.appendChild(minus); q.appendChild(el('span', null, String(l.qty))); q.appendChild(plus);
       mid.appendChild(q);
       var end = el('div', 'line__end');

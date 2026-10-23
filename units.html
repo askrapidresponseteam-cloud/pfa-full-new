@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Units | People for Animals</title>
 <meta name="description" content="People for Animals shelters, hospitals and rescue units across India.">
-<link rel="stylesheet" href="assets/chrome.css?v=bdc17b65b9">
+<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
 <style>
 :root{
   --paper:#fff;
@@ -179,8 +179,9 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
   font-size:clamp(21px,1.9vw,28px);line-height:1.08;letter-spacing:.005em;color:var(--ink)}
 .u-state__towns{grid-area:towns;align-self:end;min-height:3em;margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--muted);
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.u-fold{grid-area:fold;align-self:end;flex:none;width:32px;height:32px;border:1px solid var(--line);border-radius:50%;
-  background:#fff;color:var(--ink);font-size:19px;font-weight:300;line-height:1;cursor:pointer;display:grid;place-items:center;
+/* drawn, not typed: a "+" from the font sits where the font puts it, a pixel or two off the middle of its circle (owner, 23 Oct 2026: "that + inside the circle is not perfectly centered. we can never have such silly mistakes anywhere on the site"). Two bars from the centre are in the centre. */
+.u-fold{grid-area:fold;align-self:end;flex:none;box-sizing:border-box;width:32px;height:32px;padding:0;border:1px solid var(--line);border-radius:50%;
+  background:linear-gradient(currentColor,currentColor) center/12px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 12px no-repeat,#fff;color:var(--ink);font-size:0;line-height:0;cursor:pointer;
   transition:transform .25s,border-color .2s}
 .u-state__head:hover .u-fold{border-color:var(--ink)}
 .u-fold:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
@@ -705,7 +706,7 @@ if (root.document && root.document.head) apply(read());
 </script>
 <div class="announce" id="announce" data-cursor="light">
   <p>Every drive, camp and open day is free to attend</p>
-  <button type="button" aria-label="Close" id="annClose">✕</button>
+  <button type="button" aria-label="Close" id="annClose"></button>
 </div>
 <header class="site" id="header" data-cursor="dark">
   <nav aria-label="Main navigation">
@@ -772,7 +773,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=00e9c4151a"></script>
+<script src="assets/chrome.js?v=3af64eeb87"></script>
 
 <main>
 
@@ -1603,7 +1604,7 @@ if (root.document && root.document.head) apply(read());
       + '<span class="u-state__n num">' + list.length + (list.length === 1 ? ' unit' : ' units') + '</span>'
       + '<h2 class="u-state__name">' + esc(st) + '</h2>'
       + '<p class="u-state__towns">' + esc(towns) + '</p>'
-      + '<button type="button" class="u-fold" aria-expanded="false" aria-label="Show ' + esc(st) + ' units">+</button>'
+      + '<button type="button" class="u-fold" aria-expanded="false" aria-label="Show ' + esc(st) + ' units"></button>'
       + '</div>'
       + '<div class="u-state__units">';
     list.forEach(function(u){
