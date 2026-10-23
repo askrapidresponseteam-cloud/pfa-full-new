@@ -61,7 +61,7 @@ test('SEAM-2 a counter behind the records by five or more does not refuse every 
 });
 
 /* ---- payment/response.js photoPending + submission-forward.js dedupe key ---- */
-test('SEAM-3 a caregiver photo attached on a later callback still reaches the payments inbox', async () => {
+test('SEAM-3 a caregiver photo attached on a later callback still reaches gandhim, with the application', async () => {
   const FILES = require('../lib/file-store');
   let readable = true;
   const box = H.memoryBucket('pfa-new-website.firebasestorage.app', { failRead: (p) => !readable && p.startsWith('caregiver-staging/') });
@@ -75,12 +75,15 @@ test('SEAM-3 a caregiver photo attached on a later callback still reaches the pa
   await callback(out);         // the redelivery (or the panel's repair) attaches it
   const rec = W.db.dump()['submissions/PFA-CG-2026-00001'];
   assert.equal(rec.attachments, 1);
-  /* a caregiver application is a record of money: its copies, the late
-     photograph's included, go to the payments inboxes, never gandhim */
-  assert.equal(W.smtp.sent.filter((m) => m.to === H.INBOX).length, 0);
-  const toInbox = W.smtp.sent.filter((m) => m.to === 'pfadcmho@gmail.com');
+  /* the application, the late photograph's copy included, goes to gandhim
+     (owner, 23 Oct 2026); the payments inboxes get the receipt, once, with
+     no photograph */
+  const toInbox = W.smtp.sent.filter((m) => m.to === H.INBOX);
   assert.ok(toInbox.some((m) => (m.attachments || []).length > 0),
     `copies to the inbox: ${toInbox.length}, with the photo: ${toInbox.filter((m) => (m.attachments || []).length).length}`);
+  const receipts = W.smtp.sent.filter((m) => m.to === 'pfadcmho@gmail.com');
+  assert.equal(receipts.length, 1, 'one receipt, not a second for the photograph');
+  assert.equal((receipts[0].attachments || []).length, 0);
 });
 
 /* ---- lib/submissions.js clientIp on Firebase behind Firebase Hosting ---- */

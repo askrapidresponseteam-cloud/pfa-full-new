@@ -1204,7 +1204,7 @@ window.addEventListener('unhandledrejection', function (event) {
         var pay = (m.paymentInboxes || []).join(', ');
         /* the whole story behind the (i); the eye gets one line */
         out.splice(1, 0, '<p class="hint">A copy of every form goes to <b>' + esc(to) + '</b>'
-          + (pay ? '. Every record of money (donations, gifts, memberships, caregiver applications and shop orders) goes to <b>' + esc(pay) + '</b> instead, and never to ' + esc(to) : '')
+          + (pay ? ', a caregiver application too, without its payment. Every record of money (donations, gifts, memberships, shop orders and the caregiver fee) goes to <b>' + esc(pay) + '</b> instead, and never to ' + esc(to) : '')
           + ', with Reply set to the person who sent it, and any photographs attached. It is sent as ' + esc(m.from) + (m.via === 'smtp' ? ', through that mailbox at GoDaddy' : ', through Resend') + '.'
           + ' Volunteer applications and memberships are not emailed to anyone at PFA: they are kept here only, answered from the Reply box on the record, and their answers come back onto it.'
           + (m.via === 'smtp' && (m.sentCopies || {}).on ? ' Everything the site sends is also saved in the Sent folder of ' + esc((m.from.match(/<([^>]+)>/) || [])[1] || 'the mailbox') + '.' : '') + '</p>');
@@ -1233,7 +1233,14 @@ window.addEventListener('unhandledrejection', function (event) {
       var missed = m.missed || [];
       if (missed.length && to) {
         out.push('<p class="state" data-tone="bad"><b>' + (missed.length === 1 ? '1 submission was' : missed.length + ' submissions were') + ' never copied to ' + esc(to) + '.</b> '
-          + (missed.length === 1 ? 'It' : 'They') + ' arrived while email was not set up. '
+          + (function () {
+            /* a caregiver application from 21 to 23 Oct 2026 went to the payments inboxes only */
+            var cg = missed.filter(function (x) { return x.kind === 'PFA-CG'; }).length;
+            var one = missed.length === 1;
+            if (cg === missed.length) return (one ? 'It is a caregiver application that' : 'They are caregiver applications that') + ' went only to the payments inboxes (21 to 23 Oct). ';
+            if (cg) return 'Some arrived while email was not set up; the caregiver applications went only to the payments inboxes (21 to 23 Oct). ';
+            return (one ? 'It' : 'They') + ' arrived while email was not set up. ';
+          })()
           + (m.configured ? 'Each is still on record here; press the button below to send ' + (missed.length === 1 ? 'its copy' : 'their copies') + ' now.' : 'Once email is set up, they can be sent from here.') + '</p>'
           + '<p class="note">' + missed.map(function (x) { return '<span class="ref">' + esc(x.reference) + '</span>' + (x.kindLabel ? ' ' + esc(x.kindLabel) : '') + (x.createdAt ? ', ' + esc(when(x.createdAt)) : ''); }).join('<br>') + '</p>');
       }

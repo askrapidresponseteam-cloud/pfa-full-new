@@ -412,16 +412,29 @@ test('a paid membership: on record and in the admin panel\'s list, emailed to no
   assert.ok((await adminList()).includes(ref));
 });
 
-test('a paid colony caregiver application: on record with its photograph, in the payments inboxes with it attached, in the panel', async () => {
+test('a paid colony caregiver application: on record with its photograph, in gandhim\'s inbox with it attached (no payment in it), the receipt in the payments inboxes, in the panel', async () => {
+  /* owner, 23 Oct 2026: "hope all caregiver application goes to gandhim,
+     ensure it does. payment receipt to go to others." */
   const docs = await call(require('../lib/routes/caregiver/documents'), { body: { photo: PHOTO } });
   assert.equal(docs.statusCode, 200, docs.raw.slice(0, 300));
   const page = await pay(Object.assign({ type: 'caregiver-application', documents: docs.json.token, animals: '12', notes: 'Feeding them for four years.' }, PERSON));
   const ref = (page.match(/PFA-CG-\d{4}-\d{5}/) || [])[0];
   assert.ok(ref, 'the applicant is shown their number');
-  const copy = paidCopies();
-  assert.equal(copy[0].reply_to, 'tester.pfa@example.com');
-  assert.equal(copy[0].attachments.length, 1);
-  assert.match(copy[0].attachments[0].filename, new RegExp('^' + ref + '-photograph-1\\.jpg$'));
+  const application = toInbox();
+  assert.equal(application.length, 1, 'gandhim gets the application');
+  assert.equal(application[0].reply_to, 'tester.pfa@example.com');
+  assert.equal(application[0].subject, `${ref}: Colony caregiver application from ${PERSON.name}`);
+  assert.equal(application[0].attachments.length, 1);
+  assert.match(application[0].attachments[0].filename, new RegExp('^' + ref + '-photograph-1\\.jpg$'));
+  assert.match(application[0].text, /Feeding them for four years/);
+  assert.doesNotMatch(application[0].text, /Amount paid|Order ID|tracking ID|Bank reference|₹/, 'no payment in it');
+  for (const address of PAY) {
+    const receipt = toPayments(address);
+    assert.equal(receipt.length, 1, `one receipt to ${address}`);
+    assert.equal(receipt[0].subject, `${ref}: Payment for a colony caregiver application from ${PERSON.name}`);
+    assert.match(receipt[0].text, /Amount paid: ₹\d/);
+    assert.equal((receipt[0].attachments || []).length, 0);
+  }
   assert.ok((await adminList()).includes(ref));
 });
 

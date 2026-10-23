@@ -9,7 +9,13 @@
    A record is money when a payment opened it: a membership, a colony
    caregiver application, a donation (a gift is one) and a shop order. Each
    is copied to both payments inboxes, never to gandhim; every form keeps
-   going to gandhim as before. The end-to-end proof, through CCAvenue's
+   going to gandhim as before.
+
+   Owner, 23 Oct 2026: "hope all caregiver application goes to gandhim,
+   ensure it does. payment receipt to go to others. but application should
+   go to gandhim email ID pls." So a caregiver application is copied twice:
+   the application, without a word about the money, to gandhim; the receipt
+   for its fee to the payments inboxes. The end-to-end proof, through CCAvenue's
    callback and the real mail queue, is in test/donation-flow.test.js,
    test/email-thread.test.js and test/submissions-end-to-end.test.js. This
    file holds the rule and the guarantees around it. */
@@ -48,9 +54,17 @@ test('every kind a payment files is a record of money', () => {
 
 test('a record of money goes to both payments inboxes; a form to gandhim, as before', () => {
   withEnv({}, (F) => {
-    for (const kind of ['PFA-CG', 'PFA-DON', 'PFA-SHP']) {
+    for (const kind of ['PFA-DON', 'PFA-SHP']) {
       assert.deepEqual(F.inboxes({ kind, reference: `${kind}-1` }), PAY, kind);
     }
+    /* a caregiver application: the application to gandhim, the receipt to the pair */
+    assert.deepEqual(F.copiesOf({ kind: 'PFA-CG', reference: 'PFA-CG-2026-00001' }),
+      [{ to: GANDHIM, copy: 'application' }, ...PAY.map((to) => ({ to, copy: 'payment' }))]);
+    assert.deepEqual(F.inboxes({ kind: 'PFA-CG' }), [GANDHIM, ...PAY]);
+    assert.deepEqual(F.relayInboxes({ kind: 'PFA-CG' }), [GANDHIM], 'what the applicant writes back goes with the application');
+    assert.deepEqual(F.relayInboxes({ kind: 'PFA-DON' }), PAY, 'a payer\'s, with the payment');
+    /* the photograph sent after the first copy belongs to the application */
+    assert.deepEqual(F.copiesOf({ kind: 'PFA-CG', followUp: 'photo' }), [{ to: GANDHIM, copy: 'application' }]);
     /* a membership, though paid, is kept in the panel only (owner, 21 Oct
        2026), as is a volunteer application */
     assert.deepEqual(F.inboxes({ kind: 'PFA-MEM' }), [], 'PFA-MEM goes nowhere');
@@ -68,6 +82,14 @@ test('no setting can send a record of money to gandhim', () => {
      payments setting naming gandhim by mistake, reaches a record of money */
   withEnv({ PFA_SUBMISSIONS_INBOX: GANDHIM }, (F) => {
     assert.deepEqual(F.inboxes({ kind: 'PFA-DON' }), PAY);
+  });
+  /* gandhim on the payments list too: still only the application, never the receipt */
+  withEnv({ PFA_PAYMENTS_INBOX: `${GANDHIM}, pfadcmho@gmail.com` }, (F) => {
+    assert.deepEqual(F.copiesOf({ kind: 'PFA-CG' }), [{ to: GANDHIM, copy: 'application' }, { to: 'pfadcmho@gmail.com', copy: 'payment' }]);
+  });
+  /* an address on both lists gets one copy with both in it */
+  withEnv({ PFA_SUBMISSIONS_INBOX: 'pfadcmho@gmail.com', PFA_PAYMENTS_INBOX: 'pfadcmho@gmail.com' }, (F) => {
+    assert.deepEqual(F.copiesOf({ kind: 'PFA-CG' }), [{ to: 'pfadcmho@gmail.com', copy: 'whole' }]);
   });
   withEnv({ PFA_PAYMENTS_INBOX: `${GANDHIM}, pfadcmho@gmail.com` }, (F) => {
     assert.deepEqual(F.inboxes({ kind: 'PFA-DON' }), ['pfadcmho@gmail.com'], 'gandhim is struck from the list');
@@ -93,16 +115,17 @@ test('the shop\'s packing note obeys the same rule', () => {
 test('a payer\'s reply is carried on to the payments inboxes, and a bounce names them', () => {
   const src = read('lib/inbound-mail.js');
   assert.match(src, /const inboxes = o\.inboxes \|\| FORWARD\.allInboxes\(\);/, 'staff are recognised from every inbox');
-  assert.match(src, /const route = o\.inboxes \|\| FORWARD\.inboxes\(data\);/, 'what is sent on follows the record');
+  assert.match(src, /const route = o\.inboxes \|\| FORWARD\.relayInboxes\(data\);/, 'what is sent on follows the record');
   assert.match(src, /if \(wantsRelay\) relayed = await relay\([^;]*, o, route\);/);
   assert.match(src, /return \(inboxes \|\| FORWARD\.inboxes\(data\)\)\.join/);
+  assert.match(src, /return \(inboxes \|\| FORWARD\.relayInboxes\(data\)\)\.join/);
 });
 
 test('the panel shows both destinations and checks each record against its own', () => {
   const src = read('lib/routes/admin/mail-check.js');
   assert.match(src, /paymentInboxes, recent/, 'the panel is told where records of money go');
   assert.match(src, /FORWARD\.inboxes\(d\)\.some\(\(to\) => !copied\(d, to\)\)/, 'a missing copy is judged by the record\'s own route');
-  assert.match(read('admin.html'), /Every record of money \(donations, gifts, memberships, caregiver applications and shop orders\) goes to/);
+  assert.match(read('admin.html'), /a caregiver application too, without its payment\. Every record of money \(donations, gifts, memberships, shop orders and the caregiver fee\) goes to/);
 });
 
 test('the last door: no email about money is delivered to gandhim, whatever queued it', async () => {
@@ -116,7 +139,8 @@ test('the last door: no email about money is delivered to gandhim, whatever queu
     for (const [template, payload] of [
       ['submission_forward', { reference: 'PFA-DON-AB12CD34', kind: 'PFA-DON' }],
       ['submission_forward', { reference: 'PFA-MEM-2026-00004' }],
-      ['submission_followup', { reference: 'PFA-CG-2026-00011' }],
+      ['submission_forward', { reference: 'PFA-CG-2026-00011', copy: 'payment' }],
+      ['submission_forward', { reference: 'PFA-CG-2026-00011', copy: 'whole' }],
       ['submission_forward', { reference: 'PFA-SHP-ZX81QW22', kind: 'PFA-SHP' }],
       ['shop_order_staff', { orderId: 'PFA-SHP-ZX81QW22' }]
     ]) {
@@ -187,4 +211,76 @@ test('the panel neither resends old payments as "missed" nor chases copies the r
   assert.match(src, /&& !\(FORWARD\.isPaid\(d\) && copied\(d, FORWARD\.DEFAULT_INBOX\)\)\)/, 'a payment copied under the old route had its copy');
   assert.match(src, /\.filter\(\(d\) => !mail\.moneyToWrongInbox\(d\.to, d\.template, d\.payload\)\)/, 'a superseded copy is not listed as failing');
   assert.match(read('admin.html'), /Copies of forms are switched off<\/b> \(PFA_SUBMISSIONS_INBOX is off\)\. Every record of money still goes to/);
+});
+
+/* ---- 23 Oct 2026: every caregiver application reaches gandhim, and the
+   receipt for its fee the payments inboxes ------------------------------ */
+
+test('the last door lets a caregiver application through to gandhim, and strips anything about money from it', async () => {
+  const { mail, sent, done } = freshMail({});
+  try {
+    const m = mail.moneyToWrongInbox;
+    assert.equal(m(GANDHIM, 'submission_forward', { kind: 'PFA-CG', copy: 'application' }), false, 'the application goes to gandhim');
+    assert.equal(m(GANDHIM, 'submission_forward', { reference: 'PFA-CG-2026-00011' }), false, 'so does one queued before the split');
+    assert.equal(m(GANDHIM, 'submission_followup', { reference: 'PFA-CG-2026-00011' }), false, 'and what the applicant writes back');
+    assert.equal(m(GANDHIM, 'submission_forward', { kind: 'PFA-CG', copy: 'payment' }), true, 'the receipt never does');
+    assert.equal(m(GANDHIM, 'submission_forward', { kind: 'PFA-CG', copy: 'whole' }), true);
+    assert.equal(m('pfadcmho@gmail.com', 'submission_forward', { kind: 'PFA-CG', copy: 'payment' }), false, 'the receipt goes to the pair');
+    assert.equal(m(GANDHIM, 'submission_forward', { kind: 'PFA-DON' }), true, 'every other record of money is as it was');
+
+    /* a payload that somehow carries money (planted here) still reaches
+       gandhim without it */
+    await mail.deliver({
+      to: GANDHIM,
+      template: 'submission_forward',
+      payload: {
+        reference: 'PFA-CG-2026-00011', kind: 'PFA-CG', kindLabel: 'Colony caregiver application', name: 'Asha Rao', email: 'asha@example.com',
+        amount: '500', orderId: 'PFA-CG-ORDER-77', payment: { orderId: 'PFA-CG-ORDER-77' },
+        rows: [
+          { label: 'Address', value: '16 MG Road' },
+          { label: 'Amount paid (INR)', value: '500' },
+          { label: 'Order ID', value: 'PFA-CG-ORDER-77' },
+          { label: 'CCAvenue tracking ID', value: '31233' },
+          { label: 'Bank reference', value: 'BNK900' }
+        ]
+      }
+    });
+    assert.equal(sent.length, 1, 'it went');
+    assert.equal(sent[0].to, GANDHIM);
+    assert.match(sent[0].text, /16 MG Road/);
+    assert.doesNotMatch(sent[0].text + sent[0].html, /Amount paid|PFA-CG-ORDER-77|31233|BNK900|Bank reference|tracking ID/);
+  } finally { done(); }
+});
+
+test('a caregiver application\'s copies: what each inbox is given', () => {
+  withEnv({}, (F) => {
+    const record = {
+      reference: 'PFA-CG-2026-00011', kind: 'PFA-CG', kindLabel: 'Colony caregiver application', attachments: 1,
+      fields: { name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road', district: 'New Delhi', state: 'Delhi', title: 'Colony caregiver card application', notes: 'About 12 animals.' },
+      payment: { orderId: 'PFA-CG-ORDER-77', amount: '500.00', currency: 'INR', trackingId: '31233', bankReference: 'BNK900' }
+    };
+    const app = F.copyPayload(record, 'https://pfa.test', 'application');
+    assert.equal(app.copy, 'application');
+    assert.equal(app.attachments, 1, 'the photograph goes with the application');
+    assert.deepEqual(app.rows.map((r) => r.label), ['Address', 'District', 'State', 'Application', 'About the colony']);
+    assert.ok(!JSON.stringify(app).match(/PFA-CG-ORDER-77|31233|BNK900|500\.00/), 'nothing about the money');
+
+    const receipt = F.copyPayload(record, 'https://pfa.test', 'payment');
+    assert.equal(receipt.copy, 'payment');
+    assert.equal(receipt.kindLabel, 'Payment for a colony caregiver application');
+    assert.equal(receipt.attachments, 0);
+    assert.deepEqual(receipt.rows, [
+      { label: 'Amount paid', value: '₹500' },
+      { label: 'Order ID', value: 'PFA-CG-ORDER-77' },
+      { label: 'CCAvenue tracking ID', value: '31233' },
+      { label: 'Bank reference', value: 'BNK900' },
+      { label: 'The application', value: `Sent separately to ${GANDHIM}` }
+    ]);
+    assert.equal(receipt.name, 'Asha Rao', 'who paid');
+    assert.equal(receipt.email, 'asha@example.com');
+
+    /* a form is untouched */
+    const form = F.copyPayload({ reference: 'PFA-CR-1', kind: 'PFA-CR', fields: { name: 'A', what: 'x' } }, '', '');
+    assert.equal(form.copy, undefined);
+  });
 });

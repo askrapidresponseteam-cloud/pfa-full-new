@@ -148,14 +148,17 @@ test('with PFA\'s own mailbox set up, the copy to gandhim is sent from info@', a
   assert.equal(mailer.sender().address, 'info@peopleforanimalsindia.org');
 });
 
-test('the kinds a payment opens are each proved to reach the payments inboxes, and not gandhim, by name', () => {
+test('the kinds a payment opens are each proved to reach their inboxes by name: money to the payments inboxes, never gandhim; a caregiver application to gandhim, its receipt to the payments inboxes', () => {
   const read = (f) => fs.readFileSync(path.join(ROOT, 'test', f), 'utf8');
   const e2e = read('submissions-end-to-end.test.js');
   /* owner, 21 Oct 2026: records of money go to pfadcmho@gmail.com and
      ozairhusain@gmail.com, never gandhim */
   assert.match(e2e, /a paid membership: on record and in the admin panel\\?'s list, emailed to nobody at PFA \(never gandhim\\?'s\)/, 'a membership is kept in the panel only (21 Oct 2026)');
-  assert.match(e2e, /a paid colony caregiver application: on record with its photograph, in the payments inboxes/);
+  /* a caregiver application is a form that comes with a fee (owner, 23 Oct
+     2026): gandhim gets the application, the payments inboxes the receipt */
+  assert.match(e2e, /a paid colony caregiver application: on record with its photograph, in gandhim\\?'s inbox with it attached \(no payment in it\), the receipt in the payments inboxes/);
   const thread = read('email-thread.test.js');
+  assert.match(thread, /a paid caregiver application: gandhim gets the application from info@ with its photograph and not a word about money, the payments inboxes get the receipt/);
   assert.match(thread, /a donation: a case under PFA-DON, the payments inboxes get it \(never gandhim\) with Reply-To the site/);
   assert.match(thread, /a shop order: a case under its order number, the payments inboxes get it \(never gandhim\) with Reply-To the site/);
   assert.equal(require('../lib/submission-forward.js').PAID_KINDS, S.PAID_KINDS, 'the forward routes by the very list the intake refuses');

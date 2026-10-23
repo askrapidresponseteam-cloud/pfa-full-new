@@ -692,3 +692,25 @@ test('the search box says so when it forgives a spelling', async () => {
   assert.match(p.text('#gres'), /No exact match for .karthk.\. Showing close spellings\./);
   assert.match(p.text('#gres'), /Karthik Dhanya/);
 });
+
+/* ---- 23 Oct 2026: a caregiver application from 21 to 23 Oct never reached
+   gandhim; the note says why, truthfully, and the button sends it --------- */
+
+test('caregiver applications that missed gandhim are named as such, not as "email was not set up"', async () => {
+  const row = (reference, kind, kindLabel) => ({ reference, kind, kindLabel, createdAt: AT(8, 2) });
+  const base = { state: 'ok', failing: [], login: { failing: false }, paymentInboxes: ['pfadcmho@gmail.com', 'ozairhusain@gmail.com'], sentCopies: { on: false } };
+  const note = async (missed) => {
+    const p = await panel((url, method) => (url === '/api/admin/mail-check' && method === 'GET' ? mailCheck(Object.assign({ missed }, base)) : undefined));
+    await settle();
+    const said = [...p.w.document.querySelectorAll('#mailbox .state')].map((e) => e.textContent).find((t) => /never copied/.test(t)) || '';
+    const button = p.$('#mailMissed');
+    return { said, button: button ? button.textContent : '' };
+  };
+  const cg = await note([row('PFA-CG-2026-00012', 'PFA-CG', 'Colony caregiver application')]);
+  assert.equal(cg.said, '1 submission was never copied to gandhim@exmpls.sansad.in. It is a caregiver application that went only to the payments inboxes (21 to 23 Oct). Each is still on record here; press the button below to send its copy now.');
+  assert.equal(cg.button, 'Send that submission to the inbox');
+  const mixed = await note([row('PFA-CG-2026-00012', 'PFA-CG', 'Colony caregiver application'), row('PFA-Q-2026-00031', 'PFA-Q', 'Help desk query')]);
+  assert.match(mixed.said, /Some arrived while email was not set up; the caregiver applications went only to the payments inboxes \(21 to 23 Oct\)\./);
+  const forms = await note([row('PFA-Q-2026-00031', 'PFA-Q', 'Help desk query')]);
+  assert.match(forms.said, /It arrived while email was not set up\./, 'any other kind is said as before');
+});
