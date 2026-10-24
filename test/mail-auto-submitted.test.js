@@ -78,7 +78,8 @@ const AUTOMATIC = {
   membership_welcome: { name: 'Ravi', memberId: 'PFA-MEM-2026-00001', orderId: 'PFA-MEM-X', amount: 2500, paidAt: at },
   caregiver_application_received: { name: 'Ravi', applicationRef: 'PFA-CG-2026-00001', orderId: 'PFA-CGA-X', amount: 50, paidAt: at },
   shop_order_confirmed: { name: 'Ravi', orderId: 'PFA-SHP-1', total: 900, items: [], delivery: {}, paidAt: at },
-  card_issued: { name: 'Ravi', cardId: 'PFA-CCT-1', issuedAt: at, validUntil: at, cardUrl: 'https://pfa.test/c' },
+  card_issued: { name: 'Ravi', applicationRef: 'PFA-CG-2026-00001', issuedAt: at, validUntil: at, postTo: ['C-25, Shanti Nagar', 'Karnataka 576101'] },
+  card_posted: { name: 'Ravi', applicationRef: 'PFA-CG-2026-00001', postedAt: at, postTo: ['C-25, Shanti Nagar', 'Karnataka 576101'] },
   inbox_test: { at },
   staff_invite: { name: 'Priya', link: 'https://pfa.test/set', adminUrl: 'https://pfa.test/admin.html' }
 };

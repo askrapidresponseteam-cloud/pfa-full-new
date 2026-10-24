@@ -292,7 +292,7 @@ test('Approve is held while it is in flight and the drawer is drawn from the cas
   assert.equal(p.calls.filter((c) => c.url.startsWith('/api/admin/case?')).length, gets, 'drawn from the answer, not read again');
   assert.match(p.text('#caseKind'), /Card issued/);
   assert.equal(p.$('#caseDecide').hidden, true, 'an issued card is not offered again');
-  assert.equal(p.text('#caseSay'), 'Card PFA-CCT-4K2M8QRT issued and the holder emailed.');
+  assert.equal(p.text('#caseSay'), 'Card PFA-CCT-4K2M8QRT issued. It waits under Print and post. The applicant is emailed that it is approved.');
   assert.ok([...p.w.document.querySelectorAll('#caseStatus option')].some((o) => o.textContent === 'Reopen: Submitted'), 'its moves are the issued card’s');
 });
 

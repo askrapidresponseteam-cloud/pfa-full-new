@@ -6,6 +6,7 @@
 // requested route is loaded per invocation. Public URLs are unchanged.
 
 const ROUTES = {
+  'admin/applications': './admin/applications.js',
   'admin/attachment': './admin/attachment.js',
   'admin/cards': './admin/cards.js',
   'admin/case': './admin/case.js',
@@ -46,6 +47,7 @@ const ROUTES = {
 
 // Static requires so Vercel's file tracer bundles every handler.
 const LOADERS = {
+  'admin/applications': () => require('../lib/routes/admin/applications.js'),
   'admin/attachment': () => require('../lib/routes/admin/attachment.js'),
   'admin/cards': () => require('../lib/routes/admin/cards.js'),
   'admin/case': () => require('../lib/routes/admin/case.js'),

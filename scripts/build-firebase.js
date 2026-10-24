@@ -57,15 +57,20 @@ const PANEL_PAGES = ['admin.html'];
    a panel that half loads. */
 const PANEL_ASSETS = [
   'assets/card-fields.js',
+  'assets/card-print.js',
   'assets/caregiver-card.js',
+  'assets/field-rules.js',
   'assets/firebase-config.js',
   'assets/qr.js',
   'img/logo.png',
   'fonts/marcellus-latin.woff2',
   'fonts/marcellus-latin-ext.woff2',
-  /* The signature printed on a caregiver card. The panel draws the card
-     itself, so this is the panel's asset, not the site's. */
-  'media/pfa-signature.png'
+  /* The caregiver card the panel draws (24 Oct 2026, the owner's template):
+     its face, in the two weights it uses, and its back. The panel draws the
+     card itself, so these are the panel's assets, not only the site's. */
+  'fonts/arimo-latin-400.woff2',
+  'fonts/arimo-latin-700.woff2',
+  'media/caregiver-card-back.png'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */
@@ -90,7 +95,7 @@ const FN_DIRS = ['api', 'lib'];
    "Cannot find module '../assets/field-rules.js'" and the panel reported that
    it could not reach /api/admin. checkRequires() below now stops the build if
    anything lib/ or api/ loads is missing from the bundle. */
-const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/site-modules.json'];
+const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json'];
 
 function rmrf(dir) { fs.rmSync(dir, { recursive: true, force: true }); }
 

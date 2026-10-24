@@ -129,7 +129,8 @@ test('caregiver shipping cannot be pushed through the generic payment endpoint',
 
 test('every email template renders with a subject, html and plain text', () => {
   const payloads = {
-    card_issued: { name: 'Asha', cardId: 'PFA-CCT-ABCD2345', issuedAt: '2026-08-21', validUntil: '2029-08-21', cardUrl: 'https://pfa/c' },
+    card_issued: { name: 'Asha', applicationRef: 'PFA-CG-2026-00001', issuedAt: '2026-08-21', validUntil: '2029-08-21', postTo: ['C-25, Shanti Nagar, Udupi', 'Karnataka 576101'], followUrl: 'https://pfa/t' },
+    card_posted: { name: 'Asha', applicationRef: 'PFA-CG-2026-00001', postedAt: '2026-08-25', postTo: ['C-25, Shanti Nagar, Udupi', 'Karnataka 576101'] },
     shipping_paid: { cardId: 'PFA-CCT-ABCD2345', trackingId: 'PFA-SHP-ABCD2345', amount: '100.00', paymentReference: 'TRK1', cardUrl: 'https://pfa/c' },
     shipment_update: { status: 'delivered', statusLabel: 'Delivered', trackingId: 'PFA-SHP-ABCD2345', cardId: 'PFA-CCT-ABCD2345', cardUrl: 'https://pfa/c' }
   };
@@ -147,12 +148,13 @@ test('every email template renders with a subject, html and plain text', () => {
 test('email templates escape what they interpolate', () => {
   const rendered = mail.render('card_issued', {
     name: '<script>alert(1)</script>',
-    cardId: 'PFA-CCT-ABCD2345',
+    applicationRef: 'PFA-CG-2026-00001',
     issuedAt: '2026-08-21',
     validUntil: '2029-08-21',
-    cardUrl: 'https://pfa/c'
+    postTo: ['<img src=x onerror=alert(1)>', 'Karnataka 576101']
   });
   assert.ok(!rendered.html.includes('<script>alert'), 'template output must not carry raw markup');
+  assert.ok(!rendered.html.includes('<img src=x'), 'nor the address');
 });
 
 function loadRenderer() {
@@ -169,13 +171,15 @@ function loadRenderer() {
 test('the print-ready PDF is a valid two-page document at true card size', async () => {
   const renderer = loadRenderer();
   const jpeg = fs.readFileSync(path.join(__dirname, 'fixtures', 'card-sample.jpg'));
-  const page = { width: 1276, height: 2022, bytes: new Uint8Array(jpeg) };
+  /* 85.6 x 54 mm, landscape (ID-1, the owner's template, 24 Oct 2026) at
+     600 dpi: 2022 x 1276 pixels */
+  const page = { width: 2022, height: 1276, bytes: new Uint8Array(jpeg) };
   const pdf = Buffer.from(await renderer._buildPdf([page, page]).arrayBuffer());
   const text = pdf.toString('latin1');
 
   assert.ok(text.startsWith('%PDF-1.4'));
   assert.equal((text.match(/\/Type \/Page[^s]/g) || []).length, 2);
-  assert.match(text, /\/MediaBox \[0 0 153\.071 242\.646\]/);
+  assert.match(text, /\/MediaBox \[0 0 242\.646 153\.071\]/, 'a card turned landscape, at its true size');
 
   const xrefStart = Number(text.slice(text.lastIndexOf('startxref')).split('\n')[1]);
   const entries = text.slice(xrefStart).split('\n').slice(2).filter((line) => /\d{10} \d{5} n/.test(line));
@@ -213,81 +217,124 @@ test('photograph resolution thresholds follow print maths, not guesswork', () =>
   assert.ok(editor.POOR_PX < editor.IDEAL_PX && editor.POOR_PX > 300);
 });
 
-test('the chairperson signature only appears on a card that has actually been issued', async () => {
+/* ---- the card is the owner's template (24 Oct 2026) ----------------------
+
+   "caregiver card ditto", with PFA_Colony_Caregiver_Card_Template.html, then
+   "nothing can be clipped. nothing can overlay nothing else. text/font size
+   needs to be same for every card. think like a credit card/ aadhar card
+   issuance system. it cannot look and feel different for diff people- no
+   matter the length of the name or address." */
+
+/* The renderer in a sandbox with a canvas that records what is drawn. */
+function recordingRenderer() {
   const source = fs.readFileSync(path.join(__dirname, '..', 'assets', 'caregiver-card.js'), 'utf8');
+  const PRINT = require('../assets/card-print.js');
+  const calls = [];
+  function context2d() {
+    const state = { font: '10px sans-serif', fillStyle: '#000', strokeStyle: '#000', lineWidth: 1, textAlign: 'left', textBaseline: 'alphabetic', letterSpacing: '0px' };
+    const stack = [];
+    const ctx = new Proxy(state, {
+      get(target, key) {
+        if (key in target) return target[key];
+        if (key === 'save') return () => stack.push(Object.assign({}, state));
+        if (key === 'restore') return () => { const back = stack.pop(); if (back) Object.assign(state, back); };
+        if (key === 'measureText') {
+          return (text) => {
+            const px = Number((/([\d.]+)px/.exec(state.font) || [])[1]) || 10;
+            return { width: PRINT.width(text, px) };
+          };
+        }
+        if (key === 'fillText') return (...args) => calls.push({ text: args[0], font: state.font, maxWidth: args[3], fill: state.fillStyle, spacing: state.letterSpacing, align: state.textAlign });
+        return () => {};
+      },
+      set(target, key, value) { target[key] = value; return true; },
+      has(target, key) { return key === 'letterSpacing' || key in target; }
+    });
+    return ctx;
+  }
+  const canvas = () => ({ width: 0, height: 0, style: {}, getContext: () => context2d() });
   const context = {
-    window: {}, document: { createElement: () => ({ getContext: () => ({}) }), fonts: null },
-    Image: function () {}, Blob, TextEncoder, atob, URL, setTimeout
+    window: {}, document: { createElement: canvas, fonts: null },
+    Image: function () { setTimeout(() => this.onerror && this.onerror(), 0); },
+    Blob, TextEncoder, atob, URL, setTimeout
   };
-  /* In a browser `self` is `window`, which is where the completer's UMD
-     wrapper attaches itself. The sandbox has no `self`, so it is pointed at
-     the same object or the module would land on the sandbox global and the
-     renderer would never see it. */
   context.self = context.window;
   vm.createContext(context);
-  /* The field completer has to be in the context, because the renderer defers
-     to it and falls back to raw data when it is absent - which is exactly the
-     condition the last assertion below makes sure can never happen in a page. */
   vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'assets', 'card-fields.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'assets', 'field-rules.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'assets', 'card-print.js'), 'utf8'), context);
   vm.runInContext(source, context);
-  const Card = context.window.PFACaregiverCard;
+  context.window.PFA_RULES = context.window.PFA_RULES || context.PFA_RULES;
+  return { Card: context.window.PFACaregiverCard, calls, canvas };
+}
 
-  /* A signature on a preview would be an authorisation of nothing, so hydrate
-     only fetches it once the register has given the card a number. The preview
-     case resolves without touching the network at all. */
-  const preview = await Card.hydrate({ cardId: 'PFA-CCT-\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022' });
-  assert.equal(preview.signatureImage, null, 'a live preview must not carry the signature');
-  assert.equal(preview.photoImage, null);
+const CARDS = [
+  { cardId: 'PFA-CCT-ABCD2345', name: 'Selina Thakur', district: 'Udupi', state: 'Karnataka', issuedOn: '2026-10-24T09:00:00Z' },
+  { cardId: 'PFA-CCT-WXYZ6789', name: 'Venkata Subramanian Krishnamurthy', printName: 'Venkata S. Krishnamurthy', district: 'Nawanshahr (Shahid Bhagat Singh Nagar)', state: 'Punjab', issuedOn: '2026-01-02T09:00:00Z' },
+  { cardId: 'PFA-CCT-MNPQ2345', name: 'Lakshminarayana Venkataramanappa', district: 'Paschim Medinipur (West Medinipur)', state: 'Dadra and Nagar Haveli and Daman and Diu', issuedOn: '2026-12-31T09:00:00Z' },
+  { cardId: 'PFA-CCT-RSTU2345', name: 'Om', district: 'Mumbai', state: 'Maharashtra', issuedOn: '2027-03-09T09:00:00Z' }
+];
 
-  // And the gate itself is a real card-number match, not a truthiness check.
-  assert.match(source, /ISSUED_CARD = \/\^PFA-CCT-\[A-Z0-9\]\{8\}\$\//);
-
-  /* The gate must be read from the data as it arrived, before the field
-     completer runs. Completion exists to make sure nothing prints blank, and a
-     gate placed after it would be deciding whether to stamp the chairperson's
-     signature on the strength of a value the completer supplied. */
-  const gate = source.indexOf('var issued = isIssued(data);');
-  const fill = source.indexOf('var filled = complete(data);');
-  assert.ok(gate > -1, 'the signature gate reads isIssued from the incoming data');
-  assert.ok(fill > -1, 'hydrate completes the fields');
-  assert.ok(gate < fill, 'the gate must be evaluated before the fields are completed');
-  assert.match(source, /issued \? loadImage\(SIGNATURE_SRC\)/);
-
-  /* Behaviour, not just shape: a card with no number at all still gets no
-     signature, however much the completer fills in around it. */
-  const empty = await Card.hydrate({});
-  assert.equal(empty.signatureImage, null, 'an empty card must not carry the signature');
-  assert.ok(empty.issuedOn, 'but the rest of the card is still filled in');
+test('every card is set in the same type at the same sizes, whatever the name, and nothing is pressed narrower', async () => {
+  const { Card, calls, canvas } = recordingRenderer();
+  const PRINT = require('../assets/card-print.js');
+  const layouts = [];
+  for (const data of CARDS) {
+    calls.length = 0;
+    const full = await Card.hydrate(data);
+    Card.draw(canvas(), 'front', full, {}, 856, 1);
+    layouts.push(calls.map((c) => ({ font: c.font, maxWidth: c.maxWidth, spacing: c.spacing })));
+    /* every value fits its line at the fixed size, measured with the font's own widths */
+    const values = calls.slice(1).filter((c) => /18\.06|180\.60/.test(c.font) || /px/.test(c.font)).map((c) => c.text);
+    for (const row of ['name', 'cardId', 'district', 'state', 'issuedShort']) {
+      const line = Card.lineOf(full, row);
+      assert.equal(line.ghost, false, `${data.name}: ${row} prints a stand-in`);
+      assert.ok(PRINT.fits(line.text), `${data.name}: "${line.text}" does not fit its line`);
+      assert.ok(values.includes(line.text), `${data.name}: "${line.text}" was not drawn`);
+    }
+    assert.deepEqual([...Card.unprintable(full)], [], `${data.name} is ready to print`);
+  }
+  /* the same drawing instructions, in the same fonts, for every card */
+  for (const layout of layouts.slice(1)) assert.deepEqual(layout, layouts[0], 'one card is set differently from another');
+  for (const call of layouts[0]) assert.equal(call.maxWidth, undefined, 'no text is pressed into a width');
 });
 
-test('the card prints the issue date and no expiry', () => {
-  const source = fs.readFileSync(path.join(__dirname, '..', 'assets', 'caregiver-card.js'), 'utf8');
-  /* The back is laid out from a list of sections now rather than a run of
-     label() calls at fixed coordinates, so the label appears as data. Both
-     forms are accepted: what is being asserted is that the issue date is on
-     the card and no validity date is, not how the layout is expressed. */
-  assert.ok(/label\('Issued on'|label: 'Issued on'/.test(source), 'the back carries the issue date');
-  assert.ok(!/label\('Valid Until'|label: 'Valid Until'/.test(source), 'no validity is printed on the card');
-  /* The card says what every page, email and the verify API say. "Caregiver"
-     was the one place the site disagreed with itself. */
-  assert.ok(source.includes("var ROLE = 'Colony caregiver'"), 'the role reads Colony caregiver, like the rest of the site');
+test('a long name prints in the form the reviewer confirmed, and one with no form is not printable', async () => {
+  const { Card } = recordingRenderer();
+  const confirmed = await Card.hydrate(CARDS[1]);
+  assert.equal(Card.lineOf(confirmed, 'name').text, 'Venkata S. Krishnamurthy');
+  assert.equal(Card.lineOf(confirmed, 'district').text, 'Nawanshahr', 'the old name in brackets is not printed');
+  const ruled = await Card.hydrate(CARDS[2]);
+  assert.equal(Card.lineOf(ruled, 'name').text, 'L. Venkataramanappa', 'a card from before printName prints the rule\'s form');
+  assert.equal(Card.lineOf(ruled, 'state').text, 'DNH and Daman and Diu');
+  const huge = await Card.hydrate({ cardId: 'PFA-CCT-ABCD2345', name: 'Wwwwwwwwwwwwwwwwwwwwwwwwwwwwww', district: 'Udupi', state: 'Karnataka', issuedOn: '2026-10-24' });
+  assert.equal(Card.lineOf(huge, 'name').ghost, true, 'shown as a stand-in on a preview');
+  assert.deepEqual([...Card.unprintable(huge)], ['name'], 'and refused for printing');
+  const preview = await Card.hydrate({ name: 'Selina Thakur', district: 'Udupi', state: 'Karnataka' });
+  assert.deepEqual([...Card.unprintable(preview)], ['card number'], 'a card with no number is a preview, never a print');
+  assert.equal(Card.lineOf(preview, 'cardId').text, 'Given when issued');
 });
 
-test('the back is laid out from measured content, not fixed coordinates', () => {
-  /* The fault this replaced: the divider under the address sat at a constant,
-     so a two-line address printed with an inch of nothing under it. If these
-     go away, that fault has come back. */
+test('the front is the template: its words, its rows, its colours and its measured layout', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'assets', 'caregiver-card.js'), 'utf8');
-  assert.ok(/section\.height = section\.qr \? 88 : LABEL_DROP \+ section\.lines\.length \* section\.step/.test(source),
-    'each section reports the height its own content needs');
-  assert.ok(source.includes('divider(y + gap / 2 - LABEL_PX)'),
-    'dividers sit in the computed gap rather than at a remembered coordinate');
-  assert.ok(source.includes('var authRule = REF_H - PAD - 61'),
-    'the authorisation is pinned to the foot, so slack never collects under the signature');
-  /* The shrink loop for a long address went with the address itself: since
-     v1.293 every section on the face is one measured line (ID number,
-     district, state, issued on), so the measure cannot overflow. If
-     multi-line sections return, bring the loop back with them. */
-  assert.ok(!/addressLines/.test(source),
-    'the face carries no multi-line address; the shrink loop went with it');
+  assert.match(source, /'COLONY CAREGIVER CARD'/);
+  const rows = [...source.matchAll(/\{ label: '([A-Z ]+)', key: '(\w+)' \}/g)].map((m) => m[1]);
+  assert.deepEqual(rows, ['NAME', 'ID NUMBER', 'DISTRICT', 'STATE', 'ISSUED ON']);
+  for (const words of ['Authorised By:', 'Smt. Maneka Sanjay Gandhi', 'Chairperson, People For Animals']) assert.ok(source.includes(`'${words}'`), words);
+  for (const colour of ["PURPLE = '#41308f'", "RULE = '#766b6b'", "FRAME = '#7768ba'", "EDGE = '#807979'"]) assert.ok(source.includes(colour), colour);
+  assert.match(source, /heading: \{ x: 50\.33, y: 74\.38, size: 47, track: 0\.705 \}/, 'the heading, as the template lays it out');
+  assert.match(source, /value: \{ x: 252\.97, drop: 26\.5, size: 18\.06/, 'the values, at the template\'s size');
+  assert.match(source, /photo: \{ x: 578\.06, y: 117\.53, w: 168\.34, h: 232\.06, round: 0\.14 \}/, 'the photograph\'s frame, corners and all');
+  assert.match(source, /var CARD = \{ w: 85\.6, h: 54 \}/, 'ID-1, landscape');
+  assert.ok(!/maxWidth|fitText|measureText\(text\)\.width > /.test(source.replace(/\/\*[\s\S]*?\*\//g, '')), 'nothing shrinks or squeezes text to fit');
+  assert.ok(!/QR|qr\b|SIGNATURE/.test(source.replace(/\/\*[\s\S]*?\*\//g, '')), 'the template has no QR code and no signature image');
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'media', 'caregiver-card-back.png')), 'the back, as the template carries it');
+});
+
+test('the date prints as the template prints it, and the card carries no expiry', async () => {
+  const { Card } = recordingRenderer();
+  const full = await Card.hydrate({ cardId: 'PFA-CCT-ABCD2345', name: 'Selina Thakur', district: 'Udupi', state: 'Karnataka', issuedOn: '2026-10-24T09:00:00Z' });
+  assert.equal(Card.lineOf(full, 'issuedShort').text, '24/10/2026');
+  const source = fs.readFileSync(path.join(__dirname, '..', 'assets', 'caregiver-card.js'), 'utf8');
+  assert.ok(!/VALID|Valid until|validUntil/.test(source.replace(/\/\*[\s\S]*?\*\//g, '')), 'no validity is printed on the card');
 });

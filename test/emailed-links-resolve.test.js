@@ -39,8 +39,16 @@ test('the card page reads the public card record and never asks for anything els
   assert.match(html, /fetch\('\/api\/caregiver\/card\?id='/);
   assert.doesNotMatch(html, /\/api\/admin/);
   assert.match(html, /<meta name="robots" content="noindex/, 'a card link is personal');
-  assert.match(html, /assets\/caregiver-card\.js/, 'drawn by the same renderer the office prints from');
-  assert.doesNotMatch(html, /data-side="back"/, 'the back carries the address, which is not public');
+  /* Words only since 24 Oct 2026 (owner: "only physical card will go to
+     the applicant. card print/preview/edit option should be for admin
+     only."): the page checks a number and draws no card. */
+  assert.doesNotMatch(html, /assets\/caregiver-card\.js|<canvas/, 'the card is drawn only in the panel');
+  /* and the card the panel prints never carries the holder's address or
+     contact, on either face */
+  const card = fs.readFileSync(path.join(ROOT, 'assets', 'caregiver-card.js'), 'utf8');
+  const back = card.slice(card.indexOf('function drawBack('), card.indexOf('function draw(canvas'));
+  assert.doesNotMatch(back, /data\.(address|mobile|email|pin)\b/, 'the back carries nothing about the holder');
+  assert.doesNotMatch(card, /data\.(address|mobile|email)\b/, 'and neither face prints the address or contact');
 });
 
 test('the images every server-rendered payment page shows are in the tree', () => {

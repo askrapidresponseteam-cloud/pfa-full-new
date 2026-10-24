@@ -127,11 +127,12 @@ test('every section in the rail is one the module list knows', () => {
      public site shows) joined on 8 Oct 2026, so it is seven again. */
   assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'caregivers', 'website', 'people'],
     'the rail is the seven sections, in order');
-  const stacks = /caregivers:[^}]*panes: \['caregivers', 'verify', 'cards'\]/.test(script)
+  /* Applications to decide joined Colony cards, first, on 24 Oct 2026 */
+  const stacks = /caregivers:[^}]*panes: \['apply', 'caregivers', 'verify', 'cards'\]/.test(script)
     && /payments:[^}]*panes: \['payments', 'donations'\]/.test(script)
     && /people:[^}]*panes: \['people', 'audit'\]/.test(script);
   assert.ok(stacks, 'each merged tab names the panes it stacks');
-  assert.match(script, /HOMES = \{ donations: 'payments', cards: 'caregivers', verify: 'caregivers', audit: 'people' \}/,
+  assert.match(script, /HOMES = \{ donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', audit: 'people' \}/,
     'old section names still land on the section that holds them');
   const registry = script.slice(script.indexOf('var TABS = {'), script.indexOf('function can(module)'));
   for (const tab of tabs) {
@@ -156,14 +157,15 @@ test('the audit collection is named in the database rules and is never client-wr
   assert.match(rules, /match \/adminAudit\/\{id\}\s*\{\s*allow read: if isAdmin\(\); allow write: if false; \}/);
 });
 
-test('Mark as printed shows the result: the card leaves the to-print sheet, the message stays, printed cards are viewable', () => {
+test('Mark as printed and Mark as posted show the result: the card moves on a step, the message stays, every card is viewable', () => {
   const fs = require('node:fs'); const path = require('node:path');
   const html = fs.readFileSync(path.join(__dirname, '..', 'admin.html'), 'utf8');
   assert.match(html, /var cardFilter = 'unprinted'/, 'the sheet defaults to what is still to print');
-  assert.match(html, /id="cardShowAll"/, 'and printed cards can be shown');
+  assert.match(html, /CARD_STEPS = \[\['unprinted', 'To print'\], \['unposted', 'To post'\], \['current', 'All current'\]\]/, 'to print, to post, and every card');
   assert.match(html, /cardsPane\(true\)/, 'the repaint after marking keeps the status line');
-  assert.match(html, /marked as printed\.'/);
+  assert.match(html, /'marked as posted\.' : 'marked as printed\.'/);
   assert.match(html, /data-printed="1"/, 'printed cards read as printed');
   const route = fs.readFileSync(path.join(__dirname, '..', 'lib', 'routes', 'admin', 'cards.js'), 'utf8');
-  assert.match(route, /if \(filter === 'unprinted'\) return !row\.printedAt && !row\.printed;/);
+  assert.match(route, /if \(filter === 'unprinted'\) return !printed;/);
+  assert.match(route, /if \(filter === 'unposted'\) return printed && !row\.postedAt;/);
 });

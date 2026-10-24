@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="robots" content="noindex, nofollow">
 <title>Colony Caregiver Card | People for Animals</title>
-<meta name="description" content="Open, check and download a Colony Caregiver Card issued by People for Animals. Anyone shown a card can confirm here that it is real and still in date.">
+<meta name="description" content="Check a Colony Caregiver Card issued by People for Animals. Anyone shown a card can confirm here, from the number printed on it, that it is real and still in date.">
 <link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 :root{
@@ -140,12 +140,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .tnote p{margin:0;font-size:13px;line-height:1.65;color:var(--muted)}
 .tnote a{text-decoration:underline}
 
-/* ---------- card faces ---------- */
-.faces{display:flex;flex-wrap:wrap;gap:24px;margin:26px 0 0}
-.face{display:grid;gap:10px;justify-items:center}
-.face canvas{border:1px solid var(--line);background:#fff;box-shadow:0 12px 30px rgba(0,0,0,.08)}
-.face button{border:1px solid var(--ink);background:#fff;padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
-.face button:hover{background:var(--ink);color:#fff}
 .standing{display:inline-block;margin:10px 0 0;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--ink)}
 .standing[data-state="expired"],.standing[data-state="revoked"]{border-color:#b3261e;color:#b3261e}
 .tcard .lookup{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
@@ -530,15 +524,11 @@ if (root.document && root.document.head) apply(read());
         <p class="tcard__next" id="cName"></p>
         <span class="standing" id="cStanding" data-state=""></span>
         <ol class="tline" id="cLine" hidden></ol>
-        <div class="faces" id="cFaces" hidden>
-          <div class="face"><canvas data-side="front" aria-label="The card"></canvas><button type="button" data-download="front">Download the card</button></div>
-        </div>
-        <ol class="tline" id="cDelivery" hidden></ol>
       </div>
 
       <div class="tcard" id="cLookup">
         <p class="tcard__kind">Check a card</p>
-        <p class="tcard__next">Type the number printed on the card, or scan the QR code on its back.</p>
+        <p class="tcard__next">Type the ID number printed on the front of the card.</p>
         <form class="lookup" id="cForm" novalidate>
           <input id="cId" name="id" type="text" autocomplete="off" spellcheck="false" placeholder="PFA-CCT-XXXXXXXX" aria-label="Card number" required>
           <button class="btn" type="submit" id="cGo">Check</button>
@@ -547,7 +537,7 @@ if (root.document && root.document.head) apply(read());
 
       <div class="tnote">
         <p class="tnote__h">What this page shows</p>
-        <p>The holder's name, the card number, when it was issued and until when it is valid, and where the printed card is if one is on its way. Nothing else about the holder is shown here: not the photograph, the address or the mobile number. Those are on the printed card, which the holder carries, and the digital card here is its front. Lost yours? <a href="ask.html">Ask us</a> and quote the number.</p>
+        <p>What the card in front of you should say: the name, the district and the state printed on it, when it was issued and until when it is valid. If they match, the card is real. Nothing else about the holder is shown: not the photograph, the address or the mobile number. The card is only ever a printed card, issued by PFA after a person there has approved the application, and posted to the holder. Lost yours? <a href="ask.html">Ask us</a> and quote your application number.</p>
       </div>
     </div>
   </section>
@@ -655,16 +645,12 @@ if (root.document && root.document.head) apply(read());
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/card-fields.js"></script>
-<script src="assets/qr.js"></script>
-<script src="assets/caregiver-card.js"></script>
 <script>
 (function(){
   'use strict';
   var $ = function(s){ return document.querySelector(s); };
-  var say = $('#cSay'), card = $('#cCard'), faces = $('#cFaces');
+  var say = $('#cSay'), card = $('#cCard');
   var ID = /^PFA-CCT-[A-Z0-9]{8}$/;
-  var current = null;
 
   function esc(v){ return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function when(iso){
@@ -674,58 +660,31 @@ if (root.document && root.document.head) apply(read());
   }
   function tell(msg, bad){ say.textContent = msg || ''; say.hidden = !msg; say.setAttribute('data-state', bad ? 'bad' : ''); }
 
-  /* The card, drawn by the same renderer the office prints from, from the
-     public record only: name and number. The photograph, the address and the
-     contact details are not on the public record, so the digital card is the
-     front face only; the back, which carries them, is on the printed card. */
-  function drawFaces(c){
-    var C = window.PFACaregiverCard;
-    if (!C || !faces) return;
-    var data = { cardId: c.cardId, name: c.name || '', issuedOn: c.issuedAt || '', validUntil: c.validUntil || '', photo: '' };
-    C.loadAssets().then(function(assets){
-      return C.hydrate(data).then(function(full){
-        current = full;
-        var canvas = faces.querySelector('canvas[data-side="front"]');
-        if (canvas) C.draw(canvas, 'front', full, assets, Math.min(280, (faces.clientWidth || 560) - 16), window.devicePixelRatio || 2);
-        faces.hidden = false;
-      });
-    }).catch(function(){ faces.hidden = true; });
-  }
-  faces.addEventListener('click', function(e){
-    var b = e.target.closest && e.target.closest('[data-download]');
-    if (!b || !current || !window.PFACaregiverCard) return;
-    try { window.PFACaregiverCard.downloadPng(current, b.getAttribute('data-download')); } catch (_) {}
-  });
-
+  /* Words only (owner, 24 Oct 2026: "only physical card will go to the
+     applicant. card print/preview/edit option should be for admin only.").
+     This page used to draw the card and offer it as a download, which made
+     a copy of the card that had not been printed or posted. It now checks a
+     card and says what the printed card should read; the card is drawn only
+     in the admin panel, for the printer. */
   function show(c){
     $('#cRef').textContent = c.cardId;
-    $('#cName').textContent = c.name || '';
+    /* the name as the card prints it, so it can be read against the card */
+    $('#cName').textContent = c.printName || c.name || '';
     var standing = String(c.standing || '').toLowerCase();
     var expired = c.validUntil && new Date(c.validUntil).getTime() < Date.now();
     var state = standing === 'revoked' ? 'revoked' : (expired || standing === 'expired') ? 'expired' : 'valid';
     var st = $('#cStanding');
     st.textContent = state === 'valid' ? 'Valid' : state === 'expired' ? 'Expired' : 'Revoked';
     st.setAttribute('data-state', state);
-    var rows = [['Issued', c.issuedAt], ['Valid until', c.validUntil]].filter(function(r){ return r[1]; })
-      .map(function(r){ return '<li><span>' + esc(r[0]) + '</span><span>' + esc(when(r[1])) + '</span></li>'; }).join('');
+    var rows = [['District', c.district, true], ['State', c.state, true], ['Issued', c.issuedAt], ['Valid until', c.validUntil]].filter(function(r){ return r[1]; })
+      .map(function(r){ return '<li><span>' + esc(r[0]) + '</span><span>' + esc(r[2] ? r[1] : when(r[1])) + '</span></li>'; }).join('');
     $('#cLine').innerHTML = rows; $('#cLine').hidden = !rows;
-    var d = c.delivery, del = '';
-    if (d){
-      del += '<li><span>Printed card</span><span>' + esc(d.statusLabel || d.status || '') + '</span></li>';
-      if (d.carrier || d.carrierTrackingNumber) del += '<li><span>Courier</span><span>' + esc([d.carrier, d.carrierTrackingNumber].filter(Boolean).join(' \u00b7 ')) + '</span></li>';
-      if (d.dispatchedAt) del += '<li><span>Dispatched</span><span>' + esc(when(d.dispatchedAt)) + '</span></li>';
-      if (d.deliveredAt) del += '<li><span>Delivered</span><span>' + esc(when(d.deliveredAt)) + '</span></li>';
-    } else if (c.printed === false){
-      del += '<li><span>Printed card</span><span>Digital only</span></li>';
-    }
-    $('#cDelivery').innerHTML = del; $('#cDelivery').hidden = !del;
     card.hidden = false;
-    if (state === 'revoked') faces.hidden = true; else drawFaces(c);
   }
 
   function look(id){
     id = String(id || '').trim().toUpperCase();
-    card.hidden = true; faces.hidden = true;
+    card.hidden = true;
     if (!ID.test(id)){ tell('That is not a card number. It reads like PFA-CCT-XXXXXXXX.', true); return; }
     tell('Checking\u2026');
     $('#cGo').disabled = true;
@@ -743,7 +702,7 @@ if (root.document && root.document.head) apply(read());
 
   $('#cForm').addEventListener('submit', function(e){ e.preventDefault(); look($('#cId').value); });
 
-  /* The link in the email and the QR on the card both arrive as ?id= */
+  /* The link in the card email arrives as ?id= */
   var q = new URLSearchParams(location.search).get('id');
   if (q){ $('#cId').value = q.toUpperCase(); look(q); }
 })();

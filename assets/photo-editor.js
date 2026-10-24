@@ -122,7 +122,7 @@
         warn.hidden = false;
         warn.className = 'pe-warn soft';
         warn.textContent = 'This photograph is a little small for printing and may look soft on the printed card. '
-          + 'It is fine for the digital card. Zooming out, or using a larger image, will sharpen it.';
+          + 'Zooming out, or using a larger image, will sharpen it.';
       } else {
         warn.hidden = false;
         warn.className = 'pe-warn poor';

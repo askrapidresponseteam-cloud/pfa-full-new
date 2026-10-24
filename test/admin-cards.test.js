@@ -26,17 +26,17 @@ test('a caregiver row never includes a photograph and reflects printed and revok
   assert.equal(caregiverRow('PFA-CCT-X', { status: 'revoked', validUntil: '2029-01-01T00:00:00.000Z' }, NOW).state, 'revoked');
 });
 
-test('filters answer the office\u2019s questions: who has not been emailed, who has not been printed', () => {
+test('filters answer the office\u2019s questions: what is still to print, and what is printed but not posted', () => {
   const rows = [
-    { id: 'a', state: 'valid', email: 'a@x.in', emailedAt: '', printedAt: '' },
-    { id: 'b', state: 'valid', email: 'b@x.in', emailedAt: '2026-08-01', printedAt: '' },
-    { id: 'c', state: 'valid', email: '', emailedAt: '', printedAt: '2026-08-01' },
-    { id: 'd', state: 'expired', email: 'd@x.in', emailedAt: '', printedAt: '' },
-    { id: 'e', state: 'valid', email: 'e@x.in', emailedAt: '', printed: true, printedAt: '' }
+    { id: 'a', state: 'valid', printedAt: '', postedAt: '' },
+    { id: 'b', state: 'valid', printedAt: '2026-08-01', postedAt: '' },
+    { id: 'c', state: 'valid', printedAt: '2026-08-01', postedAt: '2026-08-02' },
+    { id: 'd', state: 'expired', printedAt: '', postedAt: '' },
+    { id: 'e', state: 'valid', printed: true, printedAt: '', postedAt: '' }
   ];
   const pick = (f) => rows.filter((r) => keep(r, f)).map((r) => r.id);
-  assert.deepEqual(pick('unsent'), ['a', 'e'], 'no email address means nothing to send');
-  assert.deepEqual(pick('unprinted'), ['a', 'b']);
+  assert.deepEqual(pick('unprinted'), ['a']);
+  assert.deepEqual(pick('unposted'), ['b', 'e'], 'a card printed before the printed date was kept still counts as printed');
   assert.deepEqual(pick('current'), ['a', 'b', 'c', 'e']);
   assert.deepEqual(pick('all'), ['a', 'b', 'c', 'd', 'e']);
   assert.ok(matches({ id: 'PFA-MBR-1', name: 'Asha Kumar', email: 'asha@x.in', mobile: '9876543210' }, 'kumar'));
@@ -55,11 +55,12 @@ test('the panel draws cards with the public site\u2019s own renderers and never 
   ['assets/qr.js', 'assets/card-fields.js', 'assets/caregiver-card.js'].forEach((src) => {
     assert.ok(html.includes(`src="${src}"`), `${src} is the renderer the public pages use`);
   });
-  const panel = html.slice(html.lastIndexOf('/* ---- issue cards'), html.lastIndexOf('</script>'));
+  const panel = html.slice(html.lastIndexOf('/* ---- issue cards'), html.indexOf('</script>', html.lastIndexOf('/* ---- issue cards')));
   assert.ok(/C\.draw\(canvas, side, full/.test(panel), 'Colony caregiver faces come from PFACaregiverCard');
   assert.ok(/C\._buildPdf\(pages\)/.test(panel), 'the PDF is the same writer the public download uses');
   assert.ok(!/photos\.get\([^)]*\)[^;]*fetch\(|FormData/.test(panel), 'photographs are matched in the browser only');
-  assert.ok(/action: 'printed'/.test(panel) && /action: 'email'/.test(panel));
+  assert.ok(/action: what === 'posted' \? 'posted' : 'printed'/.test(panel), 'printed, then posted');
+  assert.ok(!/action: 'email'|id="cardMail"|Email the holders/.test(html), 'a card is never emailed to its holder (24 Oct 2026)');
   /* Wherever a colony caregiver card is drawn, the chairperson signature gate in the
      renderer must still be keyed on a genuine issued number. */
   const renderer = fs.readFileSync(path.join(__dirname, '..', 'assets', 'caregiver-card.js'), 'utf8');

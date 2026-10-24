@@ -141,9 +141,10 @@ button{font:inherit;color:inherit}
 .pane[data-live]:has(~ .pane[data-live]){padding-bottom:34px}
 .pane[data-pane="donations"]::before{content:"Donations"}
 .pane[data-pane="verify"]::before{content:"Verify a card"}
-.pane[data-pane="cards"]::before{content:"Issue cards"}
+.pane[data-pane="cards"]::before{content:"Print and post"}
+.pane[data-pane="apply"]::before{content:"Applications to decide"}
 .pane[data-pane="audit"]::before{content:"History"}
-.pane[data-pane="donations"]::before,.pane[data-pane="verify"]::before,.pane[data-pane="cards"]::before,.pane[data-pane="audit"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.pane[data-pane="donations"]::before,.pane[data-pane="verify"]::before,.pane[data-pane="cards"]::before,.pane[data-pane="apply"]::before,.pane[data-pane="audit"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
 
 /* ---------- overview ---------- */
 .lead{border-bottom:1px solid var(--line);padding:0 0 30px;margin:0 0 30px;display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
@@ -356,12 +357,58 @@ details.fold[open] > summary{margin-bottom:8px}
 .choices button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .choices button b{display:block;font-family:var(--display);font-weight:400;font-size:15px;margin:0 0 3px}
 .choices button span{font-size:11px;opacity:.7}
-.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px;margin:18px 0 0}
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin:18px 0 0}
 .sheet figure{margin:0;border:1px solid var(--line);padding:9px}
-.sheet figure[data-printed] canvas{opacity:.55}
+.sheet figure[data-posted] canvas{opacity:.55}
+/* the face is drawn at a fixed size for its resolution; on the sheet it
+   never runs past its own frame (owner, 24 Oct 2026: "nothing can overlay
+   nothing else") */
+.sheet canvas{max-width:100%;height:auto!important}
+#cardSay:empty{display:none}
 .sheet canvas{width:100%;height:auto;display:block;background:var(--stone)}
 .sheet figcaption{font-size:11px;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere}
 .pick{position:fixed;left:-9999px;width:1px;height:1px;opacity:0}
+/* Applications to decide (24 Oct 2026): one application to a row, the card
+   as it would be issued beside what was checked, and Issue or Reject. */
+.apq{display:grid;gap:14px}
+.ap{border:1px solid var(--line);padding:16px;display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+.ap[data-done]{grid-template-columns:minmax(0,340px) minmax(0,1fr);background:var(--stone)}
+.ap canvas{width:100%;height:auto;display:block;border:1px solid var(--line);background:#fff}
+.ap h4{margin:0;font-size:17px;font-weight:700;line-height:1.3}
+.ap .meta{margin:4px 0 0;font-size:12px;color:var(--muted)}
+.checks{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px;font-size:13px;line-height:1.4}
+.checks li{display:flex;gap:9px;align-items:baseline}
+.checks li::before{content:"";flex:0 0 8px;height:8px;border-radius:50%;background:#1f6b3a}
+.checks li[data-l="warn"]::before{background:#b7791f}
+.checks li[data-l="stop"]::before{background:#a3251f}
+.checks li[data-l="stop"]{color:#a3251f}
+.ap .acts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;align-items:center}
+.ap .acts .press{width:auto;padding:11px 22px}
+.ghost.danger{border-color:#a3251f;color:#a3251f}
+.ghost.danger:hover{background:#a3251f;color:#fff}
+.ap details{margin:14px 0 0;font-size:13px}
+.ap details summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;list-style:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ap details summary::-webkit-details-marker{display:none}
+.ap details summary::before{content:"+";display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--line);font-size:13px;transition:transform .2s}
+.ap details[open] summary::before{transform:rotate(45deg)}
+.ap dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;margin:10px 0 0}
+.ap dt{color:var(--muted)}
+.ap dd{margin:0;overflow-wrap:anywhere}
+.ap .say{margin:10px 0 0}
+.ap .say:empty,.rejectbox .say:empty{display:none}
+.pn{display:grid;gap:6px;margin:14px 0 0;max-width:420px}
+.pn label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.pn input{font:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--line);background:var(--paper)}
+.pn input[aria-invalid="true"]{border-color:#a3251f}
+.pn .say{margin:0;min-height:0;font-size:12px}
+.rejectbox{margin:14px 0 0;padding:14px;border:1px solid #a3251f;display:grid;gap:9px}
+.rejectbox[hidden]{display:none}
+.rejectbox label{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;cursor:pointer}
+.rejectbox label input{margin:3px 0 0}
+.rejectbox input[type="text"],.rejectbox textarea{width:100%;font:inherit;font-size:13px;padding:9px 10px;border:1px solid var(--line);background:var(--paper)}
+.rejectbox textarea{min-height:170px;line-height:1.5;resize:vertical}
+.rejectbox .row2{margin:2px 0 0}
+@media (max-width:760px){.ap,.ap[data-done]{grid-template-columns:1fr}}
 
 /* ---------- website: what the public site shows ---------- */
 /* A pair of the panel's own ghost buttons joined into one control: the state
@@ -472,7 +519,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="submissions">Submissions<span class="pip" id="pipWaiting" hidden>0</span></button>
       <button class="tab" type="button" data-tab="volunteers">Volunteers</button>
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
-      <button class="tab" type="button" data-tab="caregivers">Colony cards</button>
+      <button class="tab" type="button" data-tab="caregivers">Colony cards<span class="pip" id="pipApps" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="people" data-super>People &amp; audit</button>
     </div>
@@ -531,6 +578,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
 
     
 
+    <div class="pane" data-pane="apply" role="region" aria-label="Applications to decide"><div class="loading">Reading the applications&#8230;</div></div>
+
     <div class="pane" data-pane="caregivers">
       <div class="tools">
         <input type="search" id="cgQ" placeholder="Card number, e.g. PFA-CCT-4K2M8QRT" aria-label="Find a card">
@@ -555,7 +604,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       </div>
     </div>
 
-    <div class="pane" data-pane="cards" role="region" aria-label="Issue cards"><div class="loading">Reading the register&#8230;</div></div>
+    <div class="pane" data-pane="cards" role="region" aria-label="Print and post"><div class="loading">Reading the register&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
       <div class="tools">
@@ -632,10 +681,13 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
   <div class="act" id="caseAct" hidden>
     <div class="decide" id="caseDecide" hidden>
       <p class="lab">Decision</p>
+      <div class="pn" id="casePn"><label for="casePrintName">Name on the card</label><input type="text" id="casePrintName" maxlength="60" autocomplete="off"><p class="say" id="casePrintSay" role="status" aria-live="polite"></p></div>
       <div class="row2">
-        <button class="press" type="button" id="caseApprove" style="width:auto">Approve and issue the card</button>
-        <button class="ghost" type="button" id="caseFix">Something is not right</button>
+        <button class="press" type="button" id="caseApprove" style="width:auto">Issue card</button>
+        <button class="ghost danger" type="button" id="caseReject">Reject</button>
+        <button class="ghost" type="button" id="caseFix">Ask for a correction</button>
       </div>
+      <div class="rejectbox" id="caseRejectBox" data-reject hidden></div>
       <div class="fix" id="caseFixBox" hidden>
         <p class="hint">Tick what needs correcting. It becomes the email; edit it before sending. The application stays open until they send it.</p>
         <label><input type="checkbox" value="The photograph does not show your face clearly. Send one taken straight on, in daylight, with no cap or sunglasses."> Photograph unclear or not a face</label>
@@ -697,6 +749,8 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/firebase-config.js"></script>
 <script src="assets/qr.js"></script>
 <script src="assets/card-fields.js"></script>
+<script src="assets/field-rules.js"></script>
+<script src="assets/card-print.js"></script>
 <script src="assets/caregiver-card.js"></script>
 <script>
 /* The panel.
@@ -956,9 +1010,10 @@ window.addEventListener('unhandledrejection', function (event) {
     submissions: { title: 'Submissions',   module: 'submissions', needs: 'submissions' },
     volunteers:  { title: 'Volunteers',    module: 'volunteers',  needs: 'submissions' },
     donations:   { title: 'Donations',     module: 'donations',   needs: 'payments' },
-    caregivers:  { title: 'Colony cards',  module: 'caregivers',  needs: 'caregivers', panes: ['caregivers', 'verify', 'cards'] },
+    caregivers:  { title: 'Colony cards',  module: 'caregivers',  needs: 'caregivers', panes: ['apply', 'caregivers', 'verify', 'cards'] },
+    apply:       { title: 'Applications to decide', module: 'caregivers', needs: 'caregivers' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
-    cards:       { title: 'Issue cards',   module: 'cards',       needs: 'caregivers' },
+    cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
     people:      { title: 'People & audit', module: 'people',     needs: 'people', panes: ['people', 'audit'] },
@@ -998,7 +1053,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* A section folded into another keeps its name here, so an old link or an
      internal show('donations') lands on the section that now holds it. */
-  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', audit: 'people' };
+  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', audit: 'people' };
   function panesOf(tab) { return (TABS[tab] || {}).panes || [tab]; }
   function paneAllowed(pane) {
     var spec = TABS[pane];
@@ -1038,6 +1093,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'caregivers') return caregivers(true);
     if (tab === 'payments') { pendingPayments(); return payments(true); }
     if (tab === 'cards') return cardsPane();
+    if (tab === 'apply') return applicationsPane();
     if (tab === 'website') return website();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -1101,6 +1157,7 @@ window.addEventListener('unhandledrejection', function (event) {
       var pip = $('#pipWaiting');
       pip.textContent = waiting;
       pip.hidden = !waiting;
+      appsCount();
       say($('#paneNote'), 'Read ' + when(m.generatedAt));
     }).catch(function (e) { fail(node, e); });
   }
@@ -2160,9 +2217,10 @@ window.addEventListener('unhandledrejection', function (event) {
     if (!C || !$('#cardPreview')) return;
     var f = c.fields || {};
     var address = [f.address, f.city].filter(Boolean).join(', ');
+    var typed = $('#casePrintName') && !$('#caseDecide').hidden ? String($('#casePrintName').value || '').replace(/\s+/g, ' ').trim() : '';
     var data = {
-      cardId: c.cardId || 'PFA-CCT-PREVIEW',
-      name: f.name || '', address: address, mobile: f.mobile || '', email: f.email || '',
+      cardId: c.cardId || '',
+      name: f.name || '', printName: c.cardId ? (c.printName || '') : typed, address: address, mobile: f.mobile || '', email: f.email || '',
       district: f.district || '', state: f.state || '',
       issuedOn: c.cardId ? (c.handledAt || c.createdAt || '') : new Date().toISOString(),
       photo: previewPhoto.reference === c.reference ? previewPhoto.data : ''
@@ -2376,7 +2434,19 @@ window.addEventListener('unhandledrejection', function (event) {
     /* Not on a closed application either (8 Oct 2026): the server refuses
        to issue a card until it is reopened, so the button would only say no. */
     decide.hidden = !(c.kind === 'PFA-CG' && !c.cardId && c.status !== 'spam' && !caseClosed(c));
+    /* the name the card will print: the rule's form, for the reviewer to
+       confirm or edit before Issue (assets/card-print.js) */
+    if (!decide.hidden) {
+      var P = window.PFACardPrint;
+      var full = window.PFA_RULES ? window.PFA_RULES.nameCase(String((c.fields || {}).name || '')) : String((c.fields || {}).name || '');
+      var made = P ? P.suggestName(full) : { text: full, fits: true };
+      $('#casePrintName').value = made.fits ? made.text : full;
+      checkPrint($('#casePrintName'), $('#casePrintSay'), $('#caseApprove'));
+      if (c.kind === 'PFA-CG') previewCard(c);
+    }
     $('#caseFixBox').hidden = true;
+    $('#caseRejectBox').hidden = true;
+    $('#caseRejectBox').innerHTML = '';
     $$('#caseFixBox input').forEach(function (i) { i.checked = false; });
     $('#caseAssign').value = (c.assignedTo && c.assignedTo.email) || '';
     paintMoves(c);
@@ -2690,13 +2760,15 @@ window.addEventListener('unhandledrejection', function (event) {
     if (button.disabled) return;
     var reference = openCase.reference;
     var f = openCase.fields || {};
-    if (!window.confirm('Issue a Colony Caregiver Card to ' + (f.name || 'this applicant') + ' for ' + (f.address || 'the colony given') + '? The card is drawn exactly as previewed, and they are emailed.')) return;
+    var printName = String($('#casePrintName').value || '').replace(/\s+/g, ' ').trim();
+    if (!checkPrint($('#casePrintName'), $('#casePrintSay'), button)) { $('#casePrintName').focus(); return; }
+    if (!window.confirm('Issue a Colony Caregiver Card to ' + (f.name || 'this applicant') + '?\n\nThe card prints the name as: ' + printName + '\n\nIt is drawn exactly as previewed, then printed and posted to them' + (f.email ? ', and they are emailed that it is approved.' : '.'))) return;
     button.disabled = true;
     say($('#caseSay'), 'Issuing the card\u2026');
-    api('/api/admin/case', { method: 'POST', body: { reference: reference, action: 'approve' } }).then(function (data) {
-      var said = 'Card ' + data.cardId + ' issued' + (data.emailed ? ' and the holder emailed.'
-        : f.email ? '. The email to the holder did not go at once; Overview lists any email that has not gone.'
-        : '. No email on the application, so nothing was sent.');
+    api('/api/admin/case', { method: 'POST', body: { reference: reference, action: 'approve', printName: printName } }).then(function (data) {
+      var said = 'Card ' + data.cardId + ' issued. It waits under Print and post. ' + (data.emailed ? 'The applicant is emailed that it is approved.'
+        : f.email ? 'The approval email did not go at once; Overview lists any email that has not gone.'
+        : 'No email on the application, so nobody was told.');
       if (data.case) {
         drawCase(data.case, data.mailConfigured);
         say($('#caseSay'), said, 'good');
@@ -2711,6 +2783,7 @@ window.addEventListener('unhandledrejection', function (event) {
   });
   on('#caseFix', 'click', function () {
     var box = $('#caseFixBox');
+    $('#caseRejectBox').hidden = true;
     box.hidden = !box.hidden;
     if (!box.hidden) composeFix();
   });
@@ -2828,7 +2901,7 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Download payments as CSV', line: 'Payments & donations', tab: 'payments', anchor: '#payCsv', words: 'csv export download spreadsheet excel' },
     { title: 'Colony cards', line: 'Issued caregiver cards', tab: 'caregivers', words: 'caregiver cards colony cct' },
     { title: 'Verify a card', line: 'The same answer the public check gives', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid' },
-    { title: 'Issue cards', line: 'Print and email cards', tab: 'caregivers', anchor: '[data-pane="cards"]', words: 'issue print pdf bulk email cards' },
+    { title: 'Print and post', line: 'Print approved cards and post them', tab: 'caregivers', anchor: '[data-pane="cards"]', words: 'issue print pdf bulk post posted cards' },
     { title: 'Website', line: 'Show or hide pages and sections', tab: 'website', words: 'website visibility visible hidden hide show pages sections public site' },
     { title: 'People & audit', line: 'Who can use the panel, and what they did', tab: 'people', words: 'people staff admins accounts access permissions invite roles add person user login password team' },
     { title: 'History', line: 'Who changed what in the panel', tab: 'people', anchor: '#auQ', words: 'audit log history actions who did changed changes' },
@@ -3191,6 +3264,338 @@ window.addEventListener('unhandledrejection', function (event) {
 
   window.pfaSignInReady = true;
 
+  /* ---- applications to decide ---------------------------------------------
+     Owner, 24 Oct 2026: "caregiver card ditto. update. in admin panel. so
+     that issuance is easy. there should be issue or reject". Every paid
+     colony caregiver application still waiting, oldest first, on one screen:
+     the card drawn exactly as it would be issued (the applicant's own
+     photograph in it), what the server checked, and Issue or Reject. Issue
+     is the drawer's approve and Reject its reject (lib/routes/admin/case.js),
+     which re-check everything in their own transactions; this screen only
+     makes them one press away. */
+
+  var REJECT_REASONS = [
+    { short: 'Could not confirm the colony', text: 'We could not confirm that you feed or look after community animals in the colony you named.' },
+    { short: 'Mobile already holds a card', text: 'This mobile number already holds a Colony Caregiver Card.' },
+    { short: 'Applied more than once', text: 'You have applied more than once, and an earlier application is the one we will decide.' },
+    { short: 'No usable photograph', text: 'The card cannot be issued without a clear photograph of your face, and none was sent when we asked for one.' },
+    { short: 'Details could not be verified', text: 'The details given with the application could not be verified.' }
+  ];
+
+  /* The reject box, the same in the queue and in the drawer: why (one or
+     more reasons, or words of one's own), and the email that says so, which
+     can be edited before it goes. */
+  function rejectBox(box, app) {
+    var mailable = Boolean(app.email);
+    box.innerHTML = '<p class="lab">Why is the card not being issued?</p>'
+      + REJECT_REASONS.map(function (r, i) {
+        return '<label><input type="checkbox" data-r="' + i + '"> ' + esc(r.short) + '</label>';
+      }).join('')
+      + '<input type="text" data-other maxlength="300" placeholder="Or in your own words" aria-label="Another reason">'
+      + (mailable
+        ? '<p class="lab">The email to ' + esc(app.email) + '</p><textarea data-mail aria-label="The email to the applicant"></textarea>'
+        : '<p class="hint">No email on this application, so nobody is emailed. Call ' + esc(app.mobile || 'them') + ' to tell them.</p>')
+      + '<div class="row2"><button class="press" type="button" data-go style="width:auto">' + (mailable ? 'Reject and email' : 'Reject') + '</button>'
+      + '<button class="ghost" type="button" data-cancel>Cancel</button></div>'
+      + '<p class="say" data-say role="status" aria-live="polite"></p>';
+    function compose() {
+      var mail = box.querySelector('[data-mail]');
+      if (!mail) return;
+      var lines = rejectPicked(box).map(function (r) { return '- ' + r.text; });
+      mail.value = 'Thank you for applying for a Colony Caregiver Card (' + app.reference + '). We are sorry: we are not able to issue a card on this application.\n\n'
+        + 'Why:\n' + (lines.length ? lines.join('\n') : '- ') + '\n\n'
+        + 'If this is a mistake, or things have changed, reply to this email and tell us. Your application stays on record.';
+    }
+    box.addEventListener('change', compose);
+    box.addEventListener('input', function (e) { if (e.target.hasAttribute('data-other')) compose(); });
+    compose();
+  }
+
+  function rejectPicked(box) {
+    var picked = $$('input[data-r]', box).filter(function (i) { return i.checked; }).map(function (i) { return REJECT_REASONS[Number(i.getAttribute('data-r'))]; });
+    var other = String((box.querySelector('[data-other]') || {}).value || '').trim();
+    if (other) picked.push({ short: other, text: /[.!?]$/.test(other) ? other : other + '.' });
+    return picked;
+  }
+
+  /* Sends the box's decision. Resolves with the server's answer. */
+  function sendReject(reference, box) {
+    var picked = rejectPicked(box);
+    var said = box.querySelector('[data-say]');
+    if (!picked.length) { say(said, 'Tick a reason, or write one.', 'bad'); return Promise.reject(new Error('NO_REASON')); }
+    var mail = box.querySelector('[data-mail]');
+    var text = mail ? String(mail.value || '').trim() : '';
+    if (mail && /\n- \n/.test(text + '\n')) { say(said, 'The email still has an empty reason in it.', 'bad'); return Promise.reject(new Error('EMPTY_REASON')); }
+    var go = box.querySelector('[data-go]');
+    go.disabled = true;
+    say(said, 'Rejecting…');
+    return api('/api/admin/case', { method: 'POST', body: {
+      reference: reference, action: 'reject', requestId: 'reject:' + reference,
+      reason: picked.map(function (r) { return r.short; }).join('; '), text: text
+    } }).then(function (data) {
+      go.disabled = false;
+      return data;
+    }, function (e) {
+      go.disabled = false;
+      say(said, e.message, 'bad');
+      throw e;
+    });
+  }
+
+  function setApPip(n) {
+    var pip = $('#pipApps');
+    if (!pip) return;
+    pip.textContent = n;
+    pip.hidden = !n;
+  }
+  function appsCount() {
+    if (!can('caregivers')) return;
+    api('/api/admin/applications').then(function (data) { setApPip((data.rows || []).length); }).catch(function () {});
+  }
+
+  var apRows = [];
+  var apPhotos = {};
+
+  function applicationsPane() {
+    var node = $('[data-pane="apply"]');
+    if (!node) return undefined;
+    node.innerHTML = '<div class="loading">Reading the applications…</div>';
+    return api('/api/admin/applications').then(function (data) {
+      apRows = data.rows || [];
+      setApPip(apRows.length);
+      if (!apRows.length) {
+        node.innerHTML = '<div class="empty"><b>Nothing to decide</b>Every paid application has been issued or answered.</div>';
+        return;
+      }
+      node.innerHTML = '<p class="lab">' + apRows.length + (apRows.length === 1 ? ' application' : ' applications') + ' waiting · ' + (data.ready || 0) + ' ready to issue</p>'
+        + '<p class="hint">Oldest first. Look at the photograph and the checks, then Issue or Reject. Issue gives the card its number and tells the applicant it is approved and will be posted; the card then waits under Print and post. Only the printed card goes to the applicant: they are never sent or shown the card. Reject closes the application as Not issued and emails the applicant why.</p>'
+        + '<div class="apq">' + apRows.map(apItem).join('') + '</div>';
+      apRows.forEach(function (row) {
+        drawAp(row);
+        var item = apNode(row.reference);
+        var input = item && item.querySelector('[data-print]');
+        if (input) checkPrint(input, item.querySelector('[data-print-say]'), item.querySelector('[data-ap="issue"]'));
+      });
+    }).catch(function (e) { fail(node, e); });
+  }
+
+  function apItem(row) {
+    var decide = can('submissions');
+    var place = [row.district, row.state].filter(Boolean).join(', ');
+    return '<article class="ap" data-ref="' + esc(row.reference) + '">'
+      + '<div><canvas data-ap-card aria-label="The card as it would be issued"></canvas></div>'
+      + '<div>'
+      + '<h4>' + esc(row.name || 'No name') + '</h4>'
+      + '<p class="meta">' + esc([place, 'Applied ' + when(row.receivedAtMs ? new Date(row.receivedAtMs).toISOString() : ''), row.reference].filter(Boolean).join(' · ')) + '</p>'
+      + '<ul class="checks">' + (row.checks || []).map(function (c) { return '<li data-l="' + esc(c.level) + '">' + esc(c.text) + '</li>'; }).join('') + '</ul>'
+      + (decide ? '<div class="pn"><label for="pn-' + esc(row.reference) + '">Name on the card</label>'
+        + '<input type="text" id="pn-' + esc(row.reference) + '" data-print maxlength="60" autocomplete="off" value="' + esc(row.printName || row.name || '') + '">'
+        + '<p class="say" data-print-say role="status" aria-live="polite"></p></div>' : '')
+      + '<div class="acts">'
+      + (decide
+        ? '<button class="press" type="button" data-ap="issue"' + (row.ready ? '' : ' disabled data-blocked title="Fix what is in red first"') + '>Issue card</button>'
+          + '<button class="ghost danger" type="button" data-ap="reject">Reject</button>'
+        : '<span class="hint">Deciding needs the Submissions section as well.</span>')
+      + '<button class="ghost" type="button" data-ap="open">Open the application</button>'
+      + '</div>'
+      + '<div class="rejectbox" data-reject hidden></div>'
+      + '<details><summary>Details</summary><dl>'
+      + [['Colony address', [row.address, row.city, row.pin].filter(Boolean).join(', ')], ['Mobile', row.mobile], ['Email', row.email],
+        ['Animals fed', row.animals], ['Notes', row.notes], ['Status', row.statusLabel], ['With', row.assignedTo]]
+        .filter(function (kv) { return kv[1]; }).map(function (kv) { return '<dt>' + esc(kv[0]) + '</dt><dd>' + esc(kv[1]) + '</dd>'; }).join('')
+      + '</dl></details>'
+      + '<p class="say" data-say role="status" aria-live="polite"></p>'
+      + '</div></article>';
+  }
+
+  function apNode(reference) {
+    return $$('[data-pane="apply"] .ap').filter(function (n) { return n.getAttribute('data-ref') === reference; })[0] || null;
+  }
+
+  function apPrintName(row) {
+    var node = apNode(row.reference);
+    var input = node && node.querySelector('[data-print]');
+    return input ? String(input.value || '').replace(/\s+/g, ' ').trim() : (row.printName || '');
+  }
+
+  /* The name box: what the card will print, checked against the card's own
+     space as it is typed (assets/card-print.js), the card redrawn with it,
+     and Issue held while it does not fit. */
+  function checkPrint(input, say0, button) {
+    var P = window.PFACardPrint;
+    var value = String(input.value || '').replace(/\s+/g, ' ').trim();
+    var problem = P ? P.nameProblem(value) : '';
+    input.setAttribute('aria-invalid', problem ? 'true' : 'false');
+    say(say0, problem || (P ? 'Fits the card. ' + Math.round(100 * P.width(value) / P.LIMIT) + '% of the line.' : ''), problem ? 'bad' : '');
+    if (button && !button.hasAttribute('data-blocked')) button.disabled = Boolean(problem);
+    return !problem;
+  }
+
+  function apCardData(row, issued) {
+    return {
+      cardId: issued ? issued.cardId : '',
+      name: row.name, printName: issued ? issued.printName : apPrintName(row), district: row.district, state: row.state,
+      issuedOn: issued ? issued.issuedOn : new Date().toISOString(),
+      photo: apPhotos[row.reference] || ''
+    };
+  }
+
+  /* The card as it would be issued, then again once the photograph is in. */
+  function drawAp(row, issued) {
+    var node = apNode(row.reference);
+    var canvas = node && node.querySelector('[data-ap-card]');
+    if (!canvas || !window.PFACaregiverCard) return;
+    var C = window.PFACaregiverCard;
+    var paint = function () {
+      C.loadAssets().then(function (assets) {
+        return C.hydrate(apCardData(row, issued)).then(function (full) {
+          C.draw(canvas, 'front', full, assets, Math.min(340, canvas.parentNode.clientWidth || 340), window.devicePixelRatio || 2);
+        });
+      }).catch(function () {});
+    };
+    paint();
+    if (!issued && row.attachments >= 1 && !row.photoPending && apPhotos[row.reference] === undefined) {
+      apPhotos[row.reference] = '';
+      api('/api/admin/attachment?reference=' + encodeURIComponent(row.reference) + '&n=1').then(function (data) {
+        var b64 = data && (data.data || data.bytes);
+        if (!b64) return;
+        apPhotos[row.reference] = 'data:' + (data.contentType || 'image/jpeg') + ';base64,' + b64;
+        paint();
+      }).catch(function () { delete apPhotos[row.reference]; });
+    }
+  }
+
+  function apRow(reference) {
+    return apRows.filter(function (r) { return r.reference === reference; })[0] || null;
+  }
+
+  function apIssue(row, node) {
+    var button = node.querySelector('[data-ap="issue"]');
+    if (!button || button.disabled) return;
+    var place = [row.district, row.state].filter(Boolean).join(', ');
+    var input = node.querySelector('[data-print]');
+    if (input && !checkPrint(input, node.querySelector('[data-print-say]'), button)) { input.focus(); return; }
+    if (!window.confirm('Issue a Colony Caregiver Card to ' + (row.name || 'this applicant') + (place ? ' (' + place + ')' : '') + '?\n\nThe card prints the name as: ' + apPrintName(row) + '\n\nIt is drawn exactly as shown, given its number now, then printed and posted. '
+      + (row.email ? row.email + ' is emailed that it is approved (not the card).' : 'Nobody is emailed (no email on the application).'))) return;
+    button.disabled = true;
+    var said = node.querySelector('[data-say]');
+    say(said, 'Issuing the card…');
+    var printName = apPrintName(row);
+    api('/api/admin/case', { method: 'POST', body: { reference: row.reference, action: 'approve', printName: printName } }).then(function (data) {
+      var issued = { cardId: data.cardId, printName: printName, issuedOn: (data.case && data.case.handledAt) || new Date().toISOString() };
+      apDone(node, 'Issued: ' + data.cardId + '. Waiting under Print and post. ' + (data.emailed ? 'Approval emailed to ' + row.email + '.' : row.email ? 'The approval email did not go at once; Overview lists it.' : 'No email on the application.'), 'good', row, issued);
+      apCounts(-1);
+      if (loaded.cards) cardsPane(true);
+    }).catch(function (e) {
+      button.disabled = false;
+      say(said, e.message, 'bad');
+    });
+  }
+
+  /* An application decided: its buttons give way to what happened, and an
+     issued card can be downloaded for the printer straight away. */
+  function apDone(node, text, tone, row, issued) {
+    node.setAttribute('data-done', '1');
+    var acts = node.querySelector('.acts');
+    acts.innerHTML = issued
+      ? '<button class="press" type="button" data-ap="pdf">Download for printing (PDF)</button><button class="ghost" type="button" data-ap="png">Download as pictures</button>'
+      : '';
+    var box = node.querySelector('[data-reject]');
+    if (box) { box.hidden = true; box.innerHTML = ''; }
+    var checks = node.querySelector('.checks');
+    if (checks) checks.hidden = true;
+    var pn = node.querySelector('.pn');
+    if (pn) pn.hidden = true;
+    say(node.querySelector('[data-say]'), text, tone);
+    if (issued) { node.issued = issued; drawAp(row, issued); }
+  }
+
+  function apCounts(delta) {
+    var pip = $('#pipApps');
+    var n = Math.max(0, (Number(pip && pip.textContent) || 0) + delta);
+    setApPip(n);
+  }
+
+  function apDownload(row, node, kind) {
+    var C = window.PFACaregiverCard;
+    if (!C || !node.issued) return;
+    C.hydrate(apCardData(row, node.issued)).then(function (full) {
+      return kind === 'pdf' ? C.downloadPdf(full) : C.downloadPng(full);
+    }).catch(function (e) { say(node.querySelector('[data-say]'), e.message, 'bad'); });
+  }
+
+  document.addEventListener('input', function (e) {
+    var input = e.target.closest && e.target.closest('[data-pane="apply"] [data-print]');
+    if (!input) return;
+    var node = input.closest('.ap');
+    var row = apRow(node.getAttribute('data-ref'));
+    checkPrint(input, node.querySelector('[data-print-say]'), node.querySelector('[data-ap="issue"]'));
+    if (row) drawAp(row);
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-pane="apply"] [data-ap]');
+    if (!b) return;
+    var node = b.closest('.ap');
+    var row = apRow(node.getAttribute('data-ref'));
+    if (!row) return;
+    var what = b.getAttribute('data-ap');
+    if (what === 'open') { showCase(row.reference); return; }
+    if (what === 'issue') { apIssue(row, node); return; }
+    if (what === 'pdf' || what === 'png') { apDownload(row, node, what); return; }
+    if (what === 'reject') {
+      var box = node.querySelector('[data-reject]');
+      if (!box.hidden) { box.hidden = true; return; }
+      rejectBox(box, row);
+      box.hidden = false;
+      var first = box.querySelector('input');
+      if (first) first.focus();
+    }
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-pane="apply"] [data-reject] button');
+    if (!b) return;
+    var node = b.closest('.ap');
+    var row = apRow(node.getAttribute('data-ref'));
+    var box = node.querySelector('[data-reject]');
+    if (b.hasAttribute('data-cancel')) { box.hidden = true; return; }
+    if (!b.hasAttribute('data-go') || !row) return;
+    sendReject(row.reference, box).then(function (data) {
+      apDone(node, 'Not issued. ' + (data.emailed ? 'Emailed to ' + data.to + '.' : (data.message || '')), data.emailed ? 'good' : 'bad', row, null);
+      apCounts(-1);
+    }).catch(function () {});
+  });
+
+  /* The drawer's own Reject, beside Issue card. */
+  on('#caseReject', 'click', function () {
+    if (!openCase) return;
+    var box = $('#caseRejectBox');
+    $('#caseFixBox').hidden = true;
+    if (!box.hidden) { box.hidden = true; return; }
+    var f = openCase.fields || {};
+    rejectBox(box, { reference: openCase.reference, name: f.name || '', email: (openCase.contact && openCase.contact.email) || f.email || '', mobile: f.mobile || '' });
+    box.hidden = false;
+  });
+  on('#casePrintName', 'input', function () {
+    if (!openCase) return;
+    checkPrint($('#casePrintName'), $('#casePrintSay'), $('#caseApprove'));
+    previewCard(openCase);
+  });
+  on('#caseRejectBox', 'click', function (e) {
+    var b = e.target.closest && e.target.closest('button');
+    if (!b || !openCase) return;
+    var box = $('#caseRejectBox');
+    if (b.hasAttribute('data-cancel')) { box.hidden = true; return; }
+    if (!b.hasAttribute('data-go')) return;
+    var reference = openCase.reference;
+    sendReject(reference, box).then(function (data) {
+      box.hidden = true;
+      var said = 'Not issued. ' + (data.emailed ? 'Emailed to ' + data.to + '.' : (data.message || ''));
+      if (data.case) drawCase(data.case, data.mailConfigured);
+      say($('#caseSay'), said, data.emailed ? 'good' : 'bad');
+      fill(current, true);
+    }).catch(function () {});
+  });
+
   /* ---- issue cards ---------------------------------------------------------
      The faces are drawn here by the same renderer the public download uses,
      so a card printed from the panel is stroke for stroke the card its holder
@@ -3211,6 +3616,7 @@ window.addEventListener('unhandledrejection', function (event) {
     return {
       cardId: row.id,
       name: row.name || '',
+      printName: row.printName || '',
       address: [row.address, row.pin].filter(Boolean).join('\n'),
       /* printed under DISTRICT and STATE; row.state is the card's standing */
       district: row.district || '', state: row.placeState || '',
@@ -3221,71 +3627,97 @@ window.addEventListener('unhandledrejection', function (event) {
     };
   }
 
+  /* Print and post (owner, 24 Oct 2026: "only physical card will go to the
+     applicant. card print/preview/edit option should be for admin only.").
+     A card is drawn here and nowhere else, printed, and posted; nothing
+     emails a card or a link to one. Two steps, each recorded on the card and
+     on the application it came from: Mark as printed, then Mark as posted,
+     which tells the holder it is on its way. */
   var cardFilter = 'unprinted';
+  var CARD_STEPS = [['unprinted', 'To print'], ['unposted', 'To post'], ['current', 'All current']];
   function cardsPane(keepMessage) {
     var node = $('[data-pane="cards"]');
     var kept = keepMessage && $('#cardSay') ? { text: $('#cardSay').textContent, tone: $('#cardSay').getAttribute('data-tone') } : null;
-    if (!kept) node.innerHTML = '<div class="loading">Reading the register\u2026</div>';
+    if (!kept) node.innerHTML = '<div class="loading">Reading the register…</div>';
     api('/api/admin/cards?type=caregiver&filter=' + cardFilter).then(function (data) {
       sheet = data.rows || [];
       if (kept) { paint(); say($('#cardSay'), kept.text, kept.tone); return; }
-      node.innerHTML = '<div class="panel"><h3>Print or email a batch</h3>'
-        + '<p class="hint">Tick the cards you want. Cards approved from an application already carry the applicant\u2019s photograph; for older cards, match photographs from your own folder.</p>'
+      node.innerHTML = '<div class="panel"><h3>Print and post</h3>'
+        + '<p class="hint">Only the printed card goes to the holder, by post: they are never sent or shown the card. Tick cards, Download PDF for the card printer and Mark as printed; once they are in the post, Mark as posted, and each holder is emailed that the card is on its way. Download addresses gives the envelope labels. Cards approved from an application carry the applicant’s photograph; for older cards, match photographs from your own folder.</p>'
+        + '<div class="tabs" id="cardSteps">' + CARD_STEPS.map(function (s) {
+          return '<button type="button" data-step="' + s[0] + '" aria-pressed="' + (cardFilter === s[0]) + '">' + s[1] + '</button>';
+        }).join('') + '</div>'
         + '<div class="tools">'
         + '<input type="file" id="cardPhotos" class="pick" accept="image/*" multiple>'
         + '<button class="ghost" type="button" id="cardPick">Match photographs from a folder</button>'
         + '<button class="ghost" type="button" id="cardAll">Tick all</button>'
         + '<button class="ghost" type="button" id="cardPdf">Download PDF</button>'
-        + '<button class="ghost" type="button" id="cardMail">Email the holders</button>'
+        + '<button class="ghost" type="button" id="cardLabels">Download addresses</button>'
         + '<button class="ghost" type="button" id="cardPrinted">Mark as printed</button>'
-        + '<label class="tick"><input type="checkbox" id="cardShowAll"' + (cardFilter === 'current' ? ' checked' : '') + '> Show printed cards too</label>'
+        + '<button class="ghost" type="button" id="cardPosted">Mark as posted</button>'
         + '</div><p class="say" id="cardSay" role="status" aria-live="polite"></p></div>'
         + '<div class="sheet" id="cardSheet"></div>';
       paint();
-      on('#cardShowAll', 'change', function () { cardFilter = $('#cardShowAll').checked ? 'current' : 'unprinted'; cardsPane(); });
+      $$('#cardSteps button').forEach(function (b) {
+        b.addEventListener('click', function () { cardFilter = b.getAttribute('data-step'); cardsPane(); });
+      });
       on('#cardPick', 'click', function () { $('#cardPhotos').click(); });
       on('#cardPhotos', 'change', match);
       on('#cardAll', 'click', function () {
         $$('#cardSheet input[type=checkbox]').forEach(function (b) { b.checked = true; });
       });
       on('#cardPdf', 'click', makePdf);
-      on('#cardMail', 'click', function () { mark('email', 'Emailed.'); });
-      on('#cardPrinted', 'click', function () { mark('printed', 'Marked as printed.'); });
+      on('#cardLabels', 'click', labels);
+      on('#cardPrinted', 'click', function () { mark('printed'); });
+      on('#cardPosted', 'click', function () {
+        if (!ticked().length) { say($('#cardSay'), 'Tick at least one card first.', 'bad'); return; }
+        if (!window.confirm('Mark ' + ticked().length + (ticked().length === 1 ? ' card' : ' cards') + ' as posted?\n\nEach holder with an email is told the card is in the post. Do this once the envelopes have gone.')) return;
+        mark('posted');
+      });
     }).catch(function (e) { fail(node, e); });
   }
 
   function paint() {
     var box = $('#cardSheet');
-    /* nothing to tick: the batch buttons are not offered (21 Oct 2026) */
-    ['#cardPick', '#cardAll', '#cardPdf', '#cardMail', '#cardPrinted'].forEach(function (id) { var b = $(id); if (b) b.hidden = !sheet.length; });
+    /* nothing to tick: the batch buttons are not offered (21 Oct 2026); and
+       each step offers its own: printing before it is printed, posting after */
+    var any = sheet.length > 0;
+    var show = { '#cardPick': any && cardFilter !== 'unposted', '#cardAll': any, '#cardPdf': any, '#cardLabels': any,
+      '#cardPrinted': any && cardFilter === 'unprinted', '#cardPosted': any && cardFilter === 'unposted' };
+    Object.keys(show).forEach(function (id) { var b = $(id); if (b) b.hidden = !show[id]; });
     if (!sheet.length) {
-      box.innerHTML = '<div class="empty"><b>' + (cardFilter === 'unprinted' ? 'Nothing left to print' : 'No cards to issue') + '</b>'
-        + (cardFilter === 'unprinted' ? 'Every current card is marked as printed. Tick "Show printed cards too" to see them.' : 'Cards appear here once an application is approved.') + '</div>';
+      var empty = {
+        unprinted: ['Nothing left to print', 'Every approved card is printed. Cards appear here once an application is issued.'],
+        unposted: ['Nothing waiting to be posted', 'Cards appear here once they are marked as printed.'],
+        current: ['No cards yet', 'Cards appear here once an application is issued.']
+      }[cardFilter] || ['No cards', ''];
+      box.innerHTML = '<div class="empty"><b>' + empty[0] + '</b>' + empty[1] + '</div>';
       return;
     }
     box.innerHTML = sheet.map(function (row) {
       var done = row.printed || row.printedAt;
-      return '<figure' + (done ? ' data-printed="1"' : '') + '><label><input type="checkbox" value="' + esc(row.id) + '"> ' + esc(row.id) + '</label>'
+      return '<figure' + (done ? ' data-printed="1"' : '') + (row.postedAt ? ' data-posted="1"' : '') + '><label><input type="checkbox" value="' + esc(row.id) + '"> ' + esc(row.id) + '</label>'
         + '<canvas data-face="' + esc(row.id) + '"></canvas>'
-        + '<figcaption>' + esc(row.name || '-') + '<br>' + esc(row.email || row.mobile || '')
+        + '<figcaption><b>' + esc(row.name || '-') + '</b><br>' + (row.postTo || []).map(esc).join('<br>')
+        + (row.postable === false ? '<br><span class="flag">No postal address</span>' : '')
         + (done ? '<br><span class="flag">Printed ' + esc(row.printedAt ? when(row.printedAt) : '') + '</span>' : '')
-        + (row.emailedAt ? '<br><span class="flag">Emailed ' + esc(when(row.emailedAt)) + '</span>' : '')
+        + (row.postedAt ? ' <span class="flag">Posted ' + esc(when(row.postedAt)) + '</span>' : '')
         + '</figcaption></figure>';
     }).join('');
     /* hydrate() completes the fields through card-fields.js and loads the
-       photograph and the chairperson signature; draw() does neither, so a
-       preview built without it is missing both. */
+       photograph; draw() does neither, so a preview built without it is
+       missing both. */
     C.loadAssets().then(function (assets) {
       sheet.forEach(function (row) {
         var canvas = box.querySelector('[data-face="' + row.id + '"]');
         if (!canvas) return;
         C.hydrate(cardData(row)).then(function (full) {
           var side = 'front';
-          C.draw(canvas, side, full, assets, 160, window.devicePixelRatio || 2);
+          C.draw(canvas, side, full, assets, 230, window.devicePixelRatio || 2);
         });
       });
     });
-    /* Cards approved from an application carry the applicant's photograph
+  /* Cards approved from an application carry the applicant's photograph
        on the record; fetch it once and redraw that face. */
     sheet.forEach(function (row) {
       if (!row.applicationRef || photos.has('app:' + row.applicationRef) || photos.has(row.id)) return;
@@ -3297,7 +3729,7 @@ window.addEventListener('unhandledrejection', function (event) {
         var canvas = $('#cardSheet [data-face="' + row.id + '"]');
         if (!canvas) return;
         C.loadAssets().then(function (assets) {
-          return C.hydrate(cardData(row)).then(function (full) { C.draw(canvas, 'front', full, assets, 160, window.devicePixelRatio || 2); });
+          return C.hydrate(cardData(row)).then(function (full) { C.draw(canvas, 'front', full, assets, 230, window.devicePixelRatio || 2); });
         });
       }).catch(function () { photos.delete('app:' + row.applicationRef); });
     });
@@ -3333,6 +3765,12 @@ window.addEventListener('unhandledrejection', function (event) {
     C.loadAssets().then(function () {
       return Promise.all(chosen.map(function (row) { return C.hydrate(cardData(row)); }));
     }).then(function (all) {
+      /* every card in the batch exactly as issued, or none: a card with a
+         stand-in where a value should be is named, and nothing is written */
+      var bad = all.map(function (data, i) { return { id: chosen[i].id, missing: C.unprintable(data) }; }).filter(function (b) { return b.missing.length; });
+      if (bad.length) throw new Error('Not printed. ' + bad.map(function (b) { return b.id + ' has no ' + b.missing.join(', no '); }).join('; ') + '.');
+      return Promise.all(all.map(function (data) { return C.printReady(data); }));
+    }).then(function (all) {
       var pages = [];
       all.forEach(function (data) {
         ['front', 'back'].forEach(function (side) {
@@ -3345,19 +3783,42 @@ window.addEventListener('unhandledrejection', function (event) {
     }).catch(function (e) { say($('#cardSay'), e.message, 'bad'); });
   }
 
-  function mark(what, done) {
+  /* The envelope labels for the ticked cards, as a spreadsheet: the full
+     name and the address the card was issued with. Made here, from the rows
+     already on the screen; nothing is sent anywhere. */
+  function labels() {
     var ids = ticked();
     if (!ids.length) { say($('#cardSay'), 'Tick at least one card first.', 'bad'); return; }
-    say($('#cardSay'), 'Saving\u2026');
-    var body = what === 'email'
-      ? { action: 'email', type: 'caregiver', ids: ids }
-      : { action: 'printed', type: 'caregiver', ids: ids };
+    var cell = function (v) {
+      var t = String(v == null ? '' : v);
+      if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;   /* never a formula */
+      return '"' + t.replace(/"/g, '""') + '"';
+    };
+    var rows = [['Card number', 'Name', 'Address', 'District', 'State', 'PIN', 'Mobile']];
+    sheet.filter(function (row) { return ids.indexOf(row.id) !== -1; }).forEach(function (row) {
+      rows.push([row.id, row.name, row.address, row.district, row.placeState, row.pin, row.mobile]);
+    });
+    var text = '﻿' + rows.map(function (r) { return r.map(cell).join(','); }).join('\r\n') + '\r\n';
+    C.saveBlob(new Blob([text], { type: 'text/csv;charset=utf-8' }), 'pfa-colony-cards-addresses.csv');
+    say($('#cardSay'), (rows.length - 1) + (rows.length === 2 ? ' address' : ' addresses') + ' written to a spreadsheet.', 'good');
+  }
+
+  function mark(what) {
+    var ids = ticked();
+    if (!ids.length) { say($('#cardSay'), 'Tick at least one card first.', 'bad'); return; }
+    say($('#cardSay'), 'Saving…');
+    var body = { action: what === 'posted' ? 'posted' : 'printed', type: 'caregiver', ids: ids };
     api('/api/admin/cards', { method: 'POST', body: body })
       .then(function (data) {
         var results = (data && data.results) || [];
         var failed = results.filter(function (r) { return r && r.ok === false; });
         var okCount = results.length - failed.length;
-        var text = okCount + (okCount === 1 ? ' card ' : ' cards ') + (what === 'email' ? 'emailed.' : 'marked as printed.');
+        var text = okCount + (okCount === 1 ? ' card ' : ' cards ') + (what === 'posted' ? 'marked as posted.' : 'marked as printed.');
+        if (what === 'posted') {
+          var told = results.filter(function (r) { return r && r.ok && r.emailed; }).length;
+          if (okCount) text += ' ' + (told === okCount ? (told === 1 ? 'The holder is' : 'Each holder is') + ' emailed that it is on its way.'
+            : told + ' of ' + okCount + ' emailed now; Overview lists any email that has not gone.');
+        }
         if (failed.length) text += ' ' + failed.length + ' not done: ' + failed.map(function (r) { return r.id + ' (' + (r.reason || 'refused') + ')'; }).join('; ');
         say($('#cardSay'), text, failed.length ? 'bad' : 'good');
         cardsPane(true);

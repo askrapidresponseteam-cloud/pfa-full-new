@@ -172,7 +172,7 @@ test('the page asks the person to check their address only when the receiving se
 });
 
 test('every route that sends its own email writes the row already claimed and records under the claim', () => {
-  for (const file of ['lib/routes/admin/case.js', 'lib/routes/admin/cards.js', 'lib/routes/caregiver/apply.js', 'lib/routes/caregiver/admin-shipment.js', 'lib/routes/payment/response.js']) {
+  for (const file of ['lib/routes/admin/case.js', 'lib/routes/admin/cards.js', 'lib/routes/caregiver/admin-shipment.js', 'lib/routes/payment/response.js']) {
     const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
     const queues = src.match(/queueEmail\(\{[\s\S]*?\}\);/g) || [];
     assert.ok(queues.length, `${file} queues an email`);

@@ -151,8 +151,8 @@ test('the drawer preview and the print sheet hand the district and state to the 
   const sheet = html.slice(html.indexOf('function cardData('), html.indexOf('function cardsPane('));
   assert.match(sheet, /district: row\.district \|\| ''/);
   assert.match(sheet, /state: row\.placeState \|\| ''/);
-  /* and the renderer prints what it is handed */
+  /* and the renderer prints what it is handed, in the card's print form
+     (assets/card-print.js, 24 Oct 2026) */
   const card = fs.readFileSync(path.join(ROOT, 'assets', 'caregiver-card.js'), 'utf8');
-  assert.match(card, /var districtText = String\(data\.district \|\| '-'\);/);
-  assert.match(card, /var stateText = String\(data\.state \|\| '-'\);/);
+  assert.match(card, /if \(key === 'district' \|\| key === 'state'\) \{[\s\S]{0,200}var place = String\(data\[key\] \|\| ''\);[\s\S]{0,80}PR\.placeName\(place\)/);
 });

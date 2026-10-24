@@ -79,7 +79,7 @@ test('no Colony caregiver card field is ever blank, for any combination of missi
     cardId: 'PFA-CCT-4K7M2QX9', name: 'Karthik Dhanya',
     address: '4/232 Ashraya Ankadakatte NH66\nKoteshwara, Udupi, Karnataka, 576217',
     mobile: '8105250299', email: 'karthik.dhanya11@gmail.com',
-    issuedOn: '22 August 2026', year: '2026'
+    issuedOn: '22 August 2026', year: '2026', district: 'Udupi', state: 'Karnataka'
   };
   const keys = Object.keys(full);
   let checked = 0;
@@ -110,8 +110,8 @@ test('no Colony caregiver card field is ever blank, for any combination of missi
       assert.ok(out.missing.includes('contact'), 'a card with no way to reach anyone must say so');
     }
   }
-  assert.equal(subsets(keys).length, 128);
-  assert.ok(checked > 900, `only ${checked} values checked`);
+  assert.equal(subsets(keys).length, 512);
+  assert.ok(checked > 3600, `only ${checked} values checked`);
 });
 
 test('empty strings, whitespace and nulls count as missing, not as values', () => {
@@ -180,8 +180,10 @@ test('a real value is never replaced by a placeholder', () => {
 
   const c = F.caregiver({
     cardId: 'PFA-CCT-ABCD1234', name: 'Meena Iyer', address: 'Line one\nLine two',
-    mobile: '9876543210', email: 'm@example.com', issuedOn: '1 March 2026'
+    mobile: '9876543210', email: 'm@example.com', issuedOn: '1 March 2026', district: 'Udupi', state: 'Karnataka'
   }, NOW);
+  assert.equal(c.issuedShort, '01/03/2026', 'the date as the card prints it');
+  assert.equal(c.district, 'Udupi');
   assert.deepEqual(c.addressLines, ['Line one', 'Line two']);
   assert.deepEqual(c.contactLines, ['9876543210', 'm@example.com']);
   assert.equal(c.issuedOn, '1 March 2026');

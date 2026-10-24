@@ -226,7 +226,20 @@ test('approving a paid application issues the card from what was sent, closes th
      worker does not send it a second time. */
   assert.equal(res.body.emailed, true);
   assert.equal(delivered.length, 1); assert.equal(delivered[0].template, 'card_issued');
-  assert.match(delivered[0].payload.cardUrl, /\/caregiver-card\.html\?id=PFA-CCT-4K2M8QRT$/);
+  /* an approval notice, not the card (owner, 24 Oct 2026: "only physical
+     card will go to the applicant"): no card number, no link to a card,
+     where the printed card is going, and the application to follow */
+  const notice = delivered[0].payload;
+  assert.equal(notice.cardId, undefined, 'no card number in the email');
+  assert.equal(notice.cardUrl, undefined, 'no link to a card');
+  assert.equal(notice.applicationRef, 'PFA-CG-2026-00001');
+  assert.match(notice.followUrl, /\/track\.html#ref=PFA-CG-2026-00001$/);
+  assert.deepEqual(notice.postTo, ['Car Street colony, near the temple, Udupi', 'Karnataka 576101'], 'the state found from the district, the PIN once');
+  const letter = require('../lib/caregiver-mail').render('card_issued', notice);
+  for (const part of [letter.subject, letter.html, letter.text]) {
+    assert.doesNotMatch(part, /PFA-CCT-|caregiver-card\.html|download/i, 'nothing in the email is or opens a card');
+  }
+  assert.match(letter.text, /printed card will be posted to you/);
   /* recorded under the claim the row was written with (8 Oct 2026); this stub store hands out none */
   assert.deepEqual(results.map(({ claimToken, ...r }) => r), [{ emailId: 'e1', ok: true, providerId: 'resend_1' }]);
 
@@ -243,7 +256,7 @@ test('approving a paid application issues the card from what was sent, closes th
 test('a mobile that already holds a card is refused with the card named, so the reviewer replies instead', async () => {
   const db = fakeDb();
   await db.collection('submissions').doc('PFA-CG-2026-00002').create({ reference: 'PFA-CG-2026-00002', kind: 'PFA-CG', status: 'new',
-    fields: { name: 'Ravi', mobile: '9876543210', address: 'Somewhere 560001', city: 'Bengaluru' }, createdAt: new Date(NOW).toISOString(), history: [] });
+    fields: { name: 'Ravi', mobile: '9876543210', address: 'Somewhere 560001', city: 'Bengaluru', district: 'Bengaluru (Bangalore) Urban', state: 'Karnataka' }, createdAt: new Date(NOW).toISOString(), history: [] });
   const handler = createCase({ getDb: () => db, fieldValue, requireAdmin, deliver: async () => ({}), isConfigured: () => true, now: () => NOW,
     issueCard: async () => ({ card: { cardId: 'PFA-CCT-OLD00001', name: 'Someone Else' }, reissued: true, sameRequest: false }), queueEmail: async () => ({}) });
   const res = await run(handler, request({ body: { reference: 'PFA-CG-2026-00002', action: 'approve' } }));

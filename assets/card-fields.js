@@ -173,10 +173,22 @@
     if (!clean(data.issuedOn)) missing.push('issuedOn');
 
     var year = clean(data.year) || String(issued.getFullYear());
+    /* The district and state the card prints under its own labels (the
+       face the chairperson approved, 24 Oct 2026: name, ID number, district,
+       state, issued on). Not derivable, so a preview shows "Not given". */
+    var district = clean(data.district);
+    if (!district) { district = 'Not given'; missing.push('district'); ghost.district = true; }
+    var state = clean(data.state);
+    if (!state) { state = 'Not given'; missing.push('state'); ghost.state = true; }
+    var two = function (n) { return (n < 10 ? '0' : '') + n; };
 
     return {
       cardId: cardId,
       idText: cardId ? 'ID \u00B7 ' + cardId.replace(/^PFA-CCT-/, '') : 'ID \u00B7 \u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022',
+      district: district,
+      state: state,
+      /* as the card prints it: 24/10/2026 */
+      issuedShort: two(issued.getDate()) + '/' + two(issued.getMonth() + 1) + '/' + issued.getFullYear(),
       name: name,
       year: year,
       addressLines: addressLines.slice(0, 4),

@@ -1,55 +1,64 @@
-/* People for Animals - Colony Animal Colony Caregiver Card renderer.
-   One renderer draws the live preview and the downloadable artwork so what a
-   person sees on the form is exactly what is issued. Laid out in millimetres
-   on an ISO/IEC 7810 ID-1 card turned portrait (54 x 85.6 mm) and scaled to
-   whatever pixel density is asked for. No lanyard slot is cut. */
+/* People for Animals - the Colony Caregiver Card.
+
+   One renderer draws every copy of the card: the preview in the panel's
+   application drawer, the queue of applications to issue, the batch sheet
+   the office prints from, and the holder's own card page. So the card a
+   reviewer approves is stroke for stroke the card that is printed.
+
+   The design is the owner's template (24 Oct 2026, "caregiver card ditto"):
+   PFA_Colony_Caregiver_Card_Template.html. Its front is laid out on a 785 x
+   500 pixel artboard and drawn here from that template's own export
+   coordinates, so nothing is eyeballed; its back is the PFA mark, kept as
+   the template carries it (media/caregiver-card-back.png, its frame taken
+   off, since the card draws its own edge).
+
+   The artboard is placed on an ISO/IEC 7810 ID-1 card turned landscape
+   (85.6 x 54 mm). The template's proportions are a hair narrower than ID-1
+   (1.570 against 1.585), so it is scaled to the card's height, never
+   stretched, and centred: 0.41 mm of white either side, which no eye will
+   find and which keeps every letter in its drawn shape. */
 (function () {
   'use strict';
 
-  /* Geometry and palette transcribed from the approved 340 x 540 reference:
-     1 reference pixel = 54/340 mm. The card stays ISO/IEC 7810 ID-1 portrait. */
-  var CARD = { w: 54, h: 85.6, r: 2.22 };
-  var PX = 54 / 340;                    // reference pixel -> millimetre
-  /* The photograph well on the 340 x 540 artwork: portrait 3:4. */
-  var PHOTO = { w: 252, h: 336, y: 159.2 };
-  var PHOTO_ASPECT = PHOTO.h / PHOTO.w;   // height / width, for the editor
+  var CARD = { w: 85.6, h: 54 };          // mm, ID-1 landscape
+  var REF = { w: 785, h: 500 };           // the template's artboard, in its pixels
+  var K = CARD.h / REF.h;                 // mm per template pixel
+  var OFF_X = (CARD.w - REF.w * K) / 2;   // mm of white each side
 
-  var SANS = '"PFA Card Sans", Archia, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif';
-  var MONO = '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace';
+  /* The template's palette, by what each colour is for. */
+  var PURPLE = '#41308f';     // heading, labels, values, the chairperson's role
+  var RULE = '#766b6b';       // the underline of each row, the authorisation line
+  var FRAME = '#7768ba';      // the photograph's rounded frame
+  var EDGE = '#807979';       // the card's own edge
+  var DARK = '#252327';       // "Authorised By:" and the chairperson's name
+  var GHOST = '#a49cc9';      // a value not known yet, on a preview only
 
-  /* Matte white, the same treatment as the Patron card.
-
-     This card is carried and shown to people, so everything that is read is
-     true black rather than a grey. Alpha over white looks right on a screen
-     and prints washed out: a label at .52 alpha comes off a press as light
-     grey and a caregiver holding it up to a police officer at night gets
-     nothing. The values here are solid, and the two lighter greys are dark
-     enough to survive a print run rather than being black with the contrast
-     taken out.
-
-     The names say what each one is for rather than what colour it happens to
-     be, because the last time this palette was inverted a constant called
-     WHITE ended up holding black. */
-  var FACE = '#FFFFFF';        // card body
-  var EDGE = '#D2D5D8';        // hairline, so a white card has a boundary
-  var INK = '#000000';         // given name, address, contact, authorised name
-  var SECOND = '#3D3D3D';      // surname, the line beside the code
-  var BODY = '#000000';        // mono body text: address, mobile, issued on
-  var LABEL = '#3D3D3D';       // mono labels above each field
-  var RULE = '#CFD3D6';        // dividers
-  var PHOTO_BG = '#F4F6F8';
-  var GHOST = '#B4B8BC';       // the person silhouette, placeholder only
-  var ACCENT = '#0072C6';      // chairperson line
+  /* Arial is what the template names. Arimo is the open-licence face drawn
+     to Arial's exact widths, loaded with the card, so the card is laid out
+     identically on a phone that has no Arial (Android, Linux) as on the
+     office computer that has. */
+  var FACE = '"PFA Card Arial", Arial, "Liberation Sans", Helvetica, sans-serif';
+  var FACES = [
+    ['PFA Card Arial', 'fonts/arimo-latin-400.woff2', '400'],
+    ['PFA Card Arial', 'fonts/arimo-latin-700.woff2', '700']
+  ];
+  var BACK_SRC = 'media/caregiver-card-back.png';
 
   var PRINT_DPI = 600;
-  var ROLE = 'Colony caregiver';
 
-  /* The chairperson's signature is an authorisation, not decoration. It is
-     drawn only on a card that actually exists: a real card number, issued by
-     the register. The live preview never carries it. */
+  /* The rows of the front, in the template's order and words. */
+  var ROWS = [
+    { label: 'NAME', key: 'name' },
+    { label: 'ID NUMBER', key: 'cardId' },
+    { label: 'DISTRICT', key: 'district' },
+    { label: 'STATE', key: 'state' },
+    { label: 'ISSUED ON', key: 'issuedShort' }
+  ];
+  /* The photograph's well, inside its 1 px frame: 166.3 x 230.1. */
+  var PHOTO_ASPECT = 230.06 / 166.34;    // height / width, for a photo editor
+
+  /* A real card number from the register. A preview has none. */
   var ISSUED_CARD = /^PFA-CCT-[A-Z0-9]{8}$/;
-  var SIGNATURE_SRC = 'media/pfa-signature.png';
-
   function isIssued(data) {
     return ISSUED_CARD.test(String(data && data.cardId || '').toUpperCase());
   }
@@ -68,393 +77,273 @@
     return assetCache[src];
   }
 
-  /* The card now uses the site's own faces rather than Inter, which was never
-     bundled and always fell through to whatever system-ui happened to be on
-     the machine - so the printed card varied by device. "PFA Card Sans" is the
-     same composite family the site uses: regular weights draw Archia, bold
-     weights draw Clash Display, so a 600 request gets a real bold instead of a
-     synthesised one.
-
-     The mono stack is deliberately left on the platform monospace. Neither
-     Archia nor Clash Display is monospaced, and the card number and dates rely
-     on fixed-width digits to stay in column. */
-  var OPTIONAL_FACES = [
-    ['PFA Card Sans', 'assets/fonts/Archia-Regular.woff2', '400'],
-    ['PFA Card Sans', 'assets/fonts/ClashDisplay-Variable.woff2', '401 900'],
-    ['Archia', 'assets/fonts/Archia-Regular.woff2', '400'],
-    ['Clash Display', 'assets/fonts/ClashDisplay-Variable.woff2', '200 700']
-  ];
-
   function loadFont() {
     if (fontReady) return fontReady;
     if (typeof FontFace === 'undefined' || !document.fonts) {
       fontReady = Promise.resolve(null);
       return fontReady;
     }
-    fontReady = Promise.all(OPTIONAL_FACES.map(function (entry) {
+    fontReady = Promise.all(FACES.map(function (entry) {
       var face = new FontFace(entry[0], 'url(' + entry[1] + ') format("woff2")', { weight: entry[2] });
       return face.load().then(function (loaded) {
         document.fonts.add(loaded);
         return true;
-      }).catch(function () { return false; });   // absent is fine, the stack covers it
+      }).catch(function () { return false; });   // Arial, then the stack, stands in
     })).then(function (results) { return results.some(Boolean); });
     return fontReady;
   }
 
+  /* The fonts and the back, which every card needs. */
   function loadAssets() {
-    return Promise.all([loadFont()]).then(function () { return {}; });
-  }
-
-  function roundRect(ctx, x, y, w, h, r) {
-    var radius = Math.min(r, w / 2, h / 2);
-    ctx.beginPath();
-    if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); return; }
-    ctx.moveTo(x + radius, y);
-    ctx.arcTo(x + w, y, x + w, y + h, radius);
-    ctx.arcTo(x + w, y + h, x, y + h, radius);
-    ctx.arcTo(x, y + h, x, y, radius);
-    ctx.arcTo(x, y, x + w, y, radius);
-    ctx.closePath();
-  }
-
-  /* Sizes are given in reference pixels and converted here, so the code reads
-     the same as the reference it was transcribed from. */
-  function setFont(ctx, px, scale, stack, weight) {
-    ctx.font = (weight ? weight + ' ' : '') + (px * PX * scale).toFixed(2) + 'px ' + (stack || SANS);
-  }
-
-  function fitFont(ctx, text, px, maxMm, scale, stack, weight, minRatio) {
-    var size = px;
-    var floor = px * (minRatio || 0.6);
-    setFont(ctx, size, scale, stack, weight);
-    while (ctx.measureText(text).width > maxMm * scale && size > floor) {
-      size -= px * 0.04;
-      setFont(ctx, size, scale, stack, weight);
-    }
-    return size;
-  }
-
-  function wrap(ctx, text, maxPx) {
-    var words = String(text || '').split(/\s+/).filter(Boolean);
-    var lines = [];
-    var line = '';
-    words.forEach(function (word) {
-      var next = line ? line + ' ' + word : word;
-      if (ctx.measureText(next).width <= maxPx || !line) { line = next; return; }
-      lines.push(line);
-      line = word;
+    return Promise.all([loadFont(), loadImage(BACK_SRC)]).then(function (out) {
+      return { back: out[1] };
     });
-    if (line) lines.push(line);
-    return lines;
+  }
+
+  /* ---- drawing on the template's artboard -------------------------------
+
+     Every number below is a pixel of the template's 785 x 500 artboard,
+     measured off the template as a browser lays it out (24 Oct 2026: each
+     text's baseline and left edge, each box, read in Chromium at full size).
+     That is the layout the owner sees on screen and the one its Print / Save
+     PDF prints. The template's own Save PNG draws from rounder numbers (rows
+     about 6 px higher, values 10 px further left); the screen is what was
+     approved, so the screen is what is copied. */
+  var L = {
+    heading: { x: 50.33, y: 74.38, size: 47, track: 0.705 },
+    rowTop: 118.52, rowStep: 43.0125, rowH: 43.02, ruleW: 1.5,
+    label: { x: 62.06, drop: 27.0, size: 21 },
+    colon: { x: 224.42, size: 21 },
+    value: { x: 252.97, drop: 26.5, size: 18.06, room: 220.15 },
+    ruleX: [62.06, 473.12],
+    photo: { x: 578.06, y: 117.53, w: 168.34, h: 232.06, round: 0.14 },
+    photoText: { x: 623.31, y: 327.63, size: 22 },
+    auth: { x: 234.33, w: 305.36, top: 387.44, line: 3 },
+    authLines: [
+      { text: 'Authorised By:', y: 414.44, size: 19, bold: false, colour: 'dark' },
+      { text: 'Smt. Maneka Sanjay Gandhi', y: 443.55, size: 19.95, bold: true, colour: 'dark' },
+      { text: 'Chairperson, People For Animals', y: 473.06, size: 19.95, bold: true, colour: 'purple' }
+    ]
+  };
+
+  function painter(ctx, scale) {
+    var px = K * scale;                     // device pixels per template pixel
+    var ox = OFF_X * scale;
+    return {
+      px: px,
+      x: function (v) { return ox + v * px; },
+      y: function (v) { return v * px; },
+      s: function (v) { return v * px; },
+      font: function (size, bold) {
+        ctx.font = (bold ? '700 ' : '400 ') + (size * px).toFixed(2) + 'px ' + FACE;
+      }
+    };
+  }
+
+  /* A rounded rectangle whose corners may be elliptical, as CSS draws a
+     percentage radius (the photograph's 14% is 23.6 across and 32.5 down). */
+  var KAPPA = 0.5522847498;
+  function roundRect(ctx, x, y, w, h, rx, ry) {
+    var a = Math.min(rx, w / 2);
+    var b = Math.min(ry === undefined ? rx : ry, h / 2);
+    var ka = a * KAPPA;
+    var kb = b * KAPPA;
+    ctx.beginPath();
+    ctx.moveTo(x + a, y);
+    ctx.lineTo(x + w - a, y);
+    ctx.bezierCurveTo(x + w - a + ka, y, x + w, y + b - kb, x + w, y + b);
+    ctx.lineTo(x + w, y + h - b);
+    ctx.bezierCurveTo(x + w, y + h - b + kb, x + w - a + ka, y + h, x + w - a, y + h);
+    ctx.lineTo(x + a, y + h);
+    ctx.bezierCurveTo(x + a - ka, y + h, x, y + h - b + kb, x, y + h - b);
+    ctx.lineTo(x, y + b);
+    ctx.bezierCurveTo(x, y + b - kb, x + a - ka, y, x + a, y);
+    ctx.closePath();
   }
 
   function coverDraw(ctx, image, x, y, w, h) {
-    var ratio = Math.max(w / image.width, h / image.height);
-    var drawWidth = image.width * ratio;
-    var drawHeight = image.height * ratio;
-    ctx.drawImage(image, x + (w - drawWidth) / 2, y + (h - drawHeight) / 2, drawWidth, drawHeight);
+    var iw = image.naturalWidth || image.width;
+    var ih = image.naturalHeight || image.height;
+    var ratio = Math.max(w / iw, h / ih);
+    var dw = iw * ratio;
+    var dh = ih * ratio;
+    ctx.drawImage(image, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
   }
 
-  /* Re-ink a transparent-ground image. The image is drawn into an offscreen
-     canvas, then 'source-in' fills every pixel it covered with one colour,
-     leaving the alpha - and so the stroke shapes and their soft edges -
-     untouched. Cached per image and colour: this runs on every repaint. */
-  var stampCache = {};
-  function inkStamp(image, colour) {
-    var key = (image.src || 'img') + '|' + colour;
-    if (stampCache[key]) return stampCache[key];
-    var off = document.createElement('canvas');
-    off.width = image.width;
-    off.height = image.height;
-    var octx = off.getContext('2d');
-    octx.drawImage(image, 0, 0);
-    octx.globalCompositeOperation = 'source-in';
-    octx.fillStyle = colour;
-    octx.fillRect(0, 0, off.width, off.height);
-    stampCache[key] = off;
-    return off;
-  }
-
-  /* A white card on a white page needs an edge or it is not a card. */
-  function edge(ctx, W, H, scale) {
-    ctx.strokeStyle = EDGE;
-    ctx.lineWidth = Math.max(1, u(1, scale));
-    roundRect(ctx, ctx.lineWidth / 2, ctx.lineWidth / 2,
-      W - ctx.lineWidth, H - ctx.lineWidth, CARD.r * scale);
-    ctx.stroke();
-  }
-
-  function personPlaceholder(ctx, x, y, w, h) {    var cx = x + w / 2;
-    var cy = y + h / 2;
-    var s = Math.min(w, h);
-    ctx.fillStyle = GHOST;
-    ctx.beginPath();
-    ctx.arc(cx, cy - s * 0.14, s * 0.17, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(cx - s * 0.32, cy + s * 0.42);
-    ctx.quadraticCurveTo(cx, cy - s * 0.02, cx + s * 0.32, cy + s * 0.42);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  /* Letter-spaced small caps, drawn per character: ctx.letterSpacing is still
-     uneven across browsers and this artwork has to be identical everywhere. */
-  function measureTracked(ctx, text, trackPx) {
-    var chars = String(text).split('');
-    var width = 0;
-    for (var i = 0; i < chars.length; i += 1) width += ctx.measureText(chars[i]).width + trackPx;
-    return chars.length ? width - trackPx : 0;
-  }
-
-  function tracked(ctx, text, x, y, trackPx) {
-    var chars = String(text).split('');
-    var cursor = x;
-    for (var i = 0; i < chars.length; i += 1) {
-      ctx.fillText(chars[i], cursor, y);
-      cursor += ctx.measureText(chars[i]).width + trackPx;
+  /* Letter-spaced text, as CSS letter-spacing draws it: the canvas's own
+     letterSpacing where the browser has it, otherwise a letter at a time. */
+  function tracked(ctx, text, x, y, track) {
+    if ('letterSpacing' in ctx) {
+      /* save and restore, never read-and-put-back: after a save() Chromium
+         reads letterSpacing as '', and putting '' back is ignored, which
+         left the heading's spacing on every line drawn after it */
+      ctx.save();
+      ctx.letterSpacing = track.toFixed(3) + 'px';
+      ctx.fillText(text, x, y);
+      ctx.restore();
+      if (ctx.letterSpacing && ctx.letterSpacing !== '0px') ctx.letterSpacing = '0px';
+      return;
     }
+    var cursor = x;
+    String(text).split('').forEach(function (ch) {
+      ctx.fillText(ch, cursor, y);
+      cursor += ctx.measureText(ch).width + track;
+    });
   }
 
-  /* All coordinates below are reference pixels on the 340 x 540 artwork. */
-  function u(px, scale) { return px * PX * scale; }
+  /* Every value at one size, the template's 18.06 px, on every card: never
+     shrunk, never pressed narrower, never cut (owner, 24 Oct 2026: "text/font
+     size needs to be same for every card ... like aadhar card, credit card
+     printing system"). What would not fit is printed in its fixed short
+     form instead (assets/card-print.js), and that is settled before the card
+     is issued, so nothing here ever has to squeeze. */
+  function valueText(ctx, P, text, x, y) {
+    P.font(L.value.size);
+    ctx.fillText(text, P.x(x), P.y(y));
+  }
+
+  /* The card's own edge, at the edge of the card. */
+  function edge(ctx, W, H, P) {
+    var lw = Math.max(1, P.s(1));
+    ctx.strokeStyle = EDGE;
+    ctx.lineWidth = lw;
+    ctx.strokeRect(lw / 2, lw / 2, W - lw, H - lw);
+  }
+
+  function titleCase(text) {
+    var R = window.PFA_RULES;
+    return R && R.titleCase ? R.titleCase(text) : text;
+  }
+
+  /* What each line prints, and whether it is a stand-in (a preview's grey).
+     { text, ghost }. The name is the name on the card (printName) when the
+     card has one; otherwise the fixed rule's form of the name. */
+  function lineOf(data, key) {
+    var PR = window.PFACardPrint;
+    if (key === 'name') {
+      if (data.ghost && data.ghost.name) return { text: 'Your Name', ghost: true };
+      var given = String(data.printName || '').trim();
+      if (given) return PR && !PR.fits(given) ? { text: 'Name too long for the card', ghost: true } : { text: given, ghost: false };
+      var name = String(data.name || '').trim().replace(/\s+/g, ' ');
+      if (window.PFA_RULES && window.PFA_RULES.nameCase) name = window.PFA_RULES.nameCase(name);
+      if (!PR) return { text: name, ghost: false };
+      var made = PR.suggestName(name);
+      return made.fits ? { text: made.text, ghost: false } : { text: 'Name too long for the card', ghost: true };
+    }
+    if (key === 'cardId') return isIssued(data) ? { text: String(data.cardId).toUpperCase(), ghost: false } : { text: 'Given when issued', ghost: true };
+    if (key === 'district' || key === 'state') {
+      if (data.ghost && data.ghost[key]) return { text: 'Not given', ghost: true };
+      var place = String(data[key] || '');
+      place = PR ? PR.placeName(place) : titleCase(place);
+      return PR && !PR.fits(place) ? { text: 'Too long for the card', ghost: true } : { text: place, ghost: false };
+    }
+    if (key === 'issuedShort') return { text: String(data.issuedShort || ''), ghost: false };
+    return { text: String(data[key] || ''), ghost: false };
+  }
+
+  /* What stops this card being printed: a stand-in where a value should be.
+     A preview may show them; a card for the printer may not. */
+  function unprintable(data) {
+    return ROWS.map(function (row) { return { row: row, line: lineOf(data, row.key) }; })
+      .filter(function (r) { return r.line.ghost; })
+      .map(function (r) { return r.row.label.toLowerCase().replace(/^id number$/, 'card number').replace(/^issued on$/, 'issue date'); });
+  }
 
   function drawFront(ctx, scale, data) {
     var W = CARD.w * scale;
     var H = CARD.h * scale;
-
+    var P = painter(ctx, scale);
     ctx.save();
-    roundRect(ctx, 0, 0, W, H, CARD.r * scale);
-    ctx.clip();
-
-    ctx.fillStyle = FACE;
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, W, H);
-
-    var padSide = u(22, scale);
-    var contentWidth = W - padSide * 2;
-
-    /* Year, set vertically in the right margin, reading bottom to top. */
-    ctx.save();
-    ctx.translate(W - u(6, scale), u(260, scale));
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = BODY;
     ctx.textAlign = 'left';
-    setFont(ctx, 11, scale, MONO);
-    tracked(ctx, String(data.year || new Date().getFullYear()), 0, 0, u(11, scale) * 0.14);
-    ctx.restore();
+    ctx.textBaseline = 'alphabetic';
 
-    /* Name: given name in white, the rest in grey beneath it. */
-    ctx.textAlign = 'left';
-    /* Whatever case the record holds, the card prints Title Case. */
-    var name = String(data.name || 'Your Name').trim().replace(/\s+/g, ' ');
-    if (window.PFA_RULES) name = window.PFA_RULES.nameCase(name);
-    var split = name.indexOf(' ');
-    var first = split === -1 ? name : name.slice(0, split);
-    var rest = split === -1 ? '' : name.slice(split + 1);
-    var nameWidth = (contentWidth - u(22, scale)) / scale;
+    /* COLONY CAREGIVER CARD */
+    ctx.fillStyle = PURPLE;
+    P.font(L.heading.size);
+    tracked(ctx, 'COLONY CAREGIVER CARD', P.x(L.heading.x), P.y(L.heading.y), P.s(L.heading.track));
 
-    ctx.fillStyle = INK;
-    fitFont(ctx, first, 28, nameWidth, scale, SANS, '600');
-    ctx.fillText(first, padSide, u(76.5, scale));
+    /* The five rows: label, colon, value, and the rule under each. */
+    ROWS.forEach(function (row, i) {
+      var top = L.rowTop + L.rowStep * i;
+      ctx.fillStyle = PURPLE;
+      P.font(L.label.size);
+      ctx.fillText(row.label, P.x(L.label.x), P.y(top + L.label.drop));
+      P.font(L.colon.size, true);
+      ctx.fillText(':', P.x(L.colon.x), P.y(top + L.label.drop));
+      var line = lineOf(data, row.key);
+      ctx.fillStyle = line.ghost ? GHOST : PURPLE;
+      valueText(ctx, P, line.text, L.value.x, top + L.value.drop);
+      ctx.strokeStyle = RULE;
+      ctx.lineWidth = P.s(L.ruleW);
+      var ruleY = top + L.rowH - L.ruleW / 2;
+      ctx.beginPath();
+      ctx.moveTo(P.x(L.ruleX[0]), P.y(ruleY));
+      ctx.lineTo(P.x(L.ruleX[1]), P.y(ruleY));
+      ctx.stroke();
+    });
 
-    if (rest) {
-      ctx.fillStyle = SECOND;
-      fitFont(ctx, rest, 28, nameWidth, scale, SANS, '500');
-      ctx.fillText(rest, padSide, u(107.9, scale));
-    }
-
-    ctx.fillStyle = BODY;
-    setFont(ctx, 12, scale, MONO);
-    ctx.fillText(ROLE, padSide, u(134.4, scale));
-
-    /* Photograph: portrait, 3:4, the shape a passport photograph already is,
-       so nothing has to be cut to fit. A landscape band here cropped the top
-       of every head. Centred, square corners. */
-    var photoH = u(PHOTO.h, scale);
-    var photoW = u(PHOTO.w, scale);
-    var photoX = (W - photoW) / 2;
-    var photoY = u(PHOTO.y, scale);
-
-    ctx.fillStyle = PHOTO_BG;
-    ctx.fillRect(photoX, photoY, photoW, photoH);
-
+    /* The photograph, in its rounded frame: a 1 px border, the picture
+       inside it, both with the template's 14% corners. */
+    var ph = L.photo;
+    var rx = ph.w * ph.round;
+    var ry = ph.h * ph.round;
     if (data.photoImage) {
       ctx.save();
-      ctx.beginPath();
-      ctx.rect(photoX, photoY, photoW, photoH);
+      roundRect(ctx, P.x(ph.x + 1), P.y(ph.y + 1), P.s(ph.w - 2), P.s(ph.h - 2), P.s(rx - 1), P.s(ry - 1));
       ctx.clip();
-      coverDraw(ctx, data.photoImage, photoX, photoY, photoW, photoH);
+      coverDraw(ctx, data.photoImage, P.x(ph.x + 1), P.y(ph.y + 1), P.s(ph.w - 2), P.s(ph.h - 2));
       ctx.restore();
     } else {
-      personPlaceholder(ctx, photoX, photoY, photoW, photoH);
+      ctx.fillStyle = PURPLE;
+      P.font(L.photoText.size, true);
+      ctx.fillText('PHOTO', P.x(L.photoText.x), P.y(L.photoText.y));
     }
+    ctx.strokeStyle = FRAME;
+    ctx.lineWidth = P.s(1);
+    roundRect(ctx, P.x(ph.x + 0.5), P.y(ph.y + 0.5), P.s(ph.w - 1), P.s(ph.h - 1), P.s(rx - 0.5), P.s(ry - 0.5));
+    ctx.stroke();
 
-    /* Card number, centred at the foot. A card with no number (a sample
-       made without the server) prints nothing here rather than "ID ·". */
-    if (data.cardId) {
-      ctx.fillStyle = LABEL;
-      setFont(ctx, 10, scale, MONO);
-      ctx.textAlign = 'center';
-      var idText = 'ID \u00B7 ' + String(data.cardId).replace(/^PFA-CCT-/, '');
-      tracked(ctx, idText, W / 2 - measureTracked(ctx, idText, u(10, scale) * 0.08) / 2,
-        u(518, scale), u(10, scale) * 0.08);
-    }
+    /* The authorisation: the line, then three centred lines under it. A
+       line wider than its box starts at the box's left edge, as the
+       browser sets it. */
+    var au = L.auth;
+    ctx.fillStyle = RULE;
+    ctx.fillRect(P.x(au.x), P.y(au.top), P.s(au.w), P.s(au.line));
+    L.authLines.forEach(function (line) {
+      ctx.fillStyle = line.colour === 'purple' ? PURPLE : DARK;
+      P.font(line.size, line.bold);
+      var width = ctx.measureText(line.text).width;
+      var x = width > P.s(au.w) ? P.x(au.x) : P.x(au.x + au.w / 2) - width / 2;
+      ctx.fillText(line.text, x, P.y(line.y));
+    });
 
-    edge(ctx, W, H, scale);
+    edge(ctx, W, H, P);
     ctx.restore();
   }
 
-  /* ---- the back, laid out rather than positioned -------------------------
-
-     Every y on this face used to be a number measured off the artwork: the
-     address block began at 72 and the divider under it at 162.6, which reserved
-     four lines of room whether or not four lines were used. Most registered
-     addresses are two lines, so most cards were printed with an inch of white
-     nothing under the address and everything below it pushed down to meet a
-     divider nailed to the floor.
-
-     So the sections are measured and then placed. Each reports how tall it
-     actually is, the authorisation is pinned to the foot of the card where a
-     signature belongs, and what is left over is shared equally between the
-     sections above it. A two-line address and a four-line address both make a
-     balanced card; one simply breathes more.
-
-     A note on units, because this file has two and mixing them is how the
-     signature ended up six pixels tall. CARD is in millimetres. Everything
-     passed to u() is in reference pixels of the 340 x 540 artwork, which u()
-     converts to millimetres and then to device pixels. All the arithmetic here
-     is in reference pixels, and nothing is converted until it is drawn. */
-
-  var REF_W = Math.round(CARD.w / PX);        /* 340 */
-  var REF_H = Math.round(CARD.h / PX);        /* 540 */
-  var PAD = 22;
-  var INNER = REF_W - PAD * 2;
-  var GAP_MIN = 16;
-  var GAP_MAX = 34;
-
+  /* The back: the PFA mark, as the template carries it. */
   function drawBack(ctx, scale, data) {
     var W = CARD.w * scale;
     var H = CARD.h * scale;
-
+    var P = painter(ctx, scale);
     ctx.save();
-    roundRect(ctx, 0, 0, W, H, CARD.r * scale);
-    ctx.clip();
-
-    ctx.fillStyle = FACE;
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, W, H);
-
-    var padSide = u(PAD, scale);
-    var inner = u(INNER, scale);
-    ctx.textAlign = 'left';
-
-    var LABEL_PX = 10, LABEL_DROP = 22, BODY_STEP = 20.4, ADDRESS_STEP = 22.4;
-
-    function label(text, y) {
-      ctx.fillStyle = LABEL;
-      setFont(ctx, LABEL_PX, scale, MONO);
-      tracked(ctx, text.toUpperCase(), padSide, u(y, scale), u(LABEL_PX, scale) * 0.12);
+    var back = data && data.backImage;
+    if (back) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(back, P.x(0), 0, P.s(REF.w), P.s(REF.h));
+    } else {
+      /* the image did not load: the name, so the back is never blank */
+      ctx.fillStyle = '#111111';
+      ctx.textAlign = 'center';
+      ctx.font = '400 ' + (40 * P.px).toFixed(2) + 'px "Times New Roman", Times, serif';
+      ctx.fillText('PEOPLE FOR ANIMALS', W / 2, P.y(400));
     }
-
-    function divider(y) {
-      ctx.fillStyle = RULE;
-      ctx.fillRect(padSide, u(y, scale), inner, Math.max(1, u(1, scale)));
-    }
-
-    /* ---- measure -------------------------------------------------------- */
-
-    /* The face carries the fields of the printed card the chairperson signed
-       off: name (in the header), ID number, district, state, issued on. The
-       address and contact stay in the record for delivery and review; they
-       no longer print on the front. */
-    setFont(ctx, 14, scale, SANS);
-    var districtText = String(data.district || '-');
-    var stateText = String(data.state || '-');
-    if (window.PFA_RULES) {
-      if (data.district) districtText = window.PFA_RULES.titleCase(districtText);
-      if (data.state) stateText = window.PFA_RULES.titleCase(stateText);
-    }
-
-    /* The signature, in reference pixels like everything else. */
-    var signature = null;
-    if (data.signatureImage) {
-      var ratio = Math.min(INNER * 0.62 / data.signatureImage.width, 34 / data.signatureImage.height);
-      signature = { w: data.signatureImage.width * ratio, h: data.signatureImage.height * ratio };
-    }
-
-    var flowing = [
-      { label: 'ID number', lines: [String(data.cardId || '-').toUpperCase()], step: BODY_STEP, size: 13, face: MONO, colour: INK },
-      { label: 'District', lines: wrap(ctx, districtText, inner).slice(0, 1), step: ADDRESS_STEP, size: 14, face: SANS, colour: INK },
-      { label: 'State', lines: wrap(ctx, stateText, inner).slice(0, 1), step: ADDRESS_STEP, size: 14, face: SANS, colour: INK },
-      { label: 'Issued on', lines: [String(data.issuedOn || '-')], step: BODY_STEP, size: 12, face: MONO, colour: BODY },
-      { qr: true }
-    ];
-    flowing.forEach(function (section) {
-      section.height = section.qr ? 88 : LABEL_DROP + section.lines.length * section.step;
-    });
-
-    /* The authorisation sits at the foot. Its rule is where the signature
-       rests, so the block is measured upward from the role line. */
-    var authRule = REF_H - PAD - 61;
-    var content = flowing.reduce(function (t, s) { return t + s.height; }, 0);
-    var signatureRoom = signature ? signature.h + 10 : 0;
-    var slack = (authRule - signatureRoom) - 40 - content;
-
-    /* Every section is now a single line, so the shrink loop the address
-       needed is gone with it: the measure can no longer overflow. */
-
-    var gap = Math.max(GAP_MIN, Math.min(GAP_MAX, slack / flowing.length));
-
-    /* ---- place ---------------------------------------------------------- */
-
-    var y = 40;
-    flowing.forEach(function (section) {
-      if (section.qr) {
-        var qrTop = y - LABEL_PX;
-        var size = u(88, scale);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(padSide, u(qrTop, scale), size, size);
-        if (data.qr && window.PFAQR) {
-          window.PFAQR.paint(ctx, data.qr, padSide + u(5, scale), u(qrTop + 5, scale), size - u(10, scale));
-        }
-        ctx.fillStyle = SECOND;
-        setFont(ctx, 12, scale, MONO);
-        var textX = padSide + size + u(16, scale);
-        var caption = data.qrCaption === 'Specimen' ? ['Specimen code', 'not a live card'] : ['Scan to view', 'the card digitally'];
-        ctx.fillText(caption[0], textX, u(qrTop + 38, scale));
-        ctx.fillText(caption[1], textX, u(qrTop + 56, scale));
-      } else {
-        label(section.label, y);
-        ctx.fillStyle = section.colour;
-        setFont(ctx, section.size, scale, section.face);
-        section.lines.forEach(function (line, n) {
-          ctx.fillText(line, padSide, u(y + LABEL_DROP + n * section.step, scale));
-        });
-      }
-      y += section.height;
-      /* The divider lives in the gap, not at a remembered coordinate. */
-      divider(y + gap / 2 - LABEL_PX);
-      y += gap;
-    });
-
-    /* ---- the authorisation, at the foot --------------------------------- */
-
-    if (signature) {
-      ctx.drawImage(inkStamp(data.signatureImage, INK),
-        padSide, u(authRule - 4 - signature.h, scale),
-        u(signature.w, scale), u(signature.h, scale));
-    }
-    divider(authRule);
-    label('Authorised by', authRule + 20);
-
-    ctx.fillStyle = INK;
-    fitFont(ctx, 'Smt. Maneka Sanjay Gandhi', 15, INNER, scale, SANS, '600');
-    ctx.fillText('Smt. Maneka Sanjay Gandhi', padSide, u(authRule + 44, scale));
-
-    ctx.fillStyle = ACCENT;
-    fitFont(ctx, 'Chairperson, People For Animals', 12, INNER, scale, SANS);
-    ctx.fillText('Chairperson, People For Animals', padSide, u(authRule + 61, scale));
-
-    edge(ctx, W, H, scale);
+    edge(ctx, W, H, P);
     ctx.restore();
   }
 
@@ -468,9 +357,9 @@
     }
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.textBaseline = 'alphabetic';
-    if (side === 'back') drawBack(ctx, scale, data);
-    else drawFront(ctx, scale, data);
+    var full = withBack(data, assets);
+    if (side === 'back') drawBack(ctx, scale, full);
+    else drawFront(ctx, scale, full);
     return canvas;
   }
 
@@ -480,10 +369,18 @@
     canvas.width = Math.round(CARD.w * scale);
     canvas.height = Math.round(CARD.h * scale);
     var ctx = canvas.getContext('2d');
-    ctx.textBaseline = 'alphabetic';
     if (side === 'back') drawBack(ctx, scale, data);
     else drawFront(ctx, scale, data);
     return canvas;
+  }
+
+  /* hydrate() puts the back on the data; draw() is also handed the assets. */
+  function withBack(data, assets) {
+    if (!data || data.backImage || !assets || !assets.back) return data;
+    var out = {};
+    Object.keys(data).forEach(function (key) { out[key] = data[key]; });
+    out.backImage = assets.back;
+    return out;
   }
 
   function toBlob(canvas, type, quality) {
@@ -622,17 +519,17 @@
     });
   }
 
-  /* Every value goes through PFACardFields first: dates derived, placeholders
-     substituted, nothing left empty. See assets/card-fields.js for what that
-     does and does not promise. The signature still depends on isIssued() being
-     true of the ORIGINAL data, so a completed placeholder card number can never
-     put the chairperson's signature on an unissued card. */
+  /* Every value goes through PFACardFields first: the short date derived,
+     what is not known marked as a ghost, nothing left empty. See
+     assets/card-fields.js. Whether the card is issued is read from the data
+     as it arrived, before anything is filled in, so a completed placeholder
+     can never make a preview look like an issued card. */
   function complete(data) {
     if (!window.PFACardFields) return data;
     var filled = window.PFACardFields.caregiver(data);
     var out = {};
     Object.keys(data || {}).forEach(function (key) { out[key] = data[key]; });
-    ['cardId', 'name', 'year', 'address', 'mobile', 'email', 'issuedOn', 'qr', 'qrCaption'].forEach(function (key) {
+    ['name', 'district', 'state', 'issuedOn', 'issuedShort'].forEach(function (key) {
       out[key] = filled[key];
     });
     out.ghost = filled.ghost;
@@ -642,16 +539,19 @@
 
   function hydrate(data) {
     var issued = isIssued(data);
-    var filled = complete(data);
+    var filled = complete(data || {});
     var copy = {};
     Object.keys(filled).forEach(function (key) { copy[key] = filled[key]; });
+    copy.issued = issued;
+    if (!issued) copy.cardId = '';
 
     return Promise.all([
       filled.photo ? loadImage(filled.photo) : Promise.resolve(null),
-      issued ? loadImage(SIGNATURE_SRC) : Promise.resolve(null)
+      loadImage(BACK_SRC),
+      loadFont()
     ]).then(function (out) {
       copy.photoImage = out[0];
-      copy.signatureImage = out[1];
+      copy.backImage = out[1];
       return copy;
     });
   }
@@ -661,12 +561,25 @@
     return id || 'caregiver-card';
   }
 
+  /* The card's own font, or no print: a card drawn in a stand-in face would
+     not be the card the server measured. */
+  function printReady(data) {
+    return loadFont().then(function () {
+      if (document.fonts && document.fonts.check && !document.fonts.check('18px "PFA Card Arial"')) {
+        throw new Error('The card font did not load, so the card cannot be printed exactly. Reload the page and try again.');
+      }
+      var missing = unprintable(data || {});
+      if (missing.length) throw new Error('This card is not ready to print: no ' + missing.join(', no ') + '.');
+      return data;
+    });
+  }
+
   function downloadPng(data, side) {
-    /* A card has two sides and both carry information the holder needs, so
-       "download" gives them both. Passing an explicit 'front' or 'back' still
-       returns just that side, which the per-side buttons rely on. */
+    /* A card has two sides, so "download" gives both. An explicit 'front' or
+       'back' gives that side alone. */
     var sides = (side === 'front' || side === 'back') ? [side] : ['front', 'back'];
-    return Promise.all([loadAssets(), hydrate(data)]).then(function (out) {
+    var ready = (data && data.backImage ? Promise.resolve(data) : hydrate(data)).then(printReady);
+    return Promise.all([loadAssets(), ready]).then(function (out) {
       return sides.reduce(function (chain, one) {
         return chain.then(function (blobs) {
           var canvas = offscreen(one, out[1], PRINT_DPI);
@@ -680,13 +593,18 @@
     });
   }
 
+  /* Front and back as a two-page PDF at true card size, for a card printer. */
+  function pagesOf(data) {
+    return ['front', 'back'].map(function (side) {
+      var canvas = offscreen(side, data, PRINT_DPI);
+      return { width: canvas.width, height: canvas.height, bytes: jpegBytes(canvas, 0.95) };
+    });
+  }
+
   function downloadPdf(data) {
-    return Promise.all([loadAssets(), hydrate(data)]).then(function (out) {
-      var pages = ['front', 'back'].map(function (side) {
-        var canvas = offscreen(side, out[1], PRINT_DPI);
-        return { width: canvas.width, height: canvas.height, bytes: jpegBytes(canvas, 0.95) };
-      });
-      saveBlob(buildPdf(pages), fileStem(data) + '-print.pdf');
+    var ready = (data && data.backImage ? Promise.resolve(data) : hydrate(data)).then(printReady);
+    return Promise.all([loadAssets(), ready]).then(function (out) {
+      saveBlob(buildPdf(pagesOf(out[1])), fileStem(data) + '-print.pdf');
     });
   }
 
@@ -696,14 +614,20 @@
 
   window.PFACaregiverCard = {
     CARD: CARD,
+    REF: REF,
     PHOTO_ASPECT: PHOTO_ASPECT,
     _buildPdf: buildPdf,
     PRINT_DPI: PRINT_DPI,
     draw: draw,
     downloadPng: downloadPng,
     downloadPdf: downloadPdf,
+    pagesOf: pagesOf,
     jpegBytes: jpegBytes,
     hydrate: hydrate,
+    isIssued: isIssued,
+    printReady: printReady,
+    unprintable: unprintable,
+    lineOf: lineOf,
     issuedOnLabel: issuedOnLabel,
     loadAssets: loadAssets,
     loadFont: loadFont,

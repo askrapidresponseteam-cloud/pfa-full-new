@@ -205,12 +205,15 @@ function memoryFirestore(options) {
           .map((k) => snapshot(docRef(k)))
           .filter((s) => spec.filters.every((f) => matches(s.data(), f)));
         const orders = spec.orders.length ? spec.orders : [];
+        /* '__name__' is the document's own name, as on the server
+           (FieldPath.documentId()): every document has one */
+        const valueOf = (s, field) => (String(field) === '__name__' ? s.id : getPath(s.data(), field));
         /* as Firestore does: a query ordered by a field leaves out every
            document that does not have it */
-        docs = docs.filter((s) => orders.every(([field]) => getPath(s.data(), field) !== undefined));
+        docs = docs.filter((s) => orders.every(([field]) => valueOf(s, field) !== undefined));
         docs.sort((a, b) => {
           for (const [field, dir] of orders) {
-            const c = compare(getPath(a.data(), field), getPath(b.data(), field));
+            const c = compare(valueOf(a, field), valueOf(b, field));
             if (c) return c * dir;
           }
           return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
@@ -221,7 +224,7 @@ function memoryFirestore(options) {
             : spec.after;
           const i = docs.findIndex((s) => {
             for (let n = 0; n < orders.length && n < marks.length; n += 1) {
-              const c = compare(getPath(s.data(), orders[n][0]), marks[n]) * orders[n][1];
+              const c = compare(valueOf(s, orders[n][0]), marks[n]) * orders[n][1];
               if (c !== 0) return c > 0;
             }
             return false;
