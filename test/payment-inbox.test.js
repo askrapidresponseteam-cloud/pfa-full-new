@@ -65,11 +65,15 @@ test('a record of money goes to both payments inboxes; a form to gandhim, as bef
     assert.deepEqual(F.relayInboxes({ kind: 'PFA-DON' }), PAY, 'a payer\'s, with the payment');
     /* the photograph sent after the first copy belongs to the application */
     assert.deepEqual(F.copiesOf({ kind: 'PFA-CG', followUp: 'photo' }), [{ to: GANDHIM, copy: 'application' }]);
-    /* a membership, though paid, is kept in the panel only (owner, 21 Oct
-       2026), as is a volunteer application */
-    assert.deepEqual(F.inboxes({ kind: 'PFA-MEM' }), [], 'PFA-MEM goes nowhere');
-    assert.deepEqual(F.inboxes({ kind: 'PFA-V' }), [], 'PFA-V goes nowhere');
-    for (const kind of ['PFA-CR', 'PFA-Q', 'PFA-A', 'PFA-EV', 'PFA-CK']) {
+    /* owner, 23 Oct 2026: "ensure all caregiver and volunteer and job and
+       membership applications go to gandhim email id". A membership is
+       paid, so it is split like a caregiver application; a volunteer's and
+       a job application are forms. Nothing is kept to the panel alone. */
+    assert.deepEqual(F.copiesOf({ kind: 'PFA-MEM' }),
+      [{ to: GANDHIM, copy: 'application' }, ...PAY.map((to) => ({ to, copy: 'payment' }))]);
+    assert.deepEqual(F.relayInboxes({ kind: 'PFA-MEM' }), [GANDHIM]);
+    assert.deepEqual([...F.PANEL_ONLY_KINDS], []);
+    for (const kind of ['PFA-V', 'PFA-J', 'PFA-U', 'PFA-CR', 'PFA-Q', 'PFA-A', 'PFA-EV', 'PFA-CK']) {
       assert.deepEqual(F.inboxes({ kind }), [GANDHIM], kind);
     }
     assert.deepEqual(F.inboxes(), [GANDHIM], 'no record: the forms inbox, as before');
@@ -98,7 +102,8 @@ test('no setting can send a record of money to gandhim', () => {
     assert.deepEqual(F.inboxes({ kind: 'PFA-SHP' }), [], 'whatever the case of the letters');
   });
   withEnv({ PFA_PAYMENTS_INBOX: 'off' }, (F) => {
-    assert.deepEqual(F.inboxes({ kind: 'PFA-MEM' }), [], 'off is off');
+    assert.deepEqual(F.copiesOf({ kind: 'PFA-MEM' }), [{ to: GANDHIM, copy: 'application' }], 'off is off for the receipt; the application still goes');
+    assert.deepEqual(F.inboxes({ kind: 'PFA-DON' }), [], 'off is off');
     assert.deepEqual(F.inboxes({ kind: 'PFA-CR' }), [GANDHIM], 'and forms are untouched by it');
   });
   withEnv({}, (F) => {
@@ -125,7 +130,7 @@ test('the panel shows both destinations and checks each record against its own',
   const src = read('lib/routes/admin/mail-check.js');
   assert.match(src, /paymentInboxes, recent/, 'the panel is told where records of money go');
   assert.match(src, /FORWARD\.inboxes\(d\)\.some\(\(to\) => !copied\(d, to\)\)/, 'a missing copy is judged by the record\'s own route');
-  assert.match(read('admin.html'), /a caregiver application too, without its payment\. Every record of money \(donations, gifts, memberships, shop orders and the caregiver fee\) goes to/);
+  assert.match(read('admin.html'), /every application included \(caregiver, membership, volunteer and job\), without any payment in it\. Every record of money \(donations, gifts, shop orders, and the fee paid with a membership or a caregiver application\) goes to/);
 });
 
 test('the last door: no email about money is delivered to gandhim, whatever queued it', async () => {
@@ -138,7 +143,7 @@ test('the last door: no email about money is delivered to gandhim, whatever queu
   try {
     for (const [template, payload] of [
       ['submission_forward', { reference: 'PFA-DON-AB12CD34', kind: 'PFA-DON' }],
-      ['submission_forward', { reference: 'PFA-MEM-2026-00004' }],
+      ['submission_forward', { reference: 'PFA-MEM-2026-00004', copy: 'payment' }],
       ['submission_forward', { reference: 'PFA-CG-2026-00011', copy: 'payment' }],
       ['submission_forward', { reference: 'PFA-CG-2026-00011', copy: 'whole' }],
       ['submission_forward', { reference: 'PFA-SHP-ZX81QW22', kind: 'PFA-SHP' }],
@@ -227,6 +232,8 @@ test('the last door lets a caregiver application through to gandhim, and strips 
     assert.equal(m(GANDHIM, 'submission_forward', { kind: 'PFA-CG', copy: 'whole' }), true);
     assert.equal(m('pfadcmho@gmail.com', 'submission_forward', { kind: 'PFA-CG', copy: 'payment' }), false, 'the receipt goes to the pair');
     assert.equal(m(GANDHIM, 'submission_forward', { kind: 'PFA-DON' }), true, 'every other record of money is as it was');
+    assert.equal(m(GANDHIM, 'submission_forward', { kind: 'PFA-MEM', copy: 'application' }), false, 'a membership application goes to gandhim');
+    assert.equal(m(GANDHIM, 'submission_forward', { kind: 'PFA-MEM', copy: 'payment' }), true, 'its receipt never does');
 
     /* a payload that somehow carries money (planted here) still reaches
        gandhim without it */
@@ -262,13 +269,19 @@ test('a caregiver application\'s copies: what each inbox is given', () => {
     const app = F.copyPayload(record, 'https://pfa.test', 'application');
     assert.equal(app.copy, 'application');
     assert.equal(app.attachments, 1, 'the photograph goes with the application');
-    assert.deepEqual(app.rows.map((r) => r.label), ['Address', 'District', 'State', 'Application', 'About the colony']);
+    /* the address is one line, with a map link, at the head of the email
+       (24 Oct 2026), not three rows among the rest */
+    assert.deepEqual(app.rows.map((r) => r.label), ['Application', 'About the colony']);
+    assert.equal(app.place.label, 'Address');
+    assert.equal(app.place.value, '16 MG Road, New Delhi district, Delhi');
+    assert.match(app.place.map, /^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=16%20MG%20Road/);
     assert.ok(!JSON.stringify(app).match(/PFA-CG-ORDER-77|31233|BNK900|500\.00/), 'nothing about the money');
 
     const receipt = F.copyPayload(record, 'https://pfa.test', 'payment');
     assert.equal(receipt.copy, 'payment');
     assert.equal(receipt.kindLabel, 'Payment for a colony caregiver application');
     assert.equal(receipt.attachments, 0);
+    assert.equal(receipt.place, null, 'the receipt carries no address');
     assert.deepEqual(receipt.rows, [
       { label: 'Amount paid', value: '₹500' },
       { label: 'Order ID', value: 'PFA-CG-ORDER-77' },

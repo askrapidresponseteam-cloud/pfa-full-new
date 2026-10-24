@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Units | People for Animals</title>
 <meta name="description" content="People for Animals shelters, hospitals and rescue units across India.">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 :root{
   --paper:#fff;
@@ -773,7 +773,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 
 <main>
 
@@ -914,7 +914,7 @@ if (root.document && root.document.head) apply(read());
       <p class="u-flow__alt">Prefer paper? <a href="media/forms/pfa-unit-application.pdf" download="PFA unit application form.pdf">Download the form</a></p>
     </div>
     <div class="u-flow__body">
-      <form class="u-form" id="unitForm" data-preview="skip" novalidate>
+      <form class="u-form" id="unitForm" data-preview="skip" novalidate data-address-own>
         <ol class="pfa-steps__tabs" aria-hidden="true"><li><span>01</span>You</li><li><span>02</span>Board</li><li><span>03</span>Your work</li><li><span>04</span>Undertaking</li><li><span>05</span>Send</li></ol>
         <div class="pfa-steps__bar" aria-hidden="true"><span></span></div>
 
@@ -922,11 +922,10 @@ if (root.document && root.document.head) apply(read());
           <div class="u-screen" data-screen="you">
             <h3 class="u-form__q">The applicant</h3>
             <div class="field"><label for="uaName">Name of the applicant</label><input id="uaName" name="name" autocomplete="name" required><span class="error">Add your name, as the applicant.</span></div>
-            <div class="field"><label for="uaAddress">Address of the applicant</label><textarea id="uaAddress" name="address" rows="2" autocomplete="street-address" required></textarea><span class="error">Add your address.</span></div>
-            <div class="u-form__row">
-              <div class="field"><label for="uaCity">City</label><input id="uaCity" name="city" autocomplete="address-level2" required><span class="error">Add your city.</span></div>
-              <div class="field"><label for="uaDistrict">District</label><input id="uaDistrict" name="district" autocomplete="off" required><span class="error">Add your district.</span></div>
-            </div>
+            <!-- The applicant's address, the block every form on the site
+                 carries (assets/address.js): house and street, a PIN checked
+                 against the state, town, and state and district from the list. -->
+            <fieldset data-address data-kind="PFA-U" data-legend="Address of the applicant"></fieldset>
             <div class="u-form__row">
               <div class="field"><label for="uaMobile">Phone number (1)</label><input id="uaMobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" required placeholder="10 digit mobile"><span class="error">Enter a 10-digit Indian mobile number.</span></div>
               <div class="field"><label for="uaPhone2">Phone number (2) <span class="opt">(optional)</span></label><input id="uaPhone2" name="phone2" inputmode="tel" autocomplete="off" data-check="phone"><span class="error">Check this number.</span></div>
@@ -1969,6 +1968,8 @@ if (root.document && root.document.head) apply(read());
 </script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
+<script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script src="assets/form-preview.js"></script>
 <script src="pfa-forms.js"></script>
 <script>
@@ -2044,6 +2045,12 @@ if (root.document && root.document.head) apply(read());
   }
   /* a town or district, in the form the server stores it */
   function place(v){ return R ? R.normaliseField('city', v) : v; }
+  /* the applicant's address block, as it will be sent */
+  var addrBlock = form.querySelector('[data-address]');
+  function addr(key){
+    if (!addrBlock || !window.PFAAddress) return '';
+    return window.PFAAddress.read(addrBlock)[key] || '';
+  }
   function picked(name){ var c = $('input[name="' + name + '"]:checked', form); return c ? c.value : ''; }
   function plain(s){ return String(s || '').toLowerCase().replace(/[\s.,'-]+/g, ''); }
 
@@ -2105,12 +2112,12 @@ if (root.document && root.document.head) apply(read());
     var filled = sc.hasAttribute('data-optional') && anyIn(sc);
     var boxes = [];
     controls(sc).forEach(function(el){
-      if (el.disabled || el.closest('[hidden]')) return;
+      if (el.disabled || el.closest('[hidden]') || el.closest('[data-address]')) return;
       var box = boxOf(el);
       if (box && boxes.indexOf(box) < 0){ boxes.push(box); flag(box, false); }
     });
     controls(sc).forEach(function(el){
-      if (el.disabled || el.closest('[hidden]')) return;
+      if (el.disabled || el.closest('[hidden]') || el.closest('[data-address]')) return;
       var said = verdict(el, filled);
       if (!said) return;
       flag(boxOf(el), said);
@@ -2131,6 +2138,11 @@ if (root.document && root.document.head) apply(read());
       if (wrap) wrap.classList.toggle('is-bad', bad);
       if (err) err.hidden = !bad;
       if (bad && !first) first = box;
+    });
+    /* the address block checks itself, every box at once */
+    $$('[data-address]', sc).forEach(function(block){
+      var bad = window.PFAAddress ? window.PFAAddress.check(block) : block.querySelector('input');
+      if (bad && !first) first = bad;
     });
     var own = first ? null : extra(sc);
     return first || own;
@@ -2171,8 +2183,8 @@ if (root.document && root.document.head) apply(read());
     if (group(sc) !== 'member' && advocateErr) say(advocateErr, '');
     if (group(sc) === 'undertaking'){
       /* most apply for their own town: offered, never forced */
-      if (!$('#uaUnitPlace').value.trim()) $('#uaUnitPlace').value = val('uaCity');
-      if (!$('#uaUnitDistrict').value.trim()) $('#uaUnitDistrict').value = val('uaDistrict');
+      if (!$('#uaUnitPlace').value.trim()) $('#uaUnitPlace').value = addr('city');
+      if (!$('#uaUnitDistrict').value.trim()) $('#uaUnitDistrict').value = addr('district');
     }
     if (group(sc) === 'sign') oath();
     if (!focus) return;
@@ -2237,7 +2249,9 @@ if (root.document && root.document.head) apply(read());
   /* ---------- the undertaking, in the paper's words with the blanks filled ---------- */
   function sentenceParts(){
     var relation = val('uaRelation');
-    var resident = [val('uaAddress'), place(val('uaCity')), place(val('uaDistrict'))].filter(Boolean).join(', ');
+    var town = addr('city'), district = addr('district');
+    var resident = [addr('address'), town, plain(district) === plain(town) ? '' : district + ' district',
+      (addr('state') + ' ' + addr('pincode')).trim()].filter(Boolean).join(', ');
     return [
       ['I, '], [(picked('salutation') + ' ' + val('uaName')).trim(), 1], [', '],
       [(relation ? relation.toLowerCase() + ' ' : '') + val('uaRelName'), 1],
@@ -2336,9 +2350,11 @@ if (root.document && root.document.head) apply(read());
       unitPlace: place(val('uaUnitPlace')),
       unitDistrict: place(val('uaUnitDistrict')),
       name: val('uaName'),
-      address: val('uaAddress'),
-      city: place(val('uaCity')),
-      district: place(val('uaDistrict')),
+      address: addr('address'),
+      pincode: addr('pincode'),
+      city: addr('city'),
+      state: addr('state'),
+      district: addr('district'),
       mobile: digits(val('uaMobile')),
       phone2: val('uaPhone2'),
       email: val('uaEmail')
@@ -2362,7 +2378,8 @@ if (root.document && root.document.head) apply(read());
   /* the last look lists the application as the head office will read it */
   var LABELS = [
     ['unitPlace', 'A unit of PFA in'], ['unitDistrict', 'District of the unit'],
-    ['name', 'Name of the applicant'], ['address', 'Address of the applicant'], ['city', 'City'], ['district', 'District'],
+    ['name', 'Name of the applicant'], ['address', 'Address of the applicant'], ['city', 'City, town or village'],
+    ['district', 'District'], ['state', 'State'], ['pincode', 'PIN code'],
     ['mobile', 'Phone number (1)'], ['phone2', 'Phone number (2)'], ['email', 'Email']
   ].concat([1, 2, 3, 4, 5, 6, 7].map(function(n){ return ['member' + n, 'Board member ' + n]; }))
     .concat([['criteria', 'Qualifies under']])

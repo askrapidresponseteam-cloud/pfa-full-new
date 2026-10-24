@@ -153,8 +153,10 @@ test('the shop already sent all four, and still does', () => {
 
 test('on Get Involved, a missing state or district, or a short PIN, is caught on its own step, not at Pay', () => {
   const src = read('get-involved.html');
-  assert.match(src, /\(el\.name === 'pincode' && !\/\^\[1-9\]\\d\{5\}\$\/\.test\(String\(v\)\.replace\(\/\\D\/g, ''\)\)\)/, 'the PIN is six digits not starting with 0');
-  assert.match(src, /steps\[at\]\.querySelectorAll\('select\[required\]'\), function\(el\)\{\s*errs \+= bad\(el, !el\.value\) \? 1 : 0;/, 'every required dropdown on the step');
+  /* since 24 Oct 2026 the PIN is judged by the address block's rule: six
+     digits not starting with 0, in the state chosen beside it */
+  assert.match(src, /if \(el\.name === 'pincode'\) \{[\s\S]{0,200}window\.PFAAddress\.pinProblem\(v, st \? st\.value : ''\)[\s\S]{0,120}\/\^\[1-9\]\\d\{5\}\$\/[\s\S]{0,400}wrong = !!why;/, 'the PIN is six digits not starting with 0, and in the state');
+  assert.match(src, /steps\[at\]\.querySelectorAll\('select\[required\]'\), function\(el\)\{\s*if \(el\.closest\('\[data-address\]'\)\) return;\s*errs \+= bad\(el, !el\.value\) \? 1 : 0;/, 'every required dropdown on the step (the address block checks its own)');
   /* and the caregiver form's own final check carries them too */
-  assert.match(src, /errs \+= bad\(st, !st\.value\) \? 1 : 0;\s*errs \+= bad\(di, !di\.value\) \? 1 : 0;\s*errs \+= bad\(pin, /);
+  assert.match(src, /errs \+= bad\(st, !st\.value\) \? 1 : 0;\s*errs \+= bad\(di, !di\.value\) \? 1 : 0;\s*var pinWhy = window\.PFAAddress \? window\.PFAAddress\.pinProblem\(pin\.value, st\.value\)[\s\S]{0,400}errs \+= bad\(pin, !!pinWhy\)/);
 });

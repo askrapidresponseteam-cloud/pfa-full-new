@@ -260,6 +260,32 @@
      in one. Must contain letters, so "12345678" is not an address. */
   var ADDRESS_CHARS = re('[^' + L + "0-9 \\n,.'/#&()\\-]", 'g');
 
+  /* A link pasted into a place or an address is kept exactly as pasted
+     (24 Oct 2026: a Google Maps link reached gandhim's inbox as
+     "Https//Maps.App.Goo.Gl/1XIQJUQVCKSLHJYK8GSTIC", its colon filtered
+     out and every letter recased, and opened nothing). Only the words
+     around it are tidied, and while a link is in the box nothing is
+     filtered out of it as it is typed. */
+  var HAS_LINK = /https?:|www\.|goo\.gl|maps\./i;
+  var LINK_RUN = /(https?:\/\/\S+|(?:www\.|maps\.app\.goo\.gl\/|goo\.gl\/)\S+)/gi;
+  function aroundLinks(value, tidy) {
+    var text = String(value == null ? '' : value);
+    if (!HAS_LINK.test(text)) return tidy(text);
+    var out = '';
+    var last = 0;
+    var m;
+    LINK_RUN.lastIndex = 0;
+    while ((m = LINK_RUN.exec(text))) {
+      out += tidyKeepingEdges(text.slice(last, m.index), tidy) + m[0];
+      last = m.index + m[0].length;
+    }
+    return (out + tidyKeepingEdges(text.slice(last), tidy)).replace(/[ \t]{2,}/g, ' ').trim();
+  }
+  function tidyKeepingEdges(part, tidy) {
+    if (!part.trim()) return part ? ' ' : '';
+    return (/^\s/.test(part) ? ' ' : '') + tidy(part) + (/\s$/.test(part) ? ' ' : '');
+  }
+
   /* Deliberately stricter than the browser's type=email, which accepts
      "a@b". Requires a dotted domain and forbids the doubled dots and edge
      dots that are almost always typos. */
@@ -394,8 +420,8 @@
     /* A locality or landmark ("Sector 12, near the temple"): letters and
        digits, Title Case. */
     locality: {
-      filter: function (v) { return String(v == null ? '' : v).replace(ADDRESS_CHARS, ''); },
-      normalise: function (v) { return titleCase(squash(v)); },
+      filter: function (v) { v = String(v == null ? '' : v); return HAS_LINK.test(v) ? v : v.replace(ADDRESS_CHARS, ''); },
+      normalise: function (v) { return aroundLinks(v, function (t) { return titleCase(squash(t)); }); },
       max: 120,
       check: function (v) {
         if (v.length < 2) return 'Enter at least two characters.';
@@ -405,11 +431,11 @@
       }
     },
     address: {
-      filter: function (v) { return String(v == null ? '' : v).replace(ADDRESS_CHARS, ''); },
-      normalise: function (v) { return titleCase(squashLines(v)); },
+      filter: function (v) { v = String(v == null ? '' : v); return HAS_LINK.test(v) ? v : v.replace(ADDRESS_CHARS, ''); },
+      normalise: function (v) { return aroundLinks(v, function (t) { return titleCase(squashLines(t)); }); },
       max: 220,
       check: function (v) {
-        if (v.replace(/\s/g, '').length < 8) return 'Enter the full address so a delivery can find it.';
+        if (v.replace(/\s/g, '').length < 8) return 'Enter the full address: house or building, street and area.';
         if (v.length > 220) return 'Keep the address under 220 characters.';
         if (!TWO_LETTERS.test(v)) return 'An address needs a street or locality name, not just numbers.';
         return null;

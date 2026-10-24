@@ -161,3 +161,40 @@ test('a receipt queued for gandhim by mistake is still refused, and not offered 
   assert.equal(smtp.length, 0);
   assert.equal(mailer.moneyToWrongInbox(GANDHIM, 'submission_forward', payload), true, 'so the panel treats it as superseded, not failing');
 });
+
+test('a membership and a volunteer application kept in the panel only (21 to 23 Oct) are found, and one press sends them to gandhim', async () => {
+  /* owner, 23 Oct 2026: "ensure all caregiver and volunteer and job and
+     membership applications go to gandhim email id" */
+  const member = {
+    reference: 'PFA-MEM-2026-00004', kind: 'PFA-MEM', kindLabel: 'Membership', threadId: 'ffffffffffff',
+    createdAt: '2026-10-22T09:00:00.000Z', receivedAtMs: Date.parse('2026-10-22T09:00:00.000Z'), status: 'new', page: 'get-involved.html',
+    fields: { name: 'Rashid', mobile: '9876500000', email: 'rashid@example.com', tier: 'Annual member', kit: '', address: '2 Park St', city: 'Kolkata', district: '', state: 'West Bengal', pin: '700016',
+      amount: 1000, orderId: 'PFA-MEM-Q7ANEQLZ', bankReference: '901132268778', title: 'Annual member - Rashid' }
+  };
+  const volunteer = {
+    reference: 'PFA-V-2026-00021', kind: 'PFA-V', kindLabel: 'Volunteer application', threadId: '111111111111',
+    createdAt: '2026-10-22T10:00:00.000Z', receivedAtMs: Date.parse('2026-10-22T10:00:00.000Z'), status: 'new', page: 'get-involved.html',
+    fields: { name: 'Meera', mobile: '9876511111', email: 'meera@example.com', city: 'Udupi', title: 'Volunteer: Feeding drives', notes: 'Weekends.' }
+  };
+  for (const r of [member, volunteer]) await db.collection('submissions').doc(r.reference).create(r);
+
+  const seen = await check('GET');
+  assert.deepEqual(seen.json.missed.map((m) => m.reference).sort(), [member.reference, volunteer.reference].sort());
+  const go = await check('POST', { action: 'send-missed' });
+  assert.equal(go.json.ok, true, JSON.stringify(go.json));
+  assert.equal(go.json.sent, 2);
+
+  const to = (address) => smtp.filter((m) => m.to === address);
+  assert.deepEqual(to(GANDHIM).map((m) => m.subject).sort(), [
+    `${member.reference}: Membership from Rashid`,
+    `${volunteer.reference}: Volunteer application from Meera`
+  ].sort());
+  const application = to(GANDHIM).find((m) => m.subject.startsWith(member.reference));
+  assert.match(application.text, /Annual member/);
+  assert.doesNotMatch(application.text + application.html, /Amount|PFA-MEM-Q7ANEQLZ|901132268778|Bank reference|₹/, 'no payment in it');
+  for (const address of PAY) {
+    assert.deepEqual(to(address).map((m) => m.subject), [`${member.reference}: Payment for a membership from Rashid`], `${address}: the receipt, and not the volunteer`);
+    assert.match(to(address)[0].text, /Amount paid: ₹1,000/);
+  }
+  assert.deepEqual((await check('GET')).json.missed, [], 'no longer listed');
+});

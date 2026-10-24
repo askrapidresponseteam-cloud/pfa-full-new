@@ -90,7 +90,7 @@
 })();
 </script>
 <link rel="stylesheet" href="assets/theatre.css">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 :root{
   --paper:#fff;
@@ -946,7 +946,10 @@ html{scroll-behavior:smooth}
 
 <style id="cinekind-experience-style">
 /* CineKind: sound and motion, progressively enhanced. */
-.ck-sound{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));z-index:9000;display:flex;align-items:center;gap:12px;min-height:46px;padding:0 18px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(18,18,20,.87);color:#fff;box-shadow:0 4px 24px #0002;backdrop-filter:blur(16px);cursor:pointer;font:600 10px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;transition:background .3s,box-shadow .3s}
+.ck-sound{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));z-index:9000;display:flex;align-items:center;gap:12px;min-height:46px;padding:0 18px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(18,18,20,.87);color:#fff;box-shadow:0 4px 24px #0002;backdrop-filter:blur(16px);cursor:pointer;font:600 10px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;transition:background .3s,box-shadow .3s,opacity .6s ease,transform .6s ease,visibility 0s linear 0s}
+/* The sound belongs to the opening picture (owner, 24 Oct 2026): the button
+   is there only while the picture is, and leaves once CineKind is entered. */
+.ck-sound.is-away{opacity:0;transform:translateY(10px);visibility:hidden;pointer-events:none;transition:opacity .6s ease,transform .6s ease,visibility 0s linear .6s}
 .ck-sound:hover{background:#252527;box-shadow:0 6px 28px #0003}
 .ck-sound:focus-visible{outline:2px solid #b9a97f;outline-offset:4px}
 .ck-wave{display:flex;align-items:center;gap:3px;width:25px;height:19px}
@@ -972,6 +975,8 @@ html{scroll-behavior:smooth}
 @media print{.ck-sound,.ck-progress{display:none}}
 /* the menu, open, is not covered by the sound button */
 html.mnav-open .ck-sound{display:none}
+/* nor over the nomination room, where on a phone it sat on the Send button */
+html.nom-open .ck-sound{display:none}
 </style>
 
 <style id="ck-cinematic-style">
@@ -1250,7 +1255,7 @@ if (root.document && root.document.head) apply(read());
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
 </header>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/theatre.js"></script>
 <script src="assets/reels.js"></script>
 
@@ -1757,7 +1762,7 @@ if (root.document && root.document.head) apply(read());
       <div><p class="k">Read by</p><p class="v">The CineKind National Awards Committee</p></div>
       <div><p class="k">Presented by</p><p class="v">FFI with PFA</p></div>
     </div>
-    <form class="form nom__form" id="ckNominate" novalidate>
+    <form class="form nom__form" id="ckNominate" novalidate data-address-own>
       <div class="field">
         <label for="ckWho">Who are you nominating</label>
         <input id="ckWho" type="text" autocomplete="off">
@@ -1808,6 +1813,9 @@ if (root.document && root.document.head) apply(read());
           <span class="error">Add a valid email, so the committee can reach you.</span>
         </div>
       </div>
+      <!-- The nominator's address, the same block every form on the site
+           carries (assets/address.js); required, with the PIN checked. -->
+      <fieldset data-address data-kind="PFA-CK" data-legend="Your address"></fieldset>
       <button class="btn btn--full" type="submit" id="ckSend">Send the nomination</button>
       <p class="formstatus" data-form-status hidden></p>
       <p class="fine">This goes to PFA with a reference number you can quote. A nomination is a proposal to the committee, not a promise of an award.</p>
@@ -1923,6 +1931,8 @@ if (root.document && root.document.head) apply(read());
      below needs PFAForms to exist when it runs. -->
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
+<script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script src="assets/form-preview.js"></script>
 <script src="pfa-forms.js"></script>
 <script>
@@ -2874,6 +2884,7 @@ if (root.document && root.document.head) apply(read());
     opener = from || null;
     room.hidden = false;
     document.documentElement.style.overflow = 'hidden';
+    document.documentElement.classList.add('nom-open');
     var first = form.querySelector('input, select, textarea');
     if (first && first.focus) first.focus();
   }
@@ -2881,6 +2892,7 @@ if (root.document && root.document.head) apply(read());
     if (room.hidden) return;
     room.hidden = true;
     document.documentElement.style.overflow = '';
+    document.documentElement.classList.remove('nom-open');
     if (opener && opener.focus) opener.focus();
     opener = null;
   }
@@ -2935,6 +2947,9 @@ if (root.document && root.document.head) apply(read());
       errs += bad(mobile, !!mobileDigits && !/^[6-9]\d{9}$/.test(mobileDigits)) ? 1 : 0;
       errs += bad(email, !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailGiven)) ? 1 : 0;
       errs += bad(link, !!link.value.trim() && !/^https?:\/\/\S+\.\S+/.test(link.value.trim())) ? 1 : 0;
+      /* the nominator's address: house and street, a PIN that can be in
+         the state, town, state and district */
+      if (!window.PFAAddress || window.PFAAddress.check(form.querySelector('[data-address]'))) errs += 1;
       if (errs) {
         var first = form.querySelector('.is-bad input, .is-bad select, .is-bad textarea');
         if (first) first.focus();
@@ -3088,11 +3103,40 @@ if (root.document && root.document.head) apply(read());
   master.gain.cancelScheduledValues(now);master.gain.setTargetAtTime(value,now,.22);
  }
  function shouldPlay(){return enabled&&!document.hidden&&playing.size===0;}
+ var fadingUntil=0;
  async function sync(){
   if(!context)return;
+  /* a slow fade under way is left to finish */
+  if(!shouldPlay()&&Date.now()<fadingUntil)return;
   clearTimeout(fadeTimer);
-  if(shouldPlay()){await context.resume();if(shouldPlay())ramp(.62);}
+  if(shouldPlay()){fadingUntil=0;await context.resume();if(shouldPlay())ramp(.62);}
   else{ramp(0);fadeTimer=setTimeout(function(){if(!shouldPlay()&&context)context.suspend();},1100);}
+ }
+ /* The sound belongs to the opening picture (owner, 24 Oct 2026: "The sound
+    on/off button should appear only while this image is displayed. Once the
+    user enters Cinekind, the sound should gradually fade out, and the button
+    should disappear as well."). Entering is pressing Enter, or scrolling the
+    picture mostly out of view: the sound fades out over two and a half
+    seconds and is switched off, and the button goes. Back at the picture,
+    the button is there again, reading Sound off. */
+ var FADE=2.5,away=false;
+ function fadeOut(){
+  if(!context)return;
+  var now=context.currentTime,g=master.gain;
+  clearTimeout(fadeTimer);
+  g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(0,now+FADE);
+  fadingUntil=Date.now()+FADE*1000;
+  fadeTimer=setTimeout(function(){fadingUntil=0;if(!shouldPlay()&&context)context.suspend();},FADE*1000+150);
+ }
+ function leave(){
+  if(away)return;away=true;
+  if(document.activeElement===button)button.blur();
+  button.classList.add('is-away');button.setAttribute('aria-hidden','true');button.tabIndex=-1;
+  if(enabled){enabled=false;paint();fadeOut();status.textContent='Ambient sound faded out.';}
+ }
+ function back(){
+  if(!away)return;away=false;
+  button.classList.remove('is-away');button.removeAttribute('aria-hidden');button.removeAttribute('tabindex');
  }
  button.addEventListener('click',async function(){
   if(busy)return;busy=true;
@@ -3146,6 +3190,15 @@ if (root.document && root.document.head) apply(read());
   var overlay=Array.from(document.querySelectorAll('[role="dialog"],.theatre,.pfa-theatre')).some(function(el){return !el.hidden&&getComputedStyle(el).display!=='none'&&el.querySelector('iframe,video');});
   if(Number(overlay)!==mediaCount){mediaCount=Number(overlay);if(overlay)playing.add('theatre');else playing.delete('theatre');sync().catch(function(){});}
  }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','aria-hidden']});}
+ /* how much of the screen the opening picture fills: gone under 40%, back over 60% */
+ var marquee=document.getElementById('marquee'),door=document.querySelector('.marquee__door');
+ if(door)door.addEventListener('click',leave);
+ function share(rect){var vh=innerHeight||1;var seen=Math.max(0,Math.min(rect.bottom,vh)-Math.max(rect.top,0));return seen/Math.max(1,Math.min(rect.height,vh));}
+ function judge(s){if(s<.4)leave();else if(s>.6)back();}
+ if(marquee){
+  if('IntersectionObserver'in window){new IntersectionObserver(function(entries){entries.forEach(function(e){judge(share(e.boundingClientRect));});},{threshold:[0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1]}).observe(marquee);}
+  else{var look=function(){judge(share(marquee.getBoundingClientRect()));};addEventListener('scroll',look,{passive:true});addEventListener('resize',look,{passive:true});look();}
+ }
  addEventListener('pagehide',function(){if(context){ramp(0);context.suspend().catch(function(){});}});
  addEventListener('pageshow',function(){sync().catch(function(){});});
  configure();

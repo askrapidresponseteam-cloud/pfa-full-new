@@ -60,7 +60,7 @@ test('addresses keep digits, refuse bare numbers, and print in Title Case', () =
   assert.equal(R.normaliseField('address', '12b, mg road, koramangala 5th block'), '12B, MG Road, Koramangala 5th Block');
   assert.equal(R.normaliseField('address', 'flat 4\n\nnear temple'), 'Flat 4\n\nNear Temple');
   assert.equal(R.checkField('address', '12345678', { required: true }), 'An address needs a street or locality name, not just numbers.');
-  assert.equal(R.checkField('address', 'x', { required: true }), 'Enter the full address so a delivery can find it.');
+  assert.equal(R.checkField('address', 'x', { required: true }), 'Enter the full address: house or building, street and area.');
   assert.equal(R.checkField('address', 'h no 4, abc nagar', { required: true }), null);
 });
 

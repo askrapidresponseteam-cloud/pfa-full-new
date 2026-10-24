@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Ask us anything | People for Animals</title>
 <meta name="description" content="A question about an animal, a law, a unit, adoption or anything else. It reaches a named person at PFA, you get a reference, and you can follow the answer.">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 :root{
   --paper:#fff;
@@ -520,7 +520,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/india-districts.js"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
@@ -545,14 +545,13 @@ if (root.document && root.document.head) apply(read());
       <p>Answers come by email or a call on the mobile you give. Most are answered within a few working days; a question that turns out to be urgent is moved to the front.</p>
     </div>
 
-    <form class="form" id="askForm" novalidate>
+    <form class="form" id="askForm" novalidate data-address-own>
       <div class="field">
         <label for="question">Your question</label>
         <textarea id="question" name="question" required placeholder="Ask it the way you would ask a friend who works here."></textarea>
         <p class="err" hidden></p>
       </div>
-      <div class="row">
-        <div class="field">
+      <div class="field">
           <label for="topic">What is it about?</label>
           <select id="topic" name="topic" required>
             <option value="">Choose</option>
@@ -561,24 +560,10 @@ if (root.document && root.document.head) apply(read());
             <option>Working with PFA</option><option>Something else</option>
           </select>
           <p class="err" hidden></p>
-        </div>
-        <div class="field">
-          <label for="state">Your state</label>
-          <select id="state" name="state" required>
-            <option value="">Choose state</option>
-          </select>
-          <p class="err" hidden></p>
-        </div>
       </div>
-      <div class="row">
-        <div class="field">
-          <label for="city">Your district or city</label>
-          <select id="city" name="city" required disabled title="Answers are pointed at the unit nearest you, so this has to be a real place">
-            <option value="">Choose the state first</option>
-          </select>
-          <p class="err" hidden></p>
-        </div>
-      </div>
+      <!-- Where the asker is, whole (owner, 24 Oct 2026): the answer is
+           pointed at the unit nearest them. Filled by assets/address.js. -->
+      <fieldset data-address data-kind="PFA-Q" data-legend="Your address"></fieldset>
       <div class="row">
         <div class="field">
           <label for="name">Your name</label>
@@ -735,6 +720,7 @@ if (root.document && root.document.head) apply(read());
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="assets/address.js"></script>
 <script src="assets/form-preview.js" defer></script>
 <script src="pfa-forms.js" defer></script>
 <script>
@@ -752,40 +738,18 @@ if (root.document && root.document.head) apply(read());
   form.addEventListener('input', function (e) { if (e.target.closest('.field')) flag(e.target, ''); });
   form.addEventListener('change', function (e) { if (e.target.closest('.field')) flag(e.target, ''); });
 
-  /* Where the person is, from the one table the API reads too. The city list
-     is rebuilt from the state every time the state moves, so the two cannot
-     drift apart, and a city the new state does not have is dropped rather
-     than left standing under it. */
-  var INDIA = window.PFA_INDIA || { STATES: [], districtsOf: function () { return []; } };
-  var stateEl = $('#state'), cityEl = $('#city');
-  stateEl.innerHTML = '<option value="">Choose state</option>'
-    + INDIA.STATES.map(function (s) { return '<option>' + s + '</option>'; }).join('');
-  function fillCities(keep) {
-    var names = INDIA.districtsOf(stateEl.value);
-    cityEl.disabled = !names.length;
-    cityEl.innerHTML = '<option value="">' + (names.length ? 'Choose district or city' : 'Choose the state first') + '</option>'
-      + names.map(function (n) { return '<option>' + n + '</option>'; }).join('');
-    if (keep && names.indexOf(keep) > -1) cityEl.value = keep;
-  }
-  stateEl.addEventListener('change', function () { flag(cityEl, ''); fillCities(cityEl.value); });
-  fillCities('');
+  /* Where the person is: the address block (assets/address.js), from the
+     one table the API reads too. */
 
   function collect() {
     var bad = 0;
     var must = { question: 'What would you like to ask?', topic: 'Pick the closest topic.',
-      state: 'Choose your state, so the answer comes from the right unit.',
-      city: 'Choose your district or city.',
       name: 'Your name, so the answer is addressed to someone.' };
     Object.keys(must).forEach(function (n) {
       var el = fieldOf(n);
       if (!el.value.trim()) { flag(el, must[n]); bad++; }
     });
-    /* Both filled is not the same as both true together. A city can be left
-       over from a state chosen before it, so the pair is checked as a pair. */
-    if (stateEl.value && cityEl.value && !INDIA.pairOk(stateEl.value, cityEl.value)) {
-      flag(cityEl, 'That district is not in ' + stateEl.value + '. Choose one from the list.');
-      bad++;
-    }
+    if (!window.PFAAddress || window.PFAAddress.check(form.querySelector('[data-address]'))) bad++;
     var mob = fieldOf('mobile'), digits = mob.value.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '');
     var email = fieldOf('email');
     if (mob.value.trim() && !/^[6-9]\d{9}$/.test(digits)) { flag(mob, 'An Indian mobile number is 10 digits, starting 6, 7, 8 or 9.'); bad++; }
@@ -798,8 +762,6 @@ if (root.document && root.document.head) apply(read());
     return {
       question: fieldOf('question').value.trim(),
       topic: fieldOf('topic').value,
-      state: stateEl.value,
-      city: cityEl.value,
       name: fieldOf('name').value.trim(),
       mobile: digits,
       email: email.value.trim()

@@ -63,7 +63,12 @@ test('the online form is the paper form: closed until asked for, a screen at a t
   assert.ok(form);
   assert.deepEqual([...form.querySelectorAll('.pfa-steps__tabs li')].map((li) => li.textContent.replace(/^\d+/, '').trim()),
     [...form.querySelectorAll('.u-step')].map((s) => s.getAttribute('data-step')), 'a tab for every step');
-  for (const id of ['uaName', 'uaAddress', 'uaCity', 'uaDistrict', 'uaMobile', 'uaPhone2', 'uaEmail']) assert.ok(doc.getElementById(id), id);
+  for (const id of ['uaName', 'uaMobile', 'uaPhone2', 'uaEmail']) assert.ok(doc.getElementById(id), id);
+  /* the applicant's address is the block every form carries (24 Oct 2026) */
+  const block = form.querySelector('[data-screen="you"] fieldset[data-address][data-kind="PFA-U"]');
+  assert.ok(block, 'the applicant\'s address block');
+  assert.equal(block.getAttribute('data-legend'), 'Address of the applicant');
+  assert.ok(form.hasAttribute('data-address-own'), 'checked with the screen\'s own boxes');
   /* seven board members: name, address, phone, email, age, profession */
   const members = form.querySelectorAll('[data-screen="member"]');
   assert.equal(members.length, 7);
@@ -115,6 +120,8 @@ function boot() {
   };
   w.eval(read('assets/field-rules.js'));
   w.eval(read('assets/field-validate.js'));
+  w.eval(read('assets/india-districts.js'));
+  w.eval(read('assets/address.js'));
   w.eval(read('pfa-forms.js'));
   /* a canvas is not drawn here; the photograph arrives already shrunk */
   w.PFAForms.shrink = () => Promise.resolve(PHOTO);
@@ -126,6 +133,7 @@ function boot() {
     try { w.eval(m[2]); } catch (error) { errors.push(`inline script: ${error.message}`); }
   }
   w.document.dispatchEvent(new w.Event('DOMContentLoaded', { bubbles: true }));
+  w.PFAAddress.mountAll();
   const doc = w.document;
   const page = {
     w, doc, errors, posted,
@@ -141,6 +149,14 @@ function boot() {
       el.checked = true;
       el.dispatchEvent(new w.Event('change', { bubbles: true }));
     },
+    /* a box of the address block, typed or chosen as a person does */
+    address(key, value) {
+      const el = doc.querySelector(`#unitForm [data-address] [data-addr="${key}"]`);
+      assert.ok(el, `no address box for ${key}`);
+      el.value = value;
+      el.dispatchEvent(new w.Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+      el.dispatchEvent(new w.Event('blur', { bubbles: false }));
+    },
     next() { doc.querySelector('#unitForm [data-next]').click(); },
     back() { doc.querySelector('#unitForm [data-back]').click(); },
     on() { const s = doc.querySelector('#unitForm .u-screen.is-on'); return s.getAttribute('data-screen') + (s.getAttribute('data-n') || ''); },
@@ -153,9 +169,11 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 30));
 
 function fillYou(page) {
   page.type('uaName', 'asha rao');
-  page.type('uaAddress', '12 main road, koteshwara');
-  page.type('uaCity', 'kundapur');
-  page.type('uaDistrict', 'udupi');
+  page.address('address', '12 main road, koteshwara');
+  page.address('state', 'Karnataka');
+  page.address('district', 'Udupi');
+  page.address('city', 'kundapur');
+  page.address('pincode', '576222');
   page.type('uaMobile', '+91 98765 43210');
   page.type('uaPhone2', '0820 252 0000');
   page.type('uaEmail', SENDER);
@@ -179,8 +197,14 @@ test('the page checks each screen, and sends the application as the paper reads'
   /* nothing typed: it stays, and says what is missing */
   page.next();
   assert.equal(page.on(), 'you');
-  assert.ok(page.bad() >= 6, 'every required box is marked');
+  assert.ok(page.bad() >= 8, 'every required box is marked, the five of the address among them');
   fillYou(page);
+  /* a PIN that cannot be in the state keeps it here */
+  page.address('pincode', '700016');
+  page.next();
+  assert.equal(page.on(), 'you');
+  assert.match(page.doc.querySelector('#unitForm [data-addr="pincode"]').closest('.field').querySelector('.err').textContent, /in West Bengal, not Karnataka/);
+  page.address('pincode', '576222');
   assert.equal(page.doc.getElementById('uaMobile').value, '9876543210', 'the shared rules tidy the mobile');
   page.next();
   assert.equal(page.on(), 'member1');
@@ -244,7 +268,7 @@ test('the page checks each screen, and sends the application as the paper reads'
   page.next();
   assert.equal(page.on(), 'sign');
   assert.match(page.doc.getElementById('uaOathLead').textContent,
-    /^I, Ms\. Asha Rao, daughter of Ramesh Rao, resident of 12 Main Road, Koteshwara, Kundapur, Udupi, and presently working as Teacher, am desirous of forming a Unit of PFA in Kundapur, District Udupi\.$/);
+    /^I, Ms\. Asha Rao, daughter of Ramesh Rao, resident of 12 Main Road, Koteshwara, Kundapur, Udupi district, Karnataka 576222, and presently working as Teacher, am desirous of forming a Unit of PFA in Kundapur, District Udupi\.$/);
   /* not agreed, not signed; then signed with a different name */
   page.next();
   assert.equal(page.on(), 'sign');
@@ -277,6 +301,8 @@ test('the page checks each screen, and sends the application as the paper reads'
   assert.equal(data.name, 'Asha Rao');
   assert.equal(data.mobile, '9876543210');
   assert.equal(data.unitPlace, 'Kundapur');
+  assert.deepEqual([data.address, data.pincode, data.city, data.state, data.district],
+    ['12 Main Road, Koteshwara', '576222', 'Kundapur', 'Karnataka', 'Udupi'], 'the applicant\'s address, whole');
   assert.equal(data.member1, 'Member 1, age 41, Farmer · Address: 1 Temple Street, Udupi · Phone: 9845010001 · Email: member1@example.com');
   assert.equal(data.member5.split(' · ')[0], 'Member 5, age 35, Advocate');
   assert.equal(data.criteria, 'Both A and B');
@@ -375,7 +401,7 @@ test('what the page sent is filed, and gandhim gets every line with the photogra
   const copy = copies[0];
   assert.equal(copy.reply_to, SENDER, 'Reply answers the applicant');
   assert.equal(copy.subject, `${ref}: New PFA unit application from Asha Rao`);
-  for (const line of ['Unit of PFA in: Kundapur', 'Address of the applicant: 12 Main Road, Koteshwara', 'Phone number (2): 0820 252 0000',
+  for (const line of ['Unit of PFA in: Kundapur', 'Address of the applicant: 12 Main Road, Koteshwara, Kundapur, Udupi district, Karnataka 576222', 'Phone number (2): 0820 252 0000',
     'Board member 1: Member 1, age 41, Farmer', 'Board member 7: Member 7, age 37, Farmer', 'Qualifies under: Both A and B',
     'A) Case 1: Case number: 101/2025', 'A) Case 5: Case number: 105/2025', 'B) Rescue 1: Animal: Dog', 'B) Rescue 2: Animal: Cow',
     'Son, daughter or wife of: Daughter of Ramesh Rao', 'Presently working as: Teacher', 'Signature (name typed): Asha Rao']) {

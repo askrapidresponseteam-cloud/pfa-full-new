@@ -22,6 +22,7 @@ const firebase = require('../lib/firebase');
 const S = require('../lib/submissions');
 const RULES = require('../assets/field-rules.js');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
+const { PLACE } = require('./_place');
 
 function call(handler, { method = 'POST', body, query = {}, headers = {}, ip = '198.51.100.7' }) {
   return new Promise((resolve, reject) => {
@@ -45,6 +46,8 @@ const CR = {
   animal: 'Dog', urgency: 'Happening now', location: 'New Delhi, Delhi', pincode: '110001',
   when: 'This morning, around 8', accused: 'Not known', name: 'Asha Rao', mobile: '9876543210', email: 'reporter@example.com'
 };
+/* every form now sends an address (test/_place.js) */
+Object.assign(CR, PLACE);
 const look = (handler, reference, contact) => call(handler, { method: 'GET', query: contact === undefined ? { reference } : { reference, contact } });
 
 test.beforeEach(() => { S.resetForTests(); process.env.PFA_SUBMISSIONS_INBOX = 'off'; });

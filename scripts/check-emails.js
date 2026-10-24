@@ -73,6 +73,8 @@ function fakeDb() {
 }
 
 const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: EMAIL };
+/* every form sends the address block's five fields (24 Oct 2026) */
+const PLACE = { address: '16 MG Road, Ajjarkad', pincode: '576101', city: 'Udupi', state: 'Karnataka', district: 'Udupi' };
 
 /* Every public form, as its page sends it. The same list as
    test/every-form-reaches-admin.test.js, less the caregiver card, which is
@@ -119,7 +121,7 @@ async function freeForm([page, doing, kind, fields], { withEmail = true, configu
     isConfigured: () => configured,
     queue: { async queueEmail() { return { emailId: 'e1', created: true }; }, async recordEmailResult() { return {}; } }
   });
-  const data = Object.assign({}, PERSON, fields);
+  const data = Object.assign({}, PERSON, PLACE, fields);
   if (!withEmail) delete data.email;
   const res = responder();
   await handler(request({ kind, page, data }), res);

@@ -23,6 +23,7 @@ require.cache[authPath] = {
 const { memoryFirestore } = require('./_memory-firestore');
 const firebase = require('../lib/firebase');
 const mailer = require('../lib/caregiver-mail');
+const { PLACE } = require('./_place');
 
 const INBOX = 'gandhim@exmpls.sansad.in';
 const PERSON = 'asha.rao@example.com';
@@ -108,7 +109,7 @@ test('C7 through Resend too, beside the threading headers', async () => {
 });
 
 test('C7 a form\'s confirmation and its copy to the inbox both say so, end to end', async () => {
-  const ask = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', mobile: '9876543210', email: PERSON };
+  const ask = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', ...PLACE, name: 'Asha Rao', mobile: '9876543210', email: PERSON };
   const res = await call(require('../lib/routes/pfa-submissions'), { body: { kind: 'PFA-Q', data: ask, page: 'ask.html', clientRequestId: 'req-auto' } });
   assert.equal(res.statusCode, 200);
   const confirmation = smtp.find((m) => m.to === PERSON);

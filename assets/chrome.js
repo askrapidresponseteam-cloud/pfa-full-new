@@ -873,24 +873,15 @@
   var KEY = 'pfa_visit_counted';
   var shown = null;
 
-  function group(n) {
-    /* Indian grouping: 12,34,567 */
-    var s = String(n);
-    if (s.length <= 3) return s;
-    var last = s.slice(-3), rest = s.slice(0, -3);
-    return rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + last;
-  }
+  /* Plain digits, no thousands comma (owner, 24 Oct 2026: "visit counter
+     has a comma and some white band. fix that. comma isnt necessary"). The
+     comma sat in its own narrow cell without the wheels' shading, which is
+     the white band the owner saw; an odometer has only wheels. */
+  function group(n) { return String(Math.floor(n)); }
 
   function build(text) {
     odo.innerHTML = '';
-    text.split('').forEach(function (ch) {
-      if (ch === ',') {
-        var sep = document.createElement('span');
-        sep.className = 'pfa-tally__sep';
-        sep.textContent = ',';
-        odo.appendChild(sep);
-        return;
-      }
+    text.split('').forEach(function () {
       var cell = document.createElement('span');
       cell.className = 'pfa-tally__d';
       var strip = document.createElement('span');
@@ -907,7 +898,7 @@
 
   function roll(text, animate) {
     var cells = odo.querySelectorAll('.pfa-tally__d');
-    var digits = text.replace(/,/g, '').split('');
+    var digits = text.split('');
     cells.forEach(function (cell, i) {
       var strip = cell.querySelector('.pfa-tally__strip');
       var d = Number(digits[i] || 0);
@@ -924,7 +915,7 @@
     if (typeof total !== 'number' || !isFinite(total) || total < 0) return;
     var text = group(total);
     var first = shown === null;
-    if (first || text.length !== odo.querySelectorAll('.pfa-tally__d, .pfa-tally__sep').length) build(text);
+    if (first || text.length !== odo.querySelectorAll('.pfa-tally__d').length) build(text);
     wrap.hidden = false;
     if (first) {
       /* start every wheel at 0 and let it climb to the real figure once */

@@ -72,7 +72,7 @@
 <title>The Wall | People for Animals</title>
 <meta name="description" content="A community film wall for awareness, the law in plain words, and how a case was handled. Sent in by supporters and volunteers, read by an editor before it goes up. Not for cruelty footage: report that instead.">
 <link rel="stylesheet" href="assets/theatre.css">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 :root{
   --paper:#fff;
@@ -622,7 +622,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/theatre.js"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
@@ -698,7 +698,7 @@ if (root.document && root.document.head) apply(read());
         <!-- Two steps, one at a time (owner, 9 Oct 2026: "open step 1 after
              another"): the video, then you. assets/chrome.js steps it; the
              submit handler below still checks every field before anything goes. -->
-        <form class="form" id="wallForm" data-steps novalidate>
+        <form class="form" id="wallForm" data-steps novalidate data-address-own>
           <ol class="pfa-steps__tabs" aria-hidden="true"><li><span>01</span>The video</li><li><span>02</span>You</li></ol>
           <div class="pfa-steps__bar" aria-hidden="true"><span></span></div>
           <div class="pfa-step" data-step="The video">
@@ -737,6 +737,8 @@ if (root.document && root.document.head) apply(read());
               <input id="wallMobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel">
               <span class="error">An Indian mobile number is 10 digits, starting 6, 7, 8 or 9.</span>
             </div>
+            <!-- your address, whole (owner, 24 Oct 2026): assets/address.js -->
+            <fieldset data-address data-kind="PFA-S" data-legend="Your address"></fieldset>
             <label class="consent" for="wallConsent">
               <input id="wallConsent" name="consent" type="checkbox" required>
               <span>I filmed this or have the right to share it, and I am happy for People for Animals to publish it on the wall with credit.</span>
@@ -866,6 +868,8 @@ if (root.document && root.document.head) apply(read());
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script src="assets/form-preview.js"></script>
 <script src="pfa-forms.js"></script>
 <script>
@@ -898,6 +902,7 @@ if (root.document && root.document.head) apply(read());
       errs += bad(name, !name.value.trim()) ? 1 : 0;
       errs += bad(email, !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.value.trim())) ? 1 : 0;
       errs += bad(mobile, !!mobile.value.trim() && !/^[6-9]\d{9}$/.test(mobileDigits)) ? 1 : 0;
+      if (!window.PFAAddress || window.PFAAddress.check(f.querySelector('[data-address]'))) errs += 1;
       errs += bad(consent, !consent.checked) ? 1 : 0;
       if (errs){ var first = f.querySelector('.is-bad input, .is-bad select'); if (first) first.focus(); return; }
 

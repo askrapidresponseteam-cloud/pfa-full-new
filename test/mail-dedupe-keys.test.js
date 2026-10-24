@@ -67,8 +67,9 @@ function call(handler, { method = 'POST', body, query = {}, headers = {} }) {
   });
 }
 
-const ask = (o) => Object.assign({ question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', mobile: '9876543210', email: 'asha.rao@example.com' }, o || {});
+const ask = (o) => Object.assign({ question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', ...PLACE, name: 'Asha Rao', mobile: '9876543210', email: 'asha.rao@example.com' }, o || {});
 const submit = (data) => call(require('../lib/routes/pfa-submissions'), { body: { kind: 'PFA-Q', data: ask(data), page: 'ask.html', clientRequestId: 'req-' + Math.random() } });
+const { PLACE } = require('./_place');
 
 test('C1 a reference issued a second time still sends its own copy to the inbox', async () => {
   const first = await submit({ name: 'Old Person', email: 'old@example.com', mobile: '9876500001' });

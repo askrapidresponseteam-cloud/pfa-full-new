@@ -23,6 +23,7 @@ const mail = require('../lib/caregiver-mail');
 const firebase = require('../lib/firebase');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
 const { sendReceipt } = require('../lib/routes/payment/response')._private;
+const { PLACE } = require('./_place');
 
 const SITE = 'https://peopleforanimalsindia.org';
 const NOW = Date.UTC(2026, 8, 16, 5, 0);
@@ -216,7 +217,7 @@ test('the submissions API answers with what happened to the email, and a replay 
   const handler = createHandler({ getDb: () => db, deliver: async () => ({ providerId: 'p' }), isConfigured: () => true, now: () => NOW, queue });
   const body = {
     kind: 'PFA-V', clientRequestId: 'once-1',
-    data: { name: 'asha rao', mobile: '9876543210', email: 'asha@example.com', city: 'Udupi', title: 'Volunteer: Rescue Operations' }
+    data: { name: 'asha rao', mobile: '9876543210', email: 'asha@example.com', ...PLACE, title: 'Volunteer: Rescue Operations' }
   };
   const res = await run(handler, request({ body, headers: { host: 'peopleforanimalsindia.org' } }));
   assert.equal(res.statusCode, 200, JSON.stringify(res.body));

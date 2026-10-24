@@ -25,6 +25,8 @@ const FIELDS = require('../lib/submission-fields.js');
 const ROOT = path.join(__dirname, '..');
 const RULES = fs.readFileSync(path.join(ROOT, 'assets', 'field-rules.js'), 'utf8');
 const VALIDATE = fs.readFileSync(path.join(ROOT, 'assets', 'field-validate.js'), 'utf8');
+const INDIA = fs.readFileSync(path.join(ROOT, 'assets', 'india-districts.js'), 'utf8');
+const ADDRESS = fs.readFileSync(path.join(ROOT, 'assets', 'address.js'), 'utf8');
 
 /* The page, with everything it loads from elsewhere stood in for: this is
    about the page's own script and the shared rules, not about the network. */
@@ -38,15 +40,21 @@ function boot(file) {
   const w = dom.window;
   const sent = [];
 
+  /* pfa-forms.js, as far as this needs it: what the page collected, with the
+     address block's fields added the way its submit() adds them */
+  const placed = (kind, data) => {
+    const out = w.PFAAddress ? w.PFAAddress.merge(kind, data) : { data };
+    if (!out.error) sent.push({ kind, data: out.data });
+  };
   w.PFAForms = {
     wire(form, config) {
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         const data = config.collect();
-        if (data) sent.push({ kind: config.kind, data });
+        if (data) placed(config.kind, data);
       });
     },
-    submit(kind, data) { sent.push({ kind, data }); return Promise.resolve('PFA-X-2026-00001'); },
+    submit(kind, data) { placed(kind, data); return Promise.resolve('PFA-X-2026-00001'); },
     shrink() { return Promise.resolve('data:image/jpeg;base64,x'); }
   };
   w.PFA_CHROME = { recolourCursor() {} };
@@ -56,6 +64,8 @@ function boot(file) {
 
   w.eval(RULES);
   w.eval(VALIDATE);
+  w.eval(INDIA);
+  w.eval(ADDRESS);
   for (const m of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) {
     if (/\bsrc=/.test(m[1])) continue;
     const type = (m[1].match(/type\s*=\s*["']([^"']+)["']/) || [])[1];
@@ -63,8 +73,10 @@ function boot(file) {
     try { w.eval(m[2]); } catch (error) { errors.push(`inline script: ${error.message}`); }
   }
   w.document.dispatchEvent(new w.Event('DOMContentLoaded', { bubbles: true }));
+  w.PFAAddress.mountAll();
 
   const doc = w.document;
+  const addr = (key) => doc.querySelector(`[data-address] [data-addr="${key}"]`);
   return {
     w, doc, errors, sent,
     /* Typing, as a person does it: the keystroke filter then the tidy on leaving. */
@@ -77,6 +89,18 @@ function boot(file) {
       return el.value;
     },
     set(id, value) { const el = doc.getElementById(id); assert.ok(el, `${file} has no #${id}`); el.value = value; return el; },
+    /* the address block (assets/address.js): typed into like any box */
+    typeAddress(key, value) {
+      const el = addr(key);
+      assert.ok(el, `${file} has no address box for ${key}`);
+      el.value = value;
+      el.dispatchEvent(new w.Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+      el.dispatchEvent(new w.Event('blur', { bubbles: false }));
+      return el.value;
+    },
+    address(place) {
+      for (const key of ['state', 'district', 'address', 'city', 'pincode']) if (place[key]) this.typeAddress(key, place[key]);
+    },
     check(id) { const el = doc.getElementById(id); assert.ok(el, `${file} has no #${id}`); el.checked = true; return el; },
     submit(selector) {
       doc.querySelector(selector).dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
@@ -94,11 +118,12 @@ test('events.html: what the page sends is what the API asks for', () => {
   /* The shared rules are doing their work on the way in. */
   assert.equal(page.type('evName', 'Meena 7 Iyer'), 'Meena Iyer', 'a digit reached a name box');
   assert.equal(page.type('evMobile', '+91 98765 43210'), '9876543210', 'the country code was kept');
-  assert.equal(page.type('evCity', 'kundapur'), 'Kundapur', 'the town was not tidied');
+  assert.equal(page.typeAddress('city', 'kundapur'), 'Kundapur', 'the town was not tidied');
+  assert.equal(page.typeAddress('pincode', '57a6b2c2d2'), '576222', 'a letter reached the PIN box');
 
   page.set('evKind', 'An adoption drive');
   page.set('evEmail', 'asha@example.com');
-  page.set('evPlace', 'Near the bus stand');
+  page.address({ state: 'Karnataka', district: 'Udupi', address: 'Near the bus stand, Main Road' });
   page.set('evNotes', 'About forty animals are fed here.');
   page.submit('form');
 
@@ -106,6 +131,8 @@ test('events.html: what the page sends is what the API asks for', () => {
   const { kind, data } = page.sent[0];
   assert.equal(kind, 'PFA-EV');
   assert.deepEqual(serverSays(kind, data), [], `the API would refuse what the page sent: ${JSON.stringify(data)}`);
+  assert.equal(data.pincode, '576222', 'the address travels with it');
+  assert.equal(data.district, 'Udupi');
 });
 
 test('events.html: the page refuses what the API would refuse', () => {
@@ -122,12 +149,12 @@ test('report.html: a whole cruelty report survives the round trip', () => {
 
   assert.equal(page.type('name', 'karthik  dhanya'), 'Karthik Dhanya');
   assert.equal(page.type('mobile', '08105250299'), '8105250299', 'the trunk zero was kept');
-  assert.equal(page.type('pincode', '57a6b2c2d2'), '576222', 'a letter reached the PIN box');
+  assert.equal(page.typeAddress('pincode', '57a6b2c2d2'), '576222', 'a letter reached the PIN box');
 
   page.set('what', 'A man is beating a dog outside the market with a stick.');
   page.set('animal', 'Dog');
   page.set('urgency', 'Happening now');
-  page.set('where', 'Ashraya Ankadakatte, Kundapur');
+  page.address({ state: 'Karnataka', district: 'Udupi', address: 'Ashraya Ankadakatte, near the temple', city: 'Kundapur' });
   page.check('consent');
   page.set('email', 'asha@example.com');
   page.submit('#reportForm');
@@ -138,6 +165,8 @@ test('report.html: a whole cruelty report survives the round trip', () => {
   assert.deepEqual(serverSays(kind, data), [], `the API would refuse this report: ${JSON.stringify(data)}`);
   assert.equal(data.animal, 'Dog', 'the choice must be one the spec lists');
   assert.equal(data.mobile, '8105250299');
+  assert.equal(data.address, 'Ashraya Ankadakatte, Near The Temple', 'where it is, tidied');
+  assert.equal(data.pincode, '576222');
 });
 
 test('report.html: an unfinished report never leaves the page', () => {
@@ -177,6 +206,9 @@ test('cinekind.html: a whole nomination survives the round trip', () => {
   page.set('ckLink', 'https://maakadoodh.in/');
   page.set('ckWhy', 'A film that made the case for animals on a national stage.');
   page.set('ckEmail', 'asha@example.com');
+  page.submit('#ckNominate');
+  assert.equal(page.sent.length, 0, 'not without the nominator\'s address');
+  page.address({ state: 'Karnataka', district: 'Udupi', address: '12 Main Road, Koteshwara', city: 'Kundapur', pincode: '576222' });
   page.submit('#ckNominate');
 
   assert.equal(page.sent.length, 1, 'the nomination did not send');

@@ -19,6 +19,7 @@ const path = require('node:path');
 const { EventEmitter } = require('node:events');
 
 const FIELDS = require('../lib/submission-fields.js');
+const { PLACE } = require('./_place');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
 
 const ROOT = path.join(__dirname, '..');
@@ -185,7 +186,12 @@ const REPORT = { email: 'asha@example.com',
   what: 'A man is beating a dog outside the market with a stick.',
   animal: 'Dog',
   urgency: 'Happening now',
-  location: 'Ashraya Ankadakatte, Kundapur',
+  /* where it is: the address block every form carries (24 Oct 2026) */
+  address: 'Ashraya Ankadakatte, near the temple',
+  pincode: '576222',
+  city: 'Kundapur',
+  state: 'Karnataka',
+  district: 'Udupi',
   name: 'karthik dhanya',
   mobile: '8105250299'
 };
@@ -291,7 +297,7 @@ test('the scheduled worker presents a token instead of locking itself out', () =
 });
 
 test('The Wall takes a link to the six platforms it is for, and nothing else', () => {
-  const base = { wall: 'Short form, under a minute', name: 'Asha Rao', email: 'asha@example.com' };
+  const base = { wall: 'Short form, under a minute', name: 'Asha Rao', email: 'asha@example.com', ...PLACE };
   const errorsFor = (url) => FIELDS.validate('PFA-S', { ...base, url }).errors;
 
   for (const good of ['https://www.youtube.com/watch?v=x', 'https://youtu.be/x', 'https://vimeo.com/1',
@@ -317,4 +323,78 @@ test('the platforms the API allows are the platforms the page offers', () => {
   const onThePage = declared[1].split(',').map((s) => s.trim().replace(/^'|'$/g, '')).filter(Boolean);
   assert.deepEqual([...onThePage].sort(), [...FIELDS.KINDS['PFA-S'].hosts.url].sort(),
     'wall.html and lib/submission-fields.js disagree about what The Wall is for');
+});
+
+/* ---- the address, on every form (owner, 24 Oct 2026) ----------------------
+   Forwarding Maneka Gandhi: "This is NOT working out. 90% of people filling
+   in this rubbish do not give any addresses, not even the city", then "can
+   you ensure all the forms have the address clearly captured and sent to
+   gandhim email ID" and "filling in the address in mandatory. and it should
+   be in the right format. and pincode has to be valid. all field level
+   intelligence and validations must exist". The page's block
+   (assets/address.js) asks; this is the rule a direct post meets too. */
+
+const ADDRESS_KEYS = ['address', 'pincode', 'city', 'state', 'district'];
+
+test('every form the server knows requires the address, in the order the block asks it', () => {
+  for (const kind of Object.keys(FIELDS.KINDS)) {
+    const fields = FIELDS.validate(kind, { name: 'Asha Rao', email: 'asha@example.com' }).errors.map((e) => e.field);
+    assert.deepEqual(fields.filter((f) => ADDRESS_KEYS.includes(f)), ADDRESS_KEYS, `${kind} takes no address`);
+    const placed = FIELDS.validate(kind, { name: 'Asha Rao', email: 'asha@example.com', ...PLACE }).errors.map((e) => e.field);
+    assert.deepEqual(placed.filter((f) => ADDRESS_KEYS.includes(f)), [], `${kind} refuses a good address`);
+  }
+});
+
+test('the server and the page say the same words', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'assets', 'address.js'), 'utf8');
+  for (const [key, message] of Object.entries(FIELDS.ADDRESS)) {
+    assert.ok(src.includes(`${key}: '${message}'`), `assets/address.js says something else for ${key}`);
+  }
+  assert.ok(src.includes(`addressHere: '${FIELDS.ADDRESS_HERE['PFA-CR']}'`), 'and for where the cruelty is');
+  const cr = FIELDS.validate('PFA-CR', Object.assign({}, REPORT, { address: '' })).errors;
+  assert.deepEqual(cr, [{ field: 'address', message: 'Add where it is: house or shop, street, area, and a landmark.' }]);
+});
+
+test('an address has to be one: a house and a street, not a number, a word or the town again', () => {
+  const said = (address) => FIELDS.validate('PFA-Q', { question: 'Is there a vet near the market?', topic: 'Something else',
+    name: 'Asha Rao', email: 'asha@example.com', ...PLACE, address }).errors.filter((e) => e.field === 'address').map((e) => e.message)[0] || '';
+  assert.equal(said('12'), 'Add the full address: house or building, street and area.');
+  assert.equal(said('1234567, 89'), 'Add the street or area by name, not just numbers.');
+  assert.equal(said('New Delhi'), 'Add the house or building and the street or area, not just the place name.');
+  assert.equal(said('Barakhamba'), 'Add the house or building and the street or area.');
+  assert.equal(said('House 14, Barakhamba Road'), '');
+  assert.equal(said('https://maps.app.goo.gl/1xIqJuQvCkSlhjYk8'), '', 'a map link is a place too');
+});
+
+test('a PIN is six digits, starts 1 to 8, is one India Post uses, and is in the state given', () => {
+  const said = (pincode, state) => FIELDS.validate('PFA-Q', { question: 'Is there a vet near the market?', topic: 'Something else',
+    name: 'Asha Rao', email: 'asha@example.com', ...PLACE, ...(state ? { state, district: '' } : {}), pincode })
+    .errors.filter((e) => e.field === 'pincode').map((e) => e.message)[0] || '';
+  assert.equal(said('11000'), 'A PIN code is 6 digits and does not start with 0.');
+  assert.equal(said('011000'), 'A PIN code is 6 digits and does not start with 0.');
+  assert.equal(said('990000'), 'That is not a PIN code in India. Check the six digits.');
+  assert.equal(said('700016'), 'PIN code 700016 is in West Bengal, not Delhi. Check the PIN code or the state.');
+  assert.equal(said('403001', 'Kerala'), 'PIN code 403001 is in Goa or Maharashtra, not Kerala. Check the PIN code or the state.');
+  assert.equal(said('110 001'), '', 'a space typed in the middle is not a mistake');
+  assert.equal(said('744101', 'West Bengal'), '', 'a prefix two states share passes in either');
+});
+
+test('a state comes from the list, and the district from that state', () => {
+  const errs = (o) => FIELDS.validate('PFA-Q', { question: 'Is there a vet near the market?', topic: 'Something else',
+    name: 'Asha Rao', email: 'asha@example.com', ...PLACE, ...o }).errors;
+  assert.deepEqual(errs({ state: 'Atlantis' }).map((e) => [e.field, e.message]), [['state', 'Choose the state from the list.']]);
+  assert.deepEqual(errs({ district: 'Udupi' }).map((e) => [e.field, e.message]), [['district', 'Choose a district in Delhi.']]);
+  /* "North 24 Parganas" is a district, digits and all */
+  assert.deepEqual(errs({ state: 'West Bengal', district: 'North 24 Parganas', pincode: '743201', city: 'Barasat' }), []);
+});
+
+test('what is stored is tidy: the PIN as digits, the district as the list spells it', async () => {
+  const db = fakeDb();
+  const res = await post(handler(db), { kind: 'PFA-CR', data: Object.assign({}, REPORT, { pincode: '576 222', district: ' Udupi ' }) });
+  assert.equal(res.statusCode, 200, JSON.stringify(res.body));
+  const stored = db.store.get(`submissions/${res.body.reference}`).fields;
+  assert.equal(stored.pincode, '576222');
+  assert.equal(stored.district, 'Udupi');
+  assert.equal(stored.state, 'Karnataka');
+  assert.equal(stored.address, 'Ashraya Ankadakatte, Near The Temple');
 });

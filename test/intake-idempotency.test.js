@@ -20,6 +20,7 @@ const { memoryFirestore } = require('./_memory-firestore');
 const firebase = require('../lib/firebase');
 const S = require('../lib/submissions');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
+const { PLACE } = require('./_place');
 
 const NOW = Date.UTC(2026, 9, 8, 6, 0);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -53,6 +54,8 @@ const CR = {
   animal: 'Dog', urgency: 'Happening now', location: 'New Delhi, Delhi', pincode: '110001',
   when: 'This morning, around 8', accused: 'Not known', name: 'Asha Rao', mobile: '9876543210', email: 'reporter@example.com'
 };
+/* every form now sends an address (test/_place.js) */
+Object.assign(CR, PLACE);
 const PHOTO = 'data:image/png;base64,' + Buffer.concat([Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]), Buffer.alloc(64, 3)]).toString('base64');
 
 const records = (db) => Object.keys(db.dump()).filter((k) => /^submissions\/[^/]+$/.test(k));

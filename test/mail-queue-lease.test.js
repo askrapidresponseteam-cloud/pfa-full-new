@@ -79,6 +79,7 @@ function call(handler, { method = 'POST', body, query = {}, headers = {} }) {
 
 const worker = () => call(require('../lib/routes/caregiver/email-worker'), { headers: { authorization: 'Bearer cron-secret' } });
 const resend = (body) => call(require('../lib/routes/admin/mail-check'), { body: Object.assign({ action: 'resend' }, body || {}), headers: { authorization: 'Bearer test-admin' } });
+const { PLACE } = require('./_place');
 const rows = () => Object.entries(db.dump()).filter(([k]) => /^caregiverEmails\/[^/]+$/.test(k)).map(([k, v]) => Object.assign({ id: k.split('/')[1] }, v));
 const past = () => new Date(Date.now() - 1000).toISOString();
 const sentTo = (address) => smtp.filter((m) => m.to === address).length;
@@ -118,7 +119,7 @@ test('C4 Resend leaves alone a copy the form is still sending', async () => {
   const held = new Promise((r) => { release = r; });
   let first = true;
   gate = async (message) => { if (message.to === INBOX && first) { first = false; await held; } };
-  const ask = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', mobile: '9876543210', email: PERSON };
+  const ask = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', ...PLACE, name: 'Asha Rao', mobile: '9876543210', email: PERSON };
   const pending = call(require('../lib/routes/pfa-submissions'), { body: { kind: 'PFA-Q', data: ask, page: 'ask.html', clientRequestId: 'req-1' } });
   await new Promise((r) => setTimeout(r, 150));   // the form is mid-send
   const pressed = await resend();

@@ -242,6 +242,15 @@ function memoryFirestore(options) {
       id: path.split('/').pop(),
       path,
       doc: (id) => docRef(`${path}/${id == null ? `auto${(auto += 1)}${Date.now().toString(36)}` : id}`),
+      /* as Firestore's: every document here, including one that does not
+         exist itself but has documents under it */
+      async listDocuments() {
+        await pause();
+        const depth = path.split('/').length;
+        const ids = new Set();
+        for (const k of store.keys()) if (k.startsWith(`${path}/`)) ids.add(k.split('/')[depth]);
+        return [...ids].sort().map((id) => docRef(`${path}/${id}`));
+      },
       async add(data) { const ref = docRef(`${path}/auto${(auto += 1)}${Date.now().toString(36)}`); await ref.set(data); return ref; }
     });
   }

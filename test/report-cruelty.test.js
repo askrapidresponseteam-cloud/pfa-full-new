@@ -8,6 +8,7 @@ const path = require('node:path');
 const { EventEmitter } = require('node:events');
 const S = require('../lib/submissions');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
+const { PLACE } = require('./_place');
 
 const ROOT = path.join(__dirname, '..');
 const page = fs.readFileSync(path.join(ROOT, 'report.html'), 'utf8');
@@ -49,7 +50,7 @@ test('the page posts a cruelty report and the server files it under its own kind
   const handler = createHandler({ getDb: () => db, deliver: async () => ({ id: 'm1' }), isConfigured: () => false, now: () => Date.UTC(2026, 7, 27) });
   const res = await run(handler, request({ body: {
     kind: 'PFA-CR', page: 'report.html',
-    data: { what: 'A man beat a dog with a stick outside the market', animal: 'Dog', urgency: 'Happening now', location: 'MG Road, Bengaluru', name: 'Asha', mobile: '9876543210', email: 'asha@example.in' },
+    data: { what: 'A man beat a dog with a stick outside the market', animal: 'Dog', urgency: 'Happening now', ...PLACE, name: 'Asha', mobile: '9876543210', email: 'asha@example.in' },
     photos: ['data:image/jpeg;base64,' + JPEG.toString('base64')]
   } }));
   assert.equal(res.body.ok, true, JSON.stringify(res.body));
@@ -83,7 +84,7 @@ test('"Ask us anything" is a quick action with its own page, filed as a help des
   const db = fakeDb();
   const handler = createHandler({ getDb: () => db, deliver: async () => ({ id: 'm1' }), isConfigured: () => false, now: () => Date.UTC(2026, 7, 27) });
   const res = await run(handler, request({ body: { kind: 'PFA-Q', page: 'ask.html',
-    data: { question: 'Can I feed the dogs in my society?', topic: 'Animal law', state: 'Karnataka', city: 'Udupi', name: 'Asha', email: 'asha@example.in' } } }));
+    data: { question: 'Can I feed the dogs in my society?', topic: 'Animal law', ...PLACE, name: 'Asha', email: 'asha@example.in' } } }));
   assert.equal(res.body.ok, true, JSON.stringify(res.body));
   assert.match(res.body.reference, /^PFA-Q-2026-\d{5}$/);
   const followed = await run(handler, request({ method: 'GET', query: { reference: res.body.reference, contact: 'asha@example.in' } }));
@@ -119,7 +120,7 @@ test('Careers: one footer link, a page of real roles, and applications filed as 
   const db = fakeDb();
   const handler = createHandler({ getDb: () => db, deliver: async () => ({ id: 'm1' }), isConfigured: () => false, now: () => Date.UTC(2026, 7, 27) });
   const res = await run(handler, request({ body: { kind: 'PFA-J', page: 'careers.html',
-    data: { role: 'Zonal Head \u2014 Central 1', roleId: 'zonal-head', zone: 'Central 1', name: 'Asha', city: 'Lucknow', mobile: '9876543210', email: 'asha@example.in',
+    data: { role: 'Zonal Head \u2014 Central 1', roleId: 'zonal-head', zone: 'Central 1', name: 'Asha', ...PLACE, mobile: '9876543210', email: 'asha@example.in',
       pfaMember: 'Yes', unit: 'PFA Lucknow', background: 'Eight years in rescue', travel: 'Yes',
       'Q1 Poisoning and FIR refusal': 'Secure evidence, vet certificate, complaint to SP, magistrate under 175(3).', 'Q2 First ninety days': 'Sitapur and Hardoi first.' } } }));
   assert.equal(res.body.ok, true, JSON.stringify(res.body));

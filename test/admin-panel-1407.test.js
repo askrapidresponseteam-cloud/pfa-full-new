@@ -696,7 +696,7 @@ test('the search box says so when it forgives a spelling', async () => {
 /* ---- 23 Oct 2026: a caregiver application from 21 to 23 Oct never reached
    gandhim; the note says why, truthfully, and the button sends it --------- */
 
-test('caregiver applications that missed gandhim are named as such, not as "email was not set up"', async () => {
+test('applications kept from gandhim from 21 to 23 Oct are named as such, not as "email was not set up"', async () => {
   const row = (reference, kind, kindLabel) => ({ reference, kind, kindLabel, createdAt: AT(8, 2) });
   const base = { state: 'ok', failing: [], login: { failing: false }, paymentInboxes: ['pfadcmho@gmail.com', 'ozairhusain@gmail.com'], sentCopies: { on: false } };
   const note = async (missed) => {
@@ -707,10 +707,85 @@ test('caregiver applications that missed gandhim are named as such, not as "emai
     return { said, button: button ? button.textContent : '' };
   };
   const cg = await note([row('PFA-CG-2026-00012', 'PFA-CG', 'Colony caregiver application')]);
-  assert.equal(cg.said, '1 submission was never copied to gandhim@exmpls.sansad.in. It is a caregiver application that went only to the payments inboxes (21 to 23 Oct). Each is still on record here; press the button below to send its copy now.');
+  assert.equal(cg.said, '1 submission was never copied to gandhim@exmpls.sansad.in. It is from 21 to 23 Oct, when caregiver, membership and volunteer applications did not come to this inbox. Each is still on record here; press the button below to send its copy now.');
   assert.equal(cg.button, 'Send that submission to the inbox');
+  const held = await note([row('PFA-MEM-2026-00004', 'PFA-MEM', 'Membership'), row('PFA-V-2026-00031', 'PFA-V', 'Volunteer application')]);
+  assert.match(held.said, /^2 submissions were never copied to gandhim@exmpls\.sansad\.in\. They are from 21 to 23 Oct/);
+  assert.equal(held.button, 'Send those 2 submissions to the inbox');
   const mixed = await note([row('PFA-CG-2026-00012', 'PFA-CG', 'Colony caregiver application'), row('PFA-Q-2026-00031', 'PFA-Q', 'Help desk query')]);
-  assert.match(mixed.said, /Some arrived while email was not set up; the caregiver applications went only to the payments inboxes \(21 to 23 Oct\)\./);
+  assert.match(mixed.said, /Some arrived while email was not set up; the rest are from 21 to 23 Oct/);
   const forms = await note([row('PFA-Q-2026-00031', 'PFA-Q', 'Help desk query')]);
   assert.match(forms.said, /It arrived while email was not set up\./, 'any other kind is said as before');
+});
+
+/* ---- 23 Oct 2026: "dont need any record of 20 oct and earlier cause all
+   of them are test data" ---------------------------------------------- */
+
+test('a super administrator sees the test data once, removes it with two presses, and is told what went', async () => {
+  let gone = false;
+  const p = await panel((url, method, body) => {
+    if (url === '/api/admin/test-data' && method === 'GET') {
+      return gone
+        ? { ok: true, until: '20 Oct 2026', counts: { cases: 0, payments: 0, cards: 0, emails: 0, records: 0 }, moved: { at: AT(8, 9), counts: { cases: 41 } } }
+        : { ok: true, until: '20 Oct 2026', counts: { cases: 41, payments: 18, cards: 1, emails: 120, records: 260 }, moved: null };
+    }
+    if (url === '/api/admin/test-data' && method === 'POST') {
+      assert.deepEqual(body, { action: 'archive' });
+      gone = true;
+      return { ok: true, action: 'archive', went: { cases: 41, payments: 18, cards: 1, emails: 120, records: 260, documents: 300 }, taken: 0, more: false };
+    }
+    return undefined;
+  });
+  await settle();
+  const box = p.$('#testData');
+  assert.ok(box && !box.hidden, 'shown');
+  assert.equal(p.text('#testData .state'), '41 forms, 18 payments, 1 colony card from 20 Oct 2026 and earlier.');
+  assert.ok(p.$('#testData .hint').classList.contains('is-folded'), 'the explanation is behind the (i)');
+  p.$('#testOut').click();
+  await settle();
+  assert.ok(!p.calls.some((c) => c.method === 'POST' && c.url === '/api/admin/test-data'), 'one press only asks');
+  assert.equal(p.text('#testYes'), 'Yes, remove them');
+  p.$('#testYes').click();
+  await settle(80);
+  assert.equal(p.calls.filter((c) => c.method === 'POST' && c.url === '/api/admin/test-data').length, 1);
+  assert.equal(p.text('#testData .state'), 'Removed 41 forms, 18 payments, 1 colony card. Everything here is from 21 Oct 2026 on.');
+  assert.ok(p.calls.filter((c) => c.url === '/api/admin/metrics').length >= 2, 'the overview is read again');
+});
+
+test('with no test data left, or for anyone but a super administrator, there is no box', async () => {
+  const none = await panel((url, method) => (url === '/api/admin/test-data' && method === 'GET'
+    ? { ok: true, counts: { cases: 0, payments: 0, cards: 0, emails: 0, records: 0 }, moved: { at: AT(8, 9) } } : undefined));
+  await settle();
+  assert.ok(none.$('#testData').hidden);
+  const staff = await panel(undefined, { uid: 'u2', email: 'staff@pfa.test', name: 'Staff', role: 'staff', modules: ['submissions'] });
+  await settle();
+  assert.equal(staff.$('#testData'), null);
+  assert.ok(!staff.calls.some((c) => c.url.includes('/api/admin/test-data')), 'not even asked');
+});
+
+test('the panel reads the very shape the server sends for test data', () => {
+  /* the reviewer's catch, 23 Oct 2026: the panel looked for a count the
+     server had stopped sending, and the box never showed */
+  const html = read('admin.html');
+  const src = read('lib/test-data.js');
+  assert.match(html, /if \(!\(Number\(c\.records\) > 0\)\) \{/);
+  assert.match(src, /const counts = \{ cases: S\.size, payments: T\.size, cards: C\.size, emails: E\.size, records: units\.length \};/);
+  assert.match(read('lib/routes/admin/test-data.js'), /\{ ok: true, action: 'archive', went: done\.moved, taken: done\.taken, more: done\.more \}/);
+  assert.match(html, /if \(r\.more\) return testData\('Most of it is out\. Press again to finish\.'\);/);
+});
+
+test('a part-way press shows the button again to finish', async () => {
+  let calls = 0;
+  const p = await panel((url, method) => {
+    if (url === '/api/admin/test-data' && method === 'GET') return { ok: true, counts: { cases: 2, payments: 0, cards: 0, emails: 0, records: calls ? 3 : 9 }, moved: null };
+    if (url === '/api/admin/test-data' && method === 'POST') { calls += 1; return { ok: true, action: 'archive', went: { cases: 1, records: 6 }, taken: 0, more: true }; }
+    return undefined;
+  });
+  await settle();
+  p.$('#testOut').click();
+  await settle();
+  p.$('#testYes').click();
+  await settle(80);
+  assert.equal(p.text('#testSay'), 'Most of it is out. Press again to finish.');
+  assert.ok(p.$('#testOut'), 'and the button to finish it');
 });

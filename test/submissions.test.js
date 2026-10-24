@@ -13,6 +13,7 @@ const { EventEmitter } = require('node:events');
 const S = require('../lib/submissions');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
 const mail = require('../lib/caregiver-mail');
+const { PLACE } = require('./_place');
 
 /* Just enough of Firestore: collections of documents, get/create/set, and a
    transaction that runs its body against the same store. */
@@ -99,7 +100,7 @@ test('bad input is refused before any number is spent', async () => {
   const db = fakeDb();
   const handler = handlerWith(db);
   assert.equal((await run(handler, request({ body: { kind: 'PFA-X', data: {} } }))).statusCode, 400);
-  const invalid = await run(handler, request({ body: { kind: 'PFA-Q', data: { question: 'Where do I take a hurt crow?', topic: 'Something else', state: 'Karnataka', city: 'Udupi', name: 'Asha Rao', email: 'asha@example.com', contact: 'not a contact' } } }));
+  const invalid = await run(handler, request({ body: { kind: 'PFA-Q', data: { question: 'Where do I take a hurt crow?', topic: 'Something else', ...PLACE, name: 'Asha Rao', email: 'asha@example.com', contact: 'not a contact' } } }));
   assert.equal(invalid.statusCode, 422);
   assert.equal(invalid.body.fields[0].field, 'contact');
   assert.equal(db.store.has('counters/submissions'), false, 'no counter was touched');
@@ -211,7 +212,7 @@ test('an acknowledgement goes to the email given, and never delays or fails the 
   const sent = [];
   const db = fakeDb();
   const handler = handlerWith(db, { isConfigured: () => true, deliver: async (m) => { sent.push(m); return { id: 'ok' }; } });
-  const res = await run(handler, request({ body: { kind: 'PFA-Q', data: { question: 'Do you take in birds?', topic: 'An animal I found or feed', state: 'Karnataka', city: 'Udupi', name: 'meena iyer', email: 'meena@example.com' } }, headers: { host: 'peopleforanimalsindia.org' } }));
+  const res = await run(handler, request({ body: { kind: 'PFA-Q', data: { question: 'Do you take in birds?', topic: 'An animal I found or feed', ...PLACE, name: 'meena iyer', email: 'meena@example.com' } }, headers: { host: 'peopleforanimalsindia.org' } }));
   assert.equal(res.body.acknowledged, true);
   assert.equal(sent[0].to, 'meena@example.com');
   assert.equal(sent[0].template, 'submission_received');
@@ -220,7 +221,7 @@ test('an acknowledgement goes to the email given, and never delays or fails the 
 
   const slow = handlerWith(fakeDb(), { isConfigured: () => true, deliver: () => new Promise(() => {}) });
   const started = Date.now();
-  const res2 = await run(slow, request({ body: { kind: 'PFA-Q', data: { email: 'meena@example.com', question: 'Do you take in injured birds at the Delhi unit?', topic: 'Something else', state: 'Karnataka', city: 'Udupi', name: 'Meena Iyer', contact: 'x@y.in' } } }));
+  const res2 = await run(slow, request({ body: { kind: 'PFA-Q', data: { email: 'meena@example.com', question: 'Do you take in injured birds at the Delhi unit?', topic: 'Something else', ...PLACE, name: 'Meena Iyer', contact: 'x@y.in' } } }));
   assert.equal(res2.statusCode, 200, 'the number is issued even if mail hangs');
   assert.equal(res2.body.acknowledged, false);
   assert.ok(Date.now() - started < 4000);
@@ -343,7 +344,7 @@ test('a submission cannot be deleted or altered from the public site, the panel,
 test('a double press or a retry after a lost answer is one submission with one number', async () => {
   const db = fakeDb();
   const handler = handlerWith(db);
-  const body = { kind: 'PFA-Q', data: { question: 'Where do I take a hurt crow?', topic: 'Something else', state: 'Karnataka', city: 'Udupi', name: 'Asha Rao', email: 'asha@example.com', message: 'Where do I take a hurt crow?' }, clientRequestId: 'k-1' };
+  const body = { kind: 'PFA-Q', data: { question: 'Where do I take a hurt crow?', topic: 'Something else', ...PLACE, name: 'Asha Rao', email: 'asha@example.com', message: 'Where do I take a hurt crow?' }, clientRequestId: 'k-1' };
 
   const first = await run(handler, request({ body }));
   assert.equal(first.body.ok, true, JSON.stringify(first.body));

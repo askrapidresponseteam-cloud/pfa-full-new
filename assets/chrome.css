@@ -554,9 +554,6 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
   transition:transform 1.05s cubic-bezier(.2,.85,.2,1)}
 .pfa-tally__strip span{display:flex;align-items:center;justify-content:center;
   height:1.9em;width:100%;padding-top:.06em;color:var(--ff-fg)}
-.pfa-tally__sep{align-self:flex-end;padding:0 1px .42em;color:var(--ff-muted);
-  font-size:.8em;line-height:1;border-left:1px solid rgba(17,17,17,.13)}
-.pfa-tally__sep + .pfa-tally__d{border-left:0}
 /* The digit that just changed. On the black footer this was a white glow
    behind a white numeral, which read as the wheel catching the light. The
    same declaration inverted for paper is a dark blur behind a dark numeral,

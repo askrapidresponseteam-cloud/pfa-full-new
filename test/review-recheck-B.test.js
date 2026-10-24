@@ -8,6 +8,7 @@ const assert = require('node:assert/strict');
 const H = require('./_review-recheck-harness');
 const S = require('../lib/submissions');
 const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('../lib/ccavenue');
+const { PLACE } = require('./_place');
 
 const WORKING_KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 let W;
@@ -22,6 +23,8 @@ const CR = {
   animal: 'Dog', urgency: 'Happening now', location: 'New Delhi, Delhi', pincode: '110001',
   when: 'This morning, around 8', accused: 'Not known', name: 'Asha Rao', mobile: '9876543210', email: 'reporter@example.com'
 };
+/* every form now sends an address (test/_place.js) */
+Object.assign(CR, PLACE);
 
 function build(db, { deliverDelay = 0, mails, queue = null, now } = {}) {
   return require('../lib/routes/pfa-submissions')._private.createHandler({

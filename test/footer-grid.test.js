@@ -105,6 +105,19 @@ test('the counter is one framed instrument, and the script turns the wheels by t
   assert.match(js, new RegExp(`translateY\\(' \\+ \\(-d \\* ${h.replace('.', '\\.')}\\) \\+ 'em\\)'`));
 });
 
+/* Owner, 24 Oct 2026: "visit counter has a comma and some white band. fix
+   that. comma isnt necessary". The comma had a narrow cell of its own,
+   without the wheels' shading, which showed as a white band. */
+test('the counter shows plain digits: no comma and no comma cell', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'assets', 'chrome.js'), 'utf8');
+  const tally = js.slice(js.indexOf('visit tally'), js.indexOf('Rows that scroll sideways'));
+  assert.doesNotMatch(tally, /pfa-tally__sep|','/, 'no separator is built');
+  assert.doesNotMatch(CSS, /pfa-tally__sep/, 'and none is styled');
+  const group = new Function(`${/function group\(n\) \{[^\n]*\}/.exec(tally)[0]}; return group;`)();
+  assert.equal(group(1170), '1170');
+  assert.equal(group(1234567), '1234567');
+});
+
 test('every page the footer links to exists', () => {
   for (const a of doc.querySelectorAll('.pfa-footer a[href]')) {
     const href = a.getAttribute('href');

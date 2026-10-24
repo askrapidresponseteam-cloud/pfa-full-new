@@ -6,6 +6,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const H = require('./_review-recheck-harness');
 const S = require('../lib/submissions');
+const { PLACE } = require('./_place');
 
 let W;
 test.beforeEach(() => { W = H.fresh(); process.env.PFA_SUBMISSIONS_INBOX = H.INBOX; });
@@ -16,6 +17,8 @@ const CR = {
   animal: 'Dog', urgency: 'Happening now', location: 'New Delhi, Delhi', pincode: '110001',
   when: 'This morning, around 8', accused: 'Ramesh, dairy owner, 98111 22333', name: 'Asha Rao', mobile: '9876543210', email: 'reporter@example.com'
 };
+/* every form now sends an address (test/_place.js) */
+Object.assign(CR, PLACE);
 
 test('B6-legacy a report filed BEFORE the fix (keys saved by the old rule) still opens for the accused', async () => {
   /* what the old contactKeysFor saved: every field holding an @ or ten digits */

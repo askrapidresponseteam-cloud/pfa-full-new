@@ -66,13 +66,14 @@ function call(handler, { method = 'POST', body, query = {}, headers = {} }) {
 }
 
 const caseRoute = () => require('../lib/routes/admin/case');
+const { PLACE } = require('./_place');
 const act = (body) => call(caseRoute(), { body, headers: ADMIN });
 
 async function seeded() {
   const res = await call(require('../lib/routes/pfa-submissions'), {
     body: {
       kind: 'PFA-Q', page: 'ask.html', clientRequestId: 'req-' + Math.random(),
-      data: { question: 'A community dog near the market has a wound on its leg and needs a vet soon.', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', contact: '9876543210', email: 'asha@example.com' }
+      data: { question: 'A community dog near the market has a wound on its leg and needs a vet soon.', topic: 'An animal I found or feed', ...PLACE, name: 'Asha Rao', contact: '9876543210', email: 'asha@example.com' }
     }
   });
   assert.equal(res.statusCode, 200, res.raw.slice(0, 300));

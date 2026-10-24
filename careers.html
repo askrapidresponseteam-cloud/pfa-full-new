@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Careers | People for Animals</title>
 <meta name="description" content="Work for People for Animals: a Zonal Head in each of nine Zones, veterinary doctors at the Sanjay Gandhi Animal Care Centre, a Cruelty Response Coordinator, Social Media and Fundraising, and interns. One application, five short screens.">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 :root{
   --paper:#fff;
@@ -626,7 +626,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -900,7 +900,7 @@ if (root.document && root.document.head) apply(read());
         <p>Everyone hears back. PFA hires on ability alone.</p>
       </div>
 
-      <form class="form" id="jobForm" novalidate>
+      <form class="form" id="jobForm" novalidate data-address-own>
         <ol class="steps" aria-hidden="true"><li></li><li></li><li></li><li></li><li></li></ol>
 
         <div class="step" data-step="Role">
@@ -934,14 +934,13 @@ if (root.document && root.document.head) apply(read());
 
         <div class="step" data-step="You">
           <h3>Who you are.</h3>
-          <div class="row">
-            <div class="field"><label for="name">Your name</label><input id="name" name="name" required autocomplete="name"><p class="err" hidden></p></div>
-            <div class="field"><label for="city">City and State you are based in</label><input id="city" name="city" required placeholder="Lucknow, Uttar Pradesh"><p class="err" hidden></p></div>
-          </div>
+          <div class="field"><label for="name">Your name</label><input id="name" name="name" required autocomplete="name"><p class="err" hidden></p></div>
           <div class="row">
             <div class="field"><label for="mobile">Mobile</label><input id="mobile" name="mobile" required inputmode="tel" autocomplete="tel" placeholder="10 digits"><p class="err" hidden></p></div>
             <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required autocomplete="email"><p class="err" hidden></p></div>
           </div>
+          <!-- where you are based, whole (owner, 24 Oct 2026): assets/address.js -->
+          <fieldset data-address data-kind="PFA-J" data-legend="Your address"></fieldset>
         </div>
 
         <div class="step" data-step="PFA">
@@ -1124,6 +1123,8 @@ if (root.document && root.document.head) apply(read());
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script src="assets/form-preview.js" defer></script>
 <script src="pfa-forms.js" defer></script>
 <script src="assets/micro.js"></script>
@@ -1290,7 +1291,7 @@ var PFA_ZONES = [
       if (bad) { var first = $('#roleErr:not([hidden])') ? $('#r-zonal-head') : $('[data-for]:not([hidden]) input', s); if (first) first.focus(); }
       return !bad;
     }
-    $$('input, textarea', s).filter(function (el) { return el.hasAttribute('required') && !el.disabled && el.closest('.step') === s; }).forEach(function (el) {
+    $$('input, textarea', s).filter(function (el) { return el.hasAttribute('required') && !el.disabled && el.closest('.step') === s && !el.closest('[data-address]'); }).forEach(function (el) {
       var v = el.value.trim(), m = '';
       if (!v) m = el.tagName === 'TEXTAREA' ? 'This one is the application. Please answer it.' : 'Needed.';
       else if (el.id === 'mobile' && !MOBILE.test(digits(v))) m = 'An Indian mobile number is 10 digits, starting 6, 7, 8 or 9.';
@@ -1298,6 +1299,8 @@ var PFA_ZONES = [
       else if (el.tagName === 'TEXTAREA' && v.length < 80) m = 'A little more: at least a few sentences.';
       flag(el, m); if (m) bad++;
     });
+    /* the address: the block's own checks (assets/address.js) */
+    $$('[data-address]', s).forEach(function (b) { if (!window.PFAAddress || window.PFAAddress.check(b)) bad++; });
     if (name === 'PFA') {
       var member = picked('member');
       say('memberErr', member ? '' : 'Yes or not yet.'); if (!member) bad++;
@@ -1309,7 +1312,7 @@ var PFA_ZONES = [
       if (link.value.trim() && !/^https?:\/\/\S+\.\S+/.test(link.value.trim())) { flag(link, 'A link starts with https://'); bad++; }
       var c = $('#consent'); say('consentErr', c.checked ? '' : 'Please confirm before sending.'); if (!c.checked) bad++;
     }
-    if (bad) { var f = $$('.is-bad', s).filter(function (b) { return b.closest('.step') === s; })[0]; var fi = f && f.querySelector('input, textarea'); if (fi) fi.focus(); }
+    if (bad) { var f = $$('.is-bad', s).filter(function (b) { return b.closest('.step') === s; })[0]; var fi = f && f.querySelector('input, textarea, select'); if (fi) fi.focus(); }
     return !bad;
   }
   $('#next').addEventListener('click', function () { if (!started) started = Date.now(); if (stepOk()) { at++; paint(true); } });
@@ -1351,7 +1354,6 @@ var PFA_ZONES = [
       level: level,
       dates: r.id === 'internship' ? $('#dates').value.trim() : '',
       name: $('#name').value.trim(),
-      city: $('#city').value.trim(),
       mobile: digits($('#mobile').value),
       email: $('#email').value.trim(),
       pfaMember: member,

@@ -64,7 +64,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Privacy policy | People for Animals</title>
 <meta name="description" content="What the People for Animals website collects, why, who else handles it, how long it is kept, and how to ask for a copy, a correction or erasure under India's data protection law.">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 /* Privacy policy (owner, 9 Oct 2026: a microsite for it). Written from what the site actually does: the forms, the payment providers, the mail, the browser storage keys, the rate limits that hash an address. A request made here is a submission like any other (PFA-PRV): on record, in the admin panel, and copied to PFA's office inbox. */
 :root{
@@ -397,7 +397,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -512,7 +512,7 @@ if (root.document && root.document.head) apply(read());
     <div class="m-stage">
       <ol class="m-tabs" aria-hidden="true"><li><span>01</span>Request</li><li><span>02</span>You</li></ol>
       <div class="m-bar" aria-hidden="true"><span></span></div>
-      <form class="m-form" id="privacyForm" novalidate>
+      <form class="m-form" id="privacyForm" novalidate data-address-own>
         <div class="m-step" data-step="Request">
           <h3>What would you like?</h3>
           <div class="field">
@@ -536,6 +536,8 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="mobile">Mobile <small>(optional)</small></label><input id="mobile" name="mobile" data-mobile inputmode="tel" autocomplete="tel" placeholder="10 digits"><p class="err" hidden></p></div>
             <div class="field"><label for="references">Reference numbers <small>(optional)</small></label><input id="references" name="references" placeholder="PFA-Q-2026-00012"><p class="err" hidden></p></div>
           </div>
+          <!-- your address, whole (owner, 24 Oct 2026): assets/address.js -->
+          <fieldset data-address data-kind="PFA-PRV" data-legend="Your address"></fieldset>
           <div class="field"><label for="details">Details <small>(optional)</small></label><textarea id="details" name="details" maxlength="2000" placeholder="What to correct, which submission, or your question."></textarea></div>
           <label class="check"><input type="checkbox" id="consent" data-confirm data-say="Please confirm before sending."> <span>This is about my own details, or I may ask for the person it is about.</span></label>
           <p class="err" data-err-for="consent" hidden></p>
@@ -664,6 +666,8 @@ if (root.document && root.document.head) apply(read());
 
 <script src="assets/form-preview.js"></script>
 <script src="pfa-forms.js"></script>
+<script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script src="assets/micro.js"></script>
 <script>
 (function () {

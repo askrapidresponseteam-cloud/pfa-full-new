@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Get Involved &#183; People for Animals</title>
 <meta name="description" content="Volunteer with People for Animals, become a member, or apply for a colony caregiver card. Every application is read by a named person and you are told where yours has got to.">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 :root{
   --paper:#fff;
@@ -733,7 +733,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -775,7 +775,7 @@ if (root.document && root.document.head) apply(read());
         <a class="pfa-flow-bar__help gi__help" href="ask.html" target="_blank" rel="noopener" aria-label="Need help? Contact PFA (opens in a new tab, so nothing here is lost)"><span class="pfa-flow-bar__q">Need help? </span><b>Contact PFA</b></a>
       </div>
 
-      <form class="form gi__form" id="volForm" novalidate>
+      <form class="form gi__form" id="volForm" novalidate data-address-own>
         <div class="gi__step" data-step="Areas">
           <div class="gi__copy">
             <p class="eyebrow">Learn first</p>
@@ -804,7 +804,8 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="volName">Your name</label><input id="volName" type="text" autocomplete="name" required><span class="error">Add your name.</span></div>
             <div class="field"><label for="volMobile">Mobile number</label><input id="volMobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" required><span class="error">Enter a 10-digit Indian mobile number.</span></div>
             <div class="field"><label for="volEmail">Email</label><input id="volEmail" type="email" autocomplete="email" required><span class="error">Add a valid email for the reply.</span></div>
-            <div class="field"><label for="volCity">City or town</label><input id="volCity" type="text" autocomplete="address-level2" required><span class="error">Tell us where you are.</span></div>
+            <!-- where you are, whole (owner, 24 Oct 2026): assets/address.js -->
+            <fieldset data-address data-kind="PFA-V" data-legend="Your address"></fieldset>
           </div>
         </div>
 
@@ -1106,6 +1107,7 @@ if (root.document && root.document.head) apply(read());
 <script src="assets/form-preview.js"></script>
 <script src="pfa-forms.js"></script>
 <script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script>
 /* PFA_GI_JS_START */
 (function(){
@@ -1223,17 +1225,32 @@ if (root.document && root.document.head) apply(read());
     function stepOk(){
       var errs = 0;
       [].forEach.call(steps[at].querySelectorAll('input[required], textarea[required]'), function(el){
+        if (el.closest('[data-address]')) return;
         var v = el.value;
         var wrong = !String(v).trim() ||
           (el.type === 'tel' && !mobileOk(v)) ||
-          (el.type === 'email' && !emailOk(v)) ||
-          (el.name === 'pincode' && !/^[1-9]\d{5}$/.test(String(v).replace(/\D/g, '')));
+          (el.type === 'email' && !emailOk(v));
+        /* a PIN that can be in the state chosen beside it, and that India
+           Post knows (assets/address.js), said on the PIN itself */
+        if (el.name === 'pincode') {
+          var st = steps[at].querySelector('select[name="state"]');
+          var why = window.PFAAddress ? window.PFAAddress.pinProblem(v, st ? st.value : '')
+            : (/^[1-9]\d{5}$/.test(String(v).replace(/\D/g, '')) ? '' : 'Enter the 6-digit PIN code.');
+          var said = el.closest('.field') && el.closest('.field').querySelector('.error');
+          if (said) { if (!said.hasAttribute('data-said')) said.setAttribute('data-said', said.textContent); said.textContent = why || said.getAttribute('data-said'); }
+          wrong = !!why;
+        }
         errs += bad(el, wrong) ? 1 : 0;
       });
       /* a required dropdown (state, district) is checked on its own step,
          not first discovered at Pay (21 Oct 2026) */
       [].forEach.call(steps[at].querySelectorAll('select[required]'), function(el){
+        if (el.closest('[data-address]')) return;
         errs += bad(el, !el.value) ? 1 : 0;
+      });
+      /* the address block (assets/address.js) checks its own boxes */
+      [].forEach.call(steps[at].querySelectorAll('[data-address]'), function(b){
+        if (!window.PFAAddress || window.PFAAddress.check(b)) errs += 1;
       });
       [].forEach.call(steps[at].querySelectorAll('input[type="email"]:not([required])'), function(el){
         errs += bad(el, !!el.value.trim() && !emailOk(el.value)) ? 1 : 0;
@@ -1333,13 +1350,13 @@ if (root.document && root.document.head) apply(read());
       previewTitle: 'Check your application before it is sent',
       previewExtra: function(){ return [['Applying for', picked.join(', ')]]; },
       collect: function(){
-        var n=$('#volName'), m=$('#volMobile'), e=$('#volEmail'), c=$('#volCity'), w=$('#volWhen'), x=$('#volNotes');
+        var n=$('#volName'), m=$('#volMobile'), e=$('#volEmail'), w=$('#volWhen'), x=$('#volNotes');
         var errs = 0;
         errs += bad(n, !n.value.trim()) ? 1 : 0;
         errs += bad(m, !mobileOk(m.value)) ? 1 : 0;
         errs += bad(e, !emailOk(e.value)) ? 1 : 0;
-        errs += bad(c, !c.value.trim()) ? 1 : 0;
-        if (errs){ var first = form.querySelector('.is-bad input'); if (first) first.focus(); return null; }
+        if (!window.PFAAddress || window.PFAAddress.check(form.querySelector('[data-address]'))) errs += 1;
+        if (errs){ var first = form.querySelector('.is-bad input, .is-bad select'); if (first) first.focus(); return null; }
         if (!picked.length){
           var note = form.querySelector('[data-form-status]');
           if (note){ note.hidden=false; note.setAttribute('data-state','bad');
@@ -1349,7 +1366,7 @@ if (root.document && root.document.head) apply(read());
         }
         return {
           name: n.value.trim(), mobile: m.value.replace(/\D/g,''), email: e.value.trim(),
-          city: c.value.trim(), title: 'Volunteer: ' + picked.join(', '),
+          title: 'Volunteer: ' + picked.join(', '),
           notes: (w.value.trim() ? 'Free: ' + w.value.trim() + '. ' : '') + x.value.trim()
         };
       },
@@ -1394,6 +1411,11 @@ if (root.document && root.document.head) apply(read());
         return !el.value.trim();
       });
       bad.forEach(function(el){ var f = el.closest('.field'); if (f) f.classList.add('is-bad'); });
+      /* the PIN beside the state chosen (assets/address.js) */
+      var pinEl = form.querySelector('[name="pincode"]'), stEl = form.querySelector('[name="state"]');
+      var pinWhy = pinEl && window.PFAAddress ? window.PFAAddress.pinProblem(pinEl.value, stEl ? stEl.value : '') : '';
+      if (pinEl && pinWhy && bad.indexOf(pinEl) < 0) bad.push(pinEl);
+      if (pinEl && window.PFAAddress) { var ps = pinEl.closest('.field') && pinEl.closest('.field').querySelector('.error'); if (ps) { if (!ps.hasAttribute('data-said')) ps.setAttribute('data-said', ps.textContent); ps.textContent = pinWhy || ps.getAttribute('data-said'); } }
       if (bad.length) { e.preventDefault(); var f = bad[0].closest('.field'); if (f) f.scrollIntoView({ block: 'center' }); bad[0].focus(); return; }
       /* The last look before paying, then the email and mobile on their own.
          form.submit() posts to CCAvenue without running this handler again. */
@@ -1482,7 +1504,10 @@ if (root.document && root.document.head) apply(read());
          form rather than on an error page after the round trip */
       errs += bad(st, !st.value) ? 1 : 0;
       errs += bad(di, !di.value) ? 1 : 0;
-      errs += bad(pin, !/^[1-9]\d{5}$/.test(pin.value.replace(/\D/g, ''))) ? 1 : 0;
+      var pinWhy = window.PFAAddress ? window.PFAAddress.pinProblem(pin.value, st.value) : (/^[1-9]\d{5}$/.test(pin.value.replace(/\D/g, '')) ? '' : 'Enter the 6-digit PIN code.');
+      var pinSaid = pin.closest('.field') && pin.closest('.field').querySelector('.error');
+      if (pinSaid) { if (!pinSaid.hasAttribute('data-said')) pinSaid.setAttribute('data-said', pinSaid.textContent); pinSaid.textContent = pinWhy || pinSaid.getAttribute('data-said'); }
+      errs += bad(pin, !!pinWhy) ? 1 : 0;
       ['photo'].forEach(function(kind){ var box = docBox(kind); if (box){ box.classList.toggle('is-bad', !docs[kind]); if (!docs[kind]) errs += 1; } });
       if (errs){
         e.preventDefault();
@@ -1530,6 +1555,19 @@ if (root.document && root.document.head) apply(read());
 
 /* PFA_GI_JS_END */
 
+</script>
+<script>
+/* The PIN's intelligence on the membership and caregiver forms' own address
+   boxes (owner, 24 Oct 2026: "pincode has to be valid. all field level
+   intelligence and validations must exist"): the state, district and town
+   filled from a PIN typed in full, and a PIN that cannot be in the state
+   chosen, or that India Post does not know, said on the PIN. */
+(function () {
+  if (!window.PFAAddress) return;
+  var by = function (id) { return document.getElementById(id); };
+  window.PFAAddress.enhance(by('memForm'), { pincode: by('memPin'), state: by('memState'), district: by('memDistrict'), city: by('memCity'), address: by('memAddress') });
+  window.PFAAddress.enhance(by('cgForm'), { pincode: by('cgPin'), state: by('cgState'), district: by('cgDistrict'), city: by('cgCity'), address: by('cgAddress') });
+}());
 </script>
 </body>
 </html>

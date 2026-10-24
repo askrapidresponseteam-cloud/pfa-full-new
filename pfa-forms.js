@@ -74,6 +74,15 @@
     if (typeof fetch !== 'function') {
       return Promise.reject(new Error('This browser cannot send the form. Please email PFA instead.'));
     }
+    /* The address on every form (owner, 24 Oct 2026: "ensure all the forms
+       have the address clearly captured"): assets/address.js checks the
+       form's address block and adds it to what the page collected, so no
+       page can send without it. */
+    if (root.PFAAddress && typeof root.PFAAddress.merge === 'function') {
+      var placed = root.PFAAddress.merge(kind, data);
+      if (placed.error) return Promise.reject(new Error(placed.error));
+      data = placed.data;
+    }
 
     var controller = typeof AbortController === 'function' ? new AbortController() : null;
     var timer = controller ? setTimeout(function () { controller.abort(); }, TIMEOUT_MS) : null;

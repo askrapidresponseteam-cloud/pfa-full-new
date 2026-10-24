@@ -64,7 +64,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>CSR partnerships | People for Animals</title>
 <meta name="description" content="Fund animal welfare through your company's CSR: pick where it should go, and PFA replies with a plan.">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 /* CSR partnerships. Owner, 9 Oct 2026: "keep things super concise- like for csr. show things one after another in stages ... show more only when one shows interest. have things under plus". A short hero, the brief one question at a time (where, what, budget, you), and the rest under plus signs. The twelve programmes are the old site's own list; Schedule VII (iv) of the Companies Act, 2013 names animal welfare. */
 :root{
@@ -389,7 +389,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -418,7 +418,7 @@ if (root.document && root.document.head) apply(read());
     <div class="m-stage">
       <ol class="m-tabs" aria-hidden="true"><li><span>01</span>Where</li><li><span>02</span>What</li><li><span>03</span>Budget</li><li><span>04</span>You</li></ol>
       <div class="m-bar" aria-hidden="true"><span></span></div>
-      <form class="m-form" id="csrForm" novalidate>
+      <form class="m-form" id="csrForm" novalidate data-address-own>
         <div class="m-step" data-step="Where">
           <h3>Where should it go?</h3>
           <p class="ask">Pick one or more.</p>
@@ -484,6 +484,8 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="email">Work email</label><input id="email" name="email" type="email" required data-say="Add a work email." autocomplete="email"><p class="err" hidden></p></div>
             <div class="field"><label for="mobile">Mobile</label><input id="mobile" name="mobile" required data-mobile data-say="Enter a 10-digit Indian mobile number." inputmode="tel" autocomplete="tel" placeholder="10 digits"><p class="err" hidden></p></div>
           </div>
+          <!-- the company's address, whole (owner, 24 Oct 2026): assets/address.js -->
+          <fieldset data-address data-kind="PFA-CSR" data-legend="Company address"></fieldset>
           <div class="field"><label for="message">Anything else <small>(optional)</small></label><textarea id="message" name="message" maxlength="1500"></textarea></div>
           <label class="check"><input type="checkbox" id="consent" data-confirm data-say="Please confirm before sending."> <span>PFA may contact me about this.</span></label>
           <p class="err" data-err-for="consent" hidden></p>
@@ -626,6 +628,8 @@ if (root.document && root.document.head) apply(read());
 
 <script src="assets/form-preview.js"></script>
 <script src="pfa-forms.js"></script>
+<script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script src="assets/micro.js"></script>
 <script>
 (function () {

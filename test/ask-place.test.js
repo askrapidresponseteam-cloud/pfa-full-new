@@ -1,12 +1,18 @@
 'use strict';
 /* The ask form routes an answer to the unit nearest the person, so where they
-   are is not decoration. It was one optional free-text box: a question could
-   arrive from nowhere in particular, or from a city that is not in the state
-   beside it, and neither can be pointed at a unit.
+   are is not decoration. It was one optional free-text box, then a state and
+   a city from two lists; since 24 Oct 2026 it is the address every form on
+   the site carries (assets/address.js; owner, forwarding Maneka Gandhi: "90%
+   of people filling in this rubbish do not give any addresses, not even the
+   city", then "filling in the address in mandatory. and it should be in the
+   right format. and pincode has to be valid"): house and street, a PIN that
+   can be in the state, the town, and a state and district from the list.
 
    Both halves are held here. The browser must not be able to compose a bad
-   pair, and the API must refuse one anyway, because a form is a convenience
-   and the endpoint is the rule. */
+   address, and the API must refuse one anyway, because a form is a
+   convenience and the endpoint is the rule. The page runs here with its real
+   scripts: the district table, the field rules, the block and pfa-forms.js,
+   with the network stood in for. */
 const fs = require('fs');
 const path = require('path');
 const test = require('node:test');
@@ -14,100 +20,163 @@ const assert = require('node:assert/strict');
 const { JSDOM } = require('jsdom');
 
 const ROOT = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(ROOT, 'ask.html'), 'utf8');
-const DISTRICTS_JS = fs.readFileSync(path.join(ROOT, 'assets', 'india-districts.js'), 'utf8');
+const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+const html = read('ask.html');
 const INDIA = require(path.join(ROOT, 'assets', 'india-districts.js'));
 const { validate } = require(path.join(ROOT, 'lib', 'submission-fields.js'));
 
-/* jsdom does not fetch <script src>, so the shared module is inlined where the
-   page links it: same code, same order, same global. */
-function page() {
-  const tag = '<script src="assets/india-districts.js"></script>';
-  assert.ok(html.includes(tag), 'ask.html must link the shared district module');
-  const dom = new JSDOM(html.replace(tag, `<script>${DISTRICTS_JS}</script>`),
-    { runScripts: 'dangerously', url: 'https://pfa.test/ask.html' });
-  const $ = (q) => dom.window.document.querySelector(q);
-  return { dom, $, w: dom.window };
-}
-const change = (w, el) => el.dispatchEvent(new w.Event('change', { bubbles: true }));
-
-test('the place is asked for as two lists, not one free box', () => {
-  assert.match(html, /<select id="state" name="state" required>/, 'state is chosen');
-  assert.match(html, /<select id="city" name="city" required disabled/, 'so is the city, and it waits for the state');
-  assert.ok(!/<input id="city"/.test(html), 'the free box is gone, and with it any pair at all');
-});
-
-test('the city list waits for a state, then holds only that state\'s', () => {
-  const p = page();
-  assert.equal(p.$('#city').disabled, true, 'there is no right city before there is a state');
-  p.$('#state').value = 'Karnataka';
-  change(p.w, p.$('#state'));
-  assert.equal(p.$('#city').disabled, false);
-  const shown = [...p.$('#city').options].map((o) => o.value).filter(Boolean);
-  assert.deepEqual(shown, INDIA.districtsOf('Karnataka'));
-});
-
-test('changing the state drops a city that state does not have', () => {
-  const p = page();
-  p.$('#state').value = 'Karnataka';
-  change(p.w, p.$('#state'));
-  p.$('#city').value = 'Udupi';
-  p.$('#state').value = 'Punjab';
-  change(p.w, p.$('#state'));
-  assert.equal(p.$('#city').value, '', 'Udupi is not in Punjab and must not survive the move');
-});
-
-/* The submit handler stands down early when PFAForms has not loaded, so
-   without this stub the form never reaches its own checks and a test would
-   pass by never having asked anything. It also records what was sent. */
-function armed() {
-  const p = page();
-  p.sent = [];
-  p.w.PFAForms = { submit: (kind, data) => { p.sent.push({ kind, data }); return new p.w.Promise(() => {}); } };
-  p.fill = (place) => {
-    p.$('#question').value = 'Can I feed the dogs in my society every evening?';
-    p.$('#topic').value = 'Animal law';
-    p.$('#name').value = 'Asha Rao';
-    p.$('#email').value = 'asha@example.in';
-    p.$('#consent').checked = true;
-    if (place) {
-      p.$('#state').value = place[0];
-      change(p.w, p.$('#state'));
-      p.$('#city').value = place[1];
+/* jsdom does not fetch <script src>, so each shared script is inlined where
+   the page links it: same code, same order, same globals. */
+const INLINE = ['assets/india-districts.js', 'assets/field-rules.js', 'assets/address.js', 'pfa-forms.js'];
+function page(lookup) {
+  let source = html;
+  for (const file of INLINE) {
+    const tag = new RegExp(`<script src="${file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"( defer)?></script>`);
+    assert.match(source, tag, `ask.html links ${file}`);
+    source = source.replace(tag, () => `<script>${read(file).replace(/<\/script/gi, '<\\/script')}</script>`);
+  }
+  const posted = [];
+  const dom = new JSDOM(source, {
+    runScripts: 'dangerously', url: 'https://pfa.test/ask.html',
+    beforeParse(w) {
+      w.scrollTo = () => {};
+      w.HTMLElement.prototype.scrollIntoView = () => {};
+      w.fetch = (url, init) => {
+        if (String(url).startsWith('/api/location-lookup')) {
+          const place = lookup && lookup(new URL(url, 'https://pfa.test').searchParams.get('pin'));
+          return Promise.resolve({ ok: !!place, status: place ? 200 : 503, json: () => Promise.resolve(place || { code: 'UNAVAILABLE' }) });
+        }
+        if (String(url) === '/api/pfa-submissions') {
+          posted.push(JSON.parse(init.body));
+          return new w.Promise(() => {});
+        }
+        return Promise.resolve({ ok: false, status: 404, json: () => Promise.resolve({}) });
+      };
     }
+  });
+  const w = dom.window;
+  /* the block mounts on DOMContentLoaded, which jsdom fires a moment later */
+  w.PFAAddress.mountAll();
+  const $ = (q) => w.document.querySelector(q);
+  const box = (key) => $(`#askForm [data-address] [data-addr="${key}"]`);
+  const errOf = (el) => el.closest('.field').querySelector('.err');
+  const set = (el, value, kind) => { el.value = value; el.dispatchEvent(new w.Event(kind || 'input', { bubbles: true })); };
+  const fill = (place) => {
+    $('#question').value = 'Can I feed the dogs in my society every evening?';
+    $('#topic').value = 'Animal law';
+    $('#name').value = 'Asha Rao';
+    $('#email').value = 'asha@example.in';
+    $('#consent').checked = true;
+    if (!place) return;
+    if (place.state) set(box('state'), place.state, 'change');
+    if (place.district) set(box('district'), place.district, 'change');
+    if (place.address) set(box('address'), place.address);
+    if (place.city) set(box('city'), place.city);
+    if (place.pincode) set(box('pincode'), place.pincode);
   };
-  p.send = () => p.$('#askForm').dispatchEvent(new p.w.Event('submit', { bubbles: true, cancelable: true }));
-  return p;
+  const send = () => $('#askForm').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+  return { dom, w, $, box, errOf, set, fill, send, posted };
 }
+const tick = () => new Promise((r) => setTimeout(r, 0));
+const UDUPI = { address: '12 Main Road, Koteshwara', pincode: '576222', city: 'Kundapur', state: 'Karnataka', district: 'Udupi' };
 
-test('the form will not send without a place', () => {
-  const p = armed();
+test('the place is the address block: a house and street, a PIN, the town, and a state and district from the list', () => {
+  assert.match(html, /<fieldset data-address data-kind="PFA-Q" data-legend="Your address"><\/fieldset>/);
+  assert.match(html, /<form class="form" id="askForm" novalidate data-address-own>/, 'the page checks the block with its own fields, so every problem shows at once');
+  const p = page();
+  for (const key of ['address', 'pincode', 'city', 'state', 'district']) {
+    assert.ok(p.box(key), `the block asks for ${key}`);
+    assert.ok(p.box(key).required, `${key} is required`);
+  }
+  assert.equal(p.box('state').tagName, 'SELECT', 'the state is chosen, not typed');
+  assert.equal(p.box('district').tagName, 'SELECT', 'so is the district');
+  assert.deepEqual([...p.box('state').options].map((o) => o.value).filter(Boolean), INDIA.STATES);
+});
+
+test('the district list waits for a state, then holds only that state\'s', () => {
+  const p = page();
+  assert.equal(p.box('district').disabled, true, 'there is no right district before there is a state');
+  p.set(p.box('state'), 'Karnataka', 'change');
+  assert.equal(p.box('district').disabled, false);
+  assert.deepEqual([...p.box('district').options].map((o) => o.value).filter(Boolean), INDIA.districtsOf('Karnataka'));
+});
+
+test('changing the state drops a district that state does not have', () => {
+  const p = page();
+  p.set(p.box('state'), 'Karnataka', 'change');
+  p.set(p.box('district'), 'Udupi', 'change');
+  p.set(p.box('state'), 'Punjab', 'change');
+  assert.equal(p.box('district').value, '', 'Udupi is not in Punjab and must not survive the move');
+});
+
+test('the form will not send without an address, and says so on every box', async () => {
+  const p = page();
   p.fill(null);
   p.send();
-  assert.equal(p.sent.length, 0, 'a question with no place cannot be pointed at a unit');
-  assert.ok(p.$('#state').closest('.field').classList.contains('is-bad'), 'and the state has to say so');
-  assert.ok(p.$('#city').closest('.field').classList.contains('is-bad'));
+  await tick();
+  assert.equal(p.posted.length, 0, 'a question from nowhere cannot be pointed at a unit');
+  for (const key of ['address', 'pincode', 'city', 'state', 'district']) {
+    assert.ok(p.box(key).closest('.field').classList.contains('is-bad'), `${key} says it is needed`);
+    assert.ok(p.errOf(p.box(key)).textContent.trim(), `with words: ${key}`);
+  }
 });
 
-test('the form will not send a city the state does not have', () => {
-  /* Reachable by choosing a city and then changing the state with the
-     keyboard, which fires no change event on the city. */
-  const p = armed();
-  p.fill(['Karnataka', 'Udupi']);
-  p.$('#state').value = 'Punjab';          /* moved without rebuilding the list */
+test('the form will not send a district the state does not have', async () => {
+  /* Reachable by choosing a district and then changing the state with the
+     keyboard, which fires no change event that rebuilds the list. */
+  const p = page();
+  p.fill(UDUPI);
+  p.box('state').value = 'Punjab';          /* moved without rebuilding the list */
   p.send();
-  assert.equal(p.sent.length, 0, 'Punjab with Udupi under it must not leave the page');
-  assert.match(p.$('#city').closest('.field').querySelector('.err').textContent, /not in Punjab/);
+  await tick();
+  assert.equal(p.posted.length, 0, 'Punjab with Udupi under it must not leave the page');
+  assert.match(p.errOf(p.box('district')).textContent, /Choose a district in Punjab/);
 });
 
-test('a real pair sends, and the place travels with the question', () => {
-  const p = armed();
-  p.fill(['Karnataka', 'Udupi']);
+test('a PIN that cannot be in the state is caught as it is typed, and again on send', async () => {
+  const p = page();
+  p.fill(Object.assign({}, UDUPI, { pincode: '700016' }));
+  assert.match(p.errOf(p.box('pincode')).textContent, /PIN code 700016 is in West Bengal, not Karnataka/);
   p.send();
-  assert.equal(p.sent.length, 1, 'nothing else should have been in the way');
-  assert.equal(p.sent[0].kind, 'PFA-Q');
-  assert.equal(p.sent[0].data.state, 'Karnataka');
-  assert.equal(p.sent[0].data.city, 'Udupi');
+  await tick();
+  assert.equal(p.posted.length, 0);
+  p.set(p.box('pincode'), '056222');
+  assert.match(p.errOf(p.box('pincode')).textContent, /6 digits and does not start with 0/);
+});
+
+test('a house number alone, or the town again, is not an address', async () => {
+  const p = page();
+  p.fill(Object.assign({}, UDUPI, { address: '12' }));
+  p.send();
+  await tick();
+  assert.equal(p.posted.length, 0);
+  assert.match(p.errOf(p.box('address')).textContent, /full address/);
+  p.set(p.box('address'), 'Kundapur');
+  p.send();
+  await tick();
+  assert.equal(p.posted.length, 0);
+  assert.match(p.errOf(p.box('address')).textContent, /not just the place name/);
+});
+
+test('a PIN typed in full fills the state, district and town', async () => {
+  const p = page((pin) => (pin === '576222' ? { pincode: '576222', state: 'Karnataka', district: 'Udupi', city: 'Koteshwara' } : null));
+  p.set(p.box('pincode'), '576222');
+  assert.equal(p.box('state').value, 'Karnataka', 'the state at once, from the PIN table');
+  for (let i = 0; i < 5; i += 1) await tick();
+  assert.equal(p.box('district').value, 'Udupi', 'the district from India Post');
+  assert.equal(p.box('city').value, 'Koteshwara');
+  assert.equal(p.errOf(p.box('pincode')).hidden, true, 'and the PIN is good');
+});
+
+test('a real address sends, and travels with the question', async () => {
+  const p = page();
+  p.fill(UDUPI);
+  p.send();
+  for (let i = 0; i < 5; i += 1) await tick();
+  assert.equal(p.posted.length, 1, 'nothing else should have been in the way');
+  const body = p.posted[0];
+  assert.equal(body.kind, 'PFA-Q');
+  for (const [key, value] of Object.entries(UDUPI)) assert.equal(body.data[key], value, key);
 });
 
 /* ---------------------------------------------------------------- server --- */
@@ -118,45 +187,40 @@ const askable = (extra) => Object.assign({
 }, extra);
 const fieldsOf = (data) => validate('PFA-Q', data).errors.map((e) => e.field);
 
-test('the API requires the place, whatever the form does', () => {
-  /* A form is a convenience. Anyone can post to the endpoint directly, and
-     before this it would take a question from nowhere. */
-  const errs = fieldsOf(askable());
-  assert.ok(errs.includes('state'), 'no state must be refused');
-  assert.ok(errs.includes('city'), 'and no city with it');
+test('the API requires the address, whatever the form does', () => {
+  /* A form is a convenience. Anyone can post to the endpoint directly. */
+  assert.deepEqual(fieldsOf(askable()), ['address', 'pincode', 'city', 'state', 'district']);
 });
 
-test('the API refuses a city that is not in the state given', () => {
-  const errs = fieldsOf(askable({ state: 'Punjab', city: 'Udupi' }));
-  assert.deepEqual(errs, ['city'], 'the pair is wrong, and it is the city that is wrong in it');
-  const message = validate('PFA-Q', askable({ state: 'Punjab', city: 'Udupi' }))
-    .errors.find((e) => e.field === 'city').message;
-  assert.match(message, /not in the state/);
+test('the API refuses a district that is not in the state given', () => {
+  const errs = validate('PFA-Q', askable(Object.assign({}, UDUPI, { state: 'Punjab', pincode: '141001' }))).errors;
+  assert.deepEqual(errs.map((e) => e.field), ['district'], 'the pair is wrong, and it is the district that is wrong in it');
+  assert.match(errs[0].message, /Choose a district in Punjab/);
 });
 
-test('a real pair passes', () => {
-  assert.deepEqual(fieldsOf(askable({ state: 'Karnataka', city: 'Udupi' })), []);
+test('the API refuses a PIN that cannot be in the state', () => {
+  const errs = validate('PFA-Q', askable(Object.assign({}, UDUPI, { pincode: '700016' }))).errors;
+  assert.deepEqual(errs.map((e) => e.field), ['pincode']);
+  assert.match(errs[0].message, /PIN code 700016 is in West Bengal, not Karnataka/);
 });
 
-test('a missing half is reported once, as missing, not as a broken pair', () => {
-  /* Two errors on one field is a form that says the same thing twice in
-     different words. Absence belongs to the required rules; the pair check
-     only speaks when both halves arrived. */
-  const errs = validate('PFA-Q', askable({ state: 'Karnataka' })).errors.filter((e) => e.field === 'city');
+test('a real address passes', () => {
+  assert.deepEqual(fieldsOf(askable(UDUPI)), []);
+});
+
+test('a missing part is reported once, as missing, not as a broken pair', () => {
+  const errs = validate('PFA-Q', askable(Object.assign({}, UDUPI, { district: '' }))).errors.filter((e) => e.field === 'district');
   assert.equal(errs.length, 1);
-  assert.match(errs[0].message, /Choose your district or city/);
+  assert.match(errs[0].message, /Choose the district/);
 });
 
-test('surrounding space does not turn a real pair into a rejection', () => {
-  /* A value can reach the API from a form, a saved draft or a hand-written
-     link, and " Udupi" failing against "Udupi" would be a bug wearing the
-     costume of a rejection. */
-  assert.deepEqual(fieldsOf(askable({ state: ' Karnataka ', city: ' Udupi ' })), []);
+test('surrounding space does not turn a real address into a rejection', () => {
+  assert.deepEqual(fieldsOf(askable({ address: ' 12 Main Road, Koteshwara ', pincode: ' 576222 ', city: ' Kundapur ', state: ' Karnataka ', district: ' Udupi ' })), []);
 });
 
 test('the browser and the API read the one table', () => {
   assert.match(html, /<script src="assets\/india-districts\.js"><\/script>/, 'the page links it');
-  const server = fs.readFileSync(path.join(ROOT, 'lib', 'submission-fields.js'), 'utf8');
+  const server = read('lib/submission-fields.js');
   assert.match(server, /require\('\.\.\/assets\/india-districts\.js'\)/, 'the API requires it');
   assert.ok(!/var DISTRICTS *= *\{/.test(html), 'and the page keeps no copy that could drift from it');
 });

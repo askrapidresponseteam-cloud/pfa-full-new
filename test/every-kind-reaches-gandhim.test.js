@@ -28,6 +28,7 @@ const { memoryFirestore } = require('./_memory-firestore');
 const firebase = require('../lib/firebase');
 const S = require('../lib/submissions');
 const F = require('../lib/submission-fields');
+const { PLACE } = require('./_place');
 const FORWARD = require('../lib/submission-forward');
 
 const ROOT = path.join(__dirname, '..');
@@ -104,6 +105,8 @@ function payloadFor(kind) {
     if (!data[rule.when.field] && !rule.when.orBlank) data[rule.when.field] = rule.when.in[0];
     data[rule.field] = valueFor(spec, rule.field);
   }
+  /* every form now sends the address block's five fields (24 Oct 2026) */
+  Object.assign(data, PLACE);
   if (!data.name) data.name = 'Asha Rao';
   if (!data.email) data.email = SENDER;
   if (!data.mobile) data.mobile = '9876543210';
@@ -153,7 +156,8 @@ test('the kinds a payment opens are each proved to reach their inboxes by name: 
   const e2e = read('submissions-end-to-end.test.js');
   /* owner, 21 Oct 2026: records of money go to pfadcmho@gmail.com and
      ozairhusain@gmail.com, never gandhim */
-  assert.match(e2e, /a paid membership: on record and in the admin panel\\?'s list, emailed to nobody at PFA \(never gandhim\\?'s\)/, 'a membership is kept in the panel only (21 Oct 2026)');
+  /* owner, 23 Oct 2026: every application goes to gandhim, a membership included */
+  assert.match(e2e, /a paid membership: on record and in the admin panel\\?'s list, the application in gandhim\\?'s inbox \(no payment in it\), the receipt in the payments inboxes/);
   /* a caregiver application is a form that comes with a fee (owner, 23 Oct
      2026): gandhim gets the application, the payments inboxes the receipt */
   assert.match(e2e, /a paid colony caregiver application: on record with its photograph, in gandhim\\?'s inbox with it attached \(no payment in it\), the receipt in the payments inboxes/);
@@ -172,4 +176,24 @@ test('the kinds a payment opens are each proved to reach their inboxes by name: 
   }
   const shop = fs.readFileSync(path.join(ROOT, 'lib', 'routes', 'shop', 'response.js'), 'utf8');
   assert.match(shop, /submission-forward/);
+});
+
+test('every application reaches gandhim: caregiver, volunteer, job and membership', () => {
+  /* owner, 23 Oct 2026: "ensure all caregiver and volunteer and job and
+     membership applications go to gandhim email id." The two that are paid
+     carry no payment in gandhim's copy; their receipts go to the payments
+     inboxes (test/payment-inbox.test.js). */
+  const saved = { f: process.env.PFA_SUBMISSIONS_INBOX, p: process.env.PFA_PAYMENTS_INBOX };
+  delete process.env.PFA_SUBMISSIONS_INBOX; delete process.env.PFA_PAYMENTS_INBOX;
+  try {
+    for (const kind of ['PFA-CG', 'PFA-V', 'PFA-J', 'PFA-MEM']) {
+      const toGandhim = FORWARD.copiesOf({ kind }).filter((c) => c.to === INBOX);
+      assert.equal(toGandhim.length, 1, `${kind}: one copy to gandhim`);
+      assert.ok(['', 'application'].includes(toGandhim[0].copy), `${kind}: the application itself`);
+      assert.equal(FORWARD.panelOnly({ kind }), false, `${kind}: not kept to the panel`);
+    }
+  } finally {
+    if (saved.f === undefined) delete process.env.PFA_SUBMISSIONS_INBOX; else process.env.PFA_SUBMISSIONS_INBOX = saved.f;
+    if (saved.p === undefined) delete process.env.PFA_PAYMENTS_INBOX; else process.env.PFA_PAYMENTS_INBOX = saved.p;
+  }
 });

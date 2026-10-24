@@ -11,6 +11,7 @@ const S = require('../lib/submissions');
 const { createHandler: createCase } = require('../lib/routes/admin/case')._private;
 const { createHandler: createIntake } = require('../lib/routes/pfa-submissions')._private;
 const mail = require('../lib/caregiver-mail');
+const { PLACE } = require('./_place');
 
 /* Firestore as far as these routes use it: documents, subcollections with
    orderBy/limit, arrayUnion and increment. */
@@ -70,7 +71,7 @@ async function seeded() {
   const db = fakeDb();
   const intake = createIntake({ getDb: () => db, deliver: async () => ({}), isConfigured: () => false, now: () => NOW - 3600000 });
   await run(intake, request({ body: { kind: 'PFA-C', data: { summary: 'Dog chained on a terrace with no water', name: 'asha kumar', contact: 'asha@example.com' } } }));
-  await run(intake, request({ body: { kind: 'PFA-Q', data: { question: 'Do you take in injured birds at the Delhi unit?', topic: 'Something else', state: 'Delhi', city: 'New Delhi', name: 'ravi menon', contact: '9876543210', email: 'ravi@example.com' } } }));
+  await run(intake, request({ body: { kind: 'PFA-Q', data: { question: 'Do you take in injured birds at the Delhi unit?', topic: 'Something else', ...PLACE, name: 'ravi menon', contact: '9876543210', email: 'ravi@example.com' } } }));
   /* A record filed before email was required (16 Sep 2026): the panel still
      has to handle one with no email on file, so the seed takes it back off. */
   { const legacy = db.store.get('submissions/PFA-Q-2026-00001'); if (legacy && legacy.fields) delete legacy.fields.email; }

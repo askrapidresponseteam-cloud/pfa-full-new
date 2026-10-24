@@ -30,13 +30,14 @@ const ROOT = path.join(__dirname, '..');
 const { memoryFirestore } = require('./_memory-firestore');
 const firebase = require('../lib/firebase');
 const FILES = require('../lib/file-store');
+const { PLACE } = require('./_place');
 
 const JPEG = fs.readFileSync(path.join(ROOT, 'media/cinekind-2026/reels/glimpse.jpg'));
 const PHOTO = 'data:image/jpeg;base64,' + JPEG.toString('base64');
 const INBOX = 'gandhim@exmpls.sansad.in';
 const REPORT = {
   what: 'A community dog near the vegetable market has a deep wound on its back leg and is limping. It is friendly and needs a vet soon.',
-  animal: 'Dog', urgency: 'Happening now', location: 'New Delhi, Delhi', pincode: '110001', when: 'This morning, around 8',
+  animal: 'Dog', urgency: 'Happening now', ...PLACE, when: 'This morning, around 8',
   accused: 'Not known', name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com'
 };
 

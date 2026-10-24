@@ -8,6 +8,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const H = require('./_review-recheck-harness');
 const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('../lib/ccavenue');
+const { PLACE } = require('./_place');
 
 const KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 let W;
@@ -29,7 +30,7 @@ async function callback(out) {
   return (await H.call(require('../lib/routes/payment/response'), { token: null, body: { encResp }, headers: FORM, url: '/api/payment/response' })).raw;
 }
 const PERSON = { name: 'Asha Kumar', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', district: 'Udupi', pincode: '576101' };
-const Q = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', mobile: '9876543210', email: 'asha.rao@example.com' };
+const Q = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', ...PLACE, name: 'Asha Rao', mobile: '9876543210', email: 'asha.rao@example.com' };
 
 /* ---- payment/response.js fileOnce + lib/submissions.js allocateReference ---- */
 test('SEAM-1 a paid membership whose counter is behind the records gets its OWN record, never someone else\'s', async () => {

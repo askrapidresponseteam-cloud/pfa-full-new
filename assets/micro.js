@@ -53,6 +53,7 @@
     $$('input, textarea, select', step).forEach(function (el) {
       if (el.type === 'radio' || el.type === 'checkbox' || el.type === 'range' || el.type === 'hidden') return;
       if (el.closest('[hidden]')) return;
+      if (el.closest('[data-address]')) return;   /* the block checks its own, below */
       var v = String(el.value || '').trim();
       var m = '';
       if (el.required && !v) m = el.getAttribute('data-say') || 'This is needed.';
@@ -72,6 +73,12 @@
       var bad = chosen < min;
       say(err, bad ? (set.getAttribute('data-say') || 'Choose one.') : '');
       if (bad && !first) first = $('input[name="' + name + '"]', set);
+    });
+    /* the address block (assets/address.js), with its own messages */
+    $$('[data-address]', step).forEach(function (block) {
+      if (block.closest('[hidden]')) return;
+      var bad = root.PFAAddress ? root.PFAAddress.check(block) : block.querySelector('input, select');
+      if (bad && !first) first = bad;
     });
     $$('input[type="checkbox"][data-confirm]', step).forEach(function (box) {
       var err = step.querySelector('[data-err-for="' + box.id + '"]');

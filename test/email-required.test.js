@@ -14,6 +14,7 @@ const S = require('../lib/submissions');
 const payment = require('../lib/payment');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
 const { FORMS } = require('../scripts/check-emails.js');
+const { PLACE } = require('./_place');
 
 const ROOT = path.join(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -74,7 +75,8 @@ test('every kind of submission the server knows is refused without an email, and
     }
     const db = fakeDb();
     const handler = createHandler({ getDb: () => db, deliver: async () => ({}), isConfigured: () => false, now: () => Date.UTC(2026, 8, 16) });
-    const fields = Object.assign({ name: 'Asha Rao', mobile: '9876543210', summary: 'A dog needs help' }, perKind[kind] || {});
+    /* every form sends the address block's five fields (24 Oct 2026) */
+    const fields = Object.assign({ name: 'Asha Rao', mobile: '9876543210', summary: 'A dog needs help' }, perKind[kind] || {}, PLACE);
     const refused = await post(handler, { kind, data: fields });
     assert.ok(refused.statusCode === 422 || refused.statusCode === 400, `${kind} was filed without an email (${refused.statusCode})`);
     assert.ok((refused.body.fields || []).some((f) => f.field === 'email'), `${kind} was refused, but not for the missing email: ${JSON.stringify(refused.body)}`);

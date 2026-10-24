@@ -235,8 +235,8 @@ Check what's set: `npx vercel env ls`
 | `PFA_SHOPIFY_ADMIN_TOKEN` | order confirmation fallback (Admin `read_orders`) + catalogue stock levels | **set it** - the `shpat_…` value from the vendor PDF. Without it, PFA confirmation waits for the webhook. |
 | `PFA_ADMIN_TOKEN` | email worker manual trigger | set if you want §6 |
 | `PFA_SHOP_FIREBASE_SERVICE_ACCOUNT` | the PFA shop (shop.html): writes orders, stock and the store totals to **pfa-oldsite**, the backend its panel at pfa-oldsite.web.app reads | **add**: Firebase console, project pfa-oldsite, Project settings, Service accounts, Generate new private key; paste the JSON (or its base64). Refused if it belongs to any other project. Optional: without it, shop orders go to this site's own Firestore (shopOrders, shopStock, shopTotals), the database donations use, so the shop takes payment either way. Every shop order is also a row in the admin panel's Payments tab, type Shop order. `/api/payment/health` reports which store is in use as `shopOrders`. This is the only place pfa-oldsite is used; it stays retired as the site's own server key. |
-| `PFA_PAYMENTS_INBOX` | every record of money: donations and gifts, memberships, shop orders, and the receipt for a colony caregiver application's fee (lib/submission-forward.js `PAID_KINDS`; the application itself goes to `PFA_SUBMISSIONS_INBOX` without the payment, `SPLIT_KINDS`) | optional: unset means pfadcmho@gmail.com and ozairhusain@gmail.com (owner, 21 Oct 2026: "any record of money collected on the website to only go to pfadcmho@gmail.com ; ozairhusain@gmail.com not gandhim"); comma separated; `off` stops them. gandhim@exmpls.sansad.in is struck from it whatever it says. Every copy, relay or packing note about money may go to these addresses and no others: `deliver()` in lib/caregiver-mail.js refuses any other recipient, and a `PFA_MAIL_REPLY_TO` naming gandhim is ignored on a payer's receipt. |
-| `PFA_SUBMISSIONS_INBOX` | every form that is not a payment, and every colony caregiver application (without its payment, owner 23 Oct 2026), except volunteer applications, which like memberships are kept in the admin panel only and emailed to nobody (lib/submission-forward.js `PANEL_ONLY_KINDS`, owner 21 Oct 2026) | optional: where each submission is emailed, with Reply-To set to the sender, so a Reply from that inbox reaches them. Unset means gandhim@exmpls.sansad.in; several addresses may be given, separated by commas; `off` stops forwarding. Needs the mailbox below (or `PFA_MAIL_API_KEY`), like every email. |
+| `PFA_PAYMENTS_INBOX` | every record of money: donations and gifts, shop orders, and the receipt for the fee paid with a membership or a colony caregiver application (lib/submission-forward.js `PAID_KINDS`; the application itself goes to `PFA_SUBMISSIONS_INBOX` without the payment, `SPLIT_KINDS`) | optional: unset means pfadcmho@gmail.com and ozairhusain@gmail.com (owner, 21 Oct 2026: "any record of money collected on the website to only go to pfadcmho@gmail.com ; ozairhusain@gmail.com not gandhim"); comma separated; `off` stops them. gandhim@exmpls.sansad.in is struck from it whatever it says. Every copy, relay or packing note about money may go to these addresses and no others: `deliver()` in lib/caregiver-mail.js refuses any other recipient, and a `PFA_MAIL_REPLY_TO` naming gandhim is ignored on a payer's receipt. |
+| `PFA_SUBMISSIONS_INBOX` | every form that is not a payment, and every application: caregiver, membership, volunteer and job (owner, 23 Oct 2026: "ensure all caregiver and volunteer and job and membership applications go to gandhim email id"); a caregiver application's and a membership's copy carries no payment (lib/submission-forward.js `SPLIT_KINDS`) | optional: where each submission is emailed, with Reply-To set to the sender, so a Reply from that inbox reaches them. Unset means gandhim@exmpls.sansad.in; several addresses may be given, separated by commas; `off` stops forwarding. Needs the mailbox below (or `PFA_MAIL_API_KEY`), like every email. |
 | `PFA_IMAP_USER`, `PFA_IMAP_PASS`, `PFA_IMAP_HOST`, `PFA_IMAP_PORT` | replies (lib/inbound-mail.js) | all optional: the mailbox replies are read from. Unset, the sending mailbox (`PFA_SMTP_USER`) is read, which is the normal case. |
 | `PFA_CAPTURE_REPLIES` | replies | optional: `off` stops the copy of a submission naming the site's mailbox as a second Reply-To. Replies then reach the person and are not kept in the panel. |
 | `CRON_SECRET` | the daily email worker and the mailbox check | **set it** (any long random string): Vercel's cron and Cloud Scheduler present it, and without it neither worker runs. |
@@ -391,6 +391,22 @@ npx firebase-tools deploy --only firestore:rules
 New collections added 22 Aug: `storeOrders` (admin-readable),
 `storeWebhookEvents` (server only). `storeCheckoutIntents` already existed.
 
+### Test data (until 20 Oct 2026)
+
+Owner, 23 Oct 2026: "dont need any record of 20 oct and earlier cause all of
+them are test data". A super administrator sees a Test data box on the
+Overview while any is left; Remove them, then Yes, moves every record made up
+to the end of 20 Oct 2026 (India time), and everything tied to one, into
+`testDataArchive/until-2026-10-20/<its own path>` (`lib/test-data.js`): cases
+with their messages and photographs, payments and CCAvenue's answers, colony
+cards with everything beside them, queued emails, staging photographs, shop
+orders kept here, and their search entries. Nothing is destroyed: each record
+is read afresh, copied without writing over anything, and removed in one
+transaction, at most 6 MB at a time. The audit log, the reference
+counters, members, settings and the files in Storage are left alone. To put
+everything back, a super administrator posts `{ "action": "restore" }` to
+`/api/admin/test-data`; both moves are written to the admin log.
+
 ---
 
 ## 8. Troubleshooting quick table
@@ -422,7 +438,9 @@ New collections added 22 Aug: `storeOrders` (admin-readable),
 | `lib/store-orders.js` | Shopify order model, status machine, Firestore persistence |
 | `lib/routes/webhooks/shopify.js` | HMAC-verified webhook receiver |
 | `lib/routes/pfa-order-status.js` | Confirmation/tracking lookups |
-| `lib/routes/location-lookup.js` | Reverse geocode for the checkout's "use my location" button |
+| `lib/routes/location-lookup.js` | Reverse geocode for "Use my location", and `?pin=` asks India Post for a PIN's state, district and town |
+| `assets/address.js` | The address block on every form (24 Oct 2026): house and street, PIN, town, state, district, all required; the PIN checked against the state and India Post. A form page adds `<fieldset data-address data-kind="PFA-X" data-legend="Your address">` and loads `assets/india-districts.js` then `assets/address.js`; `pfa-forms.js` adds the five fields to what is sent. A form with its own address boxes calls `PFAAddress.enhance(form, {pincode, state, district, city, address})` |
+| `lib/submission-fields.js` (`ADDRESS`) | The server's copy of the same rule: every kind with a spec is refused without a whole address, a PIN outside its state, or a district outside its state |
 | `lib/routes/paws-catalog.js` | Shopify → catalogue (public or Admin API) |
 | `lib/routes/product-page.js` + `product.html` | Server-rendered `/products/<handle>` pages (rewrite in `vercel.json`; `includeFiles` ships the template with the function) |
 | `assets/track-order.js` | Tracking page (reads API) |

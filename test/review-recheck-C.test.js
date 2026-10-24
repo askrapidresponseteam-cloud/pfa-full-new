@@ -23,10 +23,11 @@ test.afterEach(() => {
   require('../lib/file-store')._reset();
 });
 
-const Q = (o) => Object.assign({ question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', mobile: '9876543210', email: PERSON_A }, o || {});
+const Q = (o) => Object.assign({ question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', ...PLACE, name: 'Asha Rao', mobile: '9876543210', email: PERSON_A }, o || {});
 const submit = (data, extra) => H.call(require('../lib/routes/pfa-submissions'), Object.assign({ token: null, body: { kind: 'PFA-Q', data: Q(data), page: 'ask.html', clientRequestId: 'req-' + Math.random() } }, extra || {}));
 const store = () => require('../lib/caregiver-store');
 const INB = () => require('../lib/inbound-mail');
+const { PLACE } = require('./_place');
 const opts = (o) => Object.assign({ inboxes: [INBOX], fieldValue: H.firebase.fieldValue }, o || {});
 
 /* Moves the clock for code that reads Date.now() and new Date(). */

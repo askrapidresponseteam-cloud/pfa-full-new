@@ -14,6 +14,7 @@ const TRACK = () => require('../lib/routes/pfa-submissions');
 const RECORDS = () => require('../lib/routes/admin/records');
 const INB = () => require('../lib/inbound-mail');
 const ROUTE_INB = () => require('../lib/routes/inbound-mail');
+const { PLACE } = require('./_place');
 
 let W;
 test.beforeEach(() => { W = H.fresh(); });
@@ -279,7 +280,7 @@ test('A11 a report filed at 00:30 IST on 1 Jan 2027 is numbered in 2027 (intake 
   const ref = await S.allocateReference(W.db, 'PFA-MEM', at);
   assert.match(ref, /^PFA-MEM-2027-/);
   const h = TRACK()._private.createHandler({ getDb: () => W.db, deliver: async () => ({}), isConfigured: () => false, now: () => at });
-  const res = await H.call(h, { token: null, body: { kind: 'PFA-Q', data: { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com' }, clientRequestId: 'y1' } });
+  const res = await H.call(h, { token: null, body: { kind: 'PFA-Q', data: { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', ...PLACE, name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com' }, clientRequestId: 'y1' } });
   assert.equal(res.statusCode, 200, res.raw);
   assert.match(res.json.reference, /^PFA-Q-2027-/);
 });

@@ -10,6 +10,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const H = require('./_review-recheck-harness');
 const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('../lib/ccavenue');
+const { PLACE } = require('./_place');
 
 const KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 let W;
@@ -217,7 +218,7 @@ test('D10 report with 2 photos whose 2nd write keeps failing: the answer gives t
   const db = W.db;
   const wrapped = Object.assign({}, db, { collection: (n) => { const c = db.collection(n); if (n !== 'submissions') return c; return Object.assign(Object.create(c), { doc: (id) => { const r = c.doc(id); return Object.assign(Object.create(r), { collection: (s) => { const sc = r.collection(s); return Object.assign(Object.create(sc), { doc: (k) => { const d = sc.doc(k); return Object.assign(Object.create(d), { create: async (x) => { if (k === '2' && fails-- > 0) throw new Error('4 DEADLINE_EXCEEDED'); return d.create(x); } }); } }); } }); } }); } });
   const handler = require('../lib/routes/pfa-submissions')._private.createHandler({ getDb: () => wrapped, deliver: async () => ({}), isConfigured: () => false, now: () => Date.now() });
-  const REPORT = { what: 'A community dog near the vegetable market has a deep wound on its back leg and is limping. It is friendly and needs a vet soon.', animal: 'Dog', urgency: 'Happening now', location: 'New Delhi, Delhi', pincode: '110001', when: 'This morning, around 8', accused: 'Not known', name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com' };
+  const REPORT = { what: 'A community dog near the vegetable market has a deep wound on its back leg and is limping. It is friendly and needs a vet soon.', animal: 'Dog', urgency: 'Happening now', ...PLACE, when: 'This morning, around 8', accused: 'Not known', name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com' };
   const photo = 'data:image/jpeg;base64,' + H.jpeg(4000).toString('base64');
   const send = () => H.call(handler, { token: null, body: { kind: 'PFA-CR', data: REPORT, page: 'report.html', clientRequestId: 'req-1', photos: [photo, photo] } });
   const first = await send();

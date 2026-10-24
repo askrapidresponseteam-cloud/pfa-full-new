@@ -64,7 +64,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>PFA Campus | People for Animals</title>
 <meta name="description" content="Start an animal society on your college, university or school campus, with PFA behind you. Register in four quick steps.">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 /* PFA Campus, kept concise (owner, 9 Oct 2026: "show things one after another in stages ... show more only when one shows interest"): a short hero, registration one question at a time, and the rest under plus signs. */
 :root{
@@ -388,7 +388,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -417,7 +417,7 @@ if (root.document && root.document.head) apply(read());
     <div class="m-stage">
       <ol class="m-tabs" aria-hidden="true"><li><span>01</span>Campus</li><li><span>02</span>Team</li><li><span>03</span>You</li><li><span>04</span>Send</li></ol>
       <div class="m-bar" aria-hidden="true"><span></span></div>
-      <form class="m-form" id="campusForm" novalidate>
+      <form class="m-form" id="campusForm" novalidate data-address-own>
         <div class="m-step" data-step="Campus">
           <h3>Where is it?</h3>
           <ul class="m-picks m-picks--4 m-picks--compact" data-need="institution" data-say="Choose one.">
@@ -427,10 +427,9 @@ if (root.document && root.document.head) apply(read());
             <li class="m-pick"><input type="radio" name="institution" id="in-institute" value="An institute"><label for="in-institute"><b>An institute</b></label></li>
           </ul>
           <p class="err" data-err-for="institution" hidden></p>
-          <div class="row">
-            <div class="field"><label for="college">Its name</label><input id="college" name="college" required data-say="Name your college or university." autocomplete="organization" placeholder="Hansraj College"><p class="err" hidden></p></div>
-            <div class="field"><label for="city">City and state</label><input id="city" name="city" required data-say="Which city and state is it in?" placeholder="New Delhi, Delhi"><p class="err" hidden></p></div>
-          </div>
+          <div class="field"><label for="college">Its name</label><input id="college" name="college" required data-say="Name your college or university." autocomplete="organization" placeholder="Hansraj College"><p class="err" hidden></p></div>
+          <!-- its address, whole (owner, 24 Oct 2026): assets/address.js -->
+          <fieldset data-address data-kind="PFA-CAM" data-legend="College address"></fieldset>
         </div>
 
         <div class="m-step" data-step="Team">
@@ -620,6 +619,8 @@ if (root.document && root.document.head) apply(read());
 
 <script src="assets/form-preview.js"></script>
 <script src="pfa-forms.js"></script>
+<script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script src="assets/micro.js"></script>
 <script>
 (function () {
@@ -653,7 +654,6 @@ if (root.document && root.document.head) apply(read());
       return {
         college: $('#college').value.trim(),
         institution: M.picked(form, 'institution'),
-        city: $('#city').value.trim(),
         desks: M.picked(form, 'desks').join(', '),
         teamSize: $('#teamSize').value + ' students',
         faculty: M.picked(form, 'faculty'),

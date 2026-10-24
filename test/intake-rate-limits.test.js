@@ -16,6 +16,7 @@ const { memoryFirestore } = require('./_memory-firestore');
 const firebase = require('../lib/firebase');
 const S = require('../lib/submissions');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
+const { PLACE } = require('./_place');
 
 const PLATFORM = ['VERCEL', 'K_SERVICE', 'FUNCTION_TARGET'];
 function onPlatform(name) {
@@ -46,6 +47,8 @@ const CR = {
   animal: 'Dog', urgency: 'Happening now', location: 'New Delhi, Delhi', pincode: '110001',
   when: 'This morning, around 8', accused: 'Not known', name: 'Asha Rao', mobile: '9876543210', email: 'reporter@example.com'
 };
+/* every form now sends an address (test/_place.js) */
+Object.assign(CR, PLACE);
 const lookup = (handler, i, headers, ip) => call(handler, { method: 'GET', ip, headers, query: { reference: 'PFA-CR-2026-' + String(i).padStart(5, '0'), contact: 'x@y.zz' } });
 
 test.beforeEach(() => { S.resetForTests(); process.env.PFA_SUBMISSIONS_INBOX = 'off'; });

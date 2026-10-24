@@ -64,7 +64,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Plan a campaign | People for Animals</title>
 <meta name="description" content="Plan a birthday, a run or a drive at work for the animals: pick a cause and a goal in four quick steps, and PFA helps you run it.">
-<link rel="stylesheet" href="assets/chrome.css?v=fcf537af4a">
+<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
 <style>
 /* Plan a campaign, kept concise (owner, 9 Oct 2026: "show things one after another in stages ... have things under plus"): cause, way, goal, you; tips and questions under plus signs. */
 :root{
@@ -388,7 +388,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=3af64eeb87"></script>
+<script src="assets/chrome.js?v=fc96217ff9"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -417,7 +417,7 @@ if (root.document && root.document.head) apply(read());
     <div class="m-stage">
       <ol class="m-tabs" aria-hidden="true"><li><span>01</span>Cause</li><li><span>02</span>Way</li><li><span>03</span>Goal</li><li><span>04</span>You</li></ol>
       <div class="m-bar" aria-hidden="true"><span></span></div>
-      <form class="m-form" id="campForm" novalidate>
+      <form class="m-form" id="campForm" novalidate data-address-own>
         <div class="m-step" data-step="Cause">
           <h3>Who is it for?</h3>
           <ul class="m-picks m-picks--compact" data-need="cause" data-say="Choose one.">
@@ -461,10 +461,9 @@ if (root.document && root.document.head) apply(read());
           </div>
           <div class="field goal-text" hidden><label for="goalText" id="goalTextLab">What you will collect</label><input id="goalText" placeholder="100 blankets before winter"><p class="err" hidden></p></div>
           <div class="field"><label for="title">Campaign name</label><input id="title" name="title" required data-say="Give your campaign a name." maxlength="80" placeholder="Asha's birthday for the dogs of Indiranagar"><p class="err" hidden></p></div>
-          <div class="row">
-            <div class="field"><label for="city">Where</label><input id="city" name="city" required data-say="Where will it happen?" placeholder="Bengaluru, Karnataka"><p class="err" hidden></p></div>
-            <div class="field"><label for="when">When <small>(optional)</small></label><input id="when" name="when" placeholder="All of December"><p class="err" hidden></p></div>
-          </div>
+          <div class="field"><label for="when">When <small>(optional)</small></label><input id="when" name="when" placeholder="All of December"><p class="err" hidden></p></div>
+          <!-- where it will happen, whole (owner, 24 Oct 2026): assets/address.js -->
+          <fieldset data-address data-kind="PFA-CMP" data-legend="Where it will happen"></fieldset>
 
         </div>
 
@@ -617,6 +616,8 @@ if (root.document && root.document.head) apply(read());
 
 <script src="assets/form-preview.js"></script>
 <script src="pfa-forms.js"></script>
+<script src="assets/india-districts.js"></script>
+<script src="assets/address.js"></script>
 <script src="assets/micro.js"></script>
 <script>
 (function () {
@@ -661,7 +662,6 @@ if (root.document && root.document.head) apply(read());
         goal: type === 'Money' ? rupees($('#goalMoney').value) : $('#goalText').value.trim(),
         title: $('#title').value.trim(),
         when: $('#when').value.trim(),
-        city: $('#city').value.trim(),
         name: $('#name').value.trim(),
         mobile: M.digits($('#mobile').value),
         email: $('#email').value.trim(),

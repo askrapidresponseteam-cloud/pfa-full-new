@@ -30,6 +30,7 @@ const firebase = require('../lib/firebase');
 const mailer = require('../lib/caregiver-mail');
 const CONFIRM = require('../lib/confirmations');
 const store = require('../lib/caregiver-store');
+const { PLACE } = require('./_place');
 
 const INBOX = 'gandhim@exmpls.sansad.in';
 const PERSON = 'asha.rao@example.com';
@@ -84,7 +85,7 @@ function call(handler, { method = 'POST', body, query = {}, headers = {} }) {
 }
 
 const quietly = async (fn) => { const w = console.warn; const e = console.error; console.warn = () => {}; console.error = () => {}; try { return await fn(); } finally { console.warn = w; console.error = e; } };
-const ask = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', state: 'Delhi', city: 'New Delhi', name: 'Asha Rao', mobile: '9876543210', email: PERSON };
+const ask = { question: 'Is there a vet near Lajpat Nagar?', topic: 'An animal I found or feed', ...PLACE, name: 'Asha Rao', mobile: '9876543210', email: PERSON };
 const submit = () => quietly(() => call(require('../lib/routes/pfa-submissions'), { body: { kind: 'PFA-Q', data: ask, page: 'ask.html', clientRequestId: 'req-' + Math.random() } }));
 const worker = () => quietly(() => call(require('../lib/routes/caregiver/email-worker'), { headers: { authorization: 'Bearer cron-secret' } }));
 const check = (method, body) => quietly(() => call(require('../lib/routes/admin/mail-check'), { method, body, headers: { authorization: 'Bearer test-admin' } }));

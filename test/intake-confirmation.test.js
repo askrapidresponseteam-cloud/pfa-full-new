@@ -16,6 +16,7 @@ const { memoryFirestore } = require('./_memory-firestore');
 const firebase = require('../lib/firebase');
 const S = require('../lib/submissions');
 const { createHandler } = require('../lib/routes/pfa-submissions')._private;
+const { PLACE } = require('./_place');
 
 function call(handler, { method = 'POST', body, query = {}, headers = {}, ip = '198.51.100.7' }) {
   return new Promise((resolve, reject) => {
@@ -53,6 +54,8 @@ const FORMS = {
   'PFA-CK': { nominee: 'Kalyan Varma', category: 'A film or documentary', work: 'Wild Karnataka', link: 'https://www.youtube.com/watch?v=LCwIbbSg-8E', why: LONG, name: 'Asha Rao', mobile: '9876543210', email: 'sender@example.com' },
   'PFA-S': { url: 'https://www.youtube.com/watch?v=LCwIbbSg-8E', wall: 'Long form, over three minutes', name: 'Asha Rao', email: 'sender@example.com', notes: 'Consent given for PFA to show this on The Wall.', mobile: '9876543210' }
 };
+/* every form now sends an address (test/_place.js) */
+Object.values(FORMS).forEach((f) => Object.assign(f, PLACE));
 
 test.beforeEach(() => { S.resetForTests(); process.env.PFA_SUBMISSIONS_INBOX = 'off'; });
 test.after(() => { delete process.env.PFA_SUBMISSIONS_INBOX; firebase._setDbForTests(null); });

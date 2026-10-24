@@ -57,9 +57,12 @@ const FORMS = {
     "data": {
       "question": "A community dog near the vegetable market has a deep wound on its back leg and is limping. It is friendly, eats from the tea stall every morning, and needs a vet to look at it soon.",
       "topic": "An animal I found or feed",
-      "state": "Delhi",
-      "city": "New Delhi",
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com"
     }
@@ -71,7 +74,11 @@ const FORMS = {
       "roleId": "zonal-head",
       "zone": "North North",
       "name": "Asha Rao",
-      "city": "New Delhi, Delhi",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com",
       "pfaMember": "Yes",
@@ -90,11 +97,14 @@ const FORMS = {
       "what": "A community dog near the vegetable market has a deep wound on its back leg and is limping. It is friendly, eats from the tea stall every morning, and needs a vet to look at it soon.",
       "animal": "Dog",
       "urgency": "Happening now",
-      "location": "New Delhi, Delhi",
-      "pincode": "110001",
       "when": "This morning, around 8",
       "accused": "Not known",
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com"
     }
@@ -103,9 +113,12 @@ const FORMS = {
     "page": "events.html",
     "data": {
       "title": "An adoption drive",
-      "city": "New Delhi, Delhi",
-      "address": "Near The Vegetable Market, Lajpat Nagar, New Delhi",
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com",
       "notes": "A community dog near the vegetable market has a deep wound on its back leg and is limping. It is friendly, eats from the tea stall every morning, and needs a vet to look at it soon."
@@ -115,9 +128,13 @@ const FORMS = {
     "page": "get-involved.html",
     "data": {
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com",
-      "city": "New Delhi, Delhi",
       "title": "Volunteer: Head Office",
       "notes": "Free: This morning, around 8. A community dog near the vegetable market has a deep wound on its back leg and is limping. It is friendly, eats from the tea stall every morning, and needs a vet to look at it soon."
     }
@@ -131,6 +148,11 @@ const FORMS = {
       "link": "https://www.youtube.com/watch?v=LCwIbbSg-8E",
       "why": "A community dog near the vegetable market has a deep wound on its back leg and is limping. It is friendly, eats from the tea stall every morning, and needs a vet to look at it soon.",
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com"
     }
@@ -141,6 +163,11 @@ const FORMS = {
       "url": "https://www.youtube.com/watch?v=LCwIbbSg-8E",
       "wall": "Long form, over three minutes",
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "email": "tester.pfa@example.com",
       "notes": "Consent given for PFA to show this on The Wall.",
       "mobile": "9876543210"
@@ -153,12 +180,16 @@ const FORMS = {
     "data": {
       "college": "Lady Shri Ram College for Women",
       "institution": "A college",
-      "city": "New Delhi, Delhi",
       "desks": "Rescue and first aid, Feeding and water",
       "teamSize": "8 students",
       "faculty": "Yes",
       "facultyName": "Dr Meera Kapoor, Zoology",
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "role": "BSc Zoology, second year",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com",
@@ -174,6 +205,11 @@ const FORMS = {
       "groupSize": "30",
       "when": "A Saturday in November",
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com",
       "message": "The students have collected blankets for the wards"
@@ -187,8 +223,12 @@ const FORMS = {
       "budget": "\u20b910 lakh to \u20b950 lakh",
       "span": "Two to three years",
       "company": "Asha Foods Private Limited",
-      "city": "Pune, Maharashtra",
       "name": "Asha Rao",
+      "address": "Office 3, FC Road, Shivajinagar",
+      "pincode": "411004",
+      "city": "Pune",
+      "state": "Maharashtra",
+      "district": "Pune",
       "role": "Head of CSR",
       "email": "tester.pfa@example.com",
       "mobile": "9876543210",
@@ -200,10 +240,14 @@ const FORMS = {
     "data": {
       "interest": "A share of what I leave",
       "name": "Asha Rao",
+      "address": "22 Church Street, Shanthala Nagar",
+      "pincode": "560001",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "district": "Bengaluru (Bangalore) Urban",
       "email": "tester.pfa@example.com",
       "contactBy": "Phone",
       "mobile": "9876543210",
-      "city": "Bengaluru",
       "message": "Please call after six in the evening"
     }
   },
@@ -216,9 +260,13 @@ const FORMS = {
       "goal": "\u20b925,000",
       "title": "Asha turns thirty for the cows",
       "when": "December 2026",
-      "city": "Jaipur, Rajasthan",
       "reach": "About 60 friends and family",
       "name": "Asha Rao",
+      "address": "8 Tilak Marg, C Scheme",
+      "pincode": "302001",
+      "city": "Jaipur",
+      "state": "Rajasthan",
+      "district": "Jaipur",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com",
       "story": "Instead of presents I would like my friends to help the cows"
@@ -229,6 +277,11 @@ const FORMS = {
     "data": {
       "request": "A copy of what PFA holds about me",
       "name": "Asha Rao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi",
       "email": "tester.pfa@example.com",
       "mobile": "9876543210",
       "references": "PFA-Q-2026-00012",
@@ -243,7 +296,9 @@ const FORMS = {
       "unitDistrict": "Udupi",
       "name": "Asha Rao",
       "address": "12 Main Road, Koteshwara",
+      "pincode": "576222",
       "city": "Kundapur",
+      "state": "Karnataka",
       "district": "Udupi",
       "mobile": "9876543210",
       "phone2": "0820 252 0000",
@@ -260,7 +315,7 @@ const FORMS = {
       "salutation": "Ms.",
       "relation": "Daughter of Ramesh Rao",
       "workingAs": "Teacher",
-      "undertaking": "I, Ms. Asha Rao, daughter of Ramesh Rao, resident of 12 Main Road, Koteshwara, Kundapur, Udupi, and presently working as Teacher, am desirous of forming a Unit of PFA in Kundapur, District Udupi. I agree to this undertaking.",
+      "undertaking": "I, Ms. Asha Rao, daughter of Ramesh Rao, resident of 12 Main Road, Koteshwara, Kundapur, Udupi district, Karnataka 576222, and presently working as Teacher, am desirous of forming a Unit of PFA in Kundapur, District Udupi. I agree to this undertaking.",
       "signature": "Asha Rao",
       "signedOn": "22 October 2026"
     }
@@ -399,15 +454,24 @@ async function pay(form) {
 
 const PERSON = { name: 'Asha Rao', mobile: '9876543210', email: 'tester.pfa@example.com', address: '16 MG Road, Lajpat Nagar', city: 'New Delhi', state: 'Delhi', district: 'New Delhi', pincode: '110024' };
 
-test('a paid membership: on record and in the admin panel\'s list, emailed to nobody at PFA (never gandhim\'s)', async () => {
+test('a paid membership: on record and in the admin panel\'s list, the application in gandhim\'s inbox (no payment in it), the receipt in the payments inboxes', async () => {
+  /* owner, 23 Oct 2026: "ensure all caregiver and volunteer and job and
+     membership applications go to gandhim email id" */
   const page = await pay(Object.assign({ type: 'membership', tier: 'silver', terms: 'yes' }, PERSON));
   const ref = (page.match(/PFA-MEM-\d{4}-\d{5}/) || [])[0];
   assert.ok(ref, 'the member is shown their number');
   assert.ok(Number(db.dump()['submissions/' + ref].receivedAtMs) > 0, 'without it the panel never lists the membership');
-  /* kept in the panel only (owner, 21 Oct 2026): the member gets their
-     welcome letter, and no copy goes to gandhim or the payments inboxes */
-  assert.equal(toInbox().length, 0);
-  for (const address of PAY) assert.equal(toPayments(address).length, 0, `nothing to ${address}`);
+  const application = toInbox();
+  assert.equal(application.length, 1, 'gandhim gets the application');
+  assert.equal(application[0].subject, `${ref}: Membership from ${PERSON.name}`);
+  assert.equal(application[0].reply_to, 'tester.pfa@example.com');
+  assert.doesNotMatch(application[0].text, /Amount|Order ID|Bank reference|₹/, 'no payment in it');
+  for (const address of PAY) {
+    const receipt = toPayments(address);
+    assert.equal(receipt.length, 1, `one receipt to ${address}`);
+    assert.equal(receipt[0].subject, `${ref}: Payment for a membership from ${PERSON.name}`);
+    assert.match(receipt[0].text, /Amount paid: ₹\d/);
+  }
   assert.ok(sent.some((m) => m.to.includes('tester.pfa@example.com')), 'the member is written to');
   assert.ok((await adminList()).includes(ref));
 });

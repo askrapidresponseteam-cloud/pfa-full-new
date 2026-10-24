@@ -256,6 +256,12 @@
     districtSel.disabled = !list.length;
   });
   if (window.PFA_INDIA) fillStates(); else window.addEventListener('load', fillStates);
+  /* The PIN's intelligence on the delivery address (owner, 24 Oct 2026: "pincode
+     has to be valid. all field level intelligence and validations must
+     exist"): a PIN typed in full fills the state and district, India Post is
+     asked whether it exists, and one that cannot be in the state chosen says
+     so on the PIN. */
+  if (window.PFAAddress) window.PFAAddress.enhance(checkout, { pincode: $('coPin'), state: stateSel, district: districtSel, address: $('coAddress') });
 
   var RULES = window.PFA_RULES || null;
   function fieldBad(input) {
@@ -271,8 +277,22 @@
     var f = e.target.closest && e.target.closest('.field');
     if (f) f.classList.remove('is-bad');
   });
+  /* what is wrong with the PIN beside the state chosen, or '' */
+  function pinWhy() {
+    var pin = $('coPin');
+    if (!window.PFAAddress || !String(pin.value || '').trim()) return '';
+    return window.PFAAddress.pinProblem(pin.value, stateSel.value);
+  }
   checkout.addEventListener('submit', function (e) {
     var bad = [].filter.call(checkout.querySelectorAll('input[required], select[required]'), fieldBad);
+    var why = pinWhy();
+    var pinBox = $('coPin');
+    var pinErr = pinBox.closest('.field') && pinBox.closest('.field').querySelector('.error');
+    if (pinErr) {
+      if (!pinErr.hasAttribute('data-said')) pinErr.setAttribute('data-said', pinErr.textContent);
+      pinErr.textContent = why || pinErr.getAttribute('data-said');
+    }
+    if (why && bad.indexOf(pinBox) < 0) bad.push(pinBox);
     bad.forEach(function (input) { var f = input.closest('.field'); if (f) f.classList.add('is-bad'); });
     if (bad.length || !bag.length) {
       e.preventDefault();

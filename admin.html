@@ -1091,16 +1091,72 @@ window.addEventListener('unhandledrejection', function (event) {
       if (cg) cells.push(cell('caregivers', 'caregivers', 'data-module="caregivers">' + cg + '</button>'));
 
       out.push('<div class="grid">' + cells.join('') + '</div>');
+      if (me && me.role === 'super') out.push('<section class="mailbox" id="testData" aria-live="polite" hidden></section>');
       if (can('submissions')) out.push('<section class="mailbox" id="mailbox" aria-live="polite"><h2>Email</h2><p class="state">Checking\u2026</p></section>');
       if (can('submissions')) out.push('<section class="mailbox" id="replies" aria-live="polite"><h2>Replies</h2><p class="state">Checking\u2026</p></section>');
       node.innerHTML = out.join('');
       if (can('submissions')) { mailbox(); replies(); }
+      if (me && me.role === 'super') { testData(testSaid); testSaid = ''; }
       offerKinds(m.byKind);
       var pip = $('#pipWaiting');
       pip.textContent = waiting;
       pip.hidden = !waiting;
       say($('#paneNote'), 'Read ' + when(m.generatedAt));
     }).catch(function (e) { fail(node, e); });
+  }
+
+  /* ---- test data ---------------------------------------------------------- */
+
+  /* Owner, 23 Oct 2026: "dont need any record of 20 oct and earlier cause
+     all of them are test data". Shown to a super administrator, and only
+     while there is some: one press, then a second to be sure, moves it
+     whole to an archive (lib/test-data.js). It leaves every list, count,
+     search and download; nothing is destroyed. */
+  var testSaid = '';
+  function testWords(c) {
+    var parts = [];
+    if (c.cases) parts.push(c.cases + (c.cases === 1 ? ' form' : ' forms'));
+    if (c.payments) parts.push(c.payments + (c.payments === 1 ? ' payment' : ' payments'));
+    if (c.cards) parts.push(c.cards + (c.cards === 1 ? ' colony card' : ' colony cards'));
+    if (!parts.length && c.records) parts.push(c.records + (c.records === 1 ? ' record' : ' records'));
+    return parts.join(', ');
+  }
+  function testData(said) {
+    var box = $('#testData');
+    if (!box) return Promise.resolve();
+    return api('/api/admin/test-data').then(function (t) {
+      var c = (t && t.counts) || {};
+      if (!(Number(c.records) > 0)) {
+        box.hidden = !said;
+        box.innerHTML = said ? '<h2>Test data</h2><p class="state" data-tone="good">' + esc(said) + '</p>' : '';
+        return;
+      }
+      box.hidden = false;
+      box.innerHTML = '<h2>Test data</h2>'
+        + '<p class="hint">Everything made up to the end of 20 Oct 2026 was test data. Removing it moves it, whole, to an archive: it leaves every list, count, search and download here, and nothing is destroyed, so it can be put back.</p>'
+        + '<p class="state"><b>' + esc(testWords(c)) + '</b> from 20 Oct 2026 and earlier.</p>'
+        + '<p class="row2" id="testAct"><button class="ghost" type="button" id="testOut">Remove them</button></p>'
+        + '<p class="note" id="testSay">' + esc(said || '') + '</p>';
+      on('#testOut', 'click', function () {
+        $('#testAct').innerHTML = '<button class="press" type="button" id="testYes">Yes, remove them</button> <button class="ghost" type="button" id="testNo">Cancel</button>';
+        say($('#testSay'), 'They leave the panel. Nothing is destroyed.');
+        on('#testNo', 'click', function () { testData(); });
+        on('#testYes', 'click', function () {
+          $('#testYes').disabled = true;
+          $('#testNo').disabled = true;
+          say($('#testSay'), 'Removing\u2026');
+          api('/api/admin/test-data', { method: 'POST', body: { action: 'archive' } }).then(function (r) {
+            if (r.more) return testData('Most of it is out. Press again to finish.');
+            testSaid = 'Removed ' + (testWords(r.went || {}) || 'it all') + '. Everything here is from 21 Oct 2026 on.';
+            overview();
+          }).catch(function (e) {
+            say($('#testSay'), (e && e.message) || 'That could not be done just now. Nothing was lost; press again.', 'bad');
+            $('#testYes').disabled = false;
+            $('#testNo').disabled = false;
+          });
+        });
+      });
+    }).catch(function () { box.hidden = true; });
   }
 
   /* ---- copies to PFA's inbox --------------------------------------------- */
@@ -1204,9 +1260,8 @@ window.addEventListener('unhandledrejection', function (event) {
         var pay = (m.paymentInboxes || []).join(', ');
         /* the whole story behind the (i); the eye gets one line */
         out.splice(1, 0, '<p class="hint">A copy of every form goes to <b>' + esc(to) + '</b>'
-          + (pay ? ', a caregiver application too, without its payment. Every record of money (donations, gifts, memberships, shop orders and the caregiver fee) goes to <b>' + esc(pay) + '</b> instead, and never to ' + esc(to) : '')
+          + (pay ? ', every application included (caregiver, membership, volunteer and job), without any payment in it. Every record of money (donations, gifts, shop orders, and the fee paid with a membership or a caregiver application) goes to <b>' + esc(pay) + '</b> instead, and never to ' + esc(to) : '')
           + ', with Reply set to the person who sent it, and any photographs attached. It is sent as ' + esc(m.from) + (m.via === 'smtp' ? ', through that mailbox at GoDaddy' : ', through Resend') + '.'
-          + ' Volunteer applications and memberships are not emailed to anyone at PFA: they are kept here only, answered from the Reply box on the record, and their answers come back onto it.'
           + (m.via === 'smtp' && (m.sentCopies || {}).on ? ' Everything the site sends is also saved in the Sent folder of ' + esc((m.from.match(/<([^>]+)>/) || [])[1] || 'the mailbox') + '.' : '') + '</p>');
         if (state !== 'login-failing' && state !== 'some-failed') out.push('<p class="state" data-tone="good">Emails are going out.</p>');
         var sc = m.sentCopies || {};
@@ -1234,11 +1289,14 @@ window.addEventListener('unhandledrejection', function (event) {
       if (missed.length && to) {
         out.push('<p class="state" data-tone="bad"><b>' + (missed.length === 1 ? '1 submission was' : missed.length + ' submissions were') + ' never copied to ' + esc(to) + '.</b> '
           + (function () {
-            /* a caregiver application from 21 to 23 Oct 2026 went to the payments inboxes only */
-            var cg = missed.filter(function (x) { return x.kind === 'PFA-CG'; }).length;
+            /* from 21 to 23 Oct 2026 caregiver applications went to the
+               payments inboxes only, and memberships and volunteer
+               applications to nobody */
+            var held = missed.filter(function (x) { return x.kind === 'PFA-CG' || x.kind === 'PFA-MEM' || x.kind === 'PFA-V'; }).length;
             var one = missed.length === 1;
-            if (cg === missed.length) return (one ? 'It is a caregiver application that' : 'They are caregiver applications that') + ' went only to the payments inboxes (21 to 23 Oct). ';
-            if (cg) return 'Some arrived while email was not set up; the caregiver applications went only to the payments inboxes (21 to 23 Oct). ';
+            var why = 'from 21 to 23 Oct, when caregiver, membership and volunteer applications did not come to this inbox. ';
+            if (held === missed.length) return (one ? 'It is ' : 'They are ') + why;
+            if (held) return 'Some arrived while email was not set up; the rest are ' + why;
             return (one ? 'It' : 'They') + ' arrived while email was not set up. ';
           })()
           + (m.configured ? 'Each is still on record here; press the button below to send ' + (missed.length === 1 ? 'its copy' : 'their copies') + ' now.' : 'Once email is set up, they can be sent from here.') + '</p>'
@@ -1445,9 +1503,7 @@ window.addEventListener('unhandledrejection', function (event) {
     var text = label || STATUS_WORDS[status] || status;
     return '<span class="flag" data-s="' + esc(status) + '">' + esc(text) + '</span>';
   }
-  /* The person answered and PFA has not yet: the only sign of it for a
-     record kept in the panel only (volunteers, memberships), which reaches
-     no inbox (21 Oct 2026). Gone once PFA replies. */
+  /* The person answered and PFA has not yet. Gone once PFA replies. */
   function wrote(r) {
     return r && r.awaitingReply ? ' <span class="flag" data-s="wrote" title="' + esc('Wrote back ' + when(r.lastInboundAt || r.lastReplyAt)) + '">Wrote back</span>' : '';
   }
