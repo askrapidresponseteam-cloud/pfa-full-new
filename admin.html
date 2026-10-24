@@ -305,7 +305,7 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
 .msg details{font-size:12px;margin:4px 0 0}.msg details summary{cursor:pointer;color:var(--muted)}
 .shots{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px}
 .shots figure{margin:0}
-.shots img{width:132px;height:132px;object-fit:cover;border:1px solid var(--line);display:block}
+.shots img{width:132px;height:132px;object-fit:contain;background:var(--stone);border:1px solid var(--line);display:block}
 .shots figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
 .decide{margin:0 0 16px;padding:0 0 16px;border-bottom:1px solid var(--line)}
 .decide .row2{margin:6px 0 0}
@@ -374,6 +374,29 @@ details.fold[open] > summary{margin-bottom:8px}
 .ap{border:1px solid var(--line);padding:16px;display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
 .ap[data-done]{grid-template-columns:minmax(0,340px) minmax(0,1fr);background:var(--stone)}
 .ap canvas{width:100%;height:auto;display:block;border:1px solid var(--line);background:#fff}
+/* A card on the screen opens its preview: the card itself, and a word under it. */
+.cardbtn{display:block;width:100%;padding:0;margin:0;border:0;background:none;cursor:zoom-in;text-align:left}
+.cardlink{display:inline-block;margin:8px 0 0;padding:0;border:0;background:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+/* The card, previewed (24 Oct 2026): both faces, large, as they print. */
+.cardview{position:fixed;inset:0;z-index:120;background:rgba(10,10,10,.55);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;padding:24px 16px}
+.cardview[hidden]{display:none}
+.cardview__box{background:var(--paper);width:min(1480px,100%);padding:20px;border:1px solid var(--line)}
+.cardview__head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+.cardview__head h3{margin:0;font-family:var(--display);font-weight:400;font-size:19px;line-height:1.3;min-width:0;overflow-wrap:anywhere}
+.cardview__head .ghost{margin-left:auto;flex:none}
+.cardview__faces{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:20px}
+.cardview figure{margin:0;min-width:0}
+.cardview canvas{width:100%;max-width:100%;height:auto;display:block;box-shadow:0 10px 30px rgba(0,0,0,.16)}
+.cardview figcaption{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.cardview .note{font-size:12px;color:var(--muted);margin:14px 0 0}
+.cardview .note:empty{display:none}
+.cardview__tools{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+.cardview__tools [aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.cardview .say{margin:4px 0 12px}
+#cardViewSay:empty{display:none}
+.cardview[data-mode="preview"] [data-issued]{display:none}
+.cardview [hidden]{display:none}
+.cardview[data-actual] .cardview__faces{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),max-content))}
 .ap h4{margin:0;font-size:17px;font-weight:700;line-height:1.3}
 .ap .meta{margin:4px 0 0;font-size:12px;color:var(--muted)}
 .checks{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px;font-size:13px;line-height:1.4}
@@ -587,7 +610,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         <button class="ghost" type="button" id="cgClear">Clear</button>
       </div>
       <div class="wrap"><table><thead><tr>
-        <th>Card</th><th>Name</th><th>Issued</th><th>Valid to</th><th>Printed</th><th>State</th>
+        <th>Card</th><th>Name</th><th>Issued</th><th>Valid to</th><th>Printed</th><th>State</th><th aria-label="Card studio"></th>
       </tr></thead><tbody id="cgRows"></tbody></table></div>
       <div class="more"><button class="ghost" type="button" id="cgMore" hidden>Load more</button></div>
     </div>
@@ -725,6 +748,33 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <p class="say" id="caseSay" role="status" aria-live="polite"></p>
   </div>
 </aside>
+<!-- The card studio: both faces, large, exactly as they print, and what the
+     owner's template offers an administrator (24 Oct 2026: "add a preview
+     the card option for the admin. front and back", then the template "to be
+     updated for admin"): actual size, a PNG of each face, the PDF for a card
+     printer and A4 paper. Everything comes from the register; nothing is
+     typed in. The panel is the only place a card is ever drawn. -->
+<div class="cardview" id="cardView" role="dialog" aria-modal="true" aria-labelledby="cardViewTitle" hidden>
+  <div class="cardview__box">
+    <div class="cardview__head"><h3 id="cardViewTitle">Card studio</h3><button class="ghost" type="button" id="cardViewShut">Close</button></div>
+    <div class="cardview__tools">
+      <button class="ghost" type="button" data-view-do="pdf" data-issued>Print / Save PDF</button>
+      <button class="ghost" type="button" data-view-do="a4" data-issued>A4 paper (PDF)</button>
+      <button class="ghost" type="button" data-view-do="png-front" data-issued>Save front PNG</button>
+      <button class="ghost" type="button" data-view-do="png-back" data-issued>Save back PNG</button>
+      <button class="ghost" type="button" data-view-do="photo" data-issued>Use a photograph from this computer</button>
+      <button class="ghost" type="button" data-view-do="actual" aria-pressed="false">Show actual card size</button>
+      <input type="file" id="cardViewPhoto" class="pick" accept="image/png,image/jpeg,image/webp" aria-label="A photograph for this card, from this computer">
+    </div>
+    <p class="say" id="cardViewSay" role="status" aria-live="polite"></p>
+    <div class="cardview__faces">
+      <figure><canvas data-view="front" aria-label="The front of the card"></canvas><figcaption>Front</figcaption></figure>
+      <figure><canvas data-view="back" aria-label="The back of the card"></canvas><figcaption>Back</figcaption></figure>
+    </div>
+    <p class="note" id="cardViewNote"></p>
+    <p class="note" id="cardViewGuide" data-issued>Card printer: Print / Save PDF, one face a page at 85.6 x 54 mm. Paper: A4 paper (PDF), four cards a sheet, printed at 100% (Actual size) with headers and footers off; check one paper proof before a batch. PNGs are 600 dpi and carry it, so they print at 85.6 x 54 mm.</p>
+  </div>
+</div>
 
 <script>
 /* If anything below fails to parse or throws while starting up, the page still
@@ -1882,7 +1932,7 @@ window.addEventListener('unhandledrejection', function (event) {
   var cgCursor = null;
   function caregivers(reset) {
     var body = $('#cgRows');
-    if (reset) { cgCursor = null; body.innerHTML = '<tr><td colspan="6" class="loading">Reading\u2026</td></tr>'; }
+    if (reset) { cgCursor = null; body.innerHTML = '<tr><td colspan="7" class="loading">Reading\u2026</td></tr>'; }
     var q = $('#cgQ').value.trim();
     var url = '/api/admin/records?type=caregivers&limit=25'
       + (q ? '&q=' + encodeURIComponent(q) : (cgCursor ? '&cursor=' + encodeURIComponent(cgCursor) : ''));
@@ -1890,7 +1940,7 @@ window.addEventListener('unhandledrejection', function (event) {
       var rows = data.rows || [];
       if (reset) body.innerHTML = '';
       if (!rows.length && reset) {
-        body.innerHTML = '<tr><td colspan="6"><div class="empty"><b>Nothing found</b>'
+        body.innerHTML = '<tr><td colspan="7"><div class="empty"><b>Nothing found</b>'
           + esc(data.message || 'Cards issued from an application appear here.') + '</div></td></tr>';
       }
       body.insertAdjacentHTML('beforeend', rows.map(function (r) {
@@ -1901,12 +1951,13 @@ window.addEventListener('unhandledrejection', function (event) {
           + '<td>' + esc(when(r.validUntil)) + '</td>'
           + '<td>' + (r.printed ? 'Yes' : 'Not yet') + '</td>'
           + '<td><span class="flag" data-s="' + (state === 'valid' ? 'handled' : 'spam') + '">'
-          + esc(state) + '</span></td></tr>';
+          + esc(state) + '</span></td>'
+          + '<td>' + (can('cards') && (r.cardId || r.id) ? '<button class="ghost" type="button" data-studio="' + esc(r.cardId || r.id) + '">Open</button>' : '') + '</td></tr>';
       }).join(''));
       cgCursor = data.cursor || null;
       $('#cgMore').hidden = !cgCursor || Boolean(q);
     }).catch(function (e) {
-      body.innerHTML = '<tr><td colspan="6"><div class="empty"><b>Nothing to show</b>' + esc(e.message) + '</div></td></tr>';
+      body.innerHTML = '<tr><td colspan="7"><div class="empty"><b>Nothing to show</b>' + esc(e.message) + '</div></td></tr>';
     });
   }
 
@@ -2212,19 +2263,22 @@ window.addEventListener('unhandledrejection', function (event) {
      drawer, from the application's own fields. The photograph is the
      applicant's first attachment, once shots() has it. */
   var previewPhoto = { reference: '', data: '' };
-  function previewCard(c) {
-    var C = window.PFACaregiverCard;
-    if (!C || !$('#cardPreview')) return;
+  function caseCardData(c) {
     var f = c.fields || {};
     var address = [f.address, f.city].filter(Boolean).join(', ');
     var typed = $('#casePrintName') && !$('#caseDecide').hidden ? String($('#casePrintName').value || '').replace(/\s+/g, ' ').trim() : '';
-    var data = {
+    return {
       cardId: c.cardId || '',
       name: f.name || '', printName: c.cardId ? (c.printName || '') : typed, address: address, mobile: f.mobile || '', email: f.email || '',
       district: f.district || '', state: f.state || '',
       issuedOn: c.cardId ? (c.handledAt || c.createdAt || '') : new Date().toISOString(),
       photo: previewPhoto.reference === c.reference ? previewPhoto.data : ''
     };
+  }
+  function previewCard(c) {
+    var C = window.PFACaregiverCard;
+    if (!C || !$('#cardPreview')) return;
+    var data = caseCardData(c);
     C.loadAssets().then(function (assets) {
       return C.hydrate(data).then(function (full) {
         ['front', 'back'].forEach(function (side) {
@@ -2234,6 +2288,138 @@ window.addEventListener('unhandledrejection', function (event) {
       });
     }).catch(function (e) { var n = $('#previewNote'); if (n) n.textContent = 'The card could not be drawn: ' + e.message; });
   }
+
+  /* ---- the card, previewed ------------------------------------------------
+     Owner, 24 Oct 2026: "add a preview the card option for the admin. front
+     and back". Both faces, as large as the screen allows, drawn by the
+     renderer that makes the print PDF from the same data, so what is seen
+     here is what prints. Opened from a card in Applications to decide, in
+     the application drawer and on the Print and post sheet. */
+  var viewing = null;
+  var viewFrom = null;
+  var viewActual = false;
+  var CARD_MM = { w: 85.6, h: 54 };
+  /* opts.issued: a card on the register, which the studio may print. A card
+     not issued yet (an application) is shown, never printed. */
+  function cardView(data, title, note, opts) {
+    var box = $('#cardView');
+    if (!window.PFACaregiverCard || !box) return;
+    var issued = Boolean(opts && opts.issued) && window.PFACaregiverCard.isIssued(data);
+    viewing = data;
+    viewFrom = document.activeElement;
+    $('#cardViewTitle').textContent = title || 'Card studio';
+    $('#cardViewNote').textContent = note || '';
+    say($('#cardViewSay'), '');
+    box.setAttribute('data-mode', issued ? 'issued' : 'preview');
+    var pick = box.querySelector('[data-view-do="photo"]');
+    if (pick) pick.hidden = !issued || Boolean(data.photo);
+    box.hidden = false;
+    paintView();
+    $('#cardViewShut').focus();
+  }
+  /* The studio's photograph arrived after it opened (a card from an
+     application): the faces are drawn again with it. */
+  function viewPhoto(data, photo) {
+    if (viewing !== data || !photo) return;
+    data.photo = photo;
+    var pick = $('#cardView [data-view-do="photo"]');
+    if (pick) pick.hidden = true;
+    paintView();
+  }
+  function paintView() {
+    var C = window.PFACaregiverCard;
+    var data = viewing;
+    if (!C || !data) return;
+    C.loadAssets().then(function (assets) {
+      return C.hydrate(data).then(function (full) {
+        if (viewing !== data) return;
+        ['front', 'back'].forEach(function (side) {
+          var canvas = $('#cardView canvas[data-view="' + side + '"]');
+          if (!canvas) return;
+          /* actual size: 85.6 mm in CSS millimetres, as the template's
+             "Show actual card size" does (true on a screen of 96 CSS px to
+             the inch at 100% zoom) */
+          var width = viewActual ? (CARD_MM.w * 96 / 25.4) : Math.max(240, Math.floor(canvas.parentNode.clientWidth || 640));
+          C.draw(canvas, side, full, assets, width, Math.max(2, window.devicePixelRatio || 2));
+          /* the drawing is sized for its resolution; on the screen it takes
+             its frame's width, or 85.6 mm at actual size, never wider than
+             the screen and always in its own proportions */
+          canvas.style.width = viewActual ? CARD_MM.w + 'mm' : '100%';
+          canvas.style.height = 'auto';
+        });
+      });
+    }).catch(function (e) { $('#cardViewNote').textContent = 'The card could not be drawn: ' + e.message; });
+  }
+  function shutView() {
+    var box = $('#cardView');
+    if (!box || box.hidden) return;
+    box.hidden = true;
+    viewing = null;
+    if (viewFrom && viewFrom.focus) viewFrom.focus();
+  }
+  on('#cardViewShut', 'click', shutView);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('#cardView [data-view-do]');
+    if (!b || !viewing) return;
+    var C = window.PFACaregiverCard;
+    var what = b.getAttribute('data-view-do');
+    var data = viewing;
+    var done = function (text) { say($('#cardViewSay'), text, 'good'); };
+    var failed = function (err) { say($('#cardViewSay'), err.message, 'bad'); };
+    if (what === 'actual') {
+      viewActual = !viewActual;
+      b.setAttribute('aria-pressed', String(viewActual));
+      b.textContent = viewActual ? 'Show enlarged preview' : 'Show actual card size';
+      if (viewActual) $('#cardView').setAttribute('data-actual', ''); else $('#cardView').removeAttribute('data-actual');
+      paintView();
+      return;
+    }
+    if ($('#cardView').getAttribute('data-mode') !== 'issued') return;
+    if (what === 'photo') { $('#cardViewPhoto').click(); return; }
+    say($('#cardViewSay'), 'Drawing the card\u2026');
+    if (what === 'pdf') C.downloadPdf(data).then(function () { done('PDF saved: front and back, 85.6 x 54 mm a page.'); }).catch(failed);
+    if (what === 'a4') C.downloadA4([data]).then(function () { done('A4 PDF saved. Print at 100% (Actual size).'); }).catch(failed);
+    if (what === 'png-front' || what === 'png-back') {
+      C.downloadPng(data, what === 'png-front' ? 'front' : 'back').then(function () { done('PNG saved, 600 dpi.'); }).catch(failed);
+    }
+  });
+  /* A photograph from this computer, for a card whose application carried
+     none (cards from before applications). It stays in this browser: it is
+     drawn on this card and printed from here, never uploaded. */
+  on('#cardViewPhoto', 'change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    var data = viewing;
+    e.target.value = '';
+    if (!file || !data) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 6e6) { say($('#cardViewSay'), 'Choose a JPG, PNG or WebP under 6 MB.', 'bad'); return; }
+    window.PFACaregiverCard.normalisePhoto(file, 1600).then(function (url) {
+      keepPhoto(data.cardId, url);
+      viewPhoto(data, url);
+      say($('#cardViewSay'), 'Photograph placed on this card, in this browser only.', 'good');
+    }).catch(function (err) { say($('#cardViewSay'), err.message, 'bad'); });
+  });
+  on('#cardView', 'click', function (e) { if (e.target === e.currentTarget) shutView(); });
+  /* Escape closes the preview first, and only the preview: the drawer under
+     it stays open. Caught on the way down, before the drawer hears it. */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || $('#cardView').hidden) return;
+    e.stopImmediatePropagation();
+    shutView();
+  }, true);
+  var viewTimer = 0;
+  window.addEventListener('resize', function () {
+    if (!viewing) return;
+    clearTimeout(viewTimer);
+    viewTimer = setTimeout(paintView, 120);
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-case-view]');
+    if (!b || !openCase) return;
+    var f = openCase.fields || {};
+    cardView(caseCardData(openCase), 'The card for ' + (f.name || 'this applicant'),
+      openCase.cardId ? 'Card ' + openCase.cardId + ', exactly as it prints.' : 'Exactly as it would print. The card number is given when you issue it.',
+      { issued: Boolean(openCase.cardId) });
+  });
 
   function shots(reference, count) {
     if (!count) return;
@@ -2390,9 +2576,9 @@ window.addEventListener('unhandledrejection', function (event) {
 
     if (c.kind === 'PFA-CG') {
       out.push('<p class="lab">' + (c.cardId ? 'The card, as issued: ' + esc(c.cardId) : 'The card, as it would be issued') + '</p>'
-        + '<div class="preview" id="cardPreview"><figure><canvas data-side="front"></canvas><figcaption>Front</figcaption></figure>'
-        + '<figure><canvas data-side="back"></canvas><figcaption>Back</figcaption></figure>'
-        + '<p class="note" id="previewNote">Drawn from the application by the same renderer the holder’s card uses. ' + (c.cardId ? '' : 'The number and dates are set when you approve.') + '</p></div>');
+        + '<div class="preview" id="cardPreview"><figure><button class="cardbtn" type="button" data-case-view aria-label="Preview the card, front and back"><canvas data-side="front"></canvas></button><figcaption>Front</figcaption></figure>'
+        + '<figure><button class="cardbtn" type="button" data-case-view aria-label="Preview the card, front and back"><canvas data-side="back"></canvas></button><figcaption>Back</figcaption></figure>'
+        + '<p class="note" id="previewNote">Drawn from the application exactly as it prints. ' + (c.cardId ? '' : 'The number and dates are set when you approve. ') + '<button class="cardlink" type="button" data-case-view>Preview front and back</button></p></div>');
     }
     if (c.attachments) out.push('<p class="lab">' + (c.kind === 'PFA-CG' ? 'Photograph and address proof' : 'Photographs') + '</p><div class="shots" id="caseShots"></div>');
 
@@ -2902,6 +3088,7 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Colony cards', line: 'Issued caregiver cards', tab: 'caregivers', words: 'caregiver cards colony cct' },
     { title: 'Verify a card', line: 'The same answer the public check gives', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid' },
     { title: 'Print and post', line: 'Print approved cards and post them', tab: 'caregivers', anchor: '[data-pane="cards"]', words: 'issue print pdf bulk post posted cards' },
+    { title: 'Card studio', line: 'A card front and back, actual size, PDF, A4 and PNG', tab: 'caregivers', anchor: '[data-pane="caregivers"]', words: 'card studio preview front back print pdf png a4 paper actual size photo' },
     { title: 'Website', line: 'Show or hide pages and sections', tab: 'website', words: 'website visibility visible hidden hide show pages sections public site' },
     { title: 'People & audit', line: 'Who can use the panel, and what they did', tab: 'people', words: 'people staff admins accounts access permissions invite roles add person user login password team' },
     { title: 'History', line: 'Who changed what in the panel', tab: 'people', anchor: '#auQ', words: 'audit log history actions who did changed changes' },
@@ -3383,7 +3570,8 @@ window.addEventListener('unhandledrejection', function (event) {
     var decide = can('submissions');
     var place = [row.district, row.state].filter(Boolean).join(', ');
     return '<article class="ap" data-ref="' + esc(row.reference) + '">'
-      + '<div><canvas data-ap-card aria-label="The card as it would be issued"></canvas></div>'
+      + '<div><button class="cardbtn" type="button" data-ap="view" aria-label="Preview the card, front and back"><canvas data-ap-card aria-label="The card as it would be issued"></canvas></button>'
+      + '<button class="cardlink" type="button" data-ap="view">Preview front and back</button></div>'
       + '<div>'
       + '<h4>' + esc(row.name || 'No name') + '</h4>'
       + '<p class="meta">' + esc([place, 'Applied ' + when(row.receivedAtMs ? new Date(row.receivedAtMs).toISOString() : ''), row.reference].filter(Boolean).join(' · ')) + '</p>'
@@ -3540,6 +3728,12 @@ window.addEventListener('unhandledrejection', function (event) {
     if (!row) return;
     var what = b.getAttribute('data-ap');
     if (what === 'open') { showCase(row.reference); return; }
+    if (what === 'view') {
+      cardView(apCardData(row, node.issued), 'The card for ' + (row.name || 'this applicant'),
+        node.issued ? 'Card ' + node.issued.cardId + ', exactly as it prints.' : 'Exactly as it would print. The card number is given when you issue it.',
+        { issued: Boolean(node.issued) });
+      return;
+    }
     if (what === 'issue') { apIssue(row, node); return; }
     if (what === 'pdf' || what === 'png') { apDownload(row, node, what); return; }
     if (what === 'reject') {
@@ -3651,7 +3845,8 @@ window.addEventListener('unhandledrejection', function (event) {
         + '<input type="file" id="cardPhotos" class="pick" accept="image/*" multiple>'
         + '<button class="ghost" type="button" id="cardPick">Match photographs from a folder</button>'
         + '<button class="ghost" type="button" id="cardAll">Tick all</button>'
-        + '<button class="ghost" type="button" id="cardPdf">Download PDF</button>'
+        + '<button class="ghost" type="button" id="cardPdf">PDF for the card printer</button>'
+        + '<button class="ghost" type="button" id="cardA4">PDF on A4 paper</button>'
         + '<button class="ghost" type="button" id="cardLabels">Download addresses</button>'
         + '<button class="ghost" type="button" id="cardPrinted">Mark as printed</button>'
         + '<button class="ghost" type="button" id="cardPosted">Mark as posted</button>'
@@ -3667,6 +3862,7 @@ window.addEventListener('unhandledrejection', function (event) {
         $$('#cardSheet input[type=checkbox]').forEach(function (b) { b.checked = true; });
       });
       on('#cardPdf', 'click', makePdf);
+      on('#cardA4', 'click', function () { makePdf('a4'); });
       on('#cardLabels', 'click', labels);
       on('#cardPrinted', 'click', function () { mark('printed'); });
       on('#cardPosted', 'click', function () {
@@ -3682,7 +3878,7 @@ window.addEventListener('unhandledrejection', function (event) {
     /* nothing to tick: the batch buttons are not offered (21 Oct 2026); and
        each step offers its own: printing before it is printed, posting after */
     var any = sheet.length > 0;
-    var show = { '#cardPick': any && cardFilter !== 'unposted', '#cardAll': any, '#cardPdf': any, '#cardLabels': any,
+    var show = { '#cardPick': any && cardFilter !== 'unposted', '#cardAll': any, '#cardPdf': any, '#cardA4': any, '#cardLabels': any,
       '#cardPrinted': any && cardFilter === 'unprinted', '#cardPosted': any && cardFilter === 'unposted' };
     Object.keys(show).forEach(function (id) { var b = $(id); if (b) b.hidden = !show[id]; });
     if (!sheet.length) {
@@ -3697,7 +3893,7 @@ window.addEventListener('unhandledrejection', function (event) {
     box.innerHTML = sheet.map(function (row) {
       var done = row.printed || row.printedAt;
       return '<figure' + (done ? ' data-printed="1"' : '') + (row.postedAt ? ' data-posted="1"' : '') + '><label><input type="checkbox" value="' + esc(row.id) + '"> ' + esc(row.id) + '</label>'
-        + '<canvas data-face="' + esc(row.id) + '"></canvas>'
+        + '<button class="cardbtn" type="button" data-view-card="' + esc(row.id) + '" aria-label="Preview ' + esc(row.id) + ', front and back"><canvas data-face="' + esc(row.id) + '"></canvas></button>'
         + '<figcaption><b>' + esc(row.name || '-') + '</b><br>' + (row.postTo || []).map(esc).join('<br>')
         + (row.postable === false ? '<br><span class="flag">No postal address</span>' : '')
         + (done ? '<br><span class="flag">Printed ' + esc(row.printedAt ? when(row.printedAt) : '') + '</span>' : '')
@@ -3720,20 +3916,73 @@ window.addEventListener('unhandledrejection', function (event) {
   /* Cards approved from an application carry the applicant's photograph
        on the record; fetch it once and redraw that face. */
     sheet.forEach(function (row) {
-      if (!row.applicationRef || photos.has('app:' + row.applicationRef) || photos.has(row.id)) return;
-      photos.set('app:' + row.applicationRef, '');   /* one request per card */
-      api('/api/admin/attachment?reference=' + encodeURIComponent(row.applicationRef) + '&n=1').then(function (data) {
-        var b64 = data && (data.data || data.bytes);
-        if (!b64) return;
-        photos.set('app:' + row.applicationRef, 'data:' + (data.contentType || 'image/jpeg') + ';base64,' + b64);
+      if (!row.applicationRef || photos.get('app:' + row.applicationRef) || photos.get(row.id)) return;
+      cardPhoto(row).then(function (url) {
+        if (!url) return;
         var canvas = $('#cardSheet [data-face="' + row.id + '"]');
         if (!canvas) return;
         C.loadAssets().then(function (assets) {
           return C.hydrate(cardData(row)).then(function (full) { C.draw(canvas, 'front', full, assets, 230, window.devicePixelRatio || 2); });
         });
-      }).catch(function () { photos.delete('app:' + row.applicationRef); });
+      });
     });
   }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-view-card]');
+    if (!b) return;
+    var row = sheet.filter(function (r) { return r.id === b.getAttribute('data-view-card'); })[0];
+    if (row) studio(row);
+  });
+
+  /* The studio for a card on the register: its own data, with the
+     applicant's photograph once it is fetched. */
+  function studio(row) {
+    var data = cardData(row);
+    cardView(data, 'Card studio: ' + (row.name || row.id), 'Card ' + row.id + ', exactly as it prints.', { issued: true });
+    if (!data.photo) cardPhoto(row).then(function (url) { viewPhoto(data, url); });
+  }
+
+  /* A photograph chosen in the studio is the card's for this browser, as
+     one matched from a folder is: the print sheet draws it too. */
+  function keepPhoto(cardId, url) {
+    if (!cardId || !url) return;
+    photos.set(cardId, url);
+    if (loaded.cards && $('#cardSheet')) paint();
+  }
+
+  /* The applicant's photograph for a card, fetched once (the application's
+     first attachment). Resolves '' when there is none. */
+  var photoAsks = {};
+  function cardPhoto(row) {
+    var held = photos.get(row.id) || photos.get('app:' + row.applicationRef);
+    if (held) return Promise.resolve(held);
+    if (!row.applicationRef) return Promise.resolve('');
+    var key = 'app:' + row.applicationRef;
+    if (!photoAsks[key]) {
+      photoAsks[key] = api('/api/admin/attachment?reference=' + encodeURIComponent(row.applicationRef) + '&n=1').then(function (data) {
+        var b64 = data && (data.data || data.bytes);
+        if (!b64) return '';
+        var url = 'data:' + (data.contentType || 'image/jpeg') + ';base64,' + b64;
+        photos.set(key, url);
+        return url;
+      }).catch(function () { delete photoAsks[key]; return ''; });
+    }
+    return photoAsks[key];
+  }
+
+  /* From the register (Colony cards): Open, into the studio. */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-studio]');
+    if (!b) return;
+    var id = b.getAttribute('data-studio');
+    b.disabled = true;
+    api('/api/admin/cards?type=caregiver&filter=all&q=' + encodeURIComponent(id)).then(function (data) {
+      var row = (data.rows || []).filter(function (r) { return r.id === id; })[0];
+      if (!row) throw new Error('That card is not on the register.');
+      studio(row);
+    }).catch(function (err) { window.alert(err.message); }).then(function () { b.disabled = false; });
+  });
 
   /* Filenames carry the card number: PFA-CCT-4K2M8QRT.jpg. Read locally. */
   function match(event) {
@@ -3757,20 +4006,37 @@ window.addEventListener('unhandledrejection', function (event) {
     return $$('#cardSheet input[type=checkbox]:checked').map(function (b) { return b.value; });
   }
 
-  function makePdf() {
+  /* The ticked cards as one PDF: for a card printer (each face a page at
+     85.6 x 54 mm), or on A4 paper (four cards a sheet, at actual size). The
+     applicant's photograph is fetched first, so no card goes to print
+     before its photograph is in. */
+  function makePdf(mode) {
+    var a4 = mode === 'a4';
     var ids = ticked();
     if (!ids.length) { say($('#cardSay'), 'Tick at least one card first.', 'bad'); return; }
     say($('#cardSay'), 'Drawing ' + ids.length + ' cards\u2026');
     var chosen = sheet.filter(function (row) { return ids.indexOf(row.id) !== -1; });
-    C.loadAssets().then(function () {
+    Promise.all(chosen.map(cardPhoto)).then(function () {
+      return C.loadAssets();
+    }).then(function () {
       return Promise.all(chosen.map(function (row) { return C.hydrate(cardData(row)); }));
     }).then(function (all) {
       /* every card in the batch exactly as issued, or none: a card with a
-         stand-in where a value should be is named, and nothing is written */
-      var bad = all.map(function (data, i) { return { id: chosen[i].id, missing: C.unprintable(data) }; }).filter(function (b) { return b.missing.length; });
+         stand-in where a value should be, or with no photograph, is named,
+         and nothing is written */
+      var bad = all.map(function (data, i) {
+        var missing = [].slice.call(C.unprintable(data));
+        if (!data.photoImage) missing.push('photograph');
+        return { id: chosen[i].id, missing: missing };
+      }).filter(function (b) { return b.missing.length; });
       if (bad.length) throw new Error('Not printed. ' + bad.map(function (b) { return b.id + ' has no ' + b.missing.join(', no '); }).join('; ') + '.');
       return Promise.all(all.map(function (data) { return C.printReady(data); }));
     }).then(function (all) {
+      if (a4) {
+        return C.downloadA4(all, 'pfa-colony-cards-a4.pdf').then(function () {
+          say($('#cardSay'), ids.length + (ids.length === 1 ? ' card' : ' cards') + ' on A4 paper, four a sheet. Print at 100% (Actual size).', 'good');
+        });
+      }
       var pages = [];
       all.forEach(function (data) {
         ['front', 'back'].forEach(function (side) {
@@ -3780,6 +4046,7 @@ window.addEventListener('unhandledrejection', function (event) {
       });
       C.saveBlob(C._buildPdf(pages), 'pfa-colony-cards.pdf');
       say($('#cardSay'), ids.length + ' cards written to a PDF.', 'good');
+      return null;
     }).catch(function (e) { say($('#cardSay'), e.message, 'bad'); });
   }
 
@@ -3798,7 +4065,7 @@ window.addEventListener('unhandledrejection', function (event) {
     sheet.filter(function (row) { return ids.indexOf(row.id) !== -1; }).forEach(function (row) {
       rows.push([row.id, row.name, row.address, row.district, row.placeState, row.pin, row.mobile]);
     });
-    var text = '﻿' + rows.map(function (r) { return r.map(cell).join(','); }).join('\r\n') + '\r\n';
+    var text = '\ufeff' + rows.map(function (r) { return r.map(cell).join(','); }).join('\r\n') + '\r\n';
     C.saveBlob(new Blob([text], { type: 'text/csv;charset=utf-8' }), 'pfa-colony-cards-addresses.csv');
     say($('#cardSay'), (rows.length - 1) + (rows.length === 2 ? ' address' : ' addresses') + ' written to a spreadsheet.', 'good');
   }

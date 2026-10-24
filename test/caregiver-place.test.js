@@ -145,7 +145,8 @@ test('a card already issued without its place gets it from its application, once
 
 test('the drawer preview and the print sheet hand the district and state to the renderer', () => {
   const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
-  const preview = html.slice(html.indexOf('function previewCard('), html.indexOf('function shots('));
+  /* the drawer's card data (caseCardData), drawn by previewCard and the card studio */
+  const preview = html.slice(html.indexOf('function caseCardData('), html.indexOf('function previewCard('));
   assert.match(preview, /district: f\.district \|\| ''/);
   assert.match(preview, /state: f\.state \|\| ''/);
   const sheet = html.slice(html.indexOf('function cardData('), html.indexOf('function cardsPane('));

@@ -90,8 +90,10 @@
     backSize: 14.0781
   };
 
-  /* The photograph's well, inside its border: for a photo editor. */
-  var PHOTO_ASPECT = (L.photo.h - 2) / (L.photo.w - 2);   // height / width
+  /* The photograph's well, inside its border: for a photo editor. A
+     picture of these proportions fills it; any other is shown whole,
+     smaller, and never cut. */
+  var PHOTO_ASPECT = photoWell().h / photoWell().w;   // height / width
 
   /* A real card number from the register. A preview has none. */
   var ISSUED_CARD = /^PFA-CCT-[A-Z0-9]{8}$/;
@@ -150,6 +152,25 @@
     var dw = iw * ratio;
     var dh = ih * ratio;
     ctx.drawImage(image, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  }
+
+  /* Inside the photograph's border, a hairline clear of it all round. */
+  function photoWell() {
+    var ph = L.photo;
+    var inset = L.line + 1;
+    return { x: ph.x + inset, y: ph.y + inset, w: ph.w - inset * 2, h: ph.h - inset * 2 };
+  }
+
+  /* The largest the whole picture can be inside a box, in its own
+     proportions, centred: where it goes, in the box's units. */
+  function fitWhole(image, b) {
+    var iw = image.naturalWidth || image.width;
+    var ih = image.naturalHeight || image.height;
+    if (!iw || !ih) return { x: b.x, y: b.y, w: b.w, h: b.h };
+    var ratio = Math.min(b.w / iw, b.h / ih);
+    var w = iw * ratio;
+    var h = ih * ratio;
+    return { x: b.x + (b.w - w) / 2, y: b.y + (b.h - h) / 2, w: w, h: h };
   }
 
   function containDraw(ctx, image, x, y, w, h) {
@@ -267,18 +288,22 @@
       ctx.fillText(line.text, P.v(r.valueX), P.v(r.valueY + r.step * i));
     });
 
-    /* The photograph: white, the picture inside its border, the border. */
+    /* The photograph: white, the whole picture inside its border, the
+       border. Never cropped (owner, 24 Oct 2026: "photo cannot get clipped
+       or cropped"): it is scaled to fit the box whole, keeping its own
+       proportions, and centred; whatever of the box it does not fill stays
+       white, like a photograph mounted in a frame. The box itself is the
+       same on every card. */
     var ph = L.photo;
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(P.v(ph.x), P.v(ph.y), P.v(ph.w), P.v(ph.h));
     if (data.photoImage) {
       ctx.save();
-      ctx.beginPath();
-      ctx.rect(P.v(ph.x + 1), P.v(ph.y + 1), P.v(ph.w - 2), P.v(ph.h - 2));
-      ctx.clip();
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      coverDraw(ctx, data.photoImage, P.v(ph.x + 1), P.v(ph.y + 1), P.v(ph.w - 2), P.v(ph.h - 2));
+      var well = photoWell();
+      var fit = fitWhole(data.photoImage, well);
+      ctx.drawImage(data.photoImage, P.v(fit.x), P.v(fit.y), P.v(fit.w), P.v(fit.h));
       ctx.restore();
     } else {
       ctx.fillStyle = PHOTO_INK;
@@ -462,6 +487,154 @@
     return new Blob(parts, { type: 'application/pdf' });
   }
 
+  /* ---- A4 paper (24 Oct 2026, the template's print guide) -------------------
+     The template prints on A4 at actual size: "use A4, 100% / Actual size,
+     with browser headers and footers off. Each card prints at 85.6 x 54 mm."
+     So does this: an A4 portrait PDF, 15 mm margins as the template sets
+     them, one card to a row with its front on the left and its back on the
+     right, 10 mm between rows: four cards to a sheet, each face at exactly
+     85.6 x 54 mm, its own edge line to cut along. */
+  var A4 = { w: 210, h: 297, margin: 15, rowGap: 10, perSheet: 4 };
+
+  function a4Layout(count) {
+    var sheets = [];
+    var colGap = A4.w - A4.margin * 2 - CARD.w * 2;
+    for (var i = 0; i < count; i += 1) {
+      var sheet = Math.floor(i / A4.perSheet);
+      var row = i % A4.perSheet;
+      var y = A4.margin + row * (CARD.h + A4.rowGap);
+      if (!sheets[sheet]) sheets[sheet] = [];
+      sheets[sheet].push({ card: i, side: 'front', xMm: A4.margin, yMm: y });
+      sheets[sheet].push({ card: i, side: 'back', xMm: A4.margin + CARD.w + colGap, yMm: y });
+    }
+    return sheets;
+  }
+
+  /* A PDF of sheets, each with images placed in millimetres from the top
+     left: { wMm, hMm, items: [{ xMm, yMm, wMm, hMm, width, height, bytes }] }. */
+  function buildSheetPdf(sheets) {
+    var encoder = new TextEncoder();
+    var parts = [];
+    var length = 0;
+    var offsets = [0];
+    function push(chunk) {
+      var bytes = typeof chunk === 'string' ? encoder.encode(chunk) : chunk;
+      parts.push(bytes);
+      length += bytes.length;
+    }
+    function startObject(number) {
+      offsets[number] = length;
+      push(number + ' 0 obj\n');
+    }
+    function pt(mm) { return (mm * 72) / 25.4; }
+    var next = 3;
+    var plan = sheets.map(function (sheet) {
+      var page = next; next += 1;
+      var content = next; next += 1;
+      var images = sheet.items.map(function () { var n = next; next += 1; return n; });
+      return { sheet: sheet, page: page, content: content, images: images };
+    });
+    push('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+    startObject(1); push('<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+    startObject(2); push('<< /Type /Pages /Kids [' + plan.map(function (p) { return p.page + ' 0 R'; }).join(' ') + '] /Count ' + plan.length + ' >>\nendobj\n');
+    plan.forEach(function (p) {
+      var W = pt(p.sheet.wMm);
+      var H = pt(p.sheet.hMm);
+      var draw = p.sheet.items.map(function (item, i) {
+        var w = pt(item.wMm);
+        var h = pt(item.hMm);
+        return 'q ' + w.toFixed(3) + ' 0 0 ' + h.toFixed(3) + ' ' + pt(item.xMm).toFixed(3) + ' ' + (H - pt(item.yMm) - h).toFixed(3) + ' cm /Im' + i + ' Do Q';
+      }).join('\n') + '\n';
+      var xobjects = p.images.map(function (n, i) { return '/Im' + i + ' ' + n + ' 0 R'; }).join(' ');
+      startObject(p.page);
+      push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W.toFixed(3) + ' ' + H.toFixed(3)
+        + '] /Resources << /XObject << ' + xobjects + ' >> >> /Contents ' + p.content + ' 0 R >>\nendobj\n');
+      startObject(p.content);
+      push('<< /Length ' + draw.length + ' >>\nstream\n' + draw + 'endstream\nendobj\n');
+      p.sheet.items.forEach(function (item, i) {
+        startObject(p.images[i]);
+        push('<< /Type /XObject /Subtype /Image /Width ' + item.width + ' /Height ' + item.height
+          + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + item.bytes.length + ' >>\nstream\n');
+        push(item.bytes);
+        push('\nendstream\nendobj\n');
+      });
+    });
+    var objectCount = next - 1;
+    var xrefOffset = length;
+    var xref = 'xref\n0 ' + (objectCount + 1) + '\n0000000000 65535 f \n';
+    for (var number = 1; number <= objectCount; number += 1) {
+      xref += String(offsets[number]).padStart(10, '0') + ' 00000 n \n';
+    }
+    push(xref);
+    push('trailer\n<< /Size ' + (objectCount + 1) + ' /Root 1 0 R >>\nstartxref\n' + xrefOffset + '\n%%EOF\n');
+    return new Blob(parts, { type: 'application/pdf' });
+  }
+
+  /* Ready cards (hydrated and checked) onto A4 sheets. */
+  function a4Pdf(cards) {
+    var faces = cards.map(function (data) {
+      return { front: offscreen('front', data, PRINT_DPI), back: offscreen('back', data, PRINT_DPI) };
+    });
+    var sheets = a4Layout(cards.length).map(function (placed) {
+      return {
+        wMm: A4.w, hMm: A4.h,
+        items: placed.map(function (spot) {
+          var canvas = faces[spot.card][spot.side];
+          return { xMm: spot.xMm, yMm: spot.yMm, wMm: CARD.w, hMm: CARD.h, width: canvas.width, height: canvas.height, bytes: jpegBytes(canvas, 0.95) };
+        })
+      };
+    });
+    return buildSheetPdf(sheets);
+  }
+
+  function downloadA4(list, filename) {
+    var cards = Array.isArray(list) ? list : [list];
+    return loadAssets().then(function () {
+      return Promise.all(cards.map(function (data) {
+        return (data && data.patternImage ? Promise.resolve(data) : hydrate(data)).then(printReady);
+      }));
+    }).then(function (ready) {
+      saveBlob(a4Pdf(ready), filename || (cards.length === 1 ? fileStem(cards[0]) + '-a4.pdf' : 'pfa-colony-cards-a4.pdf'));
+    });
+  }
+
+  /* ---- a PNG that prints at its size -------------------------------------
+     The template's PNGs are "approximately 600 dpi at that size; set their
+     printed width to 85.6 mm". These carry their resolution in the file (a
+     pHYs chunk), so a photo printer or a layout program places them at
+     85.6 x 54 mm without being told. */
+  var CRC_TABLE = null;
+  function crc32(bytes) {
+    if (!CRC_TABLE) {
+      CRC_TABLE = [];
+      for (var n = 0; n < 256; n += 1) {
+        var c = n;
+        for (var k = 0; k < 8; k += 1) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        CRC_TABLE[n] = c >>> 0;
+      }
+    }
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < bytes.length; i += 1) crc = CRC_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function pngWithDpi(bytes, dpi) {
+    var ppm = Math.round(dpi / 0.0254);
+    var chunk = new Uint8Array(21);
+    var view = new DataView(chunk.buffer);
+    view.setUint32(0, 9);
+    chunk.set([0x70, 0x48, 0x59, 0x73], 4);           // pHYs
+    view.setUint32(8, ppm);
+    view.setUint32(12, ppm);
+    chunk[16] = 1;                                    // per metre
+    view.setUint32(17, crc32(chunk.subarray(4, 17)));
+    var ihdrEnd = 8 + 4 + 4 + 13 + 4;                 // signature, then IHDR
+    var out = new Uint8Array(bytes.length + chunk.length);
+    out.set(bytes.subarray(0, ihdrEnd), 0);
+    out.set(chunk, ihdrEnd);
+    out.set(bytes.subarray(ihdrEnd), ihdrEnd + chunk.length);
+    return out;
+  }
+
   function saveBlob(blob, filename) {
     var url = URL.createObjectURL(blob);
     var link = document.createElement('a');
@@ -547,6 +720,8 @@
       }
       var missing = unprintable(data || {});
       if (missing.length) throw new Error('This card is not ready to print: no ' + missing.join(', no ') + '.');
+      /* a card is never printed with PHOTO where the face should be */
+      if (!data.photoImage) throw new Error('This card has no photograph, so it is not printed. Add one with "Use a photograph from this computer", or match one from a folder.');
       return data;
     });
   }
@@ -561,6 +736,10 @@
         return chain.then(function (blobs) {
           var canvas = offscreen(one, out[1], PRINT_DPI);
           return toBlob(canvas, 'image/png').then(function (blob) {
+            return blob.arrayBuffer().then(function (buffer) {
+              return new Blob([pngWithDpi(new Uint8Array(buffer), PRINT_DPI)], { type: 'image/png' });
+            });
+          }).then(function (blob) {
             saveBlob(blob, fileStem(data) + '-' + one + '.png');
             blobs.push(blob);
             return blobs;
@@ -592,8 +771,15 @@
   window.PFACaregiverCard = {
     CARD: CARD,
     REF: REF,
+    photoFit: function (image) { return fitWhole(image, photoWell()); },
+    photoWell: photoWell,
     PHOTO_ASPECT: PHOTO_ASPECT,
     _buildPdf: buildPdf,
+    _buildSheetPdf: buildSheetPdf,
+    _pngWithDpi: pngWithDpi,
+    A4: A4,
+    a4Layout: a4Layout,
+    downloadA4: downloadA4,
     PRINT_DPI: PRINT_DPI,
     draw: draw,
     downloadPng: downloadPng,
