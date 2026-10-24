@@ -1260,7 +1260,7 @@ window.addEventListener('unhandledrejection', function (event) {
         var pay = (m.paymentInboxes || []).join(', ');
         /* the whole story behind the (i); the eye gets one line */
         out.splice(1, 0, '<p class="hint">A copy of every form goes to <b>' + esc(to) + '</b>'
-          + (pay ? ', every application included (caregiver, membership, volunteer and job), without any payment in it. Every record of money (donations, gifts, shop orders, and the fee paid with a membership or a caregiver application) goes to <b>' + esc(pay) + '</b> instead, and never to ' + esc(to) : '')
+          + (pay ? ', every application included (caregiver, membership, volunteer and job), without any payment in it. Every record of money (donations, gifts, shop orders, the fee paid with a membership or a caregiver application, and the fee for posting a printed caregiver card) goes to <b>' + esc(pay) + '</b> instead, and never to ' + esc(to) : '')
           + ', with Reply set to the person who sent it, and any photographs attached. It is sent as ' + esc(m.from) + (m.via === 'smtp' ? ', through that mailbox at GoDaddy' : ', through Resend') + '.'
           + (m.via === 'smtp' && (m.sentCopies || {}).on ? ' Everything the site sends is also saved in the Sent folder of ' + esc((m.from.match(/<([^>]+)>/) || [])[1] || 'the mailbox') + '.' : '') + '</p>');
         if (state !== 'login-failing' && state !== 'some-failed') out.push('<p class="state" data-tone="good">Emails are going out.</p>');

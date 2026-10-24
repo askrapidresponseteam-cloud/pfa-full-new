@@ -130,7 +130,7 @@ test('the panel shows both destinations and checks each record against its own',
   const src = read('lib/routes/admin/mail-check.js');
   assert.match(src, /paymentInboxes, recent/, 'the panel is told where records of money go');
   assert.match(src, /FORWARD\.inboxes\(d\)\.some\(\(to\) => !copied\(d, to\)\)/, 'a missing copy is judged by the record\'s own route');
-  assert.match(read('admin.html'), /every application included \(caregiver, membership, volunteer and job\), without any payment in it\. Every record of money \(donations, gifts, shop orders, and the fee paid with a membership or a caregiver application\) goes to/);
+  assert.match(read('admin.html'), /every application included \(caregiver, membership, volunteer and job\), without any payment in it\. Every record of money \(donations, gifts, shop orders, the fee paid with a membership or a caregiver application, and the fee for posting a printed caregiver card\) goes to/);
 });
 
 test('the last door: no email about money is delivered to gandhim, whatever queued it', async () => {
@@ -147,7 +147,8 @@ test('the last door: no email about money is delivered to gandhim, whatever queu
       ['submission_forward', { reference: 'PFA-CG-2026-00011', copy: 'payment' }],
       ['submission_forward', { reference: 'PFA-CG-2026-00011', copy: 'whole' }],
       ['submission_forward', { reference: 'PFA-SHP-ZX81QW22', kind: 'PFA-SHP' }],
-      ['shop_order_staff', { orderId: 'PFA-SHP-ZX81QW22' }]
+      ['shop_order_staff', { orderId: 'PFA-SHP-ZX81QW22' }],
+      ['shipping_paid_staff', { orderId: 'PFA-CGS-ZX81QW22' }]
     ]) {
       await assert.rejects(mail.deliver({ to: GANDHIM, template, payload }),
         (e) => e.code === 'MONEY_NOT_FOR_THIS_INBOX' && e.kind === 'recipient', `${template} ${payload.reference || ''} was let through to gandhim`);
@@ -296,4 +297,58 @@ test('a caregiver application\'s copies: what each inbox is given', () => {
     const form = F.copyPayload({ reference: 'PFA-CR-1', kind: 'PFA-CR', fields: { name: 'A', what: 'x' } }, '', '');
     assert.equal(form.copy, undefined);
   });
+});
+
+/* Owner, 24 Oct 2026: "everything apart from donation payment emails need to
+   go to gandhim", and, asked, every record of money stays away from gandhim
+   as before. The fee for posting a printed caregiver card (first or
+   replacement) reached only the card holder: now each payments inbox is told,
+   once, and gandhim never. */
+test('a printed card\'s posting fee is told to each payments inbox, once, and never to gandhim', async () => {
+  const keep = {};
+  for (const k of ['PFA_PAYMENTS_INBOX', 'PFA_SUBMISSIONS_INBOX']) { keep[k] = process.env[k]; delete process.env[k]; }
+  const store = require('../lib/caregiver-store');
+  const mail = require('../lib/caregiver-mail');
+  const real = { queueEmail: store.queueEmail, recordEmailResult: store.recordEmailResult, deliver: mail.deliver, isConfigured: mail.isConfigured };
+  const queued = new Map();
+  const sent = [];
+  store.queueEmail = async (row) => {
+    if (queued.has(row.dedupeKey)) return { created: false, emailId: row.dedupeKey };
+    queued.set(row.dedupeKey, row);
+    return { created: true, emailId: row.dedupeKey, claimToken: 't' };
+  };
+  store.recordEmailResult = async () => ({});
+  mail.isConfigured = () => true;
+  mail.deliver = async (msg) => { sent.push(msg); return { providerId: 'p' + sent.length }; };
+  try {
+    const { tellPaymentsInboxes } = require('../lib/routes/payment/response.js')._private;
+    const args = {
+      orderId: 'PFA-CGS-AB12CD34',
+      transaction: { amount: '100', metadata: { cardId: 'PFA-CCT-ABCD2345', kind: 'caregiver-replacement', reason: 'Lost', delivery: { sameAsCardAddress: true } } },
+      callback: { trackingId: '3100002', bankReference: 'BNK4' },
+      recorded: { card: { cardId: 'PFA-CCT-ABCD2345', name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: 'Car Street', district: 'Udupi', state: 'Karnataka', pin: '576101' }, shipment: { trackingId: 'PFA-CAR-ABCD1234' } }
+    };
+    await tellPaymentsInboxes(args);
+    await tellPaymentsInboxes(args);   /* a second callback */
+    assert.deepEqual(sent.map((m) => m.to).sort(), ['ozairhusain@gmail.com', 'pfadcmho@gmail.com'], 'one each, and not twice');
+    assert.ok(!sent.some((m) => /gandhim/i.test(m.to)), 'never gandhim');
+    const p = sent[0].payload;
+    assert.equal(sent[0].template, 'shipping_paid_staff');
+    assert.equal(p.replacement, true);
+    assert.equal(p.deliverTo, 'Asha Rao, Car Street, Udupi, Karnataka 576101');
+    assert.equal(p.bankReference, 'BNK4');
+    const r = mail.render('shipping_paid_staff', p);
+    assert.match(r.subject, /^Printed card fee paid PFA-CGS-AB12CD34: ₹100$/);
+    assert.match(r.text, /for a replacement printed card/);
+    /* and the last door refuses it for gandhim whatever queued it */
+    assert.equal(mail.moneyToWrongInbox(GANDHIM, 'shipping_paid_staff', p), true);
+    assert.equal(mail.moneyToWrongInbox('pfadcmho@gmail.com', 'shipping_paid_staff', p), false);
+  } finally {
+    Object.assign(store, { queueEmail: real.queueEmail, recordEmailResult: real.recordEmailResult });
+    Object.assign(mail, { deliver: real.deliver, isConfigured: real.isConfigured });
+    for (const k of Object.keys(keep)) { if (keep[k] === undefined) delete process.env[k]; else process.env[k] = keep[k]; }
+  }
+  /* sent from the callback, only when the payment is first recorded */
+  const src = read('lib/routes/payment/response.js');
+  assert.match(src, /if \(!recorded\.alreadyRecorded\) await tellPaymentsInboxes\(\{ transaction, callback, recorded, orderId \}\);/);
 });
