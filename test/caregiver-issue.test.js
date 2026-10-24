@@ -108,7 +108,7 @@ test('the queue lists what is waiting, oldest first, with the server\'s checks, 
   assert.equal(by['1'].verdict, 'ok');
   assert.equal(by['1'].printName, 'Selina Thakur');
   assert.equal(level(by['2'], 'name'), 'warn', 'a long name is shortened, for the reviewer to check');
-  assert.equal(by['2'].printName, 'Venkata S. Krishnamurthy');
+  assert.equal(by['2'].printName, 'V. S. Krishnamurthy');
   assert.equal(by['2'].printShortened, true);
   assert.equal(by['2'].ready, true, 'a shortened name does not block: the reviewer confirms it');
   assert.equal(level(by['3'], 'photo'), 'stop', 'no face, no card');
@@ -132,7 +132,7 @@ test('a long name is never issued on the rule\'s say alone: the reviewer confirm
   const unconfirmed = await call(route, { method: 'POST', body: { reference: 'PFA-CG-2026-00002', action: 'approve' } });
   assert.equal(unconfirmed.statusCode, 422);
   assert.equal(unconfirmed.json.code, 'PRINT_NAME_NEEDED');
-  assert.equal(unconfirmed.json.suggestion, 'Venkata S. Krishnamurthy');
+  assert.equal(unconfirmed.json.suggestion, 'V. S. Krishnamurthy');
   const tooLong = await call(route, { method: 'POST', body: { reference: 'PFA-CG-2026-00002', action: 'approve', printName: 'Venkata Subramanian Krishnamurthy' } });
   assert.equal(tooLong.statusCode, 422);
   assert.equal(tooLong.json.code, 'PRINT_NAME_BAD');
@@ -144,7 +144,7 @@ test('a long name is never issued on the rule\'s say alone: the reviewer confirm
   const all = db.dump();
   assert.equal(all[`caretakerCards/${cardId}`].printName, 'V. S. Krishnamurthy', 'on the register');
   assert.equal(all[`caretakerCards/${cardId}`].name, 'Venkata Subramanian Krishnamurthy', 'the full name stays the full name');
-  assert.equal(all[`caretakerPublic/${cardId}`].printName, 'V. S. Krishnamurthy', 'the holder\'s own card page prints it the same');
+  assert.equal(all[`caretakerPublic/${cardId}`].printName, 'V. S. Krishnamurthy', 'the public card check reads the name as printed');
   assert.equal(all['submissions/PFA-CG-2026-00002'].printName, 'V. S. Krishnamurthy', 'and the application says what was printed');
   assert.equal(ok.json.case.printName, 'V. S. Krishnamurthy');
   assert.ok(PRINT.fits(all[`caretakerCards/${cardId}`].printName));

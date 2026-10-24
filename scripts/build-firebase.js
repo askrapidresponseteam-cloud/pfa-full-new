@@ -65,12 +65,12 @@ const PANEL_ASSETS = [
   'img/logo.png',
   'fonts/marcellus-latin.woff2',
   'fonts/marcellus-latin-ext.woff2',
-  /* The caregiver card the panel draws (24 Oct 2026, the owner's template):
-     its face, in the two weights it uses, and its back. The panel draws the
-     card itself, so these are the panel's assets, not only the site's. */
-  'fonts/arimo-latin-400.woff2',
-  'fonts/arimo-latin-700.woff2',
-  'media/caregiver-card-back.png'
+  /* The caregiver card the panel draws (24 Oct 2026, the owner's Classical
+     White template): its font, its pattern and its PFA logo. The panel is
+     the only place the card is drawn, so these are the panel's assets. */
+  'fonts/absans-card.woff2',
+  'media/caregiver-card-pattern.jpg',
+  'media/caregiver-card-logo.png'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */

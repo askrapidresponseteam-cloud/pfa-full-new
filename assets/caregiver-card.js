@@ -1,48 +1,54 @@
 /* People for Animals - the Colony Caregiver Card.
 
    One renderer draws every copy of the card: the preview in the panel's
-   application drawer, the queue of applications to issue, the batch sheet
-   the office prints from, and the holder's own card page. So the card a
-   reviewer approves is stroke for stroke the card that is printed.
+   application drawer, the queue of applications to issue, and the batch
+   sheet and PDF the office prints from. It is loaded by the admin panel
+   only: the holder is never sent or shown the card, only the printed card
+   by post (owner, 24 Oct 2026). So the card a reviewer approves is stroke
+   for stroke the card that is printed.
 
-   The design is the owner's template (24 Oct 2026, "caregiver card ditto"):
-   PFA_Colony_Caregiver_Card_Template.html. Its front is laid out on a 785 x
-   500 pixel artboard and drawn here from that template's own export
-   coordinates, so nothing is eyeballed; its back is the PFA mark, kept as
-   the template carries it (media/caregiver-card-back.png, its frame taken
-   off, since the card draws its own edge).
+   The design is the owner's Classical White template (24 Oct 2026, "use
+   this template instead"): PFA_Caregiver_Classical_White.html, a physical
+   design master at ISO/IEC 7810 ID-1, 85.6 x 54 mm, landscape. Every
+   number below is in tenths of a millimetre on that card (856 x 540),
+   measured off the template as Chromium lays it out: each text's baseline
+   and left edge or centre, each box and each line. Its fonts, colours and
+   sizes are the template's own; its pattern and its PFA logo are the
+   template's own images (media/caregiver-card-pattern.jpg, drawn at 12%,
+   and media/caregiver-card-logo.png, multiplied onto the card as the
+   template does).
 
-   The artboard is placed on an ISO/IEC 7810 ID-1 card turned landscape
-   (85.6 x 54 mm). The template's proportions are a hair narrower than ID-1
-   (1.570 against 1.585), so it is scaled to the card's height, never
-   stretched, and centred: 0.41 mm of white either side, which no eye will
-   find and which keeps every letter in its drawn shape. */
+   What the template leaves to the page, a card printer cannot: there, a
+   value too long for its column wraps onto a second line, into the row
+   below. Here every value is drawn on one line at the template's one size,
+   and what would not fit is settled before the card is issued
+   (assets/card-print.js). */
 (function () {
   'use strict';
 
   var CARD = { w: 85.6, h: 54 };          // mm, ID-1 landscape
-  var REF = { w: 785, h: 500 };           // the template's artboard, in its pixels
-  var K = CARD.h / REF.h;                 // mm per template pixel
-  var OFF_X = (CARD.w - REF.w * K) / 2;   // mm of white each side
+  var REF = { w: 856, h: 540 };           // the card, in tenths of a millimetre
+  var K = CARD.w / REF.w;                 // mm per unit: 0.1
 
   /* The template's palette, by what each colour is for. */
-  var PURPLE = '#41308f';     // heading, labels, values, the chairperson's role
-  var RULE = '#766b6b';       // the underline of each row, the authorisation line
-  var FRAME = '#7768ba';      // the photograph's rounded frame
-  var EDGE = '#807979';       // the card's own edge
-  var DARK = '#252327';       // "Authorised By:" and the chairperson's name
-  var GHOST = '#a49cc9';      // a value not known yet, on a preview only
+  var INK = '#111111';        // the heading, the labels, the signatory's name
+  var VALUE = '#174d99';      // the holder's details
+  var SOFT = '#222222';       // the signatory's role, the back's return address
+  var PHOTO_INK = '#444444';  // PHOTO, where there is no photograph yet
+  var EDGE = '#9b8a68';       // the card's own edge
+  var FRAME = '#b9aa8e';      // the frame inside it
+  var RULE = '#a99a80';       // the rule under the heading
+  var PHOTO_LINE = '#8d8066'; // the photograph's border
+  var SIGN = '#766b57';       // the line for the signature
+  var GHOST = '#9fb3d1';      // a value not known yet, on a preview only
 
-  /* Arial is what the template names. Arimo is the open-licence face drawn
-     to Arial's exact widths, loaded with the card, so the card is laid out
-     identically on a phone that has no Arial (Android, Linux) as on the
-     office computer that has. */
-  var FACE = '"PFA Card Arial", Arial, "Liberation Sans", Helvetica, sans-serif';
-  var FACES = [
-    ['PFA Card Arial', 'fonts/arimo-latin-400.woff2', '400'],
-    ['PFA Card Arial', 'fonts/arimo-latin-700.woff2', '700']
-  ];
-  var BACK_SRC = 'media/caregiver-card-back.png';
+  /* Absans, the template's own font (fonts/absans-card.woff2, cut to the
+     characters the card prints, without its ligatures, so card-print.js can
+     add up a width letter by letter). */
+  var FACE = '"PFA Card Absans", Arial, Helvetica, sans-serif';
+  var FONT_SRC = 'fonts/absans-card.woff2';
+  var PATTERN_SRC = 'media/caregiver-card-pattern.jpg';
+  var LOGO_SRC = 'media/caregiver-card-logo.png';
 
   var PRINT_DPI = 600;
 
@@ -54,8 +60,38 @@
     { label: 'STATE', key: 'state' },
     { label: 'ISSUED ON', key: 'issuedShort' }
   ];
-  /* The photograph's well, inside its 1 px frame: 166.3 x 230.1. */
-  var PHOTO_ASPECT = 230.06 / 166.34;    // height / width, for a photo editor
+
+  /* ---- the layout, in tenths of a millimetre -------------------------- */
+  var L = {
+    line: 1.5,                                            // every hairline: 0.15 mm, the template's print width
+    edge: { x: 0, y: 0, w: 856, h: 540 },
+    frame: { x: 32.594, y: 20.891, w: 790.812, h: 498.218 },
+    pattern: { x: 1, y: 1, w: 854, h: 538, alpha: 0.12 },
+    centre: 427.99,                                        // the heading, the signatory and the back's lines
+    heading: { text: 'Colony Caregiver Card', y: 81.031, size: 40.4747 },
+    rule: { x: 60.766, y: 119.859, w: 734.438 },
+    rows: { labelX: 60.766, labelY: 173.672, valueX: 242.484, valueY: 174.422, step: 49.484, size: 25.3407 },
+    photo: { x: 594.516, y: 146.25, w: 179.328, h: 203.359 },
+    photoText: { y: 253.922, size: 19.7094 },
+    sign: { x: 272.563, y: 448.734, w: 310.844 },
+    signatory: [
+      { text: 'Smt. Maneka Sanjay Gandhi', y: 471.203, size: 18.6535, colour: 'ink' },
+      { text: 'Chairperson', y: 491.5, size: 14.0781, colour: 'soft' },
+      { text: 'People For Animals', y: 508.391, size: 14.0781, colour: 'soft' }
+    ],
+    logo: { x: 257.203, y: 162.406, w: 341.594, h: 215.188 },
+    back: [
+      { text: 'This card is non-transferable.', y: 405.734 },
+      { text: 'If found, please return it to-', y: 422.625 },
+      { text: 'People For Animals.', y: 439.516 },
+      { text: '4-T, DCM Building, 16 Barakhamba Road,', y: 456.406 },
+      { text: 'New Delhi 110001, India', y: 473.297 }
+    ],
+    backSize: 14.0781
+  };
+
+  /* The photograph's well, inside its border: for a photo editor. */
+  var PHOTO_ASPECT = (L.photo.h - 2) / (L.photo.w - 2);   // height / width
 
   /* A real card number from the register. A preview has none. */
   var ISSUED_CARD = /^PFA-CCT-[A-Z0-9]{8}$/;
@@ -80,85 +116,31 @@
   function loadFont() {
     if (fontReady) return fontReady;
     if (typeof FontFace === 'undefined' || !document.fonts) {
-      fontReady = Promise.resolve(null);
+      fontReady = Promise.resolve(false);
       return fontReady;
     }
-    fontReady = Promise.all(FACES.map(function (entry) {
-      var face = new FontFace(entry[0], 'url(' + entry[1] + ') format("woff2")', { weight: entry[2] });
-      return face.load().then(function (loaded) {
-        document.fonts.add(loaded);
-        return true;
-      }).catch(function () { return false; });   // Arial, then the stack, stands in
-    })).then(function (results) { return results.some(Boolean); });
+    var face = new FontFace('PFA Card Absans', 'url(' + FONT_SRC + ') format("woff2")', { weight: '400' });
+    fontReady = face.load().then(function (loaded) {
+      document.fonts.add(loaded);
+      return true;
+    }).catch(function () { return false; });   // the stack stands in for a preview; printing refuses
     return fontReady;
   }
 
-  /* The fonts and the back, which every card needs. */
+  /* The font and the two images every card needs. */
   function loadAssets() {
-    return Promise.all([loadFont(), loadImage(BACK_SRC)]).then(function (out) {
-      return { back: out[1] };
+    return Promise.all([loadFont(), loadImage(PATTERN_SRC), loadImage(LOGO_SRC)]).then(function (out) {
+      return { pattern: out[1], logo: out[2] };
     });
   }
 
-  /* ---- drawing on the template's artboard -------------------------------
-
-     Every number below is a pixel of the template's 785 x 500 artboard,
-     measured off the template as a browser lays it out (24 Oct 2026: each
-     text's baseline and left edge, each box, read in Chromium at full size).
-     That is the layout the owner sees on screen and the one its Print / Save
-     PDF prints. The template's own Save PNG draws from rounder numbers (rows
-     about 6 px higher, values 10 px further left); the screen is what was
-     approved, so the screen is what is copied. */
-  var L = {
-    heading: { x: 50.33, y: 74.38, size: 47, track: 0.705 },
-    rowTop: 118.52, rowStep: 43.0125, rowH: 43.02, ruleW: 1.5,
-    label: { x: 62.06, drop: 27.0, size: 21 },
-    colon: { x: 224.42, size: 21 },
-    value: { x: 252.97, drop: 26.5, size: 18.06, room: 220.15 },
-    ruleX: [62.06, 473.12],
-    photo: { x: 578.06, y: 117.53, w: 168.34, h: 232.06, round: 0.14 },
-    photoText: { x: 623.31, y: 327.63, size: 22 },
-    auth: { x: 234.33, w: 305.36, top: 387.44, line: 3 },
-    authLines: [
-      { text: 'Authorised By:', y: 414.44, size: 19, bold: false, colour: 'dark' },
-      { text: 'Smt. Maneka Sanjay Gandhi', y: 443.55, size: 19.95, bold: true, colour: 'dark' },
-      { text: 'Chairperson, People For Animals', y: 473.06, size: 19.95, bold: true, colour: 'purple' }
-    ]
-  };
-
   function painter(ctx, scale) {
-    var px = K * scale;                     // device pixels per template pixel
-    var ox = OFF_X * scale;
+    var u = K * scale;                      // device pixels per tenth of a millimetre
     return {
-      px: px,
-      x: function (v) { return ox + v * px; },
-      y: function (v) { return v * px; },
-      s: function (v) { return v * px; },
-      font: function (size, bold) {
-        ctx.font = (bold ? '700 ' : '400 ') + (size * px).toFixed(2) + 'px ' + FACE;
-      }
+      u: u,
+      v: function (n) { return n * u; },
+      font: function (size) { ctx.font = '400 ' + (size * u).toFixed(3) + 'px ' + FACE; }
     };
-  }
-
-  /* A rounded rectangle whose corners may be elliptical, as CSS draws a
-     percentage radius (the photograph's 14% is 23.6 across and 32.5 down). */
-  var KAPPA = 0.5522847498;
-  function roundRect(ctx, x, y, w, h, rx, ry) {
-    var a = Math.min(rx, w / 2);
-    var b = Math.min(ry === undefined ? rx : ry, h / 2);
-    var ka = a * KAPPA;
-    var kb = b * KAPPA;
-    ctx.beginPath();
-    ctx.moveTo(x + a, y);
-    ctx.lineTo(x + w - a, y);
-    ctx.bezierCurveTo(x + w - a + ka, y, x + w, y + b - kb, x + w, y + b);
-    ctx.lineTo(x + w, y + h - b);
-    ctx.bezierCurveTo(x + w, y + h - b + kb, x + w - a + ka, y + h, x + w - a, y + h);
-    ctx.lineTo(x + a, y + h);
-    ctx.bezierCurveTo(x + a - ka, y + h, x, y + h - b + kb, x, y + h - b);
-    ctx.lineTo(x, y + b);
-    ctx.bezierCurveTo(x, y + b - kb, x + a - ka, y, x + a, y);
-    ctx.closePath();
   }
 
   function coverDraw(ctx, image, x, y, w, h) {
@@ -170,44 +152,54 @@
     ctx.drawImage(image, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
   }
 
-  /* Letter-spaced text, as CSS letter-spacing draws it: the canvas's own
-     letterSpacing where the browser has it, otherwise a letter at a time. */
-  function tracked(ctx, text, x, y, track) {
-    if ('letterSpacing' in ctx) {
-      /* save and restore, never read-and-put-back: after a save() Chromium
-         reads letterSpacing as '', and putting '' back is ignored, which
-         left the heading's spacing on every line drawn after it */
-      ctx.save();
-      ctx.letterSpacing = track.toFixed(3) + 'px';
-      ctx.fillText(text, x, y);
-      ctx.restore();
-      if (ctx.letterSpacing && ctx.letterSpacing !== '0px') ctx.letterSpacing = '0px';
-      return;
-    }
-    var cursor = x;
-    String(text).split('').forEach(function (ch) {
-      ctx.fillText(ch, cursor, y);
-      cursor += ctx.measureText(ch).width + track;
-    });
+  function containDraw(ctx, image, x, y, w, h) {
+    var iw = image.naturalWidth || image.width;
+    var ih = image.naturalHeight || image.height;
+    var ratio = Math.min(w / iw, h / ih);
+    var dw = iw * ratio;
+    var dh = ih * ratio;
+    ctx.drawImage(image, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
   }
 
-  /* Every value at one size, the template's 18.06 px, on every card: never
-     shrunk, never pressed narrower, never cut (owner, 24 Oct 2026: "text/font
-     size needs to be same for every card ... like aadhar card, credit card
-     printing system"). What would not fit is printed in its fixed short
-     form instead (assets/card-print.js), and that is settled before the card
-     is issued, so nothing here ever has to squeeze. */
-  function valueText(ctx, P, text, x, y) {
-    P.font(L.value.size);
-    ctx.fillText(text, P.x(x), P.y(y));
+  /* A line of text centred on the card, as the template centres it. */
+  function centred(ctx, P, text, y, size) {
+    P.font(size);
+    ctx.textAlign = 'center';
+    ctx.fillText(text, P.v(L.centre), P.v(y));
+    ctx.textAlign = 'left';
   }
 
-  /* The card's own edge, at the edge of the card. */
-  function edge(ctx, W, H, P) {
-    var lw = Math.max(1, P.s(1));
-    ctx.strokeStyle = EDGE;
+  /* A hairline box, drawn inside its own edge as CSS draws a border. */
+  function box(ctx, P, b, colour) {
+    var lw = P.v(L.line);
+    ctx.strokeStyle = colour;
     ctx.lineWidth = lw;
-    ctx.strokeRect(lw / 2, lw / 2, W - lw, H - lw);
+    ctx.strokeRect(P.v(b.x) + lw / 2, P.v(b.y) + lw / 2, P.v(b.w) - lw, P.v(b.h) - lw);
+  }
+
+  function hairline(ctx, P, x, y, w, colour) {
+    ctx.fillStyle = colour;
+    ctx.fillRect(P.v(x), P.v(y) - P.v(L.line) / 2, P.v(w), P.v(L.line));
+  }
+
+  /* White, the template's pattern at 12%, the edge and the frame: both faces. */
+  function ground(ctx, P, data) {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, P.v(REF.w), P.v(REF.h));
+    var pat = L.pattern;
+    if (data && data.patternImage) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(P.v(pat.x), P.v(pat.y), P.v(pat.w), P.v(pat.h));
+      ctx.clip();
+      ctx.globalAlpha = pat.alpha;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      coverDraw(ctx, data.patternImage, P.v(pat.x), P.v(pat.y), P.v(pat.w), P.v(pat.h));
+      ctx.restore();
+    }
+    box(ctx, P, L.edge, EDGE);
+    box(ctx, P, L.frame, FRAME);
   }
 
   function titleCase(text) {
@@ -215,9 +207,9 @@
     return R && R.titleCase ? R.titleCase(text) : text;
   }
 
-  /* What each line prints, and whether it is a stand-in (a preview's grey).
-     { text, ghost }. The name is the name on the card (printName) when the
-     card has one; otherwise the fixed rule's form of the name. */
+  /* What each line prints, and whether it is a stand-in (a preview's pale
+     blue). { text, ghost }. The name is the name on the card (printName)
+     when the card has one; otherwise the fixed rule's form of the name. */
   function lineOf(data, key) {
     var PR = window.PFACardPrint;
     if (key === 'name') {
@@ -250,100 +242,84 @@
   }
 
   function drawFront(ctx, scale, data) {
-    var W = CARD.w * scale;
-    var H = CARD.h * scale;
     var P = painter(ctx, scale);
     ctx.save();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
+    ground(ctx, P, data);
 
-    /* COLONY CAREGIVER CARD */
-    ctx.fillStyle = PURPLE;
-    P.font(L.heading.size);
-    tracked(ctx, 'COLONY CAREGIVER CARD', P.x(L.heading.x), P.y(L.heading.y), P.s(L.heading.track));
+    /* Colony Caregiver Card, and the rule under it */
+    ctx.fillStyle = INK;
+    centred(ctx, P, L.heading.text, L.heading.y, L.heading.size);
+    hairline(ctx, P, L.rule.x, L.rule.y, L.rule.w, RULE);
 
-    /* The five rows: label, colon, value, and the rule under each. */
+    /* The five rows: the label, then the value, each at the template's one
+       size on every card (owner, 24 Oct 2026: "text/font size needs to be
+       same for every card"). Never shrunk, never wrapped: what would not
+       fit was put in its short form before the card was issued. */
+    var r = L.rows;
     ROWS.forEach(function (row, i) {
-      var top = L.rowTop + L.rowStep * i;
-      ctx.fillStyle = PURPLE;
-      P.font(L.label.size);
-      ctx.fillText(row.label, P.x(L.label.x), P.y(top + L.label.drop));
-      P.font(L.colon.size, true);
-      ctx.fillText(':', P.x(L.colon.x), P.y(top + L.label.drop));
+      P.font(r.size);
+      ctx.fillStyle = INK;
+      ctx.fillText(row.label, P.v(r.labelX), P.v(r.labelY + r.step * i));
       var line = lineOf(data, row.key);
-      ctx.fillStyle = line.ghost ? GHOST : PURPLE;
-      valueText(ctx, P, line.text, L.value.x, top + L.value.drop);
-      ctx.strokeStyle = RULE;
-      ctx.lineWidth = P.s(L.ruleW);
-      var ruleY = top + L.rowH - L.ruleW / 2;
-      ctx.beginPath();
-      ctx.moveTo(P.x(L.ruleX[0]), P.y(ruleY));
-      ctx.lineTo(P.x(L.ruleX[1]), P.y(ruleY));
-      ctx.stroke();
+      ctx.fillStyle = line.ghost ? GHOST : VALUE;
+      ctx.fillText(line.text, P.v(r.valueX), P.v(r.valueY + r.step * i));
     });
 
-    /* The photograph, in its rounded frame: a 1 px border, the picture
-       inside it, both with the template's 14% corners. */
+    /* The photograph: white, the picture inside its border, the border. */
     var ph = L.photo;
-    var rx = ph.w * ph.round;
-    var ry = ph.h * ph.round;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(P.v(ph.x), P.v(ph.y), P.v(ph.w), P.v(ph.h));
     if (data.photoImage) {
       ctx.save();
-      roundRect(ctx, P.x(ph.x + 1), P.y(ph.y + 1), P.s(ph.w - 2), P.s(ph.h - 2), P.s(rx - 1), P.s(ry - 1));
+      ctx.beginPath();
+      ctx.rect(P.v(ph.x + 1), P.v(ph.y + 1), P.v(ph.w - 2), P.v(ph.h - 2));
       ctx.clip();
-      coverDraw(ctx, data.photoImage, P.x(ph.x + 1), P.y(ph.y + 1), P.s(ph.w - 2), P.s(ph.h - 2));
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      coverDraw(ctx, data.photoImage, P.v(ph.x + 1), P.v(ph.y + 1), P.v(ph.w - 2), P.v(ph.h - 2));
       ctx.restore();
     } else {
-      ctx.fillStyle = PURPLE;
-      P.font(L.photoText.size, true);
-      ctx.fillText('PHOTO', P.x(L.photoText.x), P.y(L.photoText.y));
+      ctx.fillStyle = PHOTO_INK;
+      P.font(L.photoText.size);
+      ctx.textAlign = 'center';
+      ctx.fillText('PHOTO', P.v(ph.x + ph.w / 2), P.v(L.photoText.y));
+      ctx.textAlign = 'left';
     }
-    ctx.strokeStyle = FRAME;
-    ctx.lineWidth = P.s(1);
-    roundRect(ctx, P.x(ph.x + 0.5), P.y(ph.y + 0.5), P.s(ph.w - 1), P.s(ph.h - 1), P.s(rx - 0.5), P.s(ry - 0.5));
-    ctx.stroke();
+    box(ctx, P, ph, PHOTO_LINE);
 
-    /* The authorisation: the line, then three centred lines under it. A
-       line wider than its box starts at the box's left edge, as the
-       browser sets it. */
-    var au = L.auth;
-    ctx.fillStyle = RULE;
-    ctx.fillRect(P.x(au.x), P.y(au.top), P.s(au.w), P.s(au.line));
-    L.authLines.forEach(function (line) {
-      ctx.fillStyle = line.colour === 'purple' ? PURPLE : DARK;
-      P.font(line.size, line.bold);
-      var width = ctx.measureText(line.text).width;
-      var x = width > P.s(au.w) ? P.x(au.x) : P.x(au.x + au.w / 2) - width / 2;
-      ctx.fillText(line.text, x, P.y(line.y));
+    /* The signatory: the line left for the signature, then the name and
+       the role, centred under it. */
+    hairline(ctx, P, L.sign.x, L.sign.y, L.sign.w, SIGN);
+    L.signatory.forEach(function (line) {
+      ctx.fillStyle = line.colour === 'soft' ? SOFT : INK;
+      centred(ctx, P, line.text, line.y, line.size);
     });
-
-    edge(ctx, W, H, P);
     ctx.restore();
   }
 
-  /* The back: the PFA mark, as the template carries it. */
+  /* The back: the PFA logo, and where to return a card that is found. */
   function drawBack(ctx, scale, data) {
-    var W = CARD.w * scale;
-    var H = CARD.h * scale;
     var P = painter(ctx, scale);
     ctx.save();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, W, H);
-    var back = data && data.backImage;
-    if (back) {
+    ctx.textBaseline = 'alphabetic';
+    ground(ctx, P, data);
+    var lg = L.logo;
+    if (data && data.logoImage) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';    // as the template sets it: the logo's white takes the pattern
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(back, P.x(0), 0, P.s(REF.w), P.s(REF.h));
+      containDraw(ctx, data.logoImage, P.v(lg.x), P.v(lg.y), P.v(lg.w), P.v(lg.h));
+      ctx.restore();
     } else {
       /* the image did not load: the name, so the back is never blank */
-      ctx.fillStyle = '#111111';
-      ctx.textAlign = 'center';
-      ctx.font = '400 ' + (40 * P.px).toFixed(2) + 'px "Times New Roman", Times, serif';
-      ctx.fillText('PEOPLE FOR ANIMALS', W / 2, P.y(400));
+      ctx.fillStyle = INK;
+      centred(ctx, P, 'PEOPLE FOR ANIMALS', lg.y + lg.h * 0.6, 30);
     }
-    edge(ctx, W, H, P);
+    ctx.fillStyle = SOFT;
+    L.back.forEach(function (line) { centred(ctx, P, line.text, line.y, L.backSize); });
     ctx.restore();
   }
 
@@ -357,7 +333,7 @@
     }
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    var full = withBack(data, assets);
+    var full = withAssets(data, assets);
     if (side === 'back') drawBack(ctx, scale, full);
     else drawFront(ctx, scale, full);
     return canvas;
@@ -374,12 +350,13 @@
     return canvas;
   }
 
-  /* hydrate() puts the back on the data; draw() is also handed the assets. */
-  function withBack(data, assets) {
-    if (!data || data.backImage || !assets || !assets.back) return data;
+  /* hydrate() puts the images on the data; draw() is also handed the assets. */
+  function withAssets(data, assets) {
+    if (!data || !assets || (data.patternImage && data.logoImage)) return data;
     var out = {};
     Object.keys(data).forEach(function (key) { out[key] = data[key]; });
-    out.backImage = assets.back;
+    out.patternImage = out.patternImage || assets.pattern;
+    out.logoImage = out.logoImage || assets.logo;
     return out;
   }
 
@@ -547,11 +524,11 @@
 
     return Promise.all([
       filled.photo ? loadImage(filled.photo) : Promise.resolve(null),
-      loadImage(BACK_SRC),
-      loadFont()
+      loadAssets()
     ]).then(function (out) {
       copy.photoImage = out[0];
-      copy.backImage = out[1];
+      copy.patternImage = out[1].pattern;
+      copy.logoImage = out[1].logo;
       return copy;
     });
   }
@@ -565,7 +542,7 @@
      not be the card the server measured. */
   function printReady(data) {
     return loadFont().then(function () {
-      if (document.fonts && document.fonts.check && !document.fonts.check('18px "PFA Card Arial"')) {
+      if (document.fonts && document.fonts.check && !document.fonts.check('25px "PFA Card Absans"')) {
         throw new Error('The card font did not load, so the card cannot be printed exactly. Reload the page and try again.');
       }
       var missing = unprintable(data || {});
@@ -578,7 +555,7 @@
     /* A card has two sides, so "download" gives both. An explicit 'front' or
        'back' gives that side alone. */
     var sides = (side === 'front' || side === 'back') ? [side] : ['front', 'back'];
-    var ready = (data && data.backImage ? Promise.resolve(data) : hydrate(data)).then(printReady);
+    var ready = (data && data.patternImage ? Promise.resolve(data) : hydrate(data)).then(printReady);
     return Promise.all([loadAssets(), ready]).then(function (out) {
       return sides.reduce(function (chain, one) {
         return chain.then(function (blobs) {
@@ -602,7 +579,7 @@
   }
 
   function downloadPdf(data) {
-    var ready = (data && data.backImage ? Promise.resolve(data) : hydrate(data)).then(printReady);
+    var ready = (data && data.patternImage ? Promise.resolve(data) : hydrate(data)).then(printReady);
     return Promise.all([loadAssets(), ready]).then(function (out) {
       saveBlob(buildPdf(pagesOf(out[1])), fileStem(data) + '-print.pdf');
     });

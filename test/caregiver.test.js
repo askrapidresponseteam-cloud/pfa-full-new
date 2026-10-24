@@ -270,7 +270,7 @@ function recordingRenderer() {
 
 const CARDS = [
   { cardId: 'PFA-CCT-ABCD2345', name: 'Selina Thakur', district: 'Udupi', state: 'Karnataka', issuedOn: '2026-10-24T09:00:00Z' },
-  { cardId: 'PFA-CCT-WXYZ6789', name: 'Venkata Subramanian Krishnamurthy', printName: 'Venkata S. Krishnamurthy', district: 'Nawanshahr (Shahid Bhagat Singh Nagar)', state: 'Punjab', issuedOn: '2026-01-02T09:00:00Z' },
+  { cardId: 'PFA-CCT-WXYZ6789', name: 'Venkata Subramanian Krishnamurthy', printName: 'V. S. Krishnamurthy', district: 'Nawanshahr (Shahid Bhagat Singh Nagar)', state: 'Punjab', issuedOn: '2026-01-02T09:00:00Z' },
   { cardId: 'PFA-CCT-MNPQ2345', name: 'Lakshminarayana Venkataramanappa', district: 'Paschim Medinipur (West Medinipur)', state: 'Dadra and Nagar Haveli and Daman and Diu', issuedOn: '2026-12-31T09:00:00Z' },
   { cardId: 'PFA-CCT-RSTU2345', name: 'Om', district: 'Mumbai', state: 'Maharashtra', issuedOn: '2027-03-09T09:00:00Z' }
 ];
@@ -302,7 +302,7 @@ test('every card is set in the same type at the same sizes, whatever the name, a
 test('a long name prints in the form the reviewer confirmed, and one with no form is not printable', async () => {
   const { Card } = recordingRenderer();
   const confirmed = await Card.hydrate(CARDS[1]);
-  assert.equal(Card.lineOf(confirmed, 'name').text, 'Venkata S. Krishnamurthy');
+  assert.equal(Card.lineOf(confirmed, 'name').text, 'V. S. Krishnamurthy');
   assert.equal(Card.lineOf(confirmed, 'district').text, 'Nawanshahr', 'the old name in brackets is not printed');
   const ruled = await Card.hydrate(CARDS[2]);
   assert.equal(Card.lineOf(ruled, 'name').text, 'L. Venkataramanappa', 'a card from before printName prints the rule\'s form');
@@ -315,20 +315,29 @@ test('a long name prints in the form the reviewer confirmed, and one with no for
   assert.equal(Card.lineOf(preview, 'cardId').text, 'Given when issued');
 });
 
-test('the front is the template: its words, its rows, its colours and its measured layout', () => {
+test('the card is the Classical White template: its words, its rows, its colours and its measured layout', () => {
+  /* the owner's PFA_Caregiver_Classical_White.html (24 Oct 2026, "use this
+     template instead"), measured in Chromium in tenths of a millimetre */
   const source = fs.readFileSync(path.join(__dirname, '..', 'assets', 'caregiver-card.js'), 'utf8');
-  assert.match(source, /'COLONY CAREGIVER CARD'/);
+  assert.match(source, /heading: \{ text: 'Colony Caregiver Card', y: 81\.031, size: 40\.4747 \}/, 'the heading, centred, at the template\'s 11.5 pt');
   const rows = [...source.matchAll(/\{ label: '([A-Z ]+)', key: '(\w+)' \}/g)].map((m) => m[1]);
   assert.deepEqual(rows, ['NAME', 'ID NUMBER', 'DISTRICT', 'STATE', 'ISSUED ON']);
-  for (const words of ['Authorised By:', 'Smt. Maneka Sanjay Gandhi', 'Chairperson, People For Animals']) assert.ok(source.includes(`'${words}'`), words);
-  for (const colour of ["PURPLE = '#41308f'", "RULE = '#766b6b'", "FRAME = '#7768ba'", "EDGE = '#807979'"]) assert.ok(source.includes(colour), colour);
-  assert.match(source, /heading: \{ x: 50\.33, y: 74\.38, size: 47, track: 0\.705 \}/, 'the heading, as the template lays it out');
-  assert.match(source, /value: \{ x: 252\.97, drop: 26\.5, size: 18\.06/, 'the values, at the template\'s size');
-  assert.match(source, /photo: \{ x: 578\.06, y: 117\.53, w: 168\.34, h: 232\.06, round: 0\.14 \}/, 'the photograph\'s frame, corners and all');
+  assert.match(source, /rows: \{ labelX: 60\.766, labelY: 173\.672, valueX: 242\.484, valueY: 174\.422, step: 49\.484, size: 25\.3407 \}/, 'the rows, labels and values at the template\'s 7.2 pt');
+  assert.match(source, /photo: \{ x: 594\.516, y: 146\.25, w: 179\.328, h: 203\.359 \}/, 'the photograph\'s box');
+  for (const words of ['Smt. Maneka Sanjay Gandhi', 'Chairperson', 'People For Animals', 'This card is non-transferable.', 'If found, please return it to-', 'People For Animals.', '4-T, DCM Building, 16 Barakhamba Road,', 'New Delhi 110001, India']) {
+    assert.ok(source.includes(`text: '${words}'`), words);
+  }
+  for (const colour of ["INK = '#111111'", "VALUE = '#174d99'", "SOFT = '#222222'", "EDGE = '#9b8a68'", "FRAME = '#b9aa8e'", "RULE = '#a99a80'", "PHOTO_LINE = '#8d8066'", "SIGN = '#766b57'"]) assert.ok(source.includes(colour), colour);
+  assert.match(source, /pattern: \{ x: 1, y: 1, w: 854, h: 538, alpha: 0\.12 \}/, 'the pattern at 12%, as the template prints it');
+  assert.match(source, /globalCompositeOperation = 'multiply'/, 'the logo multiplied onto the card, as the template sets it');
   assert.match(source, /var CARD = \{ w: 85\.6, h: 54 \}/, 'ID-1, landscape');
+  assert.match(source, /var REF = \{ w: 856, h: 540 \}/, 'laid out in tenths of a millimetre');
   assert.ok(!/maxWidth|fitText|measureText\(text\)\.width > /.test(source.replace(/\/\*[\s\S]*?\*\//g, '')), 'nothing shrinks or squeezes text to fit');
-  assert.ok(!/QR|qr\b|SIGNATURE/.test(source.replace(/\/\*[\s\S]*?\*\//g, '')), 'the template has no QR code and no signature image');
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'media', 'caregiver-card-back.png')), 'the back, as the template carries it');
+  assert.ok(!/QR|qr\b|SIGNATURE|signature\.png/.test(source.replace(/\/\*[\s\S]*?\*\//g, '')), 'no QR code and no signature image: the template leaves a line to sign on');
+  for (const file of ['fonts/absans-card.woff2', 'fonts/OFL-Absans.txt', 'media/caregiver-card-pattern.jpg', 'media/caregiver-card-logo.png']) {
+    assert.ok(fs.existsSync(path.join(__dirname, '..', file)), `${file}, the template's own`);
+  }
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'fonts', 'OFL-Absans.txt'), 'utf8'), /SIL Open Font License, Version 1\.1/, 'the font travels with its licence');
 });
 
 test('the date prints as the template prints it, and the card carries no expiry', async () => {

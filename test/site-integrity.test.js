@@ -141,8 +141,8 @@ test('the word for the card is the same everywhere a person meets it', () => {
     assert.ok(!doubled.test(source), `${file} doubles the word for the card`);
   }
   const renderer = fs.readFileSync(path.join(ROOT, 'assets', 'caregiver-card.js'), 'utf8');
-  /* the owner's template (24 Oct 2026) names the card at its head */
-  assert.ok(renderer.includes("'COLONY CAREGIVER CARD'"), 'the name printed on the card');
+  /* the owner's Classical White template (24 Oct 2026) names the card at its head */
+  assert.ok(renderer.includes("text: 'Colony Caregiver Card'"), 'the name printed on the card');
 
   const publicText = publicPages().map((f) => fs.readFileSync(path.join(ROOT, f), 'utf8').replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ')).join(' ');
   assert.ok(!doubled.test(publicText), 'a public page doubles the word for the card');
