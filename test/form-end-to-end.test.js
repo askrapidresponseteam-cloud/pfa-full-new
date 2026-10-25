@@ -165,7 +165,7 @@ test('report.html: a whole cruelty report survives the round trip', () => {
   assert.deepEqual(serverSays(kind, data), [], `the API would refuse this report: ${JSON.stringify(data)}`);
   assert.equal(data.animal, 'Dog', 'the choice must be one the spec lists');
   assert.equal(data.mobile, '8105250299');
-  assert.equal(data.address, 'Ashraya Ankadakatte, Near The Temple', 'where it is, tidied');
+  assert.equal(data.address, 'Ashraya Ankadakatte, Near the Temple', 'where it is, tidied: the little words small');
   assert.equal(data.pincode, '576222');
 });
 

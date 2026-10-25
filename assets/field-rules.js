@@ -90,16 +90,33 @@
        - everything else: first letter up, the rest down
      Tokens are split on anything that is not a letter or digit, so hyphens,
      apostrophes, slashes and commas are kept exactly where they were. */
+  /* The little words of an address, written small inside it: "Near the
+     Metro", "Bank of Baroda", "Daman and Diu". Each comma-separated part
+     still starts with a capital. Not "a" ("Block A") and not "by" ("By Lane
+     3" in Guwahati). */
+  var SMALL = /^(the|of|and|to|in|on|at|for|from|with|or)$/i;
+  function startsPart(all, at) {
+    var before = all.slice(0, at).replace(/\s+$/, '');
+    return !before || /[,\n(:;]$/.test(before);
+  }
   function titleCase(value, mode) {
     var isName = mode === 'name';
-    return String(value == null ? '' : value).replace(WORD, function (word) {
+    var text = String(value == null ? '' : value);
+    /* An address typed in capitals throughout (owner, 25 Oct 2026: the
+       location "captured perfectly") says nothing about which short words
+       are initialisms: "NEAR THE METRO, NEW DELHI" is Near the Metro, New
+       Delhi, not "Near THE Metro, NEW Delhi". The known initialisms (MG, DLF,
+       NH) stay capitals. */
+    var shouting = !isName && /[A-Z]/.test(text) && !/[a-z]/.test(text);
+    return text.replace(WORD, function (word, at, all) {
       if (/\d/.test(word)) return ORDINAL.test(word) ? word.toLowerCase() : word.toUpperCase();
       if (HONORIFIC.test(word)) return capitalise(word);
       /* In a person's name every word is a word: RAO is Rao, DAS is Das.
          In an address a short run of capitals is an initialism. */
       if (isName) return capitalise(word);
       if (INITIALISM.test(word)) return word.toUpperCase();
-      if (word.length <= 3 && word === word.toUpperCase() && word !== word.toLowerCase()) return word;
+      if (SMALL.test(word) && !startsPart(all, at)) return word.toLowerCase();
+      if (!shouting && word.length <= 3 && word === word.toUpperCase() && word !== word.toLowerCase()) return word;
       return capitalise(word);
     });
   }

@@ -133,7 +133,7 @@ test('every page the footer links to exists', () => {
 /* Owner, 25 Oct 2026: "make footer cleaner.. like expand only if need be..
    right now .. just a load of things". */
 test('on every screen the footer is folded: the headings, and one group open at a time when asked', () => {
-  /* wide screens: the headings in one row, the open group's links in a line under it */
+  /* wide screens: the headings in one row, the open group's links under it, one to a line */
   assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__grid\{display:flex;flex-wrap:wrap;/);
   assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__col,\.pfa-footer\.is-folding \.pfa-footer__office\{display:contents\}/);
   assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__col ul,\.pfa-footer\.is-folding \.pfa-footer__where\{order:2;flex:0 0 100%;display:none\}/, 'closed until asked');
@@ -145,7 +145,15 @@ test('on every screen the footer is folded: the headings, and one group open at 
   assert.match(fold, /groups\.forEach\(function \(other\) \{ if \(other !== group\) set\(other, false\); \}\)/, 'one open at a time');
   assert.match(fold, /label\.setAttribute\('role', 'button'\)/);
   assert.match(fold, /label\.setAttribute\('aria-controls', list\.id\)/);
-  assert.doesNotMatch(fold, /matchMedia/, 'on every screen, not only a phone');
+  /* folded on every screen; the width only decides where an open list starts */
+  const place = fold.slice(fold.indexOf('function place('), fold.indexOf('function set('));
+  assert.ok(place.length > 50, 'the open list is placed under its heading');
+  assert.doesNotMatch(fold.replace(place, ''), /matchMedia/, 'on every screen, not only a phone');
+  /* owner, 25 Oct 2026: "it is better if they appear 1 below the other" */
+  assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__col\.is-open ul\{display:block;padding:6px 0 2px var\(--at,0px\);/, 'one link to a line, under its heading');
+  assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__office\.is-open \.pfa-footer__where\{display:block;max-width:none;padding:6px 0 2px var\(--at,0px\);/);
+  assert.doesNotMatch(CSS, /is-open ul\{display:flex/, 'never side by side');
+  assert.match(place, /Math\.min\(at, room\.width - Math\.ceil\(widest\(list\)\) - 2\)/, 'and never past the page\'s edge');
   /* and in a browser: headings only, then one group */
   const dom = new JSDOM(`<!doctype html><body>${FOOTER}</body>`, { runScripts: 'outside-only' });
   dom.window.eval(fold.slice(fold.indexOf('(function () {'), fold.lastIndexOf('})();') + 5));

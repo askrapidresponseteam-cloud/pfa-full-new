@@ -162,12 +162,24 @@
     var hits = all.filter(function (s) { var x = norm(s); return x.indexOf(n) > -1 || n.indexOf(x) > -1; });
     return hits.length === 1 ? hits[0] : '';
   }
+  /* India Post says "Mumbai" for every Mumbai PIN, Bandra and Andheri
+     included, and the list has Mumbai City and Mumbai Suburban; it says
+     "Warangal" and the list has Warangal (Rural) and (Urban). A name that is
+     one district only once "City" or a bracket is dropped from it, while
+     another district shares it, is left for the person to choose: a wrong
+     district sent to PFA is worse than an empty one the person fills in.
+     A name that is the district exactly ("Kamrup", "East Delhi") is that
+     district, whatever else contains it. */
   function districtOf(state, name) {
     var n = norm(name);
     if (!state || !n) return '';
     var list = india().districtsOf(state);
-    for (var i = 0; i < list.length; i++) if (bare(list[i]) === n || norm(list[i]) === n) return list[i];
+    var said = String(name || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    for (var i = 0; i < list.length; i++) if (list[i].toLowerCase() === said) return list[i];
+    var exact = list.filter(function (d) { return bare(d) === n || norm(d) === n; });
     var hits = list.filter(function (d) { return norm(d).indexOf(n) > -1; });
+    if (exact.length === 1) return hits.length > 1 ? '' : exact[0];
+    if (exact.length > 1) return '';
     return hits.length === 1 ? hits[0] : '';
   }
 
@@ -192,6 +204,9 @@
     var pinEl = field(block, 'pincode');
     var addrEl = field(block, 'address');
     var s = stateOf(place.state);
+    /* a PIN in another state than the one the person chose: its town and
+       district are not theirs to be given (the PIN says so on itself) */
+    if (s && stateEl && stateEl.value && stateEl.value !== s && !free(stateEl, overwrite)) return false;
     if (s && stateEl && free(stateEl, overwrite) && stateEl.value !== s) { put(stateEl, s); listFor(block, distEl ? distEl.value : ''); did = true; }
     var d = stateEl ? districtOf(stateEl.value, place.district) || districtOf(stateEl.value, place.city) : '';
     if (d && distEl && free(distEl, overwrite)) { put(distEl, d); did = true; }

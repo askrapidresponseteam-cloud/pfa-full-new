@@ -182,7 +182,18 @@
     if (!isData(field)) return;
     var key = keyOf(field);
     if (!String(field.value || '').trim()) { say(field, ''); return; }
-    say(field, R.checkField(key, field.value, { required: false, type: field.type }) || '');
+    var message = R.checkField(key, field.value, { required: false, type: field.type }) || '';
+    /* A PIN of the right shape can still be in another state, or one India
+       Post does not know (assets/address.js). Leaving the box used to judge
+       its shape alone and wipe that message ("PIN code 700016 is in West
+       Bengal, not Karnataka") the moment the person moved on, so the step
+       then stopped with nothing said on the PIN. */
+    if (!message && field.getAttribute('data-addr') === 'pincode' && window.PFAAddress && window.PFAAddress.pinProblem) {
+      var scope = field.closest && field.closest('[data-address], [data-address-wired]');
+      var state = scope && scope.querySelector('[data-addr="state"]');
+      message = window.PFAAddress.pinProblem(field.value, state ? state.value : '') || '';
+    }
+    say(field, message);
   }
 
   /* ---- the length the record holds, and the keyboard to offer ------------- */

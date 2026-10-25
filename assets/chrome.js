@@ -1301,11 +1301,39 @@
     if (!foot) return;
     var groups = [].slice.call(foot.querySelectorAll('.pfa-footer__col, .pfa-footer__office'));
     function partOf(group) { return group.querySelector('ul, .pfa-footer__where'); }
+    var grid = foot.querySelector('.pfa-footer__grid');
+    /* The open list starts under its own heading, one link to a line; a
+       heading far to the right moves it in only as far as its longest line
+       needs to end inside the page. On a phone each list is under its
+       heading already. */
+    function widest(list) {
+      var w = 0;
+      [].forEach.call(list.children, function (child) {
+        var r = document.createRange();
+        r.selectNodeContents(child);
+        [].forEach.call(r.getClientRects(), function (rect) { if (rect.width > w) w = rect.width; });
+      });
+      return w;
+    }
+    function place(group) {
+      var list = partOf(group), label = group.querySelector('.pfa-footer__label');
+      if (!list || !label || !grid) return;
+      list.style.removeProperty('--at');
+      if (!window.matchMedia || !window.matchMedia('(min-width: 720px)').matches) return;
+      var room = grid.getBoundingClientRect();
+      var at = label.getBoundingClientRect().left - room.left;
+      at = Math.max(0, Math.min(at, room.width - Math.ceil(widest(list)) - 2));
+      list.style.setProperty('--at', Math.round(at) + 'px');
+    }
     function set(group, open) {
       var label = group.querySelector('.pfa-footer__label');
       group.classList.toggle('is-open', open);
       if (label) label.setAttribute('aria-expanded', String(open));
+      if (open) place(group);
     }
+    window.addEventListener('resize', function () {
+      groups.forEach(function (g) { if (g.classList.contains('is-open')) place(g); });
+    });
     groups.forEach(function (group, i) {
       var label = group.querySelector('.pfa-footer__label');
       var list = partOf(group);

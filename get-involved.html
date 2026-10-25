@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Get Involved &#183; People for Animals</title>
 <meta name="description" content="Volunteer with People for Animals, become a member, or apply for a colony caregiver card. Every application is read by a named person and you are told where yours has got to.">
-<link rel="stylesheet" href="assets/chrome.css?v=4cfb95bdb4">
+<link rel="stylesheet" href="assets/chrome.css?v=4442e8b9bc">
 <style>
 :root{
   --paper:#fff;
@@ -279,9 +279,15 @@ a.card__tile:hover{opacity:1;border-color:var(--ink)}
    while the header needs 81px, so the top of the page slid underneath it at
    anything under about 1470px wide. */
 .gi{padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) var(--band)}
-.gi__head{max-width:60ch}
+/* One line, on every screen from a phone up (owner, 25 Oct 2026: "does
+   join the tribe have to be in 2 rows"). The head was held to 60ch, which
+   is narrower than the title at its largest in some browsers' fonts, so it
+   broke after THE with the whole page empty to its right. At the site's
+   title size the three words are narrower than a 360px phone's column. */
+.gi__head{max-width:none}
 .gi__title{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:1.04;
   font-size:clamp(30px,4.6vw,64px);margin:10px 0 0}
+@media (min-width:360px){main h1.gi__title{white-space:nowrap}}
 .gi__lede{margin:18px 0 0;font-size:15px;line-height:1.65;color:var(--muted);max-width:58ch}
 .gi__paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:clamp(30px,4vw,48px)}
 .gi__path{border:1px solid var(--line);padding:clamp(20px,2.6vw,30px);display:flex;flex-direction:column;gap:12px}
@@ -733,7 +739,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=8f377183d7"></script>
+<script src="assets/chrome.js?v=df141d5f0f"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 

@@ -396,5 +396,5 @@ test('what is stored is tidy: the PIN as digits, the district as the list spells
   assert.equal(stored.pincode, '576222');
   assert.equal(stored.district, 'Udupi');
   assert.equal(stored.state, 'Karnataka');
-  assert.equal(stored.address, 'Ashraya Ankadakatte, Near The Temple');
+  assert.equal(stored.address, 'Ashraya Ankadakatte, Near the Temple');
 });
