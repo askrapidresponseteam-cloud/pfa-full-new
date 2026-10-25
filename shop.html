@@ -394,6 +394,73 @@ body.is-held{overflow:hidden}
   <meta name="twitter:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://peopleforanimalsindia.org/"},{"@type":"ListItem","position":2,"name":"Shop","item":"https://peopleforanimalsindia.org/shop"}]}</script>
   <!-- seo:end -->
+<style id="pfa-shop-editorial">
+/* Bespokely-inspired composition, scoped to the shop. PFA tokens and chrome stay intact. */
+main .hero{display:grid;grid-template-columns:1fr;place-items:center;isolation:isolate;min-height:780px;height:calc(100svh - var(--ann) - var(--nav) - 28px);max-height:1000px;margin:calc(var(--ann) + var(--nav) + 16px) 16px 0;padding:70px 25%;border:0;border-radius:24px;background:var(--stone);overflow:hidden}
+main .hero__in{position:relative;z-index:2;text-align:center;max-width:760px}
+main .hero .eyebrow{margin-bottom:26px}
+main .hero h1{font-family:var(--display);font-size:clamp(64px,7.7vw,120px);line-height:1.02;letter-spacing:-.045em;text-transform:none}
+main .hero h1::before{display:none}
+main .hero .lede{max-width:42ch;margin:26px auto 0;font-size:14px;line-height:1.7}
+main .hero__cta{justify-content:center;gap:12px;margin-top:30px}
+main .hero .btn{padding:17px 24px;border-radius:100px;font-size:11px;letter-spacing:.04em}
+main .hero .btn--light{background:transparent}
+main .mosaic{position:absolute;inset:0;display:block;z-index:1;pointer-events:none}
+main .mosaic__t{position:absolute;width:20%;max-width:290px;aspect-ratio:4/5;border-radius:14px;pointer-events:auto;box-shadow:0 18px 45px -30px #1115;transform:rotate(var(--turn));animation:pfa-float 8s ease-in-out infinite alternate}
+main .mosaic__t:nth-child(1){top:-5%;left:3%;--turn:-9deg}
+main .mosaic__t:nth-child(2){top:3%;right:2%;--turn:8deg;animation-delay:-3s}
+main .mosaic__t:nth-child(3){bottom:0%;left:0%;--turn:7deg;animation-delay:-5s}
+main .mosaic__t:nth-child(4){bottom:-6%;right:4%;--turn:-8deg;animation-delay:-1s}
+main .mosaic__t span{left:12px;bottom:12px;border-radius:20px;padding:9px 12px;font-size:10px;letter-spacing:.06em;max-width:calc(100% - 24px)}
+main .mosaic__t img{object-fit:cover}
+.hero__edition{position:absolute;bottom:28px;left:28%;right:28%;display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--line);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.hero__edition a{border-bottom:1px solid var(--ink);padding-bottom:4px}
+.hero__pause{position:absolute;right:20px;bottom:18px;z-index:3;border:1px solid var(--line);background:var(--paper);border-radius:50%;height:38px;width:38px;cursor:pointer;font-size:15px}
+main .hero.is-paused .mosaic__t{animation-play-state:paused}
+@keyframes pfa-float{from{transform:translateY(-7px) rotate(var(--turn))}to{transform:translateY(12px) rotate(calc(var(--turn) + 3deg))}}
+.shop-story{margin:100px var(--gutter) 0;border-top:1px solid var(--ink);padding-top:20px}
+.shop-story__label{display:flex;justify-content:space-between;gap:20px}
+.shop-story__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:60px;margin-top:60px}
+.shop-story__grid article{padding-right:25px}
+.shop-story__grid .eyebrow{margin-bottom:24px}
+.shop-story h2{font-family:var(--display);font-weight:400;font-size:clamp(28px,3.2vw,46px);line-height:1.1;letter-spacing:-.025em;margin:0 0 16px}
+.shop-story p:not(.eyebrow){font-size:14px;line-height:1.7;color:var(--muted);max-width:34ch}
+main .band{padding-top:120px}
+main .band__head{padding-top:24px;border-top:1px solid var(--ink);margin-bottom:48px}
+main .band__head>div{display:grid;grid-template-columns:1.5fr 1fr;column-gap:10%;align-items:end;width:100%}
+main .band__head .eyebrow{grid-column:1/-1;margin:0 0 34px}
+main .band__head h2{font-size:clamp(42px,5.4vw,78px);line-height:1.06;text-transform:none;letter-spacing:-.035em;max-width:13ch}
+main .band__head p:not(.eyebrow){font-size:15px;line-height:1.7;padding-bottom:6px}
+main .bar{border-top:0;padding-top:16px;padding-bottom:16px;backdrop-filter:blur(16px)}
+main .chip{border-radius:100px;border-color:var(--line);height:42px;padding:0 20px;font-size:11px}
+main .bar__sort select{border-radius:100px;padding:0 16px}
+main .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:60px 24px}
+main .item__media{border-radius:18px;isolation:isolate}
+main .item__media::after{content:'View piece  +';position:absolute;bottom:18px;right:18px;padding:12px 17px;border-radius:50px;background:var(--paper);color:var(--ink);font-size:11px;letter-spacing:.04em;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none}
+main .item__media:hover::after,main .item__media:focus-visible::after{opacity:1;transform:none}
+main .item__bd{padding:22px 4px 0}
+main .item__tag{border:0;padding:0;font-size:10px;color:var(--muted);margin-bottom:12px}
+main .item__name{font-size:clamp(19px,1.9vw,27px);text-transform:none;letter-spacing:-.02em;line-height:1.2}
+main .item__meta{font-size:12px;line-height:1.6}
+main .item__price{margin-top:14px}
+main .item__buy{padding-top:20px;gap:10px}
+main .sizes span{border-radius:50%;height:44px;min-width:44px}
+main .item__add{border-radius:100px;height:44px;letter-spacing:.05em}
+main .feature{border:0;border-radius:24px;overflow:hidden;background:var(--stone);margin-top:120px}
+main .feature__pics{gap:8px;padding:24px;background:transparent;align-content:center;transform:rotate(-4deg)}
+main .feature__pics button{border-radius:16px}
+main .feature__bd h2{font-size:clamp(40px,5vw,72px);text-transform:none;letter-spacing:-.04em;line-height:1.04}
+main .feature__bd h2::before{display:none}
+main .feature__bd{padding:clamp(28px,4vw,64px)}
+main .promises{gap:25px;padding-top:24px}
+main .promises li,main .promises li+li{padding:16px 0;border:0}
+main .promises b{text-transform:none;font-size:27px;letter-spacing:-.02em}
+.bagbtn{border-radius:100px}
+@media(min-width:1500px){main .hero{padding-left:28%;padding-right:28%}}
+@media(max-width:1000px){main .hero{min-height:700px;padding-left:24%;padding-right:24%}main .hero h1{font-size:70px}main .hero .lede{font-size:13px}.shop-story__grid{gap:24px}main .grid{gap:48px 18px}main .item__buy{flex-wrap:wrap}main .item__add{flex-basis:100%}}
+@media(max-width:719px){main .hero{margin-left:10px;margin-right:10px;border-radius:18px;min-height:820px;max-height:none;height:auto;padding:200px 22px 205px}main .hero__in{max-width:420px}main .hero h1{font-size:clamp(55px,12vw,80px)}main .hero .eyebrow{margin-bottom:18px}main .hero .lede{font-size:14px;margin-top:20px}main .hero__cta{gap:9px;margin-top:24px}main .hero .btn{padding:14px 20px}main .mosaic__t{width:30%;max-width:160px;aspect-ratio:1/1.12}main .mosaic__t:nth-child(1){left:6%;top:-2%}main .mosaic__t:nth-child(2){right:7%;top:-1%}main .mosaic__t:nth-child(3){left:6%;bottom:3%}main .mosaic__t:nth-child(4){right:7%;bottom:2%}main .mosaic__t span{display:none}.hero__edition{bottom:14px;left:18px;right:65px;border:0;padding:0;font-size:9px}.hero__edition a{display:none}.shop-story{margin-top:64px}.shop-story__label{font-size:9px}.shop-story__grid{grid-template-columns:1fr;gap:24px;margin-top:32px}.shop-story__grid article{display:grid;grid-template-columns:50px 1fr;padding:0;gap:0 12px}.shop-story__grid .eyebrow{grid-row:1/3;font-size:10px;margin-top:5px}.shop-story__grid h2{font-size:30px}.shop-story__grid p:not(.eyebrow){grid-column:2;margin:0;max-width:40ch}main .band{padding-top:70px}main .band__head>div{grid-template-columns:1fr}main .band__head .eyebrow{margin-bottom:24px}main .band__head h2{font-size:44px;max-width:15ch}main .band__head p:not(.eyebrow){font-size:14px}main .band__head{margin-bottom:24px}main .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 12px}main .item__media{border-radius:12px}main .item__bd{padding-top:16px}main .item__name{font-size:19px}main .item__meta{font-size:11px}main .item__price{font-size:13px;gap:6px}main .item__off{font-size:10px}main .item__buy{gap:8px;padding-top:14px}main .item__add{font-size:10px}main .bar__sort{margin-left:8px}main .chip{padding:0 16px}main .feature{margin-top:70px;border-radius:18px;grid-template-columns:1fr}main .feature__pics{padding:22px}main .feature__bd{padding:32px 24px 40px}main .feature .item__add{flex-basis:auto}main .promises{grid-template-columns:1fr 1fr;gap:22px;margin-top:64px}main .promises li+li{margin-top:0}main .promises b{font-size:23px}main .promises span{font-size:12px}main .item__media::after{display:none}}
+@media(prefers-reduced-motion:reduce){main .mosaic__t{animation:none}.hero__pause{display:none}}
+</style>
 </head>
 <body>
 
@@ -640,6 +707,16 @@ if (root.document && root.document.head) apply(read());
         <a class="mosaic__t" href="#rocky-star" data-open-id="29"><img src="media/shop/v2/rocky-star-x-pfa-front.webp" alt="Rocky Star x PFA" decoding="async" loading="lazy" decoding="async"><span>Rocky Star</span></a>
         <a class="mosaic__t" href="#raw-mango" data-open-id="37"><img src="media/shop/v2/raw-mango-x-pfa-front.webp" alt="Raw Mango x PFA" decoding="async" loading="lazy" decoding="async"><span>Raw Mango</span></a>
         <a class="mosaic__t" href="#ashima-singh" data-open-id="39"><img src="media/shop/v2/ashima-singh-x-pfa-front.webp" alt="Ashima Singh x PFA" decoding="async" loading="lazy" decoding="async"><span>Ashima Singh</span></a>
+    </div>
+    <div class="hero__edition"><span>14 designers · One cause</span><a href="#collection">Explore the collection ↓</a></div>
+    <button class="hero__pause" type="button" aria-label="Pause floating images" aria-pressed="false">Ⅱ</button>
+  </section>
+  <section class="shop-story" aria-label="Design with purpose">
+    <div class="shop-story__label eyebrow"><span>Good design. Greater purpose.</span><span>Create → Wear → Care</span></div>
+    <div class="shop-story__grid">
+      <article><p class="eyebrow">01</p><h2>Extraordinary<br>by design.</h2><p>Fourteen designers. Fourteen individual expressions of love for animals.</p></article>
+      <article><p class="eyebrow">02</p><h2>Made to be<br>worn.</h2><p>Limited-edition, 100% cotton tees. An easy unisex fit, with a message that matters.</p></article>
+      <article><p class="eyebrow">03</p><h2>A little more<br>kindness.</h2><p>Every purchase supports People for Animals and its work for animals.</p></article>
     </div>
   </section>
 
@@ -1214,5 +1291,17 @@ if (root.document && root.document.head) apply(read());
 <script src="assets/india-districts.js" defer></script>
 <script src="assets/address.js" defer></script>
 <script src="assets/shop.js" defer></script>
+<script>
+(function(){
+  var hero=document.querySelector('main .hero'), pause=document.querySelector('.hero__pause');
+  if(!hero||!pause)return;
+  pause.addEventListener('click',function(){
+    var paused=hero.classList.toggle('is-paused');
+    pause.setAttribute('aria-pressed',String(paused));
+    pause.setAttribute('aria-label',paused?'Resume floating images':'Pause floating images');
+    pause.textContent=paused?'▷':'Ⅱ';
+  });
+})();
+</script>
 </body>
 </html>
