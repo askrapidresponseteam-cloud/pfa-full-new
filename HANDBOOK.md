@@ -494,3 +494,11 @@ The reader opens `resources/read/<slug>.pdf`, a lighter copy of each library PDF
 
 They are built on GitHub, not shipped in the site zip: `.github/workflows/reading-copies.yml` runs when a library PDF, `data/library.json` or the builder changes, builds any missing copy and commits it, and Vercel deploys that commit. Check it under the repository's Actions tab ("Reading copies"); it can also be run from there by hand. Until a copy exists the reader opens the original, so nothing breaks while it runs. If Actions is switched off for the repository, the site keeps working on the originals.
 
+
+## 13. Making something findable in site search
+
+Site search is `pfa-search.js` in the browser, reading `search-index.json`, which `node scripts/build-search-index.js` writes from the pages themselves (with `search-index.js` and `sitemap.xml`). Run it after any change to a page's words; `test/search-targets.test.js` fails while a public page is missing from it.
+
+1. **What gets a result of its own:** every public page, every heading with an anchor (and every question on laws.html), every heading that is a link (a library document at `read.html?r=<slug>`, a story, a design), every unit, every CineKind honour, every membership tier and every kind of event. The rest of each page's text rides along, so any word on the site finds the page or section it is in.
+2. **When people type a word the site does not use,** add it to `SYNONYMS` in `pfa-search.js` (`tv: 'television broadcasting'`). When one exact result should come first for a phrase, add the phrase to that row's `q` (a curated row) or to `BEST_BETS` under its address (a crawled row). A phrase that is one word once its little words go ("work with pfa") only counts when typed exactly that way, or as the one word alone.
+3. **Before shipping,** `npm test` runs `test/search-findable.test.js`: every row found by its own title, and about four hundred everyday searches (typos, Hinglish, half-typed words) each finding their answer in the top three. Add a line to its list for anything new people should be able to find.

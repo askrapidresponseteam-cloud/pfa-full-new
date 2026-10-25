@@ -1284,11 +1284,12 @@
   ready(function () { [].forEach.call(document.querySelectorAll('form[data-steps]'), wire); });
 })();
 
-/* The footer on a phone: each link group is one row that opens when tapped
-   (owner, 21 Oct 2026: "THE FOOTER ON THE MOBILE SUCKS. SO LONG"). The
-   styles are in assets/chrome.css, under .is-folding, which is added here so
-   a page whose script does not run keeps every group open. Wide screens are
-   untouched: the rows are only buttons while the phone layout is showing. */
+/* The footer, folded (owner, 25 Oct 2026: "make footer cleaner.. like
+   expand only if need be.. right now .. just a load of things"; on phones
+   since 21 Oct: "THE FOOTER ON THE MOBILE SUCKS. SO LONG"). Each heading
+   opens its own links, and only one group is open at a time. The styles
+   are in assets/chrome.css, under .is-folding, which is added here so a
+   page whose script does not run keeps every group open. */
 (function () {
   'use strict';
   function ready(fn) {
@@ -1297,46 +1298,43 @@
   }
   ready(function () {
     var foot = document.querySelector('.pfa-footer');
-    if (!foot || !window.matchMedia) return;
-    var phone = window.matchMedia('(max-width:719px)');
-    var cols = [].slice.call(foot.querySelectorAll('.pfa-footer__col'));
-    function wire(col, i) {
-      var label = col.querySelector('.pfa-footer__label');
-      var list = col.querySelector('ul');
+    if (!foot) return;
+    var groups = [].slice.call(foot.querySelectorAll('.pfa-footer__col, .pfa-footer__office'));
+    function partOf(group) { return group.querySelector('ul, .pfa-footer__where'); }
+    function set(group, open) {
+      var label = group.querySelector('.pfa-footer__label');
+      group.classList.toggle('is-open', open);
+      if (label) label.setAttribute('aria-expanded', String(open));
+    }
+    groups.forEach(function (group, i) {
+      var label = group.querySelector('.pfa-footer__label');
+      var list = partOf(group);
       if (!label || !list) return;
       if (!list.id) list.id = 'pfaFootList' + i;
+      label.setAttribute('role', 'button');
+      label.setAttribute('tabindex', '0');
+      label.setAttribute('aria-controls', list.id);
+      label.setAttribute('aria-expanded', 'false');
       label.addEventListener('click', function () {
-        if (!phone.matches) return;
-        var open = !col.classList.contains('is-open');
-        col.classList.toggle('is-open', open);
-        label.setAttribute('aria-expanded', String(open));
+        var open = !group.classList.contains('is-open');
+        groups.forEach(function (other) { if (other !== group) set(other, false); });
+        set(group, open);
       });
       label.addEventListener('keydown', function (e) {
-        if (!phone.matches || (e.key !== 'Enter' && e.key !== ' ')) return;
+        if (e.key !== 'Enter' && e.key !== ' ') return;
         e.preventDefault();
         label.click();
       });
+    });
+    foot.classList.add('is-folding');
+    /* a link to the office (#contact) opens it */
+    function toContact() {
+      if (location.hash !== '#contact') return;
+      var office = foot.querySelector('.pfa-footer__office');
+      if (office) set(office, true);
     }
-    function apply() {
-      var on = phone.matches;
-      foot.classList.toggle('is-folding', on);
-      cols.forEach(function (col) {
-        var label = col.querySelector('.pfa-footer__label');
-        var list = col.querySelector('ul');
-        if (!label || !list) return;
-        if (on) {
-          label.setAttribute('role', 'button');
-          label.setAttribute('tabindex', '0');
-          label.setAttribute('aria-controls', list.id);
-          label.setAttribute('aria-expanded', String(col.classList.contains('is-open')));
-        } else {
-          ['role', 'tabindex', 'aria-controls', 'aria-expanded'].forEach(function (a) { label.removeAttribute(a); });
-        }
-      });
-    }
-    cols.forEach(wire);
-    apply();
-    if (phone.addEventListener) phone.addEventListener('change', apply); else if (phone.addListener) phone.addListener(apply);
+    toContact();
+    window.addEventListener('hashchange', toContact);
   });
 })();
 

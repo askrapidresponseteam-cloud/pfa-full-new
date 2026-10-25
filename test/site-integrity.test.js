@@ -114,8 +114,15 @@ test('the index the browser downloads carries nothing behind a sign-in', () => {
   const leaked = rows.filter((r) => shared.isPrivatePath(r.u));
   assert.deepEqual(leaked.map((r) => r.u), [], 'these are behind a sign-in and are in a public file');
 
-  const excluded = rows.filter((r) => shared.EXCLUDE.has(String(r.u).split('#')[0].split('?')[0]));
+  /* One exception, by name (25 Oct 2026: "any and all related works should
+     be lookable/findable"): read.html is the library's reader and is never a
+     result on its own, but each document the library lists is, at its own
+     address, read.html?r=<the document>. Nothing else of read.html, and no
+     document the library does not list. */
+  const listed = new Set([...fs.readFileSync(path.join(ROOT, 'library.html'), 'utf8').matchAll(/href="(read\.html\?r=[^"#]+)"/g)].map((m) => m[1]));
+  const excluded = rows.filter((r) => shared.EXCLUDE.has(String(r.u).split('#')[0].split('?')[0]) && !listed.has(r.u));
   assert.deepEqual(excluded.map((r) => r.u), [], 'these pages are excluded from search and were indexed anyway');
+  assert.ok(rows.some((r) => r.u === 'read.html?r=pca-act-1960'), 'a library document is found at its own address');
 
   /* And the builder itself, so the file cannot simply be cleaned by hand while
      the next rebuild puts it back. */

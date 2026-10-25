@@ -62,7 +62,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>The PFA Library: handbooks, laws and reports | People for Animals</title>
 <meta name="description" content="Handbooks, laws, training manuals and policy briefs on animal welfare in India. Read any of them here, comfortably, on any screen, pick up where you left off, or download the original.">
-<link rel="stylesheet" href="assets/chrome.css?v=afd4b8b077">
+<link rel="stylesheet" href="assets/chrome.css?v=4cfb95bdb4">
 <style>
 :root{
   --paper:#fff;
@@ -412,7 +412,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=fc96217ff9"></script>
+<script src="assets/chrome.js?v=8f377183d7"></script>
 
 <main>
   <section class="hero" id="top">
@@ -725,46 +725,20 @@ if (root.document && root.document.head) apply(read());
 </main>
 
 <footer class="pfa-footer" data-cursor="dark" id="donate" data-screen-label="Footer">
-  <!-- Redrawn on 9 Oct 2026 (owner: "footer looking nasty"), then cut back
-       the same day (owner, the PFA name large in the header and again large
-       in the footer, under a form: "pfa on top and again below.. looks
-       confusing"). The header is where PFA's name and Donate live; the
-       footer is the directory: the office with the social links, five link
-       groups each opened by a pop tick and a label, and the legal line with
-       the privacy policy. It stands on the page's gutter, with the header.
-
-       The groups follow the header: Our Work, Learn, Get Involved, then its
-       "Give and partner" list as a group of its own, and About.
+  <!-- Folded (owner, 25 Oct 2026: "make footer cleaner.. like expand only if
+       need be.. right now .. just a load of things"). The footer is one row
+       of headings, each opening its links when asked, and one slim line
+       under it: PFA on social media, the visit counter and the legal line
+       with the privacy policy. Five link groups follow the header (Our
+       Work, Learn, Get Involved, its "Give and partner" list, About), then
+       the registered office. assets/chrome.js folds them, one open at a
+       time; a page whose script does not run shows every group open, as a
+       directory.
 
        Every block is block-level in the markup: assets/ is cached for an hour
        and the HTML is not, so for up to an hour after a deploy this markup
        meets the previous chrome.css, and it still reads top to bottom. -->
   <div class="pfa-footer__grid">
-    <div class="pfa-footer__office">
-      <p class="pfa-footer__label">Registered office</p>
-      <!-- As published on peopleforanimalsindia.org. tel: and mailto: so a
-           phone dials and a mail client opens; the numbers hold together with
-           non-breaking spaces, because a number split across two lines cannot
-           be dialled. -->
-      <address class="pfa-footer__where" id="contact">
-        <div>4-T, DCM Building, 16 Barakhamba Road, New Delhi 110001, India</div>
-        <div class="pfa-footer__tel"><a href="tel:+911120818191">+91&nbsp;11&nbsp;2081&nbsp;8191</a><span class="pfa-footer__dot"> · </span><a href="tel:+911120818194">+91&nbsp;11&nbsp;2081&nbsp;8194</a></div>
-        <div><a href="mailto:gandhim@exmpls.sansad.in">gandhim@exmpls.sansad.in</a></div>
-      </address>
-      <nav class="pfa-footer__social" aria-label="Social media">
-        <a href="https://www.instagram.com/pfa.official/" target="_blank" rel="noopener noreferrer">Instagram</a>
-        <a href="https://www.facebook.com/people4animals/" target="_blank" rel="noopener noreferrer">Facebook</a>
-        <a href="https://x.com/pfaindia" target="_blank" rel="noopener noreferrer">X</a>
-        <a href="https://www.youtube.com/@peopleforanimals9047" target="_blank" rel="noopener noreferrer">YouTube</a>
-      </nav>
-      <!-- Real count, from /api/visits. Hidden until a number actually
-           arrives, so a counter that cannot reach the server shows nothing
-           rather than a zero or an invented figure. No caption; the
-           aria-label names it for a screen reader. -->
-      <div class="pfa-tally" id="pfaTally" hidden>
-        <div class="pfa-tally__odo" id="pfaTallyOdo" role="status" aria-live="polite" aria-label="Visit counter"></div>
-      </div>
-    </div>
     <nav class="pfa-footer__col" aria-label="Our Work">
       <p class="pfa-footer__label">Our Work</p>
       <ul>
@@ -815,8 +789,33 @@ if (root.document && root.document.head) apply(read());
         <li><a href="ask.html">Contact</a></li>
       </ul>
     </nav>
+    <div class="pfa-footer__office">
+      <p class="pfa-footer__label">Registered office</p>
+      <!-- As published on peopleforanimalsindia.org. tel: and mailto: so a
+           phone dials and a mail client opens; the numbers hold together with
+           non-breaking spaces, because a number split across two lines cannot
+           be dialled. -->
+      <address class="pfa-footer__where" id="contact">
+        <div>4-T, DCM Building, 16 Barakhamba Road, New Delhi 110001, India</div>
+        <div class="pfa-footer__tel"><a href="tel:+911120818191">+91&nbsp;11&nbsp;2081&nbsp;8191</a><span class="pfa-footer__dot"> · </span><a href="tel:+911120818194">+91&nbsp;11&nbsp;2081&nbsp;8194</a></div>
+        <div><a href="mailto:gandhim@exmpls.sansad.in">gandhim@exmpls.sansad.in</a></div>
+      </address>
+    </div>
   </div>
   <div class="pfa-footer__base">
+    <nav class="pfa-footer__social" aria-label="Social media">
+      <a href="https://www.instagram.com/pfa.official/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://www.facebook.com/people4animals/" target="_blank" rel="noopener noreferrer">Facebook</a>
+      <a href="https://x.com/pfaindia" target="_blank" rel="noopener noreferrer">X</a>
+      <a href="https://www.youtube.com/@peopleforanimals9047" target="_blank" rel="noopener noreferrer">YouTube</a>
+    </nav>
+    <!-- Real count, from /api/visits. Hidden until a number actually
+         arrives, so a counter that cannot reach the server shows nothing
+         rather than a zero or an invented figure. No caption; the
+         aria-label names it for a screen reader. -->
+    <div class="pfa-tally" id="pfaTally" hidden>
+      <div class="pfa-tally__odo" id="pfaTallyOdo" role="status" aria-live="polite" aria-label="Visit counter"></div>
+    </div>
     <p>People for Animals © 2026</p>
     <p>Registered charity · All donations tax-deductible</p>
     <p><a href="privacy.html">Privacy policy</a></p>

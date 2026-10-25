@@ -22,7 +22,8 @@ const SITE = 'https://peopleforanimalsindia.org';
    newsroom story that does not exist yet. Indexing it would surface it in site
    search before that story is written. Delete it from this list on the day the
    story goes up. */
-/* read.html is the library's reader: one page for every document, chosen by ?r=, so it is reached from library.html, which is indexed, never on its own. */
+/* read.html is the library's reader: one page for every document, chosen by ?r=, so it is never a result on its own.
+   Each document the library lists is, at read.html?r=<document> (25 Oct 2026), from the library's own links. */
 const EXCLUDE = new Set(['admin.html', '404.html', 'search.html', 'patron-card-preview.html', 'caregiver-card.html', 'animal.html', 'winner.html', 'submission-collage.html', 'read.html']);
 
 /* Not the same idea as EXCLUDE. search.html is public, it just is not a
@@ -64,9 +65,12 @@ function text(html) {
     .replace(/<[^>]+>/g, ' '))
     .replace(/\s+/g, ' ').trim();
 }
+/* A meta tag's content, in either quote: an apostrophe inside a double-
+   quoted description ("India's") used to end it there ("Object to India"). */
 function meta(html, name) {
-  const m = new RegExp(`<meta[^>]+(?:name|property)=["']${name}["'][^>]+content=["']([^"']*)["']`, 'i').exec(html)
-    || new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+(?:name|property)=["']${name}["']`, 'i').exec(html);
+  const tag = new RegExp(`<meta\\b[^>]*(?:name|property)=["']${name}["'][^>]*>`, 'i').exec(html);
+  if (!tag) return '';
+  const m = /\bcontent="([^"]*)"/i.exec(tag[0]) || /\bcontent='([^']*)'/i.exec(tag[0]);
   return m ? decode(m[1]) : '';
 }
 /* Script and style first: units.html builds its cards in script strings
@@ -78,6 +82,47 @@ function headings(html) {
     .map((m) => text(m[1])).filter(Boolean).slice(0, 130);
   /* 130, not 20: achievements.html alone carries a hundred and three h3
      entry titles, and a record a visitor cannot search is not on offer. */
+}
+
+/* The words of a stretch of text, once each, for the engine to find a row
+   by anything it says, not only its title (owner, 25 Oct 2026: "ensure the
+   search is truly google grade. any and all related works should be
+   lookable/findable"). Lower case, in first-seen order, without the little
+   words, and without the words the row already carries in its title, its
+   description or its keywords, so the index grows by what is new. */
+const BODY_STOP = new Set(('a an the and or of to in on at by for from with as is are was were be been being it its this that these those '
+  + 'he she they them his her their we our us you your i me my not no so if then than but also can could will would should may might must '
+  + 'has have had do does did done which who whom whose what when where why how all any each every some such more most other into over '
+  + 'under about after before up out only own same very just one two three four five there here').split(' '));
+function bodyWords(textValue, already, cap) {
+  const seen = new Set();
+  const skip = new Set(String(already || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean));
+  const out = [];
+  for (const w of String(textValue || '').toLowerCase().replace(/[\u2019']/g, '').split(/[^a-z0-9]+/)) {
+    if (w.length < 3 || BODY_STOP.has(w) || skip.has(w) || seen.has(w) || /^\d{1,2}$/.test(w)) continue;
+    seen.add(w);
+    out.push(w);
+    if (out.length >= (cap || 400)) break;
+  }
+  return out.join(' ');
+}
+
+/* A result's description reads like a sentence and stops at a word: the
+   paragraphs under a heading, not the tags, cites, numbers and buttons
+   around them ("...sensitised in 12 State" ran on into the next record's
+   number, "049"), cut at a space with an ellipsis when it is long. */
+function clip(s, n) {
+  const t = String(s || '').replace(/\s+/g, ' ').trim();
+  if (t.length <= n) return t;
+  const cut = t.slice(0, n + 1);
+  const at = cut.lastIndexOf(' ');
+  return (at > n * 0.6 ? cut.slice(0, at) : t.slice(0, n)).replace(/[\s,;:(\u00b7-]+$/, '') + '\u2026';
+}
+function prose(html) {
+  const paras = [...String(html).matchAll(/<p\b([^>]*)>([\s\S]*?)<\/p>/gi)]
+    .filter((m) => !/class="[^"]*\b(cite|cites|label|eyebrow|kicker|meta|tags?|note__label|[a-z]+__(m|meta|tags?|cat|c|foot|acts?|actions|cta))\b/i.test(m[1]))
+    .map((m) => text(m[2].replace(/<button\b[\s\S]*?<\/button>/gi, ' '))).filter(Boolean);
+  return paras.join(' ');
 }
 
 function publicPages() {
@@ -123,10 +168,13 @@ function build() {
     const title = file === 'index.html' ? 'Home' : text((/<title>([\s\S]*?)<\/title>/i.exec(html) || [])[1] || file)
       .replace(/\s*[|\u00b7]\s*People for Animals\s*$/i, '');
     const group = GROUP[file] || 'Explore';
+    const pageDesc = clip(meta(html, 'description'), 220);
+    const pageKeys = headings(html).join(' ').slice(0, 1200);
     rows.push({
       t: title, s: 'Pages', y: 'page', u: file === 'index.html' ? 'index.html' : file,
-      d: meta(html, 'description').slice(0, 220),
-      k: headings(html).join(' ').slice(0, 1200)
+      d: pageDesc,
+      k: pageKeys,
+      b: bodyWords(text(stripped.replace(/<form\b[\s\S]*?<\/form>/gi, ' ')), title + ' ' + pageDesc + ' ' + pageKeys, 500)
     });
     /* Anchored sections: walk the page once, remembering the last id seen,
        and give every h2/h3 that can be reached by an anchor its own row. */
@@ -163,6 +211,26 @@ function build() {
       off.push([b.index, end]);
     }
     const inForm = (at) => off.some(([a, b]) => at >= a && at < b);
+    /* A heading that is a link is an item of its own: a document in the
+       library, a story in the newsroom, a product. It gets a row of its own,
+       landing where its link goes when that is on this site (read.html?r=,
+       cinekind.html#...), or on its section here when the link leads away
+       (a newspaper's story is reached from the card that names it). Its
+       words are the blurb that follows it. */
+    const items = [];
+    const linkedItem = (at, inner, end) => {
+      const a = /<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i.exec(inner || '');
+      if (!a || inForm(at)) return false;
+      const head = text(inner);
+      if (!head || head.length < 3) return false;
+      const href = a[1];
+      const away = /^(https?:|mailto:|tel:)/i.test(href);
+      const own = !away && !href.startsWith('#') ? href : (href.startsWith('#') ? file + href : '');
+      const after = stripped.slice(end, end + 1600);
+      const blurb = text((/<p\b[^>]*>([\s\S]*?)<\/p>/i.exec(after) || [])[1] || '');
+      items.push({ head, own, lastId, blurb, at, more: text(after.split(/<h[1-4]\b/i)[0]) });
+      return true;
+    };
     const walker = /<([a-z][a-z0-9]*)\b([^>]*?)\sid="([^"]+)"([^>]*)>|<h([23])[^>]*>([\s\S]*?)<\/h\5>|<span class="qa__q">([^<]+)<\/span>/gi;
     const marks = [];
     let m;
@@ -178,6 +246,7 @@ function build() {
              landing (a product card, a shelf) when that block has not been
              claimed by an earlier heading; otherwise the heading itself. */
           const close = stripped.indexOf('</' + m[1], walker.lastIndex);
+          if (close > -1 && linkedItem(m.index, stripped.slice(walker.lastIndex, close), close)) { walker.lastIndex = close; continue; }
           if (close > -1 && !inForm(m.index)) {
             const id = lastId && !lastUsed ? lastId : m[3];
             marks.push({ id, head: text(stripped.slice(walker.lastIndex, close)), at: close });
@@ -190,6 +259,7 @@ function build() {
         continue;
       }
       if (inForm(m.index)) continue;
+      if (m[6] !== undefined && linkedItem(m.index, m[6], walker.lastIndex)) continue;
       marks.push({ id: lastId, head: text(m[6] || m[7] || ''), at: walker.lastIndex });
       lastUsed = true;
     }
@@ -202,13 +272,26 @@ function build() {
       if (taken.has(mark.id)) return;
       taken.add(mark.id);
       const until = i + 1 < marks.length ? marks[i + 1].at : stripped.length;
-      const snippet = text(stripped.slice(mark.at, until)).slice(0, 220);
+      const part = stripped.slice(mark.at, until).replace(/<form\b[\s\S]*?<\/form>/gi, ' ');
+      const whole = text(part);
+      const said = prose(part);
+      const snippet = clip(said.length >= 40 ? said : whole, 220);
       rows.push({
         t: mark.head.slice(0, 120), s: group, y: file === 'laws.html' ? 'law' : 'article',
         u: file + '#' + mark.id, p: title + ' \u203a ' + mark.head.slice(0, 60),
-        d: snippet, k: ''
+        d: snippet, k: '',
+        b: bodyWords(whole, mark.head + ' ' + snippet, 300)
       });
     });
+    for (const it of items) {
+      const u = it.own || (it.lastId ? file + '#' + it.lastId : file);
+      rows.push({
+        t: it.head.slice(0, 120), s: group, y: 'article', u,
+        p: title + ' \u203a ' + it.head.slice(0, 60),
+        d: clip(it.blurb, 220), k: '',
+        b: bodyWords(it.more, it.head + ' ' + it.blurb, 120)
+      });
+    }
   }
   /* Units: the list is data inside units.html, so search reads the data.
      The old names people actually type ride along as keywords. */
@@ -257,6 +340,59 @@ function build() {
     });
     unitCount += 1;
   }
+  /* Things a page holds as small items, without a heading of their own,
+     that people search for by name (25 Oct 2026). */
+  const page = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+  /* CineKind: every honour, by who received it and what it is called, on
+     its own place in the roll of honour. */
+  const cine = page('cinekind.html');
+  for (const hm of cine.matchAll(/<li\b[^>]*\bid="(h(\d\d)-\d+)"[^>]*>([\s\S]*?)<\/li>/g)) {
+    const award = text((/class="(?:t|rt__t)">([\s\S]*?)<\/span>/.exec(hm[3]) || [])[1] || '');
+    const who = text((/class="(?:w|rt__w)">([\s\S]*?)<\/span>/.exec(hm[3]) || [])[1] || '');
+    const work = text((/class="rt__s">([\s\S]*?)<\/span>/.exec(hm[3]) || [])[1] || '');
+    if (!award || !who) continue;
+    const year = '20' + hm[2];
+    rows.push({
+      t: who + ', ' + award, s: 'Explore', y: 'article', u: 'cinekind.html#' + hm[1],
+      p: 'CineKind \u203a ' + year,
+      d: `CineKind ${year}: ${award}${work ? ', for ' + work : ''}.`,
+      k: (who + ' ' + award + ' ' + work + ' cinekind ' + year + ' honour award film').toLowerCase()
+    });
+  }
+  /* Membership: each tier, by its name and what it costs. */
+  const gi = page('get-involved.html');
+  for (const tm of gi.matchAll(/<label class="tier">([\s\S]*?)<\/label>/g)) {
+    const name = text((/class="tier__name">([\s\S]*?)<\/span>/.exec(tm[1]) || [])[1] || '');
+    const amt = text((/class="tier__amt">([\s\S]*?)<\/span>/.exec(tm[1]) || [])[1] || '');
+    if (!name) continue;
+    rows.push({
+      t: name + ' membership', s: 'Do something', y: 'article', u: 'get-involved.html#membership',
+      p: 'Get involved \u203a Membership',
+      d: `${name} membership of People for Animals${amt ? ', ' + amt : ''}.`,
+      k: (name + ' membership member join tier fee ' + amt).toLowerCase()
+    });
+  }
+  /* Events: each kind of event, which happens where someone asks for one. */
+  const ev = page('events.html');
+  const evAsk = text((/<p>(A drive or a camp happens[\s\S]*?)<\/p>/.exec(ev) || [])[1] || '');
+  for (const bm of ev.matchAll(/<button class="ev-bar"[^>]*data-kind="([a-z]+)"[^>]*data-none="([^"]*)"[^>]*data-choice-label="([^"]*)"[^>]*>[\s\S]*?class="ev-bar__name">([^<]+)</g)) {
+    rows.push({
+      t: decode(bm[3]), s: 'Places', y: 'article', u: 'events.html#request',
+      p: 'Events \u203a ' + decode(bm[4]),
+      d: clip(decode(bm[2]) + ' ' + evAsk, 220),
+      k: (decode(bm[4]) + ' ' + bm[1] + ' event ask request organise').toLowerCase()
+    });
+  }
+  /* One row per place and name: a heading met twice (as a section and as a
+     link) keeps its first row, with the words of both. */
+  const byKey = new Map();
+  for (const r of rows.splice(0)) {
+    const key = r.u + '|' + r.t.toLowerCase();
+    const had = byKey.get(key);
+    if (!had) { byKey.set(key, r); continue; }
+    if (r.b) had.b = bodyWords((had.b || '') + ' ' + r.b, had.t + ' ' + had.d, 500);
+  }
+  rows.push(...byKey.values());
   console.log(`rows layer: ${rows.length} rows (${unitCount} units).`);
   /* One index, one path. The client fetches 'search-index.json' relative to
      the page, and every page lives at the root, so the index lives at the

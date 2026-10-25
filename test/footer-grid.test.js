@@ -43,16 +43,19 @@ test('the name and the calls live in the header, not again at the foot', () => {
   assert.equal(doc.querySelector('.pfa-footer [class*="btn"]'), null);
 });
 
-test('the office and five groups, in the header\'s order, each opened by a tick and a label', () => {
+test('five groups in the header\'s order, then the office, each a heading and what it opens', () => {
   const cells = [...doc.querySelectorAll('.pfa-footer__grid > *')];
   assert.deepEqual(cells.map((c) => c.querySelector('.pfa-footer__label').textContent),
-    ['Registered office', 'Our Work', 'Learn', 'Get Involved', 'Give and partner', 'About']);
-  for (const c of cells) assert.equal(c.firstElementChild.className, 'pfa-footer__label', 'the label comes first, so every column starts on the same line');
+    ['Our Work', 'Learn', 'Get Involved', 'Give and partner', 'About', 'Registered office']);
+  for (const c of cells) assert.equal(c.firstElementChild.className, 'pfa-footer__label', 'the heading comes first');
   /* the office is not a link group: the visibility rules hide a .pfa-footer__col left with no link */
-  assert.equal(cells[0].className, 'pfa-footer__office');
-  assert.ok(cells[0].querySelector('address#contact.pfa-footer__where'));
-  assert.ok(cells[0].querySelector('#pfaTally[hidden] #pfaTallyOdo[aria-label="Visit counter"]'));
-  assert.deepEqual([...cells[0].querySelectorAll('.pfa-footer__social a')].map((a) => a.textContent), ['Instagram', 'Facebook', 'X', 'YouTube']);
+  const office = cells[cells.length - 1];
+  assert.equal(office.className, 'pfa-footer__office');
+  assert.ok(office.querySelector('address#contact.pfa-footer__where'));
+  /* the slim line under the headings: social media and the counter, then the legal line */
+  const base = doc.querySelector('.pfa-footer__base');
+  assert.ok(base.querySelector('#pfaTally[hidden] #pfaTallyOdo[aria-label="Visit counter"]'));
+  assert.deepEqual([...base.querySelectorAll('.pfa-footer__social a')].map((a) => a.textContent), ['Instagram', 'Facebook', 'X', 'YouTube']);
   assert.equal(doc.querySelectorAll('.pfa-footer__social').length, 1, 'once');
   const group = (label) => [...doc.querySelector(`nav[aria-label="${label}"]`).querySelectorAll('a')].map((a) => a.textContent);
   assert.deepEqual(group('Get Involved'), ['Volunteer', 'Become a member', 'Colony caregiver card', 'PFA Campus', 'The Wall', 'Events', 'CineKind']);
@@ -67,7 +70,7 @@ test('one gutter with the header and the page, one gap, labels without rules', (
   /* the page's own token, which the header uses; the fallback is the same formula */
   assert.match(rule('.pfa-footer'), /--ff-gutter:var\(--gutter,max\(clamp\(16px,4vw,72px\),\(100% - 1440px\) \/ 2\)\)/);
   assert.match(CSS, /header\.site\{[^}]*padding:0 var\(--gutter\)/);
-  assert.match(rule('.pfa-footer__grid'), /grid-template-columns:minmax\(0,1\.6fr\) repeat\(5,minmax\(0,1fr\)\)/);
+  assert.match(rule('.pfa-footer__grid'), /grid-template-columns:repeat\(5,minmax\(0,1fr\)\) minmax\(0,1\.6fr\)/);
   assert.match(rule('.pfa-footer__grid'), /gap:36px var\(--ff-gap\)/);
   assert.doesNotMatch(rule('.pfa-footer__label'), /border/, 'no hairline under each label');
   assert.match(rule('.pfa-footer__label'), /white-space:nowrap/);
@@ -88,11 +91,11 @@ test('three columns below 1440; on a phone one column, each group a row that ope
   const phone = at(719);
   assert.match(phone, /\.pfa-footer__grid\{grid-template-columns:1fr;gap:0\}/);
   assert.match(phone, /\.pfa-footer\.is-folding \.pfa-footer__col ul\{display:none\}/, 'a group is closed until tapped');
-  assert.match(phone, /\.pfa-footer\.is-folding \.pfa-footer__col\.is-open ul\{display:block\}/);
+  assert.match(phone, /\.pfa-footer\.is-folding \.pfa-footer__col\.is-open ul\{display:block;/);
   assert.match(phone, /\.pfa-footer ul a\{padding:7px 0\}/, 'finger-sized rows');
   assert.doesNotMatch(phone, /::after\{[^}]*height:1\.5px;[^}]*\}/, 'no lone minus sign: the mark is a plus that turns into a cross');
   const JS = fs.readFileSync(path.join(ROOT, 'assets', 'chrome.js'), 'utf8');
-  assert.match(JS, /foot\.classList\.toggle\('is-folding', on\)/, 'folding only where the script can open the groups');
+  assert.match(JS, /foot\.classList\.add\('is-folding'\)/, 'folding only where the script can open the groups');
   assert.match(JS, /label\.setAttribute\('aria-expanded', String\(open\)\)/, 'and a screen reader hears open and closed');
 });
 
@@ -125,4 +128,36 @@ test('every page the footer links to exists', () => {
     const file = href.split(/[?#]/)[0];
     assert.ok(fs.existsSync(path.join(ROOT, file)), `${href} (${a.textContent}) points at a page that is not there`);
   }
+});
+
+/* Owner, 25 Oct 2026: "make footer cleaner.. like expand only if need be..
+   right now .. just a load of things". */
+test('on every screen the footer is folded: the headings, and one group open at a time when asked', () => {
+  /* wide screens: the headings in one row, the open group's links in a line under it */
+  assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__grid\{display:flex;flex-wrap:wrap;/);
+  assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__col,\.pfa-footer\.is-folding \.pfa-footer__office\{display:contents\}/);
+  assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__col ul,\.pfa-footer\.is-folding \.pfa-footer__where\{order:2;flex:0 0 100%;display:none\}/, 'closed until asked');
+  assert.match(CSS, /\.pfa-footer\.is-folding \.pfa-footer__label\[aria-expanded="true"\]::after\{transform:rotate\(45deg\)\}/, 'a plus that turns into a cross');
+  /* the script: every heading a button for the group it opens, and opening one closes the rest */
+  const JS = fs.readFileSync(path.join(ROOT, 'assets', 'chrome.js'), 'utf8');
+  const fold = JS.slice(JS.indexOf('The footer, folded'), JS.indexOf('what ends on a date'));
+  assert.match(fold, /querySelectorAll\('\.pfa-footer__col, \.pfa-footer__office'\)/, 'the office folds too');
+  assert.match(fold, /groups\.forEach\(function \(other\) \{ if \(other !== group\) set\(other, false\); \}\)/, 'one open at a time');
+  assert.match(fold, /label\.setAttribute\('role', 'button'\)/);
+  assert.match(fold, /label\.setAttribute\('aria-controls', list\.id\)/);
+  assert.doesNotMatch(fold, /matchMedia/, 'on every screen, not only a phone');
+  /* and in a browser: headings only, then one group */
+  const dom = new JSDOM(`<!doctype html><body>${FOOTER}</body>`, { runScripts: 'outside-only' });
+  dom.window.eval(fold.slice(fold.indexOf('(function () {'), fold.lastIndexOf('})();') + 5));
+  const d = dom.window.document;
+  if (d.readyState === 'loading') d.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
+  assert.ok(d.querySelector('.pfa-footer').classList.contains('is-folding'));
+  const labels = [...d.querySelectorAll('.pfa-footer__label')];
+  assert.ok(labels.every((l) => l.getAttribute('aria-expanded') === 'false'), 'everything closed to start');
+  labels[2].click();
+  assert.deepEqual(labels.filter((l) => l.getAttribute('aria-expanded') === 'true').map((l) => l.textContent), ['Get Involved']);
+  labels[5].click();
+  assert.deepEqual(labels.filter((l) => l.getAttribute('aria-expanded') === 'true').map((l) => l.textContent), ['Registered office'], 'opening one closes the other');
+  labels[5].click();
+  assert.ok(labels.every((l) => l.getAttribute('aria-expanded') === 'false'), 'and a second press closes it');
 });

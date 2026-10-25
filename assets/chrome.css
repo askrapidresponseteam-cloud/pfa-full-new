@@ -472,6 +472,11 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
    a hairline. Everything is written against the tokens on .pfa-footer, so
    the whole footer turns over on those lines.
 
+   Folded, 25 Oct 2026 (owner: "make footer cleaner.. like expand only if
+   need be.. right now .. just a load of things"): one row of headings, each
+   opening its links when asked, and one slim line under it. The directory
+   described below is what shows when no script folds it.
+
    Redrawn 9 Oct 2026 (owner: "footer looking nasty"). It had read as a
    spreadsheet: a hairline under every label, six equal columns that folded
    the address into three lines, and a gutter of its own a few pixels inside
@@ -496,8 +501,8 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
 .pfa-footer a{color:inherit;text-decoration:none}
 .pfa-footer a:hover{opacity:.6}
 
-/* the grid: the office a little wider, five groups of one width, one gap */
-.pfa-footer__grid{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(5,minmax(0,1fr));gap:36px var(--ff-gap);align-items:start}
+/* the grid: five groups of one width and the office a little wider, one gap */
+.pfa-footer__grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,1.6fr);gap:36px var(--ff-gap);align-items:start}
 .pfa-footer__label{margin:0 0 12px;
   font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ff-fg);white-space:nowrap}
 /* no short rule above the label: a dash-shaped mark is a long dash to the eye (owner's standing rule) */
@@ -520,8 +525,8 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
 .pfa-footer__tel a{display:block;width:fit-content}
 .pfa-footer__tel a + .pfa-footer__dot + a{margin-top:6px}
 .pfa-footer__dot{display:none}
-/* PFA on social media, under the office */
-.pfa-footer__social{display:flex;flex-wrap:wrap;align-items:center;gap:0 18px;margin:16px 0 0;
+/* PFA on social media, at the start of the legal line */
+.pfa-footer__social{display:flex;flex-wrap:wrap;align-items:center;gap:0 18px;margin:0;
   font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
 .pfa-footer__social a{display:inline-block;padding:8px 0;color:var(--ff-fg);border-bottom:1px solid transparent;transition:border-color .2s}
 .pfa-footer__social a:hover{opacity:1;border-bottom-color:var(--ff-fg)}
@@ -530,7 +535,7 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
    An odometer: each digit is a 0-9 strip that slides to the right number, so a
    change rolls rather than blinks. Pure transform, no library, and it degrades
    to a plain readable number if transforms are unavailable. */
-.pfa-tally{margin:16px 0 0}
+.pfa-tally{margin:0}
 /* The wheels wear the body face, not the display face, and it is not a
    style call: Marcellus carries only old-style figures (its GSUB has frac
    and liga, no lnum or tnum), so its zero is an x-height ring 0.806em wide
@@ -564,13 +569,39 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
   .pfa-tally__strip{transition:none}
 }
 
-/* The legal line: who and when, what PFA is, and the privacy policy. */
-.pfa-footer__base{display:flex;flex-wrap:wrap;align-items:baseline;
-  gap:4px 28px;margin-top:clamp(36px,3.6vw,52px);padding-top:16px;
+/* The slim line: PFA on social media and the visit counter, then who and
+   when, what PFA is, and the privacy policy. */
+.pfa-footer__base{display:flex;flex-wrap:wrap;align-items:center;
+  gap:6px 28px;margin-top:clamp(36px,3.6vw,52px);padding-top:16px;
   border-top:1px solid var(--ff-line);font-size:12px;letter-spacing:.04em;color:var(--ff-muted)}
-.pfa-footer__base p:last-child{margin-left:auto}
+.pfa-footer__base > p:first-of-type{margin-left:auto}
 .pfa-footer__base a{color:var(--ff-fg);border-bottom:1px solid var(--ff-line)}
 .pfa-footer__base a:hover{opacity:1;border-bottom-color:var(--ff-fg)}
+.pfa-footer__base .pfa-footer__social a{border-bottom:1px solid transparent}
+.pfa-footer__base .pfa-footer__social a:hover{border-bottom-color:var(--ff-fg)}
+
+/* Folded (assets/chrome.js adds .is-folding, so with no script every group
+   stays open). Wide screens: the headings in one row; the one that is open
+   shows its links in a line under the row, and opening another closes it.
+   The headings and their lists are placed by the row itself (each group is
+   display:contents), so the open list always sits under the whole row. The
+   mark is a plus that turns into a cross: a minus sign would be a dash to
+   the eye. */
+.pfa-footer.is-folding{padding-top:clamp(22px,2.4vw,34px)}
+.pfa-footer.is-folding .pfa-footer__grid{display:flex;flex-wrap:wrap;align-items:center;gap:0 clamp(20px,2.6vw,40px)}
+.pfa-footer.is-folding .pfa-footer__col,.pfa-footer.is-folding .pfa-footer__office{display:contents}
+.pfa-footer.is-folding .pfa-footer__label{order:1;margin:0;padding:10px 22px 10px 0;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.pfa-footer.is-folding .pfa-footer__label:hover{opacity:.6}
+.pfa-footer.is-folding .pfa-footer__label::after{content:"";position:absolute;right:2px;top:50%;width:10px;height:10px;margin-top:-5px;
+  background:linear-gradient(currentColor,currentColor) center/10px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 10px no-repeat;transition:transform .25s ease}
+.pfa-footer.is-folding .pfa-footer__label[aria-expanded="true"]::after{transform:rotate(45deg)}
+.pfa-footer.is-folding .pfa-footer__col ul,.pfa-footer.is-folding .pfa-footer__where{order:2;flex:0 0 100%;display:none}
+.pfa-footer.is-folding .pfa-footer__col.is-open ul{display:flex;flex-wrap:wrap;gap:0 28px;padding:4px 0 0}
+.pfa-footer.is-folding .pfa-footer__office.is-open .pfa-footer__where{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 28px;max-width:none;padding:4px 0 0}
+.pfa-footer.is-folding .pfa-footer__where div:first-child{margin-bottom:0}
+.pfa-footer.is-folding .pfa-footer__tel{display:flex;flex-wrap:wrap;gap:0 28px}
+.pfa-footer.is-folding .pfa-footer__tel a + .pfa-footer__dot + a{margin-top:0}
+.pfa-footer.is-folding .pfa-footer__base{margin-top:clamp(18px,2vw,26px)}
 
 /* Below 1440 the six columns would be too narrow for their longest links
    ("Policies and achievements", the office's four social links), so three:
@@ -589,7 +620,6 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
 @media (max-width:719px){
   .pfa-footer{padding-top:28px}
   .pfa-footer__grid{grid-template-columns:1fr;gap:0}
-  .pfa-footer__office{padding-bottom:18px}
   .pfa-footer__office .pfa-footer__label{margin-bottom:6px}
   .pfa-footer__where{max-width:none;font-size:13px;line-height:1.5}
   .pfa-footer__where div{padding:2px 0}
@@ -597,23 +627,26 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
   .pfa-footer__tel a{display:inline}
   .pfa-footer__tel a + .pfa-footer__dot + a{margin-top:0}
   .pfa-footer__dot{display:inline}
-  .pfa-footer__social{margin-top:8px;gap:0 20px}
-  .pfa-footer__col{border-top:1px solid var(--ff-line)}
-  .pfa-footer__col:last-of-type{border-bottom:1px solid var(--ff-line)}
+  .pfa-footer__social{gap:0 20px;flex:0 0 100%}
+  .pfa-footer__col,.pfa-footer__office{border-top:1px solid var(--ff-line)}
+  .pfa-footer__office{border-bottom:1px solid var(--ff-line)}
   .pfa-footer__col .pfa-footer__label{margin:0;padding:15px 0}
   .pfa-footer ul{font-size:14px;padding:0 0 12px}
   .pfa-footer ul a{padding:7px 0}
-  .pfa-footer.is-folding .pfa-footer__col .pfa-footer__label{position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;padding-right:32px}
-  .pfa-footer.is-folding .pfa-footer__col .pfa-footer__label::after{content:"";position:absolute;right:2px;top:50%;width:12px;height:12px;margin-top:-6px;
-    background:linear-gradient(currentColor,currentColor) center/12px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 12px no-repeat;transition:transform .25s ease}
-  .pfa-footer.is-folding .pfa-footer__col.is-open .pfa-footer__label::after{transform:rotate(45deg)}
+  /* folded on a phone: one group to a row, its links under its own heading */
+  .pfa-footer.is-folding .pfa-footer__grid{display:block}
+  .pfa-footer.is-folding .pfa-footer__col,.pfa-footer.is-folding .pfa-footer__office{display:block}
+  .pfa-footer.is-folding .pfa-footer__label{display:block;padding:15px 32px 15px 0}
   .pfa-footer.is-folding .pfa-footer__col ul{display:none}
-  .pfa-footer.is-folding .pfa-footer__col.is-open ul{display:block}
-  .pfa-footer__base{flex-direction:row;flex-wrap:wrap;gap:2px 14px;margin-top:18px;padding-top:0;border-top:0;font-size:11.5px}
-  .pfa-footer__base p:last-child{margin-left:0}
+  .pfa-footer.is-folding .pfa-footer__col.is-open ul{display:block;padding:0 0 12px}
+  .pfa-footer.is-folding .pfa-footer__office.is-open .pfa-footer__where{display:block;padding:0 0 14px}
+  .pfa-footer.is-folding .pfa-footer__tel{display:block}
+  .pfa-footer__base{flex-direction:row;flex-wrap:wrap;gap:2px 14px;margin-top:14px;padding-top:0;border-top:0;font-size:11.5px}
+  .pfa-footer__base > p:first-of-type{margin-left:0}
+  .pfa-footer__base .pfa-tally{margin:4px 0 6px}
 }
-@media (max-width:719px) and (prefers-reduced-motion: reduce){
-  .pfa-footer.is-folding .pfa-footer__col .pfa-footer__label::after{transition:none}
+@media (prefers-reduced-motion: reduce){
+  .pfa-footer.is-folding .pfa-footer__label::after{transition:none}
 }
 /* A thumb-sized target round the small links on a phone (22 Oct 2026: the
    two numbers and the email were 16px tall, and X was 9px wide). The target

@@ -82,7 +82,8 @@
     { t: 'CSR partnerships', s: 'Do something', y: 'action', u: 'csr.html',
       d: 'Twelve programmes a company\u2019s CSR can fund under Schedule VII, and a brief PFA replies to with a plan.',
       k: 'csr corporate social responsibility company companies act schedule vii partnership funding business employee volunteering',
-      q: ['csr', 'corporate social responsibility', 'csr partnership', 'company partnership', 'corporate partnership', 'csr funding', 'schedule vii'] },
+      q: ['csr', 'corporate social responsibility', 'csr partnership', 'company partnership', 'corporate partnership', 'csr funding', 'schedule vii',
+        'company tie up', 'tie up', 'corporate tie up', 'partner with pfa', 'brand partnership', 'sponsor', 'sponsorship'] },
     { t: 'Plan a campaign', s: 'Do something', y: 'action', u: 'campaign.html',
       d: 'A birthday, a workplace drive, a run or a school collection for the animals: pick a cause and a way to raise for it, and PFA replies on how to run it.',
       k: 'campaign fundraiser fundraising raise money collection drive birthday run challenge awareness',
@@ -90,7 +91,8 @@
     { t: 'PFA Campus: start a society', s: 'Do something', y: 'action', u: 'campus.html',
       d: 'An animal welfare society at your college, university or school, with PFA behind it: the desks a team can run, and registration in a few screens.',
       k: 'campus college university school students society club chapter youth animal welfare society register',
-      q: ['campus', 'pfa campus', 'college society', 'college club', 'animal welfare society', 'student society', 'students', 'school club'] },
+      q: ['campus', 'pfa campus', 'college society', 'college club', 'animal welfare society', 'student society', 'students', 'school club',
+        'schools program', 'school programme', 'school program', 'college program', 'awareness in schools', 'university society'] },
     { t: 'Sanjay Gandhi Animal Care Centre', s: 'About', y: 'page', u: 'sgacc.html',
       d: 'PFA\u2019s flagship animal care centre at Raja Garden, New Delhi, since 1980: what happens there, photographs, how to help, and how to find it.',
       k: 'sanjay gandhi animal care centre center sgacc raja garden delhi shelter wards wishlist visit supplies',
@@ -139,7 +141,7 @@
     { t: 'Animal laws in India', s: 'Laws', y: 'law', u: 'laws.html',
       d: 'Answers on animal law in India, each citing the section it rests on: dogs, cattle, husbandry, and horses.',
       k: 'law laws legal rights act rules court police fir section ipc bns constitution pca questions',
-      q: ['law', 'laws', 'animal law', 'animal laws', 'legal', 'rights', 'animal rights', 'pca act'] },
+      q: ['law', 'laws', 'animal law', 'animal laws', 'legal', 'rights', 'animal rights'] },
     { t: 'Laws: dogs', s: 'Laws', y: 'law', u: 'laws.html#part-a',
       d: 'Fifty questions on street dogs, pets, feeding, bites, RWAs and the ABC Rules.',
       k: 'law dog dogs street stray pet bite abc rules feeding' },
@@ -215,18 +217,23 @@
       k: 'antibiotic antibiotics amoxicillin doxycycline enrofloxacin resistance course withdrawal milk colistin tick fever infection' },
     { t: 'What animals know, learn and remember', s: 'Explore', y: 'article', u: 'someone.html#adopt',
       d: 'The research on hens, pigs, cows, goats, sheep and horses, from peer-reviewed studies.',
-      k: 'science research cognition intelligence hen pig cow goat sheep horse chicken mind feelings sentience study' },
+      k: 'science research cognition intelligence hen pig cow goat sheep horse chicken mind feelings sentience study',
+      q: ['sentient', 'sentience', 'are animals sentient', 'are fish sentient', 'animal sentience', 'do animals feel pain', 'animal intelligence', 'do animals have feelings'] },
     { t: 'Test yourself: who would you underestimate?', s: 'Explore', y: 'page', u: 'quiz.html',
       d: 'A two-minute quiz on what farm animals can do.', k: 'quiz test game' },
 
     { t: 'Track a submission or an order', s: 'Do something', y: 'page', u: 'track.html',
       d: 'Follow a report, a question or an application with the number you were given.',
       k: 'track follow status where is my order application reference number check progress complaint',
-      q: ['track', 'status', 'reference number', 'track report', 'track order', 'order status', 'application status'] },
+      q: ['track', 'status', 'reference number', 'track report', 'track order', 'order status', 'application status',
+        'is my application approved', 'application approved', 'my application', 'where is my card', 'card status', 'complaint status',
+        'check status', 'track complaint', 'track my complaint', 'track application', 'has my complaint been seen'] },
 
     { t: 'Policies and achievements: what PFA has changed', s: 'About', y: 'page', u: 'achievements.html',
       d: 'Thirty years of rules rewritten, orders obtained and practices ended, on eight fronts.',
-      k: 'achievements record history impact wins what we have done milestones results track record' },
+      k: 'achievements record history impact wins what we have done milestones results track record',
+      q: ['achievements', 'pfa achievements', 'pfa work', 'our work', 'works', 'pfa works', 'what pfa has done', 'what has pfa done', 'pfa projects', 'projects',
+        'pfa campaigns', 'campaigns won', 'track record', 'impact', 'pfa impact', 'pfa policies', 'policy wins'] },
 
     /* ---- About ---- */
     { t: 'Founder: Maneka Sanjay Gandhi', s: 'About', y: 'page', u: 'founder.html',
@@ -256,7 +263,7 @@
      no hospitals, and calling the unit is what PFA tells people to do. */
   var SYNONYMS = {
     vet: 'unit', vets: 'vet unit', veterinarian: 'vet unit', veterinary: 'vet unit', doctor: 'vet unit',
-    clinic: 'vet unit', hospital: 'unit vet', hospitals: 'unit vet', treatment: 'vet unit', ambulance: 'unit injured',
+    clinic: 'vet unit', hospital: 'unit vet infirmary', hospitals: 'unit vet infirmary', treatment: 'vet unit', ambulance: 'unit injured',
     abuse: 'cruelty', abused: 'cruelty', beating: 'cruelty', beaten: 'cruelty', beat: 'cruelty', torture: 'cruelty',
     hurt: 'cruelty', hurting: 'cruelty', poison: 'poisoning cruelty', poisoned: 'poisoning cruelty', kicked: 'cruelty', violence: 'cruelty',
     hitting: 'cruelty', hit: 'cruelty', killing: 'cruelty', killed: 'cruelty', cruel: 'cruelty',
@@ -273,6 +280,19 @@
     centre: 'units', center: 'units', centres: 'units', centers: 'units', office: 'contact',
     phone: 'contact', number: 'contact', telephone: 'contact', helpline: 'contact unit', call: 'contact',
     film: 'cinekind', films: 'cinekind', movie: 'cinekind', movies: 'cinekind', cinema: 'cinekind',
+    award: 'cinekind honour', awards: 'cinekind honour', awardee: 'cinekind honour', winner: 'cinekind honour', winners: 'cinekind honour',
+    nominate: 'nomination', nominee: 'nomination', nominees: 'nomination',
+    horse: 'equine', horses: 'equine', pony: 'equine horse', ponies: 'equine horse', mule: 'equine', mules: 'equine', donkey: 'equine', donkeys: 'equine', equine: 'horse', equines: 'horse',
+    infirmary: 'hospital vet', tv: 'television broadcasting', television: 'broadcasting', channel: 'broadcasting', course: 'curriculum', courses: 'curriculum', du: 'delhi university', '3rs': 'replacement reduction refinement',
+    cock: 'animal fights', cockfight: 'animal fights', cockfighting: 'animal fights', rooster: 'animal fights', dhirio: 'bullfight goa',
+    charmer: 'wild animals performers wildlife', charmers: 'wild animals performers wildlife', madari: 'wild animals performers wildlife', whip: 'whipping', whips: 'whipping',
+    tieup: 'csr partnership', partner: 'partnership', partners: 'partnership', sponsor: 'csr', sentient: 'sentience', feelings: 'sentience',
+    merch: 'shop', merchandise: 'shop', apparel: 'shop', clothes: 'shop', clothing: 'shop', wear: 'shop',
+    tshirt: 't-shirt shop', tshirts: 't-shirt shop', tee: 't-shirt shop', tees: 't-shirt shop', shirt: 't-shirt shop', shirts: 't-shirt shop',
+    designer: 'shop', designers: 'shop',
+    book: 'library', books: 'library', document: 'library', documents: 'library', pdf: 'library', pdfs: 'library', handbooks: 'handbook', manual: 'handbook', guide: 'handbook',
+    experiment: 'testing laboratory', experiments: 'testing laboratory', lab: 'laboratory testing', labs: 'laboratory testing', vivisection: 'testing laboratory',
+    story: 'newsroom', stories: 'newsroom', article: 'newsroom', articles: 'newsroom',
     /* the section's old name still finds the Newsroom */
     news: 'newsroom', update: 'newsroom', updates: 'newsroom', press: 'newsroom', release: 'newsroom', media: 'newsroom', wire: 'newsroom',
     job: 'careers', jobs: 'careers', vacancy: 'careers', hiring: 'careers', intern: 'careers', internship: 'careers',
@@ -346,7 +366,19 @@
     'laws.html#b11': ['cattle smuggling', 'cow smuggling'],
     'laws.html#b44': ['jallikattu', 'bull taming'],
     'laws.html#c46': ['animal sacrifice', 'sacrifice'],
-    'laws.html#d7': ['horse wedding', 'wedding horse', 'baraat horse']
+    'laws.html#d7': ['horse wedding', 'wedding horse', 'baraat horse'],
+    'achievements.html#rec-047': ['3rs', 'three rs', '3 rs', 'replace reduce refine'],
+    'read.html?r=pca-act-1960': ['pca act', 'pca act 1960', 'prevention of cruelty to animals act', 'pca act pdf', 'cruelty act', 'animal cruelty act', 'the act'],
+    'careers.html#veterinary-team': ['vet job', 'veterinary job', 'vet doctor job', 'jobs for vets', 'vet vacancy', 'veterinary doctor vacancy'],
+    /* pages people reach by what they are for, not what they are titled */
+    'lab-animal-rules.html': ['animal testing', 'lab animals', 'laboratory animals', 'testing on animals', 'animal experiments', 'experiments on animals', 'cpcsea', 'lab animal rules', 'draft rules',
+      'lab animal testing', 'animal testing rules', 'laboratory animal testing', 'testing on lab animals', 'laboratory animals rules 2026'],
+    'shop.html': ['shop', 'merchandise', 'merch', 't-shirt', 'tshirt', 'tshirts', 'designer t-shirts', 'designer tees', 'buy t-shirt', 'tees', 'tee'],
+    'library.html': ['library', 'documents', 'handbooks', 'books', 'resources', 'download pdf', 'reports'],
+    'quiz.html': ['quiz', 'test yourself', 'test my knowledge'],
+    'events.html': ['events', 'event', 'upcoming events', 'events near me'],
+    'newsroom.html': ['news', 'newsroom', 'latest news', 'stories', 'press'],
+    'wall.html': ['wall', 'the wall', 'videos', 'reels', 'watch']
   };
 
   /* ================================================================ TEXT */
@@ -355,9 +387,12 @@
   var STEM_KEEP = { news: 1, species: 1, series: 1, rabies: 1, diabetes: 1, herpes: 1, scabies: 1, mumps: 1 };
   function stem(w) {
     if (STEM_KEEP[w]) return w;
-    if (w.length > 5 && /ing$/.test(w)) return w.slice(0, -3);
+    /* "whipping" is "whip", "stopping" is "stop"; "killing" stays "kill" */
+    if (w.length > 5 && /ing$/.test(w)) return w.slice(0, -3).replace(/([bdgmnprt])\1$/, '$1');
     if (w.length > 4 && /ies$/.test(w)) return w.slice(0, -3) + 'y';
-    if (w.length > 4 && /es$/.test(w))  return w.slice(0, -2);
+    /* "boxes", "dishes", "buses" lose "es"; "cages", "horses", "races" only
+       their "s", so they meet "cage", "horse" and "race" */
+    if (w.length > 4 && /(s|x|z|ch|sh)es$/.test(w)) return w.slice(0, -2);
     if (w.length > 3 && /s$/.test(w) && !/ss$/.test(w)) return w.slice(0, -1);
     return w;
   }
@@ -385,22 +420,61 @@
     }
     return d[m][n];
   }
+  /* A hyphenated word on the site is found as itself, as its parts and run
+     together: "cage-free" by "cage free" and "cagefree", "t-shirt" by
+     "tshirt" and "shirt". Applied to what is indexed, so a query stays the
+     words that were typed. */
+  /* halves that are not words of their own: "voiceless" is not "voice less" */
+  var HALF_JUNK = /^(than|then|ever|into|onto|upon|less|ness|ment|ship|ward|wards|ting|ring|ated|able|ible|ally|wise|like|hood)$/;
+  function expand(list) {
+    var out = [];
+    list.forEach(function (w) {
+      out.push(w);
+      if (w.indexOf('-') < 1) return;
+      w.split('-').forEach(function (part) { if (part.length > 1) out.push(stem(part)); });
+      out.push(w.replace(/-/g, ''));
+    });
+    return out;
+  }
+  /* the words as the site writes them, by stem, so "did you mean" offers
+     "careers" and never the stem "career" or "vaccin" */
+  var SURFACE = {};
+  function noted(w) {
+    var st = stem(w), list = SURFACE[st] || (SURFACE[st] = []);
+    if (list.length < 4 && list.indexOf(w) < 0) list.push(w);
+    return st;
+  }
+  function surface(st, typed) {
+    var list = SURFACE[st];
+    if (!list || !list.length) return st;
+    return list.slice().sort(function (a, b) { return editDistance(typed, a) - editDistance(typed, b) || a.length - b.length; })[0];
+  }
   function build(rows) {
-    INDEX = rows; VOCAB = {}; TRIGRAM = {}; DF = {}; N = rows.length;
+    INDEX = rows; VOCAB = {}; TRIGRAM = {}; DF = {}; N = rows.length; SURFACE = {};
     rows.forEach(function (row, id) {
       row.id = id;
-      row.tt = tokens(row.t).map(stem);
-      row.kt = tokens(row.k || '').map(stem);
-      row.dt = tokens(row.d || '').map(stem);
+      row.tt = expand(tokens(row.t).map(noted));
+      row.kt = expand(tokens(row.k || '').map(noted));
+      row.dt = expand(tokens(row.d || '').map(noted));
       /* a unit's street address: findable ("chandkheda"), but it must not
          make every unit a result for "road" or "school" */
       row.at = tokens(row.a || '').map(stem);
+      /* every other word the row's text holds (b, from the index builder):
+         found, but at the weight of a passing mention (25 Oct 2026: "any
+         and all related works should be lookable/findable") */
+      row.bt = expand(tokens(row.b || '').map(noted));
       /* best-bet phrases, each kept as its content words, stemmed */
-      row.qp = (row.q || []).map(function (ph) {
-        return tokens(ph).filter(function (x) { return !STOP.test(x); }).map(stem);
-      }).filter(function (w) { return w.length; });
+      row.qp = []; row.qx = [];
+      (row.q || []).forEach(function (ph) {
+        var all = tokens(ph), content = all.filter(function (x) { return !STOP.test(x); }).map(stem);
+        if (!content.length) return;
+        row.qp.push(content);
+        /* as typed, for a phrase that is one word once its little words go:
+           "work with pfa" is the jobs page, "pfa work" is not */
+        row.qx.push(all.length > 1 && content.length === 1 ? all.join(' ') : '');
+      });
       var seen = {};
-      [row.tt, row.kt, row.dt, row.at].concat(row.qp).forEach(function (list) {
+      [row.tt, row.kt, row.dt, row.at, row.bt].concat(row.qp).forEach(function (list) {
         list.forEach(function (w) {
           if (!seen[w]) { seen[w] = 1; DF[w] = (DF[w] || 0) + 1; }
           if (!VOCAB[w]) {
@@ -410,15 +484,41 @@
         });
       });
     });
+    /* One word on the page, two in the query: "racehorses" is found by "race
+       horses", "heatstroke" by "heat stroke". A long title or keyword word
+       that is two of the site's own words, each at least four letters and
+       each used on more than one row, also answers for its halves, at half
+       a title's weight. */
+    var named = {};
+    rows.forEach(function (row) { row.tt.concat(row.kt).forEach(function (w) { named[w] = (named[w] || 0) + 1; }); });
+    var whole = function (w) { return (named[w] > 0 || DF[w] > 2) && !STOP.test(w) && !HALF_JUNK.test(w); };
+    rows.forEach(function (row) {
+      var parts = [];
+      row.tt.concat(row.kt).forEach(function (w) {
+        if (w.length < 8 || w.indexOf('-') > -1) return;
+        for (var i = 4; i <= w.length - 4; i++) {
+          var a = w.slice(0, i), b = w.slice(i), sa = stem(a), sb = stem(b);
+          var ha = whole(a) ? a : (whole(sa) ? sa : ''), hb = whole(b) ? b : (whole(sb) ? sb : '');
+          if (ha && hb) { parts.push(ha, hb); break; }
+        }
+      });
+      row.ct = parts;
+    });
   }
   function idf(w) { return Math.log(1 + N / (1 + (DF[w] || 0))); }
 
-  /* Closest vocabulary word for a typo, or null. */
+  /* Closest vocabulary word for a typo, or null: of the word as typed and
+     its stem, whichever is nearer ("carreers" is "careers", not "carrier"). */
   function correct(w) {
+    var a = nearest(w), st = stem(w), b = st !== w ? nearest(st) : null;
+    if (a && b) return b.d < a.d ? b.w : a.w;
+    return (a || b) ? (a || b).w : null;
+  }
+  function nearest(w) {
     if (VOCAB[w] || w.length < 3) return null;
     var maxD = w.length >= 6 ? 2 : 1, counts = {};
     trigrams(w).forEach(function (g) { (TRIGRAM[g] || []).forEach(function (c) { counts[c] = (counts[c] || 0) + 1; }); });
-    var best = null, bestD = 99, bestDf = 0;
+    var best = null, bestD = 99, bestDf = 0, bestRank = -1;
     Object.keys(counts).forEach(function (c) {
       if (counts[c] < 2 || Math.abs(c.length - w.length) > maxD) return;
       /* People rarely mistype the first letter, and a fix that changes it
@@ -429,9 +529,16 @@
       /* Two edits that only shorten the word turn one real word into
          another ("tribute" into "tribe", "release" into "lease"). */
       if (d === 2 && Math.abs(c.length - w.length) > 1) return;
-      if (d <= maxD && (d < bestD || (d === bestD && (DF[c] || 0) > bestDf))) { best = c; bestD = d; bestDf = DF[c] || 0; }
+      if (d > maxD) return;
+      /* equally near: a dropped letter is the commonest slip, so the word
+         that ends as typed, then the longer word, then the commoner one
+         ("injurd" is "injured", not "injury") */
+      var rank = (c[c.length - 1] === w[w.length - 1] ? 2 : 0) + (c.length > w.length ? 1 : 0);
+      if (d < bestD || (d === bestD && (rank > bestRank || (rank === bestRank && (DF[c] || 0) > bestDf)))) {
+        best = c; bestD = d; bestDf = DF[c] || 0; bestRank = rank;
+      }
     });
-    return best;
+    return best ? { w: best, d: bestD } : null;
   }
 
   /* "reportcruelty", "dogfood": two known words typed as one. */
@@ -442,6 +549,20 @@
       if ((VOCAB[a] || VOCAB[stem(a)]) && (VOCAB[b] || VOCAB[stem(b)])) return [a, b];
     }
     return null;
+  }
+
+  /* "gau shala", "cine kind", "care giver": one word on this site, typed as
+     two. Joined when the joined word is the site's and one of the two is
+     not a word of its own here. */
+  function joinSplit(list) {
+    var known = function (w) { return VOCAB[w] || VOCAB[stem(w)]; };
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i], b = list[i + 1], j = b ? a + b : '';
+      if (j.length >= 6 && known(j) && (!known(a) || !known(b))) { out.push(j); i++; continue; }
+      out.push(a);
+    }
+    return out;
   }
 
   /* Character-level similarity, 0..1, for the last resort. */
@@ -595,9 +716,11 @@
      found among the query's words (as typed, stemmed, a synonym, or a
      corrected typo). The whole query being the phrase beats it being part
      of the query. */
-  function phraseBonus(row, termForms) {
+  function phraseBonus(row, termForms, typed) {
     var best = 0;
-    row.qp.forEach(function (ph) {
+    row.qp.forEach(function (ph, n) {
+      /* one word and its little words: only as typed, or the one word alone */
+      if (row.qx[n] && typed !== row.qx[n] && typed !== ph[0] && stem(typed) !== ph[0]) return;
       var used = {};
       var ok = ph.every(function (pw) {
         for (var i = 0; i < termForms.length; i++) {
@@ -611,7 +734,7 @@
       /* one word is a best bet only when it is the whole query: "complaint"
          means the report form, "dog barking complaint" does not */
       if (!whole && ph.length < 2) return;
-      var b = whole ? 40 : 14 + 5 * ph.length;
+      var b = whole ? 120 : 14 + 5 * ph.length;
       if (b > best) best = b;
     });
     return best;
@@ -651,7 +774,7 @@
   function search(query, opts) {
     opts = opts || {};
     var hidden = hiddenNow();
-    var raw = tokens(query), q = raw.filter(function (w) { return !STOP.test(w); });
+    var raw = tokens(query), q = joinSplit(raw.filter(function (w) { return !STOP.test(w); }));
     if (!q.length) q = raw;
     if (!q.length) return { rows: [], corrected: null };
     var full = String(query).toLowerCase().trim();
@@ -672,13 +795,15 @@
         var best = 0, p = pre[ti];
         fs.forEach(function (f) {
           var s = (fieldHit(row.tt, f.w, p) * 8 + fieldHit(row.kt, f.w, p) * 4 + fieldHit(row.dt, f.w, p) * 1.5 +
-                   (row.at.length ? fieldHit(row.at, f.w, 0) * 0.6 : 0)) * f.c * idf(f.w);
+                   (row.at.length ? fieldHit(row.at, f.w, 0) * 0.6 : 0) +
+                   (row.bt.length ? fieldHit(row.bt, f.w, 0) * 0.9 : 0) +
+                   (row.ct.length ? fieldHit(row.ct, f.w, 0) * 4 : 0)) * f.c * idf(f.w);
           if (s > best) best = s;
         });
         if (best) matched++;
         score += best;
       });
-      var bet = row.qp && row.qp.length ? phraseBonus(row, termForms) : 0;
+      var bet = row.qp && row.qp.length ? phraseBonus(row, termForms, raw.join(' ')) : 0;
       if (!matched && !bet) return;
       if (!bet && q.length > 2 && matched < Math.ceil(q.length / 2)) return;
       score *= Math.pow(matched / q.length, 2) * 1.5 + 0.25;              /* coverage */
@@ -703,7 +828,8 @@
     var fixed = raw.map(function (w) {
       if (VOCAB[w] || VOCAB[stem(w)] || STOP.test(w) || SYNONYMS[w] || SYNONYMS[stem(w)] || PLACE_WORDS[w]) return w;
       var parts = split(w); if (parts) return parts.join(' ');
-      return correct(w) || correct(stem(w)) || w;
+      var c = correct(w);
+      return c ? surface(c, w) : w;
     });
     if (fixed.join(' ') !== raw.join(' ')) corrected = fixed.join(' ');
 
@@ -1158,9 +1284,15 @@
   }
   function groupHtml(rows, q) {
     var groups = {};
-    rows.forEach(function (r) { (groups[r.s] = groups[r.s] || []).push(r); });
-    var order = SECTIONS.concat(Object.keys(groups).filter(function (s) { return SECTIONS.indexOf(s) < 0; }));
-    return order.filter(function (s) { return groups[s]; }).map(function (s) {
+    /* The group holding the best answer comes first, then the group of the
+       next best, and so on: "pfa work" opens on PFA's work, not on the jobs
+       page because "Do something" is listed first. */
+    var order = [];
+    rows.forEach(function (r) {
+      if (!groups[r.s]) { groups[r.s] = []; order.push(r.s); }
+      groups[r.s].push(r);
+    });
+    return order.map(function (s) {
       var gid = 'g-' + s.replace(/\W/g, '');
       return '<section class="pfa-sr-group" aria-labelledby="' + gid + '">' +
         '<h2 id="' + gid + '">' + esc(s) + '</h2>' +
@@ -1222,14 +1354,26 @@
       /* Curated rows win on the same address, and on the same title on the
          same page: the crawl's "Volunteer" at get-involved.html#top is the
          curated "Volunteer" twice. */
-      var have = {}, named = {};
+      var have = {}, named = {}, merged = false;
       var page = function (u) { return String(u).split(/[?#]/)[0]; };
-      CURATED.forEach(function (r) { have[r.u] = 1; named[page(r.u) + '|' + r.t.toLowerCase()] = 1; });
+      CURATED.forEach(function (r) { have[r.u] = r; named[page(r.u) + '|' + r.t.toLowerCase()] = 1; });
+      /* the curated row keeps its words; what the page itself says comes
+         along as its body, so it is found by that too */
+      extra.forEach(function (r) {
+        var mine = r && r.u && have[r.u];
+        if (mine && mine !== 1 && !isPrivate(r.u)) {
+          /* the heading the page gives it is as good as a keyword: "Not a
+             flock. Individuals." finds the curated row at someone.html#adopt */
+          if (r.t && String(r.t).toLowerCase() !== mine.t.toLowerCase()) mine.k = [mine.k, r.t].filter(Boolean).join(' ');
+          mine.b = [mine.b, r.d, r.b, r.k].filter(Boolean).join(' ');
+          merged = true;
+        }
+      });
       var add = extra.filter(function (r) {
         return r && r.t && r.u && !have[r.u] && !named[page(r.u) + '|' + String(r.t).toLowerCase()] && !isPrivate(r.u);
       });
       add.forEach(function (r) { if (BEST_BETS[r.u] && !r.q) r.q = BEST_BETS[r.u]; });
-      if (add.length) build(CURATED.concat(add));
+      if (add.length || merged) build(CURATED.concat(add));
       done();
     }
     /* A page opened from the disk (file://) cannot fetch; the builder writes

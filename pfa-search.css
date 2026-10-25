@@ -123,11 +123,13 @@ html.pfa-search-open{overflow:hidden}
 .pfa-sr__results{margin-top:clamp(40px,5vw,64px);display:grid;gap:clamp(40px,5vw,64px)}
 .pfa-sr-group h2{margin:0 0 6px;font-size:15px;font-weight:700;letter-spacing:.01em;padding-bottom:12px;border-bottom:1px solid var(--ink)}
 .pfa-sr-group ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0 clamp(24px,3vw,56px)}
-.pfa-sr-group li a{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:start;padding:20px 0;border-bottom:1px solid var(--line)}
+.pfa-sr-group li a{display:grid;grid-template-columns:minmax(0,1fr) fit-content(45%);gap:4px 12px;align-items:start;padding:20px 0;border-bottom:1px solid var(--line)}
 .pfa-sr-group li a:hover{opacity:1}
 .pfa-sr-group li a:hover .pfa-sr-title{border-bottom:1px solid var(--ink)}
 .pfa-sr-title{font-size:15px;line-height:1.3}
-.pfa-sr-url{font-size:13px;color:var(--muted);white-space:nowrap}
+/* a long breadcrumb ("Policies and achievements › Shaped India's...") ends in
+   an ellipsis inside its column; it once pushed the page 144px wide */
+.pfa-sr-url{font-size:13px;color:var(--muted);white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .pfa-sr-desc{grid-column:1 / -1;font-size:13px;line-height:1.5;color:var(--muted);max-width:56ch}
 
 /* The results column is a grid track sized by its content, so a list of
