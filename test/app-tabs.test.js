@@ -113,7 +113,8 @@ test('the top bar on a phone is the mark, the search and the bell; on a wide scr
   assert.match(block, /html\[data-pfa-tabs\] \.mnav\{[^}]*bottom:var\(--tabbar\)/);
   assert.match(block, /html\[data-pfa-tabs\] \.mnav__list\{background:#fff;border-radius:14px/);
   /* the screens that fill a phone's height leave the tab bar its room */
-  assert.match(read('index.html'), /height:calc\(100svh - var\(--bar,115px\) - var\(--tabbar,0px\)\)!important/);
+  assert.match(read('index.html'), /--hh:max\(520px,calc\(100svh - var\(--bar,115px\) - var\(--tabbar,0px\)\)\);/);
+  assert.match(read('index.html'), /margin-top:var\(--bar,115px\);min-height:var\(--hh\);/, 'the landing hero is that tall');
   assert.match(read('academy.html'), /min-height:calc\(100svh - var\(--tabbar,0px\)\)/);
 });
 

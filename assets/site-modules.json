@@ -1387,6 +1387,9 @@
    "ashima-singh": "collection",
    "none": "collection"
   },
+  "index": {
+   "heroTitle": "welcome"
+  },
   "privacy": {
    "who": "policy",
    "collect": "policy",
