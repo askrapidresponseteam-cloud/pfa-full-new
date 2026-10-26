@@ -326,6 +326,9 @@ test('kept apart: only its own route touches the collection, and the browser can
   const panel = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
   assert.match(panel, /<div class="railgroup railgroup--apart">\s*<p>Kept apart<\/p>\s*<button class="tab" type="button" data-tab="oldmembers">Old site members<\/button>/);
   assert.match(panel, /These people are not in the current members register, hold no card here, and are counted nowhere else in this panel\./);
+  /* owner, 26 Oct 2026: "only doubtful cases you keep them open in seperate tab" */
+  assert.match(panel, /omTabButton\('members', 'Members'[\s\S]*omTabButton\('check', 'To check'[\s\S]*omTabButton\('history', 'History'/);
+  assert.match(panel, /data-omsec="check" role="tabpanel"' \+ \(om\.tab === 'check' \? '' : ' hidden'\) \+ '>' \+ omPairs\(d\.review\)/, 'the doubtful pairs are their own tab');
 });
 
 test('no spreadsheet of people can be committed to this public repository', () => {

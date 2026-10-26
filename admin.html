@@ -518,6 +518,12 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
 .om-load{border:1px solid var(--line);padding:22px;max-width:640px}
 .om-load input[type=file]{display:block;margin:12px 0 14px;font:inherit;font-size:13px}
 .om-src{font-size:13px;line-height:1.7}
+.om-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 18px}
+.om-tabs button{height:40px;padding:0 16px;border:1px solid var(--line);background:none;font:inherit;font-size:13px;cursor:pointer}
+.om-tabs button:hover{border-color:var(--ink)}
+.om-tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.om-tabs .c{margin-left:8px;font-weight:700}
+.om-sec[hidden]{display:none}
 .om-go{background:var(--ink);color:#fff;border:1px solid var(--ink);height:38px;padding:0 18px;font:inherit;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 .om-go:hover{background:var(--paper,#fff);color:var(--ink)}
 .om-go[disabled]{opacity:.35;cursor:default;background:var(--ink);color:#fff}
@@ -3154,7 +3160,7 @@ window.addEventListener('unhandledrejection', function (event) {
      shown here only. Nothing on this page reads or writes the current
      members, and nothing else in the panel reads this list. */
 
-  var om = { data: null, shown: 50, open: '' };
+  var om = { data: null, shown: 50, open: '', tab: 'members', checkIds: {} };
 
   function omText(m) {
     return [m.name].concat(m.aka || [], m.mobiles || [], (m.mobiles || []).map(function (x) { return x.replace(/\s/g, ''); }),
@@ -3174,6 +3180,7 @@ window.addEventListener('unhandledrejection', function (event) {
       if (only === 'numbers' && !((m.numbers || []).filter(function (n) { return !n.fromNote; }).length > 1)) return false;
       if (only === 'bademail' && !(m.emails || []).some(function (e) { return e.looksWrong; })) return false;
       if (only === 'nocontact' && ((m.mobiles || []).length || (m.emails || []).length)) return false;
+      if (only === 'tocheck' && !om.checkIds[m.id]) return false;
       if (!q) return true;
       var t = omText(m);
       return t.indexOf(q) !== -1 || (qDigits.length >= 4 && t.replace(/\s/g, '').indexOf(qDigits) !== -1);
@@ -3188,7 +3195,7 @@ window.addEventListener('unhandledrejection', function (event) {
     var open = om.open === m.id;
     var email = (m.emails || [])[0];
     var html = '<tr class="om-row" tabindex="0" data-om="' + esc(m.id) + '" aria-expanded="' + open + '">'
-      + '<td><b>' + esc(m.name || '(no name)') + '</b>' + ((m.aka || []).length ? '<span class="aka">also written ' + esc(m.aka.join(', ')) + '</span>' : '') + '</td>'
+      + '<td><b>' + esc(m.name || '(no name)') + '</b>' + (om.checkIds[m.id] ? ' <span class="flag" data-s="new" title="Shares a contact with a different name; decide in To check">To check</span>' : '') + ((m.aka || []).length ? '<span class="aka">also written ' + esc(m.aka.join(', ')) + '</span>' : '') + '</td>'
       + '<td>' + omNumbers(m) + '</td>'
       + '<td>' + esc((m.mobiles || [])[0] || '-') + ((m.mobiles || []).length > 1 ? ' <span class="note">+' + (m.mobiles.length - 1) + '</span>' : '') + '</td>'
       + '<td>' + (email ? '<span' + (email.looksWrong ? ' class="bad" title="This address looks mistyped"' : '') + '>' + esc(email.email) + '</span>' : '-') + ((m.emails || []).length > 1 ? ' <span class="note">+' + (m.emails.length - 1) + '</span>' : '') + '</td>'
@@ -3241,21 +3248,29 @@ window.addEventListener('unhandledrejection', function (event) {
     say($('#paneNote'), all.length === (om.data.members || []).length ? all.length + ' people' : all.length + ' of ' + om.data.members.length + ' people');
   }
 
+  function omTabButton(key, label, count) {
+    return '<button type="button" role="tab" data-omtab="' + key + '" aria-selected="' + (om.tab === key) + '">' + esc(label) + '<span class="c">' + count + '</span></button>';
+  }
+  function omShowTab(key) {
+    om.tab = key;
+    $$('[data-omtab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-omtab') === key)); });
+    $$('[data-omsec]').forEach(function (sec) { sec.hidden = sec.getAttribute('data-omsec') !== key; });
+  }
+
   function omPairs(review) {
-    if (!review || !review.length) return '';
+    if (!review || !review.length) return '<div class="empty"><b>Nothing to check</b>Every doubtful pair has been decided. Each decision is in History.</div>';
     var edit = (om.data || {}).canEdit;
     var person = function (p) {
       return '<div><b>' + esc(p.name) + '</b>' + esc((p.mobiles || []).join(', ')) + '<br>' + esc((p.emails || []).join(', ')) + '<br><span class="note">' + esc((p.numbers || []).concat(p.lists || []).join(' · ')) + '</span></div>';
     };
-    return '<details class="fold"><summary>' + review.length + (review.length === 1 ? ' pair' : ' pairs') + ' to check by hand</summary>'
-      + '<p class="hint">Two different names on one mobile or email: often a parent paying for a child, or friends who joined together. They are kept as separate people. Check with them, then either join them or mark them as different people. Either way you must say why, and it goes into the history.</p>'
+    return '<p class="hint">Two different names on one mobile or email: often a parent paying for a child, or friends who joined together. They are kept as separate people. Check with them, then either join them or mark them as different people. Either way you must say why, and it goes into the history.</p>'
       + '<div class="om-pairs">' + review.map(function (r) {
         var a = r.people[0].id; var b = r.people[1].id;
         return '<div class="om-pair"><span class="why">' + esc((r.reasons || []).join(' and ')) + '</span>' + r.people.map(person).join('')
           + (edit ? '<div class="om-acts" style="grid-column:1 / -1;margin-top:0"><button class="ghost" type="button" data-omact="merge" data-id="' + esc(a) + '" data-other="' + esc(b) + '">One person: join them</button>'
             + '<button class="ghost" type="button" data-omact="resolve" data-a="' + esc(a) + '" data-b="' + esc(b) + '">Different people</button></div>' : '')
           + '</div>';
-      }).join('') + '</div></details>';
+      }).join('') + '</div>';
   }
 
   function omWhen(value) {
@@ -3267,16 +3282,14 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function omHistory(history) {
     var list = history || [];
-    return '<details class="fold" id="omHistory"><summary>History of changes (' + list.length + ')</summary>'
-      + '<p class="hint">Every change made by hand to this list: who made it, when, what it changed and why. Nothing here can be edited or removed.</p>'
+    return '<p class="hint">Every change made by hand to this list: who made it, when, what it changed and why. Nothing here can be edited or removed.</p>'
       + (list.length ? '<ol class="om-hist">' + list.map(function (h) {
         return '<li><b>' + esc(h.summary) + '</b>'
           + '<span class="who">' + esc(omWhen(h.at) + ' · ' + omWho(h.by) + (h.by && h.by.email && h.by.name ? ' (' + h.by.email + ')' : '')) + ' · change ' + esc(h.seq) + '</span>'
           + '<span class="why">Why: “' + esc(h.reason) + '”</span>'
           + (h.appliesNow === false ? '<span class="note">Does not apply to the copy loaded now: ' + esc(h.note) + '</span>' : '')
           + '<details class="fold"><summary>What changed</summary>' + omCompare(h.op, h.before, h.after) + '</details></li>';
-      }).join('') + '</ol>' : '<p class="note">No changes yet.</p>')
-      + '</details>';
+      }).join('') + '</ol>' : '<div class="empty"><b>No changes yet</b>Every change made by hand will be listed here.</div>');
   }
 
   /* before and after: a field table for an edit, the people side by side otherwise */
@@ -3490,6 +3503,8 @@ window.addEventListener('unhandledrejection', function (event) {
     node.innerHTML = '<div class="loading">Reading the old list…</div>';
     api('/api/admin/old-members').then(function (d) {
       om.data = d; om.shown = 50; om.open = typeof keepOpen === 'string' ? keepOpen : '';
+      om.checkIds = {};
+      (d.review || []).forEach(function (r) { r.people.forEach(function (p) { om.checkIds[p.id] = true; }); });
       var apart = '<p class="om-apart"><b>From the old website.</b> These people are not in the current members register, hold no card here, and are counted nowhere else in this panel.</p>';
       if (d.empty) {
         node.innerHTML = apart + (d.canImport ? omLoader(true)
@@ -3505,16 +3520,25 @@ window.addEventListener('unhandledrejection', function (event) {
         + '<div class="om-head"><span class="n">' + (s.people || d.members.length) + '</span><span class="sub">people, each once · '
         + (s.rowsJoined || 0) + ' duplicate rows joined from ' + (s.rowsRead || 0) + ((d.history || []).length ? ' · ' + d.history.length + ((d.history.length === 1) ? ' change' : ' changes') + ' by hand' : '') + '</span>'
         + '</div>'
-        + '<p class="hint" id="omHow">A row joins another only on strong evidence: the same mobile, the same email (ignoring capitals, dots in Gmail and obvious slips), or the same membership number, and only when the names agree (the same words, one name inside the other, or a close spelling). Two different names on one mobile or email are never joined; they are listed below to check by hand.</p>'
+        + '<p class="hint" id="omHow">Rows were joined only where the sheet itself proves it is one person: the same mobile, the same email (ignoring capitals, dots in Gmail and obvious slips), or the same membership number, and only when the names agree (the same words, one name inside the other, or a close spelling). Two different names on one mobile or email are never joined; they wait in To check for a person to decide.</p>'
+        + '<div class="om-tabs" role="tablist" aria-label="Old site members">'
+        + omTabButton('members', 'Members', (d.members || []).length)
+        + omTabButton('check', 'To check', (d.review || []).length)
+        + omTabButton('history', 'History', (d.history || []).length)
+        + '</div>'
+        + '<section class="om-sec" data-omsec="members" role="tabpanel"' + (om.tab === 'members' ? '' : ' hidden') + '>'
         + '<div class="tools om-tools">'
         + '<input type="search" id="omQ" placeholder="Name, mobile, email or number" aria-label="Search the old list">'
         + '<select id="omList" aria-label="List"><option value="">Every list</option>' + listNames.map(function (l) { return '<option value="' + esc(l) + '">' + esc(l) + ' (' + lists[l] + ')</option>'; }).join('') + '</select>'
-        + '<select id="omOnly" aria-label="Show"><option value="">Everyone</option><option value="joined">Joined from several rows</option><option value="numbers">Has two membership numbers</option><option value="bademail">Email looks mistyped</option><option value="nocontact">No mobile or email</option></select>'
+        + '<select id="omOnly" aria-label="Show"><option value="">Everyone</option><option value="tocheck">To check</option><option value="joined">Joined from several rows</option><option value="numbers">Has two membership numbers</option><option value="bademail">Email looks mistyped</option><option value="nocontact">No mobile or email</option></select>'
         + '<button class="ghost" type="button" id="omCsv">Download CSV</button>'
         + '</div>'
         + '<div class="wrap"><table><thead><tr><th>Name</th><th>Membership no.</th><th>Mobile</th><th>Email</th><th>Plan</th><th>Joined</th></tr></thead><tbody id="omRows"></tbody></table></div>'
         + '<div class="more"><button class="ghost" type="button" id="omMore" hidden>Show more</button></div>'
-        + omPairs(d.review) + omHistory(d.history) + omSource(d) + (d.canImport ? omLoader(false) : '');
+        + omSource(d) + (d.canImport ? omLoader(false) : '')
+        + '</section>'
+        + '<section class="om-sec" data-omsec="check" role="tabpanel"' + (om.tab === 'check' ? '' : ' hidden') + '>' + omPairs(d.review) + '</section>'
+        + '<section class="om-sec" data-omsec="history" id="omHistory" role="tabpanel"' + (om.tab === 'history' ? '' : ' hidden') + '>' + omHistory(d.history) + '</section>';
       omTable();
     }).catch(function (e) { fail(node, e); });
   }
@@ -3567,6 +3591,8 @@ window.addEventListener('unhandledrejection', function (event) {
     if (t.id === 'omMore') { om.shown += 100; omTable(); return; }
     if (t.id === 'omCsv') { omCsv(); return; }
     if (t.id === 'omLoad') { omImport(); return; }
+    var tabBtn = t.closest('[data-omtab]');
+    if (tabBtn) { omShowTab(tabBtn.getAttribute('data-omtab')); return; }
     var act = t.closest('[data-omact]');
     if (act) { omStart(act.getAttribute('data-omact'), act); return; }
     var row = t.closest('.om-row');
