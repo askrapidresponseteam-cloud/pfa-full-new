@@ -126,9 +126,10 @@ test('every section in the rail is one the module list knows', () => {
      Store orders left with the shop, so the rail is six. Website (what the
      public site shows) joined on 8 Oct 2026, so it is seven again. */
   /* Old site members joined on 26 Oct 2026, in a group of its own below
-     the seven, marked "Kept apart". */
-  assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'caregivers', 'website', 'people', 'oldmembers'],
-    'the rail is the seven sections, in order, then the one kept apart');
+     the rest, marked "Kept apart". Membership cards joined the same day,
+     after Colony cards. */
+  assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'caregivers', 'membership', 'website', 'people', 'oldmembers'],
+    'the rail is the eight sections, in order, then the one kept apart');
   /* Applications to decide joined Colony cards, first, on 24 Oct 2026 */
   const stacks = /caregivers:[^}]*panes: \['apply', 'caregivers', 'verify', 'cards'\]/.test(script)
     && /payments:[^}]*panes: \['payments', 'donations'\]/.test(script)

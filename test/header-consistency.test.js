@@ -105,6 +105,7 @@ const EXPECTED = {
   'shop.html':         ['Shop',                      null],
   'careers.html':      ['Careers',                   'founder.html'],
   'caregiver-card.html': [null,                       'get-involved.html'], /* in the section, no longer a destination in it */
+  'member-photo.html':   [null,                       'get-involved.html'], /* reached only from the emailed photo link (26 Oct 2026) */
   'donate.html':       ['Donate',                    null],
   /* the microsites (9 Oct 2026): each its own entry, in the section whose
      menu lists it; privacy sits in none, as track and search do */

@@ -528,6 +528,23 @@
    ]
   },
   {
+   "id": "member-photo",
+   "file": "member-photo.html",
+   "title": "Membership card photograph",
+   "group": "Get Involved",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Your photograph."
+    },
+    {
+     "id": "photo",
+     "label": "Photo"
+    }
+   ]
+  },
+  {
    "id": "founder",
    "file": "founder.html",
    "title": "Founder",
@@ -1288,6 +1305,18 @@
    "cName": "check-a-card",
    "cLine": "check-a-card",
    "cLookup": "check-a-card"
+  },
+  "member-photo": {
+   "mpSay": "photo",
+   "mpHello": "photo",
+   "mpHi": "photo",
+   "mpLead": "photo",
+   "mpRetake": "photo",
+   "mpReasons": "photo",
+   "mpFrame": "photo",
+   "mpEditor": "photo",
+   "mpDone": "photo",
+   "mpRef": "photo"
   },
   "founder": {
    "vgrid": "watch",

@@ -194,6 +194,12 @@ test('A6 the table: every kind with stages can reach each of its stages from new
     const offered = FLOW.movesFor({ kind, status: 'new' }).map((m) => m.status);
     for (const s of stages) {
       if (s.key === 'new' || (kind === 'PFA-CG' && (s.key === 'approved' || s.key === 'revoked'))) continue;
+      /* the membership card's steps are facts, reached only by their actions
+         (owner, 26 Oct 2026): a link emailed, a photograph on file, a card */
+      if (kind === 'PFA-MEM' && ['photo-requested', 'photo-received', 'card-approved'].includes(s.key)) {
+        assert.ok(!offered.includes(s.key), `${kind}: ${s.key} must not be offered as a status change`);
+        continue;
+      }
       assert.ok(offered.includes(s.key), `${kind}: ${s.key} cannot be reached`);
     }
     assert.ok(!offered.includes('handled') && !offered.includes('in-progress'), `${kind}: generic statuses are not its stages`);

@@ -433,6 +433,25 @@ details.fold[open] > summary{margin-bottom:8px}
 .rejectbox .row2{margin:2px 0 0}
 @media (max-width:760px){.ap,.ap[data-done]{grid-template-columns:1fr}}
 
+/* ---------- membership cards (26 Oct 2026) ---------- */
+.mq-bar{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);width:max-content;max-width:100%;margin:0 0 14px}
+.mq-tab{background:var(--paper);border:0;border-right:1px solid var(--line);padding:0 14px;min-height:40px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.mq-tab:last-child{border-right:0}
+.mq-tab[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.mq-n{font-variant-numeric:tabular-nums;font-weight:700}
+.mq-acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.mq-acts .press{width:auto;padding:0 18px;min-height:38px}
+.mq-pick{width:36px}
+.mq-pick input{width:18px;height:18px}
+.mq-do{text-align:right;white-space:nowrap}
+[data-pane="membership"] td .note{font-size:12px;color:var(--muted)}
+[data-pane="membership"] .linky{padding:0;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+[data-pane="membership"] .say{margin:12px 0 0}
+[data-pane="membership"] .say:empty{display:none}
+/* the card's own rounded corners, not a white square behind them */
+[data-pane="membership"] .ap canvas,#memberView canvas{border:0;background:none;border-radius:3.74%/5.93%}
+@media (max-width:760px){.mq-bar{width:100%}.mq-tab{flex:1 1 auto;justify-content:center}}
+
 /* ---------- website: what the public site shows ---------- */
 /* A pair of the panel's own ghost buttons joined into one control: the state
    it is in is filled in ink, the other waits to be pressed. */
@@ -605,6 +624,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="volunteers">Volunteers</button>
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="caregivers">Colony cards<span class="pip" id="pipApps" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="membership">Membership cards<span class="pip" id="pipMembers" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="people" data-super>People &amp; audit</button>
     </div>
@@ -697,6 +717,10 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     </div>
 
     <div class="pane" data-pane="cards" role="region" aria-label="Print and post"><div class="loading">Reading the register&#8230;</div></div>
+
+    <!-- Membership cards (26 Oct 2026): ask a member for their photograph,
+         approve it, print the card. Filled by membershipPane(). -->
+    <div class="pane" data-pane="membership" role="region" aria-label="Membership cards"><div class="loading">Reading the memberships&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
       <div class="tools">
@@ -848,6 +872,25 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
   </div>
 </div>
 
+<!-- The membership card, large: both faces as they print (assets/member-card.js).
+     Printing and the PNGs are offered once the card is approved. -->
+<div class="cardview" id="memberView" role="dialog" aria-modal="true" aria-labelledby="memberViewTitle" hidden>
+  <div class="cardview__box">
+    <div class="cardview__head"><h3 id="memberViewTitle">Membership card</h3><button class="ghost" type="button" id="memberViewShut">Close</button></div>
+    <div class="cardview__tools">
+      <button class="ghost" type="button" data-mv="print" data-issued>Print this card</button>
+      <button class="ghost" type="button" data-mv="png-front" data-issued>Save front PNG</button>
+      <button class="ghost" type="button" data-mv="png-back" data-issued>Save back PNG</button>
+    </div>
+    <p class="say" id="memberViewSay" role="status" aria-live="polite"></p>
+    <div class="cardview__faces">
+      <figure><canvas data-face="front" aria-label="The front of the membership card"></canvas><figcaption>Front</figcaption></figure>
+      <figure><canvas data-face="back" aria-label="The back of the membership card"></canvas><figcaption>Back</figcaption></figure>
+    </div>
+    <p class="note">Card printer: Print this card, one face a page at 85.6 x 54 mm, at 100% with headers and footers off. The printed card is the only copy; it is never emailed.</p>
+  </div>
+</div>
+
 <script>
 /* If anything below fails to parse or throws while starting up, the page still
    renders perfectly and the button quietly does nothing, which is the least
@@ -874,6 +917,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/field-rules.js"></script>
 <script src="assets/card-print.js"></script>
 <script src="assets/caregiver-card.js"></script>
+<script src="assets/member-card.js"></script>
 <script>
 /* The panel.
 
@@ -1134,6 +1178,7 @@ window.addEventListener('unhandledrejection', function (event) {
     donations:   { title: 'Donations',     module: 'donations',   needs: 'payments' },
     caregivers:  { title: 'Colony cards',  module: 'caregivers',  needs: 'caregivers', panes: ['apply', 'caregivers', 'verify', 'cards'] },
     apply:       { title: 'Applications to decide', module: 'caregivers', needs: 'caregivers' },
+    membership:  { title: 'Membership cards', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
@@ -1217,6 +1262,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'payments') { pendingPayments(); return payments(true); }
     if (tab === 'cards') return cardsPane();
     if (tab === 'apply') return applicationsPane();
+    if (tab === 'membership') return membershipPane();
     if (tab === 'website') return website();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -1282,6 +1328,7 @@ window.addEventListener('unhandledrejection', function (event) {
       pip.textContent = waiting;
       pip.hidden = !waiting;
       appsCount();
+      membersCount();
       say($('#paneNote'), 'Read ' + when(m.generatedAt));
     }).catch(function (e) { fail(node, e); });
   }
@@ -4037,6 +4084,401 @@ window.addEventListener('unhandledrejection', function (event) {
       throw e;
     });
   }
+
+  /* ---- membership cards ---------------------------------------------------
+
+     Owner, 26 Oct 2026: "admin should have option to send email to the
+     applicant to upload photo. once they upload the application should come
+     to pfa for approval and card generation". One section, in the order the
+     work happens: ask for the photograph, wait for it, approve it (the card
+     is drawn here with the photograph, exactly as it prints), then print.
+     Every step is lib/routes/admin/membership.js; the card is drawn only
+     here (assets/member-card.js) and never sent to the member. */
+
+  var MQ = {
+    ask:      { label: 'Ask for photo',  queues: ['request', 'lapsed'], hint: 'Paid members with no photograph yet. Tick and press Email photo link: each gets a private link, valid for 14 days, to send their photograph.' },
+    waiting:  { label: 'Waiting',        queues: ['waiting'],           hint: 'A link has gone and the member has not used it yet. Send a new link if they lost it; the old one stops working.' },
+    review:   { label: 'To approve',     queues: ['review'],            hint: 'Photographs that have arrived. Check the face and the card, then Approve, or ask for another photograph and say why.' },
+    approved: { label: 'To print',       queues: ['approved'],          hint: 'Approved cards. Print them on the card printer, then mark them printed. The printed card is the only copy, and it is posted to the member.' },
+    all:      { label: 'All',            queues: null,                  hint: 'Every membership, and where its card stands.' }
+  };
+  var mqView = 'ask';
+  var mqRows = [];
+  var mqCounts = {};
+  var mqDetail = {};
+
+  function setMemberPip(n) {
+    var pip = $('#pipMembers');
+    if (!pip) return;
+    pip.textContent = n;
+    pip.hidden = !n;
+  }
+  function membersCount() {
+    if (!can('membership')) return;
+    api('/api/admin/membership?queue=review').then(function (data) { setMemberPip((data.counts || {}).review || 0); }).catch(function () {});
+  }
+
+  function mqCount(view) {
+    var spec = MQ[view];
+    if (!spec.queues) return mqRows.length;
+    return spec.queues.reduce(function (n, q) { return n + (Number(mqCounts[q]) || 0); }, 0);
+  }
+
+  function mqIn(view) {
+    var spec = MQ[view];
+    return mqRows.filter(function (r) { return !spec.queues || spec.queues.indexOf(r.queue) !== -1; });
+  }
+
+  function dayOf(iso) {
+    var d = new Date(iso);
+    return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function standsOf(r) {
+    if (r.queue === 'request') return r.requests ? 'Asked before, no photograph yet' : 'Not asked yet';
+    if (r.queue === 'lapsed') return 'Link expired ' + dayOf(r.linkExpiresAt);
+    if (r.queue === 'waiting') return 'Link sent ' + dayOf(r.requestedAt) + ', works till ' + dayOf(r.linkExpiresAt) + (r.requests > 1 ? ' (link ' + r.requests + ')' : '');
+    if (r.queue === 'review') return 'Photograph received ' + dayOf(r.receivedAt);
+    if (r.queue === 'approved') return 'Approved ' + dayOf(r.approvedAt) + ', not printed';
+    if (r.queue === 'printed') return 'Printed ' + dayOf(r.printedAt);
+    return r.queueLabel || '';
+  }
+
+  function membershipPane() {
+    var node = $('[data-pane="membership"]');
+    if (!node) return undefined;
+    node.innerHTML = '<div class="loading">Reading the memberships…</div>';
+    return api('/api/admin/membership?queue=all').then(function (data) {
+      mqRows = data.rows || [];
+      mqCounts = data.counts || {};
+      setMemberPip(mqCounts.review || 0);
+      mqRender(data);
+    }).catch(function (e) { fail(node, e); });
+  }
+
+  function mqRender(data) {
+    var node = $('[data-pane="membership"]');
+    var tabs = Object.keys(MQ).map(function (key) {
+      var n = mqCount(key);
+      return '<button type="button" class="mq-tab" data-mq-view="' + key + '" aria-pressed="' + (key === mqView ? 'true' : 'false') + '">'
+        + esc(MQ[key].label) + (key !== 'all' ? ' <span class="mq-n">' + n + '</span>' : '') + '</button>';
+    }).join('');
+    var mailNote = data && data.mailConfigured === false
+      ? '<p class="say" data-tone="bad">Email is not set up on the server. Links are queued and will go once it is.</p>' : '';
+    node.innerHTML = '<div class="mq-bar" role="group" aria-label="Where the cards stand">' + tabs + '</div>'
+      + mailNote
+      + '<p class="hint">' + esc(MQ[mqView].hint) + '</p>'
+      + '<div data-mq-body></div>'
+      + '<p class="say" data-mq-say role="status" aria-live="polite"></p>';
+    mqBody();
+  }
+
+  function mqBody() {
+    var body = $('[data-pane="membership"] [data-mq-body]');
+    var rows = mqIn(mqView);
+    if (!rows.length) {
+      var empty = { ask: 'Every member has been asked for a photograph.', waiting: 'No links are waiting to be used.', review: 'No photographs are waiting for approval.', approved: 'Every approved card has been printed.', all: 'There are no memberships yet.' };
+      body.innerHTML = '<div class="empty"><b>Nothing here</b>' + esc(empty[mqView]) + '</div>';
+      return;
+    }
+    if (mqView === 'review') { body.innerHTML = '<div class="apq">' + rows.map(mqReviewItem).join('') + '</div>'; rows.forEach(mqLoadReview); return; }
+    var pick = mqView !== 'all';
+    var bulk = mqView === 'approved'
+      ? '<button class="press" type="button" data-mq="print" disabled>Print selected</button><button class="ghost" type="button" data-mq="printed" disabled>Mark selected as printed</button>'
+      : '<button class="press" type="button" data-mq="send" disabled>Email photo link to selected</button>';
+    body.innerHTML = (pick ? '<div class="mq-acts">' + bulk + '</div>' : '')
+      + '<div class="wrap"><table><thead><tr>'
+      + (pick ? '<th class="mq-pick"><input type="checkbox" data-mq-all aria-label="Select all"></th>' : '')
+      + '<th>Member</th><th>Membership</th><th>Contact</th><th>Where it stands</th><th aria-label="Actions"></th>'
+      + '</tr></thead><tbody>' + rows.map(function (r) { return mqRow(r, pick); }).join('') + '</tbody></table></div>';
+  }
+
+  function mqRow(r, pick) {
+    var act = '';
+    if (r.queue === 'request' || r.queue === 'lapsed') act = '<button class="ghost" type="button" data-mq="send-one">Email photo link</button>';
+    else if (r.queue === 'waiting') act = '<button class="ghost" type="button" data-mq="send-one">Send a new link</button>';
+    else if (r.queue === 'review') act = '<button class="ghost" type="button" data-mq="go-review">Review</button>';
+    else if (r.cardId) act = '<button class="ghost" type="button" data-mq="view">Card</button>';
+    return '<tr data-ref="' + esc(r.reference) + '">'
+      + (pick ? '<td class="mq-pick"><input type="checkbox" data-mq-row aria-label="Select ' + esc(r.name || r.reference) + '"></td>' : '')
+      + '<td><b>' + esc(r.name || 'No name') + '</b><br><button class="linky" type="button" data-mq="open">' + esc(r.reference) + '</button></td>'
+      + '<td>' + esc(r.tier || '') + '</td>'
+      + '<td>' + esc(r.email || 'No email') + (r.mobile ? '<br><span class="note">' + esc(r.mobile) + '</span>' : '') + '</td>'
+      + '<td>' + esc(standsOf(r)) + (r.retakeReason && r.queue === 'waiting' ? '<br><span class="note">Asked again: ' + esc(r.retakeReason) + '</span>' : '') + '</td>'
+      + '<td class="mq-do">' + act + '</td></tr>';
+  }
+
+  function mqRowOf(reference) {
+    for (var i = 0; i < mqRows.length; i += 1) if (mqRows[i].reference === reference) return mqRows[i];
+    return null;
+  }
+
+  function mqSay(text, tone) { say($('[data-pane="membership"] [data-mq-say]'), text, tone); }
+
+  function mqPicked() {
+    return $$('[data-pane="membership"] [data-mq-row]').filter(function (b) { return b.checked; })
+      .map(function (b) { return b.closest('tr').getAttribute('data-ref'); });
+  }
+
+  function mqSyncBulk() {
+    var n = mqPicked().length;
+    $$('[data-pane="membership"] .mq-acts button').forEach(function (b) { b.disabled = !n; });
+  }
+
+  /* ---- ask for the photograph ---- */
+  function mqSend(references, button) {
+    if (!references.length) return;
+    if (button) { button.disabled = true; }
+    mqSay('Sending ' + (references.length === 1 ? 'the link' : references.length + ' links') + '…');
+    api('/api/admin/membership', { method: 'POST', body: { action: 'request-photo', references: references } }).then(function (data) {
+      var ok = (data.results || []).filter(function (r) { return r.ok; });
+      var bad = (data.results || []).filter(function (r) { return !r.ok; });
+      var mailed = ok.filter(function (r) { return r.emailed; }).length;
+      var text = ok.length
+        ? (mailed === ok.length ? 'Photo link emailed to ' + (ok.length === 1 ? ok[0].to : ok.length + ' members') + '.' : ok.length + ' link(s) made; ' + (ok.length - mailed) + ' queued to email: ' + (ok[0].mailNote || ''))
+        : '';
+      if (bad.length) text += (text ? ' ' : '') + bad.map(function (r) { return r.reference + ': ' + (r.message || 'not sent'); }).join(' ');
+      return membershipPane().then(function () { mqSay(text, bad.length ? 'bad' : 'good'); });
+    }).catch(function (e) { if (button) button.disabled = false; mqSay(e.message, 'bad'); });
+  }
+
+  /* ---- approve ---- */
+  function mqReviewItem(r) {
+    return '<article class="ap" data-ref="' + esc(r.reference) + '">'
+      + '<div><button class="cardbtn" type="button" data-mq="view" aria-label="See the card, front and back"><canvas data-mq-card aria-label="The card as it would print"></canvas></button>'
+      + '<button class="cardlink" type="button" data-mq="view">See front and back</button></div>'
+      + '<div>'
+      + '<h4>' + esc(r.name || 'No name') + '</h4>'
+      + '<p class="meta">' + esc([r.tier, r.reference, 'Photograph received ' + dayOf(r.receivedAt)].filter(Boolean).join(' · ')) + '</p>'
+      + '<ul class="checks" data-mq-checks><li data-l="warn">Reading the photograph…</li></ul>'
+      + '<div class="pn"><label for="mqpn-' + esc(r.reference) + '">Name on the card</label>'
+      + '<input type="text" id="mqpn-' + esc(r.reference) + '" data-mq-print maxlength="40" autocomplete="off" value="' + esc(r.name || '') + '">'
+      + '<p class="say" data-mq-print-say role="status" aria-live="polite"></p></div>'
+      + '<div class="acts">'
+      + '<button class="press" type="button" data-mq="approve" disabled>Approve and issue card</button>'
+      + '<button class="ghost danger" type="button" data-mq="retake">Ask for another photo</button>'
+      + '<button class="ghost" type="button" data-mq="open">Open the record</button>'
+      + '</div>'
+      + '<div class="rejectbox" data-mq-retake hidden></div>'
+      + '<details><summary>Details</summary><dl data-mq-dl></dl></details>'
+      + '<p class="say" data-say role="status" aria-live="polite"></p>'
+      + '</div></article>';
+  }
+
+  function mqItem(reference) {
+    return $$('[data-pane="membership"] .ap').filter(function (n) { return n.getAttribute('data-ref') === reference; })[0] || null;
+  }
+
+  function mqFetch(reference) {
+    if (mqDetail[reference]) return Promise.resolve(mqDetail[reference]);
+    return api('/api/admin/membership?reference=' + encodeURIComponent(reference)).then(function (d) {
+      var photo = d.photo && d.photo.data ? 'data:' + d.photo.contentType + ';base64,' + d.photo.data : '';
+      return window.PFAMemberCard.loadPhoto(photo).then(function (img) {
+        d.image = img; d.photoSrc = photo;
+        mqDetail[reference] = d;
+        return d;
+      });
+    });
+  }
+
+  function mqCardOf(d, printName) {
+    return Object.assign({}, d.card, printName ? { printName: printName } : {});
+  }
+
+  function mqDraw(node, d) {
+    var canvas = node.querySelector('[data-mq-card]');
+    var input = node.querySelector('[data-mq-print]');
+    if (!canvas) return;
+    window.PFAMemberCard.draw(canvas, 'front', mqCardOf(d, input ? input.value.replace(/\s+/g, ' ').trim() : ''), { pxPerUnit: 1, photo: d.image });
+  }
+
+  function mqCheckName(node) {
+    var input = node.querySelector('[data-mq-print]');
+    var out = node.querySelector('[data-mq-print-say]');
+    var go = node.querySelector('[data-mq="approve"]');
+    var name = String(input.value || '').replace(/\s+/g, ' ').trim();
+    var MCARD = window.PFAMemberCard;
+    var ok = Boolean(name) && MCARD.fitsName(name) && /^[A-Za-zÀ-ɏ][A-Za-zÀ-ɏ .'-]*$/.test(name);
+    input.setAttribute('aria-invalid', ok ? 'false' : 'true');
+    if (!name) say(out, 'Type the name to print.', 'bad');
+    else if (!MCARD.fitsName(name)) {
+      var s = MCARD.suggestName(name);
+      say(out, 'Too long to print at the card’s size.' + (s && s !== name ? ' Try: ' + s : ' Use initials for the first or middle names.'), 'bad');
+    } else if (!ok) say(out, 'Letters, spaces, dots, hyphens and apostrophes only.', 'bad');
+    else say(out, '');
+    var d = mqDetail[node.getAttribute('data-ref')];
+    if (go) go.disabled = !(ok && d && d.image);
+    return ok;
+  }
+
+  function mqLoadReview(r) {
+    var node = mqItem(r.reference);
+    mqFetch(r.reference).then(function (d) {
+      node = mqItem(r.reference);
+      if (!node) return;
+      var input = node.querySelector('[data-mq-print]');
+      var MCARD = window.PFAMemberCard;
+      return MCARD.ready().then(function () {
+        if (input && !MCARD.fitsName(input.value)) { var s = MCARD.suggestName(input.value); if (s) input.value = s; }
+        var p = d.photo || {};
+        var checks = [];
+        if (d.image) checks.push(['ok', 'Photograph on file' + (p.width ? ', ' + p.width + ' x ' + p.height + ' pixels' : '')]);
+        else checks.push(['stop', p.unavailable ? 'The photograph could not be opened just now. Refresh in a minute.' : 'The photograph is missing. Ask for another.']);
+        checks.push(['warn', 'Check it is a clear, front-on face of ' + (r.name || 'the member') + '.']);
+        if (d.superseded) checks.push(['warn', d.superseded + ' earlier photograph' + (d.superseded === 1 ? ' was' : 's were') + ' not approved.']);
+        node.querySelector('[data-mq-checks]').innerHTML = checks.map(function (c) { return '<li data-l="' + c[0] + '">' + esc(c[1]) + '</li>'; }).join('');
+        node.querySelector('[data-mq-dl]').innerHTML = [['Email', r.email], ['Mobile', r.mobile], ['Address', d.address], ['Valid till', d.card.lifetime ? 'Lifetime' : dayOf(d.card.validUntil)], ['Links sent', String(r.requests || 0)]]
+          .filter(function (kv) { return kv[1]; }).map(function (kv) { return '<dt>' + esc(kv[0]) + '</dt><dd>' + esc(kv[1]) + '</dd>'; }).join('');
+        mqDraw(node, d);
+        mqCheckName(node);
+      });
+    }).catch(function (e) {
+      if (node) node.querySelector('[data-mq-checks]').innerHTML = '<li data-l="stop">' + esc(e.message) + '</li>';
+    });
+  }
+
+  function mqApprove(r, node) {
+    if (!mqCheckName(node)) return;
+    var name = node.querySelector('[data-mq-print]').value.replace(/\s+/g, ' ').trim();
+    var go = node.querySelector('[data-mq="approve"]');
+    go.disabled = true;
+    say(node.querySelector('[data-say]'), 'Approving…');
+    api('/api/admin/membership', { method: 'POST', body: { action: 'approve', reference: r.reference, printName: name } }).then(function (data) {
+      delete mqDetail[r.reference];
+      return membershipPane().then(function () {
+        mqSay('Approved. Card ' + r.reference + ' is under To print.' + (data.emailed ? ' ' + (r.email || 'The member') + ' was emailed.' : (data.mailNote ? ' ' + data.mailNote : '')), 'good');
+      });
+    }).catch(function (e) { go.disabled = false; say(node.querySelector('[data-say]'), e.message, 'bad'); });
+  }
+
+  function mqRetakeBox(node) {
+    var box = node.querySelector('[data-mq-retake]');
+    if (!box.hidden) { box.hidden = true; return; }
+    var reasons = (mqDetail[node.getAttribute('data-ref')] || {}).reasons || [];
+    box.innerHTML = '<p class="hint">Tick what is wrong. It goes to the member with a new link; the old photograph stays on file.</p>'
+      + reasons.map(function (r) { return '<label><input type="checkbox" value="' + esc(r.key) + '"> ' + esc(r.text) + '</label>'; }).join('')
+      + '<input type="text" data-mq-note maxlength="600" placeholder="Anything else to tell them (optional)" aria-label="Anything else to tell them">'
+      + '<div class="row2"><button class="press" type="button" data-mq="retake-send">Send a new link</button><button class="ghost" type="button" data-mq="retake-cancel">Cancel</button></div>';
+    box.hidden = false;
+  }
+
+  function mqRetake(r, node) {
+    var box = node.querySelector('[data-mq-retake]');
+    var reasons = $$('input[type="checkbox"]', box).filter(function (b) { return b.checked; }).map(function (b) { return b.value; });
+    var note = (box.querySelector('[data-mq-note]') || {}).value || '';
+    if (!reasons.length && !note.trim()) { say(node.querySelector('[data-say]'), 'Tick what is wrong with the photograph, or write it.', 'bad'); return; }
+    var go = box.querySelector('[data-mq="retake-send"]');
+    go.disabled = true;
+    api('/api/admin/membership', { method: 'POST', body: { action: 'retake', reference: r.reference, reasons: reasons, note: note.trim() } }).then(function (data) {
+      delete mqDetail[r.reference];
+      return membershipPane().then(function () {
+        mqSay('A new link went to ' + (data.to || 'the member') + (data.emailed ? '.' : ' (queued: ' + (data.mailNote || 'not sent yet') + ').'), data.emailed ? 'good' : 'bad');
+      });
+    }).catch(function (e) { go.disabled = false; say(node.querySelector('[data-say]'), e.message, 'bad'); });
+  }
+
+  /* ---- the card, large, and printing ---- */
+  function mqStudio(reference) {
+    var view = $('#memberView');
+    var r = mqRowOf(reference) || {};
+    $('#memberViewTitle').textContent = 'Membership card for ' + (r.name || reference);
+    say($('#memberViewSay'), 'Drawing the card…');
+    view.hidden = false;
+    view.setAttribute('data-ref', reference);
+    $('#memberViewShut').focus();
+    mqFetch(reference).then(function (d) {
+      var MCARD = window.PFAMemberCard;
+      return MCARD.ready().then(function () {
+        var node = mqItem(reference);
+        var typed = node && node.querySelector('[data-mq-print]') ? node.querySelector('[data-mq-print]').value.replace(/\s+/g, ' ').trim() : '';
+        var card = mqCardOf(d, d.card.draft ? typed : '');
+        MCARD.draw($('#memberView canvas[data-face="front"]'), 'front', card, { pxPerUnit: 1.2, photo: d.image });
+        MCARD.draw($('#memberView canvas[data-face="back"]'), 'back', card, { pxPerUnit: 1.2 });
+        $$('#memberView [data-issued]').forEach(function (b) { b.hidden = Boolean(d.card.draft); });
+        say($('#memberViewSay'), d.card.draft ? 'As it would print once approved.' : 'Exactly as it prints.');
+      });
+    }).catch(function (e) { say($('#memberViewSay'), e.message, 'bad'); });
+  }
+
+  function mqPrint(references) {
+    mqSay('Preparing ' + references.length + (references.length === 1 ? ' card' : ' cards') + ' for the printer…');
+    return Promise.all(references.map(mqFetch)).then(function (list) {
+      return window.PFAMemberCard.printCards(list.map(function (d) { return { card: d.card, photoSrc: d.photoSrc }; }));
+    }).then(function (n) {
+      mqSay(n + (n === 1 ? ' card' : ' cards') + ' sent to the print window. When they are printed, tick them and press Mark selected as printed.', 'good');
+    }).catch(function (e) { mqSay(e.message, 'bad'); });
+  }
+
+  function mqMarkPrinted(references) {
+    api('/api/admin/membership', { method: 'POST', body: { action: 'printed', references: references } }).then(function (data) {
+      var ok = (data.results || []).filter(function (r) { return r.ok; }).length;
+      return membershipPane().then(function () { mqSay(ok + (ok === 1 ? ' card' : ' cards') + ' marked as printed.', 'good'); });
+    }).catch(function (e) { mqSay(e.message, 'bad'); });
+  }
+
+  function mqSave(side) {
+    var reference = $('#memberView').getAttribute('data-ref');
+    var d = mqDetail[reference];
+    if (!d) return;
+    var a = document.createElement('a');
+    a.href = window.PFAMemberCard.pngOf(side, d.card, side === 'front' ? d.image : null);
+    a.download = reference + '-' + side + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-pane="membership"] [data-mq], [data-pane="membership"] [data-mq-view]');
+    if (!b) return;
+    var view = b.getAttribute('data-mq-view');
+    if (view) { mqView = view; mqRender({}); return; }
+    var what = b.getAttribute('data-mq');
+    var tr = b.closest('tr');
+    var node = b.closest('.ap');
+    var reference = (tr || node) ? (tr || node).getAttribute('data-ref') : '';
+    var r = reference ? mqRowOf(reference) : null;
+    if (what === 'send') { mqSend(mqPicked(), b); return; }
+    if (what === 'print') { mqPrint(mqPicked()); return; }
+    if (what === 'printed') { mqMarkPrinted(mqPicked()); return; }
+    if (!r) return;
+    if (what === 'open') { showCase(r.reference); return; }
+    if (what === 'send-one') { mqSend([r.reference], b); return; }
+    if (what === 'go-review') { mqView = 'review'; mqRender({}); return; }
+    if (what === 'view') { mqStudio(r.reference); return; }
+    if (what === 'approve') { mqApprove(r, node); return; }
+    if (what === 'retake') { mqRetakeBox(node); return; }
+    if (what === 'retake-cancel') { node.querySelector('[data-mq-retake]').hidden = true; return; }
+    if (what === 'retake-send') { mqRetake(r, node); }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t.closest || !t.closest('[data-pane="membership"]')) return;
+    if (t.hasAttribute('data-mq-all')) { $$('[data-pane="membership"] [data-mq-row]').forEach(function (b) { b.checked = t.checked; }); }
+    if (t.hasAttribute('data-mq-all') || t.hasAttribute('data-mq-row')) mqSyncBulk();
+  });
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (!t.hasAttribute || !t.hasAttribute('data-mq-print')) return;
+    var node = t.closest('.ap');
+    var d = mqDetail[node.getAttribute('data-ref')];
+    mqCheckName(node);
+    if (d) mqDraw(node, d);
+  });
+  (function () {
+    var view = $('#memberView');
+    if (!view) return;
+    function shut() { view.hidden = true; }
+    $('#memberViewShut').addEventListener('click', shut);
+    view.addEventListener('click', function (e) { if (e.target === view) shut(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !view.hidden) shut(); });
+    view.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-mv]');
+      if (!b) return;
+      var what = b.getAttribute('data-mv');
+      if (what === 'print') mqPrint([view.getAttribute('data-ref')]);
+      else if (what === 'png-front') mqSave('front');
+      else if (what === 'png-back') mqSave('back');
+    });
+  })();
 
   function setApPip(n) {
     var pip = $('#pipApps');

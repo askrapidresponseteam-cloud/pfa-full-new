@@ -70,7 +70,16 @@ const PANEL_ASSETS = [
      the only place the card is drawn, so these are the panel's assets. */
   'fonts/absans-card.woff2',
   'media/caregiver-card-pattern.jpg',
-  'media/caregiver-card-logo.png'
+  'media/caregiver-card-logo.png',
+  /* The membership card the panel draws (26 Oct 2026): its renderer, its two
+     faces' fonts and the transparent PFA logo. */
+  'assets/member-card.js',
+  'fonts/cinzel-latin-500.woff2',
+  'fonts/cinzel-latin-600.woff2',
+  'fonts/dm-sans-latin-400.woff2',
+  'fonts/dm-sans-latin-500.woff2',
+  'fonts/dm-sans-latin-600.woff2',
+  'media/member-card-logo.png'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */

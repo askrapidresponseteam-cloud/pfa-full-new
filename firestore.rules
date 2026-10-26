@@ -82,6 +82,10 @@ service cloud.firestore {
     match /storeWebhookEvents/{id}    { allow read, write: if false; }
     match /caregiverIdentityIndex/{id}{ allow read, write: if false; }
     match /caregiverEmails/{id}       { allow read, write: if false; }
+    // Membership cards (26 Oct 2026): the register of approved cards and the
+    // photo links (stored only as hashes). Server only.
+    match /memberCards/{id}           { allow read, write: if false; }
+    match /memberPhotoLinks/{id}      { allow read, write: if false; }
     match /caretakerAudit/{id}        { allow read, write: if isAdmin(); }
 
     /* ---- Money and operations -----------------------------------------

@@ -23,6 +23,10 @@
     var aspect = options.aspect || (85.6 / 54);   // portrait ID-1, height / width
     var output = options.outputWidth || 1400;
     var onChange = options.onChange || function () {};
+    /* A smaller photo window needs fewer pixels: the membership card's is
+       about 25 mm wide (member-photo.html passes its own). */
+    var idealPx = options.idealPx || IDEAL_PX;
+    var poorPx = options.poorPx || POOR_PX;
 
     var state = { image: null, zoom: 1, x: 0.5, y: 0.5, dragging: false, natural: 0 };
 
@@ -109,7 +113,7 @@
         usableWidth = image.height / frameAspect;
       }
       var effective = Math.round(usableWidth / state.zoom);
-      var level = effective >= IDEAL_PX ? 'good' : effective >= POOR_PX ? 'soft' : 'poor';
+      var level = effective >= idealPx ? 'good' : effective >= poorPx ? 'soft' : 'poor';
       return { level: level, effective: effective };
     }
 
