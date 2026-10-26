@@ -256,7 +256,13 @@ label.tick input{width:18px;height:18px;margin:0;flex:0 0 auto}
 .drawer[data-open]{transform:none}
 .drawer header{padding:22px 26px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:14px}
 .drawer header h2{font-family:var(--display);font-weight:400;font-size:19px;margin:0}
-.drawer header .x{margin-left:auto;color:var(--ink)}
+/* Close in the drawer's top right corner (owner, 26 Oct 2026: "why close is
+   close to text. it should at right top corner"). The shared close style sets
+   margin:0 and wins over a margin-left:auto, so the title block takes the
+   free width instead and Close is pushed to the right edge. */
+.drawer header{justify-content:space-between}
+.drawer header > div{flex:1 1 auto;min-width:0}
+.drawer header .x{flex:none;color:var(--ink)}
 /* Close: the same control as on every public page (the shared chrome stylesheet), which
    this panel does not load. */
 button.pfa-close.pfa-close{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;min-width:44px;width:auto;height:auto;margin:0;padding:0 4px;background:none;border:0;border-radius:0;box-shadow:none;color:inherit;font-family:var(--body,'Helvetica Neue',Helvetica,Arial,sans-serif);font-size:11px;font-weight:700;font-style:normal;letter-spacing:.14em;text-transform:uppercase;line-height:1;white-space:nowrap;cursor:pointer;-webkit-appearance:none;appearance:none;opacity:1;transition:opacity .15s}
