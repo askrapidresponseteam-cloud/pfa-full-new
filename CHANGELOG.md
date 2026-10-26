@@ -1,3 +1,10 @@
+## v1.470
+
+- **Membership cards: Preview card on every row, from the first day.** Owner, 26 Oct 2026: "still dont see card preview option". Every member in every queue (Ask for photo, Waiting, To print, To dispatch, All) now has Preview card, which opens the actual card, front and back, as it will print: their name, member ID, validity, district and state. Before the photograph arrives the photo window reads PHOTO, and the card cannot be printed or saved until it is approved.
+- **No email line says "Waiting to send" after it has gone.** Owner, 26 Oct 2026: "why some show waiting to send.. nothing should wait". The line in a case's conversation (the copy to gandhim, a relayed reply) was written once, at the moment the form answered: if the email was still on its way then, it said Waiting to send for good, even after it went. Opening a case now reads each such line against the outbound queue and shows how it stands now (sent, retrying, or waiting), and a line that has gone is written as sent. Lines say "Copy" until they have gone, and "Copy sent" after.
+- **A slow send is no longer cut off.** On Vercel a form's function could be frozen as soon as it answered the visitor, leaving a slow email half sent until the email worker's next run. It now stays alive until the email has gone and its result is recorded; anything that still does not go is retried by the worker every ten minutes, as before.
+- Checked: test/membership-card.test.js (Preview card on every row; a draft cannot be printed), test/case-lifecycle.test.js (a stale line shows its real state and is written as sent; the copy names its queue row), the full suite, and the panel driven in Chromium.
+
 ## v1.469
 
 - **No person is cut by a frame, anywhere on the site.** Owner, 26 Oct 2026: "no person's head or any part can be clipped anywhere. fix thoroughly". Every page was scanned in Chromium at 1440 and 390 pixels wide, measuring how much of each photograph its frame cuts away, and each one holding people was fixed:

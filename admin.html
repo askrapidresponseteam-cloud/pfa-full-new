@@ -450,6 +450,8 @@ details.fold[open] > summary{margin-bottom:8px}
 .mq-pick{width:36px}
 .mq-pick input{width:18px;height:18px}
 .mq-do{text-align:right;white-space:nowrap}
+.mq-btns{display:inline-flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.mq-btns--under{display:flex;margin-top:8px}
 [data-pane="membership"] td .note{font-size:12px;color:var(--muted)}
 [data-pane="membership"] .linky{padding:0;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 [data-pane="membership"] .say{margin:12px 0 0}
@@ -2816,7 +2818,7 @@ window.addEventListener('unhandledrejection', function (event) {
       } else if (t === 'note') {
         head = '<b>Note</b> by ' + esc(m.by || 'staff') + (m.status ? ' (moved to ' + esc(statusWord(c, m.status)) + ')' : '');
       } else if (t === 'email') {
-        head = '<b>' + esc(m.direction === 'out' ? 'Copy sent' : 'Email') + '</b> to ' + esc(m.to || '') + (m.state && m.state !== 'sent' ? ' <span class="flag" data-s="' + esc(m.state) + '">' + esc(MAIL_STATUS[m.state] || m.state) + '</span>' : '');
+        head = '<b>' + esc(m.direction === 'out' ? (!m.state || m.state === 'sent' ? 'Copy sent' : 'Copy') : 'Email') + '</b> to ' + esc(m.to || '') + (m.state && m.state !== 'sent' ? ' <span class="flag" data-s="' + esc(m.state) + '">' + esc(MAIL_STATUS[m.state] || m.state) + '</span>' : '');
         body = '';
       } else {
         head = '<b>Change</b> by ' + esc(m.by || 'someone');
@@ -4212,7 +4214,12 @@ window.addEventListener('unhandledrejection', function (event) {
     else if (r.queue === 'printed') act = '<span class="mq-courier"><input type="text" data-mq-courier maxlength="60" placeholder="Courier" aria-label="Courier for ' + esc(r.reference) + '">'
       + '<input type="text" data-mq-tracking maxlength="40" placeholder="Tracking number" aria-label="Tracking number for ' + esc(r.reference) + '">'
       + '<button class="press" type="button" data-mq="dispatch">Dispatched</button></span>';
-    else if (r.cardId) act = '<button class="ghost" type="button" data-mq="view">Preview card</button>';
+    /* The actual card, front and back, can be previewed on every row, from
+       the first day (owner, 26 Oct 2026: "still dont see card preview
+       option"). Before the photograph arrives the photo window says PHOTO;
+       print and save stay hidden until the card is approved. */
+    var preview = '<button class="ghost" type="button" data-mq="view">Preview card</button>';
+    act = act && r.queue !== 'printed' ? '<span class="mq-btns">' + act + preview + '</span>' : act ? act + '<span class="mq-btns mq-btns--under">' + preview + '</span>' : preview;
     return '<tr data-ref="' + esc(r.reference) + '">'
       + (pick ? '<td class="mq-pick"><input type="checkbox" data-mq-row aria-label="Select ' + esc(r.name || r.reference) + '"></td>' : '')
       + '<td><b>' + esc(r.name || 'No name') + '</b><br><button class="linky" type="button" data-mq="open">' + esc(r.reference) + '</button></td>'
@@ -4409,7 +4416,7 @@ window.addEventListener('unhandledrejection', function (event) {
         MCARD.draw($('#memberView canvas[data-face="front"]'), 'front', card, { pxPerUnit: 1.2, photo: d.image });
         MCARD.draw($('#memberView canvas[data-face="back"]'), 'back', card, { pxPerUnit: 1.2 });
         $$('#memberView [data-issued]').forEach(function (b) { b.hidden = Boolean(d.card.draft); });
-        say($('#memberViewSay'), d.card.draft ? 'As it would print once approved.' : 'Exactly as it prints.');
+        say($('#memberViewSay'), !d.card.draft ? 'Exactly as it prints.' : d.image ? 'As it would print once approved.' : 'As it would print once the photograph is in and approved. The photograph goes in the window marked PHOTO.');
       });
     }).catch(function (e) { say($('#memberViewSay'), e.message, 'bad'); });
   }

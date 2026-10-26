@@ -296,3 +296,48 @@ test('A9 two approves at once issue one card and record it once', async () => {
   assert.equal(rec('PFA-CG-2026-00012').history.filter((h) => h.status === 'approved').length, 1);
   assert.equal(smtp.sent.filter((m) => m.to === 'ravi@example.com').length, 1, 'one card email');
 });
+
+/* Owner, 26 Oct 2026: "why some show waiting to send.. nothing should wait".
+   A copy's line was written once, when the form answered, and kept saying
+   "Waiting to send" after the email went. Opening the case now reads each
+   unsent line against its row on the outbound queue. */
+test('an email line shows what happened to it since, not what it was when the form answered', async () => {
+  const STORE = require('../lib/caregiver-store');
+  const FORWARD = require('../lib/submission-forward');
+  const reference = 'PFA-V-2026-00015';
+  await seed(reference);
+  const ref = db.collection('submissions').doc(reference);
+  const inbox = 'gandhim@exmpls.sansad.in';
+  /* a line from before v1.469: no emailIds, found from its key */
+  const oldId = FORWARD.forwardKey({ reference, threadId: 'abcdefabcdef' }, inbox);
+  await db.collection('caregiverEmails').doc(STORE.emailIdFor('submission_forward', oldId)).set({ status: 'sent', to: inbox });
+  await ref.collection('messages').doc('out-forward-0123456789ab').set({ id: 'out-forward-0123456789ab', type: 'email', direction: 'out', to: inbox, state: 'queued', at: '2026-10-26T15:20:00.000Z' });
+  /* a line that names its row, still being retried */
+  await db.collection('caregiverEmails').doc('submission_followup_x').set({ status: 'retry', to: inbox });
+  await ref.collection('messages').doc('m2-relay').set({ id: 'm2-relay', type: 'email', direction: 'out', to: inbox, state: 'queued', emailIds: ['submission_followup_x'], at: '2026-10-26T15:30:00.000Z' });
+
+  const view = await call(CASE(), { method: 'GET', query: { reference } });
+  assert.equal(view.statusCode, 200, view.raw);
+  const shown = (view.json.case.messages || []).reduce((o, m) => Object.assign(o, { [m.id]: m.state }), {});
+  assert.equal(shown['out-forward-0123456789ab'], 'sent', 'the copy that went says so');
+  assert.equal(shown['m2-relay'], 'retry', 'one still going says how it stands now');
+  assert.equal(db.dump()[`submissions/${reference}/messages/out-forward-0123456789ab`].state, 'sent', 'written as sent, so it is not read again');
+});
+
+test('the copy to the inbox names its queue row on its conversation line', async () => {
+  const STORE = require('../lib/caregiver-store');
+  const FORWARD = require('../lib/submission-forward');
+  const reference = 'PFA-V-2026-00016';
+  await seed(reference);
+  const record = Object.assign({}, db.dump()[`submissions/${reference}`]);
+  const slow = { isConfigured: () => true, smtpConfigured: () => false, deliver: () => new Promise(() => {}) };
+  const out = await FORWARD.forward({ record, siteUrl: 'https://pfa.test', mail: slow, queue: STORE, timeoutMs: 30, db });
+  assert.equal(out[0].state, 'queued', 'still going when the form answered');
+  const line = Object.entries(db.dump()).find(([k]) => k.startsWith(`submissions/${reference}/messages/out-forward-`))[1];
+  assert.equal(line.state, 'queued');
+  assert.ok(db.dump()[`caregiverEmails/${line.emailIds[0]}`], 'the id on the line is the row on the queue');
+  /* the worker sends it later: the case then says it went */
+  await db.collection('caregiverEmails').doc(line.emailIds[0]).set({ status: 'sent' }, { merge: true });
+  const view = await call(CASE(), { method: 'GET', query: { reference } });
+  assert.equal(view.json.case.messages.find((m) => m.id === line.id).state, 'sent');
+});

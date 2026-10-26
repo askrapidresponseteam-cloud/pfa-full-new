@@ -401,3 +401,17 @@ test('only the printed card is issued, by courier with a tracking number; no let
   assert.match(approved.text, /by courier/);
   assert.match(approved.text, /never sent by email/);
 });
+
+/* Owner, 26 Oct 2026: "still dont see card preview option". Every row in
+   every queue offers the actual card, front and back, from the first day;
+   before the photograph arrives the window reads PHOTO and nothing can be
+   printed or saved from the draft. */
+test('every membership row offers Preview card, before and after the photograph', () => {
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.html'), 'utf8');
+  const row = html.slice(html.indexOf("function mqRow(r, pick) {"), html.indexOf("function mqRowOf("));
+  assert.match(row, /var preview = '<button class="ghost" type="button" data-mq="view">Preview card<\/button>';/);
+  assert.match(row, /act = act && r\.queue !== 'printed' \? '<span class="mq-btns">' \+ act \+ preview \+ '<\/span>' : act \? act \+ '<span class="mq-btns mq-btns--under">' \+ preview \+ '<\/span>' : preview;/);
+  assert.doesNotMatch(row, /else if \(r\.cardId\) act =/, 'no longer only once a card exists');
+  assert.match(html, /The photograph goes in the window marked PHOTO\./);
+  assert.match(html, /\$\$\('#memberView \[data-issued\]'\)\.forEach\(function \(b\) \{ b\.hidden = Boolean\(d\.card\.draft\); \}\);/, 'a draft cannot be printed or saved');
+});
