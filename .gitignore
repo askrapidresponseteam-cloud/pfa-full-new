@@ -19,6 +19,16 @@ service-account*.json
 *.pem
 *.p12
 
+# Never commit a membership list or any other spreadsheet of people (26 Oct
+# 2026). This repository is public. The old site's members reach the panel
+# only through its import (Old site members > Load the list), straight into
+# the database behind the admin sign-in.
+*.xlsx
+*.xls
+*.xlsm
+*Membership*.csv
+*members*.csv
+
 # Local and platform files
 .DS_Store
 .vercel

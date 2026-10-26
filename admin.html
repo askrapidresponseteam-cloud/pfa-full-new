@@ -491,6 +491,68 @@ details.fold[open] > summary{margin-bottom:8px}
 body select:not([multiple]):not([size]){-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:right 20px center;background-size:12px 7px;background-repeat:no-repeat;padding-right:46px;text-overflow:ellipsis;cursor:pointer}
 body select:not([multiple]):not([size]):disabled{cursor:not-allowed;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:baseline}
+/* ---------- Old site members (26 Oct 2026) ----------
+   The old website's list, on its own, below a "Kept apart" label in the rail.
+   Its people are in no other list, count or search here. */
+.railgroup--apart{margin-top:30px}
+.om-apart{font-size:15px;line-height:1.55;margin:0 0 22px;max-width:74ch}
+.om-apart b{font-weight:700}
+.om-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin:0 0 6px}
+.om-head .n{font-family:var(--display);font-size:44px;line-height:1}
+.om-head .sub{color:var(--muted);font-size:13px}
+.om-tools{margin-top:18px}
+.om-tools input{flex:1 1 260px}
+.om-row{cursor:pointer}
+.om-row:hover td{background:var(--stone,#f4f3f1)}
+.om-row[aria-expanded="true"] td{background:var(--stone,#f4f3f1)}
+.om-row td .aka{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.om-row td .bad{color:var(--waiting)}
+.om-row td .note,.om-pair .note{color:var(--muted);font-size:11px}
+.om-more td{background:var(--stone,#f4f3f1);padding:4px 16px 18px}
+.om-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px 26px;font-size:13px;line-height:1.5}
+.om-facts b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;margin:0 0 3px}
+.om-pairs{display:grid;gap:12px}
+.om-pair{border:1px solid var(--line);padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px;line-height:1.5}
+.om-pair .why{grid-column:1 / -1;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.om-pair b{font-family:var(--display);font-weight:400;font-size:16px;display:block}
+.om-load{border:1px solid var(--line);padding:22px;max-width:640px}
+.om-load input[type=file]{display:block;margin:12px 0 14px;font:inherit;font-size:13px}
+.om-src{font-size:13px;line-height:1.7}
+.om-go{background:var(--ink);color:#fff;border:1px solid var(--ink);height:38px;padding:0 18px;font:inherit;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.om-go:hover{background:var(--paper,#fff);color:var(--ink)}
+.om-go[disabled]{opacity:.35;cursor:default;background:var(--ink);color:#fff}
+.om-acts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+.om-take{margin-left:8px;height:24px;padding:0 8px;font-size:10px}
+.om-hist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.om-hist li{border:1px solid var(--line);padding:12px 14px;font-size:13px;line-height:1.55}
+.om-hist .who{display:block;color:var(--muted);font-size:12px}
+.om-hist .why{display:block;margin-top:4px}
+.om-sheet{position:fixed;inset:0;z-index:130;background:rgba(10,10,10,.5);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;padding:40px 16px}
+.om-sheet[hidden]{display:none}
+.om-box{background:var(--paper,#fff);width:min(720px,100%);padding:26px 26px 22px;box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
+.om-box h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0 0 4px}
+.om-step{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.om-box label{display:block;font-size:12px;font-weight:600;margin:14px 0 6px}
+.om-box input[type=text],.om-box input[type=search],.om-box textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);padding:10px 11px;font:inherit;font-size:14px;background:var(--paper,#fff)}
+.om-box textarea{min-height:64px;resize:vertical}
+.om-box input:focus,.om-box textarea:focus{border-color:var(--ink);outline:none}
+.om-box .count{font-size:11px;color:var(--muted);margin-top:4px}
+.om-foot{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
+.om-err{color:var(--waiting);font-size:13px;margin:12px 0 0;min-height:1em}
+.om-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.om-card{border:1px solid var(--line);padding:12px;font-size:12px;line-height:1.55}
+.om-card b{font-family:var(--display);font-weight:400;font-size:15px;display:block}
+.om-side{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+.om-diff{width:100%;border-collapse:collapse;font-size:13px}
+.om-diff th,.om-diff td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.om-diff td.old{color:var(--muted);text-decoration:line-through}
+.om-said{border:1px solid var(--line);padding:12px 14px;margin:16px 0 0;font-size:13px;line-height:1.55}
+.om-warn{font-size:13px;margin:12px 0 0}
+.om-picks{max-height:240px;overflow-y:auto;border:1px solid var(--line);margin-top:8px}
+.om-picks button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:9px 11px;font-size:13px;cursor:pointer}
+.om-picks button:hover,.om-picks button[aria-pressed="true"]{background:var(--stone,#f4f3f1)}
+.om-keep label{display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;margin:6px 0}
+@media (max-width:900px){.railgroup--apart{margin-top:0;padding-top:8px}.om-pair{grid-template-columns:1fr}.om-head .n{font-size:36px}}
 </style>
 </head>
 <body>
@@ -545,6 +607,13 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="caregivers">Colony cards<span class="pip" id="pipApps" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="people" data-super>People &amp; audit</button>
+    </div>
+
+    <!-- Kept apart (26 Oct 2026): the old website's members are in no other
+         section, count or search; their own group says so in the rail. -->
+    <div class="railgroup railgroup--apart">
+      <p>Kept apart</p>
+      <button class="tab" type="button" data-tab="oldmembers">Old site members</button>
     </div>
 
     <div class="railfoot">
@@ -664,6 +733,9 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     </div>
 
     <div class="pane" data-pane="website" role="region" aria-label="What the public site shows"><div class="loading">Reading the site&#8230;</div></div>
+
+    <div class="pane" data-pane="oldmembers" role="region" aria-label="Old site members"><div class="loading">Reading the old list&#8230;</div></div>
+    <div class="om-sheet" id="omSheet" hidden role="dialog" aria-modal="true" aria-labelledby="omSheetTitle"><div class="om-box" id="omBox"></div></div>
 
     <div class="pane" data-pane="people"><div class="loading">Reading the accounts&#8230;</div></div>
 
@@ -1067,7 +1139,8 @@ window.addEventListener('unhandledrejection', function (event) {
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
     people:      { title: 'People & audit', module: 'people',     needs: 'people', panes: ['people', 'audit'] },
-    audit:       { title: 'Audit log',     module: 'people',      needs: 'people' }
+    audit:       { title: 'Audit log',     module: 'people',      needs: 'people' },
+    oldmembers:  { title: 'Old site members', module: 'oldmembers', needs: 'oldmembers' }
   };
 
   function can(module) {
@@ -1147,6 +1220,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'website') return website();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
+    if (tab === 'oldmembers') return oldMembers();
     return undefined;
   }
 
@@ -3075,6 +3149,440 @@ window.addEventListener('unhandledrejection', function (event) {
      may open. The panel's own sections and the public site's pages and
      sections are matched here, at once, while the server's answer comes.
      "/" or Ctrl/Cmd+K jumps to the box from anywhere. */
+  /* ---- old site members (26 Oct 2026) -------------------------------------
+     The old website's membership list, read from /api/admin/old-members and
+     shown here only. Nothing on this page reads or writes the current
+     members, and nothing else in the panel reads this list. */
+
+  var om = { data: null, shown: 50, open: '' };
+
+  function omText(m) {
+    return [m.name].concat(m.aka || [], m.mobiles || [], (m.mobiles || []).map(function (x) { return x.replace(/\s/g, ''); }),
+      (m.emails || []).map(function (e) { return e.email; }), (m.numbers || []).map(function (n) { return n.number + ' ' + n.list; }),
+      m.addresses || [], m.lists || [], m.orders || []).join(' ').toLowerCase();
+  }
+
+  function omFiltered() {
+    var d = om.data || {};
+    var q = ($('#omQ') ? $('#omQ').value : '').trim().toLowerCase();
+    var qDigits = q.replace(/\D/g, '');
+    var list = $('#omList') ? $('#omList').value : '';
+    var only = $('#omOnly') ? $('#omOnly').value : '';
+    return (d.members || []).filter(function (m) {
+      if (list && (m.lists || []).indexOf(list) === -1) return false;
+      if (only === 'joined' && !(m.rowsJoined > 1)) return false;
+      if (only === 'numbers' && !((m.numbers || []).filter(function (n) { return !n.fromNote; }).length > 1)) return false;
+      if (only === 'bademail' && !(m.emails || []).some(function (e) { return e.looksWrong; })) return false;
+      if (only === 'nocontact' && ((m.mobiles || []).length || (m.emails || []).length)) return false;
+      if (!q) return true;
+      var t = omText(m);
+      return t.indexOf(q) !== -1 || (qDigits.length >= 4 && t.replace(/\s/g, '').indexOf(qDigits) !== -1);
+    });
+  }
+
+  function omNumbers(m) {
+    return (m.numbers || []).map(function (n) { return esc(n.number) + ' <span class="note">' + esc(n.list) + '</span>'; }).join('<br>') || '-';
+  }
+
+  function omRow(m) {
+    var open = om.open === m.id;
+    var email = (m.emails || [])[0];
+    var html = '<tr class="om-row" tabindex="0" data-om="' + esc(m.id) + '" aria-expanded="' + open + '">'
+      + '<td><b>' + esc(m.name || '(no name)') + '</b>' + ((m.aka || []).length ? '<span class="aka">also written ' + esc(m.aka.join(', ')) + '</span>' : '') + '</td>'
+      + '<td>' + omNumbers(m) + '</td>'
+      + '<td>' + esc((m.mobiles || [])[0] || '-') + ((m.mobiles || []).length > 1 ? ' <span class="note">+' + (m.mobiles.length - 1) + '</span>' : '') + '</td>'
+      + '<td>' + (email ? '<span' + (email.looksWrong ? ' class="bad" title="This address looks mistyped"' : '') + '>' + esc(email.email) + '</span>' : '-') + ((m.emails || []).length > 1 ? ' <span class="note">+' + (m.emails.length - 1) + '</span>' : '') + '</td>'
+      + '<td>' + esc((m.plans || []).join(', ') || '-') + '</td>'
+      + '<td>' + esc(m.joined ? when(m.joined) : '-') + '</td>'
+      + '</tr>';
+    if (open) html += '<tr class="om-more"><td colspan="6">' + omDetail(m) + '</td></tr>';
+    return html;
+  }
+
+  function omDetail(m) {
+    var d = om.data || {};
+    var fact = function (label, value) { return value ? '<div><b>' + esc(label) + '</b>' + value + '</div>' : ''; };
+    var lines = function (list) { return (list || []).map(esc).join('<br>'); };
+    var found = (m.sources || []).map(function (s) {
+      return esc(s.list + ', row ' + s.row) + (s.name && s.name !== m.name ? ' <span class="note">' + esc(s.name) + '</span>' : '')
+        + (d.canEdit && (m.sources || []).length > 1 ? '<button class="ghost om-take" type="button" data-omact="split" data-id="' + esc(m.id) + '" data-list="' + esc(s.list) + '" data-row="' + esc(s.row) + '">Take out</button>' : '');
+    }).join('<br>');
+    var mine = (d.history || []).filter(function (h) { return (h.ids || []).indexOf(m.id) !== -1; });
+    return '<div class="om-facts">'
+      + fact('Mobile', lines(m.mobiles))
+      + fact('Email', (m.emails || []).map(function (e) { return esc(e.email) + (e.looksWrong ? ' <span class="flag" data-s="new">Looks mistyped</span>' : ''); }).join('<br>'))
+      + fact('Other numbers', lines(m.otherNumbers))
+      + fact('Address', lines(m.addresses))
+      + fact('Membership number', omNumbers(m))
+      + fact('Plan', lines(m.plans))
+      + fact('Dates', lines((m.dates || []).map(when)))
+      + fact('Old site order', lines(m.orders))
+      + fact('Notes', lines(m.notes))
+      + fact('Found in', found)
+      + fact('Joined into one', m.rowsJoined > 1 ? esc(m.rowsJoined + ' rows: ' + (m.joinedBecause || []).join(', ')) : '')
+      + fact('Changed by hand', mine.map(function (h) { return esc(omWhen(h.at) + ', ' + omWho(h.by) + ': ' + h.summary) + '<br><span class="note">Why: ' + esc(h.reason) + '</span>'; }).join('<br>'))
+      + '</div>'
+      + (d.canEdit ? '<div class="om-acts"><button class="ghost" type="button" data-omact="edit" data-id="' + esc(m.id) + '">Edit details</button>'
+        + '<button class="ghost" type="button" data-omact="merge" data-id="' + esc(m.id) + '">Merge with another person</button></div>' : '');
+  }
+
+  function omTable() {
+    var node = $('#omRows');
+    if (!node) return;
+    var all = omFiltered();
+    var rows = all.slice(0, om.shown);
+    if (om.open && !rows.some(function (m) { return m.id === om.open; })) {
+      var keep = all.filter(function (m) { return m.id === om.open; })[0];
+      if (keep) rows = [keep].concat(rows.slice(0, om.shown - 1));
+    }
+    node.innerHTML = rows.length ? rows.map(omRow).join('')
+      : '<tr><td colspan="6"><div class="empty"><b>No one matches</b>Try part of a name, a mobile number or an email.</div></td></tr>';
+    $('#omMore').hidden = all.length <= om.shown;
+    say($('#paneNote'), all.length === (om.data.members || []).length ? all.length + ' people' : all.length + ' of ' + om.data.members.length + ' people');
+  }
+
+  function omPairs(review) {
+    if (!review || !review.length) return '';
+    var edit = (om.data || {}).canEdit;
+    var person = function (p) {
+      return '<div><b>' + esc(p.name) + '</b>' + esc((p.mobiles || []).join(', ')) + '<br>' + esc((p.emails || []).join(', ')) + '<br><span class="note">' + esc((p.numbers || []).concat(p.lists || []).join(' · ')) + '</span></div>';
+    };
+    return '<details class="fold"><summary>' + review.length + (review.length === 1 ? ' pair' : ' pairs') + ' to check by hand</summary>'
+      + '<p class="hint">Two different names on one mobile or email: often a parent paying for a child, or friends who joined together. They are kept as separate people. Check with them, then either join them or mark them as different people. Either way you must say why, and it goes into the history.</p>'
+      + '<div class="om-pairs">' + review.map(function (r) {
+        var a = r.people[0].id; var b = r.people[1].id;
+        return '<div class="om-pair"><span class="why">' + esc((r.reasons || []).join(' and ')) + '</span>' + r.people.map(person).join('')
+          + (edit ? '<div class="om-acts" style="grid-column:1 / -1;margin-top:0"><button class="ghost" type="button" data-omact="merge" data-id="' + esc(a) + '" data-other="' + esc(b) + '">One person: join them</button>'
+            + '<button class="ghost" type="button" data-omact="resolve" data-a="' + esc(a) + '" data-b="' + esc(b) + '">Different people</button></div>' : '')
+          + '</div>';
+      }).join('') + '</div></details>';
+  }
+
+  function omWhen(value) {
+    var t = new Date(value);
+    if (isNaN(t.getTime())) return '-';
+    return t.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  function omWho(by) { return (by && (by.name || by.email)) || 'someone'; }
+
+  function omHistory(history) {
+    var list = history || [];
+    return '<details class="fold" id="omHistory"><summary>History of changes (' + list.length + ')</summary>'
+      + '<p class="hint">Every change made by hand to this list: who made it, when, what it changed and why. Nothing here can be edited or removed.</p>'
+      + (list.length ? '<ol class="om-hist">' + list.map(function (h) {
+        return '<li><b>' + esc(h.summary) + '</b>'
+          + '<span class="who">' + esc(omWhen(h.at) + ' · ' + omWho(h.by) + (h.by && h.by.email && h.by.name ? ' (' + h.by.email + ')' : '')) + ' · change ' + esc(h.seq) + '</span>'
+          + '<span class="why">Why: “' + esc(h.reason) + '”</span>'
+          + (h.appliesNow === false ? '<span class="note">Does not apply to the copy loaded now: ' + esc(h.note) + '</span>' : '')
+          + '<details class="fold"><summary>What changed</summary>' + omCompare(h.op, h.before, h.after) + '</details></li>';
+      }).join('') + '</ol>' : '<p class="note">No changes yet.</p>')
+      + '</details>';
+  }
+
+  /* before and after: a field table for an edit, the people side by side otherwise */
+  function omCompare(op, before, after) {
+    var b = before || []; var a = after || [];
+    var FIELDS = [['name', 'Name'], ['mobiles', 'Mobile'], ['emails', 'Email'], ['addresses', 'Address'], ['numbers', 'Membership number'], ['plans', 'Plan'], ['notes', 'Notes'], ['rows', 'Rows']];
+    var val = function (x) { return Array.isArray(x) ? x.join('\n') : String(x == null ? '' : x); };
+    var html = function (x) { return esc(val(x)).replace(/\n/g, '<br>') || '(none)'; };
+    if (op === 'edit' && b[0] && a[0]) {
+      var rows = FIELDS.filter(function (f) { return val(b[0][f[0]]) !== val(a[0][f[0]]); });
+      return '<table class="om-diff"><thead><tr><th>What</th><th>Before</th><th>After</th></tr></thead><tbody>'
+        + rows.map(function (f) { return '<tr><th>' + esc(f[1]) + '</th><td class="old">' + html(b[0][f[0]]) + '</td><td>' + html(a[0][f[0]]) + '</td></tr>'; }).join('') + '</tbody></table>';
+    }
+    var card = function (p) {
+      return '<div class="om-card"><b>' + esc(p.name) + '</b>' + html(p.mobiles) + '<br>' + html(p.emails) + '<br><span class="note">' + esc((p.numbers || []).join(', ')) + '</span><br><span class="note">' + esc((p.rows || []).length + ((p.rows || []).length === 1 ? ' row: ' : ' rows: ') + (p.rows || []).join(', ')) + '</span></div>';
+    };
+    if (op === 'resolve') return '<div class="om-side">Kept as two different people</div><div class="om-cards">' + b.map(card).join('') + '</div>';
+    return '<div class="om-side">Before</div><div class="om-cards">' + b.map(card).join('') + '</div>'
+      + '<div class="om-side">After</div><div class="om-cards">' + a.map(card).join('') + '</div>';
+  }
+
+  /* ---- a change by hand: three screens, two confirmations ----------------
+     1 the change and why; 2 check the exact before and after (the server
+     works it out and holds it for 15 minutes); 3 type CONFIRM to save. A
+     reason that does not say why is refused by the server at step 1. */
+  var omc = null;
+  function omPerson(id) { return ((om.data || {}).members || []).filter(function (m) { return m.id === id; })[0]; }
+  function omSheet(html) {
+    var sheet = $('#omSheet');
+    $('#omBox').innerHTML = html;
+    sheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+    var first = $('#omBox').querySelector('input:not([type=radio]),textarea,button.om-go');
+    if (first) setTimeout(function () { first.focus(); }, 30);
+  }
+  function omClose() {
+    $('#omSheet').hidden = true;
+    document.body.style.overflow = '';
+    omc = null;
+  }
+  var OM_TITLES = { edit: 'Edit details', merge: 'Join two people into one', split: 'Take a row out', resolve: 'Mark as different people' };
+  var OM_REASON_HINT = 'Say why, in a full sentence someone else will understand later. A change without a clear reason is not saved.';
+
+  function omStart(op, el) {
+    omc = { op: op, id: el.getAttribute('data-id'), other: el.getAttribute('data-other') || '', a: el.getAttribute('data-a'), b: el.getAttribute('data-b'),
+      list: el.getAttribute('data-list'), row: el.getAttribute('data-row'), keep: '', reason: '' };
+    omStepOne();
+  }
+
+  function omStepOne() {
+    var c = omc; var body = '';
+    var m = omPerson(c.id);
+    if (c.op === 'edit') {
+      var box = function (id, label, list, note) {
+        return '<label for="' + id + '">' + esc(label) + (note ? ' <span class="note">' + esc(note) + '</span>' : '') + '</label><textarea id="' + id + '" rows="2">' + esc((list || []).join('\n')) + '</textarea>';
+      };
+      body = '<label for="omEdName">Name</label><input type="text" id="omEdName" value="' + esc(m.name) + '">'
+        + box('omEdMob', 'Mobile', m.mobiles, 'one per line') + box('omEdEm', 'Email', (m.emails || []).map(function (e) { return e.email; }), 'one per line')
+        + box('omEdAddr', 'Address', m.addresses, 'one per line') + box('omEdPlan', 'Plan', m.plans) + box('omEdNotes', 'Notes', m.notes, 'one per line');
+    } else if (c.op === 'merge') {
+      var other = c.other ? omPerson(c.other) : null;
+      body = '<p>Join two records of the same person into one. Every row of both is kept, under one person.</p>'
+        + '<div class="om-cards"><div class="om-card"><b>' + esc(m.name) + '</b>' + esc((m.mobiles || []).join(', ')) + '<br>' + esc((m.emails || []).map(function (e) { return e.email; }).join(', ')) + '</div>'
+        + (other ? '<div class="om-card"><b>' + esc(other.name) + '</b>' + esc((other.mobiles || []).join(', ')) + '<br>' + esc((other.emails || []).map(function (e) { return e.email; }).join(', ')) + '</div>' : '') + '</div>'
+        + (other ? '' : '<label for="omPickQ">Who to join with</label><input type="search" id="omPickQ" placeholder="Name, mobile or email"><div class="om-picks" id="omPicks"></div>')
+        + '<div class="om-keep" id="omKeep">' + (other ? omKeepChoice(m, other) : '') + '</div>';
+    } else if (c.op === 'split') {
+      body = '<p>Take <b>' + esc(c.list + ', row ' + c.row) + '</b> out of <b>' + esc(m.name) + '</b>. It becomes a person of its own; the other rows stay with ' + esc(m.name) + '.</p>';
+    } else if (c.op === 'resolve') {
+      var pa = omPerson(c.a); var pb = omPerson(c.b);
+      body = '<p><b>' + esc(pa.name) + '</b> and <b>' + esc(pb.name) + '</b> share a contact. Mark them as two different people: they stay separate and leave the list to check.</p>';
+    }
+    omSheet('<p class="om-step">Step 1 of 3 · The change</p><h2 id="omSheetTitle">' + esc(OM_TITLES[c.op]) + '</h2>' + body
+      + '<label for="omWhy">Why are you making this change?</label><textarea id="omWhy" rows="3" placeholder="For example: same mobile and address; she confirmed on the phone that she joined twice.">' + esc(c.reason) + '</textarea>'
+      + '<div class="count">' + esc(OM_REASON_HINT) + '</div>'
+      + '<p class="om-err" id="omErr" aria-live="polite"></p>'
+      + '<div class="om-foot"><button class="ghost" type="button" data-omsheet="close">Cancel</button><button class="om-go" type="button" data-omsheet="review">Review the change</button></div>');
+    if (c.op === 'merge' && !c.other) omPicks('');
+  }
+
+  function omKeepChoice(a, b) {
+    omc.keep = omc.keep || a.id;
+    var opt = function (p) { return '<label><input type="radio" name="omKeep" value="' + esc(p.id) + '"' + (omc.keep === p.id ? ' checked' : '') + '> Keep the record of ' + esc(p.name) + ' (' + esc(p.id) + ')</label>'; };
+    return '<label>Which record stays (its name and number are kept)</label>' + opt(a) + opt(b);
+  }
+
+  function omPicks(q) {
+    var node = $('#omPicks'); if (!node) return;
+    var t = String(q || '').trim().toLowerCase();
+    var list = ((om.data || {}).members || []).filter(function (m) { return m.id !== omc.id && (!t || omText(m).indexOf(t) !== -1 || (t.replace(/\D/g, '').length >= 4 && omText(m).replace(/\s/g, '').indexOf(t.replace(/\D/g, '')) !== -1)); }).slice(0, 30);
+    node.innerHTML = list.map(function (m) {
+      return '<button type="button" data-ompick="' + esc(m.id) + '" aria-pressed="' + (omc.other === m.id) + '"><b>' + esc(m.name) + '</b> <span class="note">' + esc([(m.mobiles || [])[0], ((m.emails || [])[0] || {}).email, (m.lists || []).join(', ')].filter(Boolean).join(' · ')) + '</span></button>';
+    }).join('') || '<p class="note" style="padding:10px">No one matches.</p>';
+  }
+
+  function omPayload() {
+    var c = omc;
+    if (c.op === 'edit') {
+      var lines = function (id) { return $(id).value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean); };
+      return { op: 'edit', id: c.id, set: { name: $('#omEdName').value, mobiles: lines('#omEdMob'), emails: lines('#omEdEm'), addresses: lines('#omEdAddr'), plans: lines('#omEdPlan'), notes: lines('#omEdNotes') } };
+    }
+    if (c.op === 'merge') {
+      var keep = (document.querySelector('input[name=omKeep]:checked') || {}).value || c.id;
+      return { op: 'merge', keep: keep, absorb: keep === c.id ? c.other : c.id };
+    }
+    if (c.op === 'split') return { op: 'split', id: c.id, list: c.list, row: Number(c.row) };
+    return { op: 'resolve', a: c.a, b: c.b };
+  }
+
+  function omReview() {
+    var c = omc; var err = $('#omErr');
+    c.reason = $('#omWhy').value;
+    if (c.op === 'merge' && !c.other) { say(err, 'Choose who to join with.'); return; }
+    if (c.op === 'edit') c.draft = omPayload();
+    var payload = c.op === 'edit' ? c.draft : omPayload();
+    var btn = $('#omBox').querySelector('[data-omsheet="review"]');
+    btn.disabled = true; say(err, 'Working out the change…');
+    api('/api/admin/old-members', { method: 'POST', body: { action: 'propose', change: payload, reason: c.reason } }).then(function (p) {
+      c.proposal = p;
+      omStepTwo();
+    }).catch(function (e) { btn.disabled = false; say(err, (e && e.message) || 'That could not be checked.'); });
+  }
+
+  function omStepTwo() {
+    var p = omc.proposal;
+    omSheet('<p class="om-step">Step 2 of 3 · Check it</p><h2 id="omSheetTitle">Is this right?</h2>'
+      + '<p><b>' + esc(p.summary) + '</b></p>' + omCompare(p.op, p.before, p.after)
+      + (p.warnings && p.warnings.length ? '<div class="om-warn"><b>Note:</b> ' + p.warnings.map(esc).join(' ') + '</div>' : '')
+      + '<div class="om-said"><b>Why:</b> “' + esc(p.reason) + '”<br><span class="note">Recorded with your name, ' + esc(omWho(me)) + ', and the time. It cannot be edited or removed later.</span></div>'
+      + '<p class="om-err" id="omErr" aria-live="polite"></p>'
+      + '<div class="om-foot"><button class="ghost" type="button" data-omsheet="back1">Back</button><button class="om-go" type="button" data-omsheet="ok">Yes, this is right</button></div>');
+  }
+
+  function omStepThree() {
+    var p = omc.proposal;
+    omSheet('<p class="om-step">Step 3 of 3 · Confirm</p><h2 id="omSheetTitle">Confirm the change</h2>'
+      + '<p>' + esc(p.summary) + '.</p>'
+      + '<label for="omWord">Type ' + esc(p.confirmWord || 'CONFIRM') + ' to save it</label><input type="text" id="omWord" autocomplete="off" autocapitalize="characters" spellcheck="false">'
+      + '<p class="om-err" id="omErr" aria-live="polite"></p>'
+      + '<div class="om-foot"><button class="ghost" type="button" data-omsheet="back2">Back</button><button class="om-go" type="button" data-omsheet="save" disabled>Save the change</button></div>');
+  }
+
+  function omSave() {
+    var p = omc.proposal; var err = $('#omErr');
+    var btn = $('#omBox').querySelector('[data-omsheet="save"]');
+    btn.disabled = true; say(err, 'Saving…');
+    api('/api/admin/old-members', { method: 'POST', body: { action: 'confirm', proposalId: p.proposalId, confirm: $('#omWord').value.trim() } }).then(function () {
+      var keepOpen = omc.op === 'merge' ? (omPayload().keep || '') : omc.id || '';
+      omClose();
+      oldMembers(keepOpen);
+    }).catch(function (e) { btn.disabled = false; say(err, (e && e.message) || 'That could not be saved.'); });
+  }
+
+  $('#omSheet').addEventListener('click', function (e) {
+    var t = e.target;
+    if (t === $('#omSheet')) return;
+    var act = t.closest && t.closest('[data-omsheet]');
+    var pick = t.closest && t.closest('[data-ompick]');
+    if (pick) {
+      omc.other = pick.getAttribute('data-ompick');
+      $$('#omPicks [data-ompick]').forEach(function (b) { b.setAttribute('aria-pressed', String(b === pick)); });
+      $('#omKeep').innerHTML = omKeepChoice(omPerson(omc.id), omPerson(omc.other));
+      return;
+    }
+    if (!act) return;
+    var a = act.getAttribute('data-omsheet');
+    if (a === 'close') omClose();
+    else if (a === 'review') omReview();
+    else if (a === 'back1') { omStepOne(); if (omc.op === 'edit' && omc.draft) omRefill(omc.draft); }
+    else if (a === 'ok') omStepThree();
+    else if (a === 'back2') omStepTwo();
+    else if (a === 'save') omSave();
+  });
+  $('#omSheet').addEventListener('input', function (e) {
+    if (e.target.id === 'omPickQ') omPicks(e.target.value);
+    if (e.target.id === 'omWord') $('#omBox').querySelector('[data-omsheet="save"]').disabled = e.target.value.trim() !== ((omc && omc.proposal && omc.proposal.confirmWord) || 'CONFIRM');
+    if (e.target.name === 'omKeep') omc.keep = e.target.value;
+  });
+  $('#omSheet').addEventListener('change', function (e) { if (e.target.name === 'omKeep') omc.keep = e.target.value; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#omSheet').hidden) omClose(); });
+
+  function omRefill(d) {
+    var s = d.set || {};
+    $('#omEdName').value = s.name || '';
+    [['#omEdMob', 'mobiles'], ['#omEdEm', 'emails'], ['#omEdAddr', 'addresses'], ['#omEdPlan', 'plans'], ['#omEdNotes', 'notes']].forEach(function (f) { $(f[0]).value = (s[f[1]] || []).join('\n'); });
+  }
+
+  function omSource(d) {
+    var s = d.stats || {};
+    var sheets = (s.sheets || []).filter(function (x) { return x.rows; }).map(function (x) { return esc(x.list) + ' ' + x.rows; }).join(' · ');
+    return '<details class="fold"><summary>Where this list came from</summary><div class="om-src">'
+      + '<div>' + esc(d.fileName || 'The workbook') + ', loaded ' + esc(when(d.importedAt)) + (d.importedBy ? ' by ' + esc(d.importedBy) : '') + '</div>'
+      + '<div>' + (s.rowsRead || 0) + ' filled rows read: ' + sheets + '</div>'
+      + '<div>' + (s.emptyNumbersSkipped || 0) + ' membership numbers with nobody against them were skipped.</div>'
+      + (s.idsLeftOut ? '<div>' + s.idsLeftOut + ' Aadhaar and PAN numbers in the sheet were left out on purpose. They are not kept here.</div>' : '')
+      + ((s.skippedSheets || []).length ? '<div>Sheets not read (no Name heading): ' + esc(s.skippedSheets.join(', ')) + '</div>' : '')
+      + '</div></details>';
+  }
+
+  function omLoader(first) {
+    var body = '<p class="lab">' + (first ? 'Load the old list' : 'Load a newer copy') + '</p>'
+      + '<p class="hint">Choose the old site’s membership workbook (.xlsx). Every row is read, duplicates are joined into one person, and the list replaces the one shown here. The earlier copy is kept, not deleted. The current members are not touched.</p>'
+      + '<input type="file" id="omFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="The old membership workbook">'
+      + '<button class="om-go" type="button" id="omLoad">Load the list</button> <span class="note" id="omSaid" aria-live="polite"></span>';
+    return first ? '<div class="om-load">' + body + '</div>'
+      : '<details class="fold"><summary>Load a newer copy</summary><div class="om-load">' + body + '</div></details>';
+  }
+
+  function oldMembers(keepOpen) {
+    var node = $('[data-pane="oldmembers"]');
+    node.innerHTML = '<div class="loading">Reading the old list…</div>';
+    api('/api/admin/old-members').then(function (d) {
+      om.data = d; om.shown = 50; om.open = typeof keepOpen === 'string' ? keepOpen : '';
+      var apart = '<p class="om-apart"><b>From the old website.</b> These people are not in the current members register, hold no card here, and are counted nowhere else in this panel.</p>';
+      if (d.empty) {
+        node.innerHTML = apart + (d.canImport ? omLoader(true)
+          : '<div class="empty"><b>Not loaded yet</b>A super administrator loads the old list here.</div>');
+        say($('#paneNote'), '');
+        return;
+      }
+      var s = d.stats || {};
+      var lists = {};
+      (d.members || []).forEach(function (m) { (m.lists || []).forEach(function (l) { lists[l] = (lists[l] || 0) + 1; }); });
+      var listNames = Object.keys(lists).sort(function (a, b) { return a === 'Master list' ? -1 : b === 'Master list' ? 1 : a.localeCompare(b); });
+      node.innerHTML = apart
+        + '<div class="om-head"><span class="n">' + (s.people || d.members.length) + '</span><span class="sub">people, each once · '
+        + (s.rowsJoined || 0) + ' duplicate rows joined from ' + (s.rowsRead || 0) + ((d.history || []).length ? ' · ' + d.history.length + ((d.history.length === 1) ? ' change' : ' changes') + ' by hand' : '') + '</span>'
+        + '</div>'
+        + '<p class="hint" id="omHow">A row joins another only on strong evidence: the same mobile, the same email (ignoring capitals, dots in Gmail and obvious slips), or the same membership number, and only when the names agree (the same words, one name inside the other, or a close spelling). Two different names on one mobile or email are never joined; they are listed below to check by hand.</p>'
+        + '<div class="tools om-tools">'
+        + '<input type="search" id="omQ" placeholder="Name, mobile, email or number" aria-label="Search the old list">'
+        + '<select id="omList" aria-label="List"><option value="">Every list</option>' + listNames.map(function (l) { return '<option value="' + esc(l) + '">' + esc(l) + ' (' + lists[l] + ')</option>'; }).join('') + '</select>'
+        + '<select id="omOnly" aria-label="Show"><option value="">Everyone</option><option value="joined">Joined from several rows</option><option value="numbers">Has two membership numbers</option><option value="bademail">Email looks mistyped</option><option value="nocontact">No mobile or email</option></select>'
+        + '<button class="ghost" type="button" id="omCsv">Download CSV</button>'
+        + '</div>'
+        + '<div class="wrap"><table><thead><tr><th>Name</th><th>Membership no.</th><th>Mobile</th><th>Email</th><th>Plan</th><th>Joined</th></tr></thead><tbody id="omRows"></tbody></table></div>'
+        + '<div class="more"><button class="ghost" type="button" id="omMore" hidden>Show more</button></div>'
+        + omPairs(d.review) + omHistory(d.history) + omSource(d) + (d.canImport ? omLoader(false) : '');
+      omTable();
+    }).catch(function (e) { fail(node, e); });
+  }
+
+  function omCsv() {
+    var cell = function (v) {
+      var s = String(v == null ? '' : v);
+      if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+      return '"' + s.replace(/"/g, '""') + '"';
+    };
+    var head = ['Name', 'Also written', 'Membership numbers', 'Lists', 'Mobiles', 'Emails', 'Address', 'Plan', 'First date', 'Old site orders', 'Notes', 'Rows joined', 'Found in'];
+    var rows = omFiltered().map(function (m) {
+      return [m.name, (m.aka || []).join('; '), (m.numbers || []).map(function (n) { return n.number + ' (' + n.list + ')'; }).join('; '), (m.lists || []).join('; '),
+        (m.mobiles || []).join('; '), (m.emails || []).map(function (e) { return e.email; }).join('; '), (m.addresses || []).join(' | '), (m.plans || []).join('; '),
+        m.joined || '', (m.orders || []).join('; '), (m.notes || []).join(' | '), m.rowsJoined, (m.sources || []).map(function (s) { return s.list + ' row ' + s.row; }).join('; ')].map(cell).join(',');
+    });
+    var blob = new Blob(['\ufeff' + [head.map(cell).join(',')].concat(rows).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'pfa-old-site-members.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  function omImport() {
+    var input = $('#omFile');
+    var file = input && input.files && input.files[0];
+    var said = $('#omSaid');
+    if (!file) { say(said, 'Choose the .xlsx file first.', 'bad'); return; }
+    if (!/\.xlsx$/i.test(file.name)) { say(said, 'That is not an .xlsx workbook.', 'bad'); return; }
+    if (file.size > 9 * 1024 * 1024) { say(said, 'That file is too large.', 'bad'); return; }
+    var button = $('#omLoad');
+    button.disabled = true;
+    say(said, 'Reading and joining duplicates…');
+    var reader = new FileReader();
+    reader.onerror = function () { button.disabled = false; say(said, 'That file could not be opened.', 'bad'); };
+    reader.onload = function () {
+      api('/api/admin/old-members', { method: 'POST', body: { action: 'import', fileName: file.name, data: String(reader.result || '') } }).then(function (r) {
+        var s = r.stats || {};
+        say(said, 'Loaded: ' + s.people + ' people from ' + s.rowsRead + ' rows.', 'good');
+        oldMembers();
+      }).catch(function (e) { button.disabled = false; say(said, (e && e.message) || 'That could not be loaded.', 'bad'); });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t.closest) return;
+    if (t.id === 'omMore') { om.shown += 100; omTable(); return; }
+    if (t.id === 'omCsv') { omCsv(); return; }
+    if (t.id === 'omLoad') { omImport(); return; }
+    var act = t.closest('[data-omact]');
+    if (act) { omStart(act.getAttribute('data-omact'), act); return; }
+    var row = t.closest('.om-row');
+    if (row) { var id = row.getAttribute('data-om'); om.open = om.open === id ? '' : id; omTable(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    var row = e.target.closest && e.target.closest('.om-row');
+    if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); row.click(); }
+  });
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'omQ') { om.shown = 50; om.open = ''; omTable(); }
+  });
+  document.addEventListener('change', function (e) {
+    if (e.target.id === 'omList' || e.target.id === 'omOnly') { om.shown = 50; om.open = ''; omTable(); }
+  });
+
   var gs = { seq: 0, rows: [], at: -1, timer: null, server: [], client: [], q: '', site: null, siteAsked: false, busy: false };
   var GS_GROUPS = [['case', 'Cases'], ['payment', 'Payments'], ['card', 'Colony cards'], ['email', 'Emails'],
     ['person', 'People'], ['audit', 'Audit log'], ['page', 'Website: pages and sections'], ['panel', 'In the panel']];
@@ -3090,6 +3598,7 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Print and post', line: 'Print approved cards and post them', tab: 'caregivers', anchor: '[data-pane="cards"]', words: 'issue print pdf bulk post posted cards' },
     { title: 'Card studio', line: 'A card front and back, actual size, PDF, A4 and PNG', tab: 'caregivers', anchor: '[data-pane="caregivers"]', words: 'card studio preview front back print pdf png a4 paper actual size photo' },
     { title: 'Website', line: 'Show or hide pages and sections', tab: 'website', words: 'website visibility visible hidden hide show pages sections public site' },
+    { title: 'Old site members', line: 'The old website\u2019s membership list, kept apart', tab: 'oldmembers', words: 'old site members membership list legacy previous earlier website joined before workbook excel' },
     { title: 'People & audit', line: 'Who can use the panel, and what they did', tab: 'people', words: 'people staff admins accounts access permissions invite roles add person user login password team' },
     { title: 'History', line: 'Who changed what in the panel', tab: 'people', anchor: '#auQ', words: 'audit log history actions who did changed changes' },
     { title: 'Email', line: 'Copies to PFA\u2019s inbox, failures and Send again', tab: 'overview', anchor: '#mailbox', module: 'submissions', words: 'email mail inbox gandhim smtp godaddy sent failed resend send again test copies' },
