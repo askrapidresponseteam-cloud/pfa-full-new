@@ -50,7 +50,7 @@
       k: 'fir refuse refused police station magistrate bnss 173 175 complaint',
       q: ['fir refused', 'fir not registered', 'police refuse fir', 'police not helping', 'police refuse'] },
     { t: 'Apply for a colony caregiver card', s: 'Do something', y: 'action', u: 'get-involved.html#caregiver',
-      d: 'The application: about you, your colony, a \u20b950 fee, and a named person at PFA decides. You get an application number the moment the fee clears.',
+      d: 'The application: about you, your colony, a free card with \u20b950 for postage only, and a named person at PFA decides. You get an application number the moment the fee clears.',
       k: 'become a caregiver colony caregiver card apply id identity feeder feeding community dogs colony caregiver application register form abc rules rwa',
       q: ['caregiver card', 'colony caregiver', 'become a caregiver', 'feeder card', 'feeder id', 'feeding card', 'dog feeder id card'] },
     { t: 'Is feeding community dogs legal? Caregiver rights', s: 'Laws', y: 'law', u: 'laws.html#a10',

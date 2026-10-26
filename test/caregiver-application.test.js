@@ -130,3 +130,19 @@ test('nothing is called a caretaker any more', () => {
   }
   assert.deepEqual(hits, [], `still says caretaker: ${hits.join(', ')}`);
 });
+
+/* Owner, 26 Oct 2026: "mention that this card is issued for free. and rs 50
+   is charged for postage only." Said on the card step, at the fee, in the
+   letter and on the receipt, and nothing still calls it a fee for reading. */
+test('the card is free and the fifty rupees is postage only, everywhere it is described', () => {
+  const page = fs.readFileSync(path.join(__dirname, '..', 'get-involved.html'), 'utf8');
+  assert.match(page, /<p>The card is issued free\. The only charge is &#8377;50, for postage, to send the printed card to you\.<\/p>/);
+  assert.match(page, /The card is free\. The &#8377;50 is for postage only/);
+  const mail = fs.readFileSync(path.join(__dirname, '..', 'lib', 'caregiver-mail.js'), 'utf8');
+  assert.match(mail, /The card is free\. The fee is for postage only/);
+  const receipt = fs.readFileSync(path.join(__dirname, '..', 'lib', 'routes', 'payment', 'response.js'), 'utf8');
+  assert.match(receipt, /row\('Postage', 'The card is free\. This is for postage only/);
+  for (const text of [page, mail, receipt]) {
+    assert.doesNotMatch(text, /pays for the reading|fee is not refunded|confirms the application/i);
+  }
+});

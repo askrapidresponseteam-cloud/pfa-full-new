@@ -11,7 +11,8 @@
   - A new queue, To dispatch: printed cards, each with a courier and tracking number to enter, then Dispatched. The member is emailed the courier and tracking number (never the card), and the record moves to Sent by courier.
   - Every letter, the welcome page and the photo page now say the card comes by courier; none carries the card or an image of it.
 - **Panel: Close sits in the top right corner of a case.** Owner, 26 Oct 2026: "why close is close to text. it should at right top corner". The shared close style was cancelling the push to the right; the case title now takes the free width, so Close is in the corner on every screen.
-- Checked: test/admin-drawer-close.test.js, test/pictures-whole.test.js (every photo frame whole, no hover zoom), test/membership-card.test.js (dispatch needs a printed card, a courier and a tracking number, once; no letter carries the card), the full suite, and the changed pages in Chromium on a laptop, a tablet and a phone.
+- **Colony caregiver card: free, with ₹50 for postage only.** Owner, 26 Oct 2026: "mention that this card is issued for free. and rs 50 is charged for postage only." Said on the card step ("The card is issued free. The only charge is ₹50, for postage, to send the printed card to you."), beside the Pay ₹50 button, in the application letter, on the payment receipt and in site search. The old line that the fee pays for reading the application and is not refunded is gone; refunds are not mentioned.
+- Checked: test/caregiver-application.test.js (free card and postage wording everywhere), test/admin-drawer-close.test.js, test/pictures-whole.test.js (every photo frame whole, no hover zoom), test/membership-card.test.js (dispatch needs a printed card, a courier and a tracking number, once; no letter carries the card), the full suite, and the changed pages in Chromium on a laptop, a tablet and a phone.
 
 ## v1.468
 
