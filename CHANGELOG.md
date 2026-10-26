@@ -1,3 +1,17 @@
+## v1.469
+
+- **No person is cut by a frame, anywhere on the site.** Owner, 26 Oct 2026: "no person's head or any part can be clipped anywhere. fix thoroughly". Every page was scanned in Chromium at 1440 and 390 pixels wide, measuring how much of each photograph its frame cuts away, and each one holding people was fixed:
+  - **Shop:** the hand of four cards at the top is spread so no card covers another, and each card and every grid, feature and cart photograph is framed at the photographs' own 2:3 and shown whole. On a phone the hand is two by two. No zoom on hover.
+  - **CineKind:** the poster wall is set to each photograph's true shape; the 2026 honours roll, the 2025 winners, the night's mosaic, the film strip, the trophy feature and the red carpet film are shown whole on the dark ground; no hover zoom or scroll drift pushes a photograph past its edge.
+  - **Home:** on a phone the hero photograph of her with the dog is whole under the words, and the hero is only as tall as the words and the photograph, with no white gap. The founder band stacks the photograph above the words on a phone and tablet, and on a desktop it never gets narrow enough to cut her or the dog.
+  - **Events, Newsroom, Founder, Academy, and the shared photo frames** (assets/micro.css, assets/theatre.css): whole photographs, no hover zoom. Upload previews on the report, ask, careers and get-involved forms show the whole picture.
+  - The only crops left are the CineKind title artwork (a CGI scene, the trophy kept whole) and scrolling strips whose next frame is partly off screen until scrolled.
+- **Membership cards: the printed card is the only copy, sent by courier.** Owner, 26 Oct 2026, a standing rule: "admin should be able to preview the actual membership card before issuing. and issuing cannot send any digital copies. only physical copy will be issued to end user. and it will be dispatched through a courier."
+  - Preview card shows the actual card, front and back, before Approve.
+  - A new queue, To dispatch: printed cards, each with a courier and tracking number to enter, then Dispatched. The member is emailed the courier and tracking number (never the card), and the record moves to Sent by courier.
+  - Every letter, the welcome page and the photo page now say the card comes by courier; none carries the card or an image of it.
+- Checked: test/pictures-whole.test.js (every photo frame whole, no hover zoom), test/membership-card.test.js (dispatch needs a printed card, a courier and a tracking number, once; no letter carries the card), the full suite, and the changed pages in Chromium on a laptop, a tablet and a phone.
+
 ## v1.468
 
 - **Membership cards: the member sends a photograph, PFA approves it, the card is printed.** Owner, 26 Oct 2026: "admin should have option to send email to the applicant to upload photo. once they upload the application should come to pfa for approval and card generation. do an enterprise grade work".

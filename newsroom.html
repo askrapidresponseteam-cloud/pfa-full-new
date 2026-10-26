@@ -174,7 +174,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
    while it loads. The banner runs the full width; the two photographs
    beneath share a row at the same aspect, so their bottom edges agree. */
 .frame{position:relative;background:var(--stone);overflow:hidden}
-.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 50%}
 .leg__figs{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:0}
 .leg__figs .frame{aspect-ratio:3/2}
 /* The two under the banner, each its own shape (22 Oct 2026): their columns
@@ -262,7 +262,8 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .nr-tile--wide{grid-column:1 / 3}
 .nr-tile--small .nr-tile__title{font-size:clamp(20px,1.7vw,26px)}
 .nr-tile__img{position:absolute;inset:0;margin:0;background:#dfe3ea}
-.nr-tile__img img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+/* whole photographs, never cut (owner, 26 Oct 2026: "no person's head or any part can be clipped anywhere") */
+.nr-tile__img img{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 50%}
 .nr-tile__body{position:relative;padding:20px}
 .nr-tile--photo .nr-tile__body{padding:64px 22px 20px;color:#fff;background:linear-gradient(to top,rgba(0,0,0,.84),rgba(0,0,0,.52) 58%,rgba(0,0,0,0))}
 .nr-tile--photo[data-noimg] .nr-tile__body{color:var(--nr-ink);background:none}
@@ -314,7 +315,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
    max-height looked equivalent and was not: once the cap bit, Chrome kept the
    ratio by narrowing the frame instead, 704px in a 711px card. */
 .nr-card__img{margin:0 -20px 16px;height:min(400px,calc((var(--inner) + 40px) * 10 / 16));overflow:hidden;background:#dfe3ea}
-.nr-card__img img{display:block;width:100%;height:100%;object-fit:cover}
+.nr-card__img img{display:block;width:100%;height:100%;object-fit:contain}
 .nr-card[data-noimg]{padding-top:20px}
 /* Sized from the desk, not the card. A card cannot be its own size container:
    that applies layout containment, and a contained element is never a

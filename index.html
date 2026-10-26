@@ -2,7 +2,7 @@
 <html lang="en" data-pfa-tabs>
 <head>
 <meta charset="utf-8">
-<meta name="pfa-build" content="v1.468">
+<meta name="pfa-build" content="v1.469">
 <title>People for Animals | India’s largest animal welfare organisation</title>
 <meta name="description" content="Report cruelty, find your nearest unit, read what the law actually says, or give. People for Animals turns moments of crisis into second chances for animals across the country.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -134,7 +134,16 @@ section[data-screen-label="Hero"]{
   /* the photograph's own top edge, left to right (rgb 252 to 247), so where
      it starts under the words there is no line to see */
   background:linear-gradient(to right,#fcfbfc 0%,#fcfcfc 42%,#faf9fa 58%,#f9f9f9 74%,#f7f7f7 92%)}
-section[data-screen-label="Hero"] #hero-media{display:block;flex:1 0 auto;min-height:60vw;width:100%;height:0;object-fit:cover;object-position:56% 6%;
+/* Whole on a phone and a tablet held upright: the photograph is contained,
+   sitting on the hero's floor, never cropped at the sides as it was (her
+   elbow and the dog's ear went; owner, 26 Oct 2026: "no person's head or
+   any part can be clipped anywhere"). What it does not fill is the hero's
+   own background, which is the photograph's own edge colour (above). The
+   hero is then as tall as the words and the whole photograph (3:2, two
+   thirds of the screen's width), not stretched to the screen with a white
+   gap above her. */
+@media not all and (min-width:901px) and (min-aspect-ratio:23/20){section[data-screen-label="Hero"]{min-height:0}}
+section[data-screen-label="Hero"] #hero-media{display:block;flex:none;min-height:0;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain;object-position:50% 100%;
   filter:grayscale(1);transition:filter 2s ease}
 section[data-screen-label="Hero"].is-colour #hero-media{filter:grayscale(0)}
 section[data-screen-label="Hero"].is-veiled h1{opacity:0;transform:translateY(28px);transition:none}
@@ -178,6 +187,12 @@ section[data-screen-label="Hero"].is-waking .pfa-heroin > div{transition:opacity
    fix. Grayscale until it arrives on screen, then the same two-second
    bloom (.arrive-bloom, woken by the IntersectionObserver below). ---------- */
 .pfa-fndr{position:relative;isolation:isolate;display:flex;min-height:min(92svh,920px);background:var(--stone);color:#fff;overflow:hidden}
+/* Never so wide that she or the dog is cut (owner, 26 Oct 2026: "no
+   person's head or any part can be clipped anywhere"). The photograph is
+   3:2 and pinned to its top; she and the dog sit in its top two thirds, so
+   the band is never more than 2.3 times as wide as it is tall, however wide
+   the screen: only the desk below them is ever left out. */
+@media (min-width:861px){.pfa-fndr{min-height:min(max(min(92svh,920px),43.5vw),90vw)}}
 .pfa-fndr__media{position:absolute;inset:0;z-index:0}
 .pfa-fndr__media img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 0}
 .arrive-bloom img{filter:grayscale(1);transition:filter 2s ease}
@@ -198,11 +213,15 @@ section[data-screen-label="Hero"].is-waking .pfa-heroin > div{transition:opacity
 .pfa-fndr__who b{display:block;margin-bottom:8px;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff}
 .pfa-fndr__door{flex:none;background:#fff;border:1px solid #fff;color:#111;padding:15px 33px;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 @media (max-width:860px){
-  .pfa-fndr{min-height:80svh}
-  /* narrow frames crop the sides of the 3:2 photograph; biased right so she
-     and the dog both stay in the frame */
-  .pfa-fndr__media img{object-position:62% 0}
-  .pfa-fndr__in{padding:96px var(--g) 40px}
+  /* A narrow screen cannot hold the 3:2 photograph behind the words without
+     cutting her or the dog off at the sides (it used to). So the photograph
+     comes first, whole, at its own shape, and the words follow on the dark
+     ground beneath it. */
+  .pfa-fndr{min-height:0;flex-direction:column;background:#111}
+  .pfa-fndr__media{position:relative;inset:auto;aspect-ratio:3/2}
+  .pfa-fndr__media img{object-fit:contain;object-position:50% 50%}
+  .pfa-fndr__scrim{display:none}
+  .pfa-fndr__in{padding:28px var(--g) 40px}
 }
 </style>
 

@@ -448,6 +448,9 @@ details.fold[open] > summary{margin-bottom:8px}
 [data-pane="membership"] .linky{padding:0;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 [data-pane="membership"] .say{margin:12px 0 0}
 [data-pane="membership"] .say:empty{display:none}
+.mq-courier{display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.mq-courier input{font:inherit;font-size:13px;height:38px;padding:0 10px;border:1px solid var(--line);width:130px;background:var(--paper)}
+.mq-courier .press{width:auto;padding:0 16px;min-height:38px}
 /* the card's own rounded corners, not a white square behind them */
 [data-pane="membership"] .ap canvas,#memberView canvas{border:0;background:none;border-radius:3.74%/5.93%}
 @media (max-width:760px){.mq-bar{width:100%}.mq-tab{flex:1 1 auto;justify-content:center}}
@@ -887,7 +890,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <figure><canvas data-face="front" aria-label="The front of the membership card"></canvas><figcaption>Front</figcaption></figure>
       <figure><canvas data-face="back" aria-label="The back of the membership card"></canvas><figcaption>Back</figcaption></figure>
     </div>
-    <p class="note">Card printer: Print this card, one face a page at 85.6 x 54 mm, at 100% with headers and footers off. The printed card is the only copy; it is never emailed.</p>
+    <p class="note">Card printer: Print this card, one face a page at 85.6 x 54 mm, at 100% with headers and footers off. The printed card is the only copy: it goes to the member by courier, and is never emailed or shared.</p>
   </div>
 </div>
 
@@ -4098,8 +4101,9 @@ window.addEventListener('unhandledrejection', function (event) {
   var MQ = {
     ask:      { label: 'Ask for photo',  queues: ['request', 'lapsed'], hint: 'Paid members with no photograph yet. Tick and press Email photo link: each gets a private link, valid for 14 days, to send their photograph.' },
     waiting:  { label: 'Waiting',        queues: ['waiting'],           hint: 'A link has gone and the member has not used it yet. Send a new link if they lost it; the old one stops working.' },
-    review:   { label: 'To approve',     queues: ['review'],            hint: 'Photographs that have arrived. Check the face and the card, then Approve, or ask for another photograph and say why.' },
-    approved: { label: 'To print',       queues: ['approved'],          hint: 'Approved cards. Print them on the card printer, then mark them printed. The printed card is the only copy, and it is posted to the member.' },
+    review:   { label: 'To approve',     queues: ['review'],            hint: 'Photographs that have arrived. Preview the actual card, front and back, then Approve, or ask for another photograph and say why. Approving sends the member no copy of the card.' },
+    approved: { label: 'To print',       queues: ['approved'],          hint: 'Approved cards. Preview, print on the card printer, then mark them printed. Nothing is ever sent to the member digitally: the printed card is the only copy.' },
+    dispatch: { label: 'To dispatch',    queues: ['printed'],           hint: 'Printed cards. Hand each to the courier, then type the courier and its tracking number and press Dispatched. The member is emailed only the courier and tracking number, never the card.' },
     all:      { label: 'All',            queues: null,                  hint: 'Every membership, and where its card stands.' }
   };
   var mqView = 'ask';
@@ -4140,7 +4144,8 @@ window.addEventListener('unhandledrejection', function (event) {
     if (r.queue === 'waiting') return 'Link sent ' + dayOf(r.requestedAt) + ', works till ' + dayOf(r.linkExpiresAt) + (r.requests > 1 ? ' (link ' + r.requests + ')' : '');
     if (r.queue === 'review') return 'Photograph received ' + dayOf(r.receivedAt);
     if (r.queue === 'approved') return 'Approved ' + dayOf(r.approvedAt) + ', not printed';
-    if (r.queue === 'printed') return 'Printed ' + dayOf(r.printedAt);
+    if (r.queue === 'printed') return 'Printed ' + dayOf(r.printedAt) + ', to hand to the courier';
+    if (r.queue === 'dispatched' && r.dispatchedAt) return 'Dispatched ' + dayOf(r.dispatchedAt) + ' by ' + r.courier + ', ' + r.trackingNumber;
     return r.queueLabel || '';
   }
 
@@ -4177,12 +4182,12 @@ window.addEventListener('unhandledrejection', function (event) {
     var body = $('[data-pane="membership"] [data-mq-body]');
     var rows = mqIn(mqView);
     if (!rows.length) {
-      var empty = { ask: 'Every member has been asked for a photograph.', waiting: 'No links are waiting to be used.', review: 'No photographs are waiting for approval.', approved: 'Every approved card has been printed.', all: 'There are no memberships yet.' };
+      var empty = { ask: 'Every member has been asked for a photograph.', waiting: 'No links are waiting to be used.', review: 'No photographs are waiting for approval.', approved: 'Every approved card has been printed.', dispatch: 'Every printed card has gone by courier.', all: 'There are no memberships yet.' };
       body.innerHTML = '<div class="empty"><b>Nothing here</b>' + esc(empty[mqView]) + '</div>';
       return;
     }
     if (mqView === 'review') { body.innerHTML = '<div class="apq">' + rows.map(mqReviewItem).join('') + '</div>'; rows.forEach(mqLoadReview); return; }
-    var pick = mqView !== 'all';
+    var pick = mqView !== 'all' && mqView !== 'dispatch';
     var bulk = mqView === 'approved'
       ? '<button class="press" type="button" data-mq="print" disabled>Print selected</button><button class="ghost" type="button" data-mq="printed" disabled>Mark selected as printed</button>'
       : '<button class="press" type="button" data-mq="send" disabled>Email photo link to selected</button>';
@@ -4198,7 +4203,10 @@ window.addEventListener('unhandledrejection', function (event) {
     if (r.queue === 'request' || r.queue === 'lapsed') act = '<button class="ghost" type="button" data-mq="send-one">Email photo link</button>';
     else if (r.queue === 'waiting') act = '<button class="ghost" type="button" data-mq="send-one">Send a new link</button>';
     else if (r.queue === 'review') act = '<button class="ghost" type="button" data-mq="go-review">Review</button>';
-    else if (r.cardId) act = '<button class="ghost" type="button" data-mq="view">Card</button>';
+    else if (r.queue === 'printed') act = '<span class="mq-courier"><input type="text" data-mq-courier maxlength="60" placeholder="Courier" aria-label="Courier for ' + esc(r.reference) + '">'
+      + '<input type="text" data-mq-tracking maxlength="40" placeholder="Tracking number" aria-label="Tracking number for ' + esc(r.reference) + '">'
+      + '<button class="press" type="button" data-mq="dispatch">Dispatched</button></span>';
+    else if (r.cardId) act = '<button class="ghost" type="button" data-mq="view">Preview card</button>';
     return '<tr data-ref="' + esc(r.reference) + '">'
       + (pick ? '<td class="mq-pick"><input type="checkbox" data-mq-row aria-label="Select ' + esc(r.name || r.reference) + '"></td>' : '')
       + '<td><b>' + esc(r.name || 'No name') + '</b><br><button class="linky" type="button" data-mq="open">' + esc(r.reference) + '</button></td>'
@@ -4246,7 +4254,7 @@ window.addEventListener('unhandledrejection', function (event) {
   function mqReviewItem(r) {
     return '<article class="ap" data-ref="' + esc(r.reference) + '">'
       + '<div><button class="cardbtn" type="button" data-mq="view" aria-label="See the card, front and back"><canvas data-mq-card aria-label="The card as it would print"></canvas></button>'
-      + '<button class="cardlink" type="button" data-mq="view">See front and back</button></div>'
+      + '<button class="cardlink" type="button" data-mq="view">Preview the card, front and back</button></div>'
       + '<div>'
       + '<h4>' + esc(r.name || 'No name') + '</h4>'
       + '<p class="meta">' + esc([r.tier, r.reference, 'Photograph received ' + dayOf(r.receivedAt)].filter(Boolean).join(' · ')) + '</p>'
@@ -4416,6 +4424,19 @@ window.addEventListener('unhandledrejection', function (event) {
     }).catch(function (e) { mqSay(e.message, 'bad'); });
   }
 
+  /* the courier: the only way a membership card reaches the member */
+  function mqDispatch(r, tr, button) {
+    var courier = (tr.querySelector('[data-mq-courier]').value || '').trim();
+    var tracking = (tr.querySelector('[data-mq-tracking]').value || '').replace(/\s+/g, '');
+    if (!courier || !tracking) { mqSay('Type the courier and the tracking number for ' + r.reference + '.', 'bad'); return; }
+    button.disabled = true;
+    api('/api/admin/membership', { method: 'POST', body: { action: 'dispatched', reference: r.reference, courier: courier, trackingNumber: tracking } }).then(function (data) {
+      return membershipPane().then(function () {
+        mqSay(r.reference + ' dispatched by ' + courier + ' (' + tracking.toUpperCase() + ').' + (data.emailed ? ' The member was emailed the tracking number.' : (data.mailNote ? ' ' + data.mailNote : '')), 'good');
+      });
+    }).catch(function (e) { button.disabled = false; mqSay(e.message, 'bad'); });
+  }
+
   function mqSave(side) {
     var reference = $('#memberView').getAttribute('data-ref');
     var d = mqDetail[reference];
@@ -4447,7 +4468,8 @@ window.addEventListener('unhandledrejection', function (event) {
     if (what === 'approve') { mqApprove(r, node); return; }
     if (what === 'retake') { mqRetakeBox(node); return; }
     if (what === 'retake-cancel') { node.querySelector('[data-mq-retake]').hidden = true; return; }
-    if (what === 'retake-send') { mqRetake(r, node); }
+    if (what === 'retake-send') { mqRetake(r, node); return; }
+    if (what === 'dispatch') { mqDispatch(r, tr, b); }
   });
   document.addEventListener('change', function (e) {
     var t = e.target;

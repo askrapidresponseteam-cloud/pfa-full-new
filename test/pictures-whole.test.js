@@ -87,3 +87,38 @@ test('achievements, the founder gallery and the newsroom case photos show every 
   assert.match(n, /\.leg__figs \.frame\.frame--pair-b\{aspect-ratio:1690\/920\}/);
   assert.match(n, /class="frame frame--pair-a"><img[^>]*case-001-protest\.webp/);
 });
+
+/* Owner, 26 Oct 2026, of the shop's hand of cards and grid: "no person's head
+   or any part can be clipped anywhere. fix thoroughly". Every frame that
+   holds a photograph of people now shows the whole photograph, and no hover
+   zoom or scroll drift pushes it past its own edge. */
+test('no photograph of a person is cut by its frame, on any page', () => {
+  const shop = read('shop.html');
+  assert.match(shop, /main \.mosaic__face img,\.mosaic__t img,\.item__media img,\.feature__pics img,\.line__pic img,\.shop-fly\{object-fit:contain;/, 'the shop shows every model whole');
+  assert.match(shop, /\.item__media,\.feature__pics button,\.line__pic\{aspect-ratio:2\/3\}/, 'shop frames at the photographs\' own 2:3');
+  const ck = read('cinekind.html');
+  assert.match(ck, /<style id="ck-whole">[\s\S]*\.shot img,\.shot video,\.honours \.roll img,\.rt \.shot img,\.mosaic \.shot img,\.night__play img\{object-fit:contain!important;/, 'CineKind: every honouree and every frame of the night whole');
+  assert.match(ck, /\.ck-motion \.shot img\{scale:1!important;translate:none!important\}/, 'no drift past the frame');
+  assert.match(ck, /\.poster img\{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;/, 'the poster wall whole');
+  for (const [file, rule] of [
+    ['events.html', /\.ev-pola__frame img\{[^}]*object-fit:contain;/],
+    ['newsroom.html', /\.nr-tile__img img\{[^}]*object-fit:contain;/],
+    ['newsroom.html', /\.nr-card__img img\{[^}]*object-fit:contain\}/],
+    ['newsroom.html', /\n\.frame img\{[^}]*object-fit:contain;/],
+    ['founder.html', /\n\.frame img\{[^}]*object-fit:contain;/],
+    ['assets/micro.css', /\.m-ph img\{[^}]*object-fit:contain;/],
+    ['assets/theatre.css', /\.tile \.frame img,\.tile \.frame video\{[^}]*object-fit:contain;/]
+  ]) assert.match(read(file), rule, `${file} keeps its photographs whole`);
+  /* hover zooms crop the edges of a photograph: none remain on a photograph */
+  for (const file of ['shop.html', 'cinekind.html', 'academy.html', 'assets/micro.css', 'assets/theatre.css']) {
+    const css = read(file).replace(/\/\*[\s\S]*?\*\//g, '');
+    const zooms = css.match(/[^{}]*:hover[^{}]*img[^{}]*\{[^}]*transform:scale\(1\.[0-9]+\)[^}]*\}/g) || [];
+    const live = zooms.filter((z) => !/transform:none/.test(z));
+    if (file === 'cinekind.html' || file === 'shop.html') {
+      assert.match(css, /transform:none(!important)?\}/, `${file} cancels its old hover zooms`);
+    } else {
+      assert.deepEqual(live, [], `${file}: no hover zoom on a photograph`);
+    }
+  }
+  assert.match(read('index.html'), /\.pfa-fndr\{min-height:min\(max\(min\(92svh,920px\),43\.5vw\),90vw\)\}/, 'the founder band never narrows far enough to cut her or the dog');
+});

@@ -203,7 +203,8 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 /* Photo frames degrade to a labelled placeholder if a source fails, so the
    layout never breaks and it stays obvious which picture belongs where. */
 .frame{position:relative;background:var(--stone);overflow:hidden}
-.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 22%}
+/* whole photographs, never cut (owner, 26 Oct 2026: "no person's head or any part can be clipped anywhere") */
+.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 50%}
 /* A frame whose photograph has not arrived is a quiet plate with the PFA
    mark and its caption, as on the microsites: never a striped box asking for a photo,
    which read as a page still being built (owner, 9 Oct 2026:
@@ -233,6 +234,9 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
    foot of the frame, so her head survives at every viewport width. */
 .plate{margin:0;background:var(--stone)}
 .plate .frame{aspect-ratio:3/2;max-height:min(80svh,780px);width:100%}
+/* and since nothing may be cut at all (26 Oct 2026), the plate narrows to the
+   photograph's own 3:2 at the height cap instead of cropping the desk */
+.plate .frame{max-height:none;width:min(100%,calc(min(80svh,780px) * 1.5));margin-inline:auto}
 /* The portrait file is now colour (15 Sep 2026). The plate holds it in
    grayscale and lets it bloom over two seconds when the plate arrives on
    screen - the home page's treatment of the same photograph, so she warms

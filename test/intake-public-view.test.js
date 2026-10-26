@@ -102,7 +102,7 @@ test('A6 (public half): a kind with its own stages shows its stage and what come
     ['PFA-V', 'approved', 'Approved', /volunteer register/],
     ['PFA-V', 'shortlisted', 'Shortlisted', /in touch/],
     ['PFA-CG', 'verified', 'Verified', /card is being prepared/],
-    ['PFA-MEM', 'dispatched', 'Kit dispatched', /on their way/]
+    ['PFA-MEM', 'dispatched', 'Sent by courier', /on their way by courier/]
   ];
   for (const [kind, status, label, next] of cases) {
     const view = S.publicView({ kind, status, createdAt: at(1), history: [{ status: 'new', at: at(1) }, { status, at: at(2), by: 'a@pfa.test' }] });

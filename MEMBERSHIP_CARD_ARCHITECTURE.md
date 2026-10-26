@@ -4,6 +4,16 @@ Owner, 26 Oct 2026: "admin should have option to send email to the applicant
 to upload photo. once they upload the application should come to pfa for
 approval and card generation."
 
+Owner, 26 Oct 2026, a standing rule: "admin should be able to preview the
+actual membership card before issuing. and issuing cannot send any digital
+copies. only physical copy will be issued to end user. and it will be
+dispatched through a courier. this a rule."
+
+So: the card is drawn only inside the panel (preview before approval, print
+after). No letter, page or API response ever carries the card or an image of
+it. The member receives one thing, the printed card, by courier, and is
+emailed its tracking number.
+
 ## The journey
 
 | Stage (record `status`) | Label the member sees | Reached by |
@@ -12,8 +22,8 @@ approval and card generation."
 | `photo-requested` | Photo requested | Panel: Email photo link, or Ask for another photo |
 | `photo-received` | Photo received | The member sending a photograph through the link |
 | `card-approved` | Card approved | Panel: Approve and issue card |
-| `dispatched` | Kit dispatched | Status change, as before |
-| `delivered` | Kit delivered | Status change, as before |
+| `dispatched` | Sent by courier | Panel: Dispatched (courier and tracking number), on a printed card |
+| `delivered` | Kit delivered | Status change |
 
 The three middle stages are action-only (`lib/case-flow.js` ACTION_ONLY), so
 the case drawer can never say a link went, a photograph arrived or a card
@@ -24,10 +34,10 @@ exists when it did not.
 | Collection / path | Holds | Written by |
 |---|---|---|
 | `submissions/{ref}.memberPhoto` | current link hash and expiry, times asked, reasons, current photo id, superseded photo ids | the steps below |
-| `submissions/{ref}.memberCard` | card summary: printed name, validity, approved and printed times | approve, printed |
+| `submissions/{ref}.memberCard` | card summary: printed name, validity, approved, printed and dispatched times, courier, tracking number | approve, printed, dispatched |
 | `submissions/{ref}/attachments/member-photo-*` | each photograph (bytes in the private bucket, `submissions/{ref}/...`) with size and consent time | upload |
 | `submissions/{ref}/messages` | a note for every step, in the case's conversation | every step |
-| `memberCards/{ref}` | the card on the register | approve, printed |
+| `memberCards/{ref}` | the card on the register | approve, printed, dispatched |
 | `memberPhotoLinks/{sha256}` | a link: member, expiry, used, retired | request, upload |
 | `caregiverEmails` | the letters, queued and retried by the worker | every letter |
 | `adminAudit` | who did what | every panel action |
@@ -43,7 +53,7 @@ not approved stays on file as superseded.
 |---|---|---|
 | GET | `/api/admin/membership?queue=all` | Membership cards module |
 | GET | `/api/admin/membership?reference=` | Membership cards module (returns the photograph) |
-| POST | `/api/admin/membership` `request-photo`, `retake`, `approve`, `printed` | Membership cards module |
+| POST | `/api/admin/membership` `request-photo`, `retake`, `approve`, `printed`, `dispatched` | Membership cards module |
 | POST | `/api/membership/photo` `open`, `send` | the link itself |
 
 ## The link
@@ -76,6 +86,22 @@ not fit is shortened by the reviewer before approval (the panel suggests
 initials). District and state use the caregiver card's short forms
 (assets/card-print.js). Printing: one face a page at 85.6 x 54 mm from the
 print window, or a 600 dpi PNG of each face. Never emailed.
+
+## Issuing: the printed card, by courier only
+
+1. To approve: the reviewer opens Preview card and sees the actual card,
+   front and back, exactly as it prints, before pressing Approve.
+2. To print: print, then Mark printed.
+3. To dispatch: enter the courier and the tracking number (4 to 40 letters,
+   digits or hyphens) and press Dispatched. The record moves to Sent by
+   courier, and the member gets member_card_dispatched with the tracking
+   number. Refused if the card is not printed (NOT_PRINTED), the courier or
+   tracking number is missing (NO_COURIER, NO_TRACKING), or it was already
+   dispatched (ALREADY_DISPATCHED).
+
+No letter carries the card: test/membership-card.test.js renders every
+member letter and fails if any holds the card, an image of it, or a link to
+one.
 
 Validity: a year from the day the membership was paid
 (`VALIDITY_MONTHS` in lib/membership-card.js); lifetime prints "Lifetime".

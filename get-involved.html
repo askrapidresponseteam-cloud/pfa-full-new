@@ -385,7 +385,7 @@ body.in-flow .pfa-footer,body.in-flow .announce{display:none}
 .gi__doc.is-bad input[type="file"]{border-color:#b3261e}
 .gi__hint{margin:6px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
 .gi__preview{position:relative;width:112px;height:112px;margin:10px 0 0;border:1px solid var(--line)}
-.gi__preview img{width:100%;height:100%;object-fit:cover;display:block}
+.gi__preview img{width:100%;height:100%;object-fit:contain;display:block}
 /* drawn, not typed: a "+" from the font sits where the font puts it, a pixel or two off the middle of its circle (owner, 23 Oct 2026: "that + inside the circle is not perfectly centered. we can never have such silly mistakes anywhere on the site"). Two bars from the centre are in the centre. */
 .gi__preview button{position:absolute;top:-9px;right:-9px;box-sizing:border-box;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:linear-gradient(currentColor,currentColor) center/10px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 10px no-repeat,#fff;transform:rotate(45deg);color:var(--ink);font-size:0;cursor:pointer;padding:0}
 .gi__preview[hidden]{display:none}
@@ -902,7 +902,7 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__copy">
             <p class="eyebrow">Where a membership goes</p>
             <h2>Pay and join.</h2>
-            <ul class="gi__stages"><li class="gi__stage">Paid</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Your photograph</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Card and kit posted</li></ul>
+            <ul class="gi__stages"><li class="gi__stage">Paid</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Your photograph</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Card by courier</li></ul>
           </div>
           <div class="gi__body">
             <div class="field"><label class="agree"><input type="checkbox" name="terms" value="yes" required><span>I accept the membership terms above, and that PFA may contact me as a member.</span></label><span class="error">Accept the membership terms to continue.</span></div>

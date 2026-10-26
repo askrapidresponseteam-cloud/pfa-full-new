@@ -45,6 +45,7 @@ const CASES = {
   'a membership photo received': ['member_photo_received', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', receivedAt: '2026-10-26T09:10:00Z' }],
   'a membership card approved': ['member_card_approved', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', tierLabel: 'Golden membership', validUntil: '2027-10-26T09:10:00Z', lifetime: false }],
   'a lifetime membership card approved': ['member_card_approved', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00006', tierLabel: 'Lifetime membership', validUntil: '', lifetime: true }],
+  'a membership card dispatched': ['member_card_dispatched', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', courier: 'Blue Dart', trackingNumber: '90812345678', dispatchedAt: '2026-10-28T09:10:00Z' }],
   'a membership photo to approve, to PFA': ['member_photo_staff', 'pfa', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', tierLabel: 'Golden membership', receivedAt: '2026-10-26T09:10:00Z', panelUrl: 'https://pfa-new-website.web.app/admin.html' }],
   'the copy to PFA': ['submission_forward', 'pfa', { ...base, reference: 'PFA-DON-MPTSVLDF', kind: 'PFA-DON', kindLabel: 'Donation', name: 'Karthik Dhanya', email: 'k@example.com', page: 'donate.html', rows: [{ label: 'Amount paid', value: 'INR 111' }] }],
   'a reply relayed to PFA': ['submission_followup', 'pfa', { ...base, reference: 'PFA-CR-2026-00042', kindLabel: 'Cruelty report', name: 'Asha Rao', email: 'asha@example.com', text: 'The dog is safe now.', n: 2 }],

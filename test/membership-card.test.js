@@ -353,3 +353,51 @@ test('the panel draws the card, prints it, and never sends it; the page keeps th
     assert.ok(!/base64|PFA-CCT|member-card/.test(r.html), `${t} carries no card image`);
   }
 });
+
+/* A standing rule (owner, 26 Oct 2026): the administrator previews the actual
+   card before issuing it; issuing never sends the member any digital copy of
+   the card; only the physical card is issued, and it goes by courier. */
+test('only the printed card is issued, by courier with a tracking number; no letter ever carries the card', async () => {
+  const db = setup();
+  const REF = 'PFA-MEM-2026-00021';
+  await seed(db, REF);
+  await admin({ action: 'request-photo', references: [REF] });
+  await run(PHOTO, request({ body: { t: linkIn(db, REF), action: 'send', consent: true, photo: PHOTO_OK } }));
+
+  /* the reviewer sees the card as it will print before approving it */
+  const preview = await adminGet({ reference: REF });
+  assert.equal(preview.body.card.draft, true);
+  assert.ok(preview.body.photo && preview.body.photo.data, 'the preview has the photograph on it');
+  await admin({ action: 'approve', reference: REF, printName: 'Karthik Dhanya' });
+
+  /* not before it is printed, and never without a courier and a tracking number */
+  assert.equal((await admin({ action: 'dispatched', reference: REF, courier: 'Blue Dart', trackingNumber: '90812345678' })).body.code, 'NOT_PRINTED');
+  await admin({ action: 'printed', references: [REF] });
+  assert.equal((await admin({ action: 'dispatched', reference: REF, trackingNumber: '90812345678' })).body.code, 'NO_COURIER');
+  assert.equal((await admin({ action: 'dispatched', reference: REF, courier: 'Blue Dart', trackingNumber: '##' })).body.code, 'NO_TRACKING');
+  const sent = await admin({ action: 'dispatched', reference: REF, courier: 'Blue Dart', trackingNumber: '9081 2345 678' });
+  assert.equal(sent.statusCode, 200, JSON.stringify(sent.body));
+  const card = db.dump()[`memberCards/${REF}`];
+  assert.deepEqual([card.courier, card.trackingNumber], ['Blue Dart', '90812345678']);
+  assert.ok(card.dispatchedAt);
+  const rec = record(db, REF);
+  assert.equal(rec.status, 'dispatched');
+  assert.ok(rec.history.some((h) => h.event === 'card-dispatched' && h.trackingNumber === '90812345678'));
+  assert.equal((await admin({ action: 'dispatched', reference: REF, courier: 'DTDC', trackingNumber: 'X1234567' })).body.code, 'ALREADY_DISPATCHED');
+  assert.equal((await adminGet({ queue: 'all' })).body.rows.find((r) => r.reference === REF).queue, 'dispatched');
+
+  /* every letter the member got: none carries the card, its image or a link to it */
+  const mail = require('../lib/caregiver-mail');
+  const letters = Object.values(db.dump()).filter((v) => v && v.template && v.to === 'karthik@example.com');
+  assert.ok(letters.some((l) => l.template === 'member_card_dispatched' && l.payload.trackingNumber === '90812345678'));
+  for (const l of letters) {
+    const r = mail.render(l.template, l.payload);
+    for (const body of [r.html, r.text]) {
+      assert.doesNotMatch(body, /data:image|base64|member-card|memberCards|admin\.html/i, `${l.template} carries nothing of the card`);
+    }
+    assert.ok(!(await mail.attachmentsFor(l.template, l.payload)).length, `${l.template} has no attachment`);
+  }
+  const approved = mail.render('member_card_approved', { name: 'A', memberId: REF, siteUrl: 'https://peopleforanimalsindia.org' });
+  assert.match(approved.text, /by courier/);
+  assert.match(approved.text, /never sent by email/);
+});

@@ -282,7 +282,8 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .ev-dot::before{content:'';display:inline-block;width:5px;height:5px;margin:0 5px 2px 0;border-radius:50%;background:var(--ev-accent);vertical-align:middle}
 .ev-pola__mark{font-family:var(--ev-display);font-size:12px;letter-spacing:.1em}
 .ev-pola__frame{aspect-ratio:5/4;overflow:hidden;background:#e4e7ed}
-.ev-pola__frame img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 25%}
+/* the whole photograph, never cut (owner, 26 Oct 2026: "no person's head or any part can be clipped anywhere") */
+.ev-pola__frame img{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 50%}
 /* the name sized to the polaroid, so it is never cut to "John Abrah..."
    (10 Oct 2026); a long name wraps, centred on the photograph, rather than lose letters */
 .ev-pola{container-type:inline-size}

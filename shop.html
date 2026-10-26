@@ -452,11 +452,40 @@ main .feature__bd h2,main .item__name,main .promises b{font-family:var(--display
 /* the piece flying into the bag */
 .shop-fly{position:fixed;z-index:300;pointer-events:none;object-fit:cover;object-position:50% 20%;border-radius:14px;background:var(--stone);box-shadow:0 20px 40px -18px rgba(17,17,17,.55);will-change:transform,opacity}
 
+/* ---------- whole photographs (owner, 26 Oct 2026: "no person's head or any part can be clipped anywhere") ----------
+   Every photograph in the shop is shown whole: contained in its frame,
+   never cropped to fill it, and never zoomed past it on hover. Cropping the
+   designer photographs (most of them taller than the old 4:5 frames) to
+   fill was what cut the tops of heads. The frames are 2:3 now, the shape of
+   most of the photographs, so they fill or nearly fill it; what a photograph
+   does not fill is the frame's own quiet ground. */
+.item__media,.feature__pics button,.line__pic{aspect-ratio:2/3}
+main .mosaic__face img,.mosaic__t img,.item__media img,.feature__pics img,.line__pic img,.shop-fly{object-fit:contain;object-position:50% 50%}
+.mosaic__t:hover img,.item__media:hover img,.feature__pics button:hover img,main .mosaic__t:hover img{transform:none}
+main .mosaic__face{background:var(--stone)}
+/* the designer's name has a strip of its own under the photograph, so it
+   never sits on the person */
+main .mosaic__face img{inset:0 0 auto 0;width:100%;height:calc(100% - 30px)}
+main .mosaic__t span{left:0;right:0;bottom:0;max-width:none;height:30px;display:flex;align-items:center;padding:0 10px;background:var(--paper)}
+
+/* The hand, spread (26 Oct 2026): the cards no longer lie over one another,
+   so no card hides any part of the person on the card beside it. A small
+   gap holds every tilt: a card turned 5 degrees moves its corner about a
+   twentieth of its width, and its neighbour's turns back less than that. */
+/* as wide as the old overlapping hand was, so the words keep their room: each card shows about what an overlapped card used to */
+main .stage{--cw:clamp(100px,8.4vw,146px);--ch:calc(var(--cw) * 1.5);--gap:calc(var(--cw) * .12);--step:calc(var(--cw) + var(--gap))}
+main .mosaic{width:calc(var(--cw) * 4 + var(--gap) * 3)}
+main .mosaic__t:nth-child(1){--r:-5deg;--y:12px}
+main .mosaic__t:nth-child(2){--r:-1.5deg;--y:2px}
+main .mosaic__t:nth-child(3){--r:1.5deg;--y:2px}
+main .mosaic__t:nth-child(4){--r:5deg;--y:12px}
+main .mosaic__t span{max-width:calc(100% - 20px)}
+
 @media(max-width:1000px){main .grid{gap:48px 18px}main .item__buy{flex-wrap:wrap}main .item__add{flex-basis:100%}}
 /* tablet and phone: the hand moves under the words */
 @media(max-width:980px){
   main .hero{grid-template-columns:minmax(0,1fr);row-gap:0}
-  main .stage{--cw:clamp(84px,calc((100vw - 80px) / 2.98),190px);padding:30px 14px 44px}
+  main .stage{--cw:clamp(84px,calc((100vw - 80px) / 4.4),170px);padding:30px 14px 44px}
 }
 @media(max-width:719px){
   main .hero{margin:calc(var(--ann) + var(--nav) + 10px) 10px 0;padding:26px 16px 4px;border-radius:18px}
@@ -471,6 +500,16 @@ main .feature__bd h2,main .item__name,main .promises b{font-family:var(--display
   main .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 12px}main .item__media{border-radius:12px}main .item__bd{padding-top:16px}main .item__name{font-size:19px}main .item__meta{font-size:11px}main .item__price{font-size:13px;gap:6px}main .item__off{font-size:10px}main .item__buy{gap:8px;padding-top:14px}main .item__add{font-size:10px}main .bar__sort{margin-left:8px}main .chip{padding:0 16px}
   main .feature{margin-top:70px;border-radius:18px;grid-template-columns:1fr}main .feature__pics{padding:22px}main .feature__bd{padding:32px 24px 40px}main .feature .item__add{flex-basis:auto}
   main .promises{grid-template-columns:1fr 1fr;gap:22px;margin-top:64px}main .promises li+li{margin-top:0}main .promises b{font-size:23px}main .promises span{font-size:12px}main .item__media::after{display:none}
+}
+/* on a phone, two rows of two: each card big enough to see the person whole */
+@media(max-width:719px){
+  main .stage{--cw:min(calc((100vw - 96px) / 2),170px);--ch:calc(var(--cw) * 1.5);--gap:calc(var(--cw) * .1);--step:calc(var(--cw) + var(--gap));padding:22px 12px 44px}
+  main .mosaic{--row:calc(var(--ch) + var(--gap) + 18px);width:calc(var(--cw) * 2 + var(--gap));height:calc(var(--row) + var(--ch) + 16px)}
+  main .mosaic__t:nth-child(1){left:0;top:0;--r:-3deg;--y:6px}
+  main .mosaic__t:nth-child(2){left:var(--step);top:0;--r:2deg;--y:0px}
+  main .mosaic__t:nth-child(3){left:0;top:var(--row);--r:-2deg;--y:0px}
+  main .mosaic__t:nth-child(4){left:var(--step);top:var(--row);--r:3deg;--y:6px}
+  main .mosaic__face img{height:100%}
 }
 @media(prefers-reduced-motion:reduce){.motion-reveal.is-waiting{opacity:1;transform:none}main .hero__pause{display:none}main .stage{padding-bottom:30px}}
 </style>
@@ -1331,7 +1370,11 @@ var faces=cards.map(function(c){return c.querySelector('.mosaic__face');});
 var pause=hero.querySelector('.hero__pause');
 var reduced=matchMedia('(prefers-reduced-motion: reduce)');
 var fine=matchMedia('(pointer: fine)');
-var ROT=[-8,-2.5,2.5,8],Y=[16,2,2,16];
+/* each card's tilt and drop are the stylesheet's (--r, --y), read again when
+   the layout changes, so the hand the script draws is the one the CSS lays out */
+var ROT=[],Y=[];
+function tilts(){ROT=cards.map(function(c){return parseFloat(getComputedStyle(c).getPropertyValue('--r'))||0;});Y=cards.map(function(c){return parseFloat(getComputedStyle(c).getPropertyValue('--y'))||0;});}
+tilts();addEventListener('resize',tilts,{passive:true});
 var stopped=false,visible=true,raf=0,last=0,time=0,t0=0,hoverStage=false,turning=false;
 var lift=cards.map(function(){return 0;}),want=cards.map(function(){return 0;});
 var gx=cards.map(function(){return 50;}),gy=cards.map(function(){return 30;}),tx=0,ty=0,px=0,py=0;
