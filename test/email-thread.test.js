@@ -479,9 +479,12 @@ test('a donation: a case under PFA-DON, the payments inboxes get it (never gandh
   assert.equal(filed.json.filed, true);
   assert.equal(filed.json.reference, ref);
 
-  /* the ledger row and the case are two different things, and the panel lists the case */
+  /* the ledger row and the case are two different things */
   const list = await call(require('../lib/routes/admin/records.js'), { method: 'GET', query: { type: 'submissions', limit: '50' }, headers: admin });
-  assert.ok(list.json.rows.some((r) => r.reference === ref && r.kindLabel === 'Donation'));
+  /* off the Submissions register since 26 Oct 2026 (it lives under Payments & donations), still opens by reference */
+  assert.ok(!list.json.rows.some((r) => r.reference === ref), 'not on the Submissions register');
+  const byRef = await call(require('../lib/routes/admin/records.js'), { method: 'GET', query: { type: 'submissions', q: ref }, headers: admin });
+  assert.ok(byRef.json.rows.some((r) => r.reference === ref && r.kindLabel === 'Donation'), 'found by its reference');
   const pays = await call(require('../lib/routes/admin/records.js'), { method: 'GET', query: { type: 'payments', limit: '50' }, headers: admin });
   assert.equal(pays.json.rows.filter((r) => r.type === 'donate').length, 1);
 });

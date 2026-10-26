@@ -62,6 +62,12 @@ service cloud.firestore {
        card page is served by /api/caregiver/card, which decides what of the
        record a visitor is allowed to see. */
     match /caretakerApplicants/{id}   { allow read, write: if isAdmin(); }
+
+    /* The old website's members (26 Oct 2026). Served only by
+       /api/admin/old-members, never read from the browser. */
+    match /oldSiteMembers/{id}        { allow read, write: if false; }
+    match /oldSiteMembersChanges/{id} { allow read, write: if false; }
+    match /oldSiteMembersProposals/{id} { allow read, write: if false; }
     match /caretakerCards/{id}        { allow read, write: if isAdmin(); }
     match /caretakerAddresses/{id}    { allow read, write: if isAdmin(); }
     match /caretakerOrders/{id}       { allow read, write: if isAdmin(); }
