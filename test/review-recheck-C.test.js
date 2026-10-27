@@ -84,8 +84,10 @@ test('C3 a reply whose filing throws is read again on the next run, not skipped'
   const record = W.db.dump()['submissions/' + ref];
   const confirmId = `<${ref}.${record.threadId}.confirm@peopleforanimalsindia.org>`;
   const mailbox = [7, 8].map((uid) => ({ uid, from: PERSON_A, fromName: 'Asha Rao', to: [SITE_MAILBOX], subject: 'Re: ' + ref, messageId: `<a${uid}@example.com>`, inReplyTo: [confirmId], references: [confirmId], text: 'More ' + uid, newText: 'More ' + uid, date: new Date(), attachments: [], cc: [] }));
-  let failOnce = true;
-  const flaky = Object.assign({}, W.db, { runTransaction(fn) { if (failOnce) { failOnce = false; return Promise.reject(Object.assign(new Error('14 UNAVAILABLE: deadline exceeded'), { code: 14 })); } return W.db.runTransaction(fn); } });
+  /* the first transaction is the reading's own lease (27 Oct 2026); the
+     second, the first filing, is the one that fails */
+  let calls = 0;
+  const flaky = Object.assign({}, W.db, { runTransaction(fn) { calls += 1; if (calls === 2) return Promise.reject(Object.assign(new Error('14 UNAVAILABLE: deadline exceeded'), { code: 14 })); return W.db.runTransaction(fn); } });
   const read = async ({ lastUid }) => {
     const msgs = mailbox.filter((m) => m.uid > (Number(lastUid) || 0));
     return { messages: msgs, uids: msgs.map((m) => m.uid), failed: [], lastUid: Math.max(Number(lastUid) || 0, ...msgs.map((m) => m.uid)), uidValidity: '1', host: 'imap.test' };

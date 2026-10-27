@@ -77,7 +77,9 @@ test('the row says where it failed, and the panel names that server', async () =
 
 test('the ten-minute job on Firebase sends waiting emails and brings the search up to date', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'functions', 'index.js'), 'utf8');
-  const job = src.slice(src.indexOf('exports.inboundMailCheck'));
+  /* since 27 Oct 2026 the ten-minute job is caregiverEmailWorker; the
+     reading of replies has the two-minute schedule to itself */
+  const job = src.slice(src.indexOf('exports.caregiverEmailWorker'), src.indexOf('exports.inboundMailCheck'));
   assert.match(job, /every 10 minutes/);
   assert.match(job, /routes\/caregiver\/email-worker\.js/);
   assert.match(job, /admin-search\.js/);

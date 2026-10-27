@@ -662,13 +662,13 @@ test('the mailbox is read over IMAP: the raw email is parsed, filed, and the mai
   assert.equal(status.json.lastUid, 42);
 });
 
-test('the route is closed to the public, open to the schedule and to an administrator; the inbox gets the daily cron and Firebase the ten-minute one', async () => {
+test('the route is closed to the public, open to the schedule and to an administrator; the inbox gets the daily cron and Firebase the two-minute one', async () => {
   const anon = await call(require('../lib/routes/inbound-mail'), { method: 'GET', headers: {} });
   assert.equal(anon.statusCode, 401);
   const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
   assert.ok(vercel.crons.some((c) => c.path === '/api/inbound-mail'));
   const fn = fs.readFileSync(path.join(ROOT, 'functions/index.js'), 'utf8');
-  assert.match(fn, /inboundMailCheck = onSchedule\(\s*\{[^}]*schedule: 'every 10 minutes'/);
+  assert.match(fn, /inboundMailCheck = onSchedule\(\s*\{[^}]*schedule: 'every 2 minutes'/);
   const deps = JSON.parse(fs.readFileSync(path.join(ROOT, 'functions/package.json'), 'utf8')).dependencies;
   for (const d of ['nodemailer', 'imapflow', 'mailparser']) assert.ok(deps[d], `functions/package.json needs ${d}`);
   const { ROUTES } = require('../api/index.js')._private;

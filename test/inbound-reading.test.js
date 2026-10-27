@@ -71,10 +71,13 @@ function mailbox(list) {
 const reply = (uid, id, text) => ({ uid, from: PERSON, fromName: 'Asha Rao', to: [SITE], cc: [], subject: `Re: ${REF}`, messageId: id, inReplyTo: [CONFIRM_ID], references: [CONFIRM_ID], text, newText: text, date: new Date(), attachments: [] });
 
 test('C3 a reply whose filing threw (a database hiccup) is read again on the next run and filed', async () => {
-  let failOnce = true;
+  /* the first transaction is the reading's own lease (27 Oct 2026); the
+     second is the first filing, which is the one that fails here */
+  let calls = 0;
   const flaky = Object.assign({}, db, {
     async runTransaction(fn) {
-      if (failOnce) { failOnce = false; throw Object.assign(new Error('14 UNAVAILABLE: deadline exceeded'), { code: 14 }); }
+      calls += 1;
+      if (calls === 2) throw Object.assign(new Error('14 UNAVAILABLE: deadline exceeded'), { code: 14 });
       return db.runTransaction(fn);
     }
   });

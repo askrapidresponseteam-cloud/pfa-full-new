@@ -261,6 +261,12 @@ label.tick input{width:18px;height:18px;margin:0;flex:0 0 auto}
    margin:0 and wins over a margin-left:auto, so the title block takes the
    free width instead and Close is pushed to the right edge. */
 .drawer header{justify-content:space-between}
+/* the red notice when replies are not being picked up (lib/reply-watch.js) */
+.ralert{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:24px 34px 0;padding:12px 16px;border:1px solid #b3261e;background:#fdecea;color:#7a1610}
+.ralert[hidden]{display:none}
+.ralert p{margin:0;font-size:13px;line-height:1.55}
+.ralert .ghost{flex:none;border-color:#b3261e;color:#7a1610;background:#fff}
+@media (max-width:900px){.ralert{margin:16px 20px 0}}
 .drawer header > div{flex:1 1 auto;min-width:0}
 .drawer header .x{flex:none;color:var(--ink)}
 /* Close: the same control as on every public page (the shared chrome stylesheet), which
@@ -668,6 +674,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       </div>
       <span class="spring"><button class="ghost" type="button" id="refresh">Refresh</button></span>
     </div>
+    <!-- replies not being picked up: on every page (owner, 27 Oct 2026, lib/reply-watch.js) -->
+    <div class="ralert" id="replyAlert" role="alert" hidden><p id="replyAlertText"></p><button class="ghost" type="button" id="replyAlertCheck">Check now</button></div>
 
     <div class="pane" data-pane="overview" id="paneOverview"><div class="loading">Reading the registers&#8230;</div></div>
 
@@ -1618,16 +1626,18 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* ---- replies, read from the site's mailbox ------------------------------ */
 
-  /* A Reply from PFA's inbox goes to the person and, as a second address, to
-     the site's own mailbox; the site reads that mailbox and files each reply
-     on its submission (lib/inbound-mail.js). On Firebase that runs every ten
-     minutes; on Vercel once a day, so this button reads it now. */
+  /* A Reply to a copy in PFA's inbox is addressed to the site's own mailbox
+     alone (since 13 Oct 2026); the site reads that mailbox, files each reply
+     on its submission and sends it on to the person (lib/inbound-mail.js).
+     On Firebase that runs every two minutes (27 Oct 2026); on Vercel once a
+     day, so this button reads it now. */
   /* `after`, as for mailbox(): the answer to a press, said once the
      section is drawn again, so the redraw does not wipe it (8 Oct 2026). */
   function replies(after) {
     var box = $('#replies');
     if (!box) return;
     api('/api/inbound-mail').then(function (r) {
+      replyAlertShow(r);
       var out = ['<h2>Replies</h2>'];
       if (!r.configured) {
         out.push('<p class="state" data-tone="bad"><b>No mailbox is set up to read replies from.</b> Replies from the inbox still reach the person; they are not kept here until the info@ mailbox is set up on the server (see Copies to PFA\u2019s inbox, above).</p>');
@@ -1640,7 +1650,7 @@ window.addEventListener('unhandledrejection', function (event) {
         var kinds = [];
         if (last.autoReplies) kinds.push(last.autoReplies === 1 ? 'one an automatic reply' : last.autoReplies + ' automatic replies');
         if (last.bounces) kinds.push(last.bounces === 1 ? 'one a report of an email not delivered' : last.bounces + ' reports of emails not delivered');
-        out.push('<p class="hint">A Reply from the inbox goes to the person and a copy comes back to <b>' + esc(r.mailbox) + '</b>, where the site files it on the submission. '
+        out.push('<p class="hint">A Reply to any copy comes to <b>' + esc(r.mailbox) + '</b>. The site reads it every two minutes, files it on its submission and sends it on to the person, and their answer comes back the same way. '
           + (r.lastRunAt ? 'Last read ' + esc(when(r.lastRunAt)) + (r.lastError ? ': <span class="flag" data-s="failed">' + esc(r.lastError) + '</span>' : ': ' + esc(last.fetched || 0) + ' new, ' + esc(last.filed || 0) + ' filed on a submission' + (kinds.length ? ' (' + esc(kinds.join(', ')) + ')' : '') + '.') : 'Not read yet.') + '</p>');
         out.push(r.lastError
           ? '<p class="state" data-tone="bad">Replies could not be read last time: ' + esc(r.lastError) + '</p>'
@@ -3920,7 +3930,44 @@ window.addEventListener('unhandledrejection', function (event) {
     $('#app').hidden = false;
     applyAccess();
     show('overview');
+    replyWatch();
   }
+
+  /* ---- replies not being picked up ---------------------------------------
+     Owner, 27 Oct 2026: "If the info@ check fails or hasn't run for 30
+     minutes, you get an email and the panel shows a red notice." The notice
+     is on every page, for everyone with Submissions, and is looked for again
+     every three minutes; it goes the moment replies are read again. */
+  var replyWatchTimer = null;
+  function replyAlertShow(r) {
+    var box = $('#replyAlert');
+    if (!box) return;
+    var text = r && r.alert ? r.alert : '';
+    $('#replyAlertText').textContent = text;
+    box.hidden = !text;
+  }
+  function replyWatch() {
+    if (!can('submissions')) return;
+    var look = function () {
+      if ($('#app').hidden) return;
+      api('/api/inbound-mail').then(replyAlertShow).catch(function () { /* the next look tries again */ });
+    };
+    look();
+    if (!replyWatchTimer) replyWatchTimer = setInterval(look, 180000);
+  }
+  on('#replyAlertCheck', 'click', function () {
+    var b = $('#replyAlertCheck');
+    b.disabled = true;
+    $('#replyAlertText').textContent = 'Reading the mailbox now\u2026';
+    api('/api/inbound-mail', { method: 'POST', body: {} }).catch(function () { return null; }).then(function () {
+      return api('/api/inbound-mail');
+    }).then(function (r) {
+      replyAlertShow(r);
+      if (r && r.alert) $('#replyAlertText').textContent = r.alert;
+    }).catch(function (e) {
+      $('#replyAlertText').textContent = (e && e.data && e.data.error) || (e && e.message) || 'The mailbox could not be read.';
+    }).then(function () { b.disabled = false; });
+  });
 
   function enter() {
     /* Two different failures used to read the same. Google accepted the

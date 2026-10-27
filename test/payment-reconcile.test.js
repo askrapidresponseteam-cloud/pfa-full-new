@@ -163,7 +163,7 @@ test('it runs where it should: from the email worker, which Firebase calls every
   assert.match(worker, /require\('\.\.\/\.\.\/payment-reconcile'\)\.run\(\)/);
   assert.ok(worker.indexOf("payment-reconcile") < worker.indexOf('if (!mail.isConfigured())'), 'before the mail check: a payment is recorded whether or not mail is set up');
   const fn = fs.readFileSync(path.join(ROOT, 'functions/index.js'), 'utf8');
-  assert.match(fn, /exports\.inboundMailCheck = onSchedule\(\s*\{ region: REGION, schedule: 'every 10 minutes'/);
+  assert.match(fn, /exports\.caregiverEmailWorker = onSchedule\(\s*\{ region: REGION, schedule: 'every 10 minutes'/);
   assert.match(fn, /require\('\.\/lib\/routes\/caregiver\/email-worker\.js'\)/);
   const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
   assert.ok(vercel.crons.some((c) => c.path === '/api/caregiver/email-worker'));

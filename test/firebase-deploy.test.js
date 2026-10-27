@@ -56,11 +56,13 @@ test('nothing from vercel.json was dropped in the port', () => {
     'a caching header rule was lost in the port');
 });
 
-test('the daily worker still runs, on the same schedule', () => {
+test('the worker Vercel runs daily still runs on Firebase, and more often', () => {
   const wrapper = fs.readFileSync(path.join(ROOT, 'functions', 'index.js'), 'utf8');
   const cron = vercel.crons[0];
+  assert.equal(cron.path, '/api/caregiver/email-worker');
   assert.match(wrapper, /onSchedule/, 'the cron is gone');
-  assert.ok(wrapper.includes(`'${cron.schedule}'`), `the schedule is no longer ${cron.schedule}`);
+  /* daily on Vercel; every ten minutes on Firebase since 27 Oct 2026 */
+  assert.match(wrapper, /exports\.caregiverEmailWorker = onSchedule\(\s*\{ region: REGION, schedule: 'every 10 minutes'/);
 });
 
 test('vercel.json is left intact so the site can still deploy there', () => {
