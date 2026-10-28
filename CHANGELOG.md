@@ -1,3 +1,13 @@
+## v1.472
+
+- **Old site members: notes, and an email to the person if wanted.** Owner, 28 Oct 2026: "there should be a section to add notes if someone from admin side reaches out to the person and email should go out..optional. from here.. like for existing tickets".
+  - Open a person and there is **Notes and emails**: everything said about them, newest first, and **+ Add a note**. Write what happened (who reached out, how, what they said, what is next) and Save note.
+  - **Optional email:** tick "Also email this to them" and the same words go to them from info@, to one of their own email addresses (a choice when they have more than one, the mistyped one marked), with an optional subject and the writer's name at the end. The note shows whether the email went.
+  - **Like a ticket:** their reply comes to info@, is read every two minutes, kept under them in Notes and emails, and sent on to whoever wrote to them. Pressing Reply on that sends the answer on to them from info@, kept here too. One conversation per person, so it stays one thread in their mailbox.
+  - Anyone with the Old site members section can add notes and emails; only super administrators still edit or merge. A note never changes the person and is not counted as a change to the list. Notes follow a person who is joined into another. Every note and email is in the audit log. The list shows how many notes each person has.
+  - Kept apart as before: the notes live beside the old list (oldSiteMembersNotes, oldSiteMembersThreads), served only by its own route and closed to the browser.
+- Checked: test/old-members.test.js (a note, who may add one, a person unchanged; an email only to their own address, from info@, with replies coming back to info@; their reply filed and carried to the writer, read twice and filed once; the writer's answer carried on to them in the same thread; notes following a merge; the panel and the rules), test/email-wording.test.js (both new emails), the full suite, and the section driven in Chromium.
+
 ## v1.471
 
 - **Replies are picked up every two minutes.** Owner, 27 Oct 2026: "The info@ check could run every 2 minutes instead of every 10." The reading of the info@ mailbox, which files each reply on its case and sends it on, now has the two-minute schedule to itself, so a typed Reply reaches the person within about two minutes. The email worker, the search index and the payment check moved to the other scheduled job, which now runs every ten minutes instead of once a night. Still the same two scheduled jobs, so nothing is added to the bill; 720 short runs a day is well inside the free allowance. One reading runs at a time: a run holds the mailbox, and a run that finds it held waits for the next turn.

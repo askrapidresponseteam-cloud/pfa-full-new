@@ -464,3 +464,129 @@ test('changes carry over to a newer copy of the list, replayed by person', async
   assert.equal(again.history[0].appliesNow, true);
   assert.equal((await db.collection('oldSiteMembers').doc('current').get()).data().changeSeq, 1, 'the count of changes is not reset by an import');
 });
+
+/* ---------- notes and emails (owner, 28 Oct 2026) ----------
+   "there should be a section to add notes if someone from admin side reaches
+   out to the person and email should go out..optional. from here.. like for
+   existing tickets" */
+
+const MAILER = require('../lib/caregiver-mail');
+const INBOUND = require('../lib/inbound-mail');
+const NOTE_ENV = ['PFA_SMTP_USER', 'PFA_SMTP_PASS', 'PFA_IMAP_USER', 'PFA_CAPTURE_REPLIES', 'PFA_SUBMISSIONS_INBOX', 'PFA_PAYMENTS_INBOX'];
+async function withMail(fn) {
+  const saved = {}; NOTE_ENV.forEach((k) => { saved[k] = process.env[k]; });
+  Object.assign(process.env, { PFA_SMTP_USER: 'info@peopleforanimalsindia.org', PFA_SMTP_PASS: 'x', PFA_SUBMISSIONS_INBOX: 'gandhim@exmpls.sansad.in', PFA_PAYMENTS_INBOX: 'pay@pfa.test' });
+  delete process.env.PFA_IMAP_USER; delete process.env.PFA_CAPTURE_REPLIES;
+  const sent = [];
+  MAILER._setSmtpTransport(() => ({ async sendMail(m) { sent.push(m); return { messageId: m.messageId }; }, close() {} }));
+  try { return await fn(sent); } finally {
+    MAILER._setSmtpTransport(null);
+    NOTE_ENV.forEach((k) => { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; });
+  }
+}
+function callQ({ token = 'tok-super', query }) {
+  return new Promise((resolve, reject) => {
+    const out = { statusCode: 200 };
+    const response = { get statusCode() { return out.statusCode; }, set statusCode(v) { out.statusCode = v; }, setHeader() {}, getHeader() {}, writeHead(c) { out.statusCode = c; },
+      end(raw) { out.raw = String(raw || ''); try { out.json = JSON.parse(out.raw); } catch (_) { out.json = null; } resolve(out); } };
+    const request = { method: 'GET', url: '/api/admin/old-members', query, headers: { host: 'pfa.test', authorization: 'Bearer ' + token } };
+    Promise.resolve(require('../lib/routes/admin/old-members.js')(request, response)).catch(reject);
+  });
+}
+const note = (personId, text, email, token = 'tok-super') => call({ method: 'POST', token, body: { action: 'note', personId, text, email } });
+const notesOf = async (id, token) => (await callQ({ token, query: { notes: id } })).json.notes;
+
+test('a note is kept under the person, by whoever has the section, and never changes them', async () => {
+  await load('tok-super');
+  const asha = find(await people(), 'Asha Varma');
+  assert.equal((await note(asha.id, ' ')).statusCode, 422, 'an empty note is refused');
+  const saved = await note(asha.id, 'Called her on 9876500001. She is still with us and will renew in March.', null, 'tok-staff');
+  assert.equal(saved.statusCode, 200, saved.raw);
+  assert.equal(saved.json.note.type, 'note');
+  assert.equal((await note(asha.id, 'x y', null, 'tok-other')).statusCode, 403, 'not without the Old site members section');
+  const list = await notesOf(asha.id);
+  assert.equal(list.length, 1);
+  assert.equal(list[0].by.email, 'staff@pfa.test');
+  assert.match(list[0].text, /renew in March/);
+  const after = await people();
+  assert.equal(after.noteCounts[asha.id], 1, 'the list shows how many notes');
+  assert.deepEqual(find(after, 'Asha Varma'), Object.assign({}, asha), 'the person is as they were');
+  assert.equal(after.history.length, 0, 'a note is not a change to the list');
+  const log = (await db.collection('adminAudit').get()).docs.map((d) => d.data());
+  assert.ok(log.some((e) => e.action === 'old-members-note' && e.actor.email === 'staff@pfa.test'));
+});
+
+test('ticked, the note goes to them by email from info@, to one of their own addresses, and their reply comes back here and to whoever wrote', async () => {
+  await load('tok-super');
+  const asha = find(await people(), 'Asha Varma');
+  await withMail(async (sent) => {
+    assert.equal((await note(asha.id, 'Hello', { to: 'someone@else.com' })).json.code, 'NOT_THEIR_EMAIL');
+    const r = await note(asha.id, 'Dear Asha,\n\nWe are bringing old members across to the new site. May we?', { to: 'asha.varma@gmail.com', subject: 'Your PFA membership' }, 'tok-staff');
+    assert.equal(r.statusCode, 200, r.raw);
+    assert.equal(r.json.emailed, true);
+    const out = sent[sent.length - 1];
+    assert.equal(String(out.to), 'asha.varma@gmail.com');
+    assert.equal(out.subject, 'Your PFA membership');
+    assert.match(String(out.replyTo), /info@peopleforanimalsindia\.org/, 'their Reply comes to the site');
+    const ref = 'PFA-OLD-' + asha.id.replace(/^OSM-/, '');
+    const thread = db.dump()[`oldSiteMembersThreads/${asha.id}`];
+    const msgId = `<${ref}.${thread.threadId}.msg.1@peopleforanimalsindia.org>`;
+    assert.equal(out.messageId, msgId);
+    assert.match(out.text, /staff, People for Animals/i, 'signed by who wrote it');
+    assert.equal((await notesOf(asha.id))[0].email.state, 'sent');
+
+    /* her answer, read from the mailbox */
+    const reply = { from: 'asha.varma@gmail.com', fromName: 'Asha Varma', to: ['info@peopleforanimalsindia.org'], subject: 'Re: Your PFA membership', messageId: '<a1@gmail.com>', inReplyTo: [msgId], references: [msgId], text: 'Yes please.', newText: 'Yes please.', date: new Date(), attachments: [], cc: [] };
+    const filed = await INBOUND.file(db, reply, { mail: MAILER });
+    assert.equal(filed.filed, true);
+    assert.deepEqual(filed.relayed, ['staff@pfa.test']);
+    const again = await INBOUND.file(db, reply, { mail: MAILER });
+    assert.equal(again.reason, 'DUPLICATE', 'read twice, filed once');
+    const relay = sent[sent.length - 1];
+    assert.equal(String(relay.to), 'staff@pfa.test', 'carried to the member of staff who wrote');
+    assert.match(relay.text, /Yes please\./);
+    assert.match(String(relay.replyTo), /info@peopleforanimalsindia\.org/);
+    let list = await notesOf(asha.id);
+    assert.equal(list[0].type, 'email-in');
+    assert.equal(list[0].party, 'person');
+    assert.equal(list[0].text, 'Yes please.');
+
+    /* staff press Reply on that, in their own mailbox: it goes on to her */
+    const answer = { from: 'staff@pfa.test', fromName: 'Staff', to: ['info@peopleforanimalsindia.org'], subject: relay.subject, messageId: '<s1@pfa.test>', inReplyTo: [relay.messageId], references: [msgId, relay.messageId], text: 'Thank you, done.', newText: 'Thank you, done.', date: new Date(), attachments: [], cc: [] };
+    const on = await INBOUND.file(db, answer, { mail: MAILER });
+    assert.equal(on.filed, true);
+    assert.deepEqual(on.relayed, ['asha.varma@gmail.com']);
+    const toHer = sent[sent.length - 1];
+    assert.equal(String(toHer.to), 'asha.varma@gmail.com');
+    assert.match(toHer.text, /Thank you, done\./);
+    assert.equal(toHer.inReplyTo, msgId, 'in the same conversation in her mailbox');
+    list = await notesOf(asha.id);
+    assert.deepEqual(list.map((n) => n.type).slice(0, 2).sort(), ['email-in', 'email-out']);
+  });
+});
+
+test('notes follow a person who is joined into another', async () => {
+  await load('tok-super');
+  const list = await people();
+  const kiran = find(list, 'Kiran Rao'); const divya = find(list, 'Divya Rao');
+  await note(divya.id, 'Spoke to Divya about the family membership.');
+  const p = await propose({ op: 'merge', keep: kiran.id, absorb: divya.id });
+  await confirmIt(p.json.proposalId);
+  const notes = await notesOf(kiran.id);
+  assert.equal(notes.length, 1);
+  assert.match(notes[0].text, /Divya/);
+  assert.equal((await people()).noteCounts[kiran.id], 1);
+});
+
+test('the panel: a Notes and emails section in each person, with the email optional and staged', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
+  assert.match(html, /\+ \(d\.canNote \? omNotesBox\(m\) : ''\);/);
+  assert.match(html, /<h3>Notes and emails<\/h3>/);
+  assert.match(html, /<details class="fold om-nadd"><summary>Add a note<\/summary>/, 'behind a +, shown only when wanted');
+  assert.match(html, /<input type="checkbox" id="omNoteMail"> Also email this to them/);
+  assert.match(html, /<div id="omNoteMailBox" hidden>/);
+  assert.match(html, /It goes from info@ with your name at the end\. Their reply comes back here and to your email\./);
+  assert.match(html, /api\('\/api\/admin\/old-members\?notes=' \+ encodeURIComponent\(id\)\)/);
+  const rules = fs.readFileSync(path.join(ROOT, 'firestore.rules'), 'utf8');
+  for (const c of ['oldSiteMembersNotes', 'oldSiteMembersThreads']) assert.match(rules, new RegExp(`match /${c}/\\{id\\}\\s*\\{ allow read, write: if false; \\}`), c);
+});

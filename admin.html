@@ -542,6 +542,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
 .om-row:hover td{background:var(--stone,#f4f3f1)}
 .om-row[aria-expanded="true"] td{background:var(--stone,#f4f3f1)}
 .om-row td .aka{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.om-row td .om-ncount[hidden]{display:none}
 .om-row td .bad{color:var(--waiting)}
 .om-row td .note,.om-pair .note{color:var(--muted);font-size:11px}
 .om-more td{background:var(--stone,#f4f3f1);padding:4px 16px 18px}
@@ -558,6 +559,17 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
 .om-go:hover{background:var(--paper,#fff);color:var(--ink)}
 .om-go[disabled]{opacity:.35;cursor:default;background:var(--ink);color:#fff}
 .om-acts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+/* notes and emails about a person (28 Oct 2026) */
+.om-notes{margin:18px 0 0;border-top:1px solid var(--line);padding-top:14px;max-width:760px}
+.om-notes h3{margin:0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.om-nlist{list-style:none;margin:8px 0 0;padding:0}
+.om-nlist li{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55}
+.om-nlist li:last-child{border-bottom:0}
+.om-nlist .who{color:var(--muted);font-size:12px}
+.om-nlist p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.om-nadd textarea,.om-nadd input[type=text],.om-nadd select{display:block;width:100%;max-width:640px;margin:8px 0 0;padding:10px 12px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper,#fff)}
+.om-nadd .tick{display:flex;align-items:center;gap:8px;margin:12px 0 0}
+.om-nsave{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0}
 .om-take{margin-left:8px;height:24px;padding:0 8px;font-size:10px}
 .om-hist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .om-hist li{border:1px solid var(--line);padding:12px 14px;font-size:13px;line-height:1.55}
@@ -3256,7 +3268,8 @@ window.addEventListener('unhandledrejection', function (event) {
     var open = om.open === m.id;
     var email = (m.emails || [])[0];
     var html = '<tr class="om-row" tabindex="0" data-om="' + esc(m.id) + '" aria-expanded="' + open + '">'
-      + '<td><b>' + esc(m.name || '(no name)') + '</b>' + ((m.aka || []).length ? '<span class="aka">also written ' + esc(m.aka.join(', ')) + '</span>' : '') + '</td>'
+      + '<td><b>' + esc(m.name || '(no name)') + '</b>' + ((m.aka || []).length ? '<span class="aka">also written ' + esc(m.aka.join(', ')) + '</span>' : '')
+      + '<span class="aka om-ncount"' + (((om.data || {}).noteCounts || {})[m.id] ? '>' + omCount(om.data.noteCounts[m.id]) : ' hidden>') + '</span></td>'
       + '<td>' + omNumbers(m) + '</td>'
       + '<td>' + esc((m.mobiles || [])[0] || '-') + ((m.mobiles || []).length > 1 ? ' <span class="note">+' + (m.mobiles.length - 1) + '</span>' : '') + '</td>'
       + '<td>' + (email ? '<span' + (email.looksWrong ? ' class="bad" title="This address looks mistyped"' : '') + '>' + esc(email.email) + '</span>' : '-') + ((m.emails || []).length > 1 ? ' <span class="note">+' + (m.emails.length - 1) + '</span>' : '') + '</td>'
@@ -3291,8 +3304,108 @@ window.addEventListener('unhandledrejection', function (event) {
       + fact('Changed by hand', mine.map(function (h) { return esc(omWhen(h.at) + ', ' + omWho(h.by) + ': ' + h.summary) + '<br><span class="note">Why: ' + esc(h.reason) + '</span>'; }).join('<br>'))
       + '</div>'
       + (d.canEdit ? '<div class="om-acts"><button class="ghost" type="button" data-omact="edit" data-id="' + esc(m.id) + '">Edit details</button>'
-        + '<button class="ghost" type="button" data-omact="merge" data-id="' + esc(m.id) + '">Merge with another person</button></div>' : '');
+        + '<button class="ghost" type="button" data-omact="merge" data-id="' + esc(m.id) + '">Merge with another person</button></div>' : '')
+      + (d.canNote ? omNotesBox(m) : '');
   }
+
+  /* ---- notes and emails about a person (owner, 28 Oct 2026: "there should
+     be a section to add notes if someone from admin side reaches out to the
+     person and email should go out..optional. from here.. like for existing
+     tickets"). A note is kept under them; ticked, the same words go to them
+     by email from info@, and their reply comes back here. */
+  om.notes = {};
+  function omCount(n) { return n === 1 ? '1 note' : n + ' notes'; }
+  function omNoteLine(n) {
+    var who = n.by ? (n.by.name || n.by.email) : '';
+    var flag = function (state) { return state && state !== 'sent' ? ' <span class="flag" data-s="' + esc(state) + '">' + esc(MAIL_STATUS[state] || state) + '</span>' : ''; };
+    var head;
+    if (n.type === 'email-in') {
+      head = '<b>' + (n.party === 'staff' ? 'Answered from ' + esc((n.email || {}).from || who) + "'s mailbox" : 'Reply from ' + esc((n.email || {}).from || 'them')) + '</b>'
+        + (n.auto ? ' <span class="note">automatic reply</span>' : '');
+    } else if (n.type === 'email-out') {
+      head = '<b>Email to ' + esc((n.email || {}).to || '') + '</b>' + flag((n.email || {}).state);
+    } else {
+      head = '<b>Note</b>';
+    }
+    return '<li>' + head + ' <span class="who">' + esc(omWhen(n.at)) + (who && n.type !== 'email-in' ? ', ' + esc(who) : '') + '</span>'
+      + (n.type === 'email-out' && n.email && n.email.subject ? '<span class="who" style="display:block">Subject: ' + esc(n.email.subject) + '</span>' : '')
+      + '<p>' + esc(n.text || '') + '</p>'
+      + (n.attachments ? '<span class="who">' + n.attachments + (n.attachments === 1 ? ' attachment' : ' attachments') + ' in the mailbox</span>' : '')
+      + '</li>';
+  }
+  function omNotesList(id) {
+    var s = om.notes[id];
+    if (!s || s.loading) return '<p class="note">Reading notes&#8230;</p>';
+    if (s.error) return '<p class="note">' + esc(s.error) + '</p>';
+    if (!s.list.length) return '<p class="note">No notes yet.</p>';
+    return '<ul class="om-nlist">' + s.list.map(omNoteLine).join('') + '</ul>';
+  }
+  function omNotesBox(m) {
+    var emails = (m.emails || []).filter(function (e) { return e.email; });
+    var first = emails.filter(function (e) { return !e.looksWrong; })[0] || emails[0];
+    var to = emails.length > 1
+      ? '<label for="omNoteTo">Send to</label><select id="omNoteTo">' + emails.map(function (e) { return '<option value="' + esc(e.email) + '"' + (e === first ? ' selected' : '') + '>' + esc(e.email) + (e.looksWrong ? ' (looks mistyped)' : '') + '</option>'; }).join('') + '</select>'
+      : (first ? '<input type="hidden" id="omNoteTo" value="' + esc(first.email) + '"><p class="note">To ' + esc(first.email) + '</p>' : '');
+    return '<div class="om-notes" data-omnotes="' + esc(m.id) + '"><h3>Notes and emails</h3>'
+      + '<div id="omNotesList">' + omNotesList(m.id) + '</div>'
+      + '<details class="fold om-nadd"><summary>Add a note</summary>'
+      + '<textarea id="omNoteText" rows="3" maxlength="4000" placeholder="What happened: who reached out, how, what they said, what is next" aria-label="The note"></textarea>'
+      + (first ? '<label class="tick"><input type="checkbox" id="omNoteMail"> Also email this to them</label>'
+        + '<div id="omNoteMailBox" hidden>' + to
+        + '<input type="text" id="omNoteSubject" maxlength="150" placeholder="Subject (optional): A message from People for Animals" aria-label="Subject">'
+        + '<p class="note">It goes from info@ with your name at the end. Their reply comes back here and to your email.</p></div>'
+        : '<p class="note">No email address on record, so this is kept as a note only.</p>')
+      + '<div class="om-nsave"><button class="om-go" type="button" id="omNoteSave">Save note</button><span class="note" id="omNoteSaid" aria-live="polite"></span></div>'
+      + '</details></div>';
+  }
+  function omNotesShow(id) {
+    var box = $('#omNotesList');
+    var wrap = box && box.closest('[data-omnotes]');
+    if (wrap && wrap.getAttribute('data-omnotes') === id) box.innerHTML = omNotesList(id);
+  }
+  function omLoadNotes(id) {
+    om.notes[id] = om.notes[id] && om.notes[id].list ? Object.assign(om.notes[id], { loading: false }) : { loading: true, list: [] };
+    return api('/api/admin/old-members?notes=' + encodeURIComponent(id)).then(function (r) {
+      om.notes[id] = { list: r.notes || [] };
+      if (om.data) { om.data.noteCounts = om.data.noteCounts || {}; om.data.noteCounts[id] = (r.notes || []).length; }
+      var count = document.querySelector('.om-row[data-om="' + id.replace(/"/g, '') + '"] .om-ncount');
+      if (count) { count.textContent = omCount((r.notes || []).length); count.hidden = !(r.notes || []).length; }
+      omNotesShow(id);
+    }).catch(function (e) {
+      om.notes[id] = { list: [], error: (e && e.message) || 'The notes could not be read.' };
+      omNotesShow(id);
+    });
+  }
+  function omNoteSave() {
+    var id = om.open;
+    var text = ($('#omNoteText').value || '').trim();
+    var said = $('#omNoteSaid');
+    if (text.length < 2) { say(said, 'Write what happened first.', 'bad'); return; }
+    var mail = $('#omNoteMail') && $('#omNoteMail').checked;
+    var body = { action: 'note', personId: id, text: text };
+    if (mail) body.email = { to: $('#omNoteTo').value, subject: ($('#omNoteSubject').value || '').trim() };
+    var button = $('#omNoteSave');
+    button.disabled = true;
+    say(said, mail ? 'Saving and sending\u2026' : 'Saving\u2026');
+    api('/api/admin/old-members', { method: 'POST', body: body }).then(function (r) {
+      $('#omNoteText').value = '';
+      if ($('#omNoteMail')) { $('#omNoteMail').checked = false; $('#omNoteMailBox').hidden = true; }
+      if ($('#omNoteSubject')) $('#omNoteSubject').value = '';
+      button.textContent = 'Save note';
+      button.disabled = false;
+      say(said, !mail ? 'Note saved.' : r.emailed ? 'Note saved and emailed.' : 'Note saved. ' + (r.mailNote || 'The email is queued and will go shortly.'), r.emailed || !mail ? 'good' : '');
+      return omLoadNotes(id);
+    }).catch(function (e) {
+      button.disabled = false;
+      say(said, (e && e.message) || 'That could not be saved.', 'bad');
+    });
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target.id === 'omNoteMail') {
+      $('#omNoteMailBox').hidden = !e.target.checked;
+      $('#omNoteSave').textContent = e.target.checked ? 'Save and email' : 'Save note';
+    }
+  });
 
   function omTable() {
     var node = $('#omRows');
@@ -3635,10 +3748,16 @@ window.addEventListener('unhandledrejection', function (event) {
     if (t.id === 'omMore') { om.shown += 100; omTable(); return; }
     if (t.id === 'omCsv') { omCsv(); return; }
     if (t.id === 'omLoad') { omImport(); return; }
+    if (t.id === 'omNoteSave') { omNoteSave(); return; }
     var act = t.closest('[data-omact]');
     if (act) { omStart(act.getAttribute('data-omact'), act); return; }
     var row = t.closest('.om-row');
-    if (row) { var id = row.getAttribute('data-om'); om.open = om.open === id ? '' : id; omTable(); }
+    if (row) {
+      var id = row.getAttribute('data-om');
+      om.open = om.open === id ? '' : id;
+      omTable();
+      if (om.open && (om.data || {}).canNote) omLoadNotes(om.open);
+    }
   });
   document.addEventListener('keydown', function (e) {
     var row = e.target.closest && e.target.closest('.om-row');

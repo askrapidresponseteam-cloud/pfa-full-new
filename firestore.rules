@@ -68,6 +68,10 @@ service cloud.firestore {
     match /oldSiteMembers/{id}        { allow read, write: if false; }
     match /oldSiteMembersChanges/{id} { allow read, write: if false; }
     match /oldSiteMembersProposals/{id} { allow read, write: if false; }
+    /* notes and emails about them, and each one's email conversation
+       (28 Oct 2026): through the same route only */
+    match /oldSiteMembersNotes/{id}   { allow read, write: if false; }
+    match /oldSiteMembersThreads/{id} { allow read, write: if false; }
     match /caretakerCards/{id}        { allow read, write: if isAdmin(); }
     match /caretakerAddresses/{id}    { allow read, write: if isAdmin(); }
     match /caretakerOrders/{id}       { allow read, write: if isAdmin(); }
