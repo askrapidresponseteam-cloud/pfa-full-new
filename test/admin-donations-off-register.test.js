@@ -65,7 +65,8 @@ async function seed() {
 }
 
 test('donations are the kinds kept off the register', () => {
-  assert.deepEqual([...OFF_REGISTER], ['PFA-DON']);
+  /* shop orders joined on 28 Oct 2026: they have a section of their own */
+  assert.deepEqual([...OFF_REGISTER], ['PFA-DON', 'PFA-SHP']);
 });
 
 test('the register lists the query and none of the donations, under any status', async () => {

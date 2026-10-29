@@ -1,3 +1,28 @@
+## v1.475
+
+- **The colony card's number is on the preview before it is issued, and it is random.** Owner, 29 Oct 2026: "show the number. and let it not be like 001.. it has to be randomised so that people cant fake".
+  - Each application waiting in Colony cards is given its card number when the queue is opened: PFA-CCT- and eight characters drawn at random from 32 letters and digits (no 0, 1, I or O, which are misread), about a trillion possibilities, never in order, so a number cannot be guessed from another. It is printed on the preview where it said "Given when issued", and shown beside the application as Card number.
+  - Issue card gives the card exactly that number, so what the reviewer saw is what is printed and what the public card check finds. If any card already carried it, a fresh random number is drawn instead; no two cards ever share one.
+  - The application number (PFA-CG-2026-00001) is only the application's reference for tracking; it is never printed on the card.
+- Checked: test/caregiver-issue.test.js (a random number per application, the same each time it is looked at, issued with exactly that number, never a number another card carries; the panel draws it), the full suite, and the queue in Chromium.
+
+## v1.474
+
+- **Shop orders, a section of their own on the left, with shipping and a shipping email.** Owner, 28 Oct 2026: "let shop orders be one sep thing on the left and admin should have option to change the status to order shipped. and enter details of courier- which onces saved - will have option to trigger email in the pfa template to the person who ordered - the standard tracking id and details. and a ecom style amazing message".
+  - **Shop orders**, after Payments & donations, with a count of orders to ship. Paid orders only, newest first, in To ship, Shipped and All: the order number, date and amount, who ordered and how to reach them, what is in it and where it goes.
+  - **Mark shipped:** type the courier (common ones are suggested), the tracking number and, if the courier gave one, the tracking link, and Save as shipped. The order is marked shipped on its payment line, in the order store the old shop panel reads, and on the order's own conversation. Change courier details corrects them later; every version is kept.
+  - **Then, if wanted, Email the customer:** right after saving, the panel asks "Email Asha the tracking details now?". The email is in the PFA style, like an online shop's: "It’s on its way.", a little tracker (Ordered, Shipped, Delivered), the tracking number large, the courier, the date, Track your parcel when there is a link, what is in the parcel and where it is coming to, and a thank you. Preview email shows exactly what they will get first. It continues the order's conversation, so a reply reaches PFA and is kept on the order. Sent once per tracking number.
+  - Shop orders are off the Submissions register now, as donations are; Open the order opens the order's conversation as before. Who can use it is its own section, Shop orders, on the People page. Everything is in the audit log.
+- Checked: test/shop-orders.test.js (paid orders only; the checks on courier, tracking number and link; shipped everywhere it is kept; the email only after saving, to the customer, once per number, in the order's thread; corrections kept; the preview; the panel), test/email-wording.test.js (the shipping email with and without a link), the full suite, and the section and the email driven in Chromium.
+
+## v1.473
+
+- **Every + mark is dead centre, on the panel and the site.** Owner, 28 Oct 2026: "+mark isnt perfectly centered. fix it. across admin and end user site it the issue exists. any and all such alignment issues".
+  - **Panel:** the + boxes (History of changes, Where this list came from, Load a newer copy, the photo details in To approve, the parts of a payment, the not finished payments list) typed a + from the font, which sits a pixel off the middle, and turned the whole square 45 degrees when opened, so it became a diamond. They are drawn now: two 1px bars in a box of odd size, so both land on whole pixels exactly in the middle. Opened, the box stays square and an x is drawn inside it about the same centre.
+  - **Site:** every drawn + and x (the footer folds on a phone, the units list, the FAQ and how-it-works folds, the photo remove buttons on the forms, the shop's quantity, the announcement bar's close, and the rest) used 1.5px bars, which fall between pixels and blur off centre. They are 2px now, so they are crisp and exactly centred at every screen density.
+  - Checked: test/plus-drawn.test.js (nothing typed anywhere; the panel's boxes on whole pixels; open is an x, never a turned box), test/mobile-fixes.test.js, and the marks photographed up close in Chromium.
+- **Add a note is in plain view on Old site members.** Owner, 28 Oct 2026: "make add note option more prominent and visible and unmissable..right now it is pretty much hidden". Open a person and the first thing under their details is a framed Add a note card with the box ready to type in, Also email this to them, and Save note; their notes and emails are listed in the same card underneath. Edit details and Merge come after it.
+
 ## v1.472
 
 - **Old site members: notes, and an email to the person if wanted.** Owner, 28 Oct 2026: "there should be a section to add notes if someone from admin side reaches out to the person and email should go out..optional. from here.. like for existing tickets".

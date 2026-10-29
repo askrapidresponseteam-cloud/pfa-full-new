@@ -253,3 +253,42 @@ test('the panel puts Issue and Reject on every waiting application, and in the d
   assert.match(html, /<script src="assets\/field-rules\.js"><\/script>\s*<script src="assets\/card-print\.js"><\/script>\s*<script src="assets\/caregiver-card\.js"><\/script>/);
   assert.match(html, /C\.unprintable\(data\)/, 'the batch PDF refuses a card that is not exactly as issued');
 });
+
+/* ---- the card number, before it is issued -------------------------------
+   Owner, 29 Oct 2026, of the preview's "Given when issued": "show the
+   number. and let it not be like 001.. it has to be randomised so that
+   people cant fake". */
+
+test('each waiting application is shown the random number its card will carry, and the card is issued with exactly that number', async () => {
+  await seed([APP(1, {}), APP(2, {})]);
+  const first = await call(queue());
+  const n1 = first.json.rows[0].cardNumber; const n2 = first.json.rows[1].cardNumber;
+  assert.match(n1, /^PFA-CCT-[A-HJ-NP-Z2-9]{8}$/, 'eight random characters, no 0, 1, I or O to misread');
+  assert.notEqual(n1, n2);
+  assert.doesNotMatch(n1, /0{2,}|00\d$/, 'nothing like 001');
+  const again = await call(queue());
+  assert.equal(again.json.rows[0].cardNumber, n1, 'the same number every time it is looked at');
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00001'].reservedCardId, n1);
+  const ok = await call(caseRoute(), { method: 'POST', body: { reference: 'PFA-CG-2026-00001', action: 'approve' } });
+  assert.equal(ok.statusCode, 200, ok.raw);
+  assert.equal(ok.json.cardId, n1, 'the card carries the number the reviewer saw');
+  assert.ok(db.dump()[`caretakerCards/${n1}`]);
+  const after = await call(queue());
+  assert.deepEqual(after.json.rows.map((r) => r.reference), ['PFA-CG-2026-00002'], 'issued, so no longer waiting');
+});
+
+test('a reserved number some card already carries is never given twice: the card gets a fresh random one', async () => {
+  await seed([APP(1, {}, { reservedCardId: 'PFA-CCT-TAKEN234' })]);
+  await db.collection('caretakerCards').doc('PFA-CCT-TAKEN234').set({ cardId: 'PFA-CCT-TAKEN234', name: 'Someone Else' });
+  const ok = await call(caseRoute(), { method: 'POST', body: { reference: 'PFA-CG-2026-00001', action: 'approve' } });
+  assert.equal(ok.statusCode, 200, ok.raw);
+  assert.notEqual(ok.json.cardId, 'PFA-CCT-TAKEN234');
+  assert.match(ok.json.cardId, /^PFA-CCT-[A-Z0-9]{8}$/);
+  assert.equal(db.dump()['caretakerCards/PFA-CCT-TAKEN234'].name, 'Someone Else', 'the other card is untouched');
+});
+
+test('the panel draws the number on the preview, and says it beside the application', () => {
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'admin.html'), 'utf8');
+  assert.match(html, /cardId: issued \? issued\.cardId : \(row\.cardNumber \|\| ''\),/);
+  assert.match(html, /'<p class="meta">Card number <b>' \+ esc\(row\.cardNumber\) \+ '<\/b><\/p>'/);
+});

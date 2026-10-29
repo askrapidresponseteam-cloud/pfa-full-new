@@ -580,9 +580,12 @@ test('notes follow a person who is joined into another', async () => {
 
 test('the panel: a Notes and emails section in each person, with the email optional and staged', () => {
   const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
-  assert.match(html, /\+ \(d\.canNote \? omNotesBox\(m\) : ''\);/);
-  assert.match(html, /<h3>Notes and emails<\/h3>/);
-  assert.match(html, /<details class="fold om-nadd"><summary>Add a note<\/summary>/, 'behind a +, shown only when wanted');
+  assert.match(html, /\+ \(d\.canNote \? omNotesBox\(m\) : ''\)\n {6}\+ \(d\.canEdit \?/, 'first thing under their details');
+  /* in plain view, not behind a + (owner, 28 Oct 2026: "make add note option more prominent and visible and unmissable") */
+  assert.match(html, /'<div class="om-notes" data-omnotes="' \+ esc\(m\.id\) \+ '"><h3>Add a note<\/h3>'\n {6}\+ '<div class="om-nadd">'/);
+  assert.doesNotMatch(html, /<details class="fold om-nadd">/);
+  assert.match(html, /<h4>Notes and emails<\/h4>/);
+  assert.match(html, /\.om-notes\{[^}]*border:1px solid var\(--ink\);box-shadow:inset 4px 0 0 var\(--ink\)\}/);
   assert.match(html, /<input type="checkbox" id="omNoteMail"> Also email this to them/);
   assert.match(html, /<div id="omNoteMailBox" hidden>/);
   assert.match(html, /It goes from info@ with your name at the end\. Their reply comes back here and to your email\./);

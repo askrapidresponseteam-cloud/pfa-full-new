@@ -23,7 +23,7 @@
 .announce{position:fixed;left:0;right:0;top:0;z-index:60;min-height:34px;background:#fff;border-bottom:1px solid var(--line,#e4e2df);color:#111;display:flex;align-items:center;justify-content:center;padding:0 48px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
 .announce p{margin:0;text-align:center}
 /* its cross is drawn, so it sits in the middle of its button */
-.announce button{position:absolute;right:8px;top:50%;transform:translateY(-50%) rotate(45deg);display:block;width:40px;height:40px;background:linear-gradient(currentColor,currentColor) center/12px 1.2px no-repeat,linear-gradient(currentColor,currentColor) center/1.2px 12px no-repeat;border:none;color:rgba(17,17,17,.55);cursor:pointer;font-size:0;line-height:0;padding:0;transition:color .25s}
+.announce button{position:absolute;right:8px;top:50%;transform:translateY(-50%) rotate(45deg);display:block;width:40px;height:40px;background:linear-gradient(currentColor,currentColor) center/12px 2px no-repeat,linear-gradient(currentColor,currentColor) center/2px 12px no-repeat;border:none;color:rgba(17,17,17,.55);cursor:pointer;font-size:0;line-height:0;padding:0;transition:color .25s}
 .announce button:hover{color:#111}
 /* The bar is the one piece of chrome that is ink rather than paper, so the
    ink selection every page sets would be invisible on it. */
@@ -595,7 +595,7 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
 .pfa-footer.is-folding .pfa-footer__label{order:1;margin:0;padding:10px 22px 10px 0;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 .pfa-footer.is-folding .pfa-footer__label:hover{opacity:.6}
 .pfa-footer.is-folding .pfa-footer__label::after{content:"";position:absolute;right:2px;top:50%;width:10px;height:10px;margin-top:-5px;
-  background:linear-gradient(currentColor,currentColor) center/10px 1.5px no-repeat,linear-gradient(currentColor,currentColor) center/1.5px 10px no-repeat;transition:transform .25s ease}
+  background:linear-gradient(currentColor,currentColor) center/10px 2px no-repeat,linear-gradient(currentColor,currentColor) center/2px 10px no-repeat;transition:transform .25s ease}
 .pfa-footer.is-folding .pfa-footer__label[aria-expanded="true"]::after{transform:rotate(45deg)}
 .pfa-footer.is-folding .pfa-footer__col ul,.pfa-footer.is-folding .pfa-footer__where{order:2;flex:0 0 100%;display:none}
 .pfa-footer.is-folding .pfa-footer__col.is-open ul{display:block;padding:6px 0 2px var(--at,0px);animation:pfaFootIn .22s ease both}

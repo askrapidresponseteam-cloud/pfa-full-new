@@ -266,9 +266,10 @@ test('no plus, minus, cross, arrow or chevron in a button is a typed character: 
     for (const [re, what] of TYPED) if (re.test(s)) bad.push(`${f}: ${what}`);
   }
   assert.deepEqual(bad, []);
-  /* and the circles that carry them draw them from their centre */
-  assert.match(read('lab-animal-rules.html'), /\.lab-more summary::after\{content:"";[^}]*background:linear-gradient\(currentColor,currentColor\) center\/12px 1\.5px no-repeat,linear-gradient\(currentColor,currentColor\) center\/1\.5px 12px no-repeat/);
-  assert.match(read('units.html'), /\.u-fold\{[^}]*background:linear-gradient\(currentColor,currentColor\) center\/12px 1\.5px no-repeat/);
+  /* and the circles that carry them draw them from their centre, in 2px
+     bars that land on whole pixels (28 Oct 2026) */
+  assert.match(read('lab-animal-rules.html'), /\.lab-more summary::after\{content:"";[^}]*background:linear-gradient\(currentColor,currentColor\) center\/12px 2px no-repeat,linear-gradient\(currentColor,currentColor\) center\/2px 12px no-repeat/);
+  assert.match(read('units.html'), /\.u-fold\{[^}]*background:linear-gradient\(currentColor,currentColor\) center\/12px 2px no-repeat/);
   /* the bell's ink runs 2 to 22 of its 24, the middle of its button */
   assert.match(read('scripts/sync-chrome.js'), /<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"\/><path d="M10 22h4M12 3V2"\/>/);
 });

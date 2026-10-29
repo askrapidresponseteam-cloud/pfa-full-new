@@ -234,12 +234,13 @@ td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pend__list{margin-top:12px}
 .pend__list summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;list-style:none}
 .pend__list summary::-webkit-details-marker{display:none}
-.pend__list summary::before{content:"+";display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid var(--line,#ddd);font-weight:400;transition:transform .2s}
-.pend__list[open] summary::before{transform:rotate(45deg)}
+/* drawn, not typed (owner, 28 Oct 2026: "+mark isnt perfectly centered. fix it"): a typed + sits where the font puts it, and turning the whole square 45 degrees made it a diamond. Two 1px bars in an odd-sized box land on whole pixels, dead centre; open, two diagonals drawn about the same centre make the x, and the box itself never turns. */
+.pend__list summary::before{content:"";flex:none;box-sizing:border-box;width:21px;height:21px;border:1px solid var(--line,#ddd);background:linear-gradient(currentColor,currentColor) center/9px 1px no-repeat,linear-gradient(currentColor,currentColor) center/1px 9px no-repeat}
+.pend__list[open] summary::before{background:linear-gradient(45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/9px 9px no-repeat,linear-gradient(-45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/9px 9px no-repeat}
 .pend__list[open] summary{margin-bottom:10px}
 button.parts{display:flex;align-items:center;gap:6px;margin:6px 0 0;padding:0;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);cursor:pointer}
-button.parts::before{content:"+";display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--line,#ddd);transition:transform .2s}
-button.parts[aria-expanded="true"]::before{transform:rotate(45deg)}
+button.parts::before{content:"";flex:none;box-sizing:border-box;width:19px;height:19px;border:1px solid var(--line,#ddd);background:linear-gradient(currentColor,currentColor) center/9px 1px no-repeat,linear-gradient(currentColor,currentColor) center/1px 9px no-repeat}
+button.parts[aria-expanded="true"]::before{background:linear-gradient(45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/9px 9px no-repeat,linear-gradient(-45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/9px 9px no-repeat}
 button.parts:hover{color:var(--ink)}
 label.tick{display:inline-flex;align-items:center;gap:8px;margin-left:auto;font-size:13px;cursor:pointer}
 label.tick input{width:18px;height:18px;margin:0;flex:0 0 auto}
@@ -357,8 +358,8 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
 details.fold{margin:12px 0 0}
 details.fold > summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;list-style:none;padding:6px 0}
 details.fold > summary::-webkit-details-marker{display:none}
-details.fold > summary::before{content:"+";display:inline-grid;place-items:center;width:22px;height:22px;border:1px solid var(--line,#ddd);font-weight:400;font-size:15px;transition:transform .2s}
-details.fold[open] > summary::before{transform:rotate(45deg)}
+details.fold > summary::before{content:"";flex:none;box-sizing:border-box;width:23px;height:23px;border:1px solid var(--line,#ddd);background:linear-gradient(currentColor,currentColor) center/11px 1px no-repeat,linear-gradient(currentColor,currentColor) center/1px 11px no-repeat}
+details.fold[open] > summary::before{background:linear-gradient(45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/11px 11px no-repeat,linear-gradient(-45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/11px 11px no-repeat}
 details.fold[open] > summary{margin-bottom:8px}
 .mods{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .mods label{display:flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);padding:7px 11px;cursor:pointer}
@@ -424,8 +425,8 @@ details.fold[open] > summary{margin-bottom:8px}
 .ap details{margin:14px 0 0;font-size:13px}
 .ap details summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;list-style:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .ap details summary::-webkit-details-marker{display:none}
-.ap details summary::before{content:"+";display:inline-grid;place-items:center;width:18px;height:18px;border:1px solid var(--line);font-size:13px;transition:transform .2s}
-.ap details[open] summary::before{transform:rotate(45deg)}
+.ap details summary::before{content:"";flex:none;box-sizing:border-box;width:19px;height:19px;border:1px solid var(--line,#ddd);background:linear-gradient(currentColor,currentColor) center/9px 1px no-repeat,linear-gradient(currentColor,currentColor) center/1px 9px no-repeat}
+.ap details[open] summary::before{background:linear-gradient(45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/9px 9px no-repeat,linear-gradient(-45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/9px 9px no-repeat}
 .ap dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;margin:10px 0 0}
 .ap dt{color:var(--muted)}
 .ap dd{margin:0;overflow-wrap:anywhere}
@@ -463,6 +464,28 @@ details.fold[open] > summary{margin-bottom:8px}
 [data-pane="membership"] .say{margin:12px 0 0}
 [data-pane="membership"] .say:empty{display:none}
 .mq-courier{display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+/* shop orders (28 Oct 2026) */
+[data-pane="shop"] td .note{font-size:12px;color:var(--muted)}
+[data-pane="shop"] .linky{padding:0;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+[data-pane="shop"] .say{margin:12px 0 0}
+[data-pane="shop"] .say:empty{display:none}
+.so-items{margin:0;padding:0;list-style:none;font-size:13px;line-height:1.5}
+.so-do{text-align:right;white-space:nowrap}
+.so-do .press,.so-do .ghost{width:auto;min-height:38px;padding:0 16px}
+.so-do .so-btns{display:inline-flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.so-form td{background:var(--stone,#f4f3f1)}
+.so-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:10px 14px;max-width:980px}
+.so-fields label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.so-fields input{display:block;width:100%;height:40px;padding:0 12px;border:1px solid var(--line);font:inherit;font-size:14px;background:var(--paper)}
+.so-fields input:focus{border-color:var(--ink);outline:none}
+.so-save{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 0}
+.so-save .press{width:auto;min-height:40px;padding:0 20px}
+.so-next{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:0 0 14px;padding:14px 16px;border:1px solid var(--ink);background:var(--paper)}
+.so-next p{margin:0;font-size:14px;line-height:1.5}
+.so-next .press{width:auto;min-height:40px;padding:0 20px}
+.so-preview{width:min(760px,100%)}
+.so-preview iframe{display:block;width:100%;height:min(78vh,1100px);border:1px solid var(--line);background:#fff}
+@media (max-width:760px){.so-fields{grid-template-columns:1fr}}
 .mq-courier input{font:inherit;font-size:13px;height:38px;padding:0 10px;border:1px solid var(--line);width:130px;background:var(--paper)}
 .mq-courier .press{width:auto;padding:0 16px;min-height:38px}
 /* the card's own rounded corners, not a white square behind them */
@@ -560,14 +583,15 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
 .om-go[disabled]{opacity:.35;cursor:default;background:var(--ink);color:#fff}
 .om-acts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
 /* notes and emails about a person (28 Oct 2026) */
-.om-notes{margin:18px 0 0;border-top:1px solid var(--line);padding-top:14px;max-width:760px}
-.om-notes h3{margin:0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.om-notes{margin:18px 0 0;padding:18px 20px 16px;max-width:760px;background:var(--paper,#fff);border:1px solid var(--ink);box-shadow:inset 4px 0 0 var(--ink)}
+.om-notes h3{margin:0;font-family:var(--display);font-weight:400;font-size:19px;line-height:1.3}
+.om-notes h4{margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400}
 .om-nlist{list-style:none;margin:8px 0 0;padding:0}
 .om-nlist li{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55}
 .om-nlist li:last-child{border-bottom:0}
 .om-nlist .who{color:var(--muted);font-size:12px}
 .om-nlist p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
-.om-nadd textarea,.om-nadd input[type=text],.om-nadd select{display:block;width:100%;max-width:640px;margin:8px 0 0;padding:10px 12px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper,#fff)}
+.om-nadd textarea,.om-nadd input[type=text],.om-nadd select{display:block;width:100%;max-width:none;margin:10px 0 0;padding:10px 12px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper,#fff)}
 .om-nadd .tick{display:flex;align-items:center;gap:8px;margin:12px 0 0}
 .om-nsave{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0}
 .om-take{margin-left:8px;height:24px;padding:0 8px;font-size:10px}
@@ -652,6 +676,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="submissions">Submissions<span class="pip" id="pipWaiting" hidden>0</span></button>
       <button class="tab" type="button" data-tab="volunteers">Volunteers</button>
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
+      <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
       <button class="tab" type="button" data-tab="caregivers">Colony cards<span class="pip" id="pipApps" hidden>0</span></button>
       <button class="tab" type="button" data-tab="membership">Membership cards<span class="pip" id="pipMembers" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
@@ -752,6 +777,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <!-- Membership cards (26 Oct 2026): ask a member for their photograph,
          approve it, print the card. Filled by membershipPane(). -->
     <div class="pane" data-pane="membership" role="region" aria-label="Membership cards"><div class="loading">Reading the memberships&#8230;</div></div>
+    <div class="pane" data-pane="shop" role="region" aria-label="Shop orders"><div class="loading">Reading the orders&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
       <div class="tools">
@@ -905,6 +931,14 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
 
 <!-- The membership card, large: both faces as they print (assets/member-card.js).
      Printing and the PNGs are offered once the card is approved. -->
+<div class="cardview" id="soPreview" role="dialog" aria-modal="true" aria-labelledby="soPreviewTitle" hidden>
+  <div class="cardview__box so-preview">
+    <div class="cardview__head"><h3 id="soPreviewTitle">The shipping email</h3><button class="ghost" type="button" id="soPreviewShut">Close</button></div>
+    <p class="note" id="soPreviewSubject"></p>
+    <iframe id="soPreviewFrame" title="The shipping email, as the customer will see it" sandbox=""></iframe>
+  </div>
+</div>
+<datalist id="soCouriers"><option value="India Post"><option value="Blue Dart"><option value="DTDC"><option value="Delhivery"><option value="Ekart"><option value="Xpressbees"><option value="Shadowfax"><option value="Professional Couriers"><option value="Shree Maruti Courier"><option value="Trackon"></datalist>
 <div class="cardview" id="memberView" role="dialog" aria-modal="true" aria-labelledby="memberViewTitle" hidden>
   <div class="cardview__box">
     <div class="cardview__head"><h3 id="memberViewTitle">Membership card</h3><button class="ghost" type="button" id="memberViewShut">Close</button></div>
@@ -1211,6 +1245,7 @@ window.addEventListener('unhandledrejection', function (event) {
     apply:       { title: 'Applications to decide', module: 'caregivers', needs: 'caregivers' },
     membership:  { title: 'Membership cards', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
+    shop:        { title: 'Shop orders',   module: 'shop',        needs: 'shop' },
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
@@ -1294,6 +1329,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'cards') return cardsPane();
     if (tab === 'apply') return applicationsPane();
     if (tab === 'membership') return membershipPane();
+    if (tab === 'shop') return shopPane();
     if (tab === 'website') return website();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -1360,6 +1396,7 @@ window.addEventListener('unhandledrejection', function (event) {
       pip.hidden = !waiting;
       appsCount();
       membersCount();
+      shopCount();
       say($('#paneNote'), 'Read ' + when(m.generatedAt));
     }).catch(function (e) { fail(node, e); });
   }
@@ -3303,9 +3340,9 @@ window.addEventListener('unhandledrejection', function (event) {
       + fact('Joined into one', m.rowsJoined > 1 ? esc(m.rowsJoined + ' rows: ' + (m.joinedBecause || []).join(', ')) : '')
       + fact('Changed by hand', mine.map(function (h) { return esc(omWhen(h.at) + ', ' + omWho(h.by) + ': ' + h.summary) + '<br><span class="note">Why: ' + esc(h.reason) + '</span>'; }).join('<br>'))
       + '</div>'
+      + (d.canNote ? omNotesBox(m) : '')
       + (d.canEdit ? '<div class="om-acts"><button class="ghost" type="button" data-omact="edit" data-id="' + esc(m.id) + '">Edit details</button>'
-        + '<button class="ghost" type="button" data-omact="merge" data-id="' + esc(m.id) + '">Merge with another person</button></div>' : '')
-      + (d.canNote ? omNotesBox(m) : '');
+        + '<button class="ghost" type="button" data-omact="merge" data-id="' + esc(m.id) + '">Merge with another person</button></div>' : '');
   }
 
   /* ---- notes and emails about a person (owner, 28 Oct 2026: "there should
@@ -3346,17 +3383,18 @@ window.addEventListener('unhandledrejection', function (event) {
     var to = emails.length > 1
       ? '<label for="omNoteTo">Send to</label><select id="omNoteTo">' + emails.map(function (e) { return '<option value="' + esc(e.email) + '"' + (e === first ? ' selected' : '') + '>' + esc(e.email) + (e.looksWrong ? ' (looks mistyped)' : '') + '</option>'; }).join('') + '</select>'
       : (first ? '<input type="hidden" id="omNoteTo" value="' + esc(first.email) + '"><p class="note">To ' + esc(first.email) + '</p>' : '');
-    return '<div class="om-notes" data-omnotes="' + esc(m.id) + '"><h3>Notes and emails</h3>'
-      + '<div id="omNotesList">' + omNotesList(m.id) + '</div>'
-      + '<details class="fold om-nadd"><summary>Add a note</summary>'
-      + '<textarea id="omNoteText" rows="3" maxlength="4000" placeholder="What happened: who reached out, how, what they said, what is next" aria-label="The note"></textarea>'
+    /* in plain view, first thing under their details (owner, 28 Oct 2026:
+       "make add note option more prominent and visible and unmissable") */
+    return '<div class="om-notes" data-omnotes="' + esc(m.id) + '"><h3>Add a note</h3>'
+      + '<div class="om-nadd">'
+      + '<textarea id="omNoteText" rows="3" maxlength="4000" placeholder="What happened: who reached out, how, what they said, what is next" aria-label="Add a note about ' + esc(m.name || 'this person') + '"></textarea>'
       + (first ? '<label class="tick"><input type="checkbox" id="omNoteMail"> Also email this to them</label>'
         + '<div id="omNoteMailBox" hidden>' + to
         + '<input type="text" id="omNoteSubject" maxlength="150" placeholder="Subject (optional): A message from People for Animals" aria-label="Subject">'
         + '<p class="note">It goes from info@ with your name at the end. Their reply comes back here and to your email.</p></div>'
         : '<p class="note">No email address on record, so this is kept as a note only.</p>')
       + '<div class="om-nsave"><button class="om-go" type="button" id="omNoteSave">Save note</button><span class="note" id="omNoteSaid" aria-live="polite"></span></div>'
-      + '</details></div>';
+      + '</div><h4>Notes and emails</h4><div id="omNotesList">' + omNotesList(m.id) + '</div></div>';
   }
   function omNotesShow(id) {
     var box = $('#omNotesList');
@@ -4323,6 +4361,150 @@ window.addEventListener('unhandledrejection', function (event) {
     return r.queueLabel || '';
   }
 
+  /* ---- shop orders (owner, 28 Oct 2026: "let shop orders be one sep thing
+     on the left and admin should have option to change the status to order
+     shipped. and enter details of courier- which onces saved - will have
+     option to trigger email in the pfa template to the person who ordered").
+     Mark shipped, type the courier and tracking number, save; then Email the
+     customer, with a preview of exactly what they will get. */
+  var so = { rows: [], counts: {}, view: 'to-ship', editing: '', next: '' };
+  var SO_VIEWS = { 'to-ship': 'To ship', shipped: 'Shipped', all: 'All' };
+  function setShopPip(n) {
+    var pip = $('#pipShop');
+    if (!pip) return;
+    pip.textContent = n;
+    pip.hidden = !n;
+  }
+  function shopCount() {
+    if (!can('shop')) return;
+    api('/api/admin/shop-orders').then(function (d) { setShopPip((d.counts || {}).toShip || 0); }).catch(function () {});
+  }
+  function shopPane(said) {
+    var node = $('[data-pane="shop"]');
+    if (!node) return undefined;
+    if (!so.rows.length) node.innerHTML = '<div class="loading">Reading the orders\u2026</div>';
+    return api('/api/admin/shop-orders').then(function (d) {
+      so.rows = d.orders || [];
+      so.counts = d.counts || {};
+      so.mailOn = d.mailOn !== false;
+      setShopPip(so.counts.toShip || 0);
+      soRender(said);
+    }).catch(function (e) { fail(node, e); });
+  }
+  function soRow(id) { return so.rows.filter(function (r) { return r.orderId === id; })[0]; }
+  function soMoney(n) { return '\u20b9' + Number(n || 0).toLocaleString('en-IN'); }
+  function soRender(said) {
+    var node = $('[data-pane="shop"]');
+    var count = { 'to-ship': so.counts.toShip || 0, shipped: so.counts.shipped || 0, all: so.counts.all || 0 };
+    var rows = so.rows.filter(function (r) { return so.view === 'all' || r.stage === so.view; });
+    var next = so.next ? soRow(so.next) : null;
+    var empty = { 'to-ship': 'Every paid order has been shipped.', shipped: 'Nothing has been shipped yet.', all: 'No paid shop orders yet.' };
+    node.innerHTML = '<div class="mq-bar" role="group" aria-label="Where the orders stand">'
+      + Object.keys(SO_VIEWS).map(function (k) { return '<button type="button" class="mq-tab" data-so-view="' + k + '" aria-pressed="' + (k === so.view) + '">' + esc(SO_VIEWS[k]) + (k !== 'all' ? ' <span class="mq-n">' + count[k] + '</span>' : '') + '</button>'; }).join('')
+      + '</div>'
+      + (so.mailOn ? '' : '<p class="say" data-tone="bad">Email is not set up on the server. Shipping emails are queued and will go once it is.</p>')
+      + (next && next.shipment && !(next.shippedEmail && next.shippedEmail.trackingNumber === next.shipment.trackingNumber && next.shippedEmail.state !== 'unsent' && next.shippedEmail.state !== 'failed')
+        ? '<div class="so-next" data-ref="' + esc(next.orderId) + '"><p><b>' + esc(next.orderId) + ' is marked shipped.</b> Email ' + esc(next.name || 'the customer') + ' the tracking details now?</p>'
+          + '<button class="press" type="button" data-so="email">Email the customer</button><button class="ghost" type="button" data-so="preview">Preview email</button></div>' : '')
+      + (rows.length ? '<div class="wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Where it stands</th><th aria-label="Actions"></th></tr></thead><tbody>'
+        + rows.map(soRowHtml).join('') + '</tbody></table></div>'
+        : '<div class="empty"><b>Nothing here</b>' + esc(empty[so.view]) + '</div>')
+      + '<p class="say" data-so-say role="status" aria-live="polite"></p>';
+    if (said) say($('[data-pane="shop"] [data-so-say]'), said.text, said.tone);
+  }
+  function soStands(r) {
+    if (!r.shipment) return 'Paid ' + dayOf(r.at) + ', to ship' + (r.needsAttention ? '<br><span class="flag" data-s="new">Check before shipping</span>' : '');
+    var s = r.shipment;
+    var e = r.shippedEmail;
+    var mailed = e && e.trackingNumber === s.trackingNumber;
+    return 'Shipped ' + esc(dayOf(s.shippedAt)) + ' by ' + esc(s.courier) + '<br><span class="note">Tracking ' + esc(s.trackingNumber) + '</span><br>'
+      + (mailed ? (e.state === 'sent' ? '<span class="note">Customer emailed ' + esc(dayOf(e.at)) + '</span>' : '<span class="flag" data-s="' + esc(e.state) + '">' + esc(MAIL_STATUS[e.state] || e.state) + '</span>')
+        : '<span class="flag" data-s="new">Customer not emailed yet</span>');
+  }
+  function soRowHtml(r) {
+    var act;
+    if (!r.shipment) act = '<button class="press" type="button" data-so="ship">Mark shipped</button>';
+    else {
+      /* gone, or on its way out (queued or retrying): not offered again */
+      var mailed = r.shippedEmail && r.shippedEmail.trackingNumber === r.shipment.trackingNumber && r.shippedEmail.state !== 'unsent' && r.shippedEmail.state !== 'failed';
+      act = '<span class="so-btns">' + (mailed ? '' : '<button class="press" type="button" data-so="email">Email the customer</button>')
+        + '<button class="ghost" type="button" data-so="preview">Preview email</button></span><br><button class="linky" type="button" data-so="ship">Change courier details</button>';
+    }
+    var html = '<tr data-ref="' + esc(r.orderId) + '">'
+      + '<td><b>' + esc(r.orderId) + '</b><br><span class="note">' + esc(dayOf(r.at)) + ' \u00b7 ' + esc(soMoney(r.total)) + '</span><br><button class="linky" type="button" data-so="open">Open the order</button></td>'
+      + '<td>' + esc(r.name || '') + '<br><span class="note">' + esc([r.mobile, r.email].filter(Boolean).join(' \u00b7 ')) + '</span></td>'
+      + '<td><ul class="so-items">' + (r.items || []).map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>' + (r.place ? '<span class="note">To ' + esc(r.place) + '</span>' : '') + '</td>'
+      + '<td>' + soStands(r) + '</td>'
+      + '<td class="so-do">' + act + '</td></tr>';
+    if (so.editing === r.orderId) {
+      var s = r.shipment || {};
+      html += '<tr class="so-form" data-ref="' + esc(r.orderId) + '"><td colspan="5"><div class="so-fields">'
+        + '<div><label for="soCourier">Courier</label><input type="text" id="soCourier" list="soCouriers" maxlength="60" autocomplete="off" placeholder="India Post, Blue Dart, DTDC\u2026" value="' + esc(s.courier || '') + '"></div>'
+        + '<div><label for="soTracking">Tracking number</label><input type="text" id="soTracking" maxlength="60" autocomplete="off" spellcheck="false" autocapitalize="characters" value="' + esc(s.trackingNumber || '') + '"></div>'
+        + '<div><label for="soLink">Tracking link <span class="opt">(optional)</span></label><input type="url" id="soLink" maxlength="500" placeholder="https://" value="' + esc(s.trackingUrl || '') + '"></div>'
+        + '</div><div class="so-save"><button class="press" type="button" data-so="save">' + (r.shipment ? 'Save the changes' : 'Save as shipped') + '</button>'
+        + '<button class="ghost" type="button" data-so="cancel">Cancel</button><span class="note" data-so-err aria-live="polite"></span></div></td></tr>';
+    }
+    return html;
+  }
+  function soSave(id, button) {
+    var err = $('[data-pane="shop"] [data-so-err]');
+    var body = { action: 'ship', orderId: id, courier: $('#soCourier').value, trackingNumber: $('#soTracking').value, trackingUrl: $('#soLink').value };
+    button.disabled = true;
+    say(err, 'Saving\u2026');
+    api('/api/admin/shop-orders', { method: 'POST', body: body }).then(function (r) {
+      so.editing = '';
+      so.next = id;
+      return shopPane(r.store === 'not updated' ? { text: 'Saved. The old shop panel could not be updated just now; this order is marked shipped here.', tone: 'bad' } : null);
+    }).catch(function (e) {
+      button.disabled = false;
+      say(err, (e && e.message) || 'That could not be saved.', 'bad');
+      var field = e && e.data && e.data.field;
+      var input = field === 'courier' ? $('#soCourier') : field === 'trackingNumber' ? $('#soTracking') : field === 'trackingUrl' ? $('#soLink') : null;
+      if (input) input.focus();
+    });
+  }
+  function soEmail(id, button) {
+    var r = soRow(id);
+    button.disabled = true;
+    api('/api/admin/shop-orders', { method: 'POST', body: { action: 'notify', orderId: id } }).then(function (out) {
+      so.next = '';
+      return shopPane({ text: out.emailed ? 'Emailed ' + ((r && r.email) || 'the customer') + ' the tracking details.' : 'Saved. ' + (out.mailNote || 'The email is queued and will go shortly.'), tone: out.emailed ? 'good' : '' });
+    }).catch(function (e) {
+      button.disabled = false;
+      say($('[data-pane="shop"] [data-so-say]'), (e && e.message) || 'The email could not be sent.', 'bad');
+    });
+  }
+  function soPreview(id) {
+    var box = $('#soPreview');
+    $('#soPreviewSubject').textContent = 'Preparing\u2026';
+    $('#soPreviewFrame').srcdoc = '';
+    box.hidden = false;
+    $('#soPreviewShut').focus();
+    api('/api/admin/shop-orders?preview=' + encodeURIComponent(id)).then(function (r) {
+      $('#soPreviewSubject').textContent = 'Subject: ' + r.subject;
+      $('#soPreviewFrame').srcdoc = r.html;
+    }).catch(function (e) { $('#soPreviewSubject').textContent = (e && e.message) || 'The email could not be drawn.'; });
+  }
+  on('#soPreviewShut', 'click', function () { $('#soPreview').hidden = true; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('#soPreview') && !$('#soPreview').hidden) $('#soPreview').hidden = true; });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-pane="shop"] [data-so], [data-pane="shop"] [data-so-view]');
+    if (!b) return;
+    var view = b.getAttribute('data-so-view');
+    if (view) { so.view = view; so.editing = ''; soRender(); return; }
+    var holder = b.closest('[data-ref]');
+    var id = holder && holder.getAttribute('data-ref');
+    var what = b.getAttribute('data-so');
+    if (!id) return;
+    if (what === 'open') { showCase(id); return; }
+    if (what === 'ship') { so.editing = id; so.next = ''; soRender(); var c = $('#soCourier'); if (c) c.focus(); return; }
+    if (what === 'cancel') { so.editing = ''; soRender(); return; }
+    if (what === 'save') { soSave(id, b); return; }
+    if (what === 'email') { soEmail(id, b); return; }
+    if (what === 'preview') { soPreview(id); return; }
+  });
+
   function membershipPane() {
     var node = $('[data-pane="membership"]');
     if (!node) return undefined;
@@ -4727,6 +4909,7 @@ window.addEventListener('unhandledrejection', function (event) {
       + '<div>'
       + '<h4>' + esc(row.name || 'No name') + '</h4>'
       + '<p class="meta">' + esc([place, 'Applied ' + when(row.receivedAtMs ? new Date(row.receivedAtMs).toISOString() : ''), row.reference].filter(Boolean).join(' · ')) + '</p>'
+      + (row.cardNumber ? '<p class="meta">Card number <b>' + esc(row.cardNumber) + '</b></p>' : '')
       + '<ul class="checks">' + (row.checks || []).map(function (c) { return '<li data-l="' + esc(c.level) + '">' + esc(c.text) + '</li>'; }).join('') + '</ul>'
       + (decide ? '<div class="pn"><label for="pn-' + esc(row.reference) + '">Name on the card</label>'
         + '<input type="text" id="pn-' + esc(row.reference) + '" data-print maxlength="60" autocomplete="off" value="' + esc(row.printName || row.name || '') + '">'
@@ -4773,7 +4956,8 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function apCardData(row, issued) {
     return {
-      cardId: issued ? issued.cardId : '',
+      /* the number it will carry, chosen at random before issuing (29 Oct 2026) */
+      cardId: issued ? issued.cardId : (row.cardNumber || ''),
       name: row.name, printName: issued ? issued.printName : apPrintName(row), district: row.district, state: row.state,
       issuedOn: issued ? issued.issuedOn : new Date().toISOString(),
       photo: apPhotos[row.reference] || ''

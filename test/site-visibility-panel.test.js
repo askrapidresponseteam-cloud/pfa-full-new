@@ -37,7 +37,7 @@ function grab(name) {
 test('the rail has a Website section, gated by the Website module, and it reads and writes /api/admin/site', () => {
   const tabs = [...panel.matchAll(/data-tab="([a-z]+)"/g)].map((m) => m[1]);
   /* Membership cards (26 Oct 2026) after Colony cards; Old site members after the rest, in a group of its own */
-  assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'caregivers', 'membership', 'website', 'people', 'oldmembers']);
+  assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'shop', 'caregivers', 'membership', 'website', 'people', 'oldmembers']);
   assert.match(script, /website:\s*\{ title: 'Website',\s*module: 'website',\s*needs: 'website' \}/);
   assert.match(panel, /<div class="pane" data-pane="website"/);
   assert.match(script, /if \(tab === 'website'\) return website\(\);/);
