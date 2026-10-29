@@ -83,7 +83,12 @@ function setup() {
   return db;
 }
 const realIdentify = adminAuth.identify;
-test.after(() => { adminAuth.identify = realIdentify; firebase._setDbForTests(null); FILES._reset(); });
+/* the panel's approvers, as the accounts listing would give them */
+ADMIN._private.setListUsers(async () => [
+  { email: 'Approver@PFA.test', customClaims: { admin: true, role: 'staff', modules: ['membership'] } },
+  { email: 'shop@pfa.test', customClaims: { admin: true, role: 'staff', modules: ['shop'] } }
+]);
+test.after(() => { ADMIN._private.setListUsers(null); adminAuth.identify = realIdentify; firebase._setDbForTests(null); FILES._reset(); });
 
 async function seed(db, reference, extra) {
   await db.collection('submissions').doc(reference).set(member(reference, extra));
@@ -205,6 +210,8 @@ test('ask, send, approve, print: the whole journey on the real routes', async ()
   const letters = Object.values(db.dump()).filter((v) => v && v.template && /^member_/.test(v.template));
   assert.ok(letters.some((l) => l.template === 'member_photo_received' && l.to === 'karthik@example.com'), 'the member is told it arrived');
   assert.ok(letters.some((l) => l.template === 'member_photo_staff' && l.to === 'gandhim@exmpls.sansad.in'), 'the office is told one is waiting');
+  assert.ok(letters.some((l) => l.template === 'member_photo_staff' && l.to === 'approver@pfa.test'), 'the panel approvers are told too');
+  assert.ok(!letters.some((l) => l.template === 'member_photo_staff' && l.to === 'shop@pfa.test'), 'staff who cannot approve cards are not');
 
   /* it now waits in To approve, with its photograph */
   list = await adminGet({ queue: 'review' });

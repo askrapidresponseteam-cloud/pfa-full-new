@@ -268,6 +268,12 @@ label.tick input{width:18px;height:18px;margin:0;flex:0 0 auto}
 .ralert p{margin:0;font-size:13px;line-height:1.55}
 .ralert .ghost{flex:none;border-color:#b3261e;color:#7a1610;background:#fff}
 @media (max-width:900px){.ralert{margin:16px 20px 0}}
+/* a membership photograph waiting for approval (29 Oct 2026) */
+.pnote{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:24px 34px 0;padding:12px 16px;border:1px solid var(--ink);background:var(--paper);box-shadow:inset 4px 0 0 var(--ink)}
+.pnote[hidden]{display:none}
+.pnote p{margin:0;font-size:14px;line-height:1.5}
+.pnote .press{flex:none;width:auto;min-height:38px;padding:0 18px}
+@media (max-width:900px){.pnote{margin:16px 20px 0}}
 .drawer header > div{flex:1 1 auto;min-width:0}
 .drawer header .x{flex:none;color:var(--ink)}
 /* Close: the same control as on every public page (the shared chrome stylesheet), which
@@ -713,6 +719,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     </div>
     <!-- replies not being picked up: on every page (owner, 27 Oct 2026, lib/reply-watch.js) -->
     <div class="ralert" id="replyAlert" role="alert" hidden><p id="replyAlertText"></p><button class="ghost" type="button" id="replyAlertCheck">Check now</button></div>
+    <!-- a member sent their photograph: on every page (owner, 29 Oct 2026) -->
+    <div class="pnote" id="photoNote" role="status" aria-live="polite" hidden><p id="photoNoteText"></p><button class="press" type="button" id="photoNoteGo">Review now</button></div>
 
     <div class="pane" data-pane="overview" id="paneOverview"><div class="loading">Reading the registers&#8230;</div></div>
 
@@ -4103,7 +4111,42 @@ window.addEventListener('unhandledrejection', function (event) {
     $('#replyAlertText').textContent = text;
     box.hidden = !text;
   }
+  /* A member's photograph arrived (owner, 29 Oct 2026: "when people upload
+     the photo, can you ensure it appears here. and admin gets a
+     notification"): a notice on every page, the count on the rail, and the
+     Membership cards page brought up to date when it is open. The email to
+     the approvers goes from the server when the photograph arrives. */
+  var photoSeen = -1;
+  var photoTimer = null;
+  function photoWatch() {
+    if (!can('membership') || $('#app').hidden) return;
+    api('/api/admin/membership?queue=review').then(function (d) {
+      var rows = d.rows || [];
+      var n = (d.counts || {}).review || rows.length;
+      setMemberPip(n);
+      var note = $('#photoNote');
+      if (note) {
+        var first = rows.slice().sort(function (a, b) { return String(b.receivedAt).localeCompare(String(a.receivedAt)); })[0];
+        $('#photoNoteText').innerHTML = !n ? ''
+          : n === 1 ? '<b>' + esc((first && first.name) || 'A member') + '</b> sent their photograph for the membership card. It is waiting for your approval.'
+          : '<b>' + n + ' membership photographs</b> are waiting for your approval' + (first ? ', the latest from ' + esc(first.name || 'a member') : '') + '.';
+        var onReview = current === 'membership' && mqView === 'review';
+        note.hidden = !n || onReview;
+      }
+      if (photoSeen !== -1 && n > photoSeen && current === 'membership') membershipQuiet();
+      photoSeen = n;
+    }).catch(function () { /* the next look tries again */ });
+  }
+  on('#photoNoteGo', 'click', function () {
+    mqView = 'review';
+    $('#photoNote').hidden = true;
+    var fresh = !loaded.membership;
+    show('membership');
+    if (!fresh) membershipPane();
+  });
   function replyWatch() {
+    photoWatch();
+    if (!photoTimer && can('membership')) photoTimer = setInterval(photoWatch, 60000);
     if (!can('submissions')) return;
     var look = function () {
       if ($('#app').hidden) return;
@@ -4312,7 +4355,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   var MQ = {
     ask:      { label: 'Ask for photo',  queues: ['request', 'lapsed'], hint: 'Paid members with no photograph yet. Tick and press Email photo link: each gets a private link, valid for 14 days, to send their photograph.' },
-    waiting:  { label: 'Waiting',        queues: ['waiting'],           hint: 'A link has gone and the member has not used it yet. Send a new link if they lost it; the old one stops working.' },
+    waiting:  { label: 'Waiting',        queues: ['waiting'],           hint: 'A link has gone and the member has not used it yet. Send a new link if they lost it; the old one stops working. The moment a photograph arrives the member moves to To approve by itself, and you are told by email and on this panel.' },
     review:   { label: 'To approve',     queues: ['review'],            hint: 'Photographs that have arrived. Preview the actual card, front and back, then Approve, or ask for another photograph and say why. Approving sends the member no copy of the card.' },
     approved: { label: 'To print',       queues: ['approved'],          hint: 'Approved cards. Preview, print on the card printer, then mark them printed. Nothing is ever sent to the member digitally: the printed card is the only copy.' },
     dispatch: { label: 'To dispatch',    queues: ['printed'],           hint: 'Printed cards. Hand each to the courier, then type the courier and its tracking number and press Dispatched. The member is emailed only the courier and tracking number, never the card.' },
@@ -4515,6 +4558,20 @@ window.addEventListener('unhandledrejection', function (event) {
       setMemberPip(mqCounts.review || 0);
       mqRender(data);
     }).catch(function (e) { fail(node, e); });
+  }
+
+  /* A new photograph arrived while the page is open: bring the lists up to
+     date in place, without the loading flash, and never while someone is
+     typing on the page (a courier name, a reason). */
+  function membershipQuiet() {
+    var node = $('[data-pane="membership"]');
+    if (!node || (document.activeElement && node.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) return;
+    api('/api/admin/membership?queue=all').then(function (data) {
+      mqRows = data.rows || [];
+      mqCounts = data.counts || {};
+      setMemberPip(mqCounts.review || 0);
+      mqRender(data);
+    }).catch(function () { /* the next look tries again */ });
   }
 
   function mqRender(data) {
@@ -4923,7 +4980,7 @@ window.addEventListener('unhandledrejection', function (event) {
       + '</div>'
       + '<div class="rejectbox" data-reject hidden></div>'
       + '<details><summary>Details</summary><dl>'
-      + [['Colony address', [row.address, row.city, row.pin].filter(Boolean).join(', ')], ['Mobile', row.mobile], ['Email', row.email],
+      + [[row.colony ? 'Post the card to' : 'Colony address', [row.address, row.city, row.pin].filter(Boolean).join(', ')], ['Colony where they feed', row.colony], ['Mobile', row.mobile], ['Email', row.email],
         ['Animals fed', row.animals], ['Notes', row.notes], ['Status', row.statusLabel], ['With', row.assignedTo]]
         .filter(function (kv) { return kv[1]; }).map(function (kv) { return '<dt>' + esc(kv[0]) + '</dt><dd>' + esc(kv[1]) + '</dd>'; }).join('')
       + '</dl></details>'

@@ -261,7 +261,7 @@
      exist"): a PIN typed in full fills the state and district, India Post is
      asked whether it exists, and one that cannot be in the state chosen says
      so on the PIN. */
-  if (window.PFAAddress) window.PFAAddress.enhance(checkout, { pincode: $('coPin'), state: stateSel, district: districtSel, address: $('coAddress') });
+  if (window.PFAAddress) window.PFAAddress.enhance(checkout, { pincode: $('coPin'), state: stateSel, district: districtSel, city: $('coCity'), address: $('coAddress') });
 
   var RULES = window.PFA_RULES || null;
   function fieldBad(input) {

@@ -1,3 +1,21 @@
+## v1.478
+
+- **Everything PFA posts now asks for the full postal address, door first.** Owner, 29 Oct 2026: "for all orders like ecom ones and card dispatches ask for proper mailing address including their house number etc. ... check everysuch place on the end user website and update".
+  - **The four places that post something:** a membership (card and kit), a colony caregiver card, a shop order, and a gift's certificate. Each now asks for: House or flat number, and building (required), Street and area (required), Landmark (optional), then the town, state, district and PIN as before.
+  - **Kept as one line, in order:** "Flat 4B, Sai Residency, 12th Cross, Kodavoor, Near Sri Krishna Temple". This is what the courier label, the admin panel, the copy to gandhim and CCAvenue all read. A bare number joins its street ("12 MG Road"), a house typed twice is printed once, and a landmark without its own word gets "Near".
+  - **The server checks it too,** so an address with no house number cannot get through even if the page is bypassed. A page left open from before still works only if its one line has a house number in it.
+  - **Colony card:** it used to ask only for the colony, so cards were posted to a locality with no door. It now has a "Your address" step ("Where we post your card") and a separate "Your colony" step for where they feed. The panel shows both: "Post the card to" and "Colony where they feed".
+  - **Shop:** it now also asks for the city, town or village; before, the district stood in for it.
+- Checked: test/postal-address.test.js (every form, the server, the shop, the panel), updated fixtures across the payment tests, the full suite, and screenshots of each form on desktop and phone.
+
+## v1.477
+
+- **A member's photograph shows in Membership cards the moment it arrives, and the panel is told.** Owner, 29 Oct 2026: "when people upload the photo, can you ensure it appears here. and admin gets a notification."
+  - **In the panel:** a notice on every page names the member ("Asha Rao sent their photograph for the membership card. It is waiting for your approval."), or the count when there are several, with Review now, which opens Membership cards on To approve, where the card is drawn with their photograph. The panel looks every minute; the Membership cards count on the left updates with it.
+  - **On the Membership cards page:** if it is open when a photograph arrives, it brings itself up to date in place, so the member moves from Waiting to To approve without pressing Refresh. It never does this while someone is typing on the page.
+  - **By email:** the notice now goes to everyone on the panel who can approve cards (super admins and staff given Membership cards) as well as the forms inbox, one email each. Staff without Membership cards are not emailed. If the list of panel users cannot be read, the forms inbox is still told.
+- Checked: test/member-photo-notice.test.js, membership-card.test.js, the full suite, and a run of the real flow: link sent, photograph sent from the public page, notice shown, Review now opens the card.
+
 ## v1.476
 
 - **No part of a photograph is cut on any card.** Owner, 29 Oct 2026: "can u ensure no part of the photo is clipped".

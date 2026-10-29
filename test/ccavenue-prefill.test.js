@@ -74,7 +74,9 @@ function namesOf(file, formId) {
   return new Set([...form.elements].map((e) => e.name).filter(Boolean));
 }
 
-const PLACE = { city: 'Kundapura', pincode: '576201', state: 'Karnataka' };
+const PLACE = { city: 'Kundapura', pincode: '576201', state: 'Karnataka',
+  /* what is posted is asked for in parts, door first (owner, 29 Oct 2026) */
+  house: '4/232 Ashraya', street: 'Ankadakatte, Koteshwara', colony: 'Ankadakatte' };
 const WHO = { name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', address: '4/232 Ashraya, Ankadakatte, Koteshwara' };
 
 function expectFilled(sent, { city, state, pin }) {
@@ -95,7 +97,8 @@ for (const [label, file, formId, extra] of [
 ]) {
   test(`${label}: the page asks for PIN, city and state, and CCAvenue's billing page arrives with all of them`, async () => {
     const names = namesOf(file, formId);
-    for (const n of ['name', 'mobile', 'email', 'address', 'city', 'pincode', 'state']) assert.ok(names.has(n), `${file} #${formId} does not post "${n}"`);
+    const door = formId === 'giveForm' ? ['address'] : ['house', 'street'];
+    for (const n of ['name', 'mobile', 'email', ...door, 'city', 'pincode', 'state']) assert.ok(names.has(n), `${file} #${formId} does not post "${n}"`);
     const doc = new JSDOM(read(file)).window.document;
     const pin = doc.querySelector(`#${formId} [name="pincode"], [form="${formId}"][name="pincode"]`);
     assert.equal(pin.getAttribute('inputmode'), 'numeric', 'a number pad on a phone');

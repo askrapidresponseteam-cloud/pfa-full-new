@@ -434,6 +434,21 @@
         return null;
       }
     },
+    /* The door a courier knocks on (owner, 29 Oct 2026: "for all orders like
+       ecom ones and card dispatches ask for proper mailing address including
+       their house number"): a house or flat number, a house name, or both,
+       with the building. "12", "Flat 4B, Sai Residency" and "Krishna Nilaya"
+       are all a door; it must hold a letter or a digit. */
+    house: {
+      filter: function (v) { return String(v == null ? '' : v).replace(ADDRESS_CHARS, ''); },
+      normalise: function (v) { return titleCase(squash(v)); },
+      max: 80,
+      check: function (v) {
+        if (!/[0-9]/.test(v) && !LETTER.test(v)) return 'Add the house or flat number, or the house name.';
+        if (v.length > 80) return 'Keep this under 80 characters.';
+        return null;
+      }
+    },
     /* A locality or landmark ("Sector 12, near the temple"): letters and
        digits, Title Case. */
     locality: {
@@ -653,6 +668,9 @@
     /* places that may carry a number */
     place: 'locality', locality: 'locality', area: 'locality',
     feedLocality: 'locality', caseLocation: 'locality',
+    /* a postal address in parts: the door, then the street, then a landmark */
+    house: 'house', giftHouse: 'house', street: 'locality', giftStreet: 'locality',
+    landmark: 'locality', giftLandmark: 'locality', colony: 'locality',
 
     /* links */
     url: 'url', link: 'url', website: 'url', portfolio: 'url', video: 'url', videoUrl: 'url',

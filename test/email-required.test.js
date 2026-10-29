@@ -89,8 +89,8 @@ test('every kind of submission the server knows is refused without an email, and
 test('no donation, membership or caregiver application reaches the payment gateway without a valid email', () => {
   const bodies = {
     donate: { type: 'donate', currency: 'inr', amount: '1500', terms: 'yes', name: 'Asha Kumar', mobile: '9876543210', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', cause: 'Where it is needed most' },
-    membership: { type: 'membership', tier: 'golden', amount: '1', name: 'Asha Rao', mobile: '9876543210', address: '12 Lake Road', city: 'Pune', state: 'Maharashtra', district: 'Pune', pincode: '411004', terms: 'yes' },
-    'caregiver-application': { type: 'caregiver-application', name: 'Asha Rao', mobile: '9876543210', address: 'Car Street colony, near the temple', city: 'Udupi', animals: '12', district: 'Udupi', state: 'Karnataka', pincode: '576101', documents: 'a'.repeat(48) }
+    membership: { type: 'membership', tier: 'golden', amount: '1', name: 'Asha Rao', mobile: '9876543210', house: '12', street: 'Lake Road', city: 'Pune', state: 'Maharashtra', district: 'Pune', pincode: '411004', terms: 'yes' },
+    'caregiver-application': { type: 'caregiver-application', name: 'Asha Rao', mobile: '9876543210', house: '12', street: 'Car Street', colony: 'Car Street colony, near the temple', city: 'Udupi', animals: '12', district: 'Udupi', state: 'Karnataka', pincode: '576101', documents: 'a'.repeat(48) }
   };
   for (const [type, body] of Object.entries(bodies)) {
     assert.throws(() => payment.parsePaymentRequest(body), /Enter your email/, `${type} went through with no email`);

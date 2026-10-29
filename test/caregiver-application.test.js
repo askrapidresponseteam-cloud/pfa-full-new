@@ -15,7 +15,9 @@ const S = require('../lib/submissions.js');
 const ROOT = path.join(__dirname, '..');
 const good = {
   type: 'caregiver-application', name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com',
-  address: 'Car Street colony, near the temple', city: 'Udupi', animals: '12',
+  /* posted to the door (owner, 29 Oct 2026); the colony on its own */
+  house: 'Flat 2, Lakshmi Nilaya', street: 'Car Street', landmark: 'the temple',
+  colony: 'Car Street colony, near the temple', city: 'Udupi', animals: '12',
   district: 'Udupi', state: 'Karnataka', pincode: '576101',
   documents: 'a'.repeat(48)   // the token /api/caregiver/documents issued for the photograph
 };
@@ -31,7 +33,9 @@ test('the fee is fifty rupees and the browser cannot change it', () => {
 });
 
 test('an application without a colony or a city is refused', () => {
-  assert.throws(() => payment.parsePaymentRequest({ ...good, address: '' }), /colony|locality|address/i);
+  assert.throws(() => payment.parsePaymentRequest({ ...good, colony: '' }), /colony|locality/i);
+  assert.throws(() => payment.parsePaymentRequest({ ...good, house: '' }), /house or flat number/i);
+  assert.throws(() => payment.parsePaymentRequest({ ...good, street: '' }), /street/i);
   assert.throws(() => payment.parsePaymentRequest({ ...good, city: '' }), /city|town/i);
   assert.throws(() => payment.parsePaymentRequest({ ...good, mobile: '12345' }));
 });
@@ -42,7 +46,9 @@ test('the payment carries what a reviewer needs to act on it', () => {
   assert.equal(parsed.metadata.city, 'Udupi');
   /* placeField title-cases, as it does for a donation address, so compare
      case-insensitively rather than assert the raw input came back. */
-  assert.match(parsed.metadata.address, /car street colony, near the temple/i);
+  assert.equal(parsed.metadata.address, 'Flat 2, Lakshmi Nilaya, Car Street, Near the Temple');
+  assert.equal(parsed.metadata.house, 'Flat 2, Lakshmi Nilaya');
+  assert.match(parsed.metadata.colony, /car street colony, near the temple/i);
   /* District and state print on the card, so they must survive the parse. */
   assert.match(parsed.metadata.district, /udupi/i);
   assert.match(parsed.metadata.state, /karnataka/i);
@@ -94,7 +100,7 @@ test('the form posts to the payment endpoint, not to submissions', () => {
   /* A real navigation is required - CCAvenue's page has to replace this one. */
   assert.ok(!/PFAForms\.wire\(form, \{\s*kind: 'PFA-CG'/.test(page),
     'the caregiver form must not be sent by fetch');
-  for (const field of ['name', 'mobile', 'email', 'address', 'city', 'animals', 'notes']) {
+  for (const field of ['name', 'mobile', 'email', 'house', 'street', 'landmark', 'colony', 'city', 'animals', 'notes']) {
     assert.match(page, new RegExp(`name="${field}"`), `the form must send ${field}`);
   }
 });

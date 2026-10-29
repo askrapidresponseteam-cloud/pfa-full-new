@@ -68,7 +68,7 @@ test('the page sends the block\'s fields: pfa-forms.js adds them before anything
 
 test('a form that keeps its own address boxes gets the same PIN intelligence', () => {
   assert.match(read('donate.html'), /window\.PFAAddress\.enhance\(by\('giveForm'\), \{ pincode: by\('gPin'\), state: by\('gState'\)/);
-  assert.match(read('assets/shop.js'), /window\.PFAAddress\.enhance\(checkout, \{ pincode: \$\('coPin'\), state: stateSel, district: districtSel, address: \$\('coAddress'\) \}\)/);
+  assert.match(read('assets/shop.js'), /window\.PFAAddress\.enhance\(checkout, \{ pincode: \$\('coPin'\), state: stateSel, district: districtSel, city: \$\('coCity'\), address: \$\('coAddress'\) \}\)/);
   assert.match(read('shop.html'), /<script src="assets\/india-districts\.js" defer><\/script>\s*<script src="assets\/address\.js" defer><\/script>\s*<script src="assets\/shop\.js" defer><\/script>/);
   const gi = read('get-involved.html');
   assert.equal((gi.match(/PFAAddress\.enhance\(/g) || []).length, 2, 'membership and caregiver');

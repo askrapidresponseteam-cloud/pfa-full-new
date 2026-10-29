@@ -330,10 +330,17 @@ test('a gift under ₹1,000 has no certificate and is refused before the bank, w
   assert.equal([...db.store.keys()].filter((k) => k.startsWith('transactions/')).length, 0, 'nothing on record');
 });
 
+test('a gift posted to the door: the parts make one line, house first', async () => {
+  const { parseGift } = require('../lib/payment');
+  const g = parseGift({ gift: 'yes', giftTo: 'Ravi Kumar', giftHouse: 'flat 3, lake view', giftStreet: 'indiranagar, bengaluru', giftLandmark: 'opposite the park', giftPin: '560038' }, 'inr', 1000);
+  assert.equal(g.address, 'Flat 3, Lake View, Indiranagar, Bengaluru, Opposite the Park');
+  assert.throws(() => parseGift({ gift: 'yes', giftTo: 'Ravi Kumar', giftStreet: 'Indiranagar, Bengaluru', giftPin: '560038' }, 'inr', 1000), /house or flat number/);
+});
+
 test('a gift needs who it is for and where to post it, and is given in rupees', async () => {
   for (const [field, value, said] of [
     ['giftTo', '', /name of the person the gift is for/],
-    ['giftAddress', '', /address the certificate should be posted to/],
+    ['giftAddress', '', /house or flat number and building, so the certificate reaches the door/],
     ['giftPin', '56', /PIN code/],
     ['currency', 'usd', /given in rupees/]
   ]) {
@@ -360,7 +367,8 @@ test('the gift is offered on the donate page, linked from every footer, and the 
   const page = fs.readFileSync(path.join(ROOT, 'donate.html'), 'utf8');
   assert.match(page, /data-kind="gift"[^>]*>Give as a gift</);
   assert.match(page, /<fieldset class="giftset" id="giftSet" hidden disabled>/, 'off, and not sent, until a gift is chosen');
-  for (const name of ['gift', 'giftTo', 'giftAddress', 'giftPin', 'giftEmail']) {
+  /* the certificate is posted, so the address comes in parts, door first (29 Oct 2026) */
+  for (const name of ['gift', 'giftTo', 'giftHouse', 'giftStreet', 'giftLandmark', 'giftPin', 'giftEmail']) {
     assert.match(page, new RegExp(`name="${name}"`), name);
   }
   const { GIFT_MIN_INR, parseGift } = require('../lib/payment');
@@ -394,7 +402,8 @@ test('a gift reads plainly and asks one thing per step: amount, who it is for, y
   assert.match(page, /function panes\(\)\{ return gift \? \['#p1', '#pG', '#p2'\]/, 'a gift has its own step');
   const step = page.slice(page.indexOf('<div class="pane" id="pG">'), page.indexOf('<div class="pane" id="p2">'));
   assert.match(step, /id="giftSet"/, 'who it is for is on that step');
-  for (const name of ['gift', 'giftTo', 'giftAddress', 'giftPin', 'giftEmail']) {
+  /* the certificate is posted, so the address comes in parts, door first (29 Oct 2026) */
+  for (const name of ['gift', 'giftTo', 'giftHouse', 'giftStreet', 'giftLandmark', 'giftPin', 'giftEmail']) {
     assert.match(step, new RegExp(`name="${name}"[^>]*form="giveForm"`), `${name} still posts with the payment form`);
   }
   assert.match(page, /\['01 Amount', '02 Who it is for', '03 Your details'\]/);

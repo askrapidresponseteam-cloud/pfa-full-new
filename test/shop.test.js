@@ -178,7 +178,7 @@ test('checkout records the order before payment, reserves stock, and asks CCAven
     const order = db.docs.get(`orders/${sent.order_id}`).data;
     assert.equal(order.status, 'initiated');
     assert.equal(order.total, 3350);
-    assert.deepEqual(order.delivery, { name: 'Meera Shah', address: 'Flat 4, Shanti Niwas, FC Road', city: 'Pune', district: 'Pune', state: 'Maharashtra', zip: '411004', country: 'India', tel: '9876543210' });
+    assert.deepEqual(order.delivery, { name: 'Meera Shah', address: 'Flat 4, Shanti Niwas, FC Road', house: '', street: 'Flat 4, Shanti Niwas, FC Road', landmark: '', city: 'Pune', district: 'Pune', state: 'Maharashtra', zip: '411004', country: 'India', tel: '9876543210' });
     assert.equal(db.docs.get('stock/23__XL').data.remaining, 98);
     assert.equal(db.docs.has('stock/21__L'), false, 'the logo tee is not counted');
     assert.equal([...db.docs.keys()].some((k) => /^stock\/21_/.test(k)), false);

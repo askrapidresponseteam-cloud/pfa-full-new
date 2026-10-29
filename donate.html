@@ -766,7 +766,10 @@ if (root.document && root.document.head) apply(read());
             <legend>Who it is for</legend>
             <input type="hidden" name="gift" value="yes" form="giveForm">
             <div class="field"><label for="giftTo">Their name</label><input id="giftTo" name="giftTo" type="text" autocomplete="off" required form="giveForm"><span class="error">Add the name of the person the gift is for.</span><span class="hint">As it should read on the certificate.</span></div>
-            <div class="field"><label for="giftAddress">Their postal address</label><input id="giftAddress" name="giftAddress" type="text" autocomplete="off" required form="giveForm"><span class="error">Add the address the certificate should be posted to.</span></div>
+            <!-- the certificate is posted: the door first (owner, 29 Oct 2026: "ask for proper mailing address including their house number") -->
+            <div class="field"><label for="giftHouse">Their house or flat number, and building</label><input id="giftHouse" name="giftHouse" type="text" autocomplete="off" maxlength="80" placeholder="Flat 4B, Sai Residency" required form="giveForm"><span class="error">Add their house or flat number and building, so the certificate reaches the door.</span></div>
+            <div class="field"><label for="giftAddress">Their street, area and town</label><input id="giftAddress" name="giftStreet" type="text" autocomplete="off" maxlength="120" placeholder="12th Cross, Kodavoor, Udupi" required form="giveForm"><span class="error">Add their street, area and town.</span></div>
+            <div class="field"><label for="giftLandmark">Landmark (optional)</label><input id="giftLandmark" name="giftLandmark" type="text" autocomplete="off" maxlength="80" placeholder="Near the Krishna temple" form="giveForm"></div>
             <div class="field"><label for="giftPin">PIN code</label><input id="giftPin" name="giftPin" type="text" inputmode="numeric" maxlength="6" autocomplete="off" required form="giveForm"><span class="error">Enter the 6-digit PIN code.</span></div>
             <div class="field"><label for="giftEmail">Their email (optional)</label><input id="giftEmail" name="giftEmail" type="email" autocomplete="off" form="giveForm"><span class="error">Check this email address.</span><span class="hint">For a digital copy of the certificate as well as the one by post.</span></div>
             <button class="btn btn--full" type="button" id="nextGift">Continue</button>
@@ -1167,9 +1170,10 @@ if (root.document && root.document.head) apply(read());
     $('#back').addEventListener('click', function(){ step(gift ? 2 : 1); });
     $('#backGift').addEventListener('click', function(){ step(1); });
     function giftOk(){
-      var gt = $('#giftTo'), ga = $('#giftAddress'), gp = $('#giftPin'), ge = $('#giftEmail'), errs = 0;
+      var gt = $('#giftTo'), gh = $('#giftHouse'), ga = $('#giftAddress'), gp = $('#giftPin'), ge = $('#giftEmail'), errs = 0;
       errs += bad(gt, !gt.value.trim()) ? 1 : 0;
-      errs += bad(ga, ga.value.trim().length < 6) ? 1 : 0;
+      errs += bad(gh, !/[0-9A-Za-z\u00C0-\uFFFF]/.test(gh.value)) ? 1 : 0;
+      errs += bad(ga, ga.value.trim().length < 4) ? 1 : 0;
       errs += bad(gp, !/^[1-9]\d{5}$/.test(gp.value.replace(/\D/g, ''))) ? 1 : 0;
       errs += bad(ge, !!ge.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ge.value.trim())) ? 1 : 0;
       return errs === 0;
@@ -1233,7 +1237,7 @@ if (root.document && root.document.head) apply(read());
         n.value.trim(), mob.value.replace(/\D/g, ''), m.value.trim().toLowerCase(), ad.value.trim(),
         city.value.trim(), pin.value.replace(/\D/g, ''), st.value,
         cause ? cause.value : '', pan.value.trim().toUpperCase()]
-        .concat(gift ? [$('#giftTo').value.trim(), $('#giftAddress').value.trim(), $('#giftPin').value.replace(/\D/g, ''),
+        .concat(gift ? [$('#giftTo').value.trim(), $('#giftHouse').value.trim(), $('#giftAddress').value.trim(), $('#giftLandmark').value.trim(), $('#giftPin').value.replace(/\D/g, ''),
           $('#giftEmail').value.trim().toLowerCase()] : []);
       $('#gRef').value = visitRef(gift ? 'gift' : 'donate', details.join('|'));
       /* The last look before paying, then the email and mobile on their own.

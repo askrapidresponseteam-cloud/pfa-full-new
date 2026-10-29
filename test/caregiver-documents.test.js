@@ -44,7 +44,7 @@ async function run(handler, req) {
 test('the fee cannot be started without the photograph', () => {
   /* The proof of address was dropped in v1.293; the photograph, which prints
      on the card, is the one document the fee still cannot start without. */
-  const good = { type: 'caregiver-application', name: 'Asha Rao', mobile: '9876543210', email: 'a@b.in', address: 'Car Street colony', city: 'Udupi', district: 'Udupi', state: 'Karnataka', pincode: '576101' };
+  const good = { type: 'caregiver-application', name: 'Asha Rao', mobile: '9876543210', email: 'a@b.in', house: '12', street: 'Car Street', colony: 'Car Street colony', city: 'Udupi', district: 'Udupi', state: 'Karnataka', pincode: '576101' };
   assert.throws(() => payment.parsePaymentRequest(good), /photograph/i);
   assert.throws(() => payment.parsePaymentRequest({ ...good, documents: 'not-a-token' }), /photograph/i);
   const parsed = payment.parsePaymentRequest({ ...good, documents: 'b'.repeat(48) });

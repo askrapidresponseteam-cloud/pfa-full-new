@@ -203,7 +203,7 @@ async function run() {
       rows.push(r);
     }
     rows.push(await paid('Become a member (paid)', { type: 'membership', tier: 'golden', amount: '2500', name: PERSON.name, mobile: PERSON.mobile, email: EMAIL, address: '16 MG Road', city: 'Udupi', state: 'Karnataka', district: 'Udupi', pincode: '576101', terms: 'yes' }, 'PFA-MEM', TEMPLATES['PFA-MEM']));
-    rows.push(await paid('Colony caregiver card (paid)', { type: 'caregiver-application', name: PERSON.name, mobile: PERSON.mobile, email: EMAIL, address: 'Car Street colony, near the temple', city: 'Udupi', animals: '12', district: 'Udupi', state: 'Karnataka', pincode: '576101', documents: 'a'.repeat(48), terms: 'yes' }, 'PFA-CG', TEMPLATES['PFA-CG']));
+    rows.push(await paid('Colony caregiver card (paid)', { type: 'caregiver-application', name: PERSON.name, mobile: PERSON.mobile, email: EMAIL, house: '12', street: 'Car Street', colony: 'Car Street colony, near the temple', city: 'Udupi', animals: '12', district: 'Udupi', state: 'Karnataka', pincode: '576101', documents: 'a'.repeat(48), terms: 'yes' }, 'PFA-CG', TEMPLATES['PFA-CG']));
     for (const r of rows.filter((x) => !x.free)) { classify(r); r.ok = r.filed && Boolean(r.ack) && r.ack.template === r.template && r.forwarded; }
   } finally {
     console.warn = saved.warn; console.info = saved.info;

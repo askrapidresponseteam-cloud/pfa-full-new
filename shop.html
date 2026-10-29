@@ -294,6 +294,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .co__gap{margin-top:26px!important}
 .co .field{margin-top:20px}
 .co label{display:block;margin-bottom:6px;font-size:12px;font-weight:700;letter-spacing:.04em}
+.co label .opt{font-weight:400;letter-spacing:0;color:var(--muted, #6b6b6b)}
 .co input:not([type=hidden]),.co select{width:100%;height:46px;padding:0 12px;border:1px solid var(--line);background:#fff;font-size:15px;color:var(--ink)}
 .co input:focus,.co select:focus{outline:none;border-color:var(--ink)}
 .co select:disabled{color:var(--muted);background:var(--stone)}
@@ -1232,7 +1233,11 @@ if (root.document && root.document.head) apply(read());
       <div class="field"><label for="coMobile">Mobile number</label><input id="coMobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" required><span class="error">Enter a 10-digit Indian mobile number.</span></div>
       <div class="field"><label for="coEmail">Email</label><input id="coEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email for your order confirmation.</span></div>
       <p class="eyebrow co__gap">Deliver to</p>
-      <div class="field"><label for="coAddress">Address</label><input id="coAddress" name="address" type="text" autocomplete="street-address" required><span class="error">Enter the delivery address.</span></div>
+      <!-- by courier: the door first (owner, 29 Oct 2026: "ask for proper mailing address including their house number") -->
+      <div class="field"><label for="coHouse">House or flat number, and building</label><input id="coHouse" name="house" type="text" autocomplete="address-line1" maxlength="80" placeholder="Flat 4B, Sai Residency" required><span class="error">Add the house or flat number and building, so the courier finds the door.</span></div>
+      <div class="field"><label for="coAddress">Street and area</label><input id="coAddress" name="street" type="text" autocomplete="address-line2" maxlength="120" placeholder="12th Cross, Kodavoor" required><span class="error">Add the street and area.</span></div>
+      <div class="field"><label for="coLandmark">Landmark <span class="opt">(optional)</span></label><input id="coLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"></div>
+      <div class="field"><label for="coCity">City, town or village</label><input id="coCity" name="city" type="text" autocomplete="address-level2" maxlength="60" required><span class="error">Add the city, town or village.</span></div>
       <div class="co__pair">
         <div class="field"><label for="coState">State</label><select id="coState" name="state" autocomplete="address-level1" required><option value="">Select</option></select><span class="error">Pick the state.</span></div>
         <div class="field"><label for="coDistrict">District</label><select id="coDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick the district.</span></div>

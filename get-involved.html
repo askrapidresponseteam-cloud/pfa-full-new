@@ -887,10 +887,14 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__copy">
             <p class="eyebrow">Your address</p>
             <h2>Where the card goes.</h2>
+            <p class="gi__lede">Your card and kit come by courier. Give the full address, with the house or flat number.</p>
           </div>
-          <div class="gi__body">
-            <div class="field"><label for="memAddress">Address</label><input id="memAddress" name="address" type="text" autocomplete="street-address" required><span class="error">Enter the address your card and kit should go to.</span></div>
-            <div class="field"><label for="memCity">City or town</label><input id="memCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us the city or town.</span></div>
+          <div class="gi__body gi__fields">
+            <!-- posted by courier: the door first (owner, 29 Oct 2026: "ask for proper mailing address including their house number") -->
+            <div class="field gi__wide"><label for="memHouse">House or flat number, and building</label><input id="memHouse" name="house" type="text" autocomplete="address-line1" maxlength="80" placeholder="Flat 4B, Sai Residency" required><span class="error">Add the house or flat number and building, so the courier finds the door.</span></div>
+            <div class="field gi__wide"><label for="memAddress">Street and area</label><input id="memAddress" name="street" type="text" autocomplete="address-line2" maxlength="120" placeholder="12th Cross, Kodavoor" required><span class="error">Add the street and area.</span></div>
+            <div class="field gi__wide"><label for="memLandmark">Landmark <span class="opt">(optional)</span></label><input id="memLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"><span class="hint">Helps the courier find you.</span></div>
+            <div class="field"><label for="memCity">City, town or village</label><input id="memCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us the city or town.</span></div>
             <div class="field"><label for="memState">State</label><select id="memState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="memDistrict">District</label><select id="memDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
             <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
@@ -921,7 +925,7 @@ if (root.document && root.document.head) apply(read());
     <section class="gi__section" id="caregiver" data-journey="Colony caregiver">
       <div class="gi__bar">
         <button type="button" class="gi__back" data-gi-back><span aria-hidden="true">&larr;</span> Back to the tribe</button>
-        <ol class="gi__progress" aria-label="Steps"><li>The card</li><li>About you</li><li>Your colony</li><li>Pay</li></ol>
+        <ol class="gi__progress" aria-label="Steps"><li>The card</li><li>About you</li><li>Your address</li><li>Your colony</li><li>Pay</li></ol>
         <a class="pfa-flow-bar__help gi__help" href="ask.html" target="_blank" rel="noopener" aria-label="Need help? Contact PFA (opens in a new tab, so nothing here is lost)"><span class="pfa-flow-bar__q">Need help? </span><b>Contact PFA</b></a>
       </div>
 
@@ -962,18 +966,32 @@ if (root.document && root.document.head) apply(read());
           </div>
         </div>
 
+        <div class="gi__step" data-step="Your address">
+          <div class="gi__copy">
+            <p class="eyebrow">Your address</p>
+            <h2>Where we post your card.</h2>
+            <p class="gi__lede">The printed card comes by post. Give the full address, with the house or flat number.</p>
+          </div>
+          <div class="gi__body gi__fields">
+            <!-- posted by courier: the door first (owner, 29 Oct 2026: "ask for proper mailing address including their house number") -->
+            <div class="field gi__wide"><label for="cgHouse">House or flat number, and building</label><input id="cgHouse" name="house" type="text" autocomplete="address-line1" maxlength="80" placeholder="Flat 4B, Sai Residency" required><span class="error">Add the house or flat number and building, so the courier finds the door.</span></div>
+            <div class="field gi__wide"><label for="cgAddress">Street and area</label><input id="cgAddress" name="street" type="text" autocomplete="address-line2" maxlength="120" placeholder="12th Cross, Kodavoor" required><span class="error">Add the street and area.</span></div>
+            <div class="field gi__wide"><label for="cgLandmark">Landmark <span class="opt">(optional)</span></label><input id="cgLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"><span class="hint">Helps the courier find you.</span></div>
+            <div class="field"><label for="cgCity">City, town or village</label><input id="cgCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us where.</span></div>
+            <div class="field"><label for="cgState">State</label><select id="cgState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
+            <div class="field"><label for="cgDistrict">District</label><select id="cgDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
+            <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
+            <div class="field"><label for="cgPin">PIN code</label><input id="cgPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span></div>
+          </div>
+        </div>
+
         <div class="gi__step" data-step="Your colony">
           <div class="gi__copy">
             <p class="eyebrow">Your colony</p>
             <h2>Where you feed.</h2>
           </div>
           <div class="gi__body gi__fields">
-            <div class="field gi__wide"><label for="cgAddress">Colony or locality</label><input id="cgAddress" name="address" type="text" autocomplete="street-address" required><span class="error">Where do you feed?</span></div>
-            <div class="field"><label for="cgCity">City or town</label><input id="cgCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us where.</span></div>
-            <div class="field"><label for="cgState">State</label><select id="cgState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
-            <div class="field"><label for="cgDistrict">District</label><select id="cgDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
-            <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
-            <div class="field"><label for="cgPin">PIN code</label><input id="cgPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span></div>
+            <div class="field gi__wide"><label for="cgColony">Colony or locality</label><input id="cgColony" name="colony" type="text" maxlength="120" placeholder="Shanthi Nagar, behind the bus stand" required><span class="error">Where do you feed?</span></div>
             <div class="field"><label for="cgCount">Roughly how many animals <span class="opt">(optional)</span></label><input id="cgCount" name="animals" type="text" inputmode="numeric" maxlength="4"><span class="hint">An estimate is fine.</span></div>
           </div>
         </div>
@@ -1498,14 +1516,16 @@ if (root.document && root.document.head) apply(read());
 
     var sending = false;
     form.addEventListener('submit', function(e){
-      var n=$('#cgName'), m=$('#cgMobile'), em=$('#cgEmail'), a=$('#cgAddress'), c=$('#cgCity');
+      var n=$('#cgName'), m=$('#cgMobile'), em=$('#cgEmail'), a=$('#cgAddress'), c=$('#cgCity'), h=$('#cgHouse'), col=$('#cgColony');
       var st=$('#cgState'), di=$('#cgDistrict'), pin=$('#cgPin');
       var errs = 0;
       errs += bad(n, !n.value.trim()) ? 1 : 0;
       errs += bad(m, !mobileOk(m.value)) ? 1 : 0;
       errs += bad(em, !emailOk(em.value)) ? 1 : 0;
+      errs += bad(h, !h.value.trim()) ? 1 : 0;
       errs += bad(a, !a.value.trim()) ? 1 : 0;
       errs += bad(c, !c.value.trim()) ? 1 : 0;
+      errs += bad(col, !col.value.trim()) ? 1 : 0;
       /* the server's rules (lib/payment.js), here so a gap is shown on the
          form rather than on an error page after the round trip */
       errs += bad(st, !st.value) ? 1 : 0;
