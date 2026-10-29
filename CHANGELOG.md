@@ -1,3 +1,10 @@
+## v1.476
+
+- **No part of a photograph is cut on any card.** Owner, 29 Oct 2026: "can u ensure no part of the photo is clipped".
+  - **Colony cards:** the preview, Preview front and back, the printed card and its PDF and PNG all draw the photograph whole inside its window, scaled down to fit and never cropped to fill. A full-length photo shows the whole person, with white either side. This is now pinned by a test that runs the real drawing code on tall, wide and square photographs.
+  - **Membership cards:** the photo page the member uses now opens on the whole photograph, on white; zooming in to frame the face is their choice, never forced. The card draws the photograph whole.
+- Checked: test/card-photo-whole.test.js, the full suite.
+
 ## v1.475
 
 - **The colony card's number is on the preview before it is issued, and it is random.** Owner, 29 Oct 2026: "show the number. and let it not be like 001.. it has to be randomised so that people cant fake".

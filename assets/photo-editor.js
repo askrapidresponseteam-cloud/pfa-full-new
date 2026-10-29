@@ -80,20 +80,33 @@
 
     /* The visible frame and the exported file use one routine, so what is
        positioned here is exactly what prints. */
+    /* Zoomed all the way out, the whole photograph shows, on white, and
+       nothing of it is cut (owner, 29 Oct 2026: "ensure no part of the photo
+       is clipped"). The person may zoom in to frame their face, and then
+       drags; they are never made to lose part of the picture to fit. */
     function paint(target, targetWidth, targetHeight) {
       var context = target.getContext('2d');
       context.clearRect(0, 0, targetWidth, targetHeight);
       if (!state.image) return;
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, targetWidth, targetHeight);
 
       var image = (state.cutout && cutoutBox && cutoutBox.checked) ? state.cutout : state.image;
-      var cover = Math.max(targetWidth / image.width, targetHeight / image.height);
-      var scale = cover * state.zoom;
+      var whole = Math.min(targetWidth / image.width, targetHeight / image.height);
+      var scale = whole * state.zoom;
       var drawWidth = image.width * scale;
       var drawHeight = image.height * scale;
-      var maxX = Math.max(0, drawWidth - targetWidth);
-      var maxY = Math.max(0, drawHeight - targetHeight);
+      var x = drawWidth > targetWidth ? -(drawWidth - targetWidth) * state.x : (targetWidth - drawWidth) / 2;
+      var y = drawHeight > targetHeight ? -(drawHeight - targetHeight) * state.y : (targetHeight - drawHeight) / 2;
 
-      context.drawImage(image, -maxX * state.x, -maxY * state.y, drawWidth, drawHeight);
+      context.drawImage(image, x, y, drawWidth, drawHeight);
+    }
+    /* how far in one may zoom: until the photograph fills the frame, and
+       three times that */
+    function maxZoom(image) {
+      var whole = Math.min(1 / image.width, aspect / image.height);
+      var fill = Math.max(1 / image.width, aspect / image.height);
+      return Math.max(1, (fill / whole) * 3);
     }
 
     function draw() {
@@ -107,12 +120,8 @@
     function assess() {
       if (!state.image) return { level: 'none', effective: 0 };
       var image = state.image;
-      var frameAspect = aspect;
-      var usableWidth = image.width;
-      if (image.height / image.width < frameAspect) {
-        usableWidth = image.height / frameAspect;
-      }
-      var effective = Math.round(usableWidth / state.zoom);
+      /* the photograph's pixels across the frame's width, at this zoom */
+      var effective = Math.round(Math.max(image.width, image.height / aspect) / state.zoom);
       var level = effective >= idealPx ? 'good' : effective >= poorPx ? 'soft' : 'poor';
       return { level: level, effective: effective };
     }
@@ -201,6 +210,7 @@
                person can still drag it wherever they want. */
             var frameIsShorter = (image.height / image.width) > aspect;
             state.y = frameIsShorter ? 0.12 : 0.5;
+            zoomInput.max = String(Math.round(maxZoom(image) * 100));
             zoomInput.value = '100';
             controls.hidden = false;
             state.cutout = null;

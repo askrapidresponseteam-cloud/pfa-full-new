@@ -281,7 +281,9 @@
     ctx.fill();
     ctx.clip();
     if (photo && photo.width) {
-      var scale = Math.max(P.w / photo.width, P.h / photo.height);
+      /* the whole photograph, never cut to fit (29 Oct 2026); the member framed
+         it to this window's shape (assets/photo-editor.js), so it fills it */
+      var scale = Math.min(P.w / photo.width, P.h / photo.height);
       var w = photo.width * scale;
       var h = photo.height * scale;
       ctx.drawImage(photo, P.x + (P.w - w) / 2, P.y + (P.h - h) / 2, w, h);
