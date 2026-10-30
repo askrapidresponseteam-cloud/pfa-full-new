@@ -1385,3 +1385,74 @@
   sweep();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sweep, { once: true });
 })();
+
+/* ---------- the first screen is one picture ------------------------------
+   Owner, 30 Oct 2026: "the 2nd photo in crawling inside the landing view..
+   can never let such a thing happen on mobile or anywhere else". On any
+   page, at any screen size, the first screen shows its own photograph and
+   nothing of the next one: a second large photograph (60% of the screen's
+   width or more) that starts inside the first screen and is cut by its
+   foot (the tab bar on a phone) is moved down to start just below it. Its
+   block is given that much more room above; nothing else moves. A second
+   photograph that shows mostly (more than a third of the screen) is the
+   page's own layout and is left alone, and one shown whole is not a peek.
+   Measured again when the screen turns or resizes, and once the
+   photographs have loaded. */
+(function () {
+  'use strict';
+  var pushed = [];
+  var BIG = 0.6;
+  function floorOf() {
+    var vh = window.innerHeight;
+    var tab = document.querySelector('.pfa-tabs');
+    if (tab && getComputedStyle(tab).display !== 'none') {
+      var t = tab.getBoundingClientRect().top;
+      if (t > 0 && t < vh) return t;
+    }
+    return vh;
+  }
+  function shown(el) {
+    if (el.closest('header, nav, footer, dialog, [hidden]')) return false;
+    var s = getComputedStyle(el);
+    if (s.display === 'none' || s.visibility === 'hidden' || Number(s.opacity) === 0) return false;
+    return true;
+  }
+  function guard() {
+    pushed.forEach(function (p) { p.el.style.marginTop = p.was; });
+    pushed = [];
+    if ((window.scrollY || window.pageYOffset) > 4) return;
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var floor = floorOf();
+    var big = [].slice.call(document.querySelectorAll('img, video')).filter(function (el) {
+      if (!shown(el)) return false;
+      var r = el.getBoundingClientRect();
+      return r.width >= vw * BIG && r.height >= 120 && r.bottom > 0;
+    }).map(function (el) { return { el: el, r: el.getBoundingClientRect() }; })
+      .sort(function (a, b) { return a.r.top - b.r.top; });
+    if (big.length < 2) return;
+    var first = big[0];
+    big.slice(1).forEach(function (x) {
+      var r = x.el.getBoundingClientRect();
+      if (r.top >= floor - 1 || r.top < first.r.bottom - 1) return;       /* below the fold, or beside the first */
+      if (r.bottom <= floor) return;                                        /* whole on the first screen */
+      var show = floor - r.top;
+      if (show > vh / 3) return;                                            /* the page's own layout */
+      /* the outermost block that holds this photograph and not the first */
+      var block = x.el;
+      while (block.parentElement && block.parentElement !== document.body && !block.parentElement.contains(first.el)) block = block.parentElement;
+      if (pushed.some(function (p) { return p.el === block; })) return;
+      var was = block.style.marginTop;
+      var current = parseFloat(getComputedStyle(block).marginTop) || 0;
+      block.style.marginTop = Math.ceil(current + show + 1) + 'px';
+      pushed.push({ el: block, was: was });
+    });
+  }
+  var timer = 0;
+  function later() { clearTimeout(timer); timer = setTimeout(guard, 120); }
+  window.PFAFoldGuard = guard;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', guard, { once: true }); else guard();
+  window.addEventListener('load', guard, { once: true });
+  window.addEventListener('resize', later);
+  window.addEventListener('orientationchange', later);
+})();

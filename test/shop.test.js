@@ -153,7 +153,7 @@ test('the logo tee is not sold by colour: PFA chooses it at dispatch, says so on
   assert.match(tee, /data-colour-at-dispatch/);
   assert.match(tee, /colour chosen for you at dispatch/);
   assert.match(html, /class="feature__note"><b>A limited palette<\/b>[^<]*chosen for you according to availability\./);
-  for (const c of ['red', 'yellow', 'white', 'pink']) assert.match(html, new RegExp(`data-open-id="21" data-start="media/shop/v2/t-shirt-${c}-front\\.webp"`));
+  for (const c of ['red', 'yellow', 'white', 'pink']) assert.match(html, new RegExp(`data-open-id="21" data-start="media/shop/v3/t-shirt-${c}-front\\.webp"`));
   const js = fs.readFileSync(path.join(ROOT, 'assets/shop.js'), 'utf8');
   assert.match(js, /its colour chosen for you according to availability\./);
   assert.doesNotMatch(js, /\.colours\b|colour: l\.colour/);

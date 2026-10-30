@@ -1,3 +1,15 @@
+## v1.479
+
+- **Shop: every tile is filled by its photograph, the same shape, nothing cut.** Owner, 30 Oct 2026: "photos render differently in each tile looks diff and odd. make it uniform and supreme".
+  - **Why tiles looked different:** the photographs came from several shoots in different shapes, from 4:5 down to 9:20, so each one left a different band of plain ground in its tile.
+  - **Each photograph is now on a 2:3 canvas,** the shape of the tiles. Its own backdrop is carried out to the new edges (the colour of its own edge, eased into the backdrop's tone and given the photograph's grain), so every tile is filled edge to edge. The person is never moved, scaled or cut.
+  - **Which side gets the extra canvas:** a photograph wider than 2:3 gets head room above, never anything below the feet. A narrow one gets more on whichever side is plain backdrop. Thin frame lines some shoots left on an edge are taken off, and the front-and-back pictures shown side by side are left as shot.
+  - **Originals are kept.** The framed copies are in media/shop/v3/, made by scripts/shop-frames.py.
+- **Home: nothing of the next photograph shows on the first screen.** Owner, 30 Oct 2026: "the 2nd photo in crawling inside the landing view.. can never let such a thing happen on mobile or anywhere else".
+  - **Phone and tablet:** the hero now fills the first screen down to the tab bar. The photograph stays whole on its floor, with the words in the middle of the space above her. The founder photograph starts below the fold.
+  - **Every page, every screen size:** a guard in the shared site script measures the first screen on load, on resize and on turning the phone. If a second large photograph starts inside it and is cut by the foot of the screen, the guard moves that block down to start just below. A checker across every page at eight screen sizes, from a small phone to a 1920 screen, found two pages where this happened (home and the newsroom on phones). Now it finds none.
+- Checked: test/uniform-frames.test.js, the full suite, and screenshots of the shop grid and the landing views on phone, tablet and desktop.
+
 ## v1.478
 
 - **Everything PFA posts now asks for the full postal address, door first.** Owner, 29 Oct 2026: "for all orders like ecom ones and card dispatches ask for proper mailing address including their house number etc. ... check everysuch place on the end user website and update".
