@@ -186,7 +186,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .u-state__head:hover .u-fold{border-color:var(--ink)}
 .u-fold:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .u-state.is-open .u-state__head{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);transform:none}
-.u-state.is-open .u-state__head::before{content:"";position:absolute;left:18px;top:-1px;width:22px;height:3px;background:var(--pop)}
 .u-state.is-open .u-fold{transform:rotate(45deg);border-color:var(--ink)}
 
 /* the open state's contacts, under its row */
@@ -359,9 +358,8 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
    pure white does not read as flat. Discipline: the pop is never small
    text, where it would fail contrast - it is the tick over the title, the
    rule across each panel, the selection, and nothing else. ---------- */
-.hero h1::before,.u-hero h1::before{content:"";display:block;width:34px;height:3px;background:var(--pop,#ff3b18);margin-bottom:18px}
 .hero,.u-hero{border-bottom:1px solid var(--line)}
-.leg__panel{border-top:3px solid var(--pop,#ff3b18)}
+.leg__panel{border-top:1px solid var(--ink,#111)}
 ::selection{background:var(--pop,#ff3b18);color:#fff}
 /* the title block starts where every page's does: 72px under the header, 36px on a phone (10 Oct 2026) */
 @media (max-width:720px){.u-hero{padding-top:calc(var(--ann) + var(--nav) + 36px)}}

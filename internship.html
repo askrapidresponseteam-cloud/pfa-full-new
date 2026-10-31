@@ -110,7 +110,6 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
   padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) 64px;
   overflow:hidden;isolation:isolate;border-bottom:1px solid var(--line)}
 .hero .eyebrow{color:rgba(17,17,17,.55);margin:0 0 18px}
-.hero h1::before{content:"";display:block;width:34px;height:3px;background:var(--pop);margin-bottom:18px}
 
 /* ---------- bands: the numbered head is the editorial theme's ---------- */
 .band{padding:var(--band) var(--gutter)}
@@ -128,11 +127,44 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 }
 
 /* ---------- this page ---------- */
+/* Figures in EB Garamond, the certificate's own book face: Marcellus draws a 1
+   that reads as a capital I, and on this page the numbers are the point */
+@font-face{font-family:'EB Garamond';font-style:normal;font-weight:500;font-display:swap;src:url("fonts/eb-garamond-latin-500.woff2") format('woff2')}
+.m-card.vi-task .vi-goal b,.vi-weeks li::before,.m-hero__facts b,.vi-task .m-card__no{font-family:'EB Garamond',Georgia,serif;font-weight:500}
+/* the opening: the photograph whole, at its own shape (2400 x 1347) */
+.vi-open{position:relative;margin-top:calc(var(--ann) + var(--nav));background:#02040b;color:#fff;overflow:hidden;isolation:isolate}
+.vi-open__ph{display:block}
+.vi-open__ph img{display:block;width:100%;height:auto;aspect-ratio:2400/1347}
+.vi-open__in{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:center;padding:0 var(--gutter);max-width:min(64%,920px)}
+main .vi-open .pfa-kicker.pfa-kicker{color:rgba(255,255,255,.86)}
+main .vi-open h1.pfa-title.pfa-title{margin:0;color:#fff;font-size:clamp(46px,8.2vw,138px);line-height:.94;max-width:none}
+.vi-open__care{text-transform:lowercase}
+.vi-open__foot{display:flex;flex-wrap:wrap;align-items:flex-end;gap:20px clamp(28px,5vw,72px);margin-top:clamp(28px,4vw,56px)}
+.vi-open__foot p{margin:0;font-size:clamp(15px,1.2vw,18px);line-height:1.5;color:rgba(255,255,255,.88)}
+.vi-open__go{display:inline-flex;align-items:center;gap:18px;padding:0 0 12px;border-bottom:1px solid rgba(255,255,255,.55);font-size:14px;letter-spacing:.02em;color:#fff}
+.vi-open__go svg{flex:none;transition:transform .3s}
+.vi-open__go:hover{opacity:1}
+.vi-open__go:hover svg{transform:translateY(4px)}
+.vi-open .vi-open__apply{background:#fff;color:#111;border-color:#fff}
+.vi-open .vi-open__apply:hover{background:transparent;color:#fff}
+/* a phone: the photograph whole on top, the words under it on the page's own white */
+@media (max-width:720px){
+  .vi-open{background:var(--paper);color:var(--ink)}
+  .vi-open__in{position:static;max-width:none;padding:28px 16px 40px}
+  main .vi-open .pfa-kicker.pfa-kicker{color:var(--muted)}
+  main .vi-open h1.pfa-title.pfa-title{color:var(--ink);font-size:clamp(44px,13vw,64px)}
+  .vi-open__foot p{color:rgba(17,17,17,.78)}
+  .vi-open__go{color:var(--ink);border-bottom-color:var(--ink)}
+  .vi-open .vi-open__apply{background:var(--ink);color:#fff;border-color:var(--ink)}
+}
+.vi-discover .m-hero__in{align-items:center}
+.vi-discover h2{font-size:clamp(34px,4.4vw,68px);max-width:13ch}
 /* the two photographs at their own shapes, so nothing of them is cut */
 .m-hero__media .m-duo.vi-duo .m-ph:first-child{aspect-ratio:1100/1763;width:64%}
 .m-hero__media .m-duo.vi-duo .m-ph:last-child{aspect-ratio:1400/963;width:56%}
 .vi-tasks{--cols:3}
 .vi-task .m-card__no{margin:0}
+.m-card.vi-task .vi-goal b{font-weight:500}
 .m-card.vi-task .vi-goal{margin:0;color:var(--ink);font-family:var(--display);font-weight:400;font-size:clamp(40px,4vw,58px);line-height:1;text-transform:uppercase;letter-spacing:.01em}
 .m-card.vi-task .vi-goal small{margin-left:8px;font-size:.32em;letter-spacing:.14em;color:var(--muted)}
 .vi-task > p:not(.vi-goal){margin:0;font-size:14.5px;line-height:1.6;color:rgba(17,17,17,.72)}
@@ -417,12 +449,31 @@ if (root.document && root.document.head) apply(read());
 <script src="assets/field-validate.js"></script>
 
 <main>
-  <section class="hero m-hero" id="top">
+  <!-- The opening (owner, 31 Oct 2026: "add text like this.. but dont change
+       the theme"): the photograph whole at its own shape, the words on its
+       dark side on a wide screen, under it on a phone. -->
+  <section class="vi-open" id="top" data-cursor="light">
+    <picture class="vi-open__ph">
+      <source media="(max-width:720px)" srcset="media/site/internship/eye-1000.webp">
+      <img src="media/site/internship/eye.webp" width="2400" height="1347" alt="Close up: a black dog's amber eye, and a fingertip resting gently on its fur" fetchpriority="high" decoding="async">
+    </picture>
+    <div class="vi-open__in">
+      <p class="eyebrow pfa-kicker">A little of your time. Their whole world.</p>
+      <h1 class="pfa-title display">Make <span class="vi-open__care">care</span> count.</h1>
+      <div class="vi-open__foot">
+        <p>Eight weeks.<br>Real work. Where you live.</p>
+        <a class="vi-open__go" href="#discover">Discover the internship<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M6 14l6 6 6-6"/></svg></a>
+        <a class="btn vi-open__apply" href="#apply">Apply</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band m-hero vi-discover" id="discover">
     <div class="m-hero__in">
       <div>
-        <p class="eyebrow pfa-kicker">Virtual internship</p>
-        <h1 class="pfa-title display">Eight weeks for the animals of your town.</h1>
-        <p class="lede">Real work, done where you live. Care for a shelter's animals, build a feeding circle on your street, learn the law that protects them, and bring your town onto the Rapid Response network. PFA mentors you every week.</p>
+        <p class="eyebrow">Virtual internship</p>
+        <h2 class="display">Eight weeks for the animals of your town.</h2>
+        <p class="lede">Real work, done where you live. Help at a shelter PFA knows, learn the law that protects animals, find a lawyer who will stand up for them, and bring your town onto the Rapid Response network. PFA mentors you every week.</p>
         <div class="m-hero__acts">
           <a class="btn" href="#apply">Apply</a>
           <a class="btn btn--ghost" href="#tasks">See the twelve tasks</a>
@@ -436,8 +487,8 @@ if (root.document && root.document.head) apply(read());
       </div>
       <div class="m-hero__media">
         <div class="m-duo vi-duo">
-          <figure class="m-ph" data-ph><img src="media/site/internship/dog-with-flower.webp" alt="A golden puppy sitting on a garden path with a flower in its mouth" width="1100" height="1763" loading="eager" decoding="async" onerror="this.closest('[data-ph]').classList.add('is-gone')"></figure>
-          <figure class="m-ph" data-ph><img src="media/site/internship/cat.webp" alt="A black and white cat with green eyes, its paws over a bamboo rail" width="1400" height="963" loading="eager" decoding="async" onerror="this.closest('[data-ph]').classList.add('is-gone')"></figure>
+          <figure class="m-ph" data-ph><img src="media/site/internship/dog-with-flower.webp" alt="A golden puppy sitting on a garden path with a flower in its mouth" width="1100" height="1763" loading="lazy" decoding="async" onerror="this.closest('[data-ph]').classList.add('is-gone')"></figure>
+          <figure class="m-ph" data-ph><img src="media/site/internship/cat.webp" alt="A black and white cat with green eyes, its paws over a bamboo rail" width="1400" height="963" loading="lazy" decoding="async" onerror="this.closest('[data-ph]').classList.add('is-gone')"></figure>
         </div>
       </div>
     </div>
@@ -449,21 +500,21 @@ if (root.document && root.document.head) apply(read());
         <p class="eyebrow">The work</p>
         <h2 class="display">Twelve tasks, each with a target.</h2>
       </div>
-      <p>Your mentor signs each one off when the proof is in. Open any task to see how it works.</p>
+      <p>None of them starts anything an animal comes to depend on, so no animal is ever worse off when the eight weeks end. Your mentor signs each one off when the proof is in.</p>
     </div>
     <ol class="m-grid vi-tasks" id="viTasks">
-      <li class="m-card vi-task"><span class="m-card__no">01</span><p class="vi-goal">20<small>hours</small></p><h3 class="m-sub">Work at a local shelter</h3><p>Hands-on care at a shelter near you, through all eight weeks.</p><details class="vi-how"><summary>How it works</summary><ul><li>Cleaning, feeding, walking and socialising animals</li><li>Helping the vet on treatment days</li><li>Signed off by the shelter or the nearest PFA unit</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">02</span><p class="vi-goal">3<small>feeders</small></p><h3 class="m-sub">Build a feeding circle</h3><p>Animals come to depend on whoever feeds them, so a feeding spot must never stop when the internship does.</p><details class="vi-how"><summary>How it works</summary><ul><li>Join a feeder already at work, or start a spot with two neighbours who commit to it</li><li>A shared rota, so no day is missed when someone is ill or away</li><li>Clean bowls, clean water, never plastic left behind</li><li>Before week 8, a written handover: who feeds on which day, and who steps in</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">03</span><p class="vi-goal">10<small>reels</small></p><h3 class="m-sub">Make reels that change minds</h3><p>Short videos on adoption, sterilisation, the law and your own shelter work.</p><details class="vi-how"><summary>How it works</summary><ul><li>Posted publicly, with PFA tagged</li><li>No graphic injury footage: show care, not cruelty</li><li>Ideas and scripts shared in the Saturday session</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">04</span><p class="vi-goal">100<small>people</small></p><h3 class="m-sub">Bring your town onto the RRT</h3><p>Grow the Rapid Response network in your district.</p><details class="vi-how"><summary>How it works</summary><ul><li>Your own referral code counts each person</li><li>Neighbours, college friends, feeders, local vets</li><li>Everyone you bring can be reached when an animal needs help</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">05</span><p class="vi-goal">4<small>laws</small></p><h3 class="m-sub">Learn the law</h3><p>Know what protects animals, and how to use it.</p><details class="vi-how"><summary>How it works</summary><ul><li>Section 325 of the Bharatiya Nyaya Sanhita</li><li>The Prevention of Cruelty to Animals Act, 1960</li><li>The ABC Rules, 2023, and the right to feed community animals</li><li>A short online test to finish</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">06</span><p class="vi-goal">5<small>dogs</small></p><h3 class="m-sub">Sterilise and vaccinate</h3><p>Get five community dogs sterilised and vaccinated against rabies.</p><details class="vi-how"><summary>How it works</summary><ul><li>Work with the municipality or the local ABC centre</li><li>Help catch, transport and return them to the same street</li><li>Hand them to your feeding circle, so next year&#x27;s rabies shot is not missed</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">07</span><p class="vi-goal">2<small>homes</small></p><h3 class="m-sub">Find homes</h3><p>Help two animals from a shelter or the street find a family.</p><details class="vi-how"><summary>How it works</summary><ul><li>Good photographs and an honest description</li><li>Meet the family and see the home</li><li>A follow-up visit, then your feeding circle keeps in touch</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">08</span><p class="vi-goal">1<small>case</small></p><h3 class="m-sub">Report cruelty the right way</h3><p>Learn to file a complaint or police report that holds.</p><details class="vi-how"><summary>How it works</summary><ul><li>Record what you saw: date, time, place, photographs</li><li>File it with PFA guiding you, step by step</li><li>Never confront anyone yourself</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">09</span><p class="vi-goal">1<small>talk</small></p><h3 class="m-sub">Give one talk</h3><p>At a school, college or housing society, on kindness and the law.</p><details class="vi-how"><summary>How it works</summary><ul><li>A ready deck and talking points from PFA</li><li>Twenty minutes, then questions</li><li>A photograph and the number of people who came</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">10</span><p class="vi-goal">1<small>district</small></p><h3 class="m-sub">Map your district</h3><p>Every vet, shelter, feeder, ABC centre and ambulance near you.</p><details class="vi-how"><summary>How it works</summary><ul><li>Names, numbers and hours, checked by a call</li><li>It goes into the PFA help directory</li><li>The next person who needs help finds it faster</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">11</span><p class="vi-goal">1<small>module</small></p><h3 class="m-sub">Animal first aid</h3><p>What to do in the first minutes, until help arrives.</p><details class="vi-how"><summary>How it works</summary><ul><li>Approaching a frightened or injured animal safely</li><li>Bleeding, heat stroke and road accidents</li><li>When to call, and whom</li></ul></details></li>
-      <li class="m-card vi-task"><span class="m-card__no">12</span><p class="vi-goal">1<small>story</small></p><h3 class="m-sub">Write your story</h3><p>One real story from your eight weeks, for the PFA site.</p><details class="vi-how"><summary>How it works</summary><ul><li>An animal you met, a person who changed, a street that changed</li><li>Four to six hundred words, with photographs</li><li>The best are published on the PFA site</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">01</span><p class="vi-goal"><b>20</b><small>hours</small></p><h3 class="m-sub">Help at a shelter PFA knows</h3><p>Hands-on help alongside the shelter&#x27;s own staff, who care for the animals before you come and after you go.</p><details class="vi-how"><summary>How it works</summary><ul><li>Cleaning, walking and socialising, as the staff ask</li><li>Helping on treatment days</li><li>Signed off by the shelter or the nearest PFA unit</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">02</span><p class="vi-goal"><b>4</b><small>laws</small></p><h3 class="m-sub">Learn the law</h3><p>Know what protects animals, and how to use it.</p><details class="vi-how"><summary>How it works</summary><ul><li>Section 325 of the Bharatiya Nyaya Sanhita</li><li>The Prevention of Cruelty to Animals Act, 1960</li><li>The ABC Rules, 2023, and the right to feed community animals</li><li>A short online test to finish</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">03</span><p class="vi-goal"><b>1</b><small>lawyer</small></p><h3 class="m-sub">Find a lawyer</h3><p>A lawyer in your district who will take up cases of cruelty to animals.</p><details class="vi-how"><summary>How it works</summary><ul><li>Meet them, and ask whether they will act for animals, and on what terms</li><li>Their name, chambers and number, confirmed by a call</li><li>They join the PFA list, so the next case in your district has someone to turn to</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">04</span><p class="vi-goal"><b>10</b><small>reels</small></p><h3 class="m-sub">Make reels that change minds</h3><p>Short videos on the law, sterilisation, kindness to street animals and your shelter hours.</p><details class="vi-how"><summary>How it works</summary><ul><li>Posted publicly, with PFA tagged</li><li>No graphic injury footage, and never an animal disturbed for a shot</li><li>Ideas and scripts shared in the Saturday session</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">05</span><p class="vi-goal"><b>3</b><small>films</small></p><h3 class="m-sub">Send films to The Wall</h3><p>Your best short films, sent to PFA&#x27;s own wall of films about animals.</p><details class="vi-how"><summary>How it works</summary><ul><li>Sent from <a href="wall.html#submit">The Wall</a>, each with a line on what it shows</li><li>PFA chooses what goes up</li><li>Your own footage only, with permission from anyone in it</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">06</span><p class="vi-goal"><b>100</b><small>people</small></p><h3 class="m-sub">Bring your town onto the RRT</h3><p>Grow the Rapid Response network in your district.</p><details class="vi-how"><summary>How it works</summary><ul><li>Your own referral code counts each person</li><li>Neighbours, college friends, feeders, local vets</li><li>Everyone you bring can be reached when an animal needs help</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">07</span><p class="vi-goal"><b>1</b><small>district</small></p><h3 class="m-sub">Map your district</h3><p>Every vet, shelter, ABC centre and animal ambulance near you.</p><details class="vi-how"><summary>How it works</summary><ul><li>Names, numbers and hours, checked by a call</li><li>It goes into the PFA help directory</li><li>The next person who needs help finds it faster</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">08</span><p class="vi-goal"><b>1</b><small>RTI</small></p><h3 class="m-sub">Ask your town about its dogs</h3><p>An application under the Right to Information Act to your municipality: how many dogs it sterilised and vaccinated last year, and what it spent.</p><details class="vi-how"><summary>How it works</summary><ul><li>PFA gives you the questions and the format</li><li>Filed online or by post, for a small fee (₹10 in most states)</li><li>Proof is the acknowledgement number; the reply, when it comes, goes to PFA</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">09</span><p class="vi-goal"><b>1</b><small>guide</small></p><h3 class="m-sub">Put a PFA guide in your language</h3><p>Translate one PFA guide on the law or first aid into the language spoken where you live.</p><details class="vi-how"><summary>How it works</summary><ul><li>PFA gives you the guide, in English</li><li>Checked line by line by a PFA reviewer who speaks the language</li><li>Published under your name, for everyone in your state</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">10</span><p class="vi-goal"><b>1</b><small>talk</small></p><h3 class="m-sub">Give one talk</h3><p>At a school, college or housing society, on kindness and the law.</p><details class="vi-how"><summary>How it works</summary><ul><li>A ready deck and talking points from PFA</li><li>Twenty minutes, then questions</li><li>A photograph and the number of people who came</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">11</span><p class="vi-goal"><b>1</b><small>module</small></p><h3 class="m-sub">Animal first aid</h3><p>What to do in the first minutes, until help arrives.</p><details class="vi-how"><summary>How it works</summary><ul><li>Approaching a frightened or injured animal safely</li><li>Bleeding, heat stroke and road accidents</li><li>When to call, and whom; never treating on your own</li></ul></details></li>
+      <li class="m-card vi-task"><span class="m-card__no">12</span><p class="vi-goal"><b>1</b><small>story</small></p><h3 class="m-sub">Write your story</h3><p>One real story from your eight weeks, for the PFA site.</p><details class="vi-how"><summary>How it works</summary><ul><li>A shelter animal, a lawyer, a talk, an answer from your town</li><li>Four to six hundred words, with photographs</li><li>The best are published on the PFA site</li></ul></details></li>
     </ol>
   </section>
 
@@ -473,16 +524,16 @@ if (root.document && root.document.head) apply(read());
         <p class="eyebrow">Week by week</p>
         <h2 class="display">How the eight weeks go.</h2>
       </div>
-      <p>Each week has a focus, so the work builds. Feeding and shelter hours run the whole way through, and the feeding goes on after week 8.</p>
+      <p>Each week has a focus, so the work builds. Shelter hours run the whole way through.</p>
     </div>
     <ol class="m-path vi-weeks">
-      <li><b>The law and your shelter</b><span>Learn the laws, take the test, choose your shelter, find your feeding spot.</span></li>
+      <li><b>The law and your shelter</b><span>Learn the laws, take the test, and start at a shelter PFA knows.</span></li>
       <li><b>First hours</b><span>Shelter hours begin. First aid. Your first two reels.</span></li>
-      <li><b>Know your district</b><span>Map every vet, shelter and feeder. Start the RRT drive.</span></li>
-      <li><b>Sterilise and vaccinate</b><span>Five dogs booked with the ABC centre. Midway review.</span></li>
-      <li><b>Homes</b><span>Animals posted for adoption, families met. Reels five to seven.</span></li>
-      <li><b>Speak up</b><span>Your talk. Reporting a cruelty case, step by step.</span></li>
-      <li><b>Close out</b><span>Shelter hours done, 100 on the RRT, the feeding rota handed over.</span></li>
+      <li><b>Know your district</b><span>Map every vet, shelter and ABC centre. Start the RRT drive.</span></li>
+      <li><b>A lawyer for animals</b><span>Find and meet one in your district. Midway review.</span></li>
+      <li><b>Ask and film</b><span>Your RTI on the town's dogs, filed. Films to The Wall.</span></li>
+      <li><b>Speak up</b><span>Your talk, and a PFA guide in your language.</span></li>
+      <li><b>Close out</b><span>Shelter hours done, 100 on the RRT, reels eight to ten.</span></li>
       <li><b>Your story</b><span>Write it up, final review, and the certificate.</span></li>
     </ol>
   </section>
@@ -500,7 +551,7 @@ if (root.document && root.document.head) apply(read());
       <div>
         <p class="eyebrow">At the end</p>
         <h2 class="display">A certificate, earned.</h2>
-        <p>It is given when all twelve sign-offs are in, and the feeding circle is handed over. Those who go well past the targets are invited to lead the next batch in their state, or to join a PFA unit.</p>
+        <p>It is given when all twelve sign-offs are in. Those who go well past the targets are invited to lead the next batch in their state, or to join a PFA unit.</p>
         <div class="field vi-cert__try"><label for="viTry">See your name on it</label><input id="viTry" autocomplete="name" maxlength="48" placeholder="Your name"></div>
       </div>
     </div>
@@ -582,10 +633,10 @@ if (root.document && root.document.head) apply(read());
     <div class="m-acc">
       <details><summary>Who can apply?</summary><p>Anyone in India aged 18 or over, and those aged 16 or 17 with a parent's written consent. Students, working people, homemakers. No experience with animals is needed.</p></details>
       <details><summary>How much time does it take?</summary><p>About 6 to 8 hours a week for eight weeks, when it suits you inside each week. One online session every Saturday with your mentor; it is recorded if you miss it.</p></details>
-      <details><summary>What happens to the animals I feed after week 8?</summary><p>They keep being fed. Animals that rely on one person suffer when that person stops, so the feeding task is to build a circle of at least three people who share the spot, with a written rota, before you finish. Your mentor checks on the spot a month later, and the certificate is not given until the handover is in.</p></details>
-      <details><summary>How is the work checked?</summary><ul><li>Shelter hours signed off by the shelter or the nearest PFA unit.</li><li>A feeding log with dated photos, the names of the circle and the rota.</li><li>Links to your ten reels.</li><li>Your own RRT referral code, so every person you bring is counted.</li><li>The online law test.</li><li>A short weekly log, read by your mentor, with a reply.</li></ul></details>
-      <details><summary>The safety rules</summary><ul><li>Never handle an aggressive or badly injured animal without a trained person there.</li><li>Never confront anyone you suspect of cruelty. Report it, step back, and let PFA guide you.</li><li>Shelter work only at shelters PFA knows and has checked.</li><li>Interns under 18 work only with a parent's consent and never alone at night.</li></ul></details>
-      <details><summary>Is there a shelter near me?</summary><p>Very likely. In week 1 your mentor helps you find one PFA knows, using the <a href="units.html">PFA units directory</a>. If there is none within reach, your hours go to a feeding and first aid round with a local rescuer PFA trusts.</p></details>
+      <details><summary>Why are feeding and adoption not tasks?</summary><p>Because no animal must ever be worse off when an internship ends. Animals come to rely on whoever feeds them, and suffer when that person stops; a home found in a hurry can fail, and the animal pays for it. So every task here helps animals without making any of them depend on you. If you already feed animals, keep going: that is your own commitment, outside the internship.</p></details>
+      <details><summary>How is the work checked?</summary><ul><li>Shelter hours signed off by the shelter or the nearest PFA unit.</li><li>The online law test.</li><li>The lawyer's name, chambers and number, confirmed by PFA.</li><li>Links to your ten reels, and your films on The Wall.</li><li>Your own RRT referral code, so every person you bring is counted.</li><li>The RTI acknowledgement number, and the reply when it comes.</li><li>The guide in your language, passed by a PFA reviewer.</li><li>A short weekly log, read by your mentor, with a reply.</li></ul></details>
+      <details><summary>The safety rules</summary><ul><li>Never handle an aggressive or badly injured animal without a trained person there.</li><li>Never confront anyone you suspect of cruelty. Report it, step back, and let PFA guide you.</li><li>Shelter work only at shelters PFA knows and has checked.</li><li>Interns under 18 work only with a parent's consent and never alone at night.</li><li>Take on no animal's care you cannot keep up: no feeding spots, fostering or adoptions as part of the internship.</li></ul></details>
+      <details><summary>Is there a shelter near me?</summary><p>Very likely. In week 1 your mentor helps you find one PFA knows, using the <a href="units.html">PFA units directory</a>. If there is none within reach, your hours go to helping a PFA unit or a rescuer PFA trusts, always alongside them.</p></details>
       <details><summary>What is the RRT?</summary><p>The Rapid Response network: people in each district who help one another when an animal needs help. You bring people from your town onto it with your own referral code.</p></details>
       <details><summary>Is it paid? Is there a fee?</summary><p>Neither. It is free to join and unpaid. What you take away is the work you did, the people you met, and the certificate.</p></details>
       <details><summary>An animal needs help today.</summary><p>Do not wait. Call the <a href="units.html">nearest PFA unit</a>, and see <a href="academy.html">first aid</a> while help comes.</p></details>

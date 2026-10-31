@@ -13,54 +13,39 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const ROOT = path.join(__dirname, '..');
-const ART = path.join(ROOT, 'img', 'donate-lifering.webp');
+const ART = path.join(ROOT, 'img', 'donate-dog.webp');
 const html = fs.readFileSync(path.join(ROOT, 'donate.html'), 'utf8');
 
+/* The owner's own donate page (31 Oct 2026, "update donate as well.."): the
+   life ring gave way to a dog, photographed twice, who smiles when thanked. */
+
 test('the panel shows the picture between the word and the sentence about the gift', () => {
-  /* Order is the whole mechanism. .give__side is a flex column set to
-     space-between, so the figure being the middle of three children is what
-     puts it under the heading and leaves the impact line on the floor of the
-     panel. Move it and the layout is not wrong, it is just somewhere else. */
   const side = /<div class="give__side">([\s\S]*?)<div class="give__form">/.exec(html);
   assert.ok(side, 'the donate panel is where it was');
-  const order = [...side[1].matchAll(/id="sideHead"|class="ring"|id="sideGive"/g)].map((m) => m[0]);
-  assert.deepEqual(order, ['id="sideHead"', 'class="ring"', 'id="sideGive"'],
+  const order = [...side[1].matchAll(/id="sideHead"|class="ring dog-scene"|id="sideGive"/g)].map((m) => m[0]);
+  assert.deepEqual(order, ['id="sideHead"', 'class="ring dog-scene"', 'id="sideGive"'],
     'heading, then picture, then what the gift buys');
 });
 
-test('the picture is described, and reserves its space before it arrives', () => {
-  const tag = /<figure class="ring">\s*<img[^>]*>/.exec(html);
-  assert.ok(tag, 'the figure carries an image');
-  assert.match(tag[0], /src="img\/donate-lifering\.webp"/);
-  assert.match(tag[0], /width="\d+" height="\d+"/, 'the ratio is known before the file loads');
-  assert.match(tag[0], /alt="[^"]{20,}"/, 'a real description, not alt=""');
+test('the dog is described, and reserves its space before it arrives', () => {
+  const tag = /<div class="dog-portrait" role="img" aria-label="([^"]{12,})">/.exec(html);
+  assert.ok(tag, 'a described picture');
+  assert.match(html, /\.dog-portrait\{position:relative;height:min\(46vh,540px\);width:auto;max-width:100%;aspect-ratio:425\/640;/, 'its shape known before the file loads, its height capped so the sentence stays on screen');
+  assert.match(html, /--dog-photo:url\("img\/donate-dog\.webp"\)/);
+  assert.ok(!/data:image\//.test(html), 'no photograph pasted into the page');
 });
 
-test('the height is capped, because the panel it sits in is the viewport tall', () => {
-  /* .give__side is sticky and full height on a desktop, with overflow-y:auto.
-     An uncapped picture makes that panel scroll, which takes the impact line
-     off the screen: the one sentence the panel exists to carry. */
-  assert.match(html, /\.ring img\{[^}]*max-height:42vh/);
-  assert.match(html, /\.ring img\{[^}]*object-fit:contain/, 'capped by height without being squeezed');
-});
-
-test('the file is really there and is not a placeholder-sized stub', () => {
-  assert.ok(fs.existsSync(ART), 'img/donate-lifering.webp is missing');
+test('the file is really there, and both halves are the dog whole', () => {
   const bytes = fs.readFileSync(ART);
-  assert.equal(bytes.slice(0, 4).toString('ascii'), 'RIFF', 'a real webp');
+  assert.equal(bytes.slice(0, 4).toString('ascii'), 'RIFF');
   assert.equal(bytes.slice(8, 12).toString('ascii'), 'WEBP');
-  assert.ok(bytes.length > 20 * 1024, 'too small to be the photograph');
-  /* The panel never draws it wider than 420 CSS pixels. Past a few hundred
-     kilobytes somebody has put the camera original back. */
-  assert.ok(bytes.length < 400 * 1024, `${Math.round(bytes.length / 1024)}KB is more than this panel can spend`);
+  assert.ok(bytes.length > 20 * 1024 && bytes.length < 400 * 1024, `${Math.round(bytes.length / 1024)}KB`);
+  const size = webpSize(bytes);
+  assert.ok(Math.abs(size[0] / 2 / size[1] - 425 / 640) < 0.01, 'each half is the shape of the frame, so nothing of it is cut');
+  assert.ok(!fs.existsSync(path.join(ROOT, 'img', 'donate-lifering.webp')), 'the ring is retired');
 });
 
-/* One picture for every donor (owner, 6 Oct 2026): a red and white life ring
-   with a heart and a paw, in place of the ring made of a rupee note that
-   swapped for a dollar note. No currency in the picture, so nothing swaps. */
-
-/* Canvas size out of the RIFF header: VP8X (alpha), then plain lossless and
-   lossy, so a re-export in another mode still reads. */
+/* Canvas size out of the RIFF header. */
 function webpSize(bytes) {
   const kind = bytes.slice(12, 16).toString('ascii');
   if (kind === 'VP8X') return [1 + bytes.readUIntLE(24, 3), 1 + bytes.readUIntLE(27, 3)];
@@ -69,20 +54,21 @@ function webpSize(bytes) {
   return null;
 }
 
-test('the box the page reserves is the size of the file', () => {
-  const tag = /<figure class="ring">\s*<img[^>]*>/.exec(html)[0];
-  const box = /width="(\d+)" height="(\d+)"/.exec(tag).slice(1).map(Number);
-  assert.deepEqual(webpSize(fs.readFileSync(ART)), box);
-});
-
 test('the money rings are gone, from the page and from the folder', () => {
-  assert.ok(!html.includes('donate-lifebuoy'), 'no rupee or dollar ring named anywhere in the page');
-  assert.ok(!/showRing|stageRing/.test(html), 'no currency swap left in the script');
+  assert.ok(!html.includes('donate-lifebuoy'));
+  assert.ok(!/showRing|stageRing/.test(html));
   assert.ok(!fs.existsSync(path.join(ROOT, 'img', 'donate-lifebuoy.webp')));
-  assert.ok(!fs.existsSync(path.join(ROOT, 'img', 'donate-lifebuoy-usd.webp')));
 });
 
-test('choosing dollars and back keeps the same ring', async () => {
+test('the thank-you is shown only when asked, and never claims a gift that was not made', () => {
+  assert.match(html, /<button type="button" id="previewSmile">Preview thank-you <svg/, 'a drawn arrow, never a typed one');
+  assert.match(html, /\.dog-portrait\{height:clamp\(150px,44vw,240px\)\}/, 'small on a phone, beside the word');
+  assert.match(html, /Animation preview only\. No donation has been made\./);
+  assert.match(html, /window\.PFADonationCelebration=Object\.freeze\(\{show:\(\)=>show\(\),reset\}\);/);
+  assert.match(html, /\.give\.is-grateful \.give__side\{background:#eae9db\}/);
+});
+
+test('choosing dollars and back keeps the same dog', async () => {
   const { JSDOM, VirtualConsole } = require('jsdom');
   const dom = new JSDOM(html, {
     runScripts: 'dangerously', virtualConsole: new VirtualConsole(), url: 'https://pfa.test/donate.html',
@@ -93,16 +79,17 @@ test('choosing dollars and back keeps the same ring', async () => {
     }
   });
   const doc = dom.window.document;
-  const img = doc.querySelector('.ring img');
   const settle = () => new Promise((r) => setTimeout(r, 0));
   try {
     doc.querySelector('[data-gcur="USD"]').click();
     await settle();
-    assert.equal(img.getAttribute('src'), 'img/donate-lifering.webp');
     doc.querySelector('[data-gcur="INR"]').click();
     await settle();
-    assert.equal(img.getAttribute('src'), 'img/donate-lifering.webp');
-    assert.match(img.getAttribute('alt'), /life ring with a red heart and a paw print/);
+    assert.equal(doc.querySelectorAll('.dog-portrait .dog-photo').length, 2);
+    doc.getElementById('previewSmile').click();
+    assert.ok(doc.querySelector('.give').classList.contains('is-grateful'), 'the preview shows the smile');
+    doc.getElementById('previewSmile').click();
+    assert.ok(!doc.querySelector('.give').classList.contains('is-grateful'), 'and goes back');
   } finally {
     dom.window.close();
   }

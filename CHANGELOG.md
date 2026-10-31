@@ -1,3 +1,43 @@
+## v1.484
+
+- **No red line anywhere on the site. The donate page is the owner's new one.** Owner, 31 Oct 2026: "why the heck that red line .. dont need it anywhere.." and "update donate as well..".
+  - **Red lines removed:** the red tick over every page title (the shared rule and 26 pages' own copies) and over the shop's feature and the events titles. Also the red bar that grew on a card on hover, the red bar on the chosen donation amount, the red line on the open state in Units and the red bar over the legacy clause.
+  - **Turned to ink:** the 3px red rule over the law panels and the "done" box (now a 1px ink line), and the legacy clause's red underline.
+  - **The red dots on the week-by-week timelines stay:** they are dots, not lines.
+- **Donate, from the owner's own page:**
+  - **The life ring is replaced by the dog,** photographed twice. A little kindness. A whole new day. Thanked, it smiles, and the panel warms.
+  - **Preview thank-you** shows that, saying plainly "Animation preview only. No donation has been made."
+  - **The details step opens with** "Your kindness starts here." It has a Receipt address heading, square corners, a calmer form, letters only in the name, digits only in the mobile number and PIN, and the PAN in capitals.
+  - **Kept to the site's rules:** the photograph is a file (img/donate-dog.webp), not pasted into the page. The dog is whole, capped in height so the sentence about the gift stays on screen, and small beside the word on a phone. The arrow is drawn, not typed. The focus mark is ink, not red. The field labels stay the size every other form uses.
+  - **window.PFADonationCelebration.show()** is ready for when a payment is confirmed on this page. Today the bank returns donors to the receipt page, so the smile is reached only by the preview.
+  - **The life ring picture is retired** (img/donate-lifering.webp).
+- Checked: test/donate-art.test.js (the dog, its size, the preview), the title and donate tests now pin no red tick, the full suite, and screenshots of donate on desktop and phone, before and after the thank-you.
+
+## v1.483
+
+- **The internship page opens on the photograph. Its words: "Make care count."** Owner, 31 Oct 2026: "make the internship page.. add text like this.. but dont change the theme".
+  - **The opening is the owner's photograph:** the black dog's amber eye with a fingertip on its fur, whole at its own shape and never cut.
+  - **The words:** "A little of your time. Their whole world.", then MAKE care COUNT., then "Eight weeks. Real work. Where you live.", then Discover the internship and Apply.
+  - **Kept in the site's own theme:** the eyebrow, the red tick and Marcellus capitals, not the sample's typefaces. "care" is set in small letters, as the sample sets it apart.
+  - **Placement:** on a wide screen the words sit on the photograph's dark side; on a phone they sit under it, on the page's white.
+  - **What follows:** the previous opening (the eight weeks, the four facts and the puppy and the cat) is now the section Discover the internship leads to.
+- **Two tasks replaced, so nothing can be faked and no animal is put at risk.** Owner, 31 Oct 2026: "report cruelty - remove from the item.. u dont people to create cruelty.. cound the dogs- u can remove, it will be hard to validate".
+  - **Ask your town about its dogs:** an RTI application to the municipality on how many dogs it sterilised and vaccinated, and what it spent. It is proved by the acknowledgement number, and the reply goes to PFA.
+  - **Put a PFA guide in your language:** translate one PFA guide on the law or first aid, checked line by line by a PFA reviewer who speaks the language, and published under the intern's name.
+  - **Also updated to match:** the eight weeks and how the work is checked.
+- Checked: test/internship-page.test.js (the opening, and neither old task set), the full suite, and screenshots at 1440, 1920 and phone width.
+
+## v1.482
+
+- **Virtual internship: no task can leave an animal worse off.** Owner, 31 Oct 2026: "submit videos to the wall should be 1 of the task. find a lawyer can be 1 task. find a home isnt good because peep can fake and animal will end up in trouble, same with feeding ... the tasks cannot have anything that can leave the animal in trouble whatsoever".
+  - **Out:** the feeding circle, finding homes, and catching and transporting dogs for sterilisation. Each could leave an animal depending on someone who stops, or in a home that fails.
+  - **In:** Find a lawyer (one in the intern's district who will take up cruelty cases, confirmed and added to PFA's list) and Send films to The Wall (three films, sent from The Wall).
+  - **Changed:** "Help at a shelter PFA knows" now works alongside the shelter's own staff. "Count the dogs who need sterilising" is a hands-off list of one ward's dogs, given to the ABC centre and the PFA unit, who do the work. "Learn to report cruelty" uses a practice case, never a real case taken on alone.
+  - **The rule is stated on the page:** under the tasks; in a new answer, "Why are feeding and adoption not tasks?"; and in the safety rules ("no feeding spots, fostering or adoptions as part of the internship").
+  - **Also updated to match:** the eight weeks, how the work is checked, the hero and the certificate line.
+  - **Figures:** the page's numbers are drawn in EB Garamond, the certificate's book face, because Marcellus draws a 1 that reads as a capital I.
+- Checked: test/internship-page.test.js pins the new tasks and that none of feeding, homes, fostering or catching is set as a task. Full suite.
+
 ## v1.481
 
 - **The Virtual internship has its own page on the site: internship.html.** Owner, 31 Oct 2026: "add internship page inline with the current website theme. cert theme to be this blue one".

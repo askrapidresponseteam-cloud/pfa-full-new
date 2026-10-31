@@ -15,6 +15,21 @@ const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const html = read('internship.html');
 const doc = new JSDOM(html).window.document;
 
+test('the opening: the photograph whole, the words in the site\'s own title block', () => {
+  const open = doc.querySelector('main > section.vi-open#top');
+  assert.ok(open, 'the page opens on it');
+  const img = open.querySelector('img');
+  assert.equal(img.getAttribute('src'), 'media/site/internship/eye.webp');
+  assert.ok(fs.existsSync(path.join(ROOT, 'media/site/internship/eye.webp')) && fs.existsSync(path.join(ROOT, 'media/site/internship/eye-1000.webp')));
+  assert.match(html, /\.vi-open__ph img\{display:block;width:100%;height:auto;aspect-ratio:2400\/1347\}/, 'whole, at its own shape');
+  assert.equal(open.querySelector('.pfa-kicker').textContent, 'A little of your time. Their whole world.');
+  const h1 = open.querySelector('h1.pfa-title');
+  assert.equal(h1.textContent.replace(/\s+/g, ' '), 'Make care count.');
+  assert.equal(doc.querySelectorAll('main h1').length, 1);
+  assert.match(open.textContent, /Eight weeks\.\s*Real work\. Where you live\./);
+  assert.ok(open.querySelector('a[href="#discover"]') && doc.querySelector('#discover'));
+});
+
 test('in the site theme: the shared header, footer, microsite kit and editorial layer', () => {
   assert.match(html, /<link rel="stylesheet" href="assets\/micro\.css">/);
   assert.match(html, /<link rel="stylesheet" href="assets\/pfa-theme\.css">/);
@@ -29,12 +44,30 @@ test('twelve tasks, each with a target and its detail under a plus; eight weeks'
   const tasks = [...doc.querySelectorAll('#viTasks > li.m-card')];
   assert.equal(tasks.length, 12);
   for (const t of tasks) {
-    assert.ok(t.querySelector('.vi-goal small'), 'a target and its unit');
+    assert.ok(t.querySelector(".vi-goal b") && t.querySelector(".vi-goal small"), "a target and its unit");
     assert.ok(t.querySelector('details.vi-how > summary'), 'how it works, under a plus');
   }
-  assert.match(tasks[1].textContent, /Build a feeding circle/);
   assert.equal(doc.querySelectorAll('.vi-weeks > li').length, 8);
-  assert.match(doc.querySelector('#more').textContent, /What happens to the animals I feed after week 8\?/);
+  /* owner, 31 Oct 2026: "submit videos to the wall should be 1 of the task.
+     find a lawyer can be 1 task. find a home isnt good because peep can fake
+     and animal will end up in trouble, same with feeding ... the tasks cannot
+     have anything that can leave the animal in trouble whatsoever" */
+  const titles = tasks.map((t) => t.querySelector('h3').textContent);
+  assert.ok(titles.includes('Send films to The Wall') && titles.includes('Find a lawyer'));
+  assert.ok(tasks.some((t) => t.querySelector('a[href="wall.html#submit"]')), 'the task leads to The Wall');
+  const work = [...tasks].map((t) => t.textContent).join(' ') + doc.querySelector('.vi-weeks').textContent;
+  assert.doesNotMatch(work, /feeding circle|feeding rota|feeding spot|find homes|adopt|foster|catch, transport/i, 'no task an animal could come to depend on');
+  assert.match(doc.querySelector('#tasks .m-head').textContent, /no animal is ever worse off when the eight weeks end/);
+  /* owner, 31 Oct 2026: "report cruelty - remove from the item.. u dont
+     people to create cruelty.. cound the dogs- u can remove, it will be
+     hard to validate. give some other realistic task instead that will have
+     no scope for faking or animal trouble" */
+  assert.ok(!titles.some((x) => /cruelty|count the dogs/i.test(x)), 'neither task is set');
+  assert.ok(titles.includes('Ask your town about its dogs') && titles.includes('Put a PFA guide in your language'));
+  assert.match(work, /acknowledgement number/, 'the RTI is proved by its acknowledgement');
+  assert.match(work, /Checked line by line by a PFA reviewer/, 'the guide is checked by a person');
+  assert.match(doc.querySelector('#more').textContent, /Why are feeding and adoption not tasks\?/);
+  assert.match(doc.querySelector('#more').textContent, /no feeding spots, fostering or adoptions as part of the internship/);
 });
 
 test('the photographs are on the site, shown whole at their own shapes', () => {

@@ -29,11 +29,12 @@ test('the switches are light: the choice is lifted out in white, never filled wi
   assert.match(html, /data-gcur="INR" aria-pressed="true" aria-label="Indian rupees">&#8377;<span class="cur__code"> INR<\/span>/, 'a phone shows the sign; a screen reader hears the currency');
 });
 
-test('the chosen amount is drawn round, with the red tick; the figures are in the text face', () => {
+test('the chosen amount is drawn round, without a red tick; the figures are in the text face', () => {
   assert.match(rule('.amts button b'), /font-family:var\(--body\);font-weight:600/, 'the display face\'s zeros read as the letter O');
   assert.match(rule('.amts button b'), /tabular-nums/);
   assert.match(rule('.amts button'), /justify-content:flex-start/, 'every figure on one line, whatever its caption');
-  assert.match(rule('.amts button::after'), /background:var\(--pop,#ff3b18\)/);
+  /* no red line anywhere (owner, 31 Oct 2026: "why the heck that red line .. dont need it anywhere") */
+  assert.doesNotMatch(html, /\.amts button::after/);
   assert.match(rule('.amts button[aria-pressed="true"]'), /border-color:var\(--ink\);box-shadow:inset 0 0 0 1px var\(--ink\)/);
 });
 

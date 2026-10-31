@@ -336,6 +336,10 @@
    "modules": [
     {
      "id": "top",
+     "label": "Make care count."
+    },
+    {
+     "id": "discover",
      "label": "Eight weeks for the animals of your town."
     },
     {

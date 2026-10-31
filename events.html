@@ -236,9 +236,8 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
    pure white does not read as flat. Discipline: the pop is never small
    text, where it would fail contrast - it is the tick over the title, the
    rule across each panel, the selection, and nothing else. ---------- */
-.hero h1::before,.u-hero h1::before{content:"";display:block;width:34px;height:3px;background:var(--pop,#ff3b18);margin-bottom:18px}
 .hero,.u-hero{border-bottom:1px solid var(--line)}
-.leg__panel{border-top:3px solid var(--pop,#ff3b18)}
+.leg__panel{border-top:1px solid var(--ink,#111)}
 ::selection{background:var(--pop,#ff3b18);color:#fff}
 
 /* ---- The events archive (v1.361) ------------------------------------------
@@ -255,7 +254,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .ev-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ev-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 40px;padding:calc(var(--ann) + var(--nav) + 72px) var(--ev-gutter) clamp(18px,2vw,26px)}
 .ev-head__text{max-width:62ch}
-.ev-title::before{content:"";display:block;width:34px;height:3px;margin-bottom:18px;background:var(--pop,#ff3b18)}
 .ev-title{margin:0;font-family:var(--ev-display);font-weight:400;font-size:clamp(46px,6.4vw,92px);line-height:.92;letter-spacing:.005em;color:var(--ev-ink)}
 .ev-lede{margin:14px 0 0;font-size:16px;line-height:1.55;color:#333}
 .ev-tally{display:flex;align-items:center;gap:18px}

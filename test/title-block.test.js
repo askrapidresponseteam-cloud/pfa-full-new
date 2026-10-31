@@ -45,7 +45,8 @@ test('one set of rules draws it, heavy enough to beat any page\'s own', () => {
   const css = read('assets/pfa-theme.css');
   assert.match(css, /main \.pfa-kicker\.pfa-kicker\{display:block;margin:0 0 18px;/);
   assert.match(css, /main h1\.pfa-title\.pfa-title\{margin:0;[^}]*font-size:clamp\(38px,5\.2vw,74px\);[^}]*text-transform:uppercase;text-align:left;/);
-  assert.match(css, /main h1\.pfa-title\.pfa-title::before\{content:"";display:block;width:34px;height:3px;margin:0 0 18px;background:var\(--pop,#ff3b18\)\}/);
+  /* no red line over the title, anywhere (owner, 31 Oct 2026: "why the heck that red line .. dont need it anywhere") */
+  assert.doesNotMatch(css, /pfa-title\.pfa-title::before/);
   assert.match(css, /main h1\.pfa-title\.pfa-title \+ p,main h1\.pfa-title\.pfa-title \+ \.nr-strap\{margin-top:26px\}/);
 });
 

@@ -110,7 +110,6 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
   padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) 64px;
   overflow:hidden;isolation:isolate;border-bottom:1px solid var(--line)}
 .hero .eyebrow{color:rgba(17,17,17,.55);margin:0 0 18px}
-.hero h1::before{content:"";display:block;width:34px;height:3px;background:var(--pop);margin-bottom:18px}
 
 /* ---------- bands: the numbered head is the editorial theme's ---------- */
 .band{padding:var(--band) var(--gutter)}
@@ -129,10 +128,9 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 
 /* ---------- this page ---------- */
 .clause{position:relative;border:1px solid var(--ink);padding:clamp(22px,2.6vw,36px);background:var(--paper)}
-.clause::before{content:"";position:absolute;left:0;top:0;width:56px;height:3px;background:var(--pop)}
 .clause__lab{margin:0 0 14px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .clause__text{margin:0;font-family:var(--display);font-size:clamp(18px,1.6vw,23px);line-height:1.45;letter-spacing:.005em}
-.clause__text mark{background:none;color:inherit;border-bottom:2px solid var(--pop);padding:0 2px}
+.clause__text mark{background:none;color:inherit;border-bottom:2px solid currentColor;padding:0 2px}
 .clause__acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){

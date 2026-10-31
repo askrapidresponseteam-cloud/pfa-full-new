@@ -83,7 +83,6 @@ main .pfa-kicker.pfa-kicker{display:block;margin:0 0 18px;padding:0;font-family:
   font-size:11px;font-weight:400;line-height:1.4;letter-spacing:.16em;text-transform:uppercase;color:rgba(17,17,17,.55);text-align:left}
 main h1.pfa-title.pfa-title{margin:0;padding:0;font-family:var(--display,Marcellus,Georgia,serif);font-weight:400;font-style:normal;
   font-size:clamp(38px,5.2vw,74px);line-height:1.02;letter-spacing:.01em;text-transform:uppercase;text-align:left;color:var(--ink,#111);max-width:none}
-main h1.pfa-title.pfa-title::before{content:"";display:block;width:34px;height:3px;margin:0 0 18px;background:var(--pop,#ff3b18)}
 main h1.pfa-title.pfa-title + p,main h1.pfa-title.pfa-title + .nr-strap{margin-top:26px}
 main h1.pfa-title.pfa-title + p + [class*="acts"],main h1.pfa-title.pfa-title + p + [class*="cta"],main h1.pfa-title.pfa-title + p + .actions,
 main h1.pfa-title.pfa-title + [class*="acts"],main h1.pfa-title.pfa-title + [class*="cta"],main h1.pfa-title.pfa-title + .actions{margin-top:32px}

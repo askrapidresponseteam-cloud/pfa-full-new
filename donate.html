@@ -259,11 +259,8 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .amts button b{display:block;font-family:var(--body);font-weight:600;font-size:clamp(19px,1.6vw,22px);line-height:1.1;
   letter-spacing:-.01em;font-variant-numeric:lining-nums tabular-nums;color:var(--ink)}
 .amts button small{display:block;margin-top:8px;font-size:12.5px;font-weight:400;color:var(--muted);line-height:1.45}
-.amts button::after{content:"";position:absolute;left:14px;top:-1px;width:18px;height:3px;background:var(--pop,#ff3b18);
-  transform:scaleX(0);transform-origin:left;transition:transform .25s}
 .amts button:hover{border-color:#c9c6c1}
 .amts button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
-.amts button[aria-pressed="true"]::after{transform:scaleX(1)}
 /* The chosen card stays paper, so what it buys stays in ink. It used to turn
    black, and its caption had to be turned white to be read at all (v1.339). */
 .amts button[aria-pressed="true"] small{color:#3f3d3a}
@@ -399,9 +396,8 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
    pure white does not read as flat. Discipline: the pop is never small
    text, where it would fail contrast - it is the tick over the title, the
    rule across each panel, the selection, and nothing else. ---------- */
-.hero h1::before,.u-hero h1::before{content:"";display:block;width:34px;height:3px;background:var(--pop,#ff3b18);margin-bottom:18px}
 .hero,.u-hero{border-bottom:1px solid var(--line)}
-.leg__panel{border-top:3px solid var(--pop,#ff3b18)}
+.leg__panel{border-top:1px solid var(--ink,#111)}
 ::selection{background:var(--pop,#ff3b18);color:#fff}
 /* the title block starts where every page's does: 72px under the header, 36px on a phone (10 Oct 2026) */
 .give__side{padding-top:72px}
@@ -421,6 +417,42 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
      hairlines. Loads after chrome.css so the theme wins ties; carries no
      markup changes of its own. -->
 <link rel="stylesheet" href="assets/pfa-theme.css">
+<style>
+/* Kindness sequence: all form surfaces have square corners. */
+.give button,.give input,.give select,.give .card,.give .seg,.give .amts>*{border-radius:0!important}
+.give__form{background:#fff;padding-top:40px;padding-bottom:56px}.card{max-width:560px}
+.give__top{margin-top:0}.stepbar{gap:20px;width:100%;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.form{gap:20px}.field{align-content:start}
+.field input,.field select{min-height:52px;padding:14px 16px;background:#fcfbf8;border-color:#d8d5ce;transition:background .2s,border-color .2s,box-shadow .2s}
+.field input:focus,.field select:focus{background:#fff;border-color:var(--ink,#111)}
+.give :focus-visible{outline:2px solid #995d3b;outline-offset:4px}
+.field .hint{font-size:11px}.sum{background:#f6f3ed;padding:18px;margin-bottom:26px;border:1px solid #e3dfd7}
+.form-heading{font-family:var(--display);font-size:28px;margin:0 0 6px}.form-intro{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 26px}
+.form-section{grid-column:1/-1;margin:8px 0 -3px;padding-top:20px;border-top:1px solid var(--line);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#857664}
+#payBtn{margin-top:4px;min-height:58px;transition:background .3s,transform .3s}#payBtn:hover{transform:translateY(-2px)}
+.pane.on{animation:paneEnter .65s cubic-bezier(.22,1,.36,1) both}@keyframes paneEnter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.dog-scene{display:flex;flex-direction:column;align-items:center;position:relative;padding:12px 0 24px;min-height:0}
+.dog-scene figcaption{text-align:center;width:100%;font-size:12px;letter-spacing:.025em;color:#756c60}
+#previewSmile{display:flex;align-items:center;gap:8px;white-space:nowrap;margin:16px auto 0;background:transparent;border:0;border-bottom:1px solid #b9aa96;padding:8px 0;color:#554a3b;font-size:11px;cursor:pointer}
+.give__side{transition:background 1.8s ease}.give.is-grateful .give__side{background:#eae9db}
+.preview-label{font-size:11px;color:#827564;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+@media(min-width:1000px){#giveForm{grid-template-columns:1fr 1fr}#giveForm>.field:has(#gAddress),#giveForm>.field:has(#gEmail),#giveForm>.field2,#giveForm>.agree,#giveForm>.error,#giveForm>.btn,#giveForm>.fine,#youHead{grid-column:1/-1}}
+@media(max-width:720px){.give__form{padding:32px 20px}.give__side{padding-bottom:28px}.field2{gap:18px 12px}.stepbar{gap:16px;font-size:10px}.amts button{padding:16px 10px}.dog-scene{padding-bottom:0}}
+@media(prefers-reduced-motion:reduce){.pane.on{animation:none}.give__side{transition:none}}
+</style><style>
+/* The dog, whole: before and after are the two halves of one photograph
+   (img/donate-dog.webp, 1445 x 1088), shown one at a time. Capped by height,
+   because the panel it sits in is the viewport tall and must keep the
+   sentence about the gift on screen. */
+.dog-portrait{position:relative;height:min(46vh,540px);width:auto;max-width:100%;aspect-ratio:425/640;overflow:hidden;background:#d8d6d0;isolation:isolate;--dog-photo:url("img/donate-dog.webp")}
+.dog-photo{position:absolute;inset:0;background-image:var(--dog-photo);background-size:200% 100%;background-repeat:no-repeat;transition:opacity 1.7s cubic-bezier(.22,1,.36,1),transform 2.4s cubic-bezier(.22,1,.36,1);transform:scale(1.001)}
+.dog-photo--before{background-position:left center;opacity:1}.dog-photo--after{background-position:right center;opacity:0}
+.is-grateful .dog-photo--after{opacity:1;transform:scale(1.025)}.is-grateful .dog-photo--before{opacity:0;transform:scale(1.025)}
+/* a phone opens on the amount: the dog shares the word's row, small, as the ring did */
+@media (max-width:860px){.dog-portrait{height:clamp(150px,44vw,240px)}.ring.dog-scene{gap:10px;padding:0}.dog-scene figcaption{max-width:clamp(110px,30vw,170px);font-size:11px;line-height:1.4}#previewSmile{margin-top:8px;font-size:11px}}
+.dog-caption{display:block}
+@media(prefers-reduced-motion:reduce){.dog-photo{transition:none;transform:none!important}}
+</style>
   <!-- seo:start  generated by scripts/build-seo.js - do not edit by hand -->
   <link rel="canonical" href="https://peopleforanimalsindia.org/donate">
   <meta property="og:site_name" content="People for Animals">
@@ -688,9 +720,10 @@ if (root.document && root.document.head) apply(read());
            centre (owner, 6 Oct 2026), the same picture whether the gift is in
            rupees or dollars: it was a ring made of a 500 rupee note, swapped
            for a 100 dollar note with dollars on. -->
-      <figure class="ring">
-        <img src="img/donate-lifering.webp" width="1000" height="587" alt="A red and white life ring with a red heart and a paw print at its centre, its rope trailing away">
-      </figure>
+      <figure class="ring dog-scene" aria-label="The original dog photograph">
+<div class="dog-portrait" role="img" aria-label="The same dog, free of bars"><div class="dog-photo dog-photo--before"></div><div class="dog-photo dog-photo--after"></div></div>
+<figcaption><span class="dog-caption">A little kindness. A whole new day.</span><button type="button" id="previewSmile">Preview thank-you <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12M9 3l5 5-5 5"/></svg></button></figcaption>
+</figure>
       <div class="impact" id="sideGive">
         <p class="eyebrow" id="impactLabel">Your donation</p>
         <p id="impact" aria-live="polite">Rabies shots for five street dogs.</p>
@@ -778,6 +811,7 @@ if (root.document && root.document.head) apply(read());
         </div>
 
         <div class="pane" id="p2">
+<h2 class="form-heading">Your kindness starts here.</h2><p class="form-intro">A few details for your donation and receipt.</p>
           <div class="sum"><span id="sumLine"></span><button type="button" id="back">Change</button></div>
           <!-- Posts straight to the CCAvenue layer. /api/payment/create answers with
                an auto-submitting form, so this is a real navigation, not fetch(). -->
@@ -788,10 +822,10 @@ if (root.document && root.document.head) apply(read());
             <input type="hidden" name="terms" id="gTerms" value="">
             <input type="hidden" name="client_ref" id="gRef" value="">
             <p class="giftset__you" id="youHead" hidden>The 80G receipt is issued in your name.</p>
-            <div class="field"><label for="gName">Full name</label><input id="gName" name="name" type="text" autocomplete="name" required><span class="error">Add your name for the receipt.</span></div>
+            <div class="field"><label for="gName">Full name</label><input id="gName" name="name" type="text" autocomplete="name" required><span class="error">Enter your full name using letters only.</span></div>
             <div class="field"><label for="gMobile">Mobile number</label><input id="gMobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" required><span class="error">Enter a 10-digit Indian mobile number.</span><span class="hint">Used to trace the payment if anything goes wrong.</span></div>
             <div class="field"><label for="gEmail">Email</label><input id="gEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email for the receipt.</span></div>
-            <div class="field"><label for="gAddress">Address</label><input id="gAddress" name="address" type="text" autocomplete="street-address" required><span class="error">Add the address your 80G receipt should carry.</span></div>
+            <p class="form-section">Receipt address</p><div class="field"><label for="gAddress">Address</label><input id="gAddress" name="address" type="text" autocomplete="street-address" required><span class="error">Add the address your 80G receipt should carry.</span></div>
             <!-- PIN, city and state go on to CCAvenue as billing_zip,
                  billing_city and billing_state, so its page arrives filled in
                  (owner, 21 Oct 2026: "so that user doesnt have to fill again") -->
@@ -1197,7 +1231,7 @@ if (root.document && root.document.head) apply(read());
     $('#giveForm').addEventListener('submit', function(e){
       var n = $('#gName'), mob = $('#gMobile'), m = $('#gEmail'), ad = $('#gAddress'), pan = $('#gPan'), errs = 0;
       var city = $('#gCity'), pin = $('#gPin'), st = $('#gState');
-      errs += bad(n, !n.value.trim()) ? 1 : 0;
+      errs += bad(n, !/^[\p{L}\p{M} .’\x27-]{2,}$/u.test(n.value.trim())) ? 1 : 0;
       /* Same rule the server applies in assets/field-rules.js: ten digits
          starting 6-9. Catching it here saves a round trip to an error page. */
       errs += bad(mob, !/^[6-9]\d{9}$/.test(mob.value.replace(/\D/g, ''))) ? 1 : 0;
@@ -1400,5 +1434,23 @@ if (root.document && root.document.head) apply(read());
 }());
 </script>
 <script src="assets/form-preview.js" defer></script>
+
+<script>
+(function(){
+const root=document.querySelector('.give'),preview=document.getElementById('previewSmile');
+let restore=null;
+function morph(happy){document.querySelector('.dog-portrait').setAttribute('aria-label', happy?'The same dog smiling, free of bars':'The same dog, free of bars');}
+function show(options={}){if(restore)reset();root.classList.add('is-grateful');morph(true);document.querySelector('.dog-caption').textContent='You made a little more happiness possible.';
+if(options.preview){restore=[...document.querySelectorAll('#flowGive .pane')].map(p=>[p,p.classList.contains('on')]);document.querySelectorAll('#flowGive .pane').forEach(p=>p.classList.toggle('on',p.id==='p3'));document.getElementById('doneHead').textContent='That is what kindness looks like.';document.getElementById('doneText').textContent='Animation preview only. No donation has been made.';preview.textContent='Back to donation';document.getElementById('p3').setAttribute('tabindex','-1');document.getElementById('p3').focus({preventScroll:true});}
+else{document.querySelectorAll('#flowGive .pane').forEach(p=>p.classList.toggle('on',p.id==='p3'));document.getElementById('doneHead').textContent='You made their day.';document.getElementById('doneText').textContent='Thank you for standing with animals.';preview.hidden=true;document.querySelectorAll('#barGive [data-s]').forEach(p=>{p.classList.add('done');p.classList.toggle('on',p.dataset.s==='3')});}}
+function reset(){root.classList.remove('is-grateful');morph(false);document.querySelector('.dog-caption').textContent='A little kindness. A whole new day.';if(restore){restore.forEach(([p,on])=>p.classList.toggle('on',on));restore=null;}preview.innerHTML='Preview thank-you <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12M9 3l5 5-5 5"/></svg>';}
+preview.addEventListener('click',()=>restore?reset():show({preview:true}));
+// Invoke show() only from the server-verified successful payment response.
+// Never infer payment success from a URL parameter, form submission or local storage.
+window.PFADonationCelebration=Object.freeze({show:()=>show(),reset});
+for(const id of ['gMobile','gPin'])document.getElementById(id).addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,''));
+document.getElementById('gPan').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase());
+})();
+</script>
 </body>
 </html>
