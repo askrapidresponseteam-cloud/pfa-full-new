@@ -89,7 +89,7 @@ test('five core tasks and seven electives, each with a target and its detail und
   assert.equal(ck.querySelector('.vi-goal b').textContent, '3');
 
   /* safety and proof, kept from the first briefs */
-  assert.doesNotMatch(all + doc.querySelector('.vi-weeks').textContent, /feeding circle|feeding rota|feeding spot|find homes|adopt|foster|catch, transport/i, 'no task an animal could come to depend on');
+  assert.doesNotMatch(all + doc.querySelector('.vi-weeks').textContent, /feeding circle|feeding rota|start(ing)? a feeding|feed (them|the dogs|the animals) (every|daily)|find homes|adopt|foster|catch, transport/i, 'no task an animal could come to depend on');
   assert.match(doc.querySelector('#tasks .m-head').textContent, /no animal is ever worse off when the eight weeks end/);
   assert.ok(!electTitles.concat(coreTitles).some((x) => /cruelty|count the dogs/i.test(x)), 'neither task is set');
   assert.ok(electTitles.includes('Ask your town about its dogs'));
@@ -98,7 +98,14 @@ test('five core tasks and seven electives, each with a target and its detail und
     assert.match(t.querySelector('.vi-how').textContent, /Proof|signed off|PFA chooses|confirmed/i, `${t.querySelector('h3').textContent} says how it is proved`);
   }
   assert.match(doc.querySelector('#more').textContent, /Why are feeding and adoption not tasks\?/);
-  assert.match(doc.querySelector('#more').textContent, /no feeding spots, fostering or adoptions as part of the internship/);
+  assert.match(doc.querySelector('#more').textContent, /no starting a feeding spot, no fostering and no adoptions as part of the internship/);
+  /* owner, 1 Nov 2026: "this can be locate feeding spots, take photos, of
+     govt vet centers, inside , outside. as is . not staged." Feeding spots
+     are found, never started, and kept off the public directory. */
+  const map = core[4].querySelector('.vi-how').textContent;
+  assert.match(map, /government veterinary centre photographed inside and outside, as it is on the day: never staged/);
+  assert.match(map, /Feeding spots already kept by someone near you, located with the feeder's agreement; held by PFA, never published/);
+  assert.match(doc.querySelector('#more').textContent, /Finding the spots where someone already feeds animals is part of mapping your district; starting one is not\./);
   assert.match(doc.querySelector('#certificate').textContent, /all eight sign-offs are in: the five core tasks and your three electives/);
 });
 
@@ -155,4 +162,18 @@ test('the application: four steps, the address, a parent for 16 and 17, filed as
   assert.equal(F.specFor('PFA-VI').page, 'internship.html');
   assert.ok(require('../lib/confirmations.js'));
   assert.ok(!/[–—]/.test(html.replace(/<script id="pfa-vis">[\s\S]*?<\/script>/, '')), 'no dashes');
+});
+
+test('no mentors and no weekly sessions are promised, anywhere the intern reads', () => {
+  /* owner, 1 Nov 2026: "Planned with your mentor first.. this is not
+     feasible.. dont mention mentors anywhere.." */
+  assert.doesNotMatch(html, /mentor/i, 'not on the page, its description or its comments');
+  assert.doesNotMatch(html, /every Saturday|weekly log/i, 'and no session or log that needs one');
+  const S = require('../lib/submissions');
+  const C = require('../lib/confirmations');
+  for (const kind of ['PFA-VI', 'PFA-VP']) {
+    assert.doesNotMatch(JSON.stringify(S.STAGES[kind]), /mentor/i, `${kind}: the stages`);
+    assert.doesNotMatch(JSON.stringify(C.forKind ? C.forKind(kind) : C), /mentor/i, `${kind}: the confirmation`);
+  }
+  assert.doesNotMatch(read('search-index.json'), /mentors you|your mentor|PFA mentor/i, 'nor in site search');
 });

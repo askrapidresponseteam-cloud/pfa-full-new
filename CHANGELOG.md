@@ -1,3 +1,11 @@
+## v1.486
+
+- **Map your district. Feeding spots found, government vet centres photographed as they are, and no mentors.** Owner, 1 Nov 2026: "this can be locate feeding spots, take photos, of govt vet centers, inside , outside. as is . not staged."
+  - **The task:** core task 05 now covers government veterinary centres, photographed inside and outside as they are on the day, never staged. It also covers feeding spots already kept by someone nearby, located with the feeder's agreement. The proof is the sheet plus the dated photographs, sent on the portal.
+  - **Kept safe:** feeding spots stay with PFA and are never published, so nobody can use the list to find the dogs. The FAQ says plainly that finding a feeding spot is part of the task and starting one is not. The safety rule now reads "no starting a feeding spot".
+  - **Week 3** and "How is the work checked?" say the same.
+- **No mentors anywhere.** Owner, 1 Nov 2026: "Planned with your mentor first.. this is not feasible.. dont mention mentors anywhere..". The internship page, its description, site search, the application and proof confirmations, and the stages now say PFA checks and signs off. The Saturday session, the weekly log and the midway review are gone with them. The shelter question now points to the units directory, or another elective if no shelter is near. A test keeps the word off the page.
+
 ## v1.485
 
 - **Thank-you after the bank. A PDF receipt, and internship tasks as core and electives.** Owner, 31 Oct 2026: "preview thank you is not needed in the real site..let the transition happen once the donation is successful and ensure it shows up with the thank you message post pg confirmation, hope donation receipt can be downloaded - pdf in pfa template!", then "5 mandatory activities, 3 optional. like in engineering degree" and "identify 3 movies that qualfy cinekind and nominate".
