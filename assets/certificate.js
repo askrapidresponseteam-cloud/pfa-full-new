@@ -16,7 +16,8 @@
    PFACertificate.pdf(data)  -> Promise<Blob>  A4 landscape, the certificate
                                                centred with a white margin
    PFACertificate.save(blob, filename)
-   data: { name, startDate, endDate, issuedOn, number }, dates as YYYY-MM-DD.
+   data: { name, startDate, endDate, issuedOn, number, sample }, dates as
+   YYYY-MM-DD; sample marks it SAMPLE across its face (the public preview).
    ------------------------------------------------------------------------ */
 (function (root) {
   'use strict';
@@ -124,6 +125,28 @@
     spaced(ctx, 'Certificate No. ' + (d.number || 'given when issued'), 426, 872, 0.5, 'left');
     var issued = longDate(d.issuedOn);
     spaced(ctx, 'Issued on ' + (issued || '. . .'), 1246, 872, 0.5, 'right');
+
+    /* The public page's preview (internship.html) is marked SAMPLE across
+       its face, so a picture of it is never mistaken for one PFA issued. */
+    if (d.sample) {
+      /* a red rubber stamp over the lines below the name: it reads as a
+         stamp at a glance, and cannot be cropped away without the words */
+      ctx.save();
+      ctx.translate(W / 2, 706);
+      ctx.rotate(-0.1);
+      ctx.font = '600 76px Cinzel, Georgia, serif';
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '14px';
+      var tw = ctx.measureText('SAMPLE').width;
+      ctx.strokeStyle = 'rgba(190,30,30,.62)';
+      ctx.lineWidth = 5;
+      ctx.strokeRect(-tw / 2 - 30, -62, tw + 46, 96);
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(-tw / 2 - 20, -52, tw + 26, 76);
+      ctx.fillStyle = 'rgba(190,30,30,.62)';
+      ctx.textAlign = 'center';
+      ctx.fillText('SAMPLE', 7, 14);
+      ctx.restore();
+    }
     return canvas;
   }
 

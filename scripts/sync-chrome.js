@@ -76,6 +76,7 @@ const PAGES = {
   'quiz.html':         { current: 'quiz.html',        group: 'laws.html',        announce: DEFAULT_ANNOUNCE },
   /* The microsites (9 Oct 2026). Privacy is in the footer's legal line, not a menu. */
   'campus.html':       { current: 'campus.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
+  'internship.html':   { current: 'internship.html',  group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'campaign.html':     { current: 'campaign.html',    group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'legacy.html':       { current: 'legacy.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'csr.html':          { current: 'csr.html',         group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },

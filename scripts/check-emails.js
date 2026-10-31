@@ -87,6 +87,7 @@ const FORMS = [
   ['get-involved.html', 'Volunteer', 'PFA-V', { city: 'Udupi', title: 'Volunteer: Rescue Operations' }],
   ['events.html', 'Ask for an event', 'PFA-EV', { title: 'An adoption drive', city: 'Udupi' }],
   ['cinekind.html', 'Nominate for CineKind', 'PFA-CK', { nominee: 'A rescue documentary', category: 'A film or documentary', why: 'It changed how a town treats its dogs' }],
+  ['internship.html', 'Apply for the virtual internship', 'PFA-VI', { age: '21', why: 'I feed twelve dogs on my street and want to do it properly.' }],
   ['campus.html', 'Register a campus society', 'PFA-CAM', { college: 'Government College, Udupi', city: 'Udupi, Karnataka', desks: 'Rescue and first aid', faculty: 'Yes' }],
   ['sgacc.html', 'Offer help to the Animal Care Centre', 'PFA-SG', { offer: 'Supplies for the animals', items: 'Blankets and bedding' }],
   ['csr.html', 'Propose a CSR partnership', 'PFA-CSR', { focus: 'Rural animal hospitals', company: 'Udupi Foods Limited' }],

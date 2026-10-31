@@ -57,6 +57,7 @@ const NAV = [
   'get-involved.html#membership|Become a member',
   'get-involved.html#caregiver|Colony caregiver', /* leads to applying; the card page itself left the nav, 15 Sep 2026 */
   'campus.html|PFA Campus',                          /* the microsites, 9 Oct 2026 */
+  'internship.html|Virtual internship',              /* 31 Oct 2026 */
   'campaign.html|Plan a campaign',
   'legacy.html|Leave a legacy',
   'csr.html|CSR partnerships',
@@ -110,6 +111,7 @@ const EXPECTED = {
   /* the microsites (9 Oct 2026): each its own entry, in the section whose
      menu lists it; privacy sits in none, as track and search do */
   'campus.html':       ['PFA Campus',                'get-involved.html'],
+  'internship.html':   ['Virtual internship',        'get-involved.html'],
   'campaign.html':     ['Plan a campaign',           'get-involved.html'],
   'legacy.html':       ['Leave a legacy',            'get-involved.html'],
   'csr.html':          ['CSR partnerships',          'get-involved.html'],

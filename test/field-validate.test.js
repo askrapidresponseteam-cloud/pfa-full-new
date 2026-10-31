@@ -252,7 +252,9 @@ const WIRED = ['report.html', 'ask.html', 'careers.html', 'wall.html', 'get-invo
   /* the objection to the draft lab animal rules (22 Oct 2026) */
   'lab-animal-rules.html',
   /* the membership card photograph, from the emailed link (26 Oct 2026) */
-  'member-photo.html'];
+  'member-photo.html',
+  /* the virtual internship (31 Oct 2026) */
+  'internship.html'];
 
 test('every page that takes an entry loads the rules, and loads them first', () => {
   for (const file of WIRED) {

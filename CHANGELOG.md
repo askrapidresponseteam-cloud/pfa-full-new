@@ -1,3 +1,12 @@
+## v1.481
+
+- **The Virtual internship has its own page on the site: internship.html.** Owner, 31 Oct 2026: "add internship page inline with the current website theme. cert theme to be this blue one".
+  - **In the site's own look:** the same header, footer, phone tab bar and microsite layout as PFA Campus. It is listed under Get Involved in the menu, the phone menu and the footer, and it is in search and the sitemap.
+  - **What the page shows, in stages:** the hero with the owner's two photographs (the puppy with the flower, the cat) and the four facts. Then the twelve tasks as cards, each with its target, with "How it works" under a plus. Then the eight weeks, the two dogs running, the certificate, the application, and "Good to know" under plus signs (who can apply, time, what happens to the animals after week 8, how the work is checked, safety, shelters, the RRT, cost, and an animal that needs help today).
+  - **The certificate is the blue one**, drawn from the same artwork and code as the admin panel's. The reader can type their name to see it on the certificate. It is marked with a red SAMPLE stamp across its lines, so a picture of it is never mistaken for one PFA issued.
+  - **Applying:** four steps (You, Where, Why, Send). The full address is taken with the site's address block, and anyone under 16 is turned away. Those aged 16 or 17 must confirm a parent or guardian agrees. Before sending, the usual check screen and email and mobile confirmation appear. The application is filed as a Virtual internship application (PFA-VI-2026-00001 and on): it goes to gandhim with the other forms, appears in the admin panel, and the applicant gets a confirmation email and can follow it on the track page.
+- Checked: test/internship-page.test.js, the end-to-end form tests (now fifteen forms), the full suite, and a run of the page in a browser: desktop and phone, the certificate with a name, and an application sent and filed.
+
 ## v1.480
 
 - **Internship certificates are made in the admin panel.** Owner, 31 Oct 2026: "this certificate should be admin generatable".

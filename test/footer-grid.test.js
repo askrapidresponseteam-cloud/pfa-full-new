@@ -58,7 +58,7 @@ test('five groups in the header\'s order, then the office, each a heading and wh
   assert.deepEqual([...base.querySelectorAll('.pfa-footer__social a')].map((a) => a.textContent), ['Instagram', 'Facebook', 'X', 'YouTube']);
   assert.equal(doc.querySelectorAll('.pfa-footer__social').length, 1, 'once');
   const group = (label) => [...doc.querySelector(`nav[aria-label="${label}"]`).querySelectorAll('a')].map((a) => a.textContent);
-  assert.deepEqual(group('Get Involved'), ['Volunteer', 'Become a member', 'Colony caregiver card', 'PFA Campus', 'The Wall', 'Events', 'CineKind']);
+  assert.deepEqual(group('Get Involved'), ['Volunteer', 'Become a member', 'Colony caregiver card', 'PFA Campus', 'Virtual internship', 'The Wall', 'Events', 'CineKind']);
   assert.deepEqual(group('Give and partner'), ['Donate', 'Make a gift', 'Plan a campaign', 'Leave a legacy', 'CSR partnerships', 'Shop']);
   assert.deepEqual(group('About'), ['Founder', 'Animal Care Centre', 'Careers', 'Contact']);
   assert.deepEqual([...doc.querySelectorAll('.pfa-footer__base p')].map((p) => p.textContent),

@@ -46,7 +46,7 @@ test('with a page hidden in the panel, the phone menu still lists everything els
   const rows = [...panel.querySelectorAll('.mnav__list a')].filter(shown).map((a) => a.textContent);
   assert.ok(!rows.includes('Policies and achievements'), 'the hidden page is not offered');
   assert.ok(rows.includes('Units: find help near you') && rows.includes('Contact'));
-  assert.equal(rows.length, 22);
+  assert.equal(rows.length, 23, 'every other link (Virtual internship joined on 31 Oct 2026)');
   /* a card left with nothing, and its caption, go */
   const all = V.plan({ pages: ['campaign', 'legacy', 'csr'] }, 'laws').css;
   const style2 = doc.createElement('style'); style2.textContent = all; doc.head.appendChild(style2);

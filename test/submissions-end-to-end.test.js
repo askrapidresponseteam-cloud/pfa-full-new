@@ -52,6 +52,24 @@ const WORKING_KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 const PHOTO = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(ROOT, 'media/cinekind-2026/reels/glimpse.jpg')).toString('base64');
 
 const FORMS = {
+  /* internship.html (31 Oct 2026) */
+  "PFA-VI": {
+    "page": "internship.html",
+    "data": {
+      "name": "Asha Rao",
+      "age": "21",
+      "mobile": "9876543210",
+      "email": "tester.pfa@example.com",
+      "why": "I feed twelve dogs on my street and want to learn to do it properly, with the law behind me.",
+      "work": "B.Com, second year",
+      "social": "@asharao",
+      "address": "House 14, Barakhamba Road, Connaught Place",
+      "pincode": "110001",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "district": "New Delhi"
+    }
+  },
   "PFA-Q": {
     "page": "ask.html",
     "data": {

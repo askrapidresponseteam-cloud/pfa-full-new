@@ -328,6 +328,43 @@
    ]
   },
   {
+   "id": "internship",
+   "file": "internship.html",
+   "title": "Virtual internship",
+   "group": "Get Involved",
+   "menu": "Virtual internship",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Eight weeks for the animals of your town."
+    },
+    {
+     "id": "tasks",
+     "label": "Twelve tasks, each with a target."
+    },
+    {
+     "id": "weeks",
+     "label": "How the eight weeks go."
+    },
+    {
+     "id": "together",
+     "label": "Two dogs running together down a sunlit path"
+    },
+    {
+     "id": "certificate",
+     "label": "A certificate, earned."
+    },
+    {
+     "id": "apply",
+     "label": "Four quick steps."
+    },
+    {
+     "id": "more",
+     "label": "Open what you need."
+    }
+   ]
+  },
+  {
    "id": "campaign",
    "file": "campaign.html",
    "title": "Plan a campaign",
@@ -1235,6 +1272,12 @@
    "facultyField": "start",
    "done": "start",
    "doneRef": "start"
+  },
+  "internship": {
+   "viTasks": "tasks",
+   "minorBox": "apply",
+   "done": "apply",
+   "doneRef": "apply"
   },
   "campaign": {
    "done": "plan",
