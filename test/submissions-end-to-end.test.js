@@ -52,6 +52,23 @@ const WORKING_KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 const PHOTO = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(ROOT, 'media/cinekind-2026/reels/glimpse.jpg')).toString('base64');
 
 const FORMS = {
+  /* internship.html (31 Oct 2026): the proof of one task, on the portal */
+  "PFA-VP": {
+    "page": "internship.html",
+    "data": {
+      "application": "PFA-VI-2026-00001",
+      "name": "Asha Rao",
+      "email": "tester.pfa@example.com",
+      "task": "Find a lawyer",
+      "what": "Met Adv. Meera Rao at the district court in Udupi; she will take up cruelty cases without a fee.",
+      "links": "https://drive.google.com/drive/folders/abc123",
+      "address": "Chamber 12, District Court Complex, Court Road",
+      "pincode": "576101",
+      "city": "Udupi",
+      "state": "Karnataka",
+      "district": "Udupi"
+    }
+  },
   /* internship.html (31 Oct 2026) */
   "PFA-VI": {
     "page": "internship.html",

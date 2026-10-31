@@ -344,7 +344,7 @@
     },
     {
      "id": "tasks",
-     "label": "Twelve tasks, each with a target."
+     "label": "Five core tasks. Three you choose."
     },
     {
      "id": "weeks",
@@ -361,6 +361,10 @@
     {
      "id": "apply",
      "label": "Four quick steps."
+    },
+    {
+     "id": "proof",
+     "label": "Send your proof."
     },
     {
      "id": "more",
@@ -1278,10 +1282,13 @@
    "doneRef": "start"
   },
   "internship": {
-   "viTasks": "tasks",
+   "viCore": "tasks",
+   "viElect": "tasks",
    "minorBox": "apply",
    "done": "apply",
-   "doneRef": "apply"
+   "doneRef": "apply",
+   "pfDone": "proof",
+   "pfDoneRef": "proof"
   },
   "campaign": {
    "done": "plan",

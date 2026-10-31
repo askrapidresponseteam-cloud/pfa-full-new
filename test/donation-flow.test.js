@@ -408,3 +408,112 @@ test('a gift reads plainly and asks one thing per step: amount, who it is for, y
   }
   assert.match(page, /\['01 Amount', '02 Who it is for', '03 Your details'\]/);
 });
+
+/* ---- the thank-you after the bank, and the receipt as a PDF (owner,
+   31 Oct 2026: "let the transition happen once the donation is successful
+   and ensure it shows up with the thank you message post pg confirmation,
+   hope donation receipt can be downloaded - pdf in pfa template!") ---- */
+
+const zlib = require('zlib');
+const RECEIPT = require('../lib/donation-receipt');
+const receiptRoute = require('../lib/routes/payment/receipt');
+
+async function getReceipt(url) {
+  const headers = {};
+  const out = await new Promise((resolve) => {
+    const response = {
+      statusCode: 200,
+      setHeader(n, v) { headers[n.toLowerCase()] = v; },
+      end(raw) { resolve({ status: this.statusCode, body: Buffer.isBuffer(raw) ? raw : Buffer.from(String(raw || '')) }); }
+    };
+    receiptRoute({ method: 'GET', url, headers: { host: 'pfa.test' } }, response);
+  });
+  return Object.assign(out, { headers });
+}
+
+/* the words on the page of a PDF this file wrote: its one content stream, inflated */
+function pdfWords(buffer) {
+  const raw = buffer.toString('latin1');
+  const at = raw.lastIndexOf('/Filter /FlateDecode >>\nstream\n');
+  const start = at + '/Filter /FlateDecode >>\nstream\n'.length;
+  const end = raw.indexOf('\nendstream', start);
+  const ops = zlib.inflateSync(buffer.subarray(start, end)).toString('latin1');
+  return [...ops.matchAll(/\(((?:\\.|[^\\)])*)\) Tj/g)].map((m) => m[1].replace(/\\(\d{3})/g, (_, o) => String.fromCharCode(parseInt(o, 8))).replace(/\\(.)/g, '$1')).join(' | ');
+}
+
+test('the bank confirms: the dog smiles, the thank-you, and the receipt to download', async () => {
+  const sentOut = await start();
+  const page = await callback(bankSays(sentOut));
+  assert.match(page, /<h1>You made their day\.<\/h1>/);
+  assert.match(page, /Thank you for standing with animals\./);
+  assert.match(page, /Asha, your donation of ₹1,500\.00 has reached People for Animals\./);
+  assert.match(page, /<div class="dog" role="img" aria-label="A dog, now smiling"><i class="was"><\/i><i class="now"><\/i><\/div>/);
+  assert.match(page, /url\(\/img\/donate-dog\.webp\)/);
+  assert.match(page, /\.dog \.now\{background-position:right center;opacity:0;animation:show 1\.7s [^}]* 1s forwards\}/, 'the smile comes in by itself, a moment after the page opens');
+  assert.doesNotMatch(page, /<script/, 'no script: the page is the server\'s word, not the browser\'s');
+  const t = transaction(sentOut.order_id);
+  assert.match(t.receiptKey, RECEIPT.KEY);
+  assert.ok(t.receiptIssuedAt);
+  const link = `/api/payment/receipt?order=${sentOut.order_id}&amp;k=${t.receiptKey}`;
+  assert.ok(page.includes(`href="${link}" download>Download your receipt (PDF)`), 'the receipt, a button away');
+  /* the same link in the email, whole */
+  const mail = sent.find((m) => m.template === 'payment_received');
+  assert.equal(mail.payload.receiptUrl, `https://pfa.test/api/payment/receipt?order=${sentOut.order_id}&k=${t.receiptKey}`);
+  /* the same key on a second callback: a link once given keeps working */
+  await callback(bankSays(sentOut));
+  assert.equal(transaction(sentOut.order_id).receiptKey, t.receiptKey);
+});
+
+test('the receipt: a PDF in PFA\'s type, with the donor, the amount in words and the 80G line', async () => {
+  const sentOut = await start();
+  await callback(bankSays(sentOut));
+  const t = transaction(sentOut.order_id);
+  const got = await getReceipt(`/api/payment/receipt?order=${sentOut.order_id}&k=${t.receiptKey}`);
+  assert.equal(got.status, 200);
+  assert.equal(got.headers['content-type'], 'application/pdf');
+  assert.match(got.headers['content-disposition'], new RegExp(`attachment; filename="PFA-donation-receipt-${t.donationReference}\\.pdf"`));
+  assert.equal(got.headers['cache-control'], 'no-store, max-age=0');
+  assert.equal(got.body.subarray(0, 8).toString('latin1'), '%PDF-1.4');
+  const raw = got.body.toString('latin1');
+  assert.ok(raw.includes('/BaseFont /PFAAAA+Marcellus') && raw.includes('/BaseFont /PFAAAB+EBGaramond-Medium'), 'the site\'s own type, embedded');
+  assert.ok(raw.includes('/FontFile2') && raw.includes('/Subtype /Image'), 'and the logo');
+  const words = pdfWords(got.body);
+  for (const bit of ['DONATION RECEIPT', t.donationReference, 'THANK YOU', 'INR 1,500.00', 'Rupees One Thousand Five Hundred only', 'Asha Kumar', 'PAN ABCDE1234F', '16 MG Road', 'Karnataka 576101',
+    sentOut.order_id, 'BNK900', '31233', 'UPI', 'Section 80G', 'needs no signature', 'PEOPLE FOR ANIMALS']) {
+    assert.ok(words.includes(bit), `the receipt says ${bit}`);
+  }
+  assert.doesNotMatch(words, /[–—]/, 'no dashes');
+});
+
+test('a receipt is reached only with its key, and only for a confirmed donation', async () => {
+  const sentOut = await start();
+  await callback(bankSays(sentOut));
+  const t = transaction(sentOut.order_id);
+  for (const url of [
+    `/api/payment/receipt?order=${sentOut.order_id}`,
+    `/api/payment/receipt?order=${sentOut.order_id}&k=${'A'.repeat(24)}`,
+    `/api/payment/receipt?order=PFA-DON-ZZZZZZZZ&k=${t.receiptKey}`,
+    `/api/payment/receipt?order=../../x&k=${t.receiptKey}`
+  ]) {
+    const got = await getReceipt(url);
+    assert.equal(got.status, 404, url);
+    assert.match(got.body.toString(), /This receipt link is not valid\./, 'one answer for every refusal');
+  }
+  /* a failed payment has no key, no link, no receipt */
+  const other = await start();
+  const page = await callback(bankSays(other, { order_status: 'Failure', status_message: 'Insufficient funds' }));
+  assert.doesNotMatch(page, /donate-dog|You made their day|receipt\?order/);
+  assert.equal(transaction(other.order_id).receiptKey, undefined);
+});
+
+test('the amount in words, the Indian way', () => {
+  assert.equal(RECEIPT.amountInWords(1500, 'INR'), 'Rupees One Thousand Five Hundred only');
+  assert.equal(RECEIPT.amountInWords(250000.5, 'INR'), 'Rupees Two Lakh Fifty Thousand and Fifty Paise only');
+  assert.equal(RECEIPT.amountInWords(12345678, 'INR'), 'Rupees One Crore Twenty Three Lakh Forty Five Thousand Six Hundred Seventy Eight only');
+  assert.equal(RECEIPT.amountInWords(1250.05, 'USD'), 'US Dollars One Thousand Two Hundred Fifty and Five Cents only');
+  assert.equal(RECEIPT.indiaDate('2026-10-31T20:00:00Z'), '1 November 2026', 'the date in India');
+  const fs = require('fs');
+  const path = require('path');
+  for (const f of ['lib/donation-receipt.js', 'lib/routes/payment/receipt.js']) assert.ok(!/[–—]/.test(fs.readFileSync(path.join(__dirname, '..', f), 'utf8')), `${f}: no dashes`);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'api', 'index.js'), 'utf8'), /'payment\/receipt': \(\) => require\('\.\.\/lib\/routes\/payment\/receipt\.js'\)/);
+});

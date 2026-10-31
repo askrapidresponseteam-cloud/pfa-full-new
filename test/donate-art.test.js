@@ -60,12 +60,14 @@ test('the money rings are gone, from the page and from the folder', () => {
   assert.ok(!fs.existsSync(path.join(ROOT, 'img', 'donate-lifebuoy.webp')));
 });
 
-test('the thank-you is shown only when asked, and never claims a gift that was not made', () => {
-  assert.match(html, /<button type="button" id="previewSmile">Preview thank-you <svg/, 'a drawn arrow, never a typed one');
+test('no preview on the live page: the smile waits for the bank', () => {
+  /* owner, 31 Oct 2026: "preview thank you is not needed in the real
+     site..let the transition happen once the donation is successful" */
+  assert.ok(!/previewSmile|Preview thank-you|PFADonationCelebration|is-grateful|Animation preview only/.test(html), 'no preview, and nothing a page could call to smile');
+  assert.ok(!/dog-photo--after/.test(html), 'the page holds only the dog as it was');
   assert.match(html, /\.dog-portrait\{height:clamp\(150px,44vw,240px\)\}/, 'small on a phone, beside the word');
-  assert.match(html, /Animation preview only\. No donation has been made\./);
-  assert.match(html, /window\.PFADonationCelebration=Object\.freeze\(\{show:\(\)=>show\(\),reset\}\);/);
-  assert.match(html, /\.give\.is-grateful \.give__side\{background:#eae9db\}/);
+  const page = fs.readFileSync(path.join(ROOT, 'lib', 'routes', 'payment', 'response.js'), 'utf8');
+  assert.match(page, /if \(transaction\.type === 'donate' && effective === 'success'\) \{\s*return renderDonationThanks\(/, 'the smile is drawn only on the success the server settled');
 });
 
 test('choosing dollars and back keeps the same dog', async () => {
@@ -85,11 +87,8 @@ test('choosing dollars and back keeps the same dog', async () => {
     await settle();
     doc.querySelector('[data-gcur="INR"]').click();
     await settle();
-    assert.equal(doc.querySelectorAll('.dog-portrait .dog-photo').length, 2);
-    doc.getElementById('previewSmile').click();
-    assert.ok(doc.querySelector('.give').classList.contains('is-grateful'), 'the preview shows the smile');
-    doc.getElementById('previewSmile').click();
-    assert.ok(!doc.querySelector('.give').classList.contains('is-grateful'), 'and goes back');
+    assert.equal(doc.querySelectorAll('.dog-portrait .dog-photo').length, 1);
+    assert.ok(!doc.querySelector('.give').classList.contains('is-grateful'), 'no smile before a payment');
   } finally {
     dom.window.close();
   }

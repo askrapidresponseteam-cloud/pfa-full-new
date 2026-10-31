@@ -82,6 +82,7 @@ function radioValues(html, name) {
 const MARKUP = {
   'PFA-CR': { animal: ['select', 'animal'], urgency: ['select', 'urgency'] },
   'PFA-Q': { topic: ['select', 'topic'] },
+  'PFA-VP': { task: ['select', 'pfTask'] },
   'PFA-J': { pfaMember: ['radio', 'member'], travel: ['radio', 'travel'], roleId: ['radio', 'roleId'], level: ['radio', 'level'] },
   'PFA-S': { wall: ['labels', 'wallWhich'] },
   'PFA-EV': { title: ['select', 'evKind'] },
