@@ -1,3 +1,14 @@
+## v1.480
+
+- **Internship certificates are made in the admin panel.** Owner, 31 Oct 2026: "this certificate should be admin generatable".
+  - **A new Certificates section in the panel:** type the intern's name, the internship's dates and the date of issue, and the certificate is drawn as you type, on the owner's own artwork.
+  - **Issue certificate** gives it a number: PFA-INT- and eight random characters, never in sequence and never repeated, so it cannot be guessed or made up. The number, the name and the dates are kept, so a certificate can always be drawn again exactly as issued.
+  - **Download PDF** gives one A4 landscape page, ready to print; **Download PNG** gives a 3344 by 1882 image.
+  - **Issued certificates** lists every one, with who issued it. Open draws it again. Withdraw marks it withdrawn with a reason; it stays on record.
+  - **Who can use it:** super admins, and staff given the new Internship certificates access on the People page. Every issue and withdrawal is in the audit log.
+  - **What is drawn:** the name in the design's blue capitals, sized to fit; the dates and the number in the design's book serif (EB Garamond, which draws a 1 that does not read as an I); everything else is the artwork as designed, with its blanks taken out.
+- Checked: test/certificates.test.js, the full suite, and a run in the panel: issue, both downloads, withdraw.
+
 ## v1.479
 
 - **Shop: every tile is filled by its photograph, the same shape, nothing cut.** Owner, 30 Oct 2026: "photos render differently in each tile looks diff and odd. make it uniform and supreme".

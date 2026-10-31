@@ -79,7 +79,13 @@ const PANEL_ASSETS = [
   'fonts/dm-sans-latin-400.woff2',
   'fonts/dm-sans-latin-500.woff2',
   'fonts/dm-sans-latin-600.woff2',
-  'media/member-card-logo.png'
+  'media/member-card-logo.png',
+  /* The internship certificate the panel draws (31 Oct 2026): its renderer
+     and the owner's artwork with its blanks taken out. Its fonts are the
+     Cinzel and Marcellus above. */
+  'assets/certificate.js',
+  'fonts/eb-garamond-latin-500.woff2',
+  'assets/certificates/internship.webp'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */

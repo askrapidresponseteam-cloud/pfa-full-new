@@ -72,6 +72,8 @@ service cloud.firestore {
        (28 Oct 2026): through the same route only */
     match /oldSiteMembersNotes/{id}   { allow read, write: if false; }
     match /oldSiteMembersThreads/{id} { allow read, write: if false; }
+    /* internship certificates: the panel's server routes only (31 Oct 2026) */
+    match /certificates/{id}          { allow read, write: if false; }
     match /caretakerCards/{id}        { allow read, write: if isAdmin(); }
     match /caretakerAddresses/{id}    { allow read, write: if isAdmin(); }
     match /caretakerOrders/{id}       { allow read, write: if isAdmin(); }

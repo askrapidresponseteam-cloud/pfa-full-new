@@ -128,8 +128,8 @@ test('every section in the rail is one the module list knows', () => {
   /* Old site members joined on 26 Oct 2026, in a group of its own below
      the rest, marked "Kept apart". Membership cards joined the same day,
      after Colony cards. */
-  assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'shop', 'caregivers', 'membership', 'website', 'people', 'oldmembers'],
-    'the rail is the eight sections, in order, then the one kept apart');
+  assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'shop', 'caregivers', 'membership', 'certificates', 'website', 'people', 'oldmembers'],
+    'the rail is the nine sections, in order (Certificates joined on 31 Oct 2026), then the one kept apart');
   /* Applications to decide joined Colony cards, first, on 24 Oct 2026 */
   const stacks = /caregivers:[^}]*panes: \['apply', 'caregivers', 'verify', 'cards'\]/.test(script)
     && /payments:[^}]*panes: \['payments', 'donations'\]/.test(script)

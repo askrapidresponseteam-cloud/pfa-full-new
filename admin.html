@@ -480,6 +480,29 @@ details.fold[open] > summary{margin-bottom:8px}
 .so-do .press,.so-do .ghost{width:auto;min-height:38px;padding:0 16px}
 .so-do .so-btns{display:inline-flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 .so-form td{background:var(--stone,#f4f3f1)}
+ /* internship certificates (31 Oct 2026) */
+.ct{display:grid;gap:22px;max-width:1080px}
+.ct-fields{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:10px 14px}
+.ct-fields label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.ct-fields input{display:block;width:100%;height:42px;padding:0 12px;border:1px solid var(--line);font:inherit;font-size:14px;background:var(--paper);color:var(--ink)}
+.ct-fields input:focus{border-color:var(--ink);outline:none}
+.ct-fields input[readonly]{background:var(--line);opacity:.8}
+.ct-fields .bad input{border-color:#b3261e}
+.ct-acts{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.ct-acts .press{display:inline-flex;width:auto;align-items:center;min-height:42px;padding:0 22px}
+.ct-acts .say{margin:0}
+.ct-issued{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding:14px 16px;border:1px solid var(--ink);box-shadow:inset 4px 0 0 var(--ink)}
+.ct-issued[hidden]{display:none}
+.ct-issued p{margin:0;font-size:14px;line-height:1.5}
+.ct-issued .ct-acts{gap:8px}
+.ct-preview{margin:0}
+.ct-preview canvas{display:block;width:100%;height:auto;max-width:100%;border:1px solid var(--line);background:#f2ebdc}
+.ct-preview figcaption{margin:8px 0 0;font-size:12px;color:var(--muted)}
+.ct-list td .note{font-size:12px;color:var(--muted)}
+.ct-list .linky{padding:0;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.ct-list .ct-why{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
+.ct-list .ct-why input{flex:1 1 220px;height:36px;padding:0 10px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper);color:var(--ink)}
+@media (max-width:900px){.ct-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.ct-fields > div:first-child{grid-column:1/-1}}
 .so-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:10px 14px;max-width:980px}
 .so-fields label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
 .so-fields input{display:block;width:100%;height:40px;padding:0 12px;border:1px solid var(--line);font:inherit;font-size:14px;background:var(--paper)}
@@ -685,6 +708,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
       <button class="tab" type="button" data-tab="caregivers">Colony cards<span class="pip" id="pipApps" hidden>0</span></button>
       <button class="tab" type="button" data-tab="membership">Membership cards<span class="pip" id="pipMembers" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="certificates">Certificates</button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="people" data-super>People &amp; audit</button>
     </div>
@@ -786,6 +810,9 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
          approve it, print the card. Filled by membershipPane(). -->
     <div class="pane" data-pane="membership" role="region" aria-label="Membership cards"><div class="loading">Reading the memberships&#8230;</div></div>
     <div class="pane" data-pane="shop" role="region" aria-label="Shop orders"><div class="loading">Reading the orders&#8230;</div></div>
+    <!-- Internship certificates (31 Oct 2026): type the name and dates, issue,
+         download. Filled by certificatesPane(); drawn by assets/certificate.js. -->
+    <div class="pane" data-pane="certificates" role="region" aria-label="Internship certificates"><div class="loading">Reading the certificates&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
       <div class="tools">
@@ -991,6 +1018,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/card-print.js"></script>
 <script src="assets/caregiver-card.js"></script>
 <script src="assets/member-card.js"></script>
+<script src="assets/certificate.js"></script>
 <script>
 /* The panel.
 
@@ -1254,6 +1282,7 @@ window.addEventListener('unhandledrejection', function (event) {
     membership:  { title: 'Membership cards', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
     shop:        { title: 'Shop orders',   module: 'shop',        needs: 'shop' },
+    certificates: { title: 'Internship certificates', module: 'certificates', needs: 'certificates' },
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
@@ -1338,6 +1367,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'apply') return applicationsPane();
     if (tab === 'membership') return membershipPane();
     if (tab === 'shop') return shopPane();
+    if (tab === 'certificates') return certificatesPane();
     if (tab === 'website') return website();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -4412,6 +4442,137 @@ window.addEventListener('unhandledrejection', function (event) {
      customer, with a preview of exactly what they will get. */
   var so = { rows: [], counts: {}, view: 'to-ship', editing: '', next: '' };
   var SO_VIEWS = { 'to-ship': 'To ship', shipped: 'Shipped', all: 'All' };
+  /* ---- internship certificates (owner, 31 Oct 2026: "this certificate
+     should be admin generatable") -----------------------------------------
+     Type the intern's name and the internship's dates; the certificate is
+     drawn as you type. Issue certificate gives it its number on the server
+     (a random PFA-INT- number, recorded); then it downloads as a PDF for A4
+     or a PNG. Every certificate issued is listed, can be drawn again
+     exactly as issued, and can be withdrawn with a reason. */
+  var ct = { rows: [], today: '', current: null, withdrawing: '' };
+  function ctData() {
+    if (ct.current) return ct.current;
+    return { name: ($('#ctName') || {}).value || '', startDate: ($('#ctFrom') || {}).value || '', endDate: ($('#ctTo') || {}).value || '', issuedOn: ($('#ctOn') || {}).value || '', number: '' };
+  }
+  function ctDraw() {
+    var canvas = $('#ctCanvas');
+    if (!canvas || !window.PFACertificate) return;
+    window.PFACertificate.draw(canvas, ctData(), 1);
+  }
+  function certificatesPane(said) {
+    var node = $('[data-pane="certificates"]');
+    if (!node) return undefined;
+    return api('/api/admin/certificates').then(function (d) {
+      ct.rows = d.certificates || [];
+      ct.today = d.today || '';
+      ctRender(said);
+    }).catch(function (e) { fail(node, e); });
+  }
+  function ctRender(said) {
+    var node = $('[data-pane="certificates"]');
+    var c = ct.current;
+    var keep = c ? null : ctData();
+    var v = function (k, fallback) { return esc(c ? c[k] : ((keep && keep[k]) || fallback || '')); };
+    var lock = c ? ' readonly' : '';
+    node.innerHTML = '<div class="ct">'
+      + '<div class="ct-fields">'
+      + '<div><label for="ctName">Intern\u2019s name</label><input id="ctName" maxlength="48" autocomplete="off" placeholder="As it should read on the certificate" value="' + v('name') + '"' + lock + '></div>'
+      + '<div><label for="ctFrom">Internship from</label><input id="ctFrom" type="date" value="' + v('startDate') + '"' + lock + '></div>'
+      + '<div><label for="ctTo">To</label><input id="ctTo" type="date" value="' + v('endDate') + '"' + lock + '></div>'
+      + '<div><label for="ctOn">Issued on</label><input id="ctOn" type="date" value="' + v('issuedOn', ct.today) + '"' + lock + '></div>'
+      + '</div>'
+      + (c
+        ? '<div class="ct-issued"><p><b>' + esc(c.number) + '</b> \u00b7 ' + esc(c.name) + (c.revoked ? ' \u00b7 <span class="flag" data-s="failed">Withdrawn</span>' : '') + '<br><span class="note">Issued ' + esc(dayOf(c.issuedAt || c.issuedOn)) + (c.issuedBy ? ' by ' + esc(c.issuedBy) : '') + '. This is the certificate exactly as issued.</span></p>'
+          + '<div class="ct-acts">' + (c.revoked ? '' : '<button class="press" type="button" data-ct="pdf">Download PDF</button><button class="ghost" type="button" data-ct="png">Download PNG</button>')
+          + '<button class="ghost" type="button" data-ct="new">Make another</button></div></div>'
+        : '<div class="ct-acts"><button class="press" type="button" data-ct="issue">Issue certificate</button><p class="say" data-ct-say role="status" aria-live="polite"></p></div>')
+      + '<figure class="ct-preview"><canvas id="ctCanvas" width="1672" height="941" aria-label="The certificate as it will print"></canvas>'
+      + '<figcaption>' + (c ? 'Downloads as an A4 landscape PDF, or a PNG of 3344 by 1882 pixels.' : 'Drawn as you type. The certificate number is given when you issue it, and is kept so the certificate can be checked.') + '</figcaption></figure>'
+      + ctList()
+      + '</div>';
+    if (said && !c) say($('[data-pane="certificates"] [data-ct-say]'), said.text, said.tone);
+    if (window.PFACertificate) window.PFACertificate.load().then(ctDraw, function () { ctDraw(); });
+    ctDraw();
+  }
+  function ctList() {
+    if (!ct.rows.length) return '<p class="note" style="font-size:13px;color:var(--muted)">No certificates issued yet.</p>';
+    return '<details class="fold ct-list"><summary>Issued certificates (' + ct.rows.length + ')</summary>'
+      + '<div class="wrap"><table><thead><tr><th>Number</th><th>Intern</th><th>Internship</th><th>Issued</th><th aria-label="Actions"></th></tr></thead><tbody>'
+      + ct.rows.map(function (r) {
+        var long = window.PFACertificate ? window.PFACertificate.longDate : function (x) { return x; };
+        return '<tr data-ref="' + esc(r.number) + '"><td><b>' + esc(r.number) + '</b></td>'
+          + '<td>' + esc(r.name) + (r.revoked ? '<br><span class="flag" data-s="failed">Withdrawn</span><br><span class="note">' + esc(r.revokedReason) + '</span>' : '') + '</td>'
+          + '<td>' + esc(long(r.startDate)) + ' to ' + esc(long(r.endDate)) + '</td>'
+          + '<td>' + esc(long(r.issuedOn)) + (r.issuedBy ? '<br><span class="note">by ' + esc(r.issuedBy) + '</span>' : '') + '</td>'
+          + '<td><button class="linky" type="button" data-ct="open">Open</button>'
+          + (r.revoked ? '' : ' \u00b7 <button class="linky" type="button" data-ct="withdraw">Withdraw</button>')
+          + (ct.withdrawing === r.number ? '<div class="ct-why"><input id="ctWhy" maxlength="300" placeholder="Why it is withdrawn"><button class="ghost" type="button" data-ct="withdraw-yes">Withdraw it</button><button class="ghost" type="button" data-ct="withdraw-no">Keep it</button></div>' : '')
+          + '</td></tr>';
+      }).join('') + '</tbody></table></div></details>';
+  }
+  on('[data-pane="certificates"]', 'input', function (e) {
+    if (ct.current) return;
+    var f = e.target.closest && e.target.closest('.ct-fields > div');
+    if (f) f.classList.remove('bad');
+    ctDraw();
+  });
+  on('[data-pane="certificates"]', 'click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-ct]');
+    if (!b) return;
+    var what = b.getAttribute('data-ct');
+    var row = b.closest('tr[data-ref]');
+    var number = row ? row.getAttribute('data-ref') : '';
+    var PC = window.PFACertificate;
+    if (what === 'issue') {
+      var sayNode = $('[data-pane="certificates"] [data-ct-say]');
+      var body = { action: 'issue', name: $('#ctName').value, startDate: $('#ctFrom').value, endDate: $('#ctTo').value, issuedOn: $('#ctOn').value };
+      var fieldOf = { name: '#ctName', startDate: '#ctFrom', endDate: '#ctTo', issuedOn: '#ctOn' };
+      b.disabled = true;
+      say(sayNode, 'Issuing\u2026');
+      api('/api/admin/certificates', { method: 'POST', body: body }).then(function (r) {
+        ct.current = r.certificate;
+        ct.rows.unshift(r.certificate);
+        ctRender();
+      }).catch(function (err) {
+        b.disabled = false;
+        var field = err && err.data && err.data.field;
+        if (field && fieldOf[field]) { var box = $(fieldOf[field]); box.closest('div').classList.add('bad'); box.focus(); }
+        say(sayNode, err.message || 'That could not be issued.', 'bad');
+      });
+      return;
+    }
+    if ((what === 'pdf' || what === 'png') && PC && ct.current) {
+      b.disabled = true;
+      var made = what === 'pdf' ? PC.pdf(ct.current) : PC.png(ct.current);
+      made.then(function (blob) { PC.save(blob, PC.fileStem(ct.current) + '.' + what); })
+        .catch(function (err) { console.warn('certificate download', err && err.message); b.textContent = 'Could not make the file. Try again'; })
+        .then(function () { b.disabled = false; });
+      return;
+    }
+    if (what === 'new') { ct.current = null; ctRender(); var n = $('#ctName'); if (n) { n.value = ''; n.focus(); } ctDraw(); return; }
+    if (what === 'open') {
+      ct.current = ct.rows.filter(function (r) { return r.number === number; })[0] || null;
+      ctRender();
+      $('[data-pane="certificates"]').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    if (what === 'withdraw') { ct.withdrawing = number; ctRender(); var d = $('[data-pane="certificates"] details.ct-list'); if (d) d.open = true; var w = $('#ctWhy'); if (w) w.focus(); return; }
+    if (what === 'withdraw-no') { ct.withdrawing = ''; ctRender(); var d2 = $('[data-pane="certificates"] details.ct-list'); if (d2) d2.open = true; return; }
+    if (what === 'withdraw-yes') {
+      b.disabled = true;
+      api('/api/admin/certificates', { method: 'POST', body: { action: 'revoke', number: number, reason: $('#ctWhy').value } }).then(function (r) {
+        ct.withdrawing = '';
+        ct.rows = ct.rows.map(function (x) { return x.number === number ? r.certificate : x; });
+        if (ct.current && ct.current.number === number) ct.current = r.certificate;
+        ctRender();
+        var d3 = $('[data-pane="certificates"] details.ct-list'); if (d3) d3.open = true;
+      }).catch(function (err) {
+        b.disabled = false;
+        var w = $('#ctWhy'); if (w) { w.setCustomValidity(err.message || ''); w.reportValidity && w.reportValidity(); w.setCustomValidity(''); }
+      });
+    }
+  });
+
   function setShopPip(n) {
     var pip = $('#pipShop');
     if (!pip) return;
