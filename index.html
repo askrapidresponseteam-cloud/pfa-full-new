@@ -2,7 +2,7 @@
 <html lang="en" data-pfa-tabs>
 <head>
 <meta charset="utf-8">
-<meta name="pfa-build" content="v1.491">
+<meta name="pfa-build" content="v1.490">
 <title>People for Animals | India’s largest animal welfare organisation</title>
 <meta name="description" content="Report cruelty, find your nearest unit, read what the law actually says, or give. People for Animals turns moments of crisis into second chances for animals across the country.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,7 +13,7 @@
      display face arrived a beat late and swapped in over the fallback. Only the latin
      file: latin-ext covers characters these pages do not use. -->
 <link rel="preload" href="fonts/marcellus-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/chrome.css?v=d37a14e286">
+<link rel="stylesheet" href="assets/chrome.css?v=36f13a18f0">
 <style>/* latin-ext */
 @font-face {
   font-family: 'Marcellus';
@@ -272,6 +272,40 @@ section[data-screen-label="Hero"].is-waking .pfa-heroin > div{transition:opacity
   <script type="application/ld+json">{"@context":"https://schema.org","@type":["NGO","AnimalShelter"],"@id":"https://peopleforanimalsindia.org/#organisation","name":"People for Animals","alternateName":"PFA","url":"https://peopleforanimalsindia.org/","logo":"https://peopleforanimalsindia.org/img/logo.png","telephone":"+91-11-2081-8191","address":{"@type":"PostalAddress","streetAddress":"4-T, DCM Building, 16 Barakhamba Road","addressLocality":"New Delhi","postalCode":"110001","addressCountry":"IN"},"sameAs":["https://www.facebook.com/people4animals/","https://www.instagram.com/pfa.official/","https://x.com/pfaindia","https://www.youtube.com/@peopleforanimals9047"]}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://peopleforanimalsindia.org/#website","url":"https://peopleforanimalsindia.org/","name":"People for Animals","publisher":{"@id":"https://peopleforanimalsindia.org/#organisation"},"potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://peopleforanimalsindia.org/search?q={search_term_string}"},"query-input":"required name=search_term_string"}}</script>
   <!-- seo:end -->
+
+<style id="pfa-space-refinement">
+/* Layout only: retain the existing palette, type, images and controls. */
+.pfa-heroin{gap:clamp(20px,3vw,36px)}
+.pfa-hero__foot{gap:18px}
+.pfa-hero__acts{gap:10px}
+.pfa-fndr__in{gap:20px;padding-bottom:clamp(28px,3.5vw,48px)}
+.pfa-fndr__foot{gap:20px;padding-top:18px}
+.pfa-fndr__who b{margin-bottom:6px}
+@media (min-width:901px) and (min-aspect-ratio:23/20){
+  section[data-screen-label="Hero"]{
+    height:min(var(--hh),760px,calc((100vw - var(--gv) - 468px) / .99));
+  }
+  .pfa-heroin{
+    justify-content:flex-start;
+    gap:clamp(28px,5cqh,48px);
+    padding-top:clamp(28px,6cqh,56px);
+  }
+}
+@media (min-width:861px){
+  .pfa-fndr{min-height:max(43.5vw,min(76svh,760px))}
+}
+@media (max-width:860px){
+  .pfa-heroin{padding-top:24px;padding-bottom:20px;gap:20px}
+  .pfa-hero__foot{gap:16px}
+  .pfa-fndr__in{padding:24px var(--g) 28px;gap:20px}
+  .pfa-fndr__foot{gap:18px;padding-top:16px}
+}
+@media (max-width:420px){
+  .pfa-hero__acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pfa-hero__btn{padding-inline:12px;text-align:center}
+  .pfa-fndr__door{box-sizing:border-box;max-width:100%;padding-inline:20px;white-space:normal;text-align:center}
+}
+</style>
 </head>
 <body>
 <div style="width:100%;overflow-x:hidden">
@@ -503,7 +537,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=459b86244a"></script>
+<script src="assets/chrome.js?v=2eacd58d7c"></script>
 
 <section id="welcome" data-screen-label="Hero" aria-labelledby="heroTitle">
   <div class="pfa-heroin">
