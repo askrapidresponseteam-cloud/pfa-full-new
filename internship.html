@@ -196,6 +196,12 @@ main .vi-open h1.pfa-title.pfa-title{margin:0;color:#fff;font-size:clamp(46px,8.
 .vi-task__no{font-family:'EB Garamond',Georgia,serif;font-weight:500;font-size:15px;color:var(--muted)}
 .vi-task__title{font-family:var(--display);font-size:clamp(16px,1.3vw,19px);line-height:1.15;letter-spacing:.02em;text-transform:uppercase}
 .vi-goal{display:inline-flex;align-items:baseline;gap:6px;margin:0;white-space:nowrap}
+/* on the cards the targets line up down the list (owner, 1 Nov 2026: "looks
+   odd, not aligned properly..it is here and there"): every figure ends on
+   one line and every unit starts on the next, in two fixed columns */
+.vi-task__row .vi-goal{display:grid;grid-template-columns:46px 78px;column-gap:8px}
+.vi-task__row .vi-goal b{text-align:right}
+.vi-task__row .vi-goal small{text-align:left}
 .vi-goal b{font-family:'EB Garamond',Georgia,serif;font-weight:500;font-size:26px;line-height:1}
 .vi-goal small{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .vi-task__icon{position:relative;width:14px;height:14px;justify-self:end;transition:transform .25s}
@@ -270,9 +276,16 @@ main .vi-open h1.pfa-title.pfa-title{margin:0;color:#fff;font-size:clamp(46px,8.
   .vi-intro__acts .btn{flex:1 1 0;padding:0 12px}
   .vi-switch{max-width:none}
   .vi-switch button{padding:12px 14px}
-  .vi-task__row{grid-template-columns:24px minmax(0,1fr) auto 14px;gap:10px;padding:12px 14px;min-height:64px}
+  .vi-task__row{gap:5px 10px;padding:12px 14px;min-height:64px}
   .vi-goal b{font-size:22px}
   .vi-goal small{font-size:10.5px}
+  /* a phone: the title gets the width, and the target sits under it,
+     starting where every other target starts */
+  .vi-task__row{grid-template-columns:24px minmax(0,1fr) 14px;grid-template-rows:auto auto;row-gap:5px;align-items:center}
+  .vi-task__no{grid-column:1;grid-row:1}
+  .vi-task__title{grid-column:2;grid-row:1}
+  .vi-task__row .vi-goal{grid-column:2;grid-row:2;display:flex;gap:6px}
+  .vi-task__icon{grid-column:3;grid-row:1 / span 2}
   .vi-task__more{padding:0 14px 16px 48px}
   .vi-weeks{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:62%;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 8px;border-top:0;scrollbar-width:none}
   .vi-weeks::-webkit-scrollbar{display:none}

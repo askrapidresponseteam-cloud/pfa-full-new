@@ -1,3 +1,7 @@
+## v1.489
+
+- **The task targets line up. Figures in one column, units in the next.** Owner, 1 Nov 2026: "looks odd, not aligned properly..it is here and there". On a wide screen each target on the task cards sits in two fixed columns: the figure ends on one line and the unit starts on the next, so 100, 4 and 1 line up down the list. On a phone the target moves under the task's name and starts where every other target starts, so the name has the width and wraps less. Checked by measuring every card on both lists at 1440 and 360px.
+
 ## v1.488
 
 - **The internship page, redrawn to read in a few screens. Nothing left out.** Owner, 1 Nov 2026: "internship page cannot have too much scroll. but cannot be half baked, think amazing UI UX". Desktop goes from 6,571px to 4,223px and a phone from 6,883px to 4,589px, about a third shorter.

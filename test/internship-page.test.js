@@ -189,3 +189,10 @@ test('no mentors and no weekly sessions are promised, anywhere the intern reads'
   }
   assert.doesNotMatch(read('search-index.json'), /mentors you|your mentor|PFA mentor/i, 'nor in site search');
 });
+
+test('the targets line up down the list, on a wide screen and on a phone', () => {
+  /* owner, 1 Nov 2026: "looks odd, not aligned properly..it is here and there" */
+  assert.match(html, /\.vi-task__row \.vi-goal\{display:grid;grid-template-columns:46px 78px;column-gap:8px\}/, 'figures end on one line, units start on the next');
+  assert.match(html, /\.vi-task__row \.vi-goal b\{text-align:right\}/);
+  assert.match(html, /\.vi-task__row \.vi-goal\{grid-column:2;grid-row:2;display:flex;gap:6px\}/, 'on a phone the target sits under the title, where every target starts');
+});
