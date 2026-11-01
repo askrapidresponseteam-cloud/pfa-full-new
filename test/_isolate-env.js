@@ -19,3 +19,11 @@ for (const key of Object.keys(process.env)) {
    reach for a real IMAP server from any test that sets up the mailbox. Off
    here; test/sent-copy.test.js turns it on with a stand-in mailbox. */
 process.env.PFA_SENT_COPY = 'off';
+
+/* The Monday digest (lib/weekly-digest.js, Monday to Wednesday, India time)
+   and the monthly payments report (lib/finance-report.js, the 1st to the
+   7th) ride along with every email worker run and add one more email to
+   whatever a test counts. Off here so the suite gives the same answer on
+   every day of the year; their own tests call them with a fixed date. */
+process.env.PFA_WEEKLY_DIGEST = 'off';
+process.env.PFA_FINANCE_REPORT = 'off';

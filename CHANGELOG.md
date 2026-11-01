@@ -1,3 +1,17 @@
+## v1.497
+
+- **Tests: the same answer on any day.** Owner, 2 Nov 2026: the v1.496 deploy stopped on six mail tests.
+  - Nothing in the site was broken. It was Monday, and the email worker sends the Monday digest from Monday to Wednesday, India time, as part of every run. The mail tests count every email the worker sends, so the digest showed up as one more. The suite had passed on Sunday.
+  - The worker now has an off switch for the scheduled Monday digest (PFA_WEEKLY_DIGEST=off) and for the monthly payments report (PFA_FINANCE_REPORT=off), which would have done the same from the 1st to the 7th of each month. Only the test suite sets them; the live site sends both as before, and the panel's Send button is untouched.
+  - A test that expected 2026 in a reference number now takes the year the suite runs in, so deploys keep working after 1 January.
+
+## v1.496
+
+- **Internship: your field notes, exactly as you made them.** Owner, 1 Nov 2026: internship-process.html, "this is how the internship page should be".
+  - The dark rounded screen with the PFA Field Notes logo, PFA INTERNSHIP and Apply / Send proof at its top. How the internship works: "Eight weeks. Real work. A kinder town.", the line under it, 8 weeks, 6-8 hours a week, 5 + 3 tasks, Free to join, the four steps (Apply, Follow the weekly plan, Send proof as you go, Earn your certificate), Continue to the tasks, "No experience with animals is needed."
+  - Your eight-week plan: "Five for everyone. Three of your choosing." Lane 01, Mandatory tasks, weeks 1-5, and Lane 02, Optional tasks, weeks 6-7, as your coloured cards with their photographs. A card opens its task in the white reader under its lane, with its photograph, target, steps and Send the proof for this.
+  - Your ten photographs and the logo are files on the site now, not pasted into the page, so it loads fast. Ranges are written with a plain hyphen. Arrows drawn, not typed.
+
 ## v1.495
 
 - **Internship: the process first, then two task lanes.** Owner, 1 Nov 2026: internship-process.html, "process should be explained 1st and then only if clicks continue", "separate lanes for both", "all the cards should open without scroll. each one", "border within the box is fucked up".

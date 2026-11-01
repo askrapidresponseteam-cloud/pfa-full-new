@@ -1283,11 +1283,10 @@
    "doneRef": "start"
   },
   "internship": {
-   "vcTitle": "collection",
-   "vcMand": "collection",
-   "vcOpt": "collection",
-   "vcReader": "collection",
-   "vcRdTitle": "collection",
+   "internship-process": "collection",
+   "task-lanes": "collection",
+   "mandatory-heading": "collection",
+   "optional-heading": "collection",
    "minorBox": "apply",
    "done": "apply",
    "doneRef": "apply",

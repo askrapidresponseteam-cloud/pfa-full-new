@@ -39,11 +39,11 @@ function atTime(t, fn) {
 
 test('C1 a reused reference (queue survived a wipe) still sends the new confirmation and forward; the panel sees it', async () => {
   const first = await submit({ name: 'Old Person', email: 'old@example.com', mobile: '9876500001' });
-  assert.equal(first.json.reference, 'PFA-Q-2026-00001');
+  assert.match(first.json.reference, /^PFA-Q-\d{4}-00001$/);   // the year is whatever year the suite runs in
   for (const k of [...W.db._store.keys()]) if (/^(submissions|counters|submissionIdempotency|rateLimits)\//.test(k)) W.db._store.delete(k);
   W.smtp.sent.length = 0;
   const second = await submit({ name: 'New Person', email: 'new@example.com', mobile: '9876500002', question: 'Can I foster a kitten?' });
-  assert.equal(second.json.reference, 'PFA-Q-2026-00001');
+  assert.equal(second.json.reference, first.json.reference);
   assert.ok(W.smtp.sent.some((m) => m.to === 'new@example.com'), 'confirmation to the new person');
   assert.ok(W.smtp.sent.some((m) => m.to === INBOX), 'forward of the new record');
 });
