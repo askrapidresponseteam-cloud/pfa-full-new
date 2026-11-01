@@ -93,3 +93,8 @@ test('choosing dollars and back keeps the same dog', async () => {
     dom.window.close();
   }
 });
+
+test('on a wide screen the photograph sits straight under the word, on its left edge', () => {
+  /* owner, 1 Nov 2026: "photo should be below donate text. rn it looks odd!" */
+  assert.match(html, /@media \(min-width:861px\)\{\.ring\.dog-scene\{align-items:flex-start;[^}]*\}\.dog-scene figcaption\{text-align:left;margin-top:10px\}\}/);
+});

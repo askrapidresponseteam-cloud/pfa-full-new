@@ -1,3 +1,8 @@
+## v1.487
+
+- **The donate photograph sits straight under the word. Left-aligned, not floating.** Owner, 1 Nov 2026: "photo should be below donate text. rn it looks odd!". On a wide screen the dog now sits on the left edge just under "Donate.", with its line under it. Before, it floated in the middle of the panel. A phone keeps the dog beside the word, so the amounts stay near the top.
+- **Phone check of every screen.** Owner, 1 Nov 2026: "hope every screen is optimised for mobile view as well. perfectly". All 33 pages and their 16 form flows were opened at 360, 390 and 430px. None scrolls sideways or runs off the edge, and no visible text is cut. The proof portal, the application, both donate steps and the new thank-you page were also walked step by step at 360px. Three labels were below the site's 10px phone floor and are lifted to 11px or close to it: the shop's "Add to bag" and "50% off", and the CineKind opening line, which a clamp had set to 9px.
+
 ## v1.486
 
 - **Map your district. Feeding spots found, government vet centres photographed as they are, and no mentors.** Owner, 1 Nov 2026: "this can be locate feeding spots, take photos, of govt vet centers, inside , outside. as is . not staged."
