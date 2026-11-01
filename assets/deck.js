@@ -11,7 +11,9 @@
    internship). Inside it: .deck__stage, .deck__cards > .card, .deck__next,
    .deck__show, .deck__panel with .deck__close and [data-deck-pill],
    [data-deck-title], [data-deck-body], [data-deck-art], and the view switch
-   [data-deck-one], [data-deck-all]. Opening a card fires "deck:open" on the
+   [data-deck-one], [data-deck-all]. data-deck-row keeps the laid-out view
+   to one row; data-deck-start="row" opens that way on a wide screen.
+   Opening a card fires "deck:open" on the
    section, with the card and the panel, for a page that has more to do in
    it (the internship draws its certificate there). */
 (function (root) {
@@ -47,8 +49,14 @@
           c.tabIndex = d === 0 ? 0 : -1;
         });
       } else {
-        var gw = px('--gw'), gap = px('--gap'), s = gw / cw, gh = ch * s;
-        var W = stage.clientWidth, cols = Math.max(2, Math.floor((W + gap) / (gw + gap))), rows = Math.ceil(cards.length / cols);
+        var gw = px('--gw'), gap = px('--gap');
+        var W = stage.clientWidth;
+        /* data-deck-row: every card on one row, made smaller to fit, as long
+           as each stays readable (the internship's tasks, then its process) */
+        var fit = (W - gap * (cards.length - 1)) / cards.length;
+        if (deck.hasAttribute('data-deck-row') && fit >= 150) gw = Math.min(gw, fit);
+        var s = gw / cw, gh = ch * s;
+        var cols = Math.max(2, Math.floor((W + gap) / (gw + gap))), rows = Math.ceil(cards.length / cols);
         var H = rows * gh + (rows - 1) * gap + 40;
         stage.style.height = H + 'px';
         cards.forEach(function (c, k) {
@@ -68,6 +76,11 @@
       if (pBody) pBody.innerHTML = more ? more.innerHTML : '';
       if (pArt) pArt.innerHTML = art ? art.innerHTML : '';
       panel.hidden = false;
+      /* the stage grows to hold the whole card, so nothing in it is cut off
+         or left to scroll inside it (a row of cards is shorter than an open
+         card); a card taller than the screen scrolls with the page */
+      var fit = function () { if (opened === c) stage.style.minHeight = Math.ceil(panel.scrollHeight) + 24 + 'px'; };
+      opened = c; fit(); setTimeout(fit, 120); setTimeout(fit, 500);
       try { deck.dispatchEvent(new CustomEvent('deck:open', { detail: { card: c, panel: panel, index: cards.indexOf(c) } })); } catch (_) { /* old browsers: the panel still opens */ }
       /* a frame later, so the panel's first painted size is the card's and
          the transition has somewhere to go from */
@@ -77,7 +90,7 @@
       if (!opened) return;
       deck.classList.remove('is-open');
       var was = opened; opened = null;
-      setTimeout(function () { if (!opened) panel.hidden = true; }, 450);
+      setTimeout(function () { if (!opened) { panel.hidden = true; stage.style.minHeight = ''; } }, 450);
       was.focus({ preventScroll: true });
     }
     function view(all) {
@@ -109,7 +122,9 @@
     });
     var t = null;
     root.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(layout, 120); });
-    layout();
+    /* data-deck-start="row": opens laid out, on a screen wide enough for
+       the row; a phone keeps the one-card stack */
+    if (deck.getAttribute('data-deck-start') === 'row' && stage.clientWidth >= 760) view(true); else layout();
     return { show: show, open: function (k) { show(k); open(cards[i]); }, close: close, view: view };
   }
 

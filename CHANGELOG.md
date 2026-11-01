@@ -1,3 +1,12 @@
+## v1.494
+
+- **Internship: the tasks in one row, how it works in another.** Owner, 1 Nov 2026: "dont mix up the tasks and the rules/process in 1 section.. let tasks be in 1 row and the process/rules in another".
+  - **The tasks** (Five core, three electives): Learn the law, Map your town or district, Bring your town onto the RRT, Find a lawyer, A film for The Wall, Choose three of seven.
+  - **How it works** (From applying to the certificate): Start here, How the eight weeks go, A certificate, earned, Apply in four steps.
+  - On a computer each opens laid out as a single row, the cards made smaller to fit when needed; on a phone each keeps the one-card stack. The two rows sit one after the other with no empty band between them (assets/deck.js: data-deck-row, data-deck-start).
+- **An open card is never cut short.** The deck's stage now grows to hold the whole open card, on the internship and the Academy alike; a card taller than the screen scrolls with the page, not inside itself. Every card on both pages checked at 1440 and 390px.
+- **The RRT task links to the RRT.** Owner: "have the hyperlink to the website , app download section". rapid-response.in in the text is a link, and the card has The website, Get it on Google Play and Download on the App Store.
+
 ## v1.493
 
 - **No blank space under the home hero. It fills the first screen, her photograph whole and unmasked.** Owner, 1 Nov 2026: "how could there be so much blank space", then "no one's head or body part can be clipped or masked".

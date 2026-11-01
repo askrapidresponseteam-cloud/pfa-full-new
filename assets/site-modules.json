@@ -340,7 +340,11 @@
     },
     {
      "id": "cards",
-     "label": "One card at a time."
+     "label": "Five core, three electives."
+    },
+    {
+     "id": "how",
+     "label": "From applying to the certificate."
     },
     {
      "id": "apply",

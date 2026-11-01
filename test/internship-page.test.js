@@ -40,18 +40,31 @@ test('in the site theme: the shared header, footer, microsite kit and editorial 
   assert.match(read('assets/chrome-footer.html'), /<li><a href="internship\.html">Remote internship<\/a><\/li>/);
 });
 
-const cardsOf = () => [...doc.querySelectorAll('#cards .deck__cards > button.card')];
+/* the tasks in one row, how it works in another (owner, 1 Nov 2026: "dont
+   mix up the tasks and the rules/process in 1 section.. let tasks be in 1
+   row and the process/rules in another") */
+const tasksOf = () => [...doc.querySelectorAll('#cards .deck__cards > button.card')];
+const howOf = () => [...doc.querySelectorAll('#how .deck__cards > button.card')];
+const cardsOf = () => tasksOf().concat(howOf());
 const cardTitled = (t) => cardsOf().find((c) => c.getAttribute('data-title') === t);
 
-test('one card at a time, as the Academy: ten cards, nothing shown all at once', () => {
+test('the tasks in one row, how it works in another; one card opens at a time, as the Academy', () => {
   /* owner, 1 Nov 2026: "the modules should be card like in academy.. dont
      show everything at once and overwhelm peep" */
-  const cards = cardsOf();
-  assert.deepEqual(cards.map((c) => c.getAttribute('data-title')), [
-    'Eight weeks for the animals of your town',
-    'Learn the law', 'Map your town or district', 'Bring your town onto the RRT', 'Find a lawyer', 'A film for The Wall',
-    'Choose three of seven', 'How the eight weeks go', 'A certificate, earned', 'Apply in four steps'
+  assert.deepEqual(tasksOf().map((c) => c.getAttribute('data-title')), [
+    'Learn the law', 'Map your town or district', 'Bring your town onto the RRT', 'Find a lawyer', 'A film for The Wall', 'Choose three of seven'
   ]);
+  assert.deepEqual(howOf().map((c) => c.getAttribute('data-title')), [
+    'Eight weeks for the animals of your town', 'How the eight weeks go', 'A certificate, earned', 'Apply in four steps'
+  ]);
+  for (const id of ['cards', 'how']) {
+    const d = doc.querySelector(`section.deck#${id}`);
+    assert.ok(d.hasAttribute('data-deck-row') && d.getAttribute('data-deck-start') === 'row', `${id}: one row, laid out on a wide screen`);
+  }
+  assert.match(read('assets/deck.js'), /if \(deck\.hasAttribute\('data-deck-row'\) && fit >= 150\) gw = Math\.min\(gw, fit\);/);
+  assert.match(read('assets/deck.js'), /data-deck-start'\) === 'row' && stage\.clientWidth >= 760\) view\(true\)/, 'a phone keeps the stack');
+  assert.match(html, /\.vi-deck\.is-grid \.deck__stage\{min-height:0\}/, 'no empty band under a row');
+  const cards = cardsOf();
   for (const c of cards) {
     assert.ok(c.querySelector(':scope > .card__pill') && c.querySelector(':scope > .card__t') && c.querySelector(':scope > .card__art img[src^="media/internship/"]'), 'a pill, a title and a photograph on the face (owner, 1 Nov 2026)');
     assert.ok(c.querySelector(':scope > .card__more[hidden]'), 'the rest only when the card is opened');
@@ -61,10 +74,10 @@ test('one card at a time, as the Academy: ten cards, nothing shown all at once',
   assert.match(html, /<script src="assets\/deck\.js"><\/script>/);
   assert.match(read('academy.html'), /<script src="assets\/deck\.js"><\/script>/, 'one deck for both pages');
   for (const bit of ['.deck__next', '.deck__show', '.deck__panel[hidden] .deck__close', '[data-deck-pill]', '[data-deck-title]', '[data-deck-body]', '[data-deck-one]', '[data-deck-all]']) {
-    assert.ok(doc.querySelector(`#cards ${bit}`), bit);
+    assert.ok(doc.querySelector(`#cards ${bit}`) && doc.querySelector(`#how ${bit}`), bit);
   }
   /* what is left on the page: the opening, the cards, the questions (and the two forms, closed until asked) */
-  assert.deepEqual([...doc.querySelectorAll('main > section')].map((x) => x.id), ['top', 'cards', 'apply', 'proof', 'more']);
+  assert.deepEqual([...doc.querySelectorAll('main > section')].map((x) => x.id), ['top', 'cards', 'how', 'apply', 'proof', 'more']);
   assert.ok(doc.querySelector('#apply[data-flow]') && doc.querySelector('#proof[data-flow]'), 'the forms open only when asked');
 });
 
@@ -72,10 +85,17 @@ test('five core tasks in the order of the weeks, seven electives, each with its 
   /* owner: "Week 1, animal welfare laws; Week 2, map the district's animal
      welfare resources; Week 3, promote RRT through rapid-response.in,
      targeting 50 people per intern, rather than 100" */
-  const core = cardsOf().slice(1, 6);
+  const core = tasksOf().slice(0, 5);
   assert.deepEqual(core.map((c) => c.getAttribute('data-pill')), ['Core 01 · Week 1', 'Core 02 · Week 2', 'Core 03 · Week 3', 'Core 04 · Week 4', 'Core 05 · Week 5']);
   assert.deepEqual(core.map((c) => c.querySelector('.card__goal').textContent), ['4 laws', '1 district', '50 people', '1 lawyer', '1 film']);
   const rrt = cardTitled('Bring your town onto the RRT');
+  /* owner, 1 Nov 2026: "have the hyperlink to the website , app download section" */
+  assert.deepEqual([...rrt.querySelectorAll('.card__more .vi-links a')].map((a) => a.getAttribute('href')), [
+    'https://rapid-response.in', 'https://play.google.com/store/apps/details?id=com.rrt.sos', 'https://apps.apple.com/in/app/rapid-response/id6758672498'
+  ]);
+  assert.ok(rrt.querySelector('.card__more p a[href="https://rapid-response.in"]'), 'rapid-response.in in the words is a link too');
+  /* an open card is never cut short: the stage grows to hold it */
+  assert.match(read('assets/deck.js'), /stage\.style\.minHeight = Math\.ceil\(panel\.scrollHeight\) \+ 24 \+ 'px'/);
   assert.match(rrt.querySelector('.card__more').textContent, /rapid-response\.in/);
   assert.match(rrt.querySelector('.card__more').textContent, /a click or a visit to the store is not a join/);
   for (const c of core) {
@@ -121,7 +141,7 @@ test('the portal: proof of one task at a time, under the application number, fil
   for (const id of ['pfRef', 'pfName', 'pfEmail', 'pfTask', 'pfWhat', 'pfLinks']) assert.ok(form.querySelector(`#${id}[required]`), id);
   assert.ok(form.querySelector('#pfOwn[data-confirm]'), 'their own work, and real');
   const options = [...form.querySelectorAll('#pfTask option')].map((o) => o.textContent).filter((t) => t !== 'Choose the task');
-  const tasks = cardsOf().slice(1, 6).map((c) => c.getAttribute('data-title')).concat([...doc.querySelectorAll('.vi-el__t')].map((t) => t.textContent));
+  const tasks = tasksOf().slice(0, 5).map((c) => c.getAttribute('data-title')).concat([...doc.querySelectorAll('.vi-el__t')].map((t) => t.textContent));
   assert.deepEqual(options, tasks, 'every task, in the order of the cards');
   assert.match(html, /kind: 'PFA-VP',\s*page: 'internship\.html'/);
   assert.match(html, /var REF = \/\^PFA-VI-\\d\{4\}-\\d\{5,\}\$\//);
@@ -141,7 +161,7 @@ test('the photographs are on the site, shown whole at their own shapes', () => {
   /* the opening, and one on each of the ten cards (owner, 1 Nov 2026) */
   assert.equal(doc.querySelectorAll('main img').length, 11, 'the opening and the ten cards');
   /* each card photograph says its true size, so it is never drawn stretched */
-  for (const img of doc.querySelectorAll('#cards .card__art img')) {
+  for (const img of doc.querySelectorAll('section.deck .card__art img')) {
     const src = img.getAttribute('src');
     const b = fs.readFileSync(path.join(ROOT, src));
     const kind = b.toString('ascii', 12, 16);
