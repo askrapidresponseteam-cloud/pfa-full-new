@@ -1,171 +1,158 @@
 #!/usr/bin/env python3
-"""Every shop photograph on one canvas shape, nothing of it cut.
+"""Every shop photograph on one canvas shape, untouched and whole.
 
 Owner, 30 Oct 2026: "photos render differently in each tile looks diff and
-odd. make it uniform and supreme". And, standing since 26 Oct 2026: "no
-person's head or any part can be clipped anywhere".
+odd. make it uniform and supreme". Owner, 1 Nov 2026: "the shop/merchandise
+photos are distorted and messed. fix it professionally" and "no part of the
+photo can be clipped or messed with".
 
-The photographs came from many shoots: 4:5, 3:5, 2:3 and as tall as 9:20,
-each on its own backdrop. Shown whole in one frame, each left a different
-band of flat ground around it. So each photograph is widened (or heightened)
-to 2:3 by carrying its own backdrop out to the new edges: every row (or
-column) of the new margin takes the colour of the photograph's own edge
-beside it, softened along the edge and given the photograph's grain, so it
-reads as more of the same backdrop. The person is never moved, scaled or
-cut; the canvas around them grows. More of the margin goes to the side whose
-edge is plain backdrop, so a shoe or an elbow at the other edge is not drawn
-out.
+The photographs came from many shoots, in shapes from 3:2 to 9:20. The
+earlier frames (v3) widened each to 2:3 by smearing its edge pixels outwards,
+which showed as streaks beside arms, jeans and T-shirts. Now each original is
+placed whole, at its own size and shape, in the middle of a 2:3 canvas, and
+the canvas around it is the same photograph blurred and softened: the tile is
+filled edge to edge in the photograph's own colours, and the photograph
+itself is not stretched, cut, smeared or retouched.
 
-Writes media/shop/v3/<same name>.webp; the originals stay as they were.
+Reads the originals (media/shop/v2/<name> or media/shop/<name>) and writes
+media/shop/v4/<same name>.webp.
 Run: python3 scripts/shop-frames.py
 """
 import os
 import re
-import sys
 
-import cv2
 import numpy as np
+from PIL import Image, ImageFilter
+from scipy.ndimage import gaussian_filter1d
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RATIO = 2 / 3          # width / height of every shop photograph
-EDGE = 10              # pixels of the photograph's edge a margin is read from
-JOIN = 4               # pixels either side of a join that are softened
-OUT = os.path.join(ROOT, 'media', 'shop', 'v3')
+OUT = os.path.join(ROOT, 'media', 'shop', 'v4')
 
 
-def plainness(strip):
-    """How much an edge strip varies along its length: low is plain backdrop."""
-    flat = strip.reshape(-1, strip.shape[-1]).astype(np.float32)
-    return float(np.mean(np.std(flat, axis=0)))
+def original(name):
+    for d in (os.path.join(ROOT, 'media', 'shop', 'v2'), os.path.join(ROOT, 'media', 'shop')):
+        p = os.path.join(d, name)
+        if os.path.exists(p):
+            return p
+    raise SystemExit(f'no original for {name}')
 
 
-BUSY = 14.0           # an edge varying more than this is not plain backdrop
+def unframed(im):
+    """Takes off a thin frame line some shoots left on an edge: up to 6
+    pixels of near-uniform colour clearly unlike the photograph just inside
+    it. Nothing of the picture itself is removed."""
+    a = np.asarray(im).astype(np.float32)
+    h, w = a.shape[:2]
+    cut = {'l': 0, 'r': 0, 't': 0, 'b': 0}
+    def line(side, k):
+        return {'l': a[:, k], 'r': a[:, w - 1 - k], 't': a[k], 'b': a[h - 1 - k]}[side]
+    for side in cut:
+        inner = line(side, 10).mean(axis=0)
+        k = 0
+        while k < 6:
+            px = line(side, k)
+            if float(np.abs(px.mean(axis=0) - inner).max()) > 28 and float(px.std(axis=0).max()) < 40:
+                k += 1
+            else:
+                break
+        cut[side] = k
+    return im.crop((cut['l'], cut['t'], w - cut['r'], h - cut['b'])), cut
 
 
-def split(a_strip, b_strip, total):
-    """Share `total` pixels of margin between two sides. An edge that is the
-    person (legs cut by the shot, an arm) gets none if the other is plain
-    backdrop; otherwise the plainer side gets more."""
-    a, b = plainness(a_strip), plainness(b_strip)
-    if a >= BUSY > b:
-        return 0, total
-    if b >= BUSY > a:
-        return total, 0
-    a, b = a + 1.0, b + 1.0
-    share = (1 / a) / ((1 / a) + (1 / b))
-    share = min(0.85, max(0.15, share))
-    first = int(round(total * share))
-    return first, total - first
-
-
-def band(strip, depth, outward):
-    """`depth` columns of backdrop beside an edge strip (length x EDGE x 3).
-
-    Right at the join each row is the photograph's own edge colour, so
-    nothing jumps; moving out it eases into the backdrop's trend down the
-    edge, read with a long median that ignores an arm or a pocket touching
-    the edge, so those fade out instead of being drawn out as streaks.
-    `outward` is +1 when the margin grows away from column 0 of the strip."""
-    if depth <= 0:
-        return np.zeros((strip.shape[0], 0, 3), np.float32)
-    length = strip.shape[0]
-    edge_col = strip[:, 0] if outward < 0 else strip[:, -1]
-    exact = cv2.GaussianBlur(edge_col.astype(np.float32)[:, None, :], (1, 0), sigmaX=0.1, sigmaY=2)[:, 0]
-    row = np.median(strip, axis=1).astype(np.uint8)[:, None, :]
-    # the backdrop's own trend down the edge: a median over two fifths of
-    # the length (read at a tenth of the size), so even a long run of arm or
-    # trouser at the edge is read past
-    small = cv2.resize(row, (1, max(8, length // 10)), interpolation=cv2.INTER_AREA)
-    k = max(5, (int(small.shape[0] * 0.4)) | 1)
-    trend = cv2.medianBlur(small, min(k, 255)) if k <= 255 else small
-    trend = cv2.resize(trend, (1, length), interpolation=cv2.INTER_LINEAR).astype(np.float32)
-    trend = cv2.GaussianBlur(trend, (1, 0), sigmaX=0.1, sigmaY=max(6.0, length / 30))[:, 0]
-    fade = min(depth, max(24, length // 30))
-    d = np.arange(depth, dtype=np.float32)            # distance from the join
-    t = np.clip(d / fade, 0, 1)
-    t = t * t * (3 - 2 * t)                            # smoothstep
-    out = exact[:, None, :] * (1 - t)[None, :, None] + trend[:, None, :] * t[None, :, None]
-    return out if outward > 0 else out[:, ::-1]
-
-
-def trim(img):
-    """A thin frame line (up to 6 pixels) a shoot left on an edge is not the
-    photograph and would be drawn out as a stripe: it is taken off."""
-    def lines(view):
-        inner = view[:, 8:16].reshape(-1, 3).astype(np.float32).mean(axis=0)
-        n = 0
-        for i in range(6):
-            if np.abs(view[:, i].astype(np.float32).mean(axis=0) - inner).max() > 18:
-                n = i + 1
-        return n
-    h, w = img.shape[:2]
-    left, right = lines(img), lines(img[:, ::-1])
-    top, bottom = lines(img.transpose(1, 0, 2)), lines(img.transpose(1, 0, 2)[:, ::-1])
-    return img[top:h - bottom, left:w - right]
-
-
-def grain_like(img, shape, seed):
-    noise = img.astype(np.float32) - cv2.GaussianBlur(img.astype(np.float32), (0, 0), 1.2)
-    level = float(np.std(noise)) * 0.6
-    return np.random.default_rng(seed).normal(0, level, shape).astype(np.float32)
-
-
-def frame(img):
-    """The photograph on a 2:3 canvas, its own pixels exactly as shot apart
-    from JOIN pixels at each join."""
-    img = trim(img)
-    h, w = img.shape[:2]
-    if abs(w / h - RATIO) < 0.004 or w > h:
-        # a side-by-side picture (front and back in one) is left as it is
-        return img
-    tall = w / h < RATIO
-    # work as if the margin goes left and right; a wide photograph is turned
-    src = img if tall else img.transpose(1, 0, 2)
-    H, W = src.shape[:2]
-    depth = int(round(H * RATIO)) - W if tall else int(round(H / RATIO)) - W
-    if tall:
-        a, b = split(src[:, :EDGE], src[:, -EDGE:], depth)
+def frame(src):
+    im, _ = unframed(Image.open(src).convert('RGB'))
+    w, h = im.size
+    if w > h:
+        return im      # a front-and-back picture side by side: left as shot
+    if w / h <= RATIO:
+        cw, ch = round(h * RATIO), h
     else:
-        # a photograph wider than 2:3 is given head room only: its foot is
-        # where the shot cut the legs or the floor, and is never drawn out
-        a, b = depth, 0
-    left = band(src[:, :EDGE], a, -1)
-    right = band(src[:, -EDGE:], b, +1)
-    out = np.concatenate([left, src.astype(np.float32), right], axis=1)
-    margin = np.ones(out.shape[:2], np.float32)
-    margin[:, a:a + W] = 0
-    out += grain_like(src, out.shape, 7) * margin[..., None]
-    # soften the two joins only
-    soft = cv2.GaussianBlur(out, (0, 0), 2.5)
-    mask = np.zeros(out.shape[:2], np.float32)
-    for x in (a, a + W):
-        mask[:, max(0, x - JOIN):x + JOIN] = 1
-    out = out * (1 - mask[..., None]) + soft * mask[..., None]
-    # the photograph itself, exactly as shot, inside the joins
-    out[:, a + JOIN:a + W - JOIN] = src[:, JOIN:W - JOIN]
-    out = np.clip(out, 0, 255).astype(np.uint8)
-    return out if tall else out.transpose(1, 0, 2).copy()
+        cw, ch = w, round(w / RATIO)
+    # room goes beside a person, or above them; never below their feet
+    x0, y0 = (cw - w) // 2, ch - h
+    a = np.asarray(im).astype(np.float32)
+    out = np.zeros((ch, cw, 3), np.float32)
+    ys, xs = np.mgrid[0:ch, 0:cw]
+    band = max(6, round(min(w, h) * 0.012))
+
+    # The margin is more of the backdrop: the colour of the photograph's own
+    # edge, taken from a thin band and smoothed broadly ALONG the edge, so a
+    # shoulder or a head that touches the edge does not draw out into it, and
+    # easing with distance into that edge's overall tone. Nothing of the
+    # photograph is copied, blurred or stretched into it.
+    # The backdrop's own tone: the photograph's top edge, which is backdrop
+    # in every shoot here (the sides can be a sleeve or a T-shirt)
+    top_band = a[:band].reshape(-1, 3)
+    tone = np.median(top_band, axis=0)
+    # how far the backdrop itself drifts from that tone (a vignette, a
+    # gradient), so an edge in the backdrop's own shading still counts as it
+    drift = float(np.percentile(np.abs(top_band - tone).max(axis=1), 70))
+    limit = max(34.0, drift * 1.6)
+
+    def backdrop(strip, outer):
+        """An edge's colours (the band, and its outermost pixels) with
+        whatever is not backdrop (a T-shirt, an arm, an inset picture touching
+        it) left out and filled across from the backdrop either side; None
+        when the edge is mostly not backdrop."""
+        off = np.maximum(np.abs(strip - tone).max(axis=1), np.abs(outer - tone).max(axis=1))
+        keep = off <= limit
+        if keep.mean() < 0.45:
+            return None
+        i = np.arange(len(strip))
+        mend = lambda v: np.stack([np.interp(i, i[keep], v[keep, c]) for c in range(3)], axis=1)
+        return mend(strip), mend(outer)
+
+    def fill(pair, along, length, sigma, dist, reach):
+        # at the join, the photograph's outermost pixels (so there is no
+        # line); a little further out, its edge smoothed; furthest, its mean
+        profile, outer = pair
+        raw = gaussian_filter1d(outer, 1.5, axis=0, mode='nearest')
+        col = gaussian_filter1d(profile, sigma, axis=0, mode='nearest')
+        idx = np.clip(along, 0, length - 1)
+        d = np.clip(dist, 0, None)
+        near = np.exp(-d / max(4.0, reach * 0.12))[..., None]
+        wgt = np.exp(-d / reach)[..., None]
+        edge = near * raw[idx] + (1 - near) * col[idx]
+        return wgt * edge + (1 - wgt) * col.mean(axis=0)
+
+    if x0 > 0:
+        sig = 0.10 * h
+        reach = max(8.0, x0 * 1.5)
+        lp = backdrop(a[:, :band].mean(axis=1), a[:, :2].mean(axis=1))
+        rp = backdrop(a[:, -band:].mean(axis=1), a[:, -2:].mean(axis=1))
+        flat = (np.tile(tone, (h, 1)), np.tile(tone, (h, 1)))
+        lp = lp if lp is not None else (rp if rp is not None else flat)
+        rp = rp if rp is not None else lp
+        left = fill(lp, ys - y0, h, sig, (x0 - xs).astype(np.float32), reach)
+        right = fill(rp, ys - y0, h, sig, (xs - (x0 + w - 1)).astype(np.float32), reach)
+        out[xs < x0] = left[xs < x0]
+        out[xs >= x0 + w] = right[xs >= x0 + w]
+    if y0 > 0:
+        sig = 0.18 * w
+        reach = max(8.0, y0 * 1.2)
+        tp = backdrop(a[:band].mean(axis=0), a[:2].mean(axis=0))
+        tp = tp if tp is not None else (np.tile(tone, (w, 1)), np.tile(tone, (w, 1)))
+        top = fill(tp, xs - x0, w, sig, (y0 - ys).astype(np.float32), reach)
+        m = ys < y0
+        out[m] = top[m]
+
+    # the photograph's grain, so the margin does not read as flat paint
+    grain = float(np.clip(np.std(a[:, :band] - gaussian_filter1d(a[:, :band], 2, axis=0)), 0.8, 3.5))
+    rng = np.random.default_rng(7)
+    out = out + rng.normal(0, grain, out.shape[:2])[..., None]
+    out[y0:y0 + h, x0:x0 + w] = a          # the photograph itself, exactly as shot
+    return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
 
 
 def main():
-    html = open(os.path.join(ROOT, 'shop.html'), encoding='utf8').read()
-    # the page names the framed copies; each is made from its original, in
-    # media/shop/v2/ for the 2025 shoots and media/shop/ for the older ones
-    names = []
-    for base in sorted(set(re.findall(r'media/shop/v3/([\w.-]+\.webp)', html))):
-        v2 = os.path.join('media', 'shop', 'v2', base)
-        names.append(v2 if os.path.exists(os.path.join(ROOT, v2)) else os.path.join('media', 'shop', base))
+    html = open(os.path.join(ROOT, 'shop.html'), encoding='utf-8').read()
+    names = sorted(set(re.findall(r'media/shop/v[34]/([\w.-]+\.webp)', html)))
     os.makedirs(OUT, exist_ok=True)
-    for rel in names:
-        img = cv2.imread(os.path.join(ROOT, rel), cv2.IMREAD_COLOR)
-        if img is None:
-            print(f'cannot read {rel}', file=sys.stderr)
-            return 1
-        out = frame(img)
-        cv2.imwrite(os.path.join(OUT, os.path.basename(rel)), out, [cv2.IMWRITE_WEBP_QUALITY, 86])
-        print(f'{rel}  {img.shape[1]}x{img.shape[0]} -> {out.shape[1]}x{out.shape[0]}')
-    return 0
+    for name in names:
+        frame(original(name)).save(os.path.join(OUT, name), 'WEBP', quality=84, method=6)
+        print(name)
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()

@@ -53,7 +53,7 @@ test('one card at a time, as the Academy: ten cards, nothing shown all at once',
     'Choose three of seven', 'How the eight weeks go', 'A certificate, earned', 'Apply in four steps'
   ]);
   for (const c of cards) {
-    assert.ok(c.querySelector(':scope > .card__pill') && c.querySelector(':scope > .card__t') && c.querySelector(':scope > .card__art svg'), 'a pill, a title and a drawing on the face');
+    assert.ok(c.querySelector(':scope > .card__pill') && c.querySelector(':scope > .card__t') && c.querySelector(':scope > .card__art img[src^="media/internship/"]'), 'a pill, a title and a photograph on the face (owner, 1 Nov 2026)');
     assert.ok(c.querySelector(':scope > .card__more[hidden]'), 'the rest only when the card is opened');
   }
   /* the Academy's own deck, shared */
@@ -138,7 +138,22 @@ test('the photographs are on the site, shown whole at their own shapes', () => {
     assert.ok(fs.existsSync(path.join(ROOT, src)), src);
     assert.ok(img.getAttribute('alt'), `${src} has words for a screen reader`);
   }
-  assert.equal(doc.querySelectorAll('main img').length, 1, 'one photograph, the opening');
+  /* the opening, and one on each of the ten cards (owner, 1 Nov 2026) */
+  assert.equal(doc.querySelectorAll('main img').length, 11, 'the opening and the ten cards');
+  /* each card photograph says its true size, so it is never drawn stretched */
+  for (const img of doc.querySelectorAll('#cards .card__art img')) {
+    const src = img.getAttribute('src');
+    const b = fs.readFileSync(path.join(ROOT, src));
+    const kind = b.toString('ascii', 12, 16);
+    const size = kind === 'VP8X' ? [1 + b.readUIntLE(24, 3), 1 + b.readUIntLE(27, 3)]
+      : kind === 'VP8 ' ? [b.readUInt16LE(26) & 0x3fff, b.readUInt16LE(28) & 0x3fff]
+        : [(b.readUInt32LE(21) & 0x3fff) + 1, ((b.readUInt32LE(21) >> 14) & 0x3fff) + 1];
+    assert.deepEqual([Number(img.getAttribute('width')), Number(img.getAttribute('height'))], size, `${src} states its own size`);
+  }
+  /* "no part of the photo can be clipped or messed with": whole, never zoomed */
+  const finish = html.slice(html.indexOf('<style id="internship-photographic-finish">'));
+  assert.match(finish, /\.vi-deck \.card__art img\{[^}]*object-fit:contain/);
+  assert.doesNotMatch(finish.slice(0, finish.indexOf('</style>')), /object-fit:cover|scale\(/);
 });
 
 test('the certificate in its blue, with the reader\'s name, marked SAMPLE', () => {

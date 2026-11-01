@@ -1,3 +1,22 @@
+## v1.493
+
+- **No blank space under the home hero. It fills the first screen, her photograph whole and unmasked.** Owner, 1 Nov 2026: "how could there be so much blank space", then "no one's head or body part can be clipped or masked".
+  - **Why there was a gap:** v1.492 capped the hero at 760px. The shared guard that keeps a second photograph out of the first screen then pushed the founder band down with empty space.
+  - **Now:** on wide screens the hero is the height of the screen under the bar. The photograph sits on its floor at the size the words leave room for, and the space beside or above it is painted in the photograph's own edge colours, matched within two shades, so there is no line. The old fade on its left edge is gone: nothing of it is masked. Checked from 1024 to 2560px wide and on phones: whole, no gap, nothing scrolls sideways.
+- **The shop's photographs, as shot. No smears.** Owner: "the shop/merchandise photos are distorted and messed. fix it professionally".
+  - **What was wrong:** the v3 copies were widened to 2:3 by drawing each photograph's edge pixels outwards, which left streaks beside arms, T-shirts and jeans.
+  - **Now (media/shop/v4, scripts/shop-frames.py):** each original is placed whole, pixel for pixel, in a 2:3 canvas. Room goes beside a person or above them, never below their feet. The margin carries only the backdrop's own tone, taken from its top edge and smoothed along each side, so a sleeve or an inset picture touching the edge never draws out. Thin frame lines a few shoots left on an edge are taken off. Front-and-back pictures side by side stay as shot. The v3 copies are removed.
+- **Internship cards with photographs, as the owner sent them, each shown whole.** internship.html's ten cards carry the owner's photographs, now as files (media/internship, about 1 MB instead of 2.3 MB inside the page), each with its true size, never cropped or zoomed. The cards keep the owner's finish: border, shadow, the photograph under the title.
+- **"What is the RRT?" reads as one line.** A short form inside a flex row (a question in a + list) was split into separate pieces and spread across the line; it is now kept as one run of text. Checked on every page: none left.
+
+## v1.492
+
+- **The home page, tighter. The owner's spacing, as sent.** Owner, 1 Nov 2026: index.html with a new spacing block (pfa-space-refinement). Layout only; palette, type, photographs and buttons unchanged.
+  - **Wide screens:** the hero is at most 760px tall, the headline starts higher, and the gaps between headline, words and buttons are smaller. The photograph stays whole beside the words.
+  - **Founder band:** a little shorter (at most 760px, never narrower than the shape that keeps her and the dog whole), with tighter gaps under the quote.
+  - **Phones:** less padding in the hero and the founder band; at 420px and under, Enter PFA and Find a unit sit side by side at equal width, and the founder's button wraps rather than running off.
+  - Checked at 1280, 1440, 1920, 390 and 360px: nothing clipped, nothing scrolls sideways.
+
 ## v1.491
 
 - **The internship portal. Intern IDs, a key shown once, the weekly plan, proof, review and RRT counts.** Owner, 1 Nov 2026: "Build a neat, state-of-the-art PFA internship portal with a dynamic weekly plan, intern dashboard, and admin evaluation panel. No OTP, paid authentication, paid attribution services, or additional cost".

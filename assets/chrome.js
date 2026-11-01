@@ -1594,7 +1594,20 @@
         last = at + m[2].length;
       }
       if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
-      node.parentNode.replaceChild(frag, node);
+      /* A text that is itself a flex or grid item (a question in a + list,
+         a button's label) would become several items once split, and the
+         container would spread them across the line ("What is the  RRT  ?").
+         So the pieces are kept together in one inline run. */
+      var parent = node.parentNode;
+      var shown = parent.nodeType === 1 ? (getComputedStyle(parent).display || '') : '';
+      if (/flex|grid/.test(shown)) {
+        var run = document.createElement('span');
+        run.className = 'pfa-abbr-run';
+        run.appendChild(frag);
+        parent.replaceChild(run, node);
+      } else {
+        parent.replaceChild(frag, node);
+      }
     });
   }
 

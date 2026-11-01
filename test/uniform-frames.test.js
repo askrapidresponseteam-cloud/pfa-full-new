@@ -3,6 +3,11 @@
      uniform and supreme": every shop photograph is a 2:3 canvas
      (scripts/shop-frames.py), the shape of the tiles, so each tile is filled
      edge to edge by its photograph, which is still whole.
+   Owner, 1 Nov 2026: "the shop/merchandise photos are distorted and messed.
+   fix it professionally" and "no part of the photo can be clipped or messed
+   with": the v3 canvases smeared each photograph's edge pixels outwards. The
+   v4 canvases place the original untouched and carry only the backdrop's
+   own tone into the margin.
    - "the 2nd photo in crawling inside the landing view.. can never let such
      a thing happen on mobile or anywhere else": the home hero fills the
      first screen on a phone and a tablet, and assets/chrome.js keeps a
@@ -32,7 +37,7 @@ test('every shop photograph is a framed 2:3 copy, and the tiles are 2:3', () => 
   const html = read('shop.html');
   const all = [...new Set(html.match(/media\/shop\/[\w./-]+\.webp/g))];
   assert.ok(all.length >= 40, 'the shop names its photographs');
-  const outside = all.filter((p) => !p.startsWith('media/shop/v3/'));
+  const outside = all.filter((p) => !p.startsWith('media/shop/v4/'));
   assert.deepEqual(outside, [], 'the page uses the framed copies only');
   for (const rel of all) {
     const { w, h } = webpSize(path.join(ROOT, rel));
@@ -42,6 +47,13 @@ test('every shop photograph is a framed 2:3 copy, and the tiles are 2:3', () => 
   assert.match(html, /\.item__media,\.feature__pics button,\.line__pic\{aspect-ratio:2\/3\}/);
   assert.match(html, /object-fit:contain/, 'still never cropped');
   assert.ok(fs.existsSync(path.join(ROOT, 'scripts', 'shop-frames.py')), 'the frames can be made again');
+  assert.ok(!fs.existsSync(path.join(ROOT, 'media', 'shop', 'v3')), 'the smeared copies are gone');
+  /* the original is inside each canvas, pixel for pixel (allowing for WebP):
+     the photograph is never stretched, cropped or retouched */
+  const script = read('scripts/shop-frames.py');
+  assert.match(script, /out\[y0:y0 \+ h, x0:x0 \+ w\] = a {10}# the photograph itself, exactly as shot/);
+  assert.match(script, /if w > h:\n {8}return im {6}# a front-and-back picture side by side: left as shot/);
+  assert.match(script, /x0, y0 = \(cw - w\) \/\/ 2, ch - h/, 'room beside a person or above them, never below the feet');
 });
 
 test('the home hero fills the first screen on a phone and a tablet', () => {
