@@ -43,29 +43,42 @@ test('in the site theme: the shared header, footer, microsite kit and editorial 
 test('five core tasks and seven electives, each with a target and its detail under a plus; eight weeks', () => {
   /* owner, 31 Oct 2026: "say 5 mandatory activities, 3 optional. like in
      engineering degree" */
-  const core = [...doc.querySelectorAll('#viCore > li.m-card')];
-  const elect = [...doc.querySelectorAll('#viElect > li.m-card')];
+  const core = [...doc.querySelectorAll('#viCore > li.vi-task')];
+  const elect = [...doc.querySelectorAll('#viElect > li.vi-task')];
   assert.equal(core.length, 5);
   assert.equal(elect.length, 7);
   assert.match(doc.querySelector('#tasks h2').textContent, /Five core tasks\. Three you choose\./);
   assert.match(doc.querySelector('#viElect').closest('.vi-group').querySelector('.vi-group__head').textContent, /Choose three of these seven/);
   const tasks = core.concat(elect);
   for (const t of tasks) {
-    assert.ok(t.querySelector('.vi-goal b') && t.querySelector('.vi-goal small'), 'a target and its unit');
-    assert.ok(t.querySelector('details.vi-how > summary'), 'how it works, under a plus');
+    const row = t.querySelector(':scope > button.vi-task__row[aria-expanded="false"]');
+    assert.ok(row, 'each task a card that opens');
+    assert.ok(row.querySelector('.vi-goal b') && row.querySelector('.vi-goal small'), 'a target and its unit, on the card');
+    const more = t.querySelector(`:scope > .vi-task__more#${row.getAttribute('aria-controls')}`);
+    assert.ok(more && more.querySelector('p') && more.querySelectorAll('ul > li').length >= 3, 'what it is and how it works, when opened');
   }
-  assert.deepEqual(tasks.map((t) => t.querySelector('.m-card__no').textContent), ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']);
+  assert.deepEqual(tasks.map((t) => t.querySelector('.vi-task__no').textContent), ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']);
   assert.equal(doc.querySelectorAll('.vi-weeks > li').length, 8);
-  /* cards, each its own object (owner, 31 Oct 2026: "make this like cards!") */
-  for (const c of tasks) assert.ok(c.querySelector(':scope > .vi-task__top .vi-goal') && c.querySelector(':scope > .vi-task__body h3'), 'a target band, then the words');
-  assert.match(html, /\.m-grid\.vi-tasks\{gap:clamp\(14px,1\.6vw,24px\);background:none;border:0\}/, 'apart from one another');
-  assert.match(html, /\.m-card\.vi-task\{padding:0;gap:0;border:1px solid var\(--line\)/);
-  assert.match(html, /grid-auto-flow:column;grid-auto-columns:84%;[^}]*overflow-x:auto;[^}]*scroll-snap-type:x mandatory/, 'swiped on a phone, inside its own row');
+  /* the board (owner, 1 Nov 2026: "internship page cannot have too much
+     scroll. but cannot be half baked, think amazing UI UX"): core or
+     electives one at a time, the open card in full beside the list on a
+     wide screen and in place on a phone; without the script, all of it */
+  const sw = doc.querySelector('#tasks .vi-switch[role="tablist"][hidden]');
+  assert.ok(sw, 'the switch appears only when the script is there to work it');
+  assert.deepEqual([...sw.querySelectorAll('[role="tab"]')].map((t) => t.getAttribute('aria-controls')), ['viCoreGroup', 'viElectGroup']);
+  assert.ok(doc.querySelector('#viDetail[aria-live="polite"][hidden]'));
+  assert.match(html, /@media \(min-width:961px\)\{\s*\.vi-js \.vi-board\{display:grid;grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/);
+  assert.match(html, /\.vi-js \.vi-task\.is-open \.vi-task__more\{display:block/);
+  assert.match(html, /\.vi-task\.is-open \.vi-task__icon\{transform:rotate\(45deg\)\}/, 'open, the plus turns to a cross: never a bar');
+  assert.match(html, /a\.innerHTML = 'Send the proof for this task ' \+ ARROW;/);
+  assert.match(html, /if \(a && pick\) pick\.value = a\.getAttribute\('data-task'\);/, 'and the portal opens on that task');
+  assert.match(html, /\.vi-weeks\{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:62%;overflow-x:auto/, 'the weeks swiped on a phone, in one row');
+  assert.ok(!doc.querySelector('#together'), 'no band that is only a photograph');
 
   /* the core (owner, 31 Oct 2026: "rrt, learn the law, 1 lawyer, min 1 video
      to the wall (informative, really well shot, awarenes), map the
      town/district"), and no reels: "10 reels are too many" */
-  const coreTitles = core.map((t) => t.querySelector('h3').textContent);
+  const coreTitles = core.map((t) => t.querySelector('.vi-task__title').textContent);
   assert.deepEqual(coreTitles, ['Bring your town onto the RRT', 'Learn the law', 'Find a lawyer', 'A film for The Wall', 'Map your town or district']);
   const film = core[3];
   assert.equal(film.querySelector('.vi-goal').textContent, '1film');
@@ -78,7 +91,7 @@ test('five core tasks and seven electives, each with a target and its detail und
   /* the electives: the paper article in place of the guide, reviewed by PFA
      first; CineKind nominations (owner, 31 Oct 2026: "identify 3 movies that
      qualfy cinekind and nominate. link to cinekind site nomination link") */
-  const electTitles = elect.map((t) => t.querySelector('h3').textContent);
+  const electTitles = elect.map((t) => t.querySelector('.vi-task__title').textContent);
   assert.ok(!electTitles.concat(coreTitles).includes('Put a PFA guide in your language'));
   const paper = elect[electTitles.indexOf('Write for your local paper')];
   assert.ok(paper, 'the newspaper article is an elective');
@@ -94,15 +107,15 @@ test('five core tasks and seven electives, each with a target and its detail und
   assert.ok(!electTitles.concat(coreTitles).some((x) => /cruelty|count the dogs/i.test(x)), 'neither task is set');
   assert.ok(electTitles.includes('Ask your town about its dogs'));
   assert.match(all, /acknowledgement number/, 'the RTI is proved by its acknowledgement');
-  for (const t of tasks.filter((x) => x.querySelector('h3').textContent !== 'Write your story')) {
-    assert.match(t.querySelector('.vi-how').textContent, /Proof|signed off|PFA chooses|confirmed/i, `${t.querySelector('h3').textContent} says how it is proved`);
+  for (const t of tasks.filter((x) => x.querySelector('.vi-task__title').textContent !== 'Write your story')) {
+    assert.match(t.querySelector('.vi-task__more').textContent, /Proof|signed off|PFA chooses|confirmed/i, `${t.querySelector('.vi-task__title').textContent} says how it is proved`);
   }
   assert.match(doc.querySelector('#more').textContent, /Why are feeding and adoption not tasks\?/);
   assert.match(doc.querySelector('#more').textContent, /no starting a feeding spot, no fostering and no adoptions as part of the internship/);
   /* owner, 1 Nov 2026: "this can be locate feeding spots, take photos, of
      govt vet centers, inside , outside. as is . not staged." Feeding spots
      are found, never started, and kept off the public directory. */
-  const map = core[4].querySelector('.vi-how').textContent;
+  const map = core[4].querySelector('.vi-task__more').textContent;
   assert.match(map, /government veterinary centre photographed inside and outside, as it is on the day: never staged/);
   assert.match(map, /Feeding spots already kept by someone near you, located with the feeder's agreement; held by PFA, never published/);
   assert.match(doc.querySelector('#more').textContent, /Finding the spots where someone already feeds animals is part of mapping your district; starting one is not\./);
@@ -120,7 +133,7 @@ test('the portal: proof of one task at a time, under the application number, fil
   for (const id of ['pfRef', 'pfName', 'pfEmail', 'pfTask', 'pfWhat', 'pfLinks']) assert.ok(form.querySelector(`#${id}[required]`), id);
   assert.ok(form.querySelector('#pfOwn[data-confirm]'), 'their own work, and real');
   const options = [...form.querySelectorAll('#pfTask option')].map((o) => o.textContent).filter((t) => t !== 'Choose the task');
-  assert.deepEqual(options, [...doc.querySelectorAll('.vi-task h3')].map((h) => h.textContent), 'every task, in order');
+  assert.deepEqual(options, [...doc.querySelectorAll('.vi-task__title')].map((h) => h.textContent), 'every task, in order');
   assert.match(html, /kind: 'PFA-VP',\s*page: 'internship\.html'/);
   assert.match(html, /var REF = \/\^PFA-VI-\\d\{4\}-\\d\{5,\}\$\//);
   const S = require('../lib/submissions');
@@ -136,8 +149,7 @@ test('the photographs are on the site, shown whole at their own shapes', () => {
     assert.ok(fs.existsSync(path.join(ROOT, src)), src);
     assert.ok(img.getAttribute('alt'), `${src} has words for a screen reader`);
   }
-  assert.match(html, /\.m-hero__media \.m-duo\.vi-duo \.m-ph:first-child\{aspect-ratio:1100\/1763/);
-  assert.match(html, /\.vi-wide \.m-ph\{aspect-ratio:2000\/1335/);
+  assert.match(html, /\.m-ph\.vi-intro__ph\{margin:0;aspect-ratio:2000\/1335\}/, 'the intro photograph at its own shape');
 });
 
 test('the certificate in its blue, with the reader\'s name, marked SAMPLE', () => {

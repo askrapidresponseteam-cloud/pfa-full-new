@@ -1,3 +1,11 @@
+## v1.488
+
+- **The internship page, redrawn to read in a few screens. Nothing left out.** Owner, 1 Nov 2026: "internship page cannot have too much scroll. but cannot be half baked, think amazing UI UX". Desktop goes from 6,571px to 4,223px and a phone from 6,883px to 4,589px, about a third shorter.
+  - **The tasks are a board:** a Core or Electives switch shows one list at a time. Each task is a card on one line with its number, name and target. On a wide screen the open card shows in full beside the list: the target large, what the task is, how it works, and "Send the proof for this task". On a phone the card opens in place and the plus turns to a cross. Sending proof from a task opens the portal with that task already chosen. A link to a task opens it on its own list. Without the script both lists show, every card open.
+  - **Intro:** one band with the words, the two dogs photograph whole beside them, and the four facts. The extra photograph band and the second pair of photos are gone. The buttons are Apply and Send your proof.
+  - **Weeks:** the eight weeks sit in one row on a wide screen, two rows of four on a narrower one, and a swiped row on a phone.
+  - **Spacing:** the gaps between bands are tighter on this page only.
+
 ## v1.487
 
 - **The donate photograph sits straight under the word. Left-aligned, not floating.** Owner, 1 Nov 2026: "photo should be below donate text. rn it looks odd!". On a wide screen the dog now sits on the left edge just under "Donate.", with its line under it. Before, it floated in the middle of the panel. A phone keeps the dog beside the word, so the amounts stay near the top.

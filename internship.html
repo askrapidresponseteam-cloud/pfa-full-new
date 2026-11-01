@@ -86,7 +86,8 @@
   --max:1440px;
   --gutter:max(clamp(16px,4vw,72px),(100% - 1440px) / 2);
   --gutter-lg:max(clamp(24px,5vw,84px),(100% - 1440px) / 2);
-  --band:clamp(76px,8.5vw,136px);
+  /* tighter than the site's bands, so the page reads in a few screens */
+  --band:clamp(52px,6vw,96px);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
@@ -130,7 +131,7 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 /* Figures in EB Garamond, the certificate's own book face: Marcellus draws a 1
    that reads as a capital I, and on this page the numbers are the point */
 @font-face{font-family:'EB Garamond';font-style:normal;font-weight:500;font-display:swap;src:url("fonts/eb-garamond-latin-500.woff2") format('woff2')}
-.m-card.vi-task .vi-goal b,.vi-weeks li::before,.m-hero__facts b,.vi-task .m-card__no{font-family:'EB Garamond',Georgia,serif;font-weight:500}
+.m-hero__facts b{font-family:'EB Garamond',Georgia,serif;font-weight:500}
 /* the opening: the photograph whole, at its own shape (2400 x 1347) */
 .vi-open{position:relative;margin-top:calc(var(--ann) + var(--nav));background:#02040b;color:#fff;overflow:hidden;isolation:isolate}
 .vi-open__ph{display:block}
@@ -157,74 +158,126 @@ main .vi-open h1.pfa-title.pfa-title{margin:0;color:#fff;font-size:clamp(46px,8.
   .vi-open__go{color:var(--ink);border-bottom-color:var(--ink)}
   .vi-open .vi-open__apply{background:var(--ink);color:#fff;border-color:var(--ink)}
 }
-.vi-discover .m-hero__in{align-items:center}
-.vi-discover h2{font-size:clamp(34px,4.4vw,68px);max-width:13ch}
-/* the two photographs at their own shapes, so nothing of them is cut */
-.m-hero__media .m-duo.vi-duo .m-ph:first-child{aspect-ratio:1100/1763;width:64%}
-.m-hero__media .m-duo.vi-duo .m-ph:last-child{aspect-ratio:1400/963;width:56%}
-/* Five core tasks and three of seven electives, "like in engineering degree"
-   (owner, 31 Oct 2026), every one backed by proof sent on the portal (#proof).
-   Each group under its own small heading; a line on proof above them both. */
-.vi-proof{margin:0 0 clamp(28px,3vw,40px);max-width:760px;font-size:15px;line-height:1.65;color:rgba(17,17,17,.78)}
+/* ---------- the intro: the words, one photograph whole, the four facts ---------- */
+.vi-intro__in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(28px,5vw,88px);align-items:center}
+.vi-intro h2{font-size:clamp(32px,4vw,62px);margin-top:14px;max-width:13ch}
+.vi-intro .lede{margin:22px 0 0;max-width:46ch;font-size:clamp(15px,1.15vw,17px);line-height:1.65;color:rgba(17,17,17,.78)}
+.vi-intro__acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.vi-intro__words{min-width:0}
+.vi-work{position:relative}
+.vi-lists{min-width:0}
+.m-ph.vi-intro__ph{margin:0;aspect-ratio:2000/1335}
+.vi-facts{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:clamp(32px,4vw,48px)}
+
+/* ---------- the work: a board (owner, 1 Nov 2026: "cannot have too much
+   scroll. but cannot be half baked"). Core or electives, one at a time;
+   each task a card in a list, the open one in full beside it, with the way
+   to send its proof. On a phone each card opens in place. Without the
+   script both lists show, every card open: nothing is lost. ---------- */
+.vi-proof{margin:0 0 24px;max-width:760px;font-size:15px;line-height:1.65;color:rgba(17,17,17,.78)}
 .vi-proof b{color:var(--ink);font-weight:600}
 .vi-proof a{color:inherit;text-decoration:underline;text-underline-offset:3px}
-.vi-group + .vi-group{margin-top:clamp(40px,5vw,64px)}
-.vi-group__head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin:0 0 18px;font-family:var(--display);font-weight:400;font-size:clamp(20px,2vw,26px);text-transform:uppercase;letter-spacing:.04em;color:var(--ink)}
+.vi-switch{display:grid;grid-template-columns:1fr 1fr;max-width:640px;margin:0 0 20px;border:1px solid var(--ink)}
+.vi-switch button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:64px;padding:12px 20px;border:0;background:var(--paper);color:var(--ink);text-align:left;cursor:pointer;transition:background .2s,color .2s}
+.vi-switch button + button{border-left:1px solid var(--ink)}
+.vi-switch b{font-family:var(--display);font-weight:400;font-size:clamp(18px,1.6vw,22px);letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.vi-switch span{font-size:12px;letter-spacing:.04em;color:var(--muted)}
+.vi-switch [aria-selected="true"]{background:var(--ink);color:#fff}
+.vi-switch [aria-selected="true"] span{color:rgba(255,255,255,.72)}
+.vi-switch button:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.vi-group + .vi-group{margin-top:clamp(36px,4vw,56px)}
+.vi-group__head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin:0 0 14px;font-family:var(--display);font-weight:400;font-size:clamp(18px,1.8vw,24px);text-transform:uppercase;letter-spacing:.04em;color:var(--ink)}
 .vi-group__head span{display:inline-block;padding:5px 10px 4px;background:var(--ink);color:#fff;font-family:inherit;font-size:12px;letter-spacing:.16em;line-height:1.2}
-/* The cards (owner, 31 Oct 2026: "make this like cards!"): each its own
-   object, apart from the next, square like everything on the site; the
-   target on a stone band at the top, the words under it, and the detail
-   under a plus at the foot. A card lifts a little under the pointer. */
-.vi-tasks{--cols:3}
-.m-grid.vi-tasks{gap:clamp(14px,1.6vw,24px);background:none;border:0}
-.m-card.vi-task{padding:0;gap:0;border:1px solid var(--line);background:var(--paper);transition:border-color .25s,box-shadow .25s,transform .25s}
-.m-card.vi-task:hover,.m-card.vi-task:focus-within{border-color:var(--ink);box-shadow:0 18px 36px -24px rgba(17,17,17,.35);transform:translateY(-3px)}
-.vi-task__top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:clamp(18px,1.8vw,24px) clamp(20px,2vw,28px);background:#f4f3f0;border-bottom:1px solid var(--line)}
-.vi-task__top .m-card__no{order:2;align-self:flex-start;font-size:15px;color:var(--muted)}
-.vi-task__body{display:flex;flex-direction:column;gap:12px;flex:1;padding:clamp(20px,2vw,28px) clamp(20px,2vw,28px) clamp(10px,1vw,14px)}
-.vi-task__body > p{margin:0;font-size:14.5px;line-height:1.6;color:rgba(17,17,17,.72)}
-@media (prefers-reduced-motion:reduce){.m-card.vi-task:hover,.m-card.vi-task:focus-within{transform:none}}
-.vi-task .m-card__no{margin:0}
-.m-card.vi-task .vi-goal b{font-weight:500}
-.m-card.vi-task .vi-goal{margin:0;color:var(--ink);font-family:var(--display);font-weight:400;font-size:clamp(40px,4vw,58px);line-height:1;text-transform:uppercase;letter-spacing:.01em}
-.m-card.vi-task .vi-goal small{margin-left:8px;font-size:.32em;letter-spacing:.14em;color:var(--muted)}
-.vi-how{margin-top:auto;border-top:1px solid var(--line);padding-top:4px}
-.vi-how summary{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:44px;cursor:pointer;list-style:none;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
-.vi-how summary::-webkit-details-marker{display:none}
-.vi-how summary::after{content:"";flex:none;width:12px;height:12px;background:linear-gradient(currentColor,currentColor) center/12px 2px no-repeat,linear-gradient(currentColor,currentColor) center/2px 12px no-repeat;color:var(--muted);transition:transform .25s}
-.vi-how[open] summary::after{transform:rotate(45deg)}
-.vi-how ul{margin:4px 0 6px;padding-left:18px;font-size:13.5px;line-height:1.65;color:rgba(17,17,17,.78)}
-.vi-how li + li{margin-top:4px}
-.vi-weeks{--cols:4;row-gap:44px}
-.vi-wide{padding-top:0}
-.vi-wide .m-ph{aspect-ratio:2000/1335;max-width:1040px;margin:0 auto}
-.vi-cert{grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr)}
+.vi-tasks{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.vi-task{border:1px solid var(--line);background:var(--paper);transition:border-color .2s,box-shadow .2s}
+.vi-task:hover{border-color:#bdbab5}
+.vi-task__row{display:grid;grid-template-columns:30px minmax(0,1fr) auto 22px;align-items:center;gap:14px;width:100%;min-height:68px;padding:12px 18px 12px 20px;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer}
+.vi-task__row:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.vi-task__no{font-family:'EB Garamond',Georgia,serif;font-weight:500;font-size:15px;color:var(--muted)}
+.vi-task__title{font-family:var(--display);font-size:clamp(16px,1.3vw,19px);line-height:1.15;letter-spacing:.02em;text-transform:uppercase}
+.vi-goal{display:inline-flex;align-items:baseline;gap:6px;margin:0;white-space:nowrap}
+.vi-goal b{font-family:'EB Garamond',Georgia,serif;font-weight:500;font-size:26px;line-height:1}
+.vi-goal small{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.vi-task__icon{position:relative;width:14px;height:14px;justify-self:end;transition:transform .25s}
+.vi-task__icon::before,.vi-task__icon::after{content:"";position:absolute;left:0;top:6px;width:14px;height:2px;background:currentColor;transition:transform .25s}
+.vi-task__icon::after{transform:rotate(90deg)}
+/* open: the plus turns to a cross, never a bare bar */
+.vi-task.is-open .vi-task__icon{transform:rotate(45deg)}
+.vi-task__more{padding:0 20px 18px 64px}
+.vi-task__more > p{margin:0 0 10px;font-size:14.5px;line-height:1.6;color:rgba(17,17,17,.75)}
+.vi-task__more ul,.vi-detail ul{margin:0;padding:0;list-style:none}
+.vi-task__more li,.vi-detail li{position:relative;padding:9px 0 9px 18px;border-top:1px solid var(--line);font-size:14px;line-height:1.55;color:rgba(17,17,17,.8)}
+.vi-task__more li::before,.vi-detail li::before{content:"";position:absolute;left:2px;top:17px;width:5px;height:5px;border-radius:50%;background:var(--ink)}
+.vi-task a,.vi-detail a{text-decoration:underline;text-underline-offset:3px}
+.vi-send{display:inline-flex;align-items:center;gap:10px;margin-top:16px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:4px}
+.vi-send svg{flex:none}
+/* with the script: one list at a time; on a phone the open card shows its
+   words under it, the others stay a single line */
+.vi-js .vi-switch[hidden]{display:none!important}
+.vi-js .vi-group__head{display:none}
+.vi-js .vi-group + .vi-group{margin-top:0}
+.vi-js .vi-group[hidden]{display:none}
+.vi-js .vi-task__more{display:none}
+.vi-js .vi-task.is-open{border-color:var(--ink)}
+.vi-js .vi-task.is-open .vi-task__more{display:block;animation:vi-in .3s ease both}
+@keyframes vi-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+/* a wide screen: the list on the left, the open card in full on the right */
+@media (min-width:961px){
+  .vi-js .vi-board{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,2.4vw,36px);align-items:start}
+  .vi-js .vi-task.is-open .vi-task__more{display:none}
+  .vi-js .vi-task.is-open{background:#f4f3f0}
+  .vi-js .vi-task__row{grid-template-columns:30px minmax(0,1fr) auto 14px}
+  .vi-js .vi-task__icon::before{width:8px;height:8px;top:3px;left:2px;background:none;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg)}
+  .vi-js .vi-task__icon::after{display:none}
+  .vi-js .vi-task.is-open .vi-task__icon{transform:none}
+  .vi-js .vi-detail{position:sticky;top:calc(var(--ann) + var(--nav) + 24px);border:1px solid var(--ink);background:var(--paper)}
+  .vi-js .vi-detail[hidden]{display:block!important}
+}
+.vi-detail__top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding:22px 28px;background:#f4f3f0;border-bottom:1px solid var(--line)}
+.vi-detail__top .vi-goal b{font-size:clamp(48px,4.6vw,66px)}
+.vi-detail__top .vi-goal small{font-size:13px}
+.vi-detail__kind{font-family:var(--display);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.vi-detail__kind span{font-family:'EB Garamond',Georgia,serif;font-size:15px;letter-spacing:.04em;margin-left:6px}
+.vi-detail__body{padding:22px 28px 26px}
+.vi-detail h3{margin:0 0 10px;font-family:var(--display);font-weight:400;font-size:clamp(22px,2vw,30px);line-height:1.08;text-transform:uppercase;letter-spacing:.01em}
+.vi-detail__body > p{margin:0 0 14px;font-size:15px;line-height:1.6;color:rgba(17,17,17,.75)}
+.vi-detail.is-new .vi-detail__body,.vi-detail.is-new .vi-detail__top{animation:vi-in .3s ease both}
+
+/* ---------- the eight weeks, in one row; a phone swipes them ---------- */
+.vi-weeks__head{margin:0 0 clamp(24px,3vw,36px)}
+.vi-weeks__head h2{font-size:clamp(28px,3.2vw,48px);margin-top:12px}
+.vi-weeks{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));margin:0;padding:0;list-style:none;border-top:1px solid var(--ink)}
+.vi-weeks li{display:flex;flex-direction:column;gap:8px;padding:18px 16px 4px 0}
+.vi-weeks li + li{padding-left:16px;border-left:1px solid var(--line)}
+.vi-weeks__no{font-family:'EB Garamond',Georgia,serif;font-size:14px;color:var(--muted)}
+.vi-weeks b{font-family:var(--display);font-weight:400;font-size:15px;line-height:1.15;letter-spacing:.03em;text-transform:uppercase}
+.vi-weeks li > span:last-child{font-size:13px;line-height:1.55;color:rgba(17,17,17,.72)}
+@media (max-width:1180px){.vi-weeks{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:22px}.vi-weeks li:nth-child(5){padding-left:0;border-left:0}}
+
+/* ---------- the certificate ---------- */
+.vi-cert{grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);align-items:center}
 .vi-cert__card{margin:0}
 .vi-cert__card canvas{display:block;width:100%;height:auto;max-width:100%;box-shadow:0 30px 60px -36px rgba(0,0,0,.45)}
-.vi-cert__try{margin-top:28px;max-width:360px}
-/* no card left on its own on a row, and no hole beside it: on a wide screen
-   the five core cards sit three and two, the seven electives four and three,
-   each row filled edge to edge; at two across, an odd last card takes the row */
-@media (min-width:1021px){
-  .m-grid.vi-tasks#viCore{grid-template-columns:repeat(6,minmax(0,1fr))}
-  #viCore > .vi-task{grid-column:span 2}
-  #viCore > .vi-task:nth-child(n+4){grid-column:span 3}
-  .m-grid.vi-tasks#viElect{grid-template-columns:repeat(12,minmax(0,1fr))}
-  #viElect > .vi-task{grid-column:span 3}
-  #viElect > .vi-task:nth-child(n+5){grid-column:span 4}
+.vi-cert__try{margin-top:24px;max-width:360px}
+
+@media (max-width:960px){
+  .vi-intro__in{grid-template-columns:minmax(0,1fr)}
+  .vi-cert{grid-template-columns:minmax(0,1fr)}
 }
-@media (min-width:721px) and (max-width:1020px){.vi-tasks > .vi-task:last-child:nth-child(odd){grid-column:1/-1}}
-@media (max-width:1020px){.vi-tasks{--cols:2}.vi-cert{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:720px){.vi-tasks{--cols:1}.vi-weeks{--cols:1;row-gap:28px}}
-/* a phone: each group's cards side by side, swiped one at a time, instead of
-   a long column; the row scrolls inside itself, never the page */
-.vi-swipe{display:none;margin:-8px 0 16px;font-size:12px;letter-spacing:.06em;color:var(--muted)}
 @media (max-width:720px){
-  .vi-swipe{display:block}
-  .m-grid.vi-tasks{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:84%;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-left:16px;margin:0 -16px;padding:4px 16px 18px;scrollbar-width:none}
-  .m-grid.vi-tasks::-webkit-scrollbar{display:none}
-  .m-card.vi-task{scroll-snap-align:start}
-  .m-card.vi-task:hover,.m-card.vi-task:focus-within{transform:none}
+  .vi-facts{grid-template-columns:1fr 1fr;row-gap:18px}
+  .vi-facts li:nth-child(3){padding-left:0;border-left:0}
+  .vi-intro__acts .btn{flex:1 1 0;padding:0 12px}
+  .vi-switch{max-width:none}
+  .vi-switch button{padding:12px 14px}
+  .vi-task__row{grid-template-columns:24px minmax(0,1fr) auto 14px;gap:10px;padding:12px 14px;min-height:64px}
+  .vi-goal b{font-size:22px}
+  .vi-goal small{font-size:10.5px}
+  .vi-task__more{padding:0 14px 16px 48px}
+  .vi-weeks{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:62%;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 8px;border-top:0;scrollbar-width:none}
+  .vi-weeks::-webkit-scrollbar{display:none}
+  .vi-weeks li,.vi-weeks li + li{scroll-snap-align:start;padding:16px 16px 4px 0;border-left:0;border-top:1px solid var(--ink);margin-right:12px}
+  .vi-weeks li:nth-child(5){padding-left:0}
 }
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
@@ -510,33 +563,31 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
 
-  <section class="band m-hero vi-discover" id="discover">
-    <div class="m-hero__in">
-      <div>
+  <!-- Redrawn to read in a few screens (owner, 1 Nov 2026: "internship page
+       cannot have too much scroll. but cannot be half baked, think amazing
+       UI UX"): one intro with one photograph, the twelve tasks on a board
+       (core or electives, a list of cards and the open one in full beside
+       it; on a phone each card opens in place), the eight weeks in one row,
+       the certificate, and the questions under plus signs. -->
+  <section class="band vi-intro" id="discover">
+    <div class="vi-intro__in">
+      <div class="vi-intro__words">
         <p class="eyebrow">Virtual internship</p>
         <h2 class="display">Eight weeks for the animals of your town.</h2>
         <p class="lede">Real work, done where you live. Help at a shelter PFA knows, learn the law that protects animals, find a lawyer who will stand up for them, and bring your town onto the Rapid Response network.</p>
-        <div class="m-hero__acts">
-          <a class="btn" href="#apply">Apply</a>
-          <a class="btn btn--ghost" href="#tasks">See the tasks</a>
-        </div>
-        <ul class="m-hero__facts">
+        <div class="vi-intro__acts"><a class="btn" href="#apply">Apply</a><a class="btn btn--ghost" href="#proof">Send your proof</a></div>
+      </div>
+      <figure class="m-ph vi-intro__ph" data-ph><img src="media/site/internship/two-dogs-running.webp" alt="Two small dogs running together down a sunlit country path" width="2000" height="1335" loading="lazy" decoding="async" onerror="this.closest('[data-ph]').classList.add('is-gone')"></figure>
+    </div>
+    <ul class="m-hero__facts vi-facts">
           <li><b>8 weeks</b><span>From home and your own town</span></li>
           <li><b>5 + 3 tasks</b><span>Five core, three you choose</span></li>
           <li><b>6 to 8 hours</b><span>A week, when it suits you</span></li>
           <li><b>Free</b><span>No fee of any kind</span></li>
         </ul>
-      </div>
-      <div class="m-hero__media">
-        <div class="m-duo vi-duo">
-          <figure class="m-ph" data-ph><img src="media/site/internship/dog-with-flower.webp" alt="A golden puppy sitting on a garden path with a flower in its mouth" width="1100" height="1763" loading="lazy" decoding="async" onerror="this.closest('[data-ph]').classList.add('is-gone')"></figure>
-          <figure class="m-ph" data-ph><img src="media/site/internship/cat.webp" alt="A black and white cat with green eyes, its paws over a bamboo rail" width="1400" height="963" loading="lazy" decoding="async" onerror="this.closest('[data-ph]').classList.add('is-gone')"></figure>
-        </div>
-      </div>
-    </div>
   </section>
 
-  <section class="band" id="tasks">
+  <section class="band vi-work" id="tasks">
     <div class="m-head">
       <div>
         <p class="eyebrow">The work</p>
@@ -544,55 +595,55 @@ if (root.document && root.document.head) apply(read());
       </div>
       <p>Like a degree: the five core tasks are for everyone, and you choose three electives from seven. Each target is the least; going past it counts. None of them starts anything an animal comes to depend on, so no animal is ever worse off when the eight weeks end.</p>
     </div>
-    <p class="vi-proof"><b>Everything is backed by proof.</b> You send it to PFA on the <a href="#proof">internship portal</a> below, and PFA signs each task off when it checks out.</p>
-    <div class="vi-group">
-      <h3 class="vi-group__head"><span>Core</span>All five, for everyone</h3>
-      <p class="vi-swipe">Swipe to see all five.</p>
-      <ol class="m-grid vi-tasks" id="viCore">
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">01</span><p class="vi-goal"><b>100</b><small>people</small></p></div><div class="vi-task__body"><h3 class="m-sub">Bring your town onto the RRT</h3><p>Grow the Rapid Response network in your district, so someone near is there when an animal needs help.</p><details class="vi-how"><summary>How it works</summary><ul><li>Your own referral code counts each person who joins</li><li>Neighbours, college friends, feeders, local vets</li><li>Proof: the count on your code, read by PFA</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">02</span><p class="vi-goal"><b>4</b><small>laws</small></p></div><div class="vi-task__body"><h3 class="m-sub">Learn the law</h3><p>Know what protects animals, and how to use it.</p><details class="vi-how"><summary>How it works</summary><ul><li>Section 325 of the Bharatiya Nyaya Sanhita</li><li>The Prevention of Cruelty to Animals Act, 1960</li><li>The ABC Rules, 2023, and the right to feed community animals</li><li>Proof: the online test, passed</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">03</span><p class="vi-goal"><b>1</b><small>lawyer</small></p></div><div class="vi-task__body"><h3 class="m-sub">Find a lawyer</h3><p>A lawyer in your district who will take up cases of cruelty to animals.</p><details class="vi-how"><summary>How it works</summary><ul><li>Meet them, and ask whether they will act for animals, and on what terms</li><li>Proof: their name, chambers and number, confirmed by a call from PFA</li><li>They join the PFA list, so the next case in your district has someone to turn to</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">04</span><p class="vi-goal"><b>1</b><small>film</small></p></div><div class="vi-task__body"><h3 class="m-sub">A film for The Wall</h3><p>One short film that teaches something: informative, really well shot, made to change how people see animals.</p><details class="vi-how"><summary>How it works</summary><ul><li>One good film is worth more than many quick ones</li><li>Sent from <a href="wall.html#submit">The Wall</a>; PFA chooses what goes up</li><li>Your own footage, with permission from anyone in it; no graphic injury, and never an animal disturbed for a shot</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">05</span><p class="vi-goal"><b>1</b><small>district</small></p></div><div class="vi-task__body"><h3 class="m-sub">Map your town or district</h3><p>The vets, government veterinary centres, shelters, ABC centres, animal ambulances and feeding spots near you.</p><details class="vi-how"><summary>How it works</summary><ul><li>Each place&#x27;s name, number, hours and address, checked by a call</li><li>Every government veterinary centre photographed inside and outside, as it is on the day: never staged, tidied or posed</li><li>Feeding spots already kept by someone near you, located with the feeder&#x27;s agreement; held by PFA, never published</li><li>The rest goes into the PFA help directory, so the next person finds help faster</li><li>Proof: the sheet and the dated photographs, sent on the portal and spot-checked by PFA</li></ul></details></div></li>
-      </ol>
+    <p class="vi-proof"><b>Everything is backed by proof.</b> You send it to PFA on the <a href="#proof">internship portal</a>, and PFA signs each task off when it checks out.</p>
+    <div class="vi-switch" role="tablist" aria-label="Core tasks and electives" hidden>
+      <button type="button" role="tab" id="tabCore" aria-controls="viCoreGroup" aria-selected="true"><b>Core</b><span>All five</span></button>
+      <button type="button" role="tab" id="tabElect" aria-controls="viElectGroup" aria-selected="false" tabindex="-1"><b>Electives</b><span>Choose three of seven</span></button>
     </div>
-    <div class="vi-group">
-      <h3 class="vi-group__head"><span>Electives</span>Choose three of these seven</h3>
-      <p class="vi-swipe">Swipe to see all seven.</p>
-      <ol class="m-grid vi-tasks" id="viElect">
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">06</span><p class="vi-goal"><b>20</b><small>hours</small></p></div><div class="vi-task__body"><h3 class="m-sub">Help at a shelter PFA knows</h3><p>Hands-on help alongside the shelter&#x27;s own staff, who care for the animals before you come and after you go.</p><details class="vi-how"><summary>How it works</summary><ul><li>Cleaning, walking and socialising, as the staff ask</li><li>Helping on treatment days</li><li>Proof: hours signed off by the shelter or the nearest PFA unit</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">07</span><p class="vi-goal"><b>1</b><small>article</small></p></div><div class="vi-task__body"><h3 class="m-sub">Write for your local paper</h3><p>An awareness article in a newspaper where you live, in its own language: the law, sterilisation, first aid, or living alongside community animals.</p><details class="vi-how"><summary>How it works</summary><ul><li>Written by you, in the paper&#x27;s own language</li><li>Reviewed and passed by the PFA team before you send it to the paper</li><li>Proof: the published page, a clipping or a link, with its date</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">08</span><p class="vi-goal"><b>1</b><small>RTI</small></p></div><div class="vi-task__body"><h3 class="m-sub">Ask your town about its dogs</h3><p>An application under the Right to Information Act to your municipality: how many dogs it sterilised and vaccinated last year, and what it spent.</p><details class="vi-how"><summary>How it works</summary><ul><li>PFA gives you the questions and the format</li><li>Filed online or by post, for a small fee (&#x20b9;10 in most states)</li><li>Proof: the acknowledgement number; the reply, when it comes, goes to PFA</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">09</span><p class="vi-goal"><b>3</b><small>films</small></p></div><div class="vi-task__body"><h3 class="m-sub">Nominate three films for CineKind</h3><p>Find three films that leave the frame kinder than they found it, and put each in front of the CineKind awards committee.</p><details class="vi-how"><summary>How it works</summary><ul><li>Films that show animals truthfully, made without harming one</li><li>Each nominated on the <a href="cinekind.html#nominations">CineKind page</a>, with a line on why it qualifies</li><li>Proof: the three nomination numbers</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">10</span><p class="vi-goal"><b>1</b><small>talk</small></p></div><div class="vi-task__body"><h3 class="m-sub">Give one talk</h3><p>At a school, college or housing society, on kindness and the law.</p><details class="vi-how"><summary>How it works</summary><ul><li>A ready deck and talking points from PFA</li><li>Twenty minutes, then questions</li><li>Proof: a photograph, and a note from the host with the number who came</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">11</span><p class="vi-goal"><b>1</b><small>module</small></p></div><div class="vi-task__body"><h3 class="m-sub">Animal first aid</h3><p>What to do in the first minutes, until help arrives.</p><details class="vi-how"><summary>How it works</summary><ul><li>Approaching a frightened or injured animal safely</li><li>Bleeding, heat stroke and road accidents</li><li>When to call, and whom; never treating on your own</li><li>Proof: the module test, passed</li></ul></details></div></li>
-        <li class="m-card vi-task"><div class="vi-task__top"><span class="m-card__no">12</span><p class="vi-goal"><b>1</b><small>story</small></p></div><div class="vi-task__body"><h3 class="m-sub">Write your story</h3><p>One real story from your eight weeks, for the PFA site.</p><details class="vi-how"><summary>How it works</summary><ul><li>A shelter animal, a lawyer, a talk, an answer from your town</li><li>Four to six hundred words, with photographs</li><li>The best are published on the PFA site</li></ul></details></div></li>
-      </ol>
+    <div class="vi-board">
+      <div class="vi-lists">
+        <div class="vi-group" id="viCoreGroup" role="tabpanel" aria-labelledby="tabCore">
+          <h3 class="vi-group__head"><span>Core</span>All five, for everyone</h3>
+          <ol class="vi-tasks" id="viCore">
+          <li class="vi-task" id="task-bring-your-town-onto-the-rrt"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-bring-your-town-onto-the-rrt-more"><span class="vi-task__no">01</span><span class="vi-task__title">Bring your town onto the RRT</span><span class="vi-goal"><b>100</b><small>people</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-bring-your-town-onto-the-rrt-more"><p>Grow the Rapid Response network in your district, so someone near is there when an animal needs help.</p><ul><li>Your own referral code counts each person who joins</li><li>Neighbours, college friends, feeders, local vets</li><li>Proof: the count on your code, read by PFA</li></ul></div></li>
+          <li class="vi-task" id="task-learn-the-law"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-learn-the-law-more"><span class="vi-task__no">02</span><span class="vi-task__title">Learn the law</span><span class="vi-goal"><b>4</b><small>laws</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-learn-the-law-more"><p>Know what protects animals, and how to use it.</p><ul><li>Section 325 of the Bharatiya Nyaya Sanhita</li><li>The Prevention of Cruelty to Animals Act, 1960</li><li>The ABC Rules, 2023, and the right to feed community animals</li><li>Proof: the online test, passed</li></ul></div></li>
+          <li class="vi-task" id="task-find-a-lawyer"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-find-a-lawyer-more"><span class="vi-task__no">03</span><span class="vi-task__title">Find a lawyer</span><span class="vi-goal"><b>1</b><small>lawyer</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-find-a-lawyer-more"><p>A lawyer in your district who will take up cases of cruelty to animals.</p><ul><li>Meet them, and ask whether they will act for animals, and on what terms</li><li>Proof: their name, chambers and number, confirmed by a call from PFA</li><li>They join the PFA list, so the next case in your district has someone to turn to</li></ul></div></li>
+          <li class="vi-task" id="task-a-film-for-the-wall"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-a-film-for-the-wall-more"><span class="vi-task__no">04</span><span class="vi-task__title">A film for The Wall</span><span class="vi-goal"><b>1</b><small>film</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-a-film-for-the-wall-more"><p>One short film that teaches something: informative, really well shot, made to change how people see animals.</p><ul><li>One good film is worth more than many quick ones</li><li>Sent from <a href="wall.html#submit">The Wall</a>; PFA chooses what goes up</li><li>Your own footage, with permission from anyone in it; no graphic injury, and never an animal disturbed for a shot</li></ul></div></li>
+          <li class="vi-task" id="task-map-your-town-or-district"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-map-your-town-or-district-more"><span class="vi-task__no">05</span><span class="vi-task__title">Map your town or district</span><span class="vi-goal"><b>1</b><small>district</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-map-your-town-or-district-more"><p>The vets, government veterinary centres, shelters, ABC centres, animal ambulances and feeding spots near you.</p><ul><li>Each place&#x27;s name, number, hours and address, checked by a call</li><li>Every government veterinary centre photographed inside and outside, as it is on the day: never staged, tidied or posed</li><li>Feeding spots already kept by someone near you, located with the feeder&#x27;s agreement; held by PFA, never published</li><li>The rest goes into the PFA help directory, so the next person finds help faster</li><li>Proof: the sheet and the dated photographs, sent on the portal and spot-checked by PFA</li></ul></div></li>
+          </ol>
+        </div>
+        <div class="vi-group" id="viElectGroup" role="tabpanel" aria-labelledby="tabElect">
+          <h3 class="vi-group__head"><span>Electives</span>Choose three of these seven</h3>
+          <ol class="vi-tasks" id="viElect">
+          <li class="vi-task" id="task-help-at-a-shelter-pfa-knows"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-help-at-a-shelter-pfa-knows-more"><span class="vi-task__no">06</span><span class="vi-task__title">Help at a shelter PFA knows</span><span class="vi-goal"><b>20</b><small>hours</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-help-at-a-shelter-pfa-knows-more"><p>Hands-on help alongside the shelter&#x27;s own staff, who care for the animals before you come and after you go.</p><ul><li>Cleaning, walking and socialising, as the staff ask</li><li>Helping on treatment days</li><li>Proof: hours signed off by the shelter or the nearest PFA unit</li></ul></div></li>
+          <li class="vi-task" id="task-write-for-your-local-paper"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-write-for-your-local-paper-more"><span class="vi-task__no">07</span><span class="vi-task__title">Write for your local paper</span><span class="vi-goal"><b>1</b><small>article</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-write-for-your-local-paper-more"><p>An awareness article in a newspaper where you live, in its own language: the law, sterilisation, first aid, or living alongside community animals.</p><ul><li>Written by you, in the paper&#x27;s own language</li><li>Reviewed and passed by the PFA team before you send it to the paper</li><li>Proof: the published page, a clipping or a link, with its date</li></ul></div></li>
+          <li class="vi-task" id="task-ask-your-town-about-its-dogs"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-ask-your-town-about-its-dogs-more"><span class="vi-task__no">08</span><span class="vi-task__title">Ask your town about its dogs</span><span class="vi-goal"><b>1</b><small>RTI</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-ask-your-town-about-its-dogs-more"><p>An application under the Right to Information Act to your municipality: how many dogs it sterilised and vaccinated last year, and what it spent.</p><ul><li>PFA gives you the questions and the format</li><li>Filed online or by post, for a small fee (&#x20b9;10 in most states)</li><li>Proof: the acknowledgement number; the reply, when it comes, goes to PFA</li></ul></div></li>
+          <li class="vi-task" id="task-nominate-three-films-for-cinekind"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-nominate-three-films-for-cinekind-more"><span class="vi-task__no">09</span><span class="vi-task__title">Nominate three films for CineKind</span><span class="vi-goal"><b>3</b><small>films</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-nominate-three-films-for-cinekind-more"><p>Find three films that leave the frame kinder than they found it, and put each in front of the CineKind awards committee.</p><ul><li>Films that show animals truthfully, made without harming one</li><li>Each nominated on the <a href="cinekind.html#nominations">CineKind page</a>, with a line on why it qualifies</li><li>Proof: the three nomination numbers</li></ul></div></li>
+          <li class="vi-task" id="task-give-one-talk"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-give-one-talk-more"><span class="vi-task__no">10</span><span class="vi-task__title">Give one talk</span><span class="vi-goal"><b>1</b><small>talk</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-give-one-talk-more"><p>At a school, college or housing society, on kindness and the law.</p><ul><li>A ready deck and talking points from PFA</li><li>Twenty minutes, then questions</li><li>Proof: a photograph, and a note from the host with the number who came</li></ul></div></li>
+          <li class="vi-task" id="task-animal-first-aid"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-animal-first-aid-more"><span class="vi-task__no">11</span><span class="vi-task__title">Animal first aid</span><span class="vi-goal"><b>1</b><small>module</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-animal-first-aid-more"><p>What to do in the first minutes, until help arrives.</p><ul><li>Approaching a frightened or injured animal safely</li><li>Bleeding, heat stroke and road accidents</li><li>When to call, and whom; never treating on your own</li><li>Proof: the module test, passed</li></ul></div></li>
+          <li class="vi-task" id="task-write-your-story"><button class="vi-task__row" type="button" aria-expanded="false" aria-controls="task-write-your-story-more"><span class="vi-task__no">12</span><span class="vi-task__title">Write your story</span><span class="vi-goal"><b>1</b><small>story</small></span><span class="vi-task__icon" aria-hidden="true"></span></button><div class="vi-task__more" id="task-write-your-story-more"><p>One real story from your eight weeks, for the PFA site.</p><ul><li>A shelter animal, a lawyer, a talk, an answer from your town</li><li>Four to six hundred words, with photographs</li><li>The best are published on the PFA site</li></ul></div></li>
+          </ol>
+        </div>
+      </div>
+      <aside class="vi-detail" id="viDetail" aria-live="polite" hidden></aside>
     </div>
   </section>
 
   <section class="band" id="weeks">
-    <div class="m-head">
-      <div>
-        <p class="eyebrow">Week by week</p>
-        <h2 class="display">How the eight weeks go.</h2>
-      </div>
-      <p>Each week has a focus, so the work builds. Send the proof as each task is done, not all at the end.</p>
+    <div class="vi-weeks__head">
+      <p class="eyebrow">Week by week</p>
+      <h2 class="display">How the eight weeks go.</h2>
     </div>
-    <ol class="m-path vi-weeks">
-      <li><b>The law and the RRT</b><span>Learn the laws, take the test, and start bringing your town onto the RRT.</span></li>
-      <li><b>Choose your three</b><span>Pick your three electives, and begin the first.</span></li>
-      <li><b>Know your district</b><span>Map every vet, shelter, ABC centre and feeding spot, and photograph the government vet centres as they are.</span></li>
-      <li><b>A lawyer for animals</b><span>Find and meet one in your district.</span></li>
-      <li><b>Plan your film</b><span>The idea, the script, then the shoot, for The Wall.</span></li>
-      <li><b>Your electives</b><span>The article, the talk, the CineKind films: whichever three you chose, done.</span></li>
-      <li><b>Close out</b><span>100 on the RRT, the film sent, every proof on the portal.</span></li>
-      <li><b>Final review</b><span>The last proofs checked by PFA, and the certificate issued.</span></li>
+    <ol class="vi-weeks">
+      <li><span class="vi-weeks__no">Week 1</span><b>The law and the RRT</b><span>Learn the laws, take the test, and start bringing your town onto the RRT.</span></li>
+      <li><span class="vi-weeks__no">Week 2</span><b>Choose your three</b><span>Pick your three electives, and begin the first.</span></li>
+      <li><span class="vi-weeks__no">Week 3</span><b>Know your district</b><span>Map every vet, shelter, ABC centre and feeding spot, and photograph the government vet centres as they are.</span></li>
+      <li><span class="vi-weeks__no">Week 4</span><b>A lawyer for animals</b><span>Find and meet one in your district.</span></li>
+      <li><span class="vi-weeks__no">Week 5</span><b>Plan your film</b><span>The idea, the script, then the shoot, for The Wall.</span></li>
+      <li><span class="vi-weeks__no">Week 6</span><b>Your electives</b><span>The article, the talk, the CineKind films: whichever three you chose, done.</span></li>
+      <li><span class="vi-weeks__no">Week 7</span><b>Close out</b><span>100 on the RRT, the film sent, every proof on the portal.</span></li>
+      <li><span class="vi-weeks__no">Week 8</span><b>Final review</b><span>The last proofs checked by PFA, and the certificate issued.</span></li>
     </ol>
-  </section>
-
-  <section class="band vi-wide" id="together" aria-label="Two dogs running together down a sunlit path">
-    <figure class="m-ph" data-ph><img src="media/site/internship/two-dogs-running.webp" alt="Two small dogs running together down a sunlit country path" width="2000" height="1335" loading="lazy" decoding="async" onerror="this.closest('[data-ph]').classList.add('is-gone')"></figure>
   </section>
 
   <section class="band" id="certificate">
@@ -890,6 +941,106 @@ if (root.document && root.document.head) apply(read());
   if (C) C.load().then(draw, draw);
   draw();
   $('#viTry').addEventListener('input', draw);
+
+  /* The board (owner, 1 Nov 2026: "cannot have too much scroll. but cannot
+     be half baked"): core or electives, one list at a time. On a wide
+     screen the open card is shown in full beside the list; on a phone it
+     opens in place and the others stay one line. Each open task carries the
+     way to send its proof, with the task already chosen on the portal. */
+  (function board() {
+    var sw = $('.vi-switch');
+    var detail = $('#viDetail');
+    if (!sw || !detail || !window.matchMedia) return;
+    document.documentElement.classList.add('vi-js');
+    sw.hidden = false;
+    var all = function (sel, r) { return [].slice.call((r || document).querySelectorAll(sel)); };
+    var tabs = all('[role="tab"]', sw);
+    var groups = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
+    var wide = window.matchMedia('(min-width:961px)');
+    var ARROW = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h12M9 3l5 5-5 5"/></svg>';
+    all('.vi-task').forEach(function (li) {
+      var a = document.createElement('a');
+      a.className = 'vi-send';
+      a.href = '#proof';
+      a.setAttribute('data-task', li.querySelector('.vi-task__title').textContent);
+      a.innerHTML = 'Send the proof for this task ' + ARROW;
+      li.querySelector('.vi-task__more').appendChild(a);
+    });
+    function fill(li) {
+      var core = li.closest('.vi-group').id === 'viCoreGroup';
+      detail.innerHTML = '';
+      var top = document.createElement('div');
+      top.className = 'vi-detail__top';
+      top.appendChild(li.querySelector('.vi-goal').cloneNode(true));
+      var kind = document.createElement('span');
+      kind.className = 'vi-detail__kind';
+      kind.textContent = core ? 'Core' : 'Elective';
+      var no = document.createElement('span');
+      no.textContent = li.querySelector('.vi-task__no').textContent;
+      kind.appendChild(no);
+      top.appendChild(kind);
+      var body = document.createElement('div');
+      body.className = 'vi-detail__body';
+      var h = document.createElement('h3');
+      h.textContent = li.querySelector('.vi-task__title').textContent;
+      body.appendChild(h);
+      all(':scope > *', li.querySelector('.vi-task__more')).forEach(function (n) { body.appendChild(n.cloneNode(true)); });
+      detail.appendChild(top);
+      detail.appendChild(body);
+      detail.classList.remove('is-new');
+      void detail.offsetWidth;
+      detail.classList.add('is-new');
+    }
+    function closeAll() {
+      all('.vi-task.is-open').forEach(function (x) {
+        x.classList.remove('is-open');
+        x.querySelector('.vi-task__row').setAttribute('aria-expanded', 'false');
+      });
+    }
+    function open(li) {
+      var was = li.classList.contains('is-open');
+      closeAll();
+      if (was && !wide.matches) return;
+      li.classList.add('is-open');
+      li.querySelector('.vi-task__row').setAttribute('aria-expanded', 'true');
+      if (wide.matches) fill(li);
+    }
+    function show(i, focus) {
+      tabs.forEach(function (t, j) {
+        t.setAttribute('aria-selected', String(i === j));
+        t.tabIndex = i === j ? 0 : -1;
+        groups[j].hidden = i !== j;
+      });
+      if (focus) tabs[i].focus();
+      closeAll();
+      if (wide.matches) open(groups[i].querySelector('.vi-task'));
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { show(i); });
+      t.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); show((i + 1) % tabs.length, true); }
+      });
+    });
+    all('.vi-task__row').forEach(function (row) {
+      row.addEventListener('click', function () { open(row.closest('.vi-task')); });
+    });
+    var onWide = function () {
+      var shown = groups.filter(function (g) { return !g.hidden; })[0] || groups[0];
+      if (wide.matches) open(shown.querySelector('.vi-task.is-open') || shown.querySelector('.vi-task'));
+    };
+    if (wide.addEventListener) wide.addEventListener('change', onWide); else if (wide.addListener) wide.addListener(onWide);
+    /* a link to one task (site search, a shared link) opens it, on its own list */
+    var target = location.hash && document.getElementById(location.hash.slice(1));
+    var li = target && target.closest ? target.closest('.vi-task') : null;
+    show(li && li.closest('#viElectGroup') ? 1 : 0);
+    if (li) open(li);
+    /* "Send the proof for this task": the portal opens with the task chosen */
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[data-task]');
+      var pick = $('#pfTask');
+      if (a && pick) pick.value = a.getAttribute('data-task');
+    }, true);
+  }());
 
   if (!M || !form) return;
   $('#name').addEventListener('input', draw);
