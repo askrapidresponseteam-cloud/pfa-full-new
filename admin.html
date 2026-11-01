@@ -480,6 +480,26 @@ details.fold[open] > summary{margin-bottom:8px}
 .so-do .press,.so-do .ghost{width:auto;min-height:38px;padding:0 16px}
 .so-do .so-btns{display:inline-flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 .so-form td{background:var(--stone,#f4f3f1)}
+ /* monthly payments reports (1 Nov 2026) */
+.fr{margin-top:22px}
+.fr .fr-who{margin:0 0 12px;font-size:13px;line-height:1.55;color:var(--muted)}
+.fr td .note{font-size:12px;color:var(--muted)}
+.fr .fr-acts{display:inline-flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.fr .fr-acts .ghost{width:auto;min-height:36px;padding:0 14px}
+.fr .say{margin:10px 0 0}
+.fr .say:empty{display:none}
+.fr-steps{margin:18px 0 0;padding:18px;border:1px solid var(--ink)}
+.fr-steps h3{margin:0 0 12px;font-size:16px}
+.fr-step{padding:12px 0;border-top:1px solid var(--line)}
+.fr-step p{margin:6px 0 10px;font-size:13px;line-height:1.55;color:var(--muted)}
+.fr-step .press,.fr-step .ghost{width:auto;min-height:38px;padding:0 16px;margin-right:8px}
+.fr-file{display:inline-flex;align-items:center;cursor:pointer}
+.fr-ok{color:var(--ink)!important;font-weight:600}
+.fr-sum{width:100%;max-width:560px;border-collapse:collapse;margin:8px 0 10px;font-size:13px}
+.fr-sum td{padding:6px 0;border-bottom:1px solid var(--line)}
+.fr-sum td + td{text-align:right;font-weight:600;white-space:nowrap;padding-left:16px}
+.fr-sum .fr-total td{border-bottom:0;padding-top:10px;font-size:14px;font-weight:700}
+.fr-list{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.6}
  /* internship certificates (31 Oct 2026) */
 .ct{display:grid;gap:22px;max-width:1080px}
 .ct-fields{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:10px 14px}
@@ -820,8 +840,11 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
           <option value="">Every purpose</option><option value="donate">Donation</option>
           <option value="caregiver">Colony card postage</option><option value="caregiver-application">Caregiver application fee</option><option value="shop">Shop order</option>
         </select>
+        <!-- Paid first, and chosen (owner, 1 Nov 2026: "by default show
+             completed ones only. only if someone clicks on unfinished");
+             the rest are there to choose -->
         <select id="payStatus" aria-label="Outcome">
-          <option value="">Every outcome</option><option value="paid">Paid</option>
+          <option value="paid" selected>Paid</option><option value="">Every outcome</option>
           <option value="failed">Failed</option><option value="unverified">Not confirmed</option>
           <option value="abandoned">Abandoned</option><option value="started">Not finished</option>
         </select>
@@ -839,6 +862,11 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
            pendingPayments() from /api/admin/payments-pending; empty when
            there is nothing. -->
       <div id="payPending" aria-live="polite"></div>
+      <!-- Monthly payments report (1 Nov 2026): emailed on the 1st to the
+           forms inbox, copied to the payments inboxes (lib/finance-report.js).
+           Folded under a +; each month says whether it went, with its CSV.
+           Filled by financeReports() from /api/admin/finance-report. -->
+      <details class="fold fr" id="frFold"><summary>Monthly payments reports</summary><div id="frBody"><div class="loading">Reading&#8230;</div></div></details>
     </div>
 
     <div class="pane" data-pane="donations" role="region" aria-label="Donations">
@@ -2046,6 +2074,154 @@ window.addEventListener('unhandledrejection', function (event) {
      it. No technical warning: when this server cannot ask CCAvenue, the
      site does it by itself once a day (Vercel's daily run), so the row has
      no button rather than a greyed one with a message on every line. */
+  /* ---- monthly payments reports (owner, 1 Nov 2026) --------------------
+     Each of the last twelve months: whether its report went (made, emailed,
+     the queue's attempts and last error), the count and total, the CSV, and
+     "Send now" (or "Send again") for a month that has ended. */
+  var FR_STATE = { sent: 'Sent', queued: 'Waiting to send', making: 'Being made', failed: 'Not made', 'waiting-old-site': 'Waiting for the old site\u2019s payments' };
+  /* A month that brings in the old site's payments (October 2026) opens a
+     short run of steps under the table: add the old site's export, check
+     every payment with CCAvenue, read what was matched and why, then send. */
+  var fr = { open: '', preview: null, busy: false };
+  var NEEDS_OLD = { '2026-10': true };
+  function frSteps() {
+    var box = $('#frSteps');
+    if (!box) return;
+    if (!fr.open) { box.innerHTML = ''; return; }
+    var p = fr.preview;
+    if (!p) { box.innerHTML = '<div class="loading">Reading ' + esc(fr.open) + '\u2026</div>'; return; }
+    var r = p.reconciliation;
+    var sm = r ? r.summary : null;
+    var g = p.gateway || { total: 0, asked: 0, left: 0 };
+    var li = function (items, f) { return items && items.length ? '<ul class="fr-list">' + items.map(function (x) { return '<li>' + esc(f(x)) + '</li>'; }).join('') + '</ul>' : ''; };
+    var site = function (x) { return x === 'old' ? 'old site' : 'new site'; };
+    box.innerHTML = '<div class="fr-steps"><h3>' + esc(p.label) + '</h3>'
+      + (p.needsOldSite ? '<div class="fr-step"><b>1. The old site\u2019s payments</b><p>' + esc(p.window.note) + ' Add the old site\u2019s payments export (CSV); rows from ' + esc(p.window.from) + ' to ' + esc(p.window.to) + ' are taken, only their date, category, name, amount, method and order id.</p>'
+        + (p.imported ? '<p class="fr-ok">' + p.imported.count + ' old-site payments added' + (p.imported.skipped ? ', ' + p.imported.skipped + ' rows outside those days left out' : '') + '.</p>' : '')
+        + '<label class="ghost fr-file">' + (p.imported ? 'Replace the CSV' : 'Choose the CSV') + '<input type="file" accept=".csv,text/csv" data-fr-csv hidden></label></div>' : '')
+      + '<div class="fr-step"><b>' + (p.needsOldSite ? '2. ' : '') + 'Check with CCAvenue</b><p>Every payment of the month is asked about at CCAvenue: its status, amount, tracking number and bank reference. '
+        + g.asked + ' of ' + g.total + ' asked.</p>'
+        + (g.left ? '<button class="ghost" type="button" data-fr="verify"' + (fr.busy ? ' disabled' : '') + '>' + (g.asked ? 'Ask about the rest (' + g.left + ')' : 'Ask CCAvenue') + '</button>' : '<p class="fr-ok">All asked.</p>') + '</div>'
+      + (sm ? '<div class="fr-step"><b>' + (p.needsOldSite ? '3. ' : '') + 'What will be sent</b>'
+        + '<table class="fr-sum"><tbody>'
+        + '<tr><td>Old site records</td><td>' + sm.oldSite + '</td></tr><tr><td>New site records</td><td>' + sm.newSite + '</td></tr>'
+        + '<tr><td>On both sites, counted once (same gateway id)</td><td>' + sm.matched + '</td></tr>'
+        + '<tr><td>Confirmed with CCAvenue</td><td>' + sm.confirmed + '</td></tr><tr><td>Amount corrected to CCAvenue\u2019s</td><td>' + sm.corrected + '</td></tr>'
+        + '<tr><td>Not confirmed with CCAvenue</td><td>' + sm.unconfirmed + '</td></tr><tr><td>Left out: not successful at CCAvenue</td><td>' + sm.excluded + '</td></tr>'
+        + p.heads.map(function (h) { return '<tr><td>' + esc(h.label) + ' (' + h.count + ')</td><td>' + esc(h.subtotal) + '</td></tr>'; }).join('')
+        + '<tr class="fr-total"><td>Grand total (' + p.count + ' payments)</td><td>' + esc(p.totalText) + '</td></tr></tbody></table>'
+        + (r.matched.length ? '<details class="fold"><summary>Counted once (' + r.matched.length + ')</summary>' + li(r.matched, function (m) { return m.dropped + ' (' + site(m.droppedSource) + ') is ' + m.kept + ' (' + site(m.keptSource) + '): same ' + m.by + (m.sameAmount ? '' : ', amounts differ'); }) + '</details>' : '')
+        + (r.excluded.length ? '<details class="fold"><summary>Left out (' + r.excluded.length + ')</summary>' + li(r.excluded, function (x) { return x.orderId + ', ' + x.name + ', ' + x.amount + ': ' + x.reason; }) + '</details>' : '')
+        + (r.corrected.length ? '<details class="fold"><summary>Amount corrected (' + r.corrected.length + ')</summary>' + li(r.corrected, function (x) { return x.orderId + ', ' + x.name + ': recorded ' + x.recorded + ', CCAvenue ' + x.gateway; }) + '</details>' : '')
+        + (r.unconfirmed.length ? '<details class="fold"><summary>Not confirmed with CCAvenue (' + r.unconfirmed.length + ')</summary>' + li(r.unconfirmed, function (x) { return x.orderId + ' (' + site(x.source) + '), ' + x.name + ', ' + x.amount + ': ' + x.reason; }) + '</details>' : '')
+        + (r.lookalikes.length ? '<details class="fold"><summary>Alike but different payments, both counted (' + r.lookalikes.length + ')</summary>' + li(r.lookalikes, function (x) { return x.a + ' and ' + x.b + ': ' + x.name + ', ' + x.amount + ' on ' + x.date; }) + '</details>' : '')
+        + '</div>' : '')
+      + '<div class="fr-step"><b>' + (p.needsOldSite ? '4. ' : '') + 'Send</b><p>To gandhim, copied to the payments inboxes, with the CSV.' + (g.left ? ' ' + g.left + ' payments are not asked at CCAvenue yet.' : '') + '</p>'
+        + '<button class="press" type="button" data-fr="send-open"' + ((p.needsOldSite && !p.imported) || fr.busy ? ' disabled' : '') + '>Send the ' + esc(p.label) + ' report</button>'
+        + '<button class="ghost" type="button" data-fr="close">Close</button></div>'
+      + '<p class="say" data-fr-step-say role="status" aria-live="polite"></p></div>';
+  }
+  function frLoad(month) {
+    fr.open = month; fr.preview = null; frSteps();
+    api('/api/admin/finance-report?month=' + encodeURIComponent(month) + '&view=reconcile').then(function (d) { fr.preview = d.preview; frSteps(); })
+      .catch(function (e) { $('#frSteps').innerHTML = '<div class="empty"><b>Could not read ' + esc(month) + '</b>' + esc(e.message) + '</div>'; });
+  }
+  function frVerify() {
+    fr.busy = true; frSteps();
+    var step = function () {
+      api('/api/admin/finance-report', { method: 'POST', body: { action: 'verify', month: fr.open } }).then(function (r) {
+        var pr = r.progress || {};
+        if (fr.preview) fr.preview.gateway = { total: pr.total, asked: pr.total - pr.left, left: pr.left };
+        if (r.preview) { fr.busy = false; fr.preview = r.preview; frSteps(); return; }
+        frSteps();
+        if (pr.checked === 0) { fr.busy = false; frLoad(fr.open); return; }
+        step();
+      }).catch(function (e) { fr.busy = false; frSteps(); say($('[data-fr-step-say]'), e.message, 'bad'); });
+    };
+    step();
+  }
+  var FR_MAIL = { sent: 'Delivered to the mail server', queued: 'Waiting to send', retry: 'Will try again', sending: 'Sending', failed: 'Not sent', parked: 'Not sent' };
+  function financeReports(said) {
+    var box = $('#frBody');
+    if (!box) return;
+    api('/api/admin/finance-report').then(function (d) {
+      var rc = d.recipients || {};
+      box.innerHTML = '<p class="fr-who">Sent on the 1st of every month, India time, to <b>' + esc(rc.to || '') + '</b>'
+        + ((rc.cc || []).length ? ', copied to ' + esc(rc.cc.join(', ')) : '') + '. Only successful payments are counted.</p>'
+        + '<div class="wrap"><table><thead><tr><th>Month</th><th class="num">Payments</th><th class="num">Total</th><th>Email</th><th aria-label="Actions"></th></tr></thead><tbody>'
+        + (d.reports || []).map(function (m) {
+          var r = m.report;
+          var mail = r && r.email ? (FR_MAIL[r.email.status] || r.email.status) + (r.email.attempts > 1 ? ' after ' + r.email.attempts + ' tries' : '') + (r.email.lastError && r.email.status !== 'sent' ? '<br><span class="note">' + esc(r.email.lastError) + '</span>' : '') : (r ? esc(FR_STATE[r.state] || r.state) : '<span class="note">Not made yet</span>');
+          return '<tr data-month="' + esc(m.month) + '"><td><b>' + esc(m.label) + '</b>' + (r && r.madeAt ? '<br><span class="note">Made ' + esc(dayOf(r.madeAt)) + '</span>' : '') + '</td>'
+            + '<td class="num">' + (r ? esc(String(r.count)) : '') + '</td>'
+            + '<td class="num">' + (r ? esc(r.totalText) : '') + '</td>'
+            + '<td>' + mail + (r && r.error ? '<br><span class="note">' + esc(r.error) + '</span>' : '') + '</td>'
+            + '<td><span class="fr-acts"><button class="ghost" type="button" data-fr="csv">CSV</button>'
+            + (NEEDS_OLD[m.month] && (!r || r.state === 'waiting-old-site' || r.state === 'failed')
+              ? '<button class="ghost" type="button" data-fr="open">Reconcile and send</button>'
+              : '<button class="ghost" type="button" data-fr="send">' + (r && r.state !== 'failed' && r.state !== 'waiting-old-site' ? 'Send again' : 'Send now') + '</button>')
+            + '</span></td></tr>';
+        }).join('') + '</tbody></table></div><p class="say" data-fr-say role="status" aria-live="polite"></p><div id="frSteps"></div>';
+      if (fr.open) frLoad(fr.open);
+      if (said) say($('[data-fr-say]'), said.text, said.tone);
+    }).catch(function (e) { box.innerHTML = '<div class="empty"><b>Could not read the reports</b>' + esc(e.message) + '</div>'; });
+  }
+  on('#frBody', 'change', function (e) {
+    var input = e.target.closest && e.target.closest('[data-fr-csv]');
+    if (!input || !input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (file.size > 2500000) { say($('[data-fr-step-say]'), 'That file is too large for a month of payments.', 'bad'); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      say($('[data-fr-step-say]'), 'Adding\u2026');
+      api('/api/admin/finance-report', { method: 'POST', body: { action: 'import', month: fr.open, csv: String(reader.result || '') } }).then(function (r) {
+        fr.preview = r.preview; frSteps();
+        say($('[data-fr-step-say]'), r.imported.count + ' old-site payments added.', 'good');
+      }).catch(function (err) { say($('[data-fr-step-say]'), err.message, 'bad'); });
+    };
+    reader.readAsText(file);
+  });
+  on('#frFold', 'toggle', function (e) { if (e.target.open && !e.target.getAttribute('data-read')) { e.target.setAttribute('data-read', '1'); financeReports(); } });
+  on('#frBody', 'click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-fr]');
+    if (!b) return;
+    var what = b.getAttribute('data-fr');
+    if (what === 'close') { fr.open = ''; frSteps(); return; }
+    if (what === 'verify') { frVerify(); return; }
+    if (what === 'send-open') {
+      if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Email it to gandhim now?'; return; }
+      b.disabled = true;
+      api('/api/admin/finance-report', { method: 'POST', body: { action: 'send', month: fr.open } }).then(function (r) {
+        var res = r.result || {};
+        fr.open = '';
+        financeReports({ text: (res.state === 'sent' ? 'Sent: ' : 'Queued: ') + res.count + ' payments, ' + res.total + '.', tone: 'good' });
+      }).catch(function (err) { b.disabled = false; say($('[data-fr-step-say]'), err.message, 'bad'); });
+      return;
+    }
+    var month = b.closest('tr').getAttribute('data-month');
+    if (what === 'open') { frLoad(month); setTimeout(function () { var st = $('#frSteps'); if (st) st.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); return; }
+    if (b.getAttribute('data-fr') === 'csv') {
+      b.disabled = true;
+      token().then(function (id) {
+        return fetch('/api/admin/finance-report?month=' + encodeURIComponent(month) + '&format=csv', { headers: { Authorization: 'Bearer ' + id } });
+      }).then(function (r) { if (!r.ok) throw new Error('The CSV could not be read.'); return r.blob(); }).then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'PFA-payments-' + month + '.csv'; a.click();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      }).catch(function (err) { say($('[data-fr-say]'), err.message, 'bad'); }).then(function () { b.disabled = false; });
+      return;
+    }
+    if (b.getAttribute('data-fr') === 'send') {
+      if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Email it now?'; return; }
+      b.disabled = true;
+      api('/api/admin/finance-report', { method: 'POST', body: { action: 'send', month: month } }).then(function (r) {
+        var res = r.result || {};
+        financeReports({ text: (res.state === 'sent' ? 'Sent: ' : 'Queued: ') + res.count + ' payments, ' + res.total + '.', tone: 'good' });
+      }).catch(function (err) { b.disabled = false; say($('[data-fr-say]'), err.message, 'bad'); });
+    }
+  });
+
   function pendingPayments() {
     var box = $('#payPending');
     if (!box) return Promise.resolve();

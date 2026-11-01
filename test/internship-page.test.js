@@ -1,6 +1,6 @@
 'use strict';
 
-/* The virtual internship on the site (owner, 31 Oct 2026: "add internship
+/* The remote internship on the site (owner, 31 Oct 2026: "add internship
    page inline with the current website theme. cert theme to be this blue
    one"). */
 
@@ -34,10 +34,10 @@ test('in the site theme: the shared header, footer, microsite kit and editorial 
   assert.match(html, /<link rel="stylesheet" href="assets\/micro\.css">/);
   assert.match(html, /<link rel="stylesheet" href="assets\/pfa-theme\.css">/);
   assert.ok(doc.querySelector('header.site') && doc.querySelector('footer.pfa-footer') && doc.querySelector('nav.pfa-tabs'));
-  assert.equal(doc.querySelector('title').textContent, 'Virtual internship | People for Animals');
+  assert.equal(doc.querySelector('title').textContent, 'Remote internship | People for Animals');
   assert.ok(doc.querySelector('header.site a[aria-current="page"][data-nav="internship.html"]'), 'marked in the Get Involved menu');
-  assert.match(read('assets/chrome-header.html'), /\{\{CURRENT:internship\.html\|Virtual internship\}\}/);
-  assert.match(read('assets/chrome-footer.html'), /<li><a href="internship\.html">Virtual internship<\/a><\/li>/);
+  assert.match(read('assets/chrome-header.html'), /\{\{CURRENT:internship\.html\|Remote internship\}\}/);
+  assert.match(read('assets/chrome-footer.html'), /<li><a href="internship\.html">Remote internship<\/a><\/li>/);
 });
 
 test('five core tasks and seven electives, each with a target and its detail under a plus; eight weeks', () => {
@@ -169,7 +169,7 @@ test('the application: four steps, the address, a parent for 16 and 17, filed as
   assert.match(html, /kind: 'PFA-VI',\s*page: 'internship\.html'/);
   assert.match(html, /a < 16 \? 'The internship is for people aged 16 and over\.'/);
   const S = require('../lib/submissions');
-  assert.equal(S.KIND_LABELS['PFA-VI'], 'Virtual internship application');
+  assert.equal(S.KIND_LABELS['PFA-VI'], 'Remote internship application');
   const F = require('../lib/submission-fields');
   assert.equal(F.specFor('PFA-VI').page, 'internship.html');
   assert.ok(require('../lib/confirmations.js'));

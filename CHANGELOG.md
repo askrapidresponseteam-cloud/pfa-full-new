@@ -1,3 +1,20 @@
+## v1.490
+
+- **Monthly payments report. Emailed on the 1st to gandhim, copied to the payments inboxes, with a CSV.** Owner, 1 Nov 2026: "On the 1st of every month, automatically email a consolidated financial report for the previous calendar month to gandhim, CC'ing the accounts team".
+  - **What it covers:** only successful payments, India time, under five heads: Donations, Patrons and membership, Shop orders, Colony caregiver cards, and Other payments. Each row has the payer, the date and time paid, the purpose, the amount, the status, and the transaction and reference IDs. Each head has a subtotal and the month has a grand total. Rupees and dollars are never added together. The CSV has every row plus the bank and CCAvenue references (lib/finance-report.js).
+  - **Dating payments:** a payment belongs to the month it was paid. Every payment now records `paidAt`; older ones are dated by CCAvenue's first successful answer, so a shop order shipped later stays in the month it was paid.
+  - **Sending:** the existing email worker sends it, on Vercel's daily run and Firebase's every ten minutes. It goes on the 1st, or up to the 7th if the 1st is missed. It is claimed once per month in a transaction, so two servers never send two. Every attempt is logged, and failures retry through the queue.
+  - **This email only:** this is the one money email that goes to gandhim, by this instruction. The CC is fixed to the payments inboxes, whatever the queue says. No other email can carry a CC.
+  - **Panel:** under Payments, "Monthly payments reports" lists the last twelve months with their delivery state, the CSV, and Send now or Send again. A send by hand goes in the audit log.
+- **October 2026: the old site's payments, each counted once.** Owner, 1 Nov 2026: "combine the old site's payment records from 1-21 October with the new site's records from its launch on 21-31 October. Reconcile the migration overlap using payment gateway transaction IDs and reference numbers".
+  - **On hold:** October is held back from the automatic send.
+  - **Steps:** in the panel, add the old site's export (only date, category, name, amount, method and order id are kept), ask CCAvenue about every payment from both sites, review, then send.
+  - **Matching:** two records are one payment only when they share a gateway identifier: the order id, CCAvenue's tracking number or the bank reference. Never by name or amount. Look-alikes are both counted and listed.
+  - **The gateway decides:** a payment CCAvenue says did not succeed (refunded, aborted, and so on) is left out and listed. A different amount is counted at CCAvenue's amount and listed. One CCAvenue could not confirm is counted as recorded and listed as not confirmed.
+  - **In the report:** the email and the CSV show how many came from each site, how many matched, and what the gateway confirmed (lib/finance-reconcile.js).
+- **Payments opens on the paid ones.** Owner: "by default show completed ones only". The outcome filter starts at Paid; "Not finished" and the rest show only when chosen.
+- **Remote internship, not virtual.** Owner: "call remote internship.. since it is not entirely virtual". Renamed everywhere it is read: the page, the header and footer menus, search, the application's name and its confirmation email.
+
 ## v1.489
 
 - **The task targets line up. Figures in one column, units in the next.** Owner, 1 Nov 2026: "looks odd, not aligned properly..it is here and there". On a wide screen each target on the task cards sits in two fixed columns: the figure ends on one line and the unit starts on the next, so 100, 4 and 1 line up down the list. On a phone the target moves under the task's name and starts where every other target starts, so the name has the width and wraps less. Checked by measuring every card on both lists at 1440 and 360px.

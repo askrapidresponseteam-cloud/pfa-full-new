@@ -21,7 +21,7 @@ test('every public form and paid application reaches the admin panel and sends i
   const rows = await run();
   assert.deepEqual(rows.map((r) => r.kind).sort(),
     ['PFA-CAM', 'PFA-CG', 'PFA-CK', 'PFA-CMP', 'PFA-CR', 'PFA-CSR', 'PFA-EV', 'PFA-J', 'PFA-LEG', 'PFA-MEM', 'PFA-PRV', 'PFA-Q', 'PFA-S', 'PFA-SG', 'PFA-U', 'PFA-V', 'PFA-VI', 'PFA-VP'],
-    'sixteen forms (the virtual internship and its proof portal joined on 31 Oct 2026) and two paid applications');
+    'sixteen forms (the remote internship and its proof portal joined on 31 Oct 2026) and two paid applications');
   for (const r of rows) {
     assert.ok(r.filed, `${r.doing} (${r.kind}) was not filed where the admin panel reads it`);
     assert.ok(r.ack && r.ack.to === EMAIL, `${r.doing} (${r.kind}) sent no acknowledgement`);
