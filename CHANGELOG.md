@@ -1,3 +1,13 @@
+## v1.495
+
+- **Internship: the process first, then two task lanes.** Owner, 1 Nov 2026: internship-process.html, "process should be explained 1st and then only if clicks continue", "separate lanes for both", "all the cards should open without scroll. each one", "border within the box is fucked up".
+  - **How the internship works**: "Eight weeks. Real work. A kinder town.", the line under it, and 8 weeks, 6 to 8 hours a week, 5 + 3 tasks, Free to join. Then the four steps, each with its photograph: Apply, Follow the weekly plan, Send proof as you go, Earn your certificate. Each opens to the whole of it (the application, the eight weeks, what proof is and how it is signed off, the certificate with your name). Continue to the tasks, with "No experience with animals is needed." under it.
+  - **Your eight-week plan**: "Five for everyone. Three of your choosing." Lane 01, Mandatory tasks, weeks 1 to 5: the five core tasks with their photographs. Lane 02, Optional tasks, weeks 6 and 7: the seven electives, any three.
+  - In the site's own type and stone, not the dark screen of the file. Photographs whole, never cropped or zoomed. Ranges written as words ("6 to 8", "16 or 17"), never with a long dash.
+  - The section is one screen from 1920x1080 down to a 720-line laptop, and every step and task opens whole without scrolling (checked at nine sizes, every card opened). A tap no longer leaves a focus ring around the first card.
+- **Donate: the amount box is one box.** Typing an amount drew a brown ring inside the box's own black edge; a field now shows focus by its own edge only. The same fixed on the intern portal's sign-in and the shop's sort.
+- **The Academy deck: an open card fits the screen.** It opens over the deck at the screen's height and is fitted, not cut, and the deck reads card sizes given as screen-height sums correctly.
+
 ## v1.494
 
 - **Internship: the tasks in one row, how it works in another.** Owner, 1 Nov 2026: "dont mix up the tasks and the rules/process in 1 section.. let tasks be in 1 row and the process/rules in another".

@@ -28,7 +28,29 @@
     var panel = q('.deck__panel'), pPill = q('[data-deck-pill]'), pTitle = q('[data-deck-title]'), pBody = q('[data-deck-body]'), pArt = q('[data-deck-art]');
     var nextBtn = q('.deck__next'), showBtn = q('.deck__show'), closeBtn = q('.deck__close'), oneBtn = q('[data-deck-one]'), allBtn = q('[data-deck-all]');
     var i = 0, grid = false, opened = null;
-    function px(name) { return parseFloat(getComputedStyle(deck).getPropertyValue(name)) || 0; }
+    /* a size as the page set it: a plain length, or a calc() or clamp() of
+       the screen's height, measured on a hidden probe so either reads true */
+    var probe = document.createElement('i');
+    probe.setAttribute('aria-hidden', 'true');
+    probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;height:0;left:0;top:0';
+    deck.appendChild(probe);
+    function len(expr) { probe.style.width = expr; return probe.getBoundingClientRect().width; }
+    /* the height of everything in the section but the cards: its padding,
+       its heading and its view switch */
+    function besideStage() {
+      var cs = getComputedStyle(deck), h = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      [].forEach.call(deck.children, function (el) {
+        if (el === stage || el === probe || el.classList.contains('deck__panel')) return;
+        var es = getComputedStyle(el);
+        if (es.position === 'absolute' || es.position === 'fixed' || es.display === 'none') return;
+        h += el.offsetHeight + parseFloat(es.marginTop) + parseFloat(es.marginBottom);
+      });
+      return h + parseFloat(getComputedStyle(stage).marginTop);
+    }
+    function px(name) {
+      probe.style.width = 'var(' + name + ')';
+      return probe.getBoundingClientRect().width || parseFloat(getComputedStyle(deck).getPropertyValue(name)) || 0;
+    }
     function put(c, x, y, r, s, off, z) {
       c.style.setProperty('--x', x + 'px'); c.style.setProperty('--y', y + 'px');
       c.style.setProperty('--r', r + 'deg'); c.style.setProperty('--s', String(s));
@@ -51,12 +73,24 @@
       } else {
         var gw = px('--gw'), gap = px('--gap');
         var W = stage.clientWidth;
-        /* data-deck-row: every card on one row, made smaller to fit, as long
-           as each stays readable (the internship's tasks, then its process) */
-        var fit = (W - gap * (cards.length - 1)) / cards.length;
-        if (deck.hasAttribute('data-deck-row') && fit >= 150) gw = Math.min(gw, fit);
+        var cols = Math.min(cards.length, Math.max(2, Math.floor((W + gap) / (gw + gap))));
+        /* data-deck-row, on a screen wide enough: every card shown at once,
+           as large as both the width and the height of one screen allow
+           (never larger than the card itself), in as many rows as gives the
+           largest card, so the whole set is seen without scrolling (the
+           internship's tasks, then its process) */
+        if (deck.hasAttribute('data-deck-row') && W >= 600) {
+          var room = len('calc(100svh - var(--ann,34px) - var(--nav,81px) - var(--tabbar,0px))') - besideStage() - 40;
+          var best = 0, bestCols = cols;
+          for (var n = cards.length; n >= 2; n -= 1) {
+            var r = Math.ceil(cards.length / n);
+            var g = Math.min(cw, (W - gap * (n - 1)) / n, ((room - gap * (r - 1)) / r) * cw / ch);
+            if (g > best + 0.5) { best = g; bestCols = n; }
+          }
+          if (best >= 110) { gw = best; cols = bestCols; }
+        }
         var s = gw / cw, gh = ch * s;
-        var cols = Math.max(2, Math.floor((W + gap) / (gw + gap))), rows = Math.ceil(cards.length / cols);
+        var rows = Math.ceil(cards.length / cols);
         var H = rows * gh + (rows - 1) * gap + 40;
         stage.style.height = H + 'px';
         cards.forEach(function (c, k) {
@@ -68,6 +102,26 @@
       if (nextBtn) nextBtn.textContent = i === cards.length - 1 ? (nextBtn.getAttribute('data-again') || 'Start again') : (nextBtn.getAttribute('data-label') || 'Next card');
     }
     function show(k) { i = (k + cards.length) % cards.length; layout(); cards[i].focus({ preventScroll: true }); }
+    function fit() {
+      var inner = panel.querySelector('.deck__panel-in');
+      if (!inner || panel.hidden) return;
+      var z = 1;
+      inner.style.zoom = '';
+      panel.classList.remove('is-dense');
+      /* on a wide screen, a card that does not fit first gives its words the
+         whole width (lists in two columns, the photograph left on the card's
+         face), and is scaled only if it still does not fit */
+      if (panel.scrollHeight > panel.clientHeight + 1 && root.innerWidth > 860) {
+        var h0 = panel.scrollHeight;
+        panel.classList.add('is-dense');
+        /* kept only when it makes the card shorter */
+        if (panel.scrollHeight >= h0) panel.classList.remove('is-dense');
+      }
+      while (panel.scrollHeight > panel.clientHeight + 1 && z > 0.55) {
+        z = Math.round((z - 0.03) * 100) / 100;
+        inner.style.zoom = String(z);
+      }
+    }
     function open(c) {
       opened = c;
       if (pPill) pPill.textContent = c.getAttribute('data-pill') || '';
@@ -76,10 +130,9 @@
       if (pBody) pBody.innerHTML = more ? more.innerHTML : '';
       if (pArt) pArt.innerHTML = art ? art.innerHTML : '';
       panel.hidden = false;
-      /* the stage grows to hold the whole card, so nothing in it is cut off
-         or left to scroll inside it (a row of cards is shorter than an open
-         card); a card taller than the screen scrolls with the page */
-      var fit = function () { if (opened === c) stage.style.minHeight = Math.ceil(panel.scrollHeight) + 24 + 'px'; };
+      /* the card opens whole on the screen: when it holds more than the
+         screen has room for, what is inside is scaled down a little until it
+         fits, so nothing is cut and nothing scrolls */
       opened = c; fit(); setTimeout(fit, 120); setTimeout(fit, 500);
       try { deck.dispatchEvent(new CustomEvent('deck:open', { detail: { card: c, panel: panel, index: cards.indexOf(c) } })); } catch (_) { /* old browsers: the panel still opens */ }
       /* a frame later, so the panel's first painted size is the card's and
@@ -90,7 +143,7 @@
       if (!opened) return;
       deck.classList.remove('is-open');
       var was = opened; opened = null;
-      setTimeout(function () { if (!opened) { panel.hidden = true; stage.style.minHeight = ''; } }, 450);
+      setTimeout(function () { if (!opened) panel.hidden = true; }, 450);
       was.focus({ preventScroll: true });
     }
     function view(all) {
@@ -120,8 +173,15 @@
       if (e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
     });
+    /* a line opened inside the card (an elective under its plus) makes it
+       taller: fitted again */
+    panel.addEventListener('toggle', function () { setTimeout(fit, 30); }, true);
+    document.addEventListener('click', function (e) {
+      if (!opened || panel.contains(e.target) || (e.target.closest && e.target.closest('.deck__cards > .card, .deck__show'))) return;
+      close();
+    });
     var t = null;
-    root.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(layout, 120); });
+    root.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(function () { layout(); fit(); }, 120); });
     /* data-deck-start="row": opens laid out, on a screen wide enough for
        the row; a phone keeps the one-card stack */
     if (deck.getAttribute('data-deck-start') === 'row' && stage.clientWidth >= 760) view(true); else layout();

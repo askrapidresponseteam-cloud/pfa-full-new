@@ -339,12 +339,8 @@
      "label": "Make care count."
     },
     {
-     "id": "cards",
-     "label": "Five core, three electives."
-    },
-    {
-     "id": "how",
-     "label": "From applying to the certificate."
+     "id": "collection",
+     "label": "Eight weeks. Real work. A kinder town."
     },
     {
      "id": "apply",
@@ -1287,6 +1283,11 @@
    "doneRef": "start"
   },
   "internship": {
+   "vcTitle": "collection",
+   "vcMand": "collection",
+   "vcOpt": "collection",
+   "vcReader": "collection",
+   "vcRdTitle": "collection",
    "minorBox": "apply",
    "done": "apply",
    "doneRef": "apply",

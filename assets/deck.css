@@ -49,4 +49,14 @@
 .deck__panel-art{width:min(100%,300px);aspect-ratio:1;justify-self:center}
 @media (max-width:860px){.deck__panel-in{grid-template-columns:1fr}.deck__panel-art{display:none}.deck__links{grid-template-columns:1fr}}
 @media (max-width:720px){.deck{--cw:250px;--ch:340px;--gw:140px;--gap:12px;padding-bottom:22px}.deck__ctl{position:static;transform:none;display:inline-block;margin:0 14px}.deck__stage{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:6px}.deck__cards{bottom:60px}}
+/* An open card is a window over the page, between the header and the tab
+   bar, never taller than the screen: it opens whole, with no scroll inside
+   it or on the page (owner, 1 Nov 2026: "all the cards should open without
+   scroll. each one"). deck.js scales what is inside down a little when a
+   card holds more than the screen has room for. */
+.deck__panel{position:fixed;z-index:60;top:calc((var(--ann,34px) + var(--nav,81px) + 100svh - var(--tabbar,0px)) / 2);max-height:calc(100svh - var(--ann,34px) - var(--nav,81px) - var(--tabbar,0px) - 32px);width:min(1080px,calc(100vw - 32px));overflow:hidden}
+.deck__panel.is-dense .deck__panel-in{grid-template-columns:minmax(0,1fr)}
+.deck__panel.is-dense .deck__panel-art{display:none}
+.deck__panel.is-dense .deck__text h2{max-width:none}
+.deck.is-open::before{content:"";position:fixed;inset:0;z-index:55;background:rgba(17,17,17,.22)}
 @media (prefers-reduced-motion:reduce){.card,.deck__panel,.deck__stage{transition:none}}
