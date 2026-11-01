@@ -1456,3 +1456,188 @@
   window.addEventListener('resize', later);
   window.addEventListener('orientationchange', later);
 })();
+
+/* ---- Short forms, in full on hover or tap (owner, 1 Nov 2026: "items
+   like tl;dr when someone hovers over abbrev like these- full form should
+   appear") --------------------------------------------------------------
+   Every short form below is found in the page's text, once it has loaded,
+   and marked: a dotted underline, and on hover, focus or a tap its full
+   form in a small black tip above it (a phone has no hover). A screen
+   reader is given the full form as the word's description. Only these
+   words, matched whole and as written, so "PO" in a dose table is not
+   caught as a name and a word like "who" is never touched; PFA, the site's
+   own name, is left as it is. Nothing inside a form field, a script, the
+   header, the menus or the footer is changed. A page can keep a block out
+   with data-no-abbr. */
+(function () {
+  'use strict';
+  var FULL = {
+    'TL;DR': 'Too long; didn’t read: the short version',
+    'PCA': 'Prevention of Cruelty to Animals (the PCA Act, 1960)',
+    'CSR': 'Corporate Social Responsibility',
+    'ABC': 'Animal Birth Control: sterilising and vaccinating community dogs',
+    'BNS': 'Bharatiya Nyaya Sanhita, 2023: India’s criminal law',
+    'BNSS': 'Bharatiya Nagarik Suraksha Sanhita, 2023: India’s criminal procedure',
+    'IPC': 'Indian Penal Code, replaced by the Bharatiya Nyaya Sanhita from July 2024',
+    'AWBI': 'Animal Welfare Board of India',
+    'PCICDA': 'Prevention and Control of Infectious and Contagious Diseases in Animals Act, 2009',
+    'FSSA': 'Food Safety and Standards Act, 2006',
+    'FSSAI': 'Food Safety and Standards Authority of India',
+    'ICAR': 'Indian Council of Agricultural Research',
+    'CARI': 'Central Avian Research Institute',
+    'CIFA': 'Central Institute of Freshwater Aquaculture',
+    'CIRG': 'Central Institute for Research on Goats',
+    'NDDB': 'National Dairy Development Board',
+    'NCDC': 'National Centre for Disease Control',
+    'NADCP': 'National Animal Disease Control Programme',
+    'NAPRE': 'National Action Plan for Dog Mediated Rabies Elimination',
+    'CRI': 'Central Research Institute, Kasauli',
+    'WHO': 'World Health Organization',
+    'WSAVA': 'World Small Animal Veterinary Association',
+    'VCI': 'Veterinary Council of India',
+    'IVC': 'Indian Veterinary Council (the IVC Act, 1984)',
+    'CPCSEA': 'Committee for the Purpose of Control and Supervision of Experiments on Animals, now the CCSEA',
+    'CCSEA': 'Committee for Control and Supervision of Experiments on Animals',
+    'DGFT': 'Directorate General of Foreign Trade',
+    'DGCA': 'Directorate General of Civil Aviation',
+    'AQCS': 'Animal Quarantine and Certification Services',
+    'UGC': 'University Grants Commission',
+    'OECD': 'Organisation for Economic Co-operation and Development',
+    'SPCA': 'Society for the Prevention of Cruelty to Animals',
+    'NGO': 'Non-governmental organisation',
+    'RWA': 'Resident Welfare Association',
+    'FIR': 'First Information Report: the police’s record of a complaint',
+    'SCC': 'Supreme Court Cases, the law reports',
+    'HC': 'High Court',
+    'RTI': 'Right to Information (the RTI Act, 2005)',
+    'RRT': 'Rapid Response Team: the network of people who help animals in their district, at rapid-response.in',
+    'FFI': 'Film Federation of India',
+    'SOP': 'Standard operating procedure',
+    'NSAID': 'Non-steroidal anti-inflammatory drug',
+    'OTC': 'Over the counter: sold without a prescription',
+    'IU': 'International units',
+    'MDR1': 'Multi-drug resistance gene 1: some breeds react badly to certain medicines',
+    'BID': 'Twice a day',
+    'TID': 'Three times a day',
+    'QID': 'Four times a day',
+    'ASV': 'Anti-snake venom (antivenom)',
+    'RIG': 'Rabies immunoglobulin',
+    'PEP': 'Post-exposure prophylaxis: the shots after a bite',
+    'CDV': 'Canine distemper virus',
+    'CAV': 'Canine adenovirus',
+    'CPV': 'Canine parvovirus',
+    'FPV': 'Feline panleukopenia virus',
+    'FHV': 'Feline herpesvirus',
+    'FCV': 'Feline calicivirus',
+    'FMD': 'Foot-and-mouth disease',
+    'HS': 'Haemorrhagic septicaemia',
+    'PPR': 'Peste des petits ruminants, goat plague',
+    'LSD': 'Lumpy skin disease',
+    'UPI': 'Unified Payments Interface',
+    'PAN': 'Permanent Account Number',
+    'IST': 'India Standard Time',
+    '80G': 'Section 80G of the Income Tax Act: gifts that can be deducted from taxable income'
+  };
+  var SKIP = 'SCRIPT,STYLE,NOSCRIPT,TEXTAREA,INPUT,SELECT,OPTION,CODE,PRE,ABBR,SVG,TITLE,BUTTON.deck__ctl';
+  var words = Object.keys(FULL).sort(function (a, b) { return b.length - a.length; });
+  var RE = new RegExp('(^|[^A-Za-z0-9])(' + words.map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')(?![A-Za-z0-9])', 'g');
+  var ids = {};
+  var holder = null;
+
+  function idFor(w) {
+    if (ids[w]) return ids[w];
+    if (!holder) {
+      holder = document.createElement('div');
+      holder.hidden = true;
+      holder.setAttribute('data-abbr-full', '');
+      document.body.appendChild(holder);
+    }
+    var id = 'abbr-' + w.toLowerCase().replace(/[^a-z0-9]/g, '');
+    var span = document.createElement('span');
+    span.id = id;
+    span.textContent = FULL[w];
+    holder.appendChild(span);
+    ids[w] = id;
+    return id;
+  }
+
+  function skipped(node) {
+    for (var el = node.parentElement; el && el !== document.body; el = el.parentElement) {
+      if (el.matches && (el.matches(SKIP) || el.matches('header.site,.pfa-tabs,.pfa-footer,[data-no-abbr],[contenteditable="true"]'))) return true;
+    }
+    return false;
+  }
+
+  function mark(root) {
+    if (!root || !document.createTreeWalker) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var hits = [];
+    for (var n = walker.nextNode(); n; n = walker.nextNode()) {
+      RE.lastIndex = 0;
+      if (n.nodeValue && RE.test(n.nodeValue) && !skipped(n)) hits.push(n);
+    }
+    hits.forEach(function (node) {
+      var text = node.nodeValue;
+      var frag = document.createDocumentFragment();
+      var last = 0;
+      RE.lastIndex = 0;
+      var m;
+      while ((m = RE.exec(text))) {
+        var at = m.index + m[1].length;
+        if (at > last) frag.appendChild(document.createTextNode(text.slice(last, at)));
+        var a = document.createElement('abbr');
+        a.className = 'pfa-abbr';
+        a.textContent = m[2];
+        a.setAttribute('data-full', FULL[m[2]]);
+        a.setAttribute('aria-describedby', idFor(m[2]));
+        frag.appendChild(a);
+        last = at + m[2].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  /* one tip for the page, placed above the word and kept on the screen */
+  var tip = null;
+  var current = null;
+  function show(a) {
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.className = 'pfa-abbr-tip';
+      tip.setAttribute('role', 'tooltip');
+      tip.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(tip);
+    }
+    current = a;
+    tip.textContent = a.getAttribute('data-full');
+    tip.classList.add('is-on');
+    var r = a.getBoundingClientRect();
+    var w = tip.offsetWidth;
+    var h = tip.offsetHeight;
+    var left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+    var top = r.top - h - 8 < 8 ? r.bottom + 8 : r.top - h - 8;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  function hide() { if (tip) tip.classList.remove('is-on'); current = null; }
+
+  document.addEventListener('mouseover', function (e) {
+    var a = e.target.closest && e.target.closest('abbr.pfa-abbr');
+    if (a) show(a); else if (current && !(e.target.closest && e.target.closest('.pfa-abbr-tip'))) hide();
+  });
+  document.addEventListener('focusin', function (e) { var a = e.target.closest && e.target.closest('abbr.pfa-abbr'); if (a) show(a); });
+  /* a tap: shows it, and a tap anywhere else puts it away; a short form
+     inside a link still follows the link */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('abbr.pfa-abbr');
+    if (a && !a.closest('a[href]')) { if (current === a) hide(); else show(a); return; }
+    if (current) hide();
+  });
+  window.addEventListener('scroll', function () { if (current) hide(); }, { passive: true });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+
+  function run() { mark(document.querySelector('main') || document.body); }
+  window.PFAAbbr = { FULL: FULL, mark: mark };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true }); else run();
+})();

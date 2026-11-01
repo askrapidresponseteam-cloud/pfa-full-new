@@ -814,3 +814,9 @@ body input[type=file]::file-selector-button:hover{background:#333}
    fix across the site"). :is() lends this the weight of a class, and body
    one step more, so it outranks those page rules without !important. */
 body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:baseline}
+
+/* Short forms, in full on hover or tap (assets/chrome.js, 1 Nov 2026) */
+abbr.pfa-abbr{text-decoration:underline dotted;text-decoration-thickness:1px;text-decoration-color:color-mix(in srgb,currentColor 50%,transparent);text-underline-offset:3px;cursor:help}
+.pfa-abbr-tip{position:fixed;left:0;top:0;z-index:2147483000;max-width:min(320px,calc(100vw - 16px));padding:8px 11px;background:#111;color:#fff;font:500 12.5px/1.45 'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:.01em;text-transform:none;box-shadow:0 10px 30px -12px rgba(0,0,0,.5);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s ease}
+.pfa-abbr-tip.is-on{opacity:1;visibility:visible}
+@media (prefers-reduced-motion:reduce){.pfa-abbr-tip{transition:none}}

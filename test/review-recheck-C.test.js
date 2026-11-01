@@ -75,7 +75,8 @@ test('C2 a refused login (535): the page does not blame the address, nothing is 
   await atTime(t, () => H.call(worker, { token: null, headers: cron }));
   await atTime(t, () => H.call(worker, { token: null, headers: cron }));
   assert.equal(W.smtp.sent.filter((m) => m.to === PERSON_A).length, 1);
-  assert.equal(W.smtp.sent.filter((m) => m.to === INBOX).length, 1);
+  /* the forward, once (a Monday digest may also reach the inbox in these days) */
+  assert.equal(W.smtp.sent.filter((m) => m.to === INBOX && !/^PFA this week/.test(m.subject)).length, 1);
 });
 
 test('C3 a reply whose filing throws is read again on the next run, not skipped', async () => {

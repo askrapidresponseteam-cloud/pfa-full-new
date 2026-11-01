@@ -75,6 +75,19 @@ service cloud.firestore {
     /* internship certificates: the panel's server routes only (31 Oct 2026) */
     match /certificates/{id}          { allow read, write: if false; }
     match /finance_reports/{id}       { allow read, write: if false; }
+    match /weekly_digests/{id}        { allow read, write: if false; }
+    /* the internship portal (1 Nov 2026): server routes only; an intern
+       reaches their own records through /api/intern, never directly */
+    match /intern_batches/{id}        { allow read, write: if false; }
+    match /interns/{id}               { allow read, write: if false; }
+    match /intern_codes/{id}          { allow read, write: if false; }
+    match /intern_onboard/{id}        { allow read, write: if false; }
+    match /intern_sessions/{id}       { allow read, write: if false; }
+    match /intern_work/{id}           { allow read, write: if false; }
+    match /intern_files/{id}          { allow read, write: if false; }
+    match /intern_usage/{id}          { allow read, write: if false; }
+    match /intern_reminders/{id}      { allow read, write: if false; }
+    match /intern_meta/{id}           { allow read, write: if false; }
     match /caretakerCards/{id}        { allow read, write: if isAdmin(); }
     match /caretakerAddresses/{id}    { allow read, write: if isAdmin(); }
     match /caretakerOrders/{id}       { allow read, write: if isAdmin(); }

@@ -500,6 +500,36 @@ details.fold[open] > summary{margin-bottom:8px}
 .fr-sum td + td{text-align:right;font-weight:600;white-space:nowrap;padding-left:16px}
 .fr-sum .fr-total td{border-bottom:0;padding-top:10px;font-size:14px;font-weight:700}
 .fr-list{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.6}
+ /* the internship portal (1 Nov 2026) */
+.ip{display:grid;gap:6px;max-width:1180px}
+.ip-line{margin:0;font-size:13px;line-height:1.6;color:var(--muted)}
+.ip-line b{color:var(--ink)}
+.ip-line .linky,.ip-t .linky,.ip-links .linky{display:inline;margin:0;padding:0}
+.ip-q{display:grid;gap:10px;margin:10px 0 0}
+.ip-item{border:1px solid var(--line);padding:12px 14px}
+.ip-item__h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:14px;line-height:1.5}
+.ip-item__b{display:grid;gap:10px;margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line)}
+.ip-links{margin:0;padding-left:18px;font-size:13px;line-height:1.7}
+.ip-links a{text-decoration:underline;text-underline-offset:3px;word-break:break-all}
+.ip-note{margin:0;font-size:13px;line-height:1.6;white-space:pre-line;background:var(--line);padding:10px 12px}
+.ip-rev{display:grid;grid-template-columns:140px minmax(0,1fr);gap:10px 14px}
+.ip-rev__fb{min-width:0}
+.ip-rev label{display:grid;gap:6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ip-rev input,.ip-rev textarea{width:100%;padding:8px 10px;border:1px solid var(--line);font:inherit;font-size:14px;background:var(--paper);color:var(--ink);text-transform:none;letter-spacing:0}
+.ip-acts{display:flex;flex-wrap:wrap;gap:8px}
+.ip-acts .press{width:auto;min-height:38px;padding:0 18px}
+.ip-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 0}
+.ip-bar label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ip-bar select{min-height:38px;padding:0 10px;border:1px solid var(--line);font:inherit;font-size:14px;background:var(--paper);max-width:100%}
+.ip-t td{vertical-align:top}
+.ip-dots{display:inline-flex;flex-wrap:wrap;gap:4px}
+.ip-dot{display:inline-block;width:10px;height:10px;border:1px solid var(--ink);background:var(--paper)}
+.ip-dot[data-s="submitted"]{background:linear-gradient(135deg,var(--ink) 50%,var(--paper) 50%)}
+.ip-dot[data-s="revise"]{border-style:dashed}
+.ip-dot[data-s="accepted"]{background:var(--ink)}
+.ip-copy{width:100%;max-width:520px;height:34px;padding:0 8px;border:1px solid var(--line);font:inherit;font-size:12px;background:var(--paper)}
+#ipBPlan{width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;padding:10px;border:1px solid var(--line);background:var(--paper)}
+@media (max-width:700px){.ip-rev{grid-template-columns:minmax(0,1fr)}.ip-item__h{flex-direction:column}}
  /* internship certificates (31 Oct 2026) */
 .ct{display:grid;gap:22px;max-width:1080px}
 .ct-fields{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:10px 14px}
@@ -728,7 +758,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
       <button class="tab" type="button" data-tab="caregivers">Colony cards<span class="pip" id="pipApps" hidden>0</span></button>
       <button class="tab" type="button" data-tab="membership">Membership cards<span class="pip" id="pipMembers" hidden>0</span></button>
-      <button class="tab" type="button" data-tab="certificates">Certificates</button>
+      <button class="tab" type="button" data-tab="internship">Internship<span class="pip" id="pipIntern" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="people" data-super>People &amp; audit</button>
     </div>
@@ -787,6 +817,10 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         <th>Reference</th><th>Kind</th><th>From</th><th>Status</th><th>With</th><th>Arrived</th>
       </tr></thead><tbody id="subRows"></tbody></table></div>
       <div class="more"><button class="ghost" type="button" id="subMore" hidden>Load more</button></div>
+      <!-- Monday digest (1 Nov 2026): last week's orders, members and
+           applications, emailed every Monday with a link to each record
+           (lib/weekly-digest.js). Filled by weeklyDigests(). -->
+      <details class="fold fr" id="wdFold"><summary>Monday digest</summary><div id="wdBody"><div class="loading">Reading&#8230;</div></div></details>
     </div>
 
     <div class="pane" data-pane="volunteers">
@@ -832,6 +866,9 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="shop" role="region" aria-label="Shop orders"><div class="loading">Reading the orders&#8230;</div></div>
     <!-- Internship certificates (31 Oct 2026): type the name and dates, issue,
          download. Filled by certificatesPane(); drawn by assets/certificate.js. -->
+    <!-- The internship portal (1 Nov 2026): review proof, batches and their
+         interns, issuing Intern IDs, the plan. Filled by internshipPane(). -->
+    <div class="pane" data-pane="internship" role="region" aria-label="Internship"><div class="loading">Reading the internship&#8230;</div></div>
     <div class="pane" data-pane="certificates" role="region" aria-label="Internship certificates"><div class="loading">Reading the certificates&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
@@ -1310,6 +1347,7 @@ window.addEventListener('unhandledrejection', function (event) {
     membership:  { title: 'Membership cards', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
     shop:        { title: 'Shop orders',   module: 'shop',        needs: 'shop' },
+    internship:  { title: 'Internship',    module: 'internship',  needs: 'internship', panes: ['internship', 'certificates'] },
     certificates: { title: 'Internship certificates', module: 'certificates', needs: 'certificates' },
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
@@ -1329,7 +1367,11 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function reachable(tab) {
     var spec = TABS[tab];
-    return Boolean(spec) && can(spec.module) && can(spec.needs);
+    if (!spec) return false;
+    if (can(spec.module) && can(spec.needs)) return true;
+    /* a section that stacks panes opens for anyone who has one of them
+       (Internship: someone with only Certificates still reaches it) */
+    return (spec.panes || []).some(function (p) { return p !== tab && TABS[p] && can(TABS[p].module) && can(TABS[p].needs); });
   }
 
   function applyAccess() {
@@ -1352,7 +1394,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* A section folded into another keeps its name here, so an old link or an
      internal show('donations') lands on the section that now holds it. */
-  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', audit: 'people' };
+  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', audit: 'people', certificates: 'internship' };
   function panesOf(tab) { return (TABS[tab] || {}).panes || [tab]; }
   function paneAllowed(pane) {
     var spec = TABS[pane];
@@ -1360,7 +1402,7 @@ window.addEventListener('unhandledrejection', function (event) {
   }
   function show(tab) {
     tab = HOMES[tab] || tab;
-    if (!can(tab)) tab = 'overview';
+    if (!can(tab)) tab = reachable(tab) ? tab : 'overview';
     if (!reachable(tab)) {
       var first = $$('.tab').filter(function (b) { return !b.hidden; })[0];
       tab = first ? first.getAttribute('data-tab') : 'overview';
@@ -1395,6 +1437,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'apply') return applicationsPane();
     if (tab === 'membership') return membershipPane();
     if (tab === 'shop') return shopPane();
+    if (tab === 'internship') return internshipPane();
     if (tab === 'certificates') return certificatesPane();
     if (tab === 'website') return website();
     if (tab === 'people') return people();
@@ -2220,6 +2263,39 @@ window.addEventListener('unhandledrejection', function (event) {
         financeReports({ text: (res.state === 'sent' ? 'Sent: ' : 'Queued: ') + res.count + ' payments, ' + res.total + '.', tone: 'good' });
       }).catch(function (err) { b.disabled = false; say($('[data-fr-say]'), err.message, 'bad'); });
     }
+  });
+
+  /* The Monday digest: each week, whether it went, and Send again */
+  function weeklyDigests(said) {
+    var box = $('#wdBody');
+    if (!box) return;
+    api('/api/admin/weekly-digest').then(function (d) {
+      var rc = d.recipients || {};
+      box.innerHTML = '<p class="fr-who">Every Monday, India time, to <b>' + esc(rc.to || '') + '</b>'
+        + ((rc.cc || []).length ? ', copied to ' + esc(rc.cc.join(', ')) : '') + '. Each person links to their record here, where its status is moved along.</p>'
+        + '<div class="wrap"><table><thead><tr><th>Week</th><th class="num">Listed</th><th class="num">Still new</th><th>Email</th><th aria-label="Actions"></th></tr></thead><tbody>'
+        + (d.weeks || []).map(function (w) {
+          var r = w.digest;
+          var mail = r && r.email ? (FR_MAIL[r.email.status] || r.email.status) + (r.email.lastError && r.email.status !== 'sent' ? '<br><span class="note">' + esc(r.email.lastError) + '</span>' : '') : (r ? esc(r.state) : '<span class="note">Not made yet</span>');
+          return '<tr data-week="' + esc(w.week) + '"><td><b>' + esc(w.label) + '</b></td>'
+            + '<td class="num">' + (r ? esc(String(r.count)) : '') + '</td>'
+            + '<td class="num">' + (r ? esc(String(r.waiting)) : '') + '</td>'
+            + '<td>' + mail + (r && r.error ? '<br><span class="note">' + esc(r.error) + '</span>' : '') + '</td>'
+            + '<td><span class="fr-acts"><button class="ghost" type="button" data-wd="send">' + (r && r.state !== 'failed' ? 'Send again' : 'Send now') + '</button></span></td></tr>';
+        }).join('') + '</tbody></table></div><p class="say" data-wd-say role="status" aria-live="polite"></p>';
+      if (said) say($('[data-wd-say]'), said.text, said.tone);
+    }).catch(function (e) { box.innerHTML = '<div class="empty"><b>Could not read the digests</b>' + esc(e.message) + '</div>'; });
+  }
+  on('#wdFold', 'toggle', function (e) { if (e.target.open && !e.target.getAttribute('data-read')) { e.target.setAttribute('data-read', '1'); weeklyDigests(); } });
+  on('#wdBody', 'click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-wd="send"]');
+    if (!b) return;
+    if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Email it now?'; return; }
+    b.disabled = true;
+    api('/api/admin/weekly-digest', { method: 'POST', body: { action: 'send', week: b.closest('tr').getAttribute('data-week') } }).then(function (r) {
+      var res = r.result || {};
+      weeklyDigests({ text: (res.state === 'sent' ? 'Sent: ' : 'Queued: ') + res.count + ' listed.', tone: 'good' });
+    }).catch(function (err) { b.disabled = false; say($('[data-wd-say]'), err.message, 'bad'); });
   });
 
   function pendingPayments() {
@@ -4295,6 +4371,22 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* ---- getting in ---------------------------------------------------------- */
 
+  /* A record opened from an email (the Monday digest links each person as
+     admin.html#case=REF): read before signing in, opened once the panel is
+     up, and again whenever the address changes to another one. */
+  function caseInHash() {
+    var m = /(?:^#|&)case=([A-Za-z0-9-]{4,40})(?:&|$)/.exec(location.hash || '');
+    return m ? m[1].toUpperCase() : '';
+  }
+  var wantedCase = caseInHash();
+  function openWantedCase() {
+    var ref = wantedCase || caseInHash();
+    wantedCase = '';
+    if (!ref || !me || $('#app').hidden) return;
+    showCase(ref);
+  }
+  window.addEventListener('hashchange', function () { if (caseInHash()) openWantedCase(); });
+
   function begin(admin) {
     me = admin;
     $('#signin').hidden = true;
@@ -4302,6 +4394,9 @@ window.addEventListener('unhandledrejection', function (event) {
     applyAccess();
     show('overview');
     replyWatch();
+    openWantedCase();
+    /* proof waiting for review shows on the rail */
+    if (can('internship')) api('/api/admin/internship?queue=review').then(function (d) { ipPip((d.queue || []).length); }).catch(function () {});
   }
 
   /* ---- replies not being picked up ---------------------------------------
@@ -4635,6 +4730,209 @@ window.addEventListener('unhandledrejection', function (event) {
     if (!canvas || !window.PFACertificate) return;
     window.PFACertificate.draw(canvas, ctData(), 1);
   }
+  /* ---- the internship portal (1 Nov 2026) --------------------------------
+     lib/routes/admin/internship.js. One screen, folded under +: what is
+     waiting for review first, then the batch and its interns, then issuing
+     Intern IDs, then the batch's plan and the reminder log. */
+  var ip = { batch: '', home: null, view: null, apps: null, issued: null, reviewing: '', who: '' };
+  var IP_STATE = { todo: 'To do', submitted: 'Waiting', revise: 'Revise', accepted: 'Accepted' };
+  function internshipPane(said) {
+    var node = $('[data-pane="internship"]');
+    if (!node) return undefined;
+    return api('/api/admin/internship').then(function (d) {
+      ip.home = d;
+      if (!ip.batch && d.batches.length) ip.batch = d.batches[0].batchId;
+      return Promise.all([
+        api('/api/admin/internship?queue=review'),
+        ip.batch ? api('/api/admin/internship?batch=' + encodeURIComponent(ip.batch)) : Promise.resolve(null)
+      ]);
+    }).then(function (r) {
+      ip.queue = r[0].queue || [];
+      ipPip(ip.queue.length);
+      ip.view = r[1];
+      ipRender(said);
+    }).catch(function (e) { fail(node, e); });
+  }
+  function ipPip(n) { var pip = $('#pipIntern'); if (pip) { pip.textContent = String(n); pip.hidden = !n; } }
+  function ipRender(said) {
+    var node = $('[data-pane="internship"]');
+    var h = ip.home || {};
+    var u = h.usage || {};
+    var rrt = h.rrt || {};
+    var out = ['<div class="ip">'];
+    out.push('<p class="ip-line">' + (ip.queue.length ? '<b>' + ip.queue.length + ' proof' + (ip.queue.length === 1 ? '' : 's') + ' waiting for review.</b> ' : 'Nothing waiting for review. ')
+      + 'Files kept: ' + u.files + ' (' + (Math.round((u.bytes || 0) / 1048576 * 10) / 10) + ' MB of ' + Math.round(((u.limits || {}).bytesInAll || 0) / 1073741824) + ' GB)' + (u.refused ? ', ' + u.refused + ' refused for room' : '') + '. '
+      + 'RRT counts: ' + (!rrt.configured ? 'not linked (PFA_RRT_REFERRAL_SECRET)' : rrt.state === 'failed' ? 'last read failed: ' + esc(rrt.error) : rrt.fetchedAt ? 'read ' + esc(when(rrt.fetchedAt)) : 'not read yet')
+      + ' <button class="linky" type="button" data-ip="rrt">Read now</button></p><p class="say" data-ip-say role="status" aria-live="polite"></p>');
+
+    /* 1. waiting for review */
+    out.push('<details class="fold" ' + (ip.queue.length ? 'open' : '') + '><summary>Waiting for review (' + ip.queue.length + ')</summary>');
+    out.push(ip.queue.length ? '<div class="ip-q">' + ip.queue.map(ipReviewRow).join('') + '</div>' : '<p class="note">Proof interns send appears here, oldest first.</p>');
+    out.push('</details>');
+
+    /* 2. the batch */
+    var bs = h.batches || [];
+    out.push('<details class="fold" open><summary>Batches and interns</summary>');
+    if (!bs.length) out.push('<p class="note">No batch yet. Make one below, then issue Intern IDs into it.</p>');
+    else {
+      out.push('<div class="ip-bar"><label for="ipBatch">Batch</label><select id="ipBatch">' + bs.map(function (b) {
+        return '<option value="' + esc(b.batchId) + '"' + (b.batchId === ip.batch ? ' selected' : '') + '>' + esc(b.name) + ' · from ' + esc(b.startDate) + ' · ' + b.interns + ' interns' + (b.status === 'closed' ? ' · closed' : '') + '</option>';
+      }).join('') + '</select></div>');
+      if (ip.view) out.push(ipBatchView(ip.view));
+    }
+    out.push('</details>');
+
+    /* 3. issue */
+    out.push('<details class="fold" id="ipIssueFold"' + (ip.issued ? ' open' : '') + '><summary>Issue Intern IDs</summary>' + ipIssue() + '</details>');
+
+    /* 4. a batch, new or edited */
+    out.push('<details class="fold"><summary>' + (bs.length ? 'A new batch, or edit this one' : 'A new batch') + '</summary>' + ipBatchForm() + '</details>');
+    out.push('</div>');
+    node.innerHTML = out.join('');
+    if (said) say($('[data-ip-say]'), said.text, said.tone);
+  }
+  function ipReviewRow(w) {
+    var open = ip.reviewing === w.internId + '|' + w.taskKey;
+    return '<div class="ip-item" data-intern="' + esc(w.internId) + '" data-task="' + esc(w.taskKey) + '">'
+      + '<div class="ip-item__h"><span><b>' + esc(w.name) + '</b> · ' + esc(w.taskTitle) + (w.round > 1 ? ' · round ' + w.round : '') + '<br><span class="note">' + esc(w.internId) + ' · sent ' + esc(when(w.submittedAt)) + '</span></span>'
+      + '<button class="ghost" type="button" data-ip="review">' + (open ? 'Close' : 'Review') + '</button></div>'
+      + (open ? '<div class="ip-item__b"><p class="note"><b>Asked:</b> ' + esc(w.need) + ' <b>Proof:</b> ' + esc(w.proofAsked) + '</p>'
+        + (w.links.length ? '<ul class="ip-links">' + w.links.map(function (l) { return '<li><a href="' + esc(l) + '" target="_blank" rel="noopener noreferrer">' + esc(l) + '</a></li>'; }).join('') + '</ul>' : '')
+        + (w.files.length ? '<ul class="ip-links">' + w.files.map(function (f) { return '<li><button class="linky" type="button" data-ip="file" data-file="' + esc(f.id) + '">' + esc(f.name) + '</button> <span class="note">' + Math.round(f.size / 1024) + ' KB</span></li>'; }).join('') + '</ul>' : '')
+        + (w.note ? '<p class="ip-note">' + esc(w.note) + '</p>' : '')
+        + (w.feedback ? '<p class="note">Last feedback: ' + esc(w.feedback) + '</p>' : '')
+        + '<div class="ip-rev"><label>Score out of 10<input type="number" min="0" max="10" step="0.5" data-ip-score></label><label class="ip-rev__fb">Feedback for the intern<textarea rows="2" maxlength="1500" data-ip-fb placeholder="What was good, or what to change"></textarea></label></div>'
+        + '<div class="ip-acts"><button class="press" type="button" data-ip="accept">Accept</button><button class="ghost" type="button" data-ip="revise">Ask for a revision</button></div></div>' : '')
+      + '</div>';
+  }
+  function ipBatchView(v) {
+    var b = v.batch;
+    var rows = v.interns || [];
+    var out = '<p class="note">Week ' + (b.week < 1 ? '0 (starts ' + esc(b.startDate) + ')' : b.week > b.weeks.length ? (b.weeks.length + ', ended') : b.week + ' of ' + b.weeks.length) + ' · ' + b.tasks.filter(function (t) { return t.kind === 'core'; }).length + ' core tasks and ' + b.electivesRequired + ' electives · ends ' + esc(b.endsOn) + '</p>';
+    if (!rows.length) return out + '<p class="note">No interns in this batch yet.</p>';
+    out += '<div class="wrap"><table class="ip-t"><thead><tr><th>Intern</th><th class="num">Done</th><th>Tasks</th><th class="num">RRT</th><th>Status</th><th aria-label="Actions"></th></tr></thead><tbody>';
+    out += rows.map(function (r) {
+      var p = r.progress || { tasks: [] };
+      var dots = p.tasks.filter(function (t) { return t.chosen; }).map(function (t) { return '<i class="ip-dot" data-s="' + t.state + '" title="' + esc(t.key + ': ' + IP_STATE[t.state] + (t.score != null ? ' ' + t.score : '')) + '"></i>'; }).join('');
+      var target = (b.tasks.filter(function (t) { return t.auto === 'rrt'; })[0] || {}).target || 0;
+      var act = ip.who === r.internId;
+      return '<tr data-intern="' + esc(r.internId) + '"><td><b>' + esc(r.name) + '</b><br><span class="note">' + esc(r.internId) + ' · ' + esc(r.email) + '</span></td>'
+        + '<td class="num">' + p.percent + '%<br><span class="note">' + p.accepted + '/' + p.need + (p.average != null ? ' · ' + p.average : '') + '</span></td>'
+        + '<td><span class="ip-dots">' + dots + '</span>' + (p.waiting ? '<br><span class="note">' + p.waiting + ' waiting</span>' : '') + '</td>'
+        + '<td class="num">' + r.referral.registrations + (target ? '/' + target : '') + '<br><span class="note">' + r.referral.clicks + ' clicks · ' + r.referral.firstOpens + ' opens</span></td>'
+        + '<td>' + esc(r.status === 'invited' ? 'Link sent, no key yet' : r.status === 'active' ? 'Active' : r.status === 'revoked' ? 'Withdrawn' : r.status) + (r.lastSignInAt ? '<br><span class="note">in ' + esc(when(r.lastSignInAt)) + '</span>' : '') + (r.lockedUntil && Date.parse(r.lockedUntil) > Date.now() ? '<br><span class="note">locked after wrong keys</span>' : '') + '</td>'
+        + '<td><button class="linky" type="button" data-ip="key">New key</button>' + (r.status !== 'revoked' ? ' · <button class="linky" type="button" data-ip="revoke">Withdraw</button>' : '')
+        + (act && ip.doing === 'key' ? '<div class="ct-why"><input id="ipWhy" maxlength="300" placeholder="How you verified it is them (a call to the number they applied with)"><button class="ghost" type="button" data-ip="key-yes">Email a new link</button></div>' : '')
+        + (act && ip.doing === 'revoke' ? '<div class="ct-why"><input id="ipWhy" maxlength="200" placeholder="Why access is withdrawn"><button class="ghost" type="button" data-ip="revoke-yes">Withdraw access</button></div>' : '')
+        + (act && ip.link ? '<p class="note">Link sent (works once, for 7 days): <input class="ip-copy" readonly value="' + esc(ip.link) + '"></p>' : '')
+        + '</td></tr>';
+    }).join('');
+    out += '</tbody></table></div>';
+    var rem = v.reminders || [];
+    if (rem.length) out += '<details class="fold"><summary>Reminder log</summary><ul class="ip-links">' + rem.map(function (x) { return '<li>Week ' + x.week + ', ' + esc(when(x.at)) + ': ' + x.sent + ' sent, ' + x.queued + ' queued, ' + x.failed + ' failed, ' + x.nothingOpen + ' with nothing open</li>'; }).join('') + '</ul></details>';
+    return out;
+  }
+  function ipIssue() {
+    var bs = (ip.home || {}).batches || [];
+    if (!bs.length) return '<p class="note">Make a batch first.</p>';
+    var out = '';
+    if (ip.issued) out += '<div class="ct-issued"><p><b>' + esc(ip.issued.internId) + '</b> issued; referral code ' + esc(ip.issued.referralCode) + '. The onboarding email was ' + esc(ip.issued.mailed === 'sent' ? 'sent' : ip.issued.mailed === 'queued' ? 'queued' : 'not sent') + '. If it does not arrive, give them this link (works once, for 7 days):<br><input class="ip-copy" readonly value="' + esc(ip.issued.onboardUrl) + '"></p></div>';
+    out += '<p class="note">Into the batch chosen above. Each intern is emailed a link that shows their Intern ID and a ten digit key, once.</p>';
+    if (ip.apps === null) out += '<button class="ghost" type="button" data-ip="apps">Show internship applications</button>';
+    else if (!ip.apps.length) out += '<p class="note">Every internship application has an Intern ID.</p>';
+    else out += '<div class="wrap"><table><thead><tr><th>Application</th><th>Applicant</th><th aria-label="Actions"></th></tr></thead><tbody>' + ip.apps.map(function (a) {
+      return '<tr data-app="' + esc(a.reference) + '"><td><button class="linky" type="button" data-open-case="' + esc(a.reference) + '">' + esc(a.reference) + '</button><br><span class="note">' + esc(dayOf(a.createdAt)) + '</span></td><td>' + esc(a.name) + '<br><span class="note">' + esc(a.email) + (a.city ? ' · ' + esc(a.city) : '') + '</span></td><td><button class="press" type="button" data-ip="issue-app">Issue ID</button></td></tr>';
+    }).join('') + '</tbody></table></div>';
+    out += '<details class="fold"><summary>Someone without an application</summary><div class="so-fields"><div><label for="ipName">Name</label><input id="ipName" maxlength="120"></div><div><label for="ipEmail">Email</label><input id="ipEmail" type="email" maxlength="160"></div><div><label for="ipMobile">Mobile (for the self-referral check)</label><input id="ipMobile" inputmode="tel" maxlength="16"></div></div><div class="so-save"><button class="press" type="button" data-ip="issue">Issue ID</button></div></details>';
+    return out;
+  }
+  function ipBatchForm() {
+    var v = ip.view && ip.view.batch;
+    var plan = ip.view ? ip.view.plan : (ip.home || {}).defaultPlan;
+    return '<div class="so-fields"><div><label for="ipBName">Name</label><input id="ipBName" maxlength="80" placeholder="November 2026" value="' + esc(v ? v.name : '') + '"></div>'
+      + '<div><label for="ipBStart">Starts (a Monday)</label><input id="ipBStart" type="date" value="' + esc(v ? v.startDate : '') + '"></div>'
+      + '<div><label for="ipBStatus">Status</label><select id="ipBStatus"><option value="open">Open</option><option value="closed"' + (v && v.status === 'closed' ? ' selected' : '') + '>Closed (no reminders)</option></select></div></div>'
+      + '<details class="fold"><summary>The plan: weeks, tasks, deadlines and targets</summary><p class="note">Weeks run Monday to Sunday; a task is due on the Sunday of its week (electives at the end of week 7). Edit titles, goals, targets and weeks here; keep each task’s key.</p><textarea id="ipBPlan" rows="14" spellcheck="false">' + esc(JSON.stringify(plan || {}, null, 2)) + '</textarea></details>'
+      + '<div class="so-save">' + (v ? '<button class="press" type="button" data-ip="batch-save">Save this batch</button>' : '') + '<button class="ghost" type="button" data-ip="batch-new">Make a new batch</button></div>';
+  }
+  on('[data-pane="internship"]', 'change', function (e) {
+    if (e.target.id === 'ipBatch') { ip.batch = e.target.value; ip.who = ''; ip.doing = ''; ip.link = ''; internshipPane(); }
+  });
+  on('[data-pane="internship"]', 'click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-ip]');
+    if (!b) return;
+    var what = b.getAttribute('data-ip');
+    var sayNode = $('[data-ip-say]');
+    var item = b.closest('[data-task]');
+    var row = b.closest('tr[data-intern]');
+    if (what === 'review') { var k = item.getAttribute('data-intern') + '|' + item.getAttribute('data-task'); ip.reviewing = ip.reviewing === k ? '' : k; ipRender(); return; }
+    if (what === 'file') {
+      token().then(function (id) { return fetch('/api/admin/internship?file=' + encodeURIComponent(b.getAttribute('data-file')), { headers: { Authorization: 'Bearer ' + id } }); })
+        .then(function (r) { if (!r.ok) throw new Error('That file could not be opened.'); return r.blob(); })
+        .then(function (blob) { var url = URL.createObjectURL(blob); window.open(url, '_blank', 'noopener'); setTimeout(function () { URL.revokeObjectURL(url); }, 60000); })
+        .catch(function (err) { say(sayNode, err.message, 'bad'); });
+      return;
+    }
+    if (what === 'accept' || what === 'revise') {
+      var score = item.querySelector('[data-ip-score]').value;
+      var fb = item.querySelector('[data-ip-fb]').value;
+      b.disabled = true;
+      api('/api/admin/internship', { method: 'POST', body: { action: 'review', internId: item.getAttribute('data-intern'), taskKey: item.getAttribute('data-task'), decision: what, score: score, feedback: fb } }).then(function () {
+        ip.reviewing = '';
+        internshipPane({ text: what === 'accept' ? 'Accepted; the intern has been emailed.' : 'Sent back for a revision; the intern has been emailed.', tone: 'good' });
+      }).catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
+      return;
+    }
+    if (what === 'rrt') {
+      b.disabled = true;
+      api('/api/admin/internship', { method: 'POST', body: { action: 'referrals' } }).then(function (r) { internshipPane({ text: r.message || 'RRT counts read.', tone: r.ok ? 'good' : 'bad' }); })
+        .catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
+      return;
+    }
+    if (what === 'key' || what === 'revoke') { ip.who = row.getAttribute('data-intern'); ip.doing = what; ip.link = ''; ipRender(); var w = $('#ipWhy'); if (w) w.focus(); return; }
+    if (what === 'key-yes' || what === 'revoke-yes') {
+      var note = ($('#ipWhy') || {}).value || '';
+      b.disabled = true;
+      var body = what === 'key-yes' ? { action: 'regenerate', internId: ip.who, verifiedHow: note } : { action: 'revoke', internId: ip.who, reason: note };
+      api('/api/admin/internship', { method: 'POST', body: body }).then(function (r) {
+        ip.doing = '';
+        ip.link = what === 'key-yes' ? r.onboardUrl : '';
+        internshipPane({ text: what === 'key-yes' ? 'A new link is ' + (r.mailed === 'sent' ? 'emailed' : 'queued') + '; the old key has stopped working.' : 'Access withdrawn. Their referral credits so far stay.', tone: 'good' });
+      }).catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
+      return;
+    }
+    if (what === 'apps') {
+      api('/api/admin/internship?applications=1').then(function (d) { ip.apps = d.applications || []; ipRender(); var f = $('#ipIssueFold'); if (f) f.open = true; }).catch(function (err) { say(sayNode, err.message, 'bad'); });
+      return;
+    }
+    if (what === 'issue' || what === 'issue-app') {
+      var payload = { action: 'issue', batchId: ip.batch };
+      if (what === 'issue-app') {
+        var ref = b.closest('tr').getAttribute('data-app');
+        var a = ip.apps.filter(function (x) { return x.reference === ref; })[0] || {};
+        payload.name = a.name; payload.email = a.email; payload.mobile = a.mobile; payload.applicationRef = a.reference;
+      } else { payload.name = $('#ipName').value; payload.email = $('#ipEmail').value; payload.mobile = $('#ipMobile').value; }
+      b.disabled = true;
+      api('/api/admin/internship', { method: 'POST', body: payload }).then(function (r) {
+        ip.issued = r;
+        if (ip.apps) ip.apps = ip.apps.filter(function (x) { return x.reference !== payload.applicationRef; });
+        internshipPane({ text: r.internId + ' issued.', tone: 'good' });
+      }).catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
+      return;
+    }
+    if (what === 'batch-save' || what === 'batch-new') {
+      var plan;
+      try { plan = JSON.parse($('#ipBPlan').value || '{}'); } catch (_) { say(sayNode, 'The plan is not valid JSON. Check the commas and quotes.', 'bad'); return; }
+      var bodyB = { action: 'batch-save', name: $('#ipBName').value, startDate: $('#ipBStart').value, status: $('#ipBStatus').value, plan: plan };
+      if (what === 'batch-save') bodyB.batchId = ip.batch;
+      b.disabled = true;
+      api('/api/admin/internship', { method: 'POST', body: bodyB }).then(function (r) {
+        ip.batch = r.batch.batchId;
+        internshipPane({ text: 'Batch ' + r.batch.name + ' saved.', tone: 'good' });
+      }).catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
+    }
+  });
+
   function certificatesPane(said) {
     var node = $('[data-pane="certificates"]');
     if (!node) return undefined;

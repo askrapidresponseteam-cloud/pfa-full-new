@@ -339,20 +339,8 @@
      "label": "Make care count."
     },
     {
-     "id": "discover",
-     "label": "Eight weeks for the animals of your town."
-    },
-    {
-     "id": "tasks",
-     "label": "Five core tasks. Three you choose."
-    },
-    {
-     "id": "weeks",
-     "label": "How the eight weeks go."
-    },
-    {
-     "id": "certificate",
-     "label": "A certificate, earned."
+     "id": "cards",
+     "label": "One card at a time."
     },
     {
      "id": "apply",
@@ -565,6 +553,23 @@
     {
      "id": "caregiver",
      "label": "Colony caregiver"
+    }
+   ]
+  },
+  {
+   "id": "intern",
+   "file": "intern.html",
+   "title": "Intern dashboard",
+   "group": "Get Involved",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Your dashboard."
+    },
+    {
+     "id": "portal",
+     "label": "Portal"
     }
    ]
   },
@@ -1278,35 +1283,6 @@
    "doneRef": "start"
   },
   "internship": {
-   "viCoreGroup": "tasks",
-   "viCore": "tasks",
-   "task-bring-your-town-onto-the-rrt": "tasks",
-   "task-bring-your-town-onto-the-rrt-more": "tasks",
-   "task-learn-the-law": "tasks",
-   "task-learn-the-law-more": "tasks",
-   "task-find-a-lawyer": "tasks",
-   "task-find-a-lawyer-more": "tasks",
-   "task-a-film-for-the-wall": "tasks",
-   "task-a-film-for-the-wall-more": "tasks",
-   "task-map-your-town-or-district": "tasks",
-   "task-map-your-town-or-district-more": "tasks",
-   "viElectGroup": "tasks",
-   "viElect": "tasks",
-   "task-help-at-a-shelter-pfa-knows": "tasks",
-   "task-help-at-a-shelter-pfa-knows-more": "tasks",
-   "task-write-for-your-local-paper": "tasks",
-   "task-write-for-your-local-paper-more": "tasks",
-   "task-ask-your-town-about-its-dogs": "tasks",
-   "task-ask-your-town-about-its-dogs-more": "tasks",
-   "task-nominate-three-films-for-cinekind": "tasks",
-   "task-nominate-three-films-for-cinekind-more": "tasks",
-   "task-give-one-talk": "tasks",
-   "task-give-one-talk-more": "tasks",
-   "task-animal-first-aid": "tasks",
-   "task-animal-first-aid-more": "tasks",
-   "task-write-your-story": "tasks",
-   "task-write-your-story-more": "tasks",
-   "viDetail": "tasks",
    "minorBox": "apply",
    "done": "apply",
    "doneRef": "apply",
@@ -1382,6 +1358,28 @@
    "cName": "check-a-card",
    "cLine": "check-a-card",
    "cLookup": "check-a-card"
+  },
+  "intern": {
+   "ipTitle": "top",
+   "ipWho": "top",
+   "ipSay": "portal",
+   "ipLoading": "portal",
+   "ipOnce": "portal",
+   "ipDash": "portal",
+   "dbWeekH": "portal",
+   "dbWeekT": "portal",
+   "dbWeekDue": "portal",
+   "dbNote": "portal",
+   "dbWkTitle": "portal",
+   "dbWkSum": "portal",
+   "dbTasks": "portal",
+   "dbEls": "portal",
+   "dbElsH": "portal",
+   "dbElsP": "portal",
+   "dbElsList": "portal",
+   "dbRrt": "portal",
+   "dbLink": "portal",
+   "dbRrtWhen": "portal"
   },
   "member-photo": {
    "mpSay": "photo",

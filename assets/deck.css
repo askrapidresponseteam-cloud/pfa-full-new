@@ -1,0 +1,52 @@
+/* The deck: one card at a time (the Academy, 2026; the remote internship,
+   1 Nov 2026: "the modules should be card like in academy.. dont show
+   everything at once and overwhelm peep"). A page gives its .deck the
+   ground, the padding and the card sizes (--cw, --ch, --gw, --gap); this
+   is the rest, and assets/deck.js moves the cards. Sharp corners, as
+   everywhere on this site. */
+.deck__head{text-align:left;position:relative;z-index:2}
+.deck__head .eyebrow{color:rgba(17,17,17,.55);margin:0 0 10px}
+.deck__head h1,.deck__head h2{font-size:clamp(30px,3.6vw,50px);margin:0}
+.deck__stage{position:relative;flex:1;min-height:calc(var(--ch) + 80px);margin-top:14px;transition:height .55s cubic-bezier(.2,.7,.2,1)}
+.deck__cards{position:absolute;inset:0}
+.card{position:absolute;left:50%;top:50%;width:var(--cw);height:var(--ch);margin:calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);background:#fff;color:var(--ink);padding:20px;border:0;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:14px;box-shadow:0 22px 56px rgba(0,0,0,.55);transform:translate3d(var(--x,0px),var(--y,0px),0) rotate(var(--r,0deg)) scale(var(--s,1));transition:transform .55s cubic-bezier(.2,.7,.2,1),opacity .35s ease}
+.card:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.card[data-off]{opacity:0;pointer-events:none}
+.card__more{display:none}
+.card__pill{align-self:flex-start;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;background:var(--ink);color:#fff}
+.card__t{font-family:var(--display);font-weight:400;font-size:clamp(21px,1.9vw,27px);line-height:1.08;margin:0;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.card__art{margin-top:auto;align-self:center;width:56%;aspect-ratio:1;display:block}
+.card__art svg,.deck__panel-art svg{width:100%;height:100%;stroke:var(--ink);fill:none;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+.deck__ctl{position:absolute;top:50%;z-index:3;transform:translateY(-50%);background:none;border:0;border-bottom:2px solid rgba(17,17,17,.45);color:var(--ink);font:inherit;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;padding:10px 2px;transition:border-color .2s,opacity .3s}
+.deck__ctl:hover{border-bottom-color:var(--ink)}
+.deck__next{right:calc(50% + var(--cw) / 2 + clamp(28px,5vw,110px))}
+.deck__show{left:calc(50% + var(--cw) / 2 + clamp(28px,5vw,110px))}
+.deck.is-grid .deck__ctl,.deck.is-open .deck__ctl{opacity:0;pointer-events:none}
+.deck__view{position:relative;z-index:3;align-self:center;display:flex;gap:2px;margin-top:22px;padding:4px;background:#151515;border:1px solid rgba(17,17,17,.28)}
+/* The strip behind these is #151515 and the button draws no ground of its
+   own, so an ink icon on the unpressed one is an icon nobody can see: the
+   view you are not in is invisible, which is the half of the control that
+   has something to tell you. Light, held back from the pressed one by its
+   alpha. */
+.deck__view button{width:36px;height:30px;border:0;background:none;color:rgba(255,255,255,.62);cursor:pointer;display:grid;place-items:center}
+.deck__view button[aria-pressed="true"]{background:#fff;color:var(--ink)}
+.deck__view svg{width:14px;height:14px;fill:currentColor}
+.deck__panel{position:absolute;left:50%;top:50%;z-index:40;width:min(1080px,100%);max-height:100%;overflow:auto;background:#fff;color:var(--ink);padding:clamp(24px,3.4vw,48px);box-shadow:0 30px 80px rgba(0,0,0,.6);transform:translate(-50%,-50%) scale(.28);opacity:0;transition:transform .5s cubic-bezier(.2,.7,.2,1),opacity .3s ease}
+.deck__panel[hidden]{display:block;visibility:hidden}
+.deck.is-open .deck__panel{transform:translate(-50%,-50%) scale(1);opacity:1;visibility:visible}
+.deck.is-open .card{pointer-events:none;opacity:0;transition:opacity .25s ease .1s}
+.deck__close{position:absolute;right:18px;top:12px;z-index:2;color:var(--ink)}
+.deck__panel-in{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(20px,4vw,60px);align-items:center}
+.deck__text h2{font-size:clamp(26px,3.2vw,46px);margin:14px 0 0;max-width:16ch}
+.deck__tldr{margin:26px 0 8px;color:#b3261e}
+.deck__text p{margin:0 0 12px;font-size:14px;line-height:1.65;max-width:52ch}
+.deck__meta{display:block;margin:6px 0 16px;font-size:12px;color:var(--muted)}
+.deck__links{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin:8px 0 14px}
+.deck__links a{display:flex;flex-direction:column;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.deck__links a b{font-weight:700}.deck__links a span{font-size:12px;color:var(--muted)}
+.deck__foot{font-size:12px!important;color:var(--muted)}
+.deck__foot a{text-decoration:underline;text-underline-offset:3px}
+.deck__panel-art{width:min(100%,300px);aspect-ratio:1;justify-self:center}
+@media (max-width:860px){.deck__panel-in{grid-template-columns:1fr}.deck__panel-art{display:none}.deck__links{grid-template-columns:1fr}}
+@media (max-width:720px){.deck{--cw:250px;--ch:340px;--gw:140px;--gap:12px;padding-bottom:22px}.deck__ctl{position:static;transform:none;display:inline-block;margin:0 14px}.deck__stage{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:6px}.deck__cards{bottom:60px}}
+@media (prefers-reduced-motion:reduce){.card,.deck__panel,.deck__stage{transition:none}}

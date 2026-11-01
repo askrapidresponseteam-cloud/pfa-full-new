@@ -63,6 +63,7 @@ const PAGES = {
   'track.html':        { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },
   'caregiver-card.html': { current: null,             group: 'get-involved.html',               announce: DEFAULT_ANNOUNCE }, /* the card page is about the card; the nav's tribe entry leads to applying (15 Sep 2026) */
   'member-photo.html':   { current: null,             group: 'get-involved.html',               announce: DEFAULT_ANNOUNCE }, /* reached only from the photo link a member is emailed (26 Oct 2026) */
+  'intern.html':         { current: null,             group: 'get-involved.html',               announce: DEFAULT_ANNOUNCE }, /* the internship portal, for interns with an ID and key (1 Nov 2026) */
   'achievements.html': { current: 'achievements.html', group: 'units.html',      announce: DEFAULT_ANNOUNCE },
   'report.html':       { current: 'report.html',               group: 'units.html',       announce: 'An animal being hurt? Call 112 first, then tell us here' },
   'newsroom.html':     { current: 'newsroom.html',    group: 'units.html',       announce: DEFAULT_ANNOUNCE },

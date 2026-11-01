@@ -113,7 +113,9 @@ test('wired: a module of its own, a route, closed to the browser, shipped with t
 
 test('the panel: a Certificates section that draws, issues, downloads and withdraws', () => {
   const html = read('admin.html');
-  assert.match(html, /<button class="tab" type="button" data-tab="certificates">Certificates<\/button>/);
+  /* Certificates sits under Internship in the rail since the portal (1 Nov 2026) */
+  assert.match(html, /<button class="tab" type="button" data-tab="internship">Internship/);
+  assert.match(html, /internship:\s+\{ title: 'Internship',\s+module: 'internship',\s+needs: 'internship', panes: \['internship', 'certificates'\] \}/);
   assert.match(html, /<script src="assets\/certificate\.js"><\/script>/);
   assert.match(html, /certificates: \{ title: 'Internship certificates', module: 'certificates', needs: 'certificates' \}/);
   for (const bit of ["data-ct=\"issue\"", "data-ct=\"pdf\"", "data-ct=\"png\"", "data-ct=\"withdraw\"", 'id="ctCanvas"', "api('/api/admin/certificates'"]) assert.ok(html.includes(bit), bit);

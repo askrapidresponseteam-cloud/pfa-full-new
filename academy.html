@@ -66,7 +66,7 @@
 <title>Academy | People for Animals</title>
 <meta name="description" content="Animal medicine and first aid, for India: how medicines, antibiotics, vaccines, antivenom and immunoglobulins work, how to read a prescription and a dose, first aid that helps, and the mistakes that kill. Ten modules, every claim cited.">
 <link rel="stylesheet" href="assets/theatre.css">
-<link rel="stylesheet" href="assets/chrome.css?v=36f13a18f0">
+<link rel="stylesheet" href="assets/chrome.css?v=d37a14e286">
 <style>
 :root{
   --paper:#fff;
@@ -592,57 +592,13 @@ a.modnav__a:hover{background:var(--stone);opacity:1}
      hairlines. Loads after chrome.css so the theme wins ties; carries no
      markup changes of its own. -->
 <link rel="stylesheet" href="assets/pfa-theme.css">
+<link rel="stylesheet" href="assets/deck.css">
 <style>
 /* ---------- the deck (see the note on the section) ----------
    Sharp corners throughout, as everywhere else on this site: no card,
    pill, panel or button here carries a radius. */
 .deck{position:relative;background:var(--stone);color:var(--ink);padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) 30px;min-height:calc(100vh - var(--tabbar,0px));min-height:calc(100svh - var(--tabbar,0px));display:flex;flex-direction:column;--cw:300px;--ch:400px;--gw:196px;--gap:18px}
-.deck__head{text-align:left;position:relative;z-index:2}
-.deck__head .eyebrow{color:rgba(17,17,17,.55);margin:0 0 10px}
-.deck__head h1{font-size:clamp(30px,3.6vw,50px);margin:0}
-.deck__stage{position:relative;flex:1;min-height:calc(var(--ch) + 80px);margin-top:14px;transition:height .55s cubic-bezier(.2,.7,.2,1)}
-.deck__cards{position:absolute;inset:0}
-.card{position:absolute;left:50%;top:50%;width:var(--cw);height:var(--ch);margin:calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);background:#fff;color:var(--ink);padding:20px;border:0;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:14px;box-shadow:0 22px 56px rgba(0,0,0,.55);transform:translate3d(var(--x,0px),var(--y,0px),0) rotate(var(--r,0deg)) scale(var(--s,1));transition:transform .55s cubic-bezier(.2,.7,.2,1),opacity .35s ease}
-.card:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.card[data-off]{opacity:0;pointer-events:none}
-.card__more{display:none}
-.card__pill{align-self:flex-start;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;background:var(--ink);color:#fff}
-.card__t{font-family:var(--display);font-weight:400;font-size:clamp(21px,1.9vw,27px);line-height:1.08;margin:0;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
-.card__art{margin-top:auto;align-self:center;width:56%;aspect-ratio:1;display:block}
-.card__art svg,.deck__panel-art svg{width:100%;height:100%;stroke:var(--ink);fill:none;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
-.deck__ctl{position:absolute;top:50%;z-index:3;transform:translateY(-50%);background:none;border:0;border-bottom:2px solid rgba(17,17,17,.45);color:var(--ink);font:inherit;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;padding:10px 2px;transition:border-color .2s,opacity .3s}
-.deck__ctl:hover{border-bottom-color:var(--ink)}
-.deck__next{right:calc(50% + var(--cw) / 2 + clamp(28px,5vw,110px))}
-.deck__show{left:calc(50% + var(--cw) / 2 + clamp(28px,5vw,110px))}
-.deck.is-grid .deck__ctl,.deck.is-open .deck__ctl{opacity:0;pointer-events:none}
-.deck__view{position:relative;z-index:3;align-self:center;display:flex;gap:2px;margin-top:22px;padding:4px;background:#151515;border:1px solid rgba(17,17,17,.28)}
-/* The strip behind these is #151515 and the button draws no ground of its
-   own, so an ink icon on the unpressed one is an icon nobody can see: the
-   view you are not in is invisible, which is the half of the control that
-   has something to tell you. Light, held back from the pressed one by its
-   alpha. */
-.deck__view button{width:36px;height:30px;border:0;background:none;color:rgba(255,255,255,.62);cursor:pointer;display:grid;place-items:center}
-.deck__view button[aria-pressed="true"]{background:#fff;color:var(--ink)}
-.deck__view svg{width:14px;height:14px;fill:currentColor}
-.deck__panel{position:absolute;left:50%;top:50%;z-index:40;width:min(1080px,100%);max-height:100%;overflow:auto;background:#fff;color:var(--ink);padding:clamp(24px,3.4vw,48px);box-shadow:0 30px 80px rgba(0,0,0,.6);transform:translate(-50%,-50%) scale(.28);opacity:0;transition:transform .5s cubic-bezier(.2,.7,.2,1),opacity .3s ease}
-.deck__panel[hidden]{display:block;visibility:hidden}
-.deck.is-open .deck__panel{transform:translate(-50%,-50%) scale(1);opacity:1;visibility:visible}
-.deck.is-open .card{pointer-events:none;opacity:0;transition:opacity .25s ease .1s}
-.deck__close{position:absolute;right:18px;top:12px;z-index:2;color:var(--ink)}
-.deck__panel-in{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(20px,4vw,60px);align-items:center}
-.deck__text h2{font-size:clamp(26px,3.2vw,46px);margin:14px 0 0;max-width:16ch}
-.deck__tldr{margin:26px 0 8px;color:#b3261e}
-.deck__text p{margin:0 0 12px;font-size:14px;line-height:1.65;max-width:52ch}
-.deck__meta{display:block;margin:6px 0 16px;font-size:12px;color:var(--muted)}
-.deck__links{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin:8px 0 14px}
-.deck__links a{display:flex;flex-direction:column;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
-.deck__links a b{font-weight:700}.deck__links a span{font-size:12px;color:var(--muted)}
-.deck__foot{font-size:12px!important;color:var(--muted)}
-.deck__foot a{text-decoration:underline;text-underline-offset:3px}
-.deck__panel-art{width:min(100%,300px);aspect-ratio:1;justify-self:center}
-@media (max-width:860px){.deck__panel-in{grid-template-columns:1fr}.deck__panel-art{display:none}.deck__links{grid-template-columns:1fr}}
-@media (max-width:720px){.deck{--cw:250px;--ch:340px;--gw:140px;--gap:12px;padding-bottom:22px}.deck__ctl{position:static;transform:none;display:inline-block;margin:0 14px}.deck__stage{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:6px}.deck__cards{bottom:60px}}
-@media (prefers-reduced-motion:reduce){.card,.deck__panel,.deck__stage{transition:none}}
+/* the rest of the deck is shared: assets/deck.css */
 
 /* ---------- the pop (15 Sep 2026): the orange the site already owns
    (#ff3b18, the units gallery's kicker), promoted to a page-wide device so
@@ -676,6 +632,38 @@ a.modnav__a:hover{background:var(--stone);opacity:1}
 </style>
 <link rel="stylesheet" href="pfa-search.css">
 <script src="pfa-search.js" defer></script>
+<style id="academy-photographic-finish">
+/* Photographic finish: existing typography, palette, content and controls retained. */
+.card{border:1px solid #e4e2df;box-shadow:0 14px 35px rgba(26,23,19,.14),0 2px 6px rgba(26,23,19,.06);overflow:hidden;padding:22px;gap:14px}
+.card__pill{background:transparent;color:var(--muted);padding:0;font-size:10px;letter-spacing:.16em}
+.card__t{position:relative;z-index:1;max-width:100%;font-size:clamp(21px,1.9vw,27px)}
+.card__art{width:calc(100% + 44px);height:58%;min-height:0;aspect-ratio:auto;align-self:center;margin: auto -22px -22px;overflow:hidden;background:#f3f2ef}
+.card__art img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 46%;transition:transform .65s cubic-bezier(.2,.7,.2,1)}
+.card:focus-visible{outline:2px solid var(--ink);outline-offset:5px}
+.deck__panel{box-shadow:0 22px 75px rgba(26,23,19,.2);border:1px solid var(--line)}
+.deck__panel-art{width:100%;max-width:380px;aspect-ratio:4/5;overflow:hidden;background:#f3f2ef}
+.deck__panel-art img{width:100%;height:100%;object-fit:cover}
+.academy-photo{position:relative;margin:0;overflow:hidden;aspect-ratio:2.8/1;background:#f3f2ef}
+.academy-photo img{width:100%;height:100%;object-fit:cover;object-position:center 45%}
+.academy-photo figcaption{position:absolute;right:10px;bottom:8px;max-width:85%;padding:4px 7px;background:rgba(255,255,255,.92);color:#555;font:9px/1.35 var(--body);letter-spacing:.02em}
+.part__head{border:1px solid var(--line);border-top:0}
+.qa{transition:box-shadow .2s,background .2s}
+.qa:hover{box-shadow:0 0 0 1px #bdb8b0,0 5px 16px rgba(26,23,19,.035)}
+.mod{transition:background .2s,padding .2s}
+.mod:hover{background:#faf9f7}
+@media(max-width:620px){.academy-photo{aspect-ratio:1.8/1}.card{padding:20px}.card__art{width:calc(100% + 40px);margin:auto -20px -20px}}
+@media(prefers-reduced-motion:reduce){.card__art img{transition:none}.card:hover .card__art img{transform:none}}
+/* Every photograph whole (site rule, 26 Oct 2026: no person's head or any
+   part of anyone is ever cut): the banners take each photograph's own
+   shape, and a card or its open panel fits the photograph inside its
+   frame rather than filling the frame with a part of it. */
+.academy-photo{aspect-ratio:auto;max-width:880px;margin-left:auto;margin-right:auto}
+.academy-photo img{height:auto;object-fit:contain}
+.card__art img{object-fit:contain;object-position:center}
+.deck__panel-art{aspect-ratio:auto}
+.deck__panel-art img{height:auto;object-fit:contain}
+@media(max-width:620px){.academy-photo{aspect-ratio:auto}}
+</style>
   <!-- seo:start  generated by scripts/build-seo.js - do not edit by hand -->
   <link rel="canonical" href="https://peopleforanimalsindia.org/academy">
   <meta property="og:site_name" content="People for Animals">
@@ -923,7 +911,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=2eacd58d7c"></script>
+<script src="assets/chrome.js?v=459b86244a"></script>
 <script src="assets/theatre.js"></script>
 <main>
   <!-- ---------- the deck ----------
@@ -943,32 +931,32 @@ if (root.document && root.document.head) apply(read());
     </div>
     <div class="deck__stage" id="deckStage">
       <div class="deck__cards" id="deckCards">
-      <button type="button" class="card" data-pill="Emergency" data-title="Something is wrong right now"><span class="card__pill">Emergency</span><h2 class="card__t">Something is wrong right now</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="26" r="14"/><path d="M24 12V8M20 8h8M24 26l6-6"/></svg></span><div class="card__more" hidden><p>Six things that happen to animals in India, and the first minutes of each.</p><div class="deck__links"><a href="#g2"><b>Is it an emergency?</b><span>The sixty-second check</span></a><a href="#g3"><b>Hit by a vehicle</b><span>Moving a possible broken back</span></a><a href="#g4"><b>Bleeding or a wound</b><span>Including maggot wounds</span></a><a href="#e4"><b>Snakebite</b><span>What helps, what harms</span></a><a href="#g7"><b>Poisoning</b><span>Rat poison, insecticide, medicines</span></a><a href="#g6"><b>Collapsed in the heat</b><span>Cool first, transport second</span></a></div><p class="deck__foot">If it is you who was bitten or scratched: <a href="#f2">Lesson F2</a>. Holding a prescription to check: <a href="#h4">Lesson H4</a>. <a href="units.html">Find the nearest PFA unit</a>.</p></div></button>
-      <button type="button" class="card" data-pill="Introduction" data-title="What to do before you reach a vet"><span class="card__pill">Introduction</span><h2 class="card__t">What to do before you reach a vet</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 6v36M6 24h36"/><circle cx="24" cy="24" r="16"/></svg></span><div class="card__more" hidden><p>Medicines, vaccines, antivenom and first aid, written for India. Every lesson shows its point up front; open it only if you want the rest. None of it replaces a vet: it is what to do in the minutes before you reach one.</p><span class="deck__meta">76 lessons · Every claim cited · Checked September 2026</span></div></button>
-      <button type="button" class="card" data-pill="01" data-title="How to read a medicine"><span class="card__pill">01</span><h2 class="card__t">How to read a medicine</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="8" y="10" width="32" height="28"/><path d="M14 18h20M14 24h20M14 30h12"/></svg></span><div class="card__more" hidden><p>Generic names, strengths, Schedule H, routes, why a cat is not a small dog, and how to store medicine in Indian heat.</p><span class="deck__meta">7 lessons · 12 min</span><a class="btn" href="#part-a">Read the 7 lessons</a></div></button>
-      <button type="button" class="card" data-pill="02" data-title="The medicines you will meet"><span class="card__pill">02</span><h2 class="card__t">The medicines you will meet</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="19" width="26" height="12" transform="rotate(-30 19 25)"/><path d="M15 17l6 10"/><circle cx="36" cy="33" r="6"/></svg></span><div class="card__more" hidden><p>Painkillers, steroids, dewormers, tick and flea products, gut drugs, fluids, hormones, and the street-dog conditions of India.</p><span class="deck__meta">8 lessons · 16 min</span><a class="btn" href="#part-b">Read the 8 lessons</a></div></button>
-      <button type="button" class="card" data-pill="03" data-title="Antibiotics, and resistance"><span class="card__pill">03</span><h2 class="card__t">Antibiotics, and resistance</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 6l14 5v12c0 9-6 15-14 19-8-4-14-10-14-19V11z"/><path d="M18 24l4 4 8-9"/></svg></span><div class="card__more" hidden><p>What they do and do not touch, the classes on Indian prescriptions, the five rules of a course, and the laws that now govern them.</p><span class="deck__meta">7 lessons · 14 min</span><a class="btn" href="#part-c">Read the 7 lessons</a></div></button>
-      <button type="button" class="card" data-pill="04" data-title="Vaccines"><span class="card__pill">04</span><h2 class="card__t">Vaccines</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 38l8-8M14 42l-8-8M18 30l14-14 6 6-14 14zM30 12l6 6M33 9l6 6"/></svg></span><div class="card__more" hidden><p>Dogs, cats, community dogs, cattle and buffalo, goats and sheep, horses: the Indian schedules, the cold chain, and why vaccines fail.</p><span class="deck__meta">9 lessons · 18 min</span><a class="btn" href="#part-d">Read the 9 lessons</a></div></button>
-      <button type="button" class="card" data-pill="05" data-title="Snakebite and antivenom"><span class="card__pill">05</span><h2 class="card__t">Snakebite and antivenom</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 36c8 0 8-8 0-8s-8-9 0-9h14c8 0 8-9 0-9"/><circle cx="34" cy="10" r="4"/></svg></span><div class="card__more" hidden><p>The Big Four, what Indian polyvalent antivenom neutralises, how dose is decided, and the first aid that helps rather than harms.</p><span class="deck__meta">7 lessons · 12 min</span><a class="btn" href="#part-e">Read the 7 lessons</a></div></button>
-      <button type="button" class="card" data-pill="06" data-title="Borrowed immunity"><span class="card__pill">06</span><h2 class="card__t">Borrowed immunity</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 8c6 8 10 13 10 19a10 10 0 1 1-20 0c0-6 4-11 10-19z"/></svg></span><div class="card__more" hidden><p>Rabies immunoglobulin and monoclonals, antivenom, tetanus antitoxin, colostrum, and why puppy vaccines are a series.</p><span class="deck__meta">7 lessons · 12 min</span><a class="btn" href="#part-f">Read the 7 lessons</a></div></button>
-      <button type="button" class="card" data-pill="07" data-title="The first hour"><span class="card__pill">07</span><h2 class="card__t">The first hour</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/><path d="M24 14v10l7 4"/></svg></span><div class="card__more" hidden><p>Approach, the sixty-second check, road accidents, wounds and maggots, heatstroke, poisoning, burns, newborns, cattle emergencies, the kit.</p><span class="deck__meta">14 lessons · 28 min</span><a class="btn" href="#part-g">Read the 14 lessons</a></div></button>
-      <button type="button" class="card" data-pill="08" data-title="The arithmetic of a dose"><span class="card__pill">08</span><h2 class="card__t">The arithmetic of a dose</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="12" y="6" width="24" height="36"/><path d="M17 13h14M17 22h4M23 22h4M29 22h4M17 30h4M23 30h4M29 30h10"/></svg></span><div class="card__more" hidden><p>Milligrams per kilogram, tablets and millilitres, the decimal point, a checker for the prescription in your hand, and a reference table.</p><span class="deck__meta">7 lessons · 16 min</span><a class="btn" href="#part-h">Read the 7 lessons</a></div></button>
-      <button type="button" class="card" data-pill="09" data-title="When a drug must not be given"><span class="card__pill">09</span><h2 class="card__t">When a drug must not be given</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M16 6h16l10 10v16L32 42H16L6 32V16z"/><path d="M17 17l14 14M31 17L17 31"/></svg></span><div class="card__more" hidden><p>What a drug is for, when it must not be given, which pairs fight, and how food and timing change a dose.</p><span class="deck__meta">6 lessons · 14 min</span><a class="btn" href="#part-i">Read the 6 lessons</a></div></button>
-      <button type="button" class="card" data-pill="10" data-title="Do's and Don'ts"><span class="card__pill">10</span><h2 class="card__t">Do's and Don'ts</h2><span class="card__art" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 12h4M18 12h20M10 24h4M18 24h20M10 36h4M18 36h20"/></svg></span><div class="card__more" hidden><p>The essential list, an audit of kitchen remedies from turmeric to Dettol, and the ten sentences that get a vet to help you fast.</p><span class="deck__meta">4 lessons · 10 min</span><a class="btn" href="#part-j">Read the 4 lessons</a></div></button>
+      <button type="button" class="card" data-pill="Emergency" data-title="Something is wrong right now"><span class="card__pill">Emergency</span><h2 class="card__t">Something is wrong right now</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/f65ca8bafc.webp" alt="Emergency veterinary care for a community dog in India" title="Photo: Arham Alwayscare" loading="eager" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>Six things that happen to animals in India, and the first minutes of each.</p><div class="deck__links"><a href="#g2"><b>Is it an emergency?</b><span>The sixty-second check</span></a><a href="#g3"><b>Hit by a vehicle</b><span>Moving a possible broken back</span></a><a href="#g4"><b>Bleeding or a wound</b><span>Including maggot wounds</span></a><a href="#e4"><b>Snakebite</b><span>What helps, what harms</span></a><a href="#g7"><b>Poisoning</b><span>Rat poison, insecticide, medicines</span></a><a href="#g6"><b>Collapsed in the heat</b><span>Cool first, transport second</span></a></div><p class="deck__foot">If it is you who was bitten or scratched: <a href="#f2">Lesson F2</a>. Holding a prescription to check: <a href="#h4">Lesson H4</a>. <a href="units.html">Find the nearest PFA unit</a>.</p></div></button>
+      <button type="button" class="card" data-pill="Introduction" data-title="What to do before you reach a vet"><span class="card__pill">Introduction</span><h2 class="card__t">What to do before you reach a vet</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/d2ce2d8b12.webp" alt="Indian animal rescue team caring for a dog" title="Photo: RRSA India" loading="eager" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>Medicines, vaccines, antivenom and first aid, written for India. Every lesson shows its point up front; open it only if you want the rest. None of it replaces a vet: it is what to do in the minutes before you reach one.</p><span class="deck__meta">76 lessons · Every claim cited · Checked September 2026</span></div></button>
+      <button type="button" class="card" data-pill="01" data-title="How to read a medicine"><span class="card__pill">01</span><h2 class="card__t">How to read a medicine</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/d433de7244.webp" alt="Labelled canine vaccine vials marketed in India" title="Photo: RKD Pet Shop" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>Generic names, strengths, Schedule H, routes, why a cat is not a small dog, and how to store medicine in Indian heat.</p><span class="deck__meta">7 lessons · 12 min</span><a class="btn" href="#part-a">Read the 7 lessons</a></div></button>
+      <button type="button" class="card" data-pill="02" data-title="The medicines you will meet"><span class="card__pill">02</span><h2 class="card__t">The medicines you will meet</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/d2ce2d8b12.webp" alt="Indian animal rescue team caring for a dog" title="Photo: RRSA India" loading="eager" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>Painkillers, steroids, dewormers, tick and flea products, gut drugs, fluids, hormones, and the street-dog conditions of India.</p><span class="deck__meta">8 lessons · 16 min</span><a class="btn" href="#part-b">Read the 8 lessons</a></div></button>
+      <button type="button" class="card" data-pill="03" data-title="Antibiotics, and resistance"><span class="card__pill">03</span><h2 class="card__t">Antibiotics, and resistance</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/255fd7d640.webp" alt="Veterinary staff treating a community dog in Udaipur" title="Photo: Animal Aid Unlimited" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>What they do and do not touch, the classes on Indian prescriptions, the five rules of a course, and the laws that now govern them.</p><span class="deck__meta">7 lessons · 14 min</span><a class="btn" href="#part-c">Read the 7 lessons</a></div></button>
+      <button type="button" class="card" data-pill="04" data-title="Vaccines"><span class="card__pill">04</span><h2 class="card__t">Vaccines</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/35faa915fa.webp" alt="Community dog vaccination on a residential street in India" title="Photo: Manish Parmar / Humane World for Animals" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>Dogs, cats, community dogs, cattle and buffalo, goats and sheep, horses: the Indian schedules, the cold chain, and why vaccines fail.</p><span class="deck__meta">9 lessons · 18 min</span><a class="btn" href="#part-d">Read the 9 lessons</a></div></button>
+      <button type="button" class="card" data-pill="05" data-title="Snakebite and antivenom"><span class="card__pill">05</span><h2 class="card__t">Snakebite and antivenom</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/b49b470d9d.webp" alt="Indian cobra in its natural habitat" title="Photo: Jeevoka" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>The Big Four, what Indian polyvalent antivenom neutralises, how dose is decided, and the first aid that helps rather than harms.</p><span class="deck__meta">7 lessons · 12 min</span><a class="btn" href="#part-e">Read the 7 lessons</a></div></button>
+      <button type="button" class="card" data-pill="06" data-title="Borrowed immunity"><span class="card__pill">06</span><h2 class="card__t">Borrowed immunity</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/cec6332fe4.webp" alt="An Indian animal caregiver bottle feeding a rescued puppy" title="Photo: The New Indian Express" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>Rabies immunoglobulin and monoclonals, antivenom, tetanus antitoxin, colostrum, and why puppy vaccines are a series.</p><span class="deck__meta">7 lessons · 12 min</span><a class="btn" href="#part-f">Read the 7 lessons</a></div></button>
+      <button type="button" class="card" data-pill="07" data-title="The first hour"><span class="card__pill">07</span><h2 class="card__t">The first hour</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/f65ca8bafc.webp" alt="Emergency veterinary care for a community dog in India" title="Photo: Arham Alwayscare" loading="eager" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>Approach, the sixty-second check, road accidents, wounds and maggots, heatstroke, poisoning, burns, newborns, cattle emergencies, the kit.</p><span class="deck__meta">14 lessons · 28 min</span><a class="btn" href="#part-g">Read the 14 lessons</a></div></button>
+      <button type="button" class="card" data-pill="08" data-title="The arithmetic of a dose"><span class="card__pill">08</span><h2 class="card__t">The arithmetic of a dose</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/3134e56eb2.webp" alt="Veterinary team examining a dog and reviewing paperwork in Pune" title="Photo: Hindustan Times" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>Milligrams per kilogram, tablets and millilitres, the decimal point, a checker for the prescription in your hand, and a reference table.</p><span class="deck__meta">7 lessons · 16 min</span><a class="btn" href="#part-h">Read the 7 lessons</a></div></button>
+      <button type="button" class="card" data-pill="09" data-title="When a drug must not be given"><span class="card__pill">09</span><h2 class="card__t">When a drug must not be given</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/3eed90b952.webp" alt="A veterinary team conducting dog vaccination outreach near Mudumalai" title="Photo: Worldwide Veterinary Service" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>What a drug is for, when it must not be given, which pairs fight, and how food and timing change a dose.</p><span class="deck__meta">6 lessons · 14 min</span><a class="btn" href="#part-i">Read the 6 lessons</a></div></button>
+      <button type="button" class="card" data-pill="10" data-title="Do's and Don'ts"><span class="card__pill">10</span><h2 class="card__t">Do's and Don'ts</h2><span class="card__art" aria-hidden="true"><img class="" src="media/academy/255fd7d640.webp" alt="Veterinary staff treating a community dog in Udaipur" title="Photo: Animal Aid Unlimited" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"></span><div class="card__more" hidden><p>The essential list, an audit of kitchen remedies from turmeric to Dettol, and the ten sentences that get a vet to help you fast.</p><span class="deck__meta">4 lessons · 10 min</span><a class="btn" href="#part-j">Read the 4 lessons</a></div></button>
       </div>
       <button type="button" class="deck__ctl deck__next" id="deckNext">Next card</button>
       <button type="button" class="deck__ctl deck__show" id="deckShow">Show me</button>
       <div class="deck__panel" id="deckPanel" hidden>
         <button type="button" class="deck__close pfa-close" id="deckClose">Close</button>
         <div class="deck__panel-in">
-          <div class="deck__text"><span class="card__pill" id="deckPPill"></span><h2 class="display" id="deckPTitle"></h2><p class="eyebrow deck__tldr">TL;DR</p><div id="deckPBody"></div></div>
-          <div class="deck__panel-art" id="deckPArt" aria-hidden="true"></div>
+          <div class="deck__text"><span class="card__pill" id="deckPPill" data-deck-pill></span><h2 class="display" id="deckPTitle" data-deck-title></h2><p class="eyebrow deck__tldr">TL;DR</p><div id="deckPBody" data-deck-body></div></div>
+          <div class="deck__panel-art" id="deckPArt" data-deck-art aria-hidden="true"></div>
         </div>
       </div>
     </div>
     <div class="deck__view" role="group" aria-label="View">
-      <button type="button" id="deckOne" aria-pressed="true" title="One card at a time"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="2" width="8" height="12"/></svg></button>
-      <button type="button" id="deckAll" aria-pressed="false" title="Every card"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg></button>
+      <button type="button" id="deckOne" data-deck-one aria-pressed="true" title="One card at a time"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="2" width="8" height="12"/></svg></button>
+      <button type="button" id="deckAll" data-deck-all aria-pressed="false" title="Every card"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg></button>
     </div>
   </section>
 
@@ -1041,6 +1029,7 @@ if (root.document && root.document.head) apply(read());
 
   <div class="qas" id="qas">
   <section class="part" id="part-a" data-part="A">
+    <figure class="academy-photo"><img class="" src="media/academy/d433de7244.webp" alt="Labelled canine vaccine vials marketed in India" title="Photo: RKD Pet Shop" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>RKD Pet Shop</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Foundations: how to read a medicine</h2>
       <span data-partcount></span>
@@ -1112,6 +1101,7 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
   <section class="part" id="part-b" data-part="B">
+    <figure class="academy-photo"><img class="" src="media/academy/d2ce2d8b12.webp" alt="Indian animal rescue team caring for a dog" title="Photo: RRSA India" loading="eager" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>RRSA India</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Medicines: the classes you will meet</h2>
       <span data-partcount></span>
@@ -1172,6 +1162,7 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
   <section class="part" id="part-c" data-part="C">
+    <figure class="academy-photo"><img class="" src="media/academy/255fd7d640.webp" alt="Veterinary staff treating a community dog in Udaipur" title="Photo: Animal Aid Unlimited" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>Animal Aid Unlimited</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Antibiotics and resistance</h2>
       <span data-partcount></span>
@@ -1242,6 +1233,7 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
   <section class="part" id="part-d" data-part="D">
+    <figure class="academy-photo"><img class="" src="media/academy/35faa915fa.webp" alt="Community dog vaccination on a residential street in India" title="Photo: Manish Parmar / Humane World for Animals" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>Manish Parmar / Humane World for Animals</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Vaccines</h2>
       <span data-partcount></span>
@@ -1358,6 +1350,7 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
   <section class="part" id="part-e" data-part="E">
+    <figure class="academy-photo"><img class="" src="media/academy/b49b470d9d.webp" alt="Indian cobra in its natural habitat" title="Photo: Jeevoka" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>Jeevoka</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Antivenom and snakebite</h2>
       <span data-partcount></span>
@@ -1423,6 +1416,7 @@ if (root.document && root.document.head) apply(read());
   </section>
 
   <section class="part" id="part-f" data-part="F">
+    <figure class="academy-photo"><img class="" src="media/academy/cec6332fe4.webp" alt="An Indian animal caregiver bottle feeding a rescued puppy" title="Photo: The New Indian Express" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>The New Indian Express</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Immunoglobulins: borrowed immunity</h2>
       <span data-partcount></span>
@@ -1472,6 +1466,7 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
   <section class="part" id="part-g" data-part="G">
+    <figure class="academy-photo"><img class="" src="media/academy/f65ca8bafc.webp" alt="Emergency veterinary care for a community dog in India" title="Photo: Arham Alwayscare" loading="eager" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>Arham Alwayscare</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>First aid: the first hour</h2>
       <span data-partcount></span>
@@ -1580,6 +1575,7 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
   <section class="part" id="part-h" data-part="H">
+    <figure class="academy-photo"><img class="" src="media/academy/3134e56eb2.webp" alt="Veterinary team examining a dog and reviewing paperwork in Pune" title="Photo: Hindustan Times" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>Hindustan Times</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Dosages: the arithmetic</h2>
       <span data-partcount></span>
@@ -1676,6 +1672,7 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
   <section class="part" id="part-i" data-part="I">
+    <figure class="academy-photo"><img class="" src="media/academy/3eed90b952.webp" alt="A veterinary team conducting dog vaccination outreach near Mudumalai" title="Photo: Worldwide Veterinary Service" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>Worldwide Veterinary Service</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Indications, contraindications and interactions</h2>
       <span data-partcount></span>
@@ -1754,6 +1751,7 @@ if (root.document && root.document.head) apply(read());
   </section>
 
   <section class="part" id="part-j" data-part="J">
+    <figure class="academy-photo"><img class="" src="media/academy/255fd7d640.webp" alt="Veterinary staff treating a community dog in Udaipur" title="Photo: Animal Aid Unlimited" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="800" height="600"><figcaption>Animal Aid Unlimited</figcaption></figure>
     <div class="part__head">
       <h2 class="display"><span class="part__kicker">PFA Academy</span>Do's and Don'ts</h2>
       <span data-partcount></span>
@@ -2594,101 +2592,6 @@ if (root.document && root.document.head) apply(read());
 }());
 </script>
 
-<script>
-/* The deck. Every card has a resting place in both views, written as CSS
-   variables and reached through one transition on the card's transform, so
-   turning the deck, opening a card and laying every card out are the same
-   move at different sizes. */
-(function deck(){
-  'use strict';
-  var $ = function(q){ return document.querySelector(q); };
-  var root = $('.deck'), stage = $('#deckStage'), cards = [].slice.call(document.querySelectorAll('#deckCards .card'));
-  if (!root || !stage || !cards.length) return;
-  var panel = $('#deckPanel'), pPill = $('#deckPPill'), pTitle = $('#deckPTitle'), pBody = $('#deckPBody'), pArt = $('#deckPArt');
-  var nextBtn = $('#deckNext'), showBtn = $('#deckShow'), closeBtn = $('#deckClose'), oneBtn = $('#deckOne'), allBtn = $('#deckAll');
-  var i = 0, grid = false, opened = null;
-  function px(name){ return parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0; }
-  function put(c, x, y, r, s, off, z){
-    c.style.setProperty('--x', x + 'px'); c.style.setProperty('--y', y + 'px');
-    c.style.setProperty('--r', r + 'deg'); c.style.setProperty('--s', String(s));
-    if (off) c.setAttribute('data-off', ''); else c.removeAttribute('data-off');
-    c.style.zIndex = String(z);
-  }
-  function layout(){
-    var cw = px('--cw'), ch = px('--ch');
-    if (!grid) {
-      stage.style.height = '';
-      cards.forEach(function(c, k){
-        var d = k - i, side = d % 2 ? 1 : -1;
-        if (d < 0) put(c, -cw * 1.6, 40, -22, 0.9, true, 0);
-        /* the stack: each card behind sits a little down and to the side,
-           turned a hair the other way from the one in front of it */
-        else if (d < 4) put(c, side * d * 5, d * 9, side * d * 2.2, 1 - d * 0.03, false, 20 - d);
-        else put(c, 0, 36, 0, 0.88, true, 0);
-        c.tabIndex = d === 0 ? 0 : -1;
-      });
-    } else {
-      var gw = px('--gw'), gap = px('--gap'), s = gw / cw, gh = ch * s;
-      var W = stage.clientWidth, cols = Math.max(2, Math.floor((W + gap) / (gw + gap))), rows = Math.ceil(cards.length / cols);
-      var H = rows * gh + (rows - 1) * gap + 40;
-      stage.style.height = H + 'px';
-      cards.forEach(function(c, k){
-        var col = k % cols, row = Math.floor(k / cols);
-        put(c, (col - (cols - 1) / 2) * (gw + gap), row * (gh + gap) + gh / 2 - H / 2 + 20, 0, s, false, 10);
-        c.tabIndex = 0;
-      });
-    }
-  }
-  function show(k){ i = (k + cards.length) % cards.length; layout(); cards[i].focus({ preventScroll: true }); }
-  function open(c){
-    opened = c;
-    pPill.textContent = c.getAttribute('data-pill');
-    pTitle.textContent = c.getAttribute('data-title');
-    var more = c.querySelector('.card__more'), art = c.querySelector('.card__art');
-    pBody.innerHTML = more ? more.innerHTML : '';
-    pArt.innerHTML = art ? art.innerHTML : '';
-    panel.hidden = false;
-    /* a frame later, so the panel's first painted size is the card's and the
-       transition has somewhere to go from */
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){ root.classList.add('is-open'); closeBtn.focus({ preventScroll: true }); }); });
-  }
-  function close(){
-    if (!opened) return;
-    root.classList.remove('is-open');
-    var was = opened; opened = null;
-    setTimeout(function(){ if (!opened) panel.hidden = true; }, 450);
-    was.focus({ preventScroll: true });
-  }
-  function view(all){
-    grid = !!all;
-    root.classList.toggle('is-grid', grid);
-    oneBtn.setAttribute('aria-pressed', String(!grid)); allBtn.setAttribute('aria-pressed', String(grid));
-    close(); layout();
-  }
-  cards.forEach(function(c, k){
-    c.addEventListener('click', function(){
-      if (grid) { i = k; open(c); return; }
-      if (k === i) open(c); else if (k > i) show(k);
-    });
-  });
-  nextBtn.addEventListener('click', function(){ show(i + 1); });
-  showBtn.addEventListener('click', function(){ open(cards[i]); });
-  closeBtn.addEventListener('click', close);
-  oneBtn.addEventListener('click', function(){ view(false); });
-  allBtn.addEventListener('click', function(){ view(true); });
-  /* a link inside the panel leads below: the panel closes so the page can
-     scroll to the lessons rather than under a card */
-  panel.addEventListener('click', function(e){ if (e.target.closest('a[href^="#"]')) close(); });
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && opened) { close(); return; }
-    if (!root.contains(document.activeElement) || opened || grid) return;
-    if (e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
-  });
-  var t = null;
-  window.addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(layout, 120); });
-  layout();
-})();
-</script>
+<script src="assets/deck.js"></script>
 </body>
 </html>
