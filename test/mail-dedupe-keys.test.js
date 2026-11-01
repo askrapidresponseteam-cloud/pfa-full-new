@@ -26,6 +26,7 @@ const mailer = require('../lib/caregiver-mail');
 const CONFIRM = require('../lib/confirmations');
 const store = require('../lib/caregiver-store');
 const FORWARD = require('../lib/submission-forward');
+const YEAR = require('./_year');
 
 const INBOX = 'gandhim@exmpls.sansad.in';
 const ENV = ['PFA_SMTP_USER', 'PFA_SMTP_PASS', 'PFA_SMTP_HOST', 'PFA_MAIL_API_KEY', 'PFA_SUBMISSIONS_INBOX', 'PUBLIC_SITE_URL', 'PFA_IMAP_USER', 'PFA_CAPTURE_REPLIES'];
@@ -73,17 +74,17 @@ const { PLACE } = require('./_place');
 
 test('C1 a reference issued a second time still sends its own copy to the inbox', async () => {
   const first = await submit({ name: 'Old Person', email: 'old@example.com', mobile: '9876500001' });
-  assert.equal(first.json.reference, 'PFA-Q-2026-00001');
+  assert.equal(first.json.reference, `PFA-Q-${YEAR}-00001`);
   /* the database emptied, the outbound queue left as it was */
   for (const k of [...db._store.keys()]) if (/^(submissions|counters|submissionIdempotency)\//.test(k)) db._store.delete(k);
   smtp.length = 0;
   const second = await submit({ name: 'New Person', email: 'new@example.com', mobile: '9876500002', question: 'Can I foster a kitten?' });
-  assert.equal(second.json.reference, 'PFA-Q-2026-00001', 'the same number, issued again');
-  const record = db.dump()['submissions/PFA-Q-2026-00001'];
+  assert.equal(second.json.reference, `PFA-Q-${YEAR}-00001`, 'the same number, issued again');
+  const record = db.dump()[`submissions/PFA-Q-${YEAR}-00001`];
   const copies = smtp.filter((m) => m.to === INBOX);
   assert.equal(copies.length, 1, 'the new submission was copied to the inbox');
   assert.match(copies[0].text, /New Person/);
-  assert.equal(copies[0].messageId, `<PFA-Q-2026-00001.${record.threadId}.forward@peopleforanimalsindia.org>`, 'under its own thread');
+  assert.equal(copies[0].messageId, `<PFA-Q-${YEAR}-00001.${record.threadId}.forward@peopleforanimalsindia.org>`, 'under its own thread');
   const rows = Object.keys(db.dump()).filter((k) => k.startsWith('caregiverEmails/submission_forward_'));
   assert.equal(rows.length, 2, 'two rows, one per submission; the old one untouched');
 });

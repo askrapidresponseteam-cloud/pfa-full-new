@@ -1,3 +1,8 @@
+## v1.498
+
+- **Tests: still green after 1 January.** Owner, 2 Nov 2026: following the v1.497 deploy stop.
+  - The whole suite was run with the clock set to 1 January 2027. Six tests expected 2026 in reference numbers the site makes (PFA-Q, PFA-CG, PFA-CR). They now expect the current year in India time, the same year the site writes into the number, so a deploy on or after 1 January does not stop on them. Sample numbers typed into forms in the tests are unchanged.
+
 ## v1.497
 
 - **Tests: the same answer on any day.** Owner, 2 Nov 2026: the v1.496 deploy stopped on six mail tests.

@@ -9,6 +9,7 @@ const assert = require('node:assert/strict');
 const H = require('./_review-recheck-harness');
 const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('../lib/ccavenue');
 const { PLACE } = require('./_place');
+const YEAR = require('./_year');
 
 const KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 let W;
@@ -74,7 +75,7 @@ test('SEAM-3 a caregiver photo attached on a later callback still reaches gandhi
   try { await callback(out); } finally { console.error = orig; }
   readable = true;
   await callback(out);         // the redelivery (or the panel's repair) attaches it
-  const rec = W.db.dump()['submissions/PFA-CG-2026-00001'];
+  const rec = W.db.dump()[`submissions/PFA-CG-${YEAR}-00001`];
   assert.equal(rec.attachments, 1);
   /* the application, the late photograph's copy included, goes to gandhim
      (owner, 23 Oct 2026); the payments inboxes get the receipt, once, with
@@ -171,8 +172,8 @@ test('SEAM-9 a staging photo kept inline in Firestore (no bucket) is attached an
   const out = await start(Object.assign({ type: 'caregiver-application', documents: r.json.token }, PERSON));
   await callback(out);
   const d = W.db.dump();
-  assert.equal(d['submissions/PFA-CG-2026-00001'].attachments, 1);
-  const bytes = await require('../lib/file-store').readStrict(d['submissions/PFA-CG-2026-00001/attachments/1']);
+  assert.equal(d[`submissions/PFA-CG-${YEAR}-00001`].attachments, 1);
+  const bytes = await require('../lib/file-store').readStrict(d[`submissions/PFA-CG-${YEAR}-00001/attachments/1`]);
   assert.equal(bytes.length, 4000);
-  assert.equal(d[`transactions/${out.order_id}`].applicationReference, 'PFA-CG-2026-00001');
+  assert.equal(d[`transactions/${out.order_id}`].applicationReference, `PFA-CG-${YEAR}-00001`);
 });

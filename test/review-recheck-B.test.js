@@ -9,6 +9,7 @@ const H = require('./_review-recheck-harness');
 const S = require('../lib/submissions');
 const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('../lib/ccavenue');
 const { PLACE } = require('./_place');
+const YEAR = require('./_year');
 
 const WORKING_KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 let W;
@@ -160,9 +161,9 @@ test('B4 caregiver application: the record write failing once loses no photo and
   await callback(out);
   const dump = W.db.dump();
   const recs = subs(W.db, 'PFA-CG');
-  assert.deepEqual(recs, ['PFA-CG-2026-00001']);
-  assert.equal(dump['submissions/PFA-CG-2026-00001'].attachments, 1);
-  assert.ok(dump['submissions/PFA-CG-2026-00001/attachments/1']);
+  assert.deepEqual(recs, [`PFA-CG-${YEAR}-00001`]);
+  assert.equal(dump[`submissions/PFA-CG-${YEAR}-00001`].attachments, 1);
+  assert.ok(dump[`submissions/PFA-CG-${YEAR}-00001/attachments/1`]);
   const orphans = Object.keys(dump).filter((k) => /^submissions\/[^/]+\/attachments\//.test(k)).filter((k) => !dump[k.split('/').slice(0, 2).join('/')]);
   assert.deepEqual(orphans, []);
 });
@@ -252,7 +253,7 @@ test('B8 a refused photo spends no number', async () => {
   const bad = await post(h, { kind: 'PFA-CR', data: CR, photos: ['data:image/png;base64,AAAA'], clientRequestId: 'k1' });
   assert.equal(bad.statusCode, 422);
   const good = await post(h, { kind: 'PFA-CR', data: CR, clientRequestId: 'k2' });
-  assert.equal(good.json.reference, 'PFA-CR-2026-00001');
+  assert.equal(good.json.reference, `PFA-CR-${YEAR}-00001`);
 });
 
 test('B9 a wrong contact and an unknown number get the same answer', async () => {

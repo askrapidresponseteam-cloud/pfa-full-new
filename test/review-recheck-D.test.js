@@ -11,6 +11,7 @@ const path = require('node:path');
 const H = require('./_review-recheck-harness');
 const { encrypt, decrypt, encodeMerchantData, decodeMerchantData } = require('../lib/ccavenue');
 const { PLACE } = require('./_place');
+const YEAR = require('./_year');
 
 const KEY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456';
 let W;
@@ -130,14 +131,14 @@ test('D4 a photo that cannot be read just now is not linked as empty and the sta
   FILES._setStorage((name) => (name === box.where.name ? box.where.bucket : H.memoryBucket(name).where.bucket));
   readable = false;                                  // and the bucket fails to answer just now
   const documents = require('../lib/routes/caregiver/documents');
-  const ref = W.db.collection('submissions').doc('PFA-CG-2026-00001');
+  const ref = W.db.collection('submissions').doc(`PFA-CG-${YEAR}-00001`);
   await assert.rejects(documents.attachTo(W.db, token, ref, new Date().toISOString()));
   assert.equal(W.db.dump()[`caregiverDocuments/${token}`].consumed, false);
-  assert.ok(!W.db.dump()['submissions/PFA-CG-2026-00001/attachments/1']);
+  assert.ok(!W.db.dump()[`submissions/PFA-CG-${YEAR}-00001/attachments/1`]);
   readable = true;                                   // storage healthy again
   const n = await documents.attachTo(W.db, token, ref, new Date().toISOString());
   assert.equal(n, 1);
-  const att = W.db.dump()['submissions/PFA-CG-2026-00001/attachments/1'];
+  const att = W.db.dump()[`submissions/PFA-CG-${YEAR}-00001/attachments/1`];
   const bytes = await FILES.read(att);
   assert.ok(bytes && bytes.length === 5000);
 });
@@ -151,8 +152,8 @@ test('D5 caregiver application: the record write failing once never orphans the 
   const orig = console.error; console.error = () => {};
   try { await callback(out); await callback(out); } finally { console.error = orig; W.db.collection = col; }
   const d = W.db.dump();
-  assert.deepEqual(subs('PFA-CG'), ['submissions/PFA-CG-2026-00001']);
-  assert.equal(d['submissions/PFA-CG-2026-00001'].attachments, 1);
+  assert.deepEqual(subs('PFA-CG'), [`submissions/PFA-CG-${YEAR}-00001`]);
+  assert.equal(d[`submissions/PFA-CG-${YEAR}-00001`].attachments, 1);
 });
 
 /* ---- D6 ---- */
