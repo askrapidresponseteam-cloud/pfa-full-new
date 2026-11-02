@@ -1,3 +1,8 @@
+## v1.503
+
+- **Applications to decide: folded until asked.** Owner, 2 Nov 2026: "u can hide this by default. only if one clicks show, expand and show".
+  - Colony cards shows the count ("10 applications waiting, 10 ready to issue") with Show beside it; Show opens the applications with their cards, checks and Issue and Reject, and Hide folds them again. Once opened it stays open for the rest of the visit.
+
 ## v1.502
 
 - **Registers: shipping on every line, and the letter to each person.** Owner, 2 Nov 2026: "The table should display only data captured by the website. Admins must be able to update the courier name, tracking number, and application status (e.g., Shipped), then send applicants an email using a standard template. Support individual and bulk sending, with a mandatory email preview before sending. Display bulk email previews as individual cards."

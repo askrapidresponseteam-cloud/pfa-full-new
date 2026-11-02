@@ -63,6 +63,8 @@ button{font:inherit;color:inherit}
 
 /* the small uppercase label, lifted from the site footer */
 .lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.ap-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:0 0 10px}
+.ap-head .lab{margin:0}
 .ttl{font-family:var(--display);font-weight:400;letter-spacing:.01em;margin:0}
 
 /* ---------- sign in ---------- */
@@ -5692,6 +5694,10 @@ window.addEventListener('unhandledrejection', function (event) {
   }
 
   var apRows = [];
+  /* folded until someone asks (owner, 2 Nov 2026: "u can hide this by
+     default. only if one clicks show, expand and show"); stays open for the
+     rest of the visit once opened */
+  var apOpen = false;
   var apPhotos = {};
 
   function applicationsPane() {
@@ -5705,15 +5711,18 @@ window.addEventListener('unhandledrejection', function (event) {
         node.innerHTML = '<div class="empty"><b>Nothing to decide</b>Every paid application has been issued or answered.</div>';
         return;
       }
-      node.innerHTML = '<p class="lab">' + apRows.length + (apRows.length === 1 ? ' application' : ' applications') + ' waiting · ' + (data.ready || 0) + ' ready to issue</p>'
+      node.innerHTML = '<div class="ap-head"><p class="lab">' + apRows.length + (apRows.length === 1 ? ' application' : ' applications') + ' waiting · ' + (data.ready || 0) + ' ready to issue</p>'
+        + '<button class="ghost" type="button" data-ap-toggle aria-expanded="' + apOpen + '" aria-controls="apList">' + (apOpen ? 'Hide' : 'Show') + '</button></div>'
+        + '<div id="apList"' + (apOpen ? '' : ' hidden') + '>'
         + '<p class="hint">Oldest first. Look at the photograph and the checks, then Issue or Reject. Issue gives the card its number and tells the applicant it is approved and will be posted; the card then waits under Print and post. Only the printed card goes to the applicant: they are never sent or shown the card. Reject closes the application as Not issued and emails the applicant why.</p>'
-        + '<div class="apq">' + apRows.map(apItem).join('') + '</div>';
+        + '<div class="apq">' + apRows.map(apItem).join('') + '</div></div>';
       apRows.forEach(function (row) {
-        drawAp(row);
         var item = apNode(row.reference);
         var input = item && item.querySelector('[data-print]');
         if (input) checkPrint(input, item.querySelector('[data-print-say]'), item.querySelector('[data-ap="issue"]'));
       });
+      /* the cards are drawn when they are shown: a hidden one has no width */
+      if (apOpen) apRows.forEach(function (row) { drawAp(row); });
     }).catch(function (e) { fail(node, e); });
   }
 
@@ -5872,6 +5881,17 @@ window.addEventListener('unhandledrejection', function (event) {
     var row = apRow(node.getAttribute('data-ref'));
     checkPrint(input, node.querySelector('[data-print-say]'), node.querySelector('[data-ap="issue"]'));
     if (row) drawAp(row);
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('[data-pane="apply"] [data-ap-toggle]');
+    if (!t) return;
+    var list = $('#apList');
+    if (!list) return;
+    apOpen = list.hidden;
+    list.hidden = !apOpen;
+    t.setAttribute('aria-expanded', String(apOpen));
+    t.textContent = apOpen ? 'Hide' : 'Show';
+    if (apOpen) apRows.forEach(function (row) { drawAp(row); });
   });
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-pane="apply"] [data-ap]');

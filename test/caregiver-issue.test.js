@@ -246,6 +246,12 @@ test('the panel puts Issue and Reject on every waiting application, and in the d
   /* first of the working steps in Colony cards; the register (the office's
      sheet, 2 Nov 2026) is above them all */
   assert.match(html, /caregivers:[^}]*panes: \['cgsheet', 'apply', 'caregivers', 'verify', 'cards'\]/, 'first in Colony cards, after the register');
+  /* folded until asked (owner, 2 Nov 2026: "u can hide this by default. only
+     if one clicks show, expand and show"): the count stays in sight */
+  assert.match(html, /var apOpen = false;/);
+  assert.match(html, /<button class="ghost" type="button" data-ap-toggle aria-expanded="' \+ apOpen \+ '" aria-controls="apList">' \+ \(apOpen \? 'Hide' : 'Show'\)/);
+  assert.match(html, /'<div id="apList"' \+ \(apOpen \? '' : ' hidden'\) \+ '>'/);
+  assert.match(html, /if \(apOpen\) apRows\.forEach\(function \(row\) \{ drawAp\(row\); \}\);/, 'the cards are drawn when shown');
   assert.match(html, /data-ap="issue"[\s\S]{0,200}>Issue card<\/button>/);
   assert.match(html, /data-ap="reject">Reject<\/button>/);
   assert.match(html, /id="caseApprove" style="width:auto">Issue card<\/button>\s*<button class="ghost danger" type="button" id="caseReject">Reject<\/button>/);
