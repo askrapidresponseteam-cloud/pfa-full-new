@@ -1,3 +1,19 @@
+## v1.510
+
+- **Internship page: the PFA logo on the dark field notes, with its name in solid white.** Owner, 2 Nov 2026, with PFA_Website_logo_fixed.zip: "use the internship html from this zip and give me the updated zip. but ensure pfa logo and the text below it renders properly . text below the logo should be in white since it will be on a dark bg."
+  - From the zip: its internship.html was already this one; its two changed scripts are taken as they are, the page fader (transparent, white ticks and labels that stay readable on light and dark) and the logo drawing.
+  - The logo: the old stacked logo's lettering was hollow, outlines only, which is why it read thin and faint on the dark, and the zip's redrawn lettering came out small, narrow and with the trademark sign adrift. Now the stacked logo is made from the site's own dark-ground logo (img/logo-dark.png, as the header uses on dark): the emblem over PEOPLE FOR ANIMALS in solid white with its trademark sign beside it, at four times the size it is shown so it stays sharp, 52 KB (media/internship/field-notes/pfa-logo-white.webp). The old file is gone.
+
+## v1.509
+
+- **Internship page: the opening lined up, and a fader to glide up and down the page.** Owner, 2 Nov 2026: "this doesnt look properly aligned..and use animatiosn to move up and down hte page", with a picture of a mixing-desk fader.
+  - The opening: "Eight weeks. Real work. Where you live." on its own line, then Apply and Discover the internship side by side, centred on one line, Apply first. The arrow nudges down now and then. On a phone they stack. Links within the page now glide rather than jump.
+  - The fader, on a computer: brushed metal at the right edge, appearing once you scroll. Its knob and orange fill show where you are; drag the knob and the page follows, click the slot and the page glides there. Hover it and the sections show (Start, The internship, Questions, and Apply or Send proof while those forms are open); click one to glide to it. It is a slider for the keyboard too (arrows, Page Up and Down, Home and End). With reduced motion it jumps instead of gliding; on phones and tablets it is hidden.
+
+## v1.508
+
+- **Internship page: the task heading says it once.** Owner, 2 Nov 2026: "8 tasks, all 8 for everyone sounds redundant. think and have the title properly". The heading over the cards is now "One task a week. Each one signed off.", the rhythm and the standard; the count and "every intern" are said once, under Your eight tasks: "The same eight for every intern. Open a card for its target and proof." The hidden repeat of that line under the cards is gone.
+
 ## v1.507
 
 - **Internship: the law task is now a 55-question quiz, and its results go to gandhim every Monday.** Owner, 2 Nov 2026: "55 questions and it has to be a quiz. 10 easy. 20 medium and rest hard. build a proper quiz ... animal welfare related. quiz result should go to gandhim. each week the result should go to gandhim. quiz module should be gmat grade".

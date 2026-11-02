@@ -66,7 +66,10 @@ test('how the internship works first; Continue shows the eight tasks every inter
   assert.equal(intro.querySelector('.process-note').textContent, 'No experience with animals is needed.');
   const tl = doc.querySelector('#collection #task-lanes');
   assert.ok(tl.hasAttribute('hidden'), 'the tasks wait for Continue');
-  assert.equal(tl.querySelector('.lanes-heading h2').innerHTML, 'Eight tasks.<br>All eight, for everyone.');
+  /* owner, 2 Nov 2026: "8 tasks, all 8 for everyone sounds redundant": the rhythm, then the count once */
+  assert.equal(tl.querySelector('.lanes-heading h2').innerHTML, 'One task a week.<br>Each one signed off.');
+  assert.equal(tl.querySelector('.lane-head p:not(.lane-kicker)').textContent, 'The same eight for every intern. Open a card for its target and proof.');
+  assert.equal(tl.querySelector('.lane-help'), null, 'said once, in the lane head');
   assert.equal(tl.querySelectorAll('.task-lane').length, 1, 'one lane');
   assert.equal(doc.querySelector('#all-heading').textContent, 'Your eight tasks');
   assert.match(fnJs, /next\.addEventListener\('click',\(\)=>\{intro\.hidden=true;lanes\.hidden=false;/);
@@ -153,7 +156,12 @@ test('the photographs are on the site, as files, each with words for a screen re
     assert.ok(p.alt, `${p.img} has words for a screen reader`);
   }
   for (const c of cards()) assert.ok(photos[Number(c.querySelector('img').getAttribute('data-photo'))], 'each card names a photograph');
-  assert.ok(fs.existsSync(path.join(ROOT, 'media/internship/field-notes/pfa-logo-dark.png')), 'the logo, as a file');
+  /* owner, 2 Nov 2026: the logo and the words under it render properly, the words in white on the dark */
+  const logo = path.join(ROOT, 'media/internship/field-notes/pfa-logo-white.webp');
+  assert.ok(fs.existsSync(logo), 'the logo, as a file');
+  assert.ok(fs.statSync(logo).size < 120 * 1024, 'light enough');
+  assert.match(read('assets/internship-fieldnotes.js'), /im\.src='media\/internship\/field-notes\/pfa-logo-white\.webp'/);
+  assert.match(html, /<canvas id="pfa-official-dark" aria-label="People For Animals™ official logo" role="img" width="600" height="403"><\/canvas>/);
   assert.doesNotMatch(html, /data:image\/(webp|png|jpe?g)/, 'no photograph inlined in the page');
   /* "no part of the photo can be clipped or messed with": the card and the
      reader show each photograph whole */
@@ -228,4 +236,27 @@ test('the sample certificate: under step 04, opened when asked, drawn SAMPLE wit
   assert.match(fnJs, /sample: true/);
   assert.match(fnJs, /input\.addEventListener\('input', paint\)/);
   assert.match(html, /\.cert-try input:focus,\.cert-try input:focus-visible\{outline:none;border-bottom-color:#fff\}/, 'the field shows focus by its own edge');
+});
+
+/* Owner, 2 Nov 2026, of the opening: "this doesnt look properly aligned..and
+   use animatiosn to move up and down hte page", with a picture of a fader. */
+test('the opening: the line, then Apply and Discover side by side on one line', () => {
+  const html = read('internship.html');
+  const foot = /<div class="vi-open__foot">([\s\S]*?)<\/div>/.exec(html)[1];
+  assert.ok(foot.indexOf('vi-open__apply') < foot.indexOf('vi-open__go'), 'Apply leads');
+  assert.match(html, /\.vi-open__foot\{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:center;/);
+  assert.match(html, /\.vi-open__foot p\{grid-column:1\/-1\}/);
+  assert.match(html, /@media \(prefers-reduced-motion:no-preference\)\{html\{scroll-behavior:smooth\}\}/);
+});
+
+test('the page fader: marks from the page’s own sections; a slider; glides; hidden on phones', () => {
+  const html = read('internship.html');
+  assert.match(html, /<script src="assets\/page-fader\.js" defer><\/script>/);
+  assert.deepEqual([...html.matchAll(/data-fader-label="([^"]+)"/g)].map((m) => m[1]), ['Start', 'The internship', 'Apply', 'Send proof', 'Questions']);
+  const js = read('assets/page-fader.js');
+  assert.match(js, /setAttribute\('role', 'slider'\)/);
+  assert.match(js, /if \(!el\.offsetHeight \|\| el\.closest\('\[hidden\]'\)\) return;/, 'a form not yet opened has no mark');
+  assert.match(js, /if \(reduce\.matches\) return jump\(to\);/, 'reduced motion jumps');
+  assert.match(js, /@media \(max-width:900px\),\(pointer:coarse\)\{\.pf-fader\{display:none\}\}/);
+  assert.doesNotMatch(js, /[–—]/);
 });

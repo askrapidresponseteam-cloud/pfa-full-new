@@ -4,7 +4,20 @@
    seven optional ones in their own lanes; a card opens its task in the
    reader under its lane. The photographs and the tasks are the page's own
    JSON (#v-data, #lane-data). */
-(()=>{const c=document.getElementById('pfa-official-dark'),ctx=c.getContext('2d'),im=new Image();im.onload=()=>{c.width=im.width;c.height=im.height;ctx.drawImage(im,0,0);const z=ctx.getImageData(0,0,c.width,c.height),a=z.data;for(let y=Math.round(c.height*.85);y<c.height;y++)for(let x=0;x<c.width;x++){const j=(y*c.width+x)*4;a[j]=a[j+1]=a[j+2]=255}ctx.putImageData(z,0,0)};im.src='media/internship/field-notes/pfa-logo-dark.png';})();
+/* The PFA logo on the dark field notes (owner, 2 Nov 2026: "ensure pfa logo
+   and the text below it renders properly . text below the logo should be in
+   white since it will be on a dark bg"). The old stacked logo's wordmark was
+   hollow, outlines only, so it read faint on dark; pfa-logo-white.webp is
+   the stacked logo made from the site's own dark-ground logo
+   (img/logo-dark.png), the emblem over the solid white wordmark and its
+   trademark sign, at four times the size it is shown. */
+(()=>{
+  const c=document.getElementById('pfa-official-dark');
+  if(!c)return;
+  const ctx=c.getContext('2d'),im=new Image();
+  im.onload=()=>{c.width=im.naturalWidth;c.height=im.naturalHeight;ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(im,0,0);};
+  im.src='media/internship/field-notes/pfa-logo-white.webp';
+})();
 (()=>{'use strict';const root=document.querySelector('#collection'),intro=document.querySelector('#internship-process'),lanes=document.querySelector('#task-lanes'),tasks=JSON.parse(document.querySelector('#lane-data').textContent),photos=JSON.parse(document.querySelector('#v-data').textContent),reader=document.querySelector('#v-reader'),next=document.querySelector('#process-continue'),back=document.querySelector('#back-process');let openedBy=null;const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 root.querySelectorAll('img[data-photo]').forEach(im=>{im.src=photos[Number(im.dataset.photo)].img;im.loading='lazy';im.decoding='async'});
 function scrollTop(){root.scrollIntoView({behavior:reduce?'instant':'smooth',block:'start'})}next.addEventListener('click',()=>{intro.hidden=true;lanes.hidden=false;scrollTop();back.focus({preventScroll:true})});back.addEventListener('click',()=>{if(reader.open)reader.close();lanes.hidden=true;intro.hidden=false;scrollTop();next.focus({preventScroll:true})});root.querySelectorAll('.lane-controls button').forEach(b=>b.addEventListener('click',()=>{const track=b.closest('.task-lane').querySelector('.lane-track');track.scrollBy({left:Number(b.dataset.step)*(track.querySelector('.lane-card').offsetWidth+24),behavior:reduce?'instant':'smooth'})}));
