@@ -1,3 +1,11 @@
+## v1.504
+
+- **Registers: Preview email lights up only when the line is ready.** Owner, 2 Nov 2026: "email button should highlight only when all fields are filled for that particular entry. and valid entries only., be smart. and there has to be preview as well".
+  - Each line's button is now Preview email, and it is off until the line is complete and valid: a status; for Shipped, Delivered and Returned to sender also the courier and a tracking number in its courier's shape (India Post and Speed Post numbers look like EE123456789IN); and an email address on the application. Processing needs only the status. Once ready the button turns black.
+  - Under the fields, the line says what it still needs ("Add the courier", "An India Post number looks like EE123456789IN", "No email address on the application"), and the field at fault turns red once you start on the line. The courier box suggests the usual couriers; a tracking number is tidied as typed ("ee 123456789 in" becomes EE123456789IN).
+  - Preview email saves the line first if it has changes, then shows the email; nothing is sent without that preview. Preview emails (n) on the toolbar counts only the ticked lines that are ready, and says how many ticked are not.
+  - The server holds the same rules, so a card cannot be saved as delivered or returned without its courier and tracking number either.
+
 ## v1.503
 
 - **Applications to decide: folded until asked.** Owner, 2 Nov 2026: "u can hide this by default. only if one clicks show, expand and show".

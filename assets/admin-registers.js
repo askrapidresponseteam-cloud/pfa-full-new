@@ -80,24 +80,78 @@
     box.innerHTML = '<div class="rg-tools">'
       + '<input type="search" data-rg="q" placeholder="Find a name, phone, email, number or place" aria-label="Find in the register" value="' + esc(st.q) + '">'
       + '<span class="rg-seg" role="group" aria-label="Show">' + seg.map(function (x) { return '<button type="button" data-rg-show="' + x[0] + '" aria-pressed="' + (st.show === x[0]) + '">' + esc(x[1]) + ' ' + x[2] + '</button>'; }).join('') + '</span>'
-      + '<button class="press" type="button" data-rg="mailpicked" disabled>Email selected</button>'
+      + '<button class="press" type="button" data-rg="mailpicked" disabled>Preview emails</button>'
       + '<button class="ghost" type="button" data-rg="copyall">Copy table</button>'
       + '<button class="ghost" type="button" data-rg="csv">Export to Excel</button>'
-      + '</div><p class="rg-hint">Click any item to copy it. Set the status, courier and tracking number, Save, then Email the person, or tick several and Email selected. Every email is shown to you before it goes. Green rows are shipped.</p>'
+      + '</div><p class="rg-hint">Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.</p>'
+      + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
       + '<div class="wrap"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + spec.cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th>Shipping</th></tr></thead><tbody data-rg-body></tbody></table></div>';
     paintRegisterRows(kind);
   }
 
-  function regShipHtml(r) {
+  function regShipHtml(kind, r) {
     return '<div class="rg-ship">'
       + '<select data-f="ship" aria-label="Status">' + '<option value="">Status not set</option>' + Object.keys(SHIP_LABELS).map(function (k) { return '<option value="' + k + '"' + (r.ship === k ? ' selected' : '') + '>' + esc(SHIP_LABELS[k]) + '</option>'; }).join('') + '</select>'
-      + '<input data-f="courier" maxlength="60" placeholder="Courier" aria-label="Courier" value="' + esc(r.courier || '') + '">'
-      + '<input data-f="tracking" maxlength="40" placeholder="Tracking number" aria-label="Tracking number" value="' + esc(r.tracking || '') + '">'
-      + '<span class="rg-acts"><button type="button" class="rg-row" data-rg="save" disabled>Save</button><button type="button" class="rg-row" data-rg="mail">Email</button></span>'
+      + '<input data-f="courier" maxlength="60" placeholder="Courier" aria-label="Courier" list="rgCouriers-' + kind + '" autocomplete="off" value="' + esc(r.courier || '') + '">'
+      + '<input data-f="tracking" maxlength="40" placeholder="Tracking number" aria-label="Tracking number" autocomplete="off" spellcheck="false" value="' + esc(r.tracking || '') + '">'
+      + '<span class="rg-why" data-rg-why></span>'
+      + '<span class="rg-acts"><button type="button" class="rg-row" data-rg="save" disabled>Save</button><button type="button" class="rg-row" data-rg="mail" disabled>Preview email</button></span>'
       + (r.emailed ? '<span class="rg-sub rg-last">Emailed: ' + esc(r.emailed) + '</span>' : '')
       + '</div>';
   }
+
+  /* What a line needs before its letter can go (owner, 2 Nov 2026: "email
+     button should highlight only when all fields are filled for that
+     particular entry. and valid entries only., be smart"): a status; for
+     Shipped, Delivered and Returned also the courier and a tracking number
+     in its courier's shape (India Post's is EE123456789IN); and an email
+     address on the application. The server holds the same rules. */
+  var EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var INDIA_POST = /india\s*post|speed\s*post|registered\s*post|\bepost\b/i;
+  var COURIERS = ['India Post', 'Speed Post', 'DTDC', 'Blue Dart', 'Delhivery', 'Professional Couriers', 'Ekart', 'Xpressbees', 'Shadowfax', 'Shree Maruti Courier', 'Trackon', 'Gati', 'DHL'];
+  function trackOf(v) { return String(v || '').toUpperCase().replace(/\s+/g, ''); }
+  function regCheckValues(v, r) {
+    var bad = {};
+    var why = '';
+    var need = v.ship && v.ship !== 'processing';
+    if (!v.ship) { bad.ship = true; why = 'Choose a status.'; }
+    if (need && v.courier.length < 2) { bad.courier = true; why = why || 'Add the courier.'; }
+    if (need && !v.tracking) { bad.tracking = true; why = why || 'Add the tracking number.'; }
+    else if (v.tracking && INDIA_POST.test(v.courier) && !/^[A-Z]{2}\d{9}IN$/.test(v.tracking)) { bad.tracking = true; why = why || 'An India Post number looks like EE123456789IN: 2 letters, 9 digits, then IN.'; }
+    else if (v.tracking && !/^[A-Z0-9-]{4,40}$/.test(v.tracking)) { bad.tracking = true; why = why || 'A tracking number is 4 to 40 letters and digits.'; }
+    var valid = !bad.ship && !bad.courier && !bad.tracking;
+    var mailable = EMAIL_OK.test(r.email || '');
+    if (valid && !mailable) why = 'No email address on the application, so no email can go.';
+    return { ship: v.ship, courier: v.courier, tracking: v.tracking, bad: bad, why: why, valid: valid, ready: valid && mailable };
+  }
+  function regValues(tr) {
+    var v = function (f) { var el = tr.querySelector('[data-f="' + f + '"]'); return el ? el.value.replace(/\s+/g, ' ').trim() : ''; };
+    return { ship: v('ship'), courier: v('courier'), tracking: trackOf(v('tracking')) };
+  }
+  function regCheck(tr, r) { return regCheckValues(regValues(tr), r); }
+  function regCheckSaved(r) { return regCheckValues({ ship: r.ship || '', courier: r.courier || '', tracking: r.tracking || '' }, r); }
+
+  /* the line's buttons and marks, from what is typed now: Save when there is
+     something valid to save, Preview email lit only when the line is ready;
+     a field is marked wrong once someone has worked on the line */
+  function regSync(kind, tr) {
+    var r = regRow(kind, tr.getAttribute('data-rg-id'));
+    if (!r) return;
+    var c = regCheck(tr, r);
+    var touched = tr.hasAttribute('data-touched');
+    var save = tr.querySelector('[data-rg="save"]');
+    var mail = tr.querySelector('[data-rg="mail"]');
+    if (save) save.disabled = !(regDirty(tr, r) && c.valid);
+    if (mail) { mail.disabled = !c.ready; mail.classList.toggle('is-ready', c.ready); mail.title = c.ready ? 'Save if needed, then see the email before it goes' : c.why; }
+    ['ship', 'courier', 'tracking'].forEach(function (f) {
+      var el = tr.querySelector('[data-f="' + f + '"]');
+      if (el) el.setAttribute('aria-invalid', touched && c.bad[f] ? 'true' : 'false');
+    });
+    var why = tr.querySelector('[data-rg-why]');
+    if (why) { why.textContent = c.ready ? '' : c.why; why.classList.toggle('is-bad', touched && !c.ready); }
+  }
+  function regRow(kind, id) { return regState[kind].rows.filter(function (x) { return x.id === id; })[0] || null; }
 
   function regRowHtml(kind, r) {
     var spec = REG[kind];
@@ -108,7 +162,7 @@
           return '<button type="button" class="rg-c' + (x[1] ? ' rg-sub' : '') + '" data-copy="' + esc(x[0]) + '" title="Copy">' + (x[1] === 'other' ? 'Other: ' : x[1] === 'card' ? 'Card ' : '') + esc(x[0]) + '</button>';
         }).join('') + '</td>';
       }).join('')
-      + '<td>' + regShipHtml(r) + '</td></tr>';
+      + '<td>' + regShipHtml(kind, r) + '</td></tr>';
   }
 
   function paintRegisterRows(kind) {
@@ -118,14 +172,48 @@
     var rows = regRows(kind);
     body.innerHTML = rows.length ? rows.map(function (r) { return regRowHtml(kind, r); }).join('')
       : '<tr><td class="rg-empty" colspan="' + (spec.cols.length + 2) + '">' + (regState[kind].rows.length ? 'Nothing matches.' : 'No ' + spec.noun + ' yet.') + '</td></tr>';
+    [].forEach.call(body.querySelectorAll('tr[data-rg-id]'), function (tr) { regSync(kind, tr); });
     regPickCount(kind);
   }
 
+  /* the ticked lines that are ready, read from the screen where the line is
+     shown (what is typed now) and from what is saved where it is not */
+  function regPickedReady(kind) {
+    var box = $('[data-pane="' + REG[kind].pane + '"]');
+    return regPickedIds(kind).filter(function (id) {
+      var r = regRow(kind, id);
+      if (!r) return false;
+      var tr = box.querySelector('tr[data-rg-id="' + id + '"]');
+      return (tr ? regCheck(tr, r) : regCheckSaved(r)).ready;
+    });
+  }
   function regPickCount(kind) {
     var box = $('[data-pane="' + REG[kind].pane + '"]');
-    var n = regPickedIds(kind).length;
+    var picked = regPickedIds(kind).length;
+    var ready = regPickedReady(kind).length;
     var b = box.querySelector('[data-rg="mailpicked"]');
-    if (b) { b.disabled = !n; b.textContent = n ? 'Email selected (' + n + ')' : 'Email selected'; }
+    if (!b) return;
+    b.disabled = !ready;
+    b.textContent = ready ? 'Preview emails (' + ready + ')' : 'Preview emails';
+    b.title = picked > ready ? (picked - ready) + ' of the ' + picked + ' ticked are not ready yet; each line says what it needs.' : '';
+  }
+
+  /* save one line from what is typed; resolves once it is kept */
+  function regSave(kind, tr) {
+    var id = tr.getAttribute('data-rg-id');
+    var row = regRow(kind, id);
+    var c = regCheck(tr, row);
+    if (!c.valid) return Promise.reject(new Error(row.name + ': ' + c.why));
+    return api('/api/admin/registers', { method: 'POST', body: { action: 'save', kind: kind, id: id, status: c.ship, courier: c.courier, trackingNumber: c.tracking } }).then(function () {
+      row.ship = c.ship; row.shipLabel = SHIP_LABELS[row.ship] || ''; row.courier = c.courier; row.tracking = c.tracking;
+      row.done = row.ship === 'shipped' || row.ship === 'delivered';
+      var fresh = document.createElement('tbody');
+      fresh.innerHTML = regRowHtml(kind, row);
+      var tr2 = fresh.firstChild;
+      tr.parentNode.replaceChild(tr2, tr);
+      regSync(kind, tr2);
+      return row;
+    });
   }
 
   /* text for a sheet: one line per row, a tab between cells; a cell with a
@@ -161,8 +249,8 @@
 
   /* a line whose fields differ from what is saved */
   function regDirty(tr, r) {
-    var v = function (f) { var el = tr.querySelector('[data-f="' + f + '"]'); return el ? el.value.trim() : ''; };
-    return v('ship') !== (r.ship || '') || v('courier') !== (r.courier || '') || v('tracking').toUpperCase().replace(/\s+/g, '') !== (r.tracking || '');
+    var v = regValues(tr);
+    return v.ship !== (r.ship || '') || v.courier !== (r.courier || '') || v.tracking !== (r.tracking || '');
   }
 
   /* The letters, before they go: one card each, as the person will read it,
@@ -171,14 +259,14 @@
   function regPreview(kind, ids) {
     var box = $('[data-pane="' + REG[kind].pane + '"]');
     var said = box.querySelector('[data-rg-say]');
-    var dirty = ids.filter(function (id) {
-      var tr = box.querySelector('tr[data-rg-id="' + id + '"]');
-      var r = regState[kind].rows.filter(function (x) { return x.id === id; })[0];
-      return tr && r && regDirty(tr, r);
-    });
-    if (dirty.length) { say(said, 'Save the changes on ' + dirty.join(', ') + ' first; the email says what is saved.', 'bad'); return; }
-    say(said, 'Making the preview...', '');
-    api('/api/admin/registers', { method: 'POST', body: { action: 'preview', kind: kind, ids: ids } }).then(function (d) {
+    /* lines with changes not yet kept are saved first, so the email shows
+       what is on record */
+    var dirty = ids.map(function (id) { return box.querySelector('tr[data-rg-id="' + id + '"]'); })
+      .filter(function (tr) { return tr && regDirty(tr, regRow(kind, tr.getAttribute('data-rg-id'))); });
+    say(said, dirty.length ? 'Saving, then making the preview...' : 'Making the preview...', '');
+    dirty.reduce(function (p, tr) { return p.then(function () { return regSave(kind, tr); }); }, Promise.resolve()).then(function () {
+      return api('/api/admin/registers', { method: 'POST', body: { action: 'preview', kind: kind, ids: ids } });
+    }).then(function (d) {
       say(said, '');
       var items = d.items || [];
       var good = items.filter(function (x) { return x.ok; });
@@ -227,11 +315,7 @@
       var t = e.target;
       if (t.getAttribute('data-rg') === 'q') { regState[kind].q = t.value; paintRegisterRows(kind); return; }
       var tr = t.closest && t.closest('tr[data-rg-id]');
-      if (tr && t.hasAttribute('data-f')) {
-        var r = regState[kind].rows.filter(function (x) { return x.id === tr.getAttribute('data-rg-id'); })[0];
-        var save = tr.querySelector('[data-rg="save"]');
-        if (r && save) save.disabled = !regDirty(tr, r);
-      }
+      if (tr && t.hasAttribute('data-f')) { tr.setAttribute('data-touched', ''); regSync(kind, tr); regPickCount(kind); }
     });
     on(pane, 'change', function (e) {
       var t = e.target;
@@ -243,10 +327,13 @@
         regPickCount(kind);
         return;
       }
-      if (t.getAttribute('data-f') === 'ship') {
+      if (t.hasAttribute('data-f')) {
         var tr = t.closest('tr[data-rg-id]');
-        var r = regState[kind].rows.filter(function (x) { return x.id === tr.getAttribute('data-rg-id'); })[0];
-        tr.querySelector('[data-rg="save"]').disabled = !regDirty(tr, r);
+        tr.setAttribute('data-touched', '');
+        /* tidy the tracking number as it will be kept */
+        if (t.getAttribute('data-f') === 'tracking') t.value = trackOf(t.value);
+        regSync(kind, tr);
+        regPickCount(kind);
       }
     });
     on(pane, 'click', function (e) {
@@ -277,18 +364,23 @@
         return;
       }
       if (what === 'save' && row) {
-        var v = function (f) { return tr.querySelector('[data-f="' + f + '"]').value.trim(); };
         b.disabled = true;
-        api('/api/admin/registers', { method: 'POST', body: { action: 'save', kind: kind, id: id, status: v('ship'), courier: v('courier'), trackingNumber: v('tracking') } }).then(function () {
-          row.ship = v('ship'); row.shipLabel = SHIP_LABELS[row.ship] || ''; row.courier = v('courier'); row.tracking = v('tracking').toUpperCase().replace(/\s+/g, '');
-          row.done = row.ship === 'shipped' || row.ship === 'delivered';
-          tr.outerHTML = regRowHtml(kind, row);
-          say(said, 'Saved: ' + row.name + ', ' + (row.shipLabel || 'no status') + '. Email them when you are ready.', 'good');
+        regSave(kind, tr).then(function (r) {
+          regPickCount(kind);
+          say(said, 'Saved: ' + r.name + ', ' + (r.shipLabel || 'no status') + '.' + (regCheckSaved(r).ready ? ' Preview the email when you are ready.' : ''), 'good');
         }).catch(function (err) { b.disabled = false; say(said, err.message, 'bad'); });
         return;
       }
-      if (what === 'mail' && row) { regPreview(kind, [id]); return; }
-      if (what === 'mailpicked') { regPreview(kind, regPickedIds(kind)); return; }
+      if (what === 'mail' && row) {
+        if (!regCheck(tr, row).ready) return;
+        regPreview(kind, [id]);
+        return;
+      }
+      if (what === 'mailpicked') {
+        var ready = regPickedReady(kind);
+        if (ready.length) regPreview(kind, ready);
+        return;
+      }
       if (what === 'copyall') {
         var rows = regRows(kind);
         regClip(kind, rows, true).then(function () { say(said, rows.length + ' rows copied, with the headings. Paste them into a sheet.', 'good'); }, function (err) { say(said, err.message, 'bad'); });

@@ -184,6 +184,11 @@ button{font:inherit;color:inherit}
 .rg-acts{display:flex;gap:6px}
 .rg-acts .rg-row{flex:1}
 .rg-row[disabled]{opacity:.45;cursor:default}
+.rg-row.is-ready{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.rg-why{display:block;font-size:11.5px;line-height:1.4;color:var(--muted)}
+.rg-why:empty{display:none}
+.rg-why.is-bad{color:#b3261e}
+.rg-ship [aria-invalid="true"],.rg-ship [aria-invalid="true"]:focus-visible{border-color:#b3261e}
 .rg-last{display:block;font-size:11.5px;line-height:1.4}
 .rgm{width:min(1180px,94vw);max-height:92vh;padding:0;border:1px solid var(--ink);background:var(--paper);color:var(--ink)}
 .rgm::backdrop{background:rgba(0,0,0,.45)}

@@ -143,6 +143,13 @@ test('saving where a card stands: checked, kept on the application beside what t
   const no = await post(db, { action: 'save', kind: 'caregiver', id: 'PFA-CG-2026-00011', status: 'shipped', courier: 'DTDC', trackingNumber: '' });
   assert.equal(no.status, 422);
   assert.match(no.json.message, /needs the courier and the tracking number/);
+  for (const status of ['delivered', 'returned']) {
+    assert.equal((await post(db, { action: 'save', kind: 'caregiver', id: 'PFA-CG-2026-00011', status, courier: '', trackingNumber: '' })).status, 422, `${status} needs the courier and the number too`);
+  }
+  const ip = await post(db, { action: 'save', kind: 'caregiver', id: 'PFA-CG-2026-00011', status: 'shipped', courier: 'India Post', trackingNumber: '12345' });
+  assert.equal(ip.status, 422);
+  assert.match(ip.json.message, /An India Post number looks like EE123456789IN/);
+  assert.equal((await post(db, { action: 'save', kind: 'caregiver', id: 'PFA-CG-2026-00011', status: 'processing' })).status, 200, 'being prepared needs only the status');
   assert.equal((await post(db, { action: 'save', kind: 'caregiver', id: 'PFA-CG-2026-00011', status: 'lost' })).status, 422);
   assert.equal((await post(db, { action: 'save', kind: 'caregiver', id: 'PFA-MEM-2026-00031', status: 'processing' })).status, 400, 'a membership is not a colony card');
   const ok = await post(db, { action: 'save', kind: 'caregiver', id: 'PFA-CG-2026-00011', status: 'shipped', courier: 'DTDC', trackingNumber: 'd 1234 5678' });
@@ -154,8 +161,8 @@ test('saving where a card stands: checked, kept on the application beside what t
   const h = rec.history[rec.history.length - 1];
   assert.deepEqual([h.event, h.shipStatus, h.courier, h.trackingNumber, h.by], ['shipment', 'shipped', 'DTDC', 'D12345678', 'staff@pfa.test']);
   const notes = Object.entries(db.dump()).filter(([k]) => k.startsWith('submissions/PFA-CG-2026-00011/messages/')).map(([, v]) => v.text);
-  assert.deepEqual(notes, ['Card shipped, DTDC, tracking number D12345678.']);
-  assert.deepEqual(logged.map((x) => [x.action, x.subject]), [['shipment-updated', 'PFA-CG-2026-00011']]);
+  assert.deepEqual(notes.sort(), ['Card being prepared.', 'Card shipped, DTDC, tracking number D12345678.']);
+  assert.deepEqual(logged.map((x) => [x.action, x.subject]), [['shipment-updated', 'PFA-CG-2026-00011'], ['shipment-updated', 'PFA-CG-2026-00011']]);
   const rows = (await call(db, { kind: 'caregiver' })).json.rows;
   assert.deepEqual([rows[0].ship, rows[0].shipLabel, rows[0].courier, rows[0].tracking, rows[0].done], ['shipped', 'Shipped', 'DTDC', 'D12345678', true]);
 });
@@ -279,7 +286,14 @@ test('the panel: each register first in its tab, every item copies, a row pastes
   assert.match(admin, /<select data-f="ship" aria-label="Status">/);
   assert.match(admin, /<input data-f="courier"[^>]*placeholder="Courier"/);
   assert.match(admin, /<input data-f="tracking"[^>]*placeholder="Tracking number"/);
-  assert.match(admin, /data-rg="mailpicked"/);
+  assert.match(admin, /data-rg="mailpicked" disabled>Preview emails</);
+  /* Preview email lights only when the line is complete and valid (owner, 2 Nov 2026) */
+  assert.match(admin, /data-rg="mail" disabled>Preview email</, 'off until the line is ready');
+  assert.match(admin, /mail\.disabled = !c\.ready; mail\.classList\.toggle\('is-ready', c\.ready\);/);
+  assert.match(admin, /if \(valid && !mailable\) why = 'No email address on the application, so no email can go\.';/);
+  assert.match(admin, /INDIA_POST\.test\(v\.courier\) && !\/\^\[A-Z\]\{2\}\\d\{9\}IN\$\/\.test\(v\.tracking\)/, 'India Post numbers in their shape');
+  assert.match(admin, /var ready = regPickedReady\(kind\);\n\s+if \(ready\.length\) regPreview\(kind, ready\);/, 'bulk takes only the ready lines');
+  assert.match(admin, /dirty\.reduce\(function \(p, tr\) \{ return p\.then\(function \(\) \{ return regSave\(kind, tr\); \}\); \}, Promise\.resolve\(\)\)/, 'unsaved changes are saved before the preview');
   assert.match(admin, /<dialog class="rgm" id="rgMail"/);
   assert.match(admin, /action: 'preview', kind: kind, ids: ids/);
   assert.match(admin, /<article class="rgm-card/);
