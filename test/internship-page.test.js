@@ -81,17 +81,20 @@ test('each of the eight with its week, its target and its proof', () => {
   assert.deepEqual(laneOf('all').map((c) => c.querySelector('.lane-card-pill').textContent),
     ['TASK 1 · WEEK 1', 'TASK 2 · WEEK 2', 'TASK 3 · WEEK 3', 'TASK 4 · WEEK 4', 'TASK 5 · WEEKS 5-6', 'TASK 6 · WEEK 6', 'TASK 7 · WEEK 7', 'TASK 8 · WEEK 8']);
   assert.deepEqual(laneOf('all').map((c) => c.querySelector('.lane-card-bottom').textContent),
-    ['10 answers · View task', '1 district · View task', '50 people · View task', '2 films · View task', '20 hours · View task', '1 RTI · View task', '1 nomination · View task', '1 story · View task']);
+    ['55 questions · View task', '1 district · View task', '50 people · View task', '2 films · View task', '20 hours · View task', '1 RTI · View task', '1 nomination · View task', '1 story · View task']);
   const body = (t) => new JSDOM(task(t).body).window.document;
   for (const t of lanes) {
     const b = body(t.title);
     assert.ok(b.querySelector('.vi-how li'), `${t.title}: how it is done`);
-    assert.ok(b.querySelector(`a[href="#proof"][data-task="${t.title}"]`), `${t.title}: a way to send its proof`);
+    if (t.title === 'Learn the law') assert.ok(b.querySelector('a[href="intern.html"]'), 'the law task: its quiz, in the portal');
+    else assert.ok(b.querySelector(`a[href="#proof"][data-task="${t.title}"]`), `${t.title}: a way to send its proof`);
   }
-  /* 1: the four laws, then ten questions */
+  /* 1: the four laws and animal welfare, then the 55-question quiz in the portal (2 Nov 2026) */
   const law = body('Learn the law');
   assert.deepEqual([...law.querySelectorAll('.vi-how li')].slice(0, 4).map((li) => li.textContent), ['Section 325 of the Bharatiya Nyaya Sanhita', 'The Prevention of Cruelty to Animals Act, 1960', 'The ABC Rules, 2023, and the right to feed community animals', 'Article 51A(g) of the Constitution: compassion for living creatures']);
-  assert.equal(law.querySelectorAll('.vi-qs ol li').length, 10, 'the ten questions');
+  assert.match(law.querySelector('.vi-goal-line').textContent, /4 laws, 55 questions/);
+  assert.match(law.querySelector('.vi-qs').textContent, /10 easy, 20 medium and 25 hard questions/);
+  assert.match(law.querySelector('.vi-qs').textContent, /Pass with 60 percent\. Three attempts/);
   /* 2: names, addresses and phone numbers, and at least ten activists */
   const map = task('Map your district').body;
   assert.match(map, /vets, government vet centres, shelters and ABC centres in your district, and at least 10 animal activists/);

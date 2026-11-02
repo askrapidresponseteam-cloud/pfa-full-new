@@ -223,6 +223,64 @@ input,button,textarea,select{font-family:inherit;font-size:inherit;color:inherit
 .skel{height:120px;background:linear-gradient(90deg,var(--soft),#fff,var(--soft));background-size:200% 100%;animation:sk 1.2s linear infinite}
 @keyframes sk{to{background-position:-200% 0}}
 
+/* ---------- the quiz (assets/intern-quiz.js) ---------- */
+.qzc{display:grid;gap:12px}
+.qzc__facts{display:flex;flex-wrap:wrap;gap:8px}
+.qzc__facts span{border:1px solid var(--line);padding:8px 12px;font-size:13px;color:var(--muted)}
+.qzc__facts b{color:var(--ink);font-size:16px;margin-right:4px}
+.qzc__now{margin:0;font-size:14px;line-height:1.55}
+.qzc__past{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.qzc__past li{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:8px 10px;border:1px solid var(--line)}
+.qzc .btn{justify-self:start}
+.qz{display:grid;gap:18px;max-width:760px}
+.qz:has(.qz__wrap){max-width:none}
+.qz__intro{display:grid;gap:16px}
+.qz__wrap{display:grid;grid-template-columns:minmax(0,760px) 250px;gap:48px;align-items:start}
+.qz__main{display:grid;gap:18px;min-width:0}
+.qz__map{position:sticky;top:calc(var(--ann,0px) + var(--nav,80px) + 20px);display:grid;gap:14px;padding:18px;border:1px solid var(--line)}
+.qz__map .tile__h{margin:0}
+.qz__mapsec{display:grid;gap:6px}
+.qz__mapsec span{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.qz__mapsec div{display:flex;flex-wrap:wrap;gap:4px}
+.qz__mapsec i{width:16px;height:16px;border:1px solid var(--line)}
+.qz__mapsec i[data-s="done"]{background:var(--ink);border-color:var(--ink)}
+.qz__mapsec i[data-s="now"]{border:2px solid var(--ink)}
+.qz__mapnote{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}
+@media (max-width:1060px){.qz__wrap{grid-template-columns:minmax(0,1fr)}.qz__map{display:none}}
+.qz__top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+.qz__sec{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.qz__n{font-size:13px;color:var(--muted)}
+.qz__clock{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:20px;font-variant-numeric:tabular-nums;padding:4px 10px;border:1px solid var(--ink)}
+.qz__clock[data-low="1"]{background:var(--ink);color:#fff}
+.qz__sec-new{margin:0;padding:10px 14px;background:var(--soft);font-size:13px;font-weight:700}
+.qz__h{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(26px,3.4vw,40px);line-height:1.08}
+.qz__p{margin:0;font-size:15px;line-height:1.6}
+.qz__q{margin:0;font-size:18px;line-height:1.55;white-space:pre-line;overflow-wrap:anywhere}
+.qz__hint{margin:-8px 0 0;font-size:13px;color:var(--muted)}
+.qz__opts{display:grid;gap:8px}
+.qz__opts button{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;align-items:start;text-align:left;padding:14px 16px;border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:15px;line-height:1.5;cursor:pointer;transition:border-color .15s}
+.qz__opts button:hover{border-color:var(--ink)}
+.qz__opts button b{display:grid;place-items:center;width:28px;height:28px;border:1px solid var(--ink);font-size:13px}
+.qz__opts button span{overflow-wrap:anywhere}
+.qz__opts button[aria-checked="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.qz__opts button[aria-checked="true"] b{background:var(--ink);color:#fff}
+.qz__acts{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
+.qz__rules{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.qz__rules li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:12px 14px;border:1px solid var(--line);font-size:14px}
+.qz__rules span{color:var(--muted)}
+.qz__verdict{margin:0;font-size:15px;line-height:1.55}
+.qz__verdict[data-pass="1"]{font-weight:700}
+.qz__rows{display:grid;gap:10px}
+.qz__row{display:grid;grid-template-columns:minmax(90px,180px) minmax(0,1fr) auto;gap:12px;align-items:center;font-size:13px}
+.qz__only{display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer}
+.qz__only input{width:18px;height:18px;accent-color:#111}
+.qz__rev{display:grid;gap:10px}
+.qz__ans{display:grid;gap:6px;margin:16px 0 0;padding:0;list-style:none}
+.qz__ans li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;padding:10px 12px;border:1px solid var(--line);font-size:14px;line-height:1.5}
+.qz__ans li[data-right="1"]{border-color:var(--ink);background:var(--soft)}
+.qz__ans li[data-chosen="1"]:not([data-right="1"]){text-decoration:line-through;text-decoration-thickness:1px}
+.qz__ans em{display:block;font-style:normal;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+
 @media (max-width:720px){
   .hero{padding:calc(var(--ann) + var(--nav) + 36px) 16px 24px}
 }
@@ -603,6 +661,8 @@ if (root.document && root.document.head) apply(read());
 
       <div class="foot"><span id="dbId"></span><button class="linkish" type="button" id="dbOut">Sign out</button></div>
     </div>
+
+    <div class="qz" id="ipQuiz" hidden></div>
   </section>
 </main>
 
@@ -708,6 +768,7 @@ if (root.document && root.document.head) apply(read());
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="assets/intern-quiz.js"></script>
 <script>
 (function () {
   'use strict';
@@ -725,7 +786,7 @@ if (root.document && root.document.head) apply(read());
   function tell(text, bad) { say.textContent = text || ''; say.setAttribute('data-state', bad ? 'bad' : ''); }
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function view(id) {
-    ['#ipLoading', '#ipSignin', '#ipOnce', '#ipDash'].forEach(function (s) { $(s).hidden = s !== id; });
+    ['#ipLoading', '#ipSignin', '#ipOnce', '#ipDash', '#ipQuiz'].forEach(function (s) { $(s).hidden = s !== id; });
   }
   function api(path, opts) {
     var o = opts || {};
@@ -881,13 +942,20 @@ if (root.document && root.document.head) apply(read());
     $('#dbTasks').innerHTML = html || '<div class="tile"><p class="tile__p">Nothing is due this week.</p></div>';
   }
 
+  /* week 1's law task is passed by the quiz (assets/intern-quiz.js) */
+  function isQuiz(t) { return !!data.quiz && (t.auto === 'quiz' || (t.key === 'law' && t.goal === '10 answers')); }
+
   function taskCard(t) {
     var w = workOf(t.key);
     var pr = progOf(t.key);
     var state = pr.state || 'todo';
     var pill = STATE[state] + (state === 'accepted' && pr.score != null ? ' · ' + pr.score + '/10' : '');
-    var out = '<details class="task" data-task="' + esc(t.key) + '"' + (state === 'revise' ? ' open' : '') + '><summary><span class="task__t"><b>' + esc(t.title) + '</b><span>' + esc(t.goal) + ' · due ' + esc(t.dueLabel) + (t.kind === 'elective' ? ' · elective' : '') + '</span></span><span class="pill" data-s="' + state + '">' + esc(pill) + '</span></summary><div class="task__body">';
+    var out = '<details class="task" data-task="' + esc(t.key) + '"' + (state === 'revise' || (isQuiz(t) && data.quiz && data.quiz.open) ? ' open' : '') + '><summary><span class="task__t"><b>' + esc(t.title) + '</b><span>' + esc(t.goal) + ' · due ' + esc(t.dueLabel) + (t.kind === 'elective' ? ' · elective' : '') + '</span></span><span class="pill" data-s="' + state + '">' + esc(pill) + '</span></summary><div class="task__body">';
     out += '<p>' + esc(t.need) + '</p><p class="task__ask"><b>Proof:</b> ' + esc(t.proof) + '</p>';
+    if (isQuiz(t)) {
+      out += root.PFAQuiz ? root.PFAQuiz.card(data.quiz) : '<p class="task__ask">The quiz could not load. Reload the page.</p>';
+      return out + '</div></details>';
+    }
     if (t.auto === 'rrt') {
       var r = data.referral;
       var pct = r.target ? Math.min(100, Math.round((r.registrations / r.target) * 100)) : 0;
@@ -1015,6 +1083,13 @@ if (root.document && root.document.head) apply(read());
 
   $('#dbOut').addEventListener('click', function () {
     api('/api/intern/session', { method: 'DELETE' }).catch(function () {}).then(function () { data = null; week = 0; showSignin('Signed out.'); });
+  });
+
+  var root = window;
+  if (root.PFAQuiz) root.PFAQuiz.init({
+    api: api, esc: esc, when: when, view: view, reload: load,
+    data: function () { return data; },
+    refresh: function (q) { if (data && q) data.quiz = q; }
   });
 
   /* where to start */

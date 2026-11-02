@@ -1400,7 +1400,8 @@
    "dbElsList": "portal",
    "dbRrt": "portal",
    "dbLink": "portal",
-   "dbRrtWhen": "portal"
+   "dbRrtWhen": "portal",
+   "ipQuiz": "portal"
   },
   "member-photo": {
    "mpSay": "photo",

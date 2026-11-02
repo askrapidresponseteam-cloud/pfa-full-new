@@ -29,3 +29,5 @@ process.env.PFA_WEEKLY_DIGEST = 'off';
 process.env.PFA_FINANCE_REPORT = 'off';
 /* and the monthly cruelty report (lib/cruelty-report.js, the 2nd to the 8th) */
 process.env.PFA_CRUELTY_REPORT = 'off';
+/* and the Monday internship quiz email (lib/quiz-report.js) */
+process.env.PFA_QUIZ_REPORT = 'off';
