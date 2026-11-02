@@ -256,7 +256,9 @@ const WIRED = ['report.html', 'ask.html', 'careers.html', 'wall.html', 'get-invo
   /* the remote internship (31 Oct 2026) */
   'internship.html',
   /* the intern dashboard: the Intern ID, the key, proof links (1 Nov 2026) */
-  'intern.html'];
+  'intern.html',
+  /* the public certificate check: the number (2 Nov 2026) */
+  'verify-certificate.html'];
 
 test('every page that takes an entry loads the rules, and loads them first', () => {
   for (const file of WIRED) {

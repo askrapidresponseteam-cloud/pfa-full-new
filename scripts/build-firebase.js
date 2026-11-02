@@ -77,6 +77,8 @@ const PANEL_ASSETS = [
   /* the registers (2 Nov 2026): moved out of admin.html to keep it under
      the page-weight ceiling */
   'assets/admin-registers.js',
+  /* emailing an internship certificate (2 Nov 2026) */
+  'assets/admin-certificates.js',
   'fonts/cinzel-latin-500.woff2',
   'fonts/cinzel-latin-600.woff2',
   'fonts/dm-sans-latin-400.woff2',

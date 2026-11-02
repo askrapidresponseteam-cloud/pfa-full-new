@@ -51,58 +51,69 @@ const laneOf = (name) => [...doc.querySelectorAll(`#collection .lane-track[data-
 const task = (t) => lanes.find((x) => x.title === t);
 const fnJs = read('assets/internship-fieldnotes.js');
 
-test('how the internship works first; Continue shows the tasks, mandatory and optional in their own lanes', () => {
+const TASKS = ['Learn the law', 'Map your district', 'Bring 50 people onto the RRT', 'Two films for The Wall', 'Shelter work', 'An RTI to the municipality', 'One CineKind nomination', 'Your own story with animals'];
+
+test('how the internship works first; Continue shows the eight tasks every intern does', () => {
+  /* owner, 2 Nov 2026: "All interns do all 8 in 2 months" */
   const intro = doc.querySelector('#collection #internship-process');
   assert.equal(intro.querySelector('h2').innerHTML, 'Eight weeks. Real work.<br>A kinder town.');
-  assert.deepEqual([...intro.querySelectorAll('.process-facts > span')].map((x) => x.textContent), ['8 weeks', '6-8 hours a week', '5 + 3 tasks', 'Free to join']);
+  assert.deepEqual([...intro.querySelectorAll('.process-facts > span')].map((x) => x.textContent), ['8 weeks', '6-8 hours a week', '8 tasks', 'Free to join']);
   assert.deepEqual([...intro.querySelectorAll('.process-steps h3')].map((x) => x.textContent), ['Apply', 'Follow the weekly plan', 'Send proof as you go', 'Earn your certificate']);
+  assert.match(intro.textContent, /One task a week, eight in all, the same for every intern\./);
+  assert.match(intro.textContent, /Your certificate is issued once all eight tasks are signed off\./);
+  assert.doesNotMatch(intro.textContent + doc.querySelector('#more').textContent, /elective|optional task|choose three|three of seven/i, 'no choice left in the plan');
   assert.ok(intro.querySelector('#process-continue'));
   assert.equal(intro.querySelector('.process-note').textContent, 'No experience with animals is needed.');
   const tl = doc.querySelector('#collection #task-lanes');
   assert.ok(tl.hasAttribute('hidden'), 'the tasks wait for Continue');
-  assert.match(tl.querySelector('.lanes-heading h2').innerHTML, /^Five for everyone\.<br>Three of your choosing\.$/);
-  assert.equal(doc.querySelector('#mandatory-heading').textContent, 'Mandatory tasks');
-  assert.equal(doc.querySelector('#optional-heading').textContent, 'Optional tasks');
+  assert.equal(tl.querySelector('.lanes-heading h2').innerHTML, 'Eight tasks.<br>All eight, for everyone.');
+  assert.equal(tl.querySelectorAll('.task-lane').length, 1, 'one lane');
+  assert.equal(doc.querySelector('#all-heading').textContent, 'Your eight tasks');
   assert.match(fnJs, /next\.addEventListener\('click',\(\)=>\{intro\.hidden=true;lanes\.hidden=false;/);
-  const core = laneOf('mandatory').map((c) => lanes[Number(c.getAttribute('data-task-index'))].title);
-  const opt = laneOf('optional').map((c) => lanes[Number(c.getAttribute('data-task-index'))].title);
-  assert.deepEqual(core, ['Learn the law', 'Map your town or district', 'Bring your town onto the RRT', 'Find a lawyer', 'A film for The Wall']);
-  assert.deepEqual(opt, ['Help at a shelter PFA knows', 'Write for your local paper', 'Ask your town about its dogs', 'Nominate three films for CineKind', 'Give one talk', 'Animal first aid', 'Write your story']);
+  assert.deepEqual(laneOf('all').map((c) => lanes[Number(c.getAttribute('data-task-index'))].title), TASKS, 'the eight, in the order of the weeks');
+  assert.deepEqual(lanes.map((t) => t.title), TASKS);
   for (const c of cards()) assert.equal(c.querySelector('.lane-card-title').textContent, lanes[Number(c.getAttribute('data-task-index'))].title);
   assert.ok(doc.querySelector('#v-reader .v-readclose'), 'the reader closes');
   assert.ok(doc.querySelector('#apply[data-flow]') && doc.querySelector('#proof[data-flow]'), 'the forms open only when asked');
 });
 
-test('five core tasks in the order of the weeks, seven electives, each with its target and its proof', () => {
-  /* owner: "Week 1, animal welfare laws; Week 2, map the district's animal
-     welfare resources; Week 3, promote RRT through rapid-response.in,
-     targeting 50 people per intern, rather than 100" */
-  assert.deepEqual(laneOf('mandatory').map((c) => c.querySelector('.lane-card-pill').textContent), ['MANDATORY · WEEK 1', 'MANDATORY · WEEK 2', 'MANDATORY · WEEK 3', 'MANDATORY · WEEK 4', 'MANDATORY · WEEK 5']);
+test('each of the eight with its week, its target and its proof', () => {
+  assert.deepEqual(laneOf('all').map((c) => c.querySelector('.lane-card-pill').textContent),
+    ['TASK 1 · WEEK 1', 'TASK 2 · WEEK 2', 'TASK 3 · WEEK 3', 'TASK 4 · WEEK 4', 'TASK 5 · WEEKS 5-6', 'TASK 6 · WEEK 6', 'TASK 7 · WEEK 7', 'TASK 8 · WEEK 8']);
+  assert.deepEqual(laneOf('all').map((c) => c.querySelector('.lane-card-bottom').textContent),
+    ['10 answers · View task', '1 district · View task', '50 people · View task', '2 films · View task', '20 hours · View task', '1 RTI · View task', '1 nomination · View task', '1 story · View task']);
   const body = (t) => new JSDOM(task(t).body).window.document;
-  const rrt = body('Bring your town onto the RRT');
-  /* owner, 1 Nov 2026: "have the hyperlink to the website , app download section" */
-  assert.deepEqual([...rrt.querySelectorAll('.vi-links a')].map((a) => a.getAttribute('href')), [
-    'https://rapid-response.in', 'https://play.google.com/store/apps/details?id=com.rrt.sos', 'https://apps.apple.com/in/app/rapid-response/id6758672498'
-  ]);
-  assert.match(rrt.body.textContent, /a click or a visit to the store is not a join/);
   for (const t of lanes) {
     const b = body(t.title);
     assert.ok(b.querySelector('.vi-how li'), `${t.title}: how it is done`);
     assert.ok(b.querySelector(`a[href="#proof"][data-task="${t.title}"]`), `${t.title}: a way to send its proof`);
   }
-  assert.match(task('A film for The Wall').body, /informative, really well shot/);
-  assert.match(task('Write for your local paper').body, /Reviewed and passed by the PFA team before you send it to the paper/);
-  assert.match(task('Nominate three films for CineKind').body, /cinekind\.html#nominations/);
-  assert.match(task('Ask your town about its dogs').body, /acknowledgement number/);
+  /* 1: the four laws, then ten questions */
+  const law = body('Learn the law');
+  assert.deepEqual([...law.querySelectorAll('.vi-how li')].slice(0, 4).map((li) => li.textContent), ['Section 325 of the Bharatiya Nyaya Sanhita', 'The Prevention of Cruelty to Animals Act, 1960', 'The ABC Rules, 2023, and the right to feed community animals', 'Article 51A(g) of the Constitution: compassion for living creatures']);
+  assert.equal(law.querySelectorAll('.vi-qs ol li').length, 10, 'the ten questions');
+  /* 2: names, addresses and phone numbers, and at least ten activists */
+  const map = task('Map your district').body;
+  assert.match(map, /vets, government vet centres, shelters and ABC centres in your district, and at least 10 animal activists/);
+  assert.match(map, /the name, the address and a phone number, checked by a call/);
+  assert.match(map, /government vet centre photographed inside and outside, as it is on the day: never staged/);
+  /* 3: fifty people, counted on the app */
+  const rrt = body('Bring 50 people onto the RRT');
+  assert.deepEqual([...rrt.querySelectorAll('.vi-links a')].map((a) => a.getAttribute('href')), [
+    'https://rapid-response.in', 'https://play.google.com/store/apps/details?id=com.rrt.sos', 'https://apps.apple.com/in/app/rapid-response/id6758672498'
+  ]);
+  assert.match(rrt.body.textContent, /a click or a visit to the store is not a join/);
+  /* 4 to 8 */
+  assert.match(task('Two films for The Wall').body, /Two well-made films of about one minute each/);
+  assert.match(task('Shelter work').body, /<b>20<\/b> hours/);
+  assert.match(task('An RTI to the municipality').body, /acknowledgement number/);
+  assert.match(task('One CineKind nomination').body, /cinekind\.html#nominations/);
+  assert.match(task('Your own story with animals').body, /Four to six hundred words, with photographs/);
   /* the old briefs still hold */
   const all = lanes.map((t) => t.body).join(' ');
   assert.doesNotMatch(all, /\breels?\b/i, 'no reels');
   assert.doesNotMatch(all, /feeding circle|feeding rota|start(ing)? a feeding|find homes|adopt|foster|catch, transport/i, 'no task an animal could come to depend on');
-  const map = task('Map your town or district').body;
-  assert.match(map, /government veterinary centre photographed inside and outside, as it is on the day: never staged/);
-  assert.match(map, /held by PFA, never published/);
   assert.match(doc.querySelector('#more').textContent, /Why are feeding and adoption not tasks\?/);
-  assert.match(doc.querySelector('#more').textContent, /Finding the spots where someone already feeds animals is part of mapping your district; starting one is not\./);
 });
 
 test('the portal: proof of one task at a time, under the application number, filed as PFA-VP', () => {

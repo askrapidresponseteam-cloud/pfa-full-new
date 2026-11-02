@@ -832,7 +832,7 @@ if (root.document && root.document.head) apply(read());
     $('#dbPct').textContent = p.percent + '%';
     $('#dbOf').textContent = p.accepted + ' of ' + p.need + ' accepted';
     $('#dbBar').style.width = p.percent + '%';
-    $('#dbNote').textContent = [p.waiting ? p.waiting + ' with PFA' : '', p.revise ? p.revise + ' to revise' : '', p.average != null ? 'average score ' + p.average + ' of 10' : ''].filter(Boolean).join(' · ') || 'Five core tasks and ' + b.electivesRequired + ' electives make the certificate.';
+    $('#dbNote').textContent = [p.waiting ? p.waiting + ' with PFA' : '', p.revise ? p.revise + ' to revise' : '', p.average != null ? 'average score ' + p.average + ' of 10' : ''].filter(Boolean).join(' · ') || certNeed(b);
 
     /* the weeks, one at a time */
     $('#dbWeeks').innerHTML = b.weeks.map(function (w) {
@@ -845,6 +845,13 @@ if (root.document && root.document.head) apply(read());
     drawWeek();
     drawElectives();
     drawReferral();
+  }
+
+  /* what makes the certificate, from the batch's own plan: every task in
+     the standard plan (2 Nov 2026), or the core tasks and a choice of electives */
+  function certNeed(b) {
+    var core = b.tasks.filter(function (t) { return t.kind === 'core'; }).length;
+    return b.electivesRequired ? core + ' core tasks and ' + b.electivesRequired + ' electives make the certificate.' : 'All ' + core + ' tasks make the certificate.';
   }
 
   function tasksFor(n) {

@@ -758,6 +758,23 @@
    ]
   },
   {
+   "id": "verify-certificate",
+   "file": "verify-certificate.html",
+   "title": "Check a certificate",
+   "group": "Not in the menus",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Check a certificate."
+    },
+    {
+     "id": "check",
+     "label": "Check"
+    }
+   ]
+  },
+  {
    "id": "privacy",
    "file": "privacy.html",
    "title": "Privacy policy",
@@ -1286,8 +1303,7 @@
    "internship-process": "collection",
    "cert-sample": "collection",
    "task-lanes": "collection",
-   "mandatory-heading": "collection",
-   "optional-heading": "collection",
+   "all-heading": "collection",
    "minorBox": "apply",
    "done": "apply",
    "doneRef": "apply",
@@ -1498,6 +1514,14 @@
   },
   "index": {
    "heroTitle": "welcome"
+  },
+  "verify-certificate": {
+   "cSay": "check",
+   "cCard": "check",
+   "cKind": "check",
+   "cName": "check",
+   "cFacts": "check",
+   "cNext": "check"
   },
   "privacy": {
    "who": "policy",

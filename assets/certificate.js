@@ -13,8 +13,9 @@
 
    PFACertificate.draw(canvas, data, scale)   onto a canvas, at 1x or more
    PFACertificate.png(data)  -> Promise<Blob>  at 2x, 3344 x 1882
-   PFACertificate.pdf(data)  -> Promise<Blob>  A4 landscape, the certificate
-                                               centred with a white margin
+   PFACertificate.pdf(data, opts) -> Promise<Blob>  A4 landscape, the
+                                               certificate centred with a white
+                                               margin; opts { scale, quality }
    PFACertificate.save(blob, filename)
    data: { name, startDate, endDate, issuedOn, number, sample }, dates as
    YYYY-MM-DD; sample marks it SAMPLE across its face (the public preview).
@@ -164,10 +165,13 @@
 
   /* One A4 landscape page (297 x 210 mm) with the certificate centred on it,
      drawn at 2x and embedded as a high-quality JPEG. */
-  function pdf(data) {
+  /* opts: { scale, quality } - the emailed copy is drawn at 1.5x and 0.82,
+     about 600 KB (assets/admin-certificates.js); the download keeps 2x */
+  function pdf(data, opts) {
+    var o = opts || {};
     return load().then(function () {
-      var canvas = offscreen(data, 2);
-      var jpeg = atob(canvas.toDataURL('image/jpeg', 0.95).split(',')[1]);
+      var canvas = offscreen(data, o.scale || 2);
+      var jpeg = atob(canvas.toDataURL('image/jpeg', o.quality || 0.95).split(',')[1]);
       var bytes = new Uint8Array(jpeg.length);
       for (var i = 0; i < jpeg.length; i += 1) bytes[i] = jpeg.charCodeAt(i);
       var pw = 841.89;

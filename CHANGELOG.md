@@ -1,3 +1,17 @@
+## v1.506
+
+- **Internship certificates: emailed, and checkable by anyone.** Owner, 2 Nov 2026: "once course is completed - admin should be able to issue the cert digitally which can be sent to the person completing it over email and there should be a publicy verifiable link that it is a genuine certificate".
+  - In the panel, under Internship certificates: the form takes the intern's email with the name and dates. An issued certificate has Email it (and Email in the list of issued certificates). It opens the certificate as it will be attached beside the email exactly as it will go, to the address shown (change it and the email is looked at again). Send the certificate draws it as an A4 PDF and sends it; if anything changed since that look, it refuses and asks again. A withdrawn certificate is never sent. The list says to whom and when each one went; each send is in the audit log.
+  - The email: "Your certificate.", the internship's dates, the certificate number, the PDF attached, and Check it is genuine, the public link.
+  - The public check, on the website: peopleforanimalsindia.org/verify-certificate. Type the number printed on the certificate, or open the link from the email: it says Genuine, issued by People for Animals, with the name, the internship's dates and the issue date, or that PFA has withdrawn it, or that PFA has not issued a certificate with that number. It never shows the email or anything else on the record.
+
+## v1.505
+
+- **Internship: all eight tasks for every intern, in two months.** Owner, 2 Nov 2026: "All interns do all 8 in 2 months: update the site accordingly", with new photographs.
+  - The eight, one a week: 1 Learn the law (Section 325 of the BNS, the PCA Act 1960, the ABC Rules 2023 and Article 51A(g), then ten questions, listed under the task); 2 Map your district (vets, government vet centres, shelters, ABC centres and at least 10 animal activists, with names, addresses and phone numbers); 3 Bring 50 people onto the RRT; 4 Two well-made one-minute films for The Wall; 5 Shelter work, 20 hours across weeks 5 and 6; 6 An RTI to the municipality; 7 One CineKind nomination; 8 Your own story with animals, then the final review.
+  - The page: 8 tasks in the facts, one task a week in the steps, the certificate once all eight are signed off; one lane of eight cards with the new photographs; the FAQ and the proof form follow (the proof form lists the eight).
+  - The intern portal: the standard plan is the eight, all required, no electives to choose; shelter work is shown in weeks 5 and 6 and due at the end of week 6. In the panel, a batch's plan box has Use the standard plan, so a running batch can take the eight in one go (then Save the batch).
+
 ## v1.504
 
 - **Registers: Preview email lights up only when the line is ready.** Owner, 2 Nov 2026: "email button should highlight only when all fields are filled for that particular entry. and valid entries only., be smart. and there has to be preview as well".

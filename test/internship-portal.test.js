@@ -93,8 +93,36 @@ function application(ref, name, email, mobile) {
   db.collection('submissions').doc(ref).set({ reference: ref, kind: 'PFA-VI', status: 'new', createdAt: '2026-11-01T06:00:00.000Z', fields: { name, email, mobile, city: 'Udupi' } });
 }
 
-async function batch() {
-  const r = await admin('POST', { body: { action: 'batch-save', name: 'November 2026', startDate: START } });
+/* A batch with electives, as the plan was before 2 Nov 2026: a batch's own
+   plan can still have them, and the portal still handles a choice. */
+const ELECTIVE_TASKS = [
+  { key: 'law', kind: 'core', week: 1, title: 'Learn the law', goal: '4 laws', target: 4, need: 'Learn the four laws and pass the test.', proof: 'Your test result, and a few lines on each law in your own words.' },
+  { key: 'map', kind: 'core', week: 2, title: 'Map your town or district', goal: '1 district', target: 1, need: 'Every vet, government vet centre, shelter, ABC centre and feeding spot, checked by a call.', proof: 'Your map or sheet, with photographs taken as they are, not staged.' },
+  { key: 'rrt', kind: 'core', week: 3, title: 'Bring your town onto the RRT', goal: '50 people', target: 50, auto: 'rrt', need: 'Share your link to rapid-response.in; 50 people from your district join.', proof: 'Counted for you: only people who finish registering on the RRT app. A click or a visit to the store is not a join.' },
+  { key: 'lawyer', kind: 'core', week: 4, title: 'Find a lawyer', goal: '1 lawyer', target: 1, need: 'Find and meet one in your district.', proof: 'Their name, practice and a note of the meeting.' },
+  { key: 'film', kind: 'core', week: 5, title: 'A film for The Wall', goal: '1 film', target: 1, need: 'The idea, the script, then the shoot.', proof: 'A link to the film.' },
+  { key: 'shelter', kind: 'elective', week: 6, title: 'Help at a shelter PFA knows', goal: '20 hours', target: 20, need: 'Hands-on help alongside the shelter\'s own staff.', proof: 'Hours signed off by the shelter or the nearest PFA unit.' },
+  { key: 'paper', kind: 'elective', week: 6, title: 'Write for your local paper', goal: '1 article', target: 1, need: 'An awareness article in a newspaper where you live, reviewed by the PFA team before you send it.', proof: 'The published page, a clipping or a link, with its date.' },
+  { key: 'rti', kind: 'elective', week: 6, title: 'Ask your town about its dogs', goal: '1 RTI', target: 1, need: 'An application under the Right to Information Act to your municipality.', proof: 'The acknowledgement number; the reply, when it comes.' },
+  { key: 'cinekind', kind: 'elective', week: 6, title: 'Nominate three films for CineKind', goal: '3 films', target: 3, need: 'Three films that show animals truthfully, each nominated on the CineKind page.', proof: 'The three nomination numbers.' },
+  { key: 'talk', kind: 'elective', week: 6, title: 'Give one talk', goal: '1 talk', target: 1, need: 'At a school, college or housing society, on kindness and the law.', proof: 'A photograph, and a note from the host with the number who came.' },
+  { key: 'firstaid', kind: 'elective', week: 6, title: 'Animal first aid', goal: '1 module', target: 1, need: 'What to do in the first minutes, until help arrives.', proof: 'The module test, passed.' },
+  { key: 'story', kind: 'elective', week: 6, title: 'Write your story', goal: '1 story', target: 1, need: 'One real story from your eight weeks, for the PFA site.', proof: 'Four to six hundred words, with photographs.' }
+];
+const ELECTIVE_WEEKS = [
+  { n: 1, title: 'Animal welfare laws', summary: 'Learn the four laws and pass the test.' },
+  { n: 2, title: 'Map your district', summary: 'Every vet, government vet centre, shelter, ABC centre and feeding spot, checked by a call.' },
+  { n: 3, title: 'Bring people onto the RRT', summary: 'Share your link to rapid-response.in; 50 people from your district join.' },
+  { n: 4, title: 'A lawyer for animals', summary: 'Find and meet one in your district.' },
+  { n: 5, title: 'Your film for The Wall', summary: 'The idea, the script, then the shoot.' },
+  { n: 6, title: 'Your electives', summary: 'Start the three you chose.' },
+  { n: 7, title: 'Your electives, done', summary: 'Every proof on the portal.' },
+  { n: 8, title: 'Final review', summary: 'The last proofs checked by PFA, and the certificate issued.' }
+];
+const ELECTIVE_PLAN = { weeks: ELECTIVE_WEEKS, tasks: ELECTIVE_TASKS, electivesRequired: 3 };
+
+async function batch(plan) {
+  const r = await admin('POST', { body: Object.assign({ action: 'batch-save', name: 'November 2026', startDate: START }, plan ? { plan } : {}) });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   return r.json.batch.batchId;
 }
@@ -107,22 +135,35 @@ function linkIn(message) {
 
 /* ---- the plan ----------------------------------------------------------- */
 
-test('the default plan is the eight weeks on the internship page; weeks run Monday to Sunday, IST', async () => {
+test('the default plan is the eight weeks on the internship page: all eight tasks for every intern; weeks run Monday to Sunday, IST', async () => {
+  /* owner, 2 Nov 2026: "All interns do all 8 in 2 months" */
   const id = await batch();
   const b = await S.getBatch(db, id);
   assert.equal(b.weeks.length, 8);
-  assert.deepEqual(b.weeks.slice(0, 3).map((w) => w.title), ['Animal welfare laws', 'Map your district', 'Bring people onto the RRT']);
-  assert.deepEqual(b.tasks.filter((t) => t.kind === 'core').map((t) => [t.key, t.week, t.goal]), [['law', 1, '4 laws'], ['map', 2, '1 district'], ['rrt', 3, '50 people'], ['lawyer', 4, '1 lawyer'], ['film', 5, '1 film']]);
-  assert.equal(b.tasks.filter((t) => t.kind === 'elective').length, 7);
-  assert.equal(b.electivesRequired, 3);
+  assert.deepEqual(b.weeks.slice(0, 3).map((w) => w.title), ['Learn the law', 'Map your district', 'Bring people onto the RRT']);
+  assert.deepEqual(b.tasks.map((t) => [t.key, t.kind, t.week, t.goal]), [
+    ['law', 'core', 1, '10 answers'], ['map', 'core', 2, '1 district'], ['rrt', 'core', 3, '50 people'], ['films', 'core', 4, '2 films'],
+    ['shelter', 'core', 5, '20 hours'], ['rti', 'core', 6, '1 RTI'], ['cinekind', 'core', 7, '1 nomination'], ['story', 'core', 8, '1 story']
+  ]);
+  assert.deepEqual(b.tasks.map((t) => t.title), ['Learn the law', 'Map your district', 'Bring 50 people onto the RRT', 'Two films for The Wall', 'Shelter work', 'An RTI to the municipality', 'One CineKind nomination', 'Your own story with animals'],
+    'the same titles as the page and the proof form');
+  assert.equal(b.electivesRequired, 0);
   const v = I.batchView(b, NOW);
   assert.equal(v.weeks[0].due, '2026-11-15T18:29:59.000Z', 'week 1 is due Sunday 15 Nov, 11:59:59 pm IST');
   assert.equal(v.weeks[0].dueLabel, 'Sun 15 Nov, 11:59 pm');
-  assert.equal(v.tasks.find((t) => t.key === 'cinekind').dueWeek, 7, 'electives are due at the end of week 7');
+  assert.equal(v.tasks.find((t) => t.key === 'shelter').dueWeek, 6, 'shelter work runs across weeks 5 and 6');
+  assert.equal(v.tasks.find((t) => t.key === 'rti').dueWeek, 6);
+  assert.equal(I.progressOf(b, { electives: [] }, [], null).need, 8, 'all eight make the certificate');
   assert.equal(v.week, 0, 'not started');
   assert.equal(I.currentWeek(b, at('2026-11-08T18:30:00.000Z')), 1, 'Monday 00:00 IST');
   assert.equal(I.currentWeek(b, at('2026-11-15T18:29:00.000Z')), 1);
   assert.equal(I.currentWeek(b, at('2026-11-15T18:31:00.000Z')), 2);
+  /* a running batch can take the standard plan from the panel in one go */
+  const panel = fs.readFileSync(path.join(__dirname, '..', 'admin.html'), 'utf8');
+  assert.match(panel, /data-ip="plan-standard">Use the standard plan</);
+  assert.match(panel, /if \(what === 'plan-standard'\) \{\n\s+var std = \(ip\.home \|\| \{\}\)\.defaultPlan;/);
+  const titles = require('../lib/submission-fields').specFor('PFA-VP').options.task;
+  assert.deepEqual(titles, b.tasks.map((t) => t.title), 'the proof form names the same eight');
   /* a batch must start on a Monday, and its plan is per batch */
   assert.equal((await admin('POST', { body: { action: 'batch-save', name: 'X', startDate: '2026-11-10' } })).status, 400);
   const plan = I.defaultPlan();
@@ -219,7 +260,8 @@ test('signing in: wrong keys lock the ID, growing; the address is braked too; a 
 });
 
 test('the full journey: plan and deadlines, electives, proof with a file, revision, acceptance, privacy between interns', async () => {
-  await batch();
+  /* a batch whose own plan has electives: the portal still handles a choice */
+  await batch(ELECTIVE_PLAN);
   const a = await onboarded('Asha Rao', 'asha@example.com', '9000000001');
   const z = await onboarded('Zoya Khan', 'zoya@example.com', '9000000002');
   /* before the start: the plan is readable, nothing can be sent */
@@ -308,7 +350,7 @@ test('reminders: on each week\'s Sunday, once per intern, only when something is
   assert.equal(sent.length, 1, 'Asha sent hers; only Zoya is reminded');
   assert.equal(sent[0].to, 'zoya@example.com');
   assert.match(sent[0].subject, /week 1: 1 still open/);
-  assert.match(sent[0].text, /Learn the law \(4 laws\)/);
+  assert.match(sent[0].text, /Learn the law \(10 answers\)/);
   assert.match(sent[0].text, /Sun 15 Nov, 11:59 pm/);
   /* every later run that Sunday: no second email */
   await R.run({ db, nowMs: SUN + 600000 });
@@ -323,8 +365,8 @@ test('reminders: on each week\'s Sunday, once per intern, only when something is
   await db.collection('interns').doc(z.internId).set({ referral: { registrations: 12, clicks: 300 } }, { merge: true });
   await R.run({ db, nowMs: at('2026-11-29T03:30:00.000Z') });
   const zoya = sent.find((m) => m.to === 'zoya@example.com');
-  assert.match(zoya.text, /Bring your town onto the RRT: 12 of 50 have registered/);
-  assert.match(zoya.text, /Learn the law \(4 laws\) \(Overdue\)/);
+  assert.match(zoya.text, /Bring 50 people onto the RRT: 12 of 50 have registered/);
+  assert.match(zoya.text, /Learn the law \(10 answers\) \(Overdue\)/);
   /* a closed batch is not reminded */
   sent = [];
   await db.collection('intern_batches').doc(id).set({ status: 'closed' }, { merge: true });

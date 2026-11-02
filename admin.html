@@ -206,6 +206,10 @@ button{font:inherit;color:inherit}
 .rgm-why{margin:0;padding:12px;font-size:13px;color:#b3261e}
 .rgm-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--line)}
 .rgm-foot .rg-say{flex:1;margin:0}
+.ctm-cert{display:block;width:100%;height:auto}
+.ctm .rgm-cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}
+.ctm-to{display:block;width:100%;margin:4px 0 0;height:36px;padding:0 10px;border:1px solid var(--line);font:inherit;font-size:13px;color:var(--ink);background:var(--paper)}
+.ctm-to:focus-visible{outline:none;border-color:var(--ink)}
 .rg-tools .press,.rgm-foot .press{display:inline-flex;align-items:center;justify-content:center;width:auto;min-height:38px;padding:0 18px}
 .rg-tools .press[disabled]{opacity:.4;cursor:default}
 
@@ -1178,7 +1182,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* what assets/admin-registers.js uses of this script (2 Nov 2026: moved
      out to keep this page under the page-weight ceiling) */
-  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on };
+  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, certificates: function () { return ct.rows; } };
 
   var KEY = window.PFA_FIREBASE_API_KEY || '';
   var IDENTITY = 'https://identitytoolkit.googleapis.com/v1/accounts:';
@@ -4855,7 +4859,7 @@ window.addEventListener('unhandledrejection', function (event) {
   var ct = { rows: [], today: '', current: null, withdrawing: '' };
   function ctData() {
     if (ct.current) return ct.current;
-    return { name: ($('#ctName') || {}).value || '', startDate: ($('#ctFrom') || {}).value || '', endDate: ($('#ctTo') || {}).value || '', issuedOn: ($('#ctOn') || {}).value || '', number: '' };
+    return { name: ($('#ctName') || {}).value || '', startDate: ($('#ctFrom') || {}).value || '', endDate: ($('#ctTo') || {}).value || '', issuedOn: ($('#ctOn') || {}).value || '', email: ($('#ctEmail') || {}).value || '', number: '' };
   }
   function ctDraw() {
     var canvas = $('#ctCanvas');
@@ -4984,7 +4988,7 @@ window.addEventListener('unhandledrejection', function (event) {
     return '<div class="so-fields"><div><label for="ipBName">Name</label><input id="ipBName" maxlength="80" placeholder="November 2026" value="' + esc(v ? v.name : '') + '"></div>'
       + '<div><label for="ipBStart">Starts (a Monday)</label><input id="ipBStart" type="date" value="' + esc(v ? v.startDate : '') + '"></div>'
       + '<div><label for="ipBStatus">Status</label><select id="ipBStatus"><option value="open">Open</option><option value="closed"' + (v && v.status === 'closed' ? ' selected' : '') + '>Closed (no reminders)</option></select></div></div>'
-      + '<details class="fold"><summary>The plan: weeks, tasks, deadlines and targets</summary><p class="note">Weeks run Monday to Sunday; a task is due on the Sunday of its week (electives at the end of week 7). Edit titles, goals, targets and weeks here; keep each task’s key.</p><textarea id="ipBPlan" rows="14" spellcheck="false">' + esc(JSON.stringify(plan || {}, null, 2)) + '</textarea></details>'
+      + '<details class="fold"><summary>The plan: weeks, tasks, deadlines and targets</summary><p class="note">Weeks run Monday to Sunday; a task is due on the Sunday of its week, or of its due week. The standard plan is all eight tasks for every intern, one a week. Edit titles, goals, targets and weeks here; keep each task’s key.</p><textarea id="ipBPlan" rows="14" spellcheck="false">' + esc(JSON.stringify(plan || {}, null, 2)) + '</textarea><p><button class="ghost" type="button" data-ip="plan-standard">Use the standard plan</button> <span class="note">Puts the eight tasks in the box; Save the batch to apply it.</span></p></details>'
       + '<div class="so-save">' + (v ? '<button class="press" type="button" data-ip="batch-save">Save this batch</button>' : '') + '<button class="ghost" type="button" data-ip="batch-new">Make a new batch</button></div>';
   }
   on('[data-pane="internship"]', 'change', function (e) {
@@ -5052,6 +5056,11 @@ window.addEventListener('unhandledrejection', function (event) {
       }).catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
       return;
     }
+    if (what === 'plan-standard') {
+      var std = (ip.home || {}).defaultPlan;
+      if (std) { $('#ipBPlan').value = JSON.stringify(std, null, 2); say(sayNode, 'The standard plan is in the box: all eight tasks, one a week. Save the batch to apply it.', 'good'); }
+      return;
+    }
     if (what === 'batch-save' || what === 'batch-new') {
       var plan;
       try { plan = JSON.parse($('#ipBPlan').value || '{}'); } catch (_) { say(sayNode, 'The plan is not valid JSON. Check the commas and quotes.', 'bad'); return; }
@@ -5086,10 +5095,11 @@ window.addEventListener('unhandledrejection', function (event) {
       + '<div><label for="ctFrom">Internship from</label><input id="ctFrom" type="date" value="' + v('startDate') + '"' + lock + '></div>'
       + '<div><label for="ctTo">To</label><input id="ctTo" type="date" value="' + v('endDate') + '"' + lock + '></div>'
       + '<div><label for="ctOn">Issued on</label><input id="ctOn" type="date" value="' + v('issuedOn', ct.today) + '"' + lock + '></div>'
+      + '<div><label for="ctEmail">Their email</label><input id="ctEmail" type="email" maxlength="254" autocomplete="off" placeholder="To email it to them" value="' + v('email') + '"' + lock + '></div>'
       + '</div>'
       + (c
         ? '<div class="ct-issued"><p><b>' + esc(c.number) + '</b> \u00b7 ' + esc(c.name) + (c.revoked ? ' \u00b7 <span class="flag" data-s="failed">Withdrawn</span>' : '') + '<br><span class="note">Issued ' + esc(dayOf(c.issuedAt || c.issuedOn)) + (c.issuedBy ? ' by ' + esc(c.issuedBy) : '') + '. This is the certificate exactly as issued.</span></p>'
-          + '<div class="ct-acts">' + (c.revoked ? '' : '<button class="press" type="button" data-ct="pdf">Download PDF</button><button class="ghost" type="button" data-ct="png">Download PNG</button>')
+          + '<div class="ct-acts">' + (c.revoked ? '' : '<button class="press" type="button" data-ct-mail="' + esc(c.number) + '">Email it</button><button class="ghost" type="button" data-ct="pdf">Download PDF</button><button class="ghost" type="button" data-ct="png">Download PNG</button>')
           + '<button class="ghost" type="button" data-ct="new">Make another</button></div></div>'
         : '<div class="ct-acts"><button class="press" type="button" data-ct="issue">Issue certificate</button><p class="say" data-ct-say role="status" aria-live="polite"></p></div>')
       + '<figure class="ct-preview"><canvas id="ctCanvas" width="1672" height="941" aria-label="The certificate as it will print"></canvas>'
@@ -5111,7 +5121,8 @@ window.addEventListener('unhandledrejection', function (event) {
           + '<td>' + esc(long(r.startDate)) + ' to ' + esc(long(r.endDate)) + '</td>'
           + '<td>' + esc(long(r.issuedOn)) + (r.issuedBy ? '<br><span class="note">by ' + esc(r.issuedBy) + '</span>' : '') + '</td>'
           + '<td><button class="linky" type="button" data-ct="open">Open</button>'
-          + (r.revoked ? '' : ' \u00b7 <button class="linky" type="button" data-ct="withdraw">Withdraw</button>')
+          + (r.revoked ? '' : ' \u00b7 <button class="linky" type="button" data-ct-mail="' + esc(r.number) + '">Email</button> \u00b7 <button class="linky" type="button" data-ct="withdraw">Withdraw</button>')
+          + (r.sent ? '<br><span class="note">Emailed to ' + esc(r.sent.to) + ', ' + esc(dayOf(r.sent.at)) + '</span>' : '')
           + (ct.withdrawing === r.number ? '<div class="ct-why"><input id="ctWhy" maxlength="300" placeholder="Why it is withdrawn"><button class="ghost" type="button" data-ct="withdraw-yes">Withdraw it</button><button class="ghost" type="button" data-ct="withdraw-no">Keep it</button></div>' : '')
           + '</td></tr>';
       }).join('') + '</tbody></table></div></details>';
@@ -5131,8 +5142,8 @@ window.addEventListener('unhandledrejection', function (event) {
     var PC = window.PFACertificate;
     if (what === 'issue') {
       var sayNode = $('[data-pane="certificates"] [data-ct-say]');
-      var body = { action: 'issue', name: $('#ctName').value, startDate: $('#ctFrom').value, endDate: $('#ctTo').value, issuedOn: $('#ctOn').value };
-      var fieldOf = { name: '#ctName', startDate: '#ctFrom', endDate: '#ctTo', issuedOn: '#ctOn' };
+      var body = { action: 'issue', name: $('#ctName').value, startDate: $('#ctFrom').value, endDate: $('#ctTo').value, issuedOn: $('#ctOn').value, email: $('#ctEmail').value };
+      var fieldOf = { name: '#ctName', startDate: '#ctFrom', endDate: '#ctTo', issuedOn: '#ctOn', email: '#ctEmail' };
       b.disabled = true;
       say(sayNode, 'Issuing\u2026');
       api('/api/admin/certificates', { method: 'POST', body: body }).then(function (r) {
@@ -6273,6 +6284,7 @@ window.addEventListener('unhandledrejection', function (event) {
 }());
 </script>
 <script src="assets/admin-registers.js"></script>
+<script src="assets/admin-certificates.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by
    the panel later, is folded behind a round (i) at the end of the heading
