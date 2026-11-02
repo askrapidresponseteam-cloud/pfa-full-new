@@ -1284,6 +1284,7 @@
   },
   "internship": {
    "internship-process": "collection",
+   "cert-sample": "collection",
    "task-lanes": "collection",
    "mandatory-heading": "collection",
    "optional-heading": "collection",

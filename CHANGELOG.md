@@ -1,3 +1,8 @@
+## v1.499
+
+- **Internship: the sample certificate is back.** Owner, 2 Nov 2026: "where is that cool certificate on the internship page? the sample preview one".
+  - Under step 04, Earn your certificate, in the field notes: See a sample certificate. It opens under the four steps: the certificate in its blue, marked SAMPLE, dated as if you began today, with "See your name on it" so a reader sees their own name on it as they type. Hide the sample closes it. The rest of your field notes is unchanged.
+
 ## v1.498
 
 - **Tests: still green after 1 January.** Owner, 2 Nov 2026: following the v1.497 deploy stop.

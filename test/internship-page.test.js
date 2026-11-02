@@ -196,3 +196,22 @@ test('short forms show their full form on hover or a tap, across the site', () =
   assert.match(read('assets/chrome.css'), /\.pfa-abbr-tip\.is-on\{opacity:1;visibility:visible\}/);
   assert.ok(!/[–—]/.test(js), 'no dashes');
 });
+
+test('the sample certificate: under step 04, opened when asked, drawn SAMPLE with the reader\'s name as they type', () => {
+  const step = [...doc.querySelectorAll('#internship-process .process-steps li')][3];
+  const peek = step.querySelector('button.cert-peek');
+  assert.ok(peek, 'a "See a sample certificate" control on Earn your certificate');
+  assert.equal(peek.textContent, 'See a sample certificate');
+  assert.equal(peek.getAttribute('aria-controls'), 'cert-sample');
+  assert.equal(peek.getAttribute('aria-expanded'), 'false');
+  const box = doc.querySelector('#internship-process #cert-sample');
+  assert.ok(box && box.hasAttribute('hidden'), 'hidden until asked for');
+  assert.ok(box.querySelector('canvas.vi-cert__canvas[width="1672"][height="941"]'));
+  assert.ok(box.querySelector('label.cert-try input.vi-try[maxlength="48"]'));
+  assert.match(box.querySelector('figcaption').textContent, /^A sample, as it would read if you began today\./);
+  const scripts = [...doc.querySelectorAll('script[src]')].map((s) => s.getAttribute('src'));
+  assert.ok(scripts.indexOf('assets/certificate.js') > -1 && scripts.indexOf('assets/certificate.js') < scripts.indexOf('assets/internship-fieldnotes.js'), 'certificate.js loads first');
+  assert.match(fnJs, /sample: true/);
+  assert.match(fnJs, /input\.addEventListener\('input', paint\)/);
+  assert.match(html, /\.cert-try input:focus,\.cert-try input:focus-visible\{outline:none;border-bottom-color:#fff\}/, 'the field shows focus by its own edge');
+});
