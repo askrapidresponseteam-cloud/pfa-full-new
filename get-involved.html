@@ -879,6 +879,8 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__body">
             <div class="field"><label for="memName">Your name</label><input id="memName" name="name" type="text" autocomplete="name" required><span class="error">Add your name.</span></div>
             <div class="field"><label for="memMobile">Mobile number</label><input id="memMobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" required><span class="error">Enter a 10-digit Indian mobile number.</span></div>
+            <!-- a second number for the courier (owner, 2 Nov 2026: "phone number etc to send the card without failure of delivery") -->
+            <div class="field"><label for="memAltMobile">Another number the courier can call <span class="opt">(optional)</span></label><input id="memAltMobile" name="altMobile" type="tel" inputmode="numeric" maxlength="14" autocomplete="tel"><span class="hint">A family member's, in case yours is busy.</span><span class="error">A 10-digit Indian mobile number, or leave it empty.</span></div>
             <div class="field"><label for="memEmail">Email</label><input id="memEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email for the welcome letter.</span></div>
           </div>
         </div>
@@ -893,7 +895,8 @@ if (root.document && root.document.head) apply(read());
             <!-- posted by courier: the door first (owner, 29 Oct 2026: "ask for proper mailing address including their house number") -->
             <div class="field gi__wide"><label for="memHouse">House or flat number, and building</label><input id="memHouse" name="house" type="text" autocomplete="address-line1" maxlength="80" placeholder="Flat 4B, Sai Residency" required><span class="error">Add the house or flat number and building, so the courier finds the door.</span></div>
             <div class="field gi__wide"><label for="memAddress">Street and area</label><input id="memAddress" name="street" type="text" autocomplete="address-line2" maxlength="120" placeholder="12th Cross, Kodavoor" required><span class="error">Add the street and area.</span></div>
-            <div class="field gi__wide"><label for="memLandmark">Landmark <span class="opt">(optional)</span></label><input id="memLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"><span class="hint">Helps the courier find you.</span></div>
+            <div class="field"><label for="memFloor">Floor <span class="opt">(optional)</span></label><input id="memFloor" name="floor" type="text" maxlength="40" placeholder="2nd"><span class="hint">If it is a flat or upstairs.</span></div>
+            <div class="field"><label for="memLandmark">Landmark <span class="opt">(optional)</span></label><input id="memLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"><span class="hint">Helps the courier find you.</span></div>
             <div class="field"><label for="memCity">City, town or village</label><input id="memCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us the city or town.</span></div>
             <div class="field"><label for="memState">State</label><select id="memState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="memDistrict">District</label><select id="memDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
@@ -957,6 +960,8 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__body gi__fields">
             <div class="field"><label for="cgName">Your name</label><input id="cgName" name="name" type="text" autocomplete="name" required><span class="error">Add your name.</span></div>
             <div class="field"><label for="cgMobile">Mobile number</label><input id="cgMobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" required><span class="error">Enter a 10-digit Indian mobile number.</span></div>
+            <!-- a second number for the courier (owner, 2 Nov 2026: "phone number etc to send the card without failure of delivery") -->
+            <div class="field"><label for="cgAltMobile">Another number the courier can call <span class="opt">(optional)</span></label><input id="cgAltMobile" name="altMobile" type="tel" inputmode="numeric" maxlength="14" autocomplete="tel"><span class="hint">A family member's, in case yours is busy.</span><span class="error">A 10-digit Indian mobile number, or leave it empty.</span></div>
             <div class="field gi__wide"><label for="cgEmail">Email</label><input id="cgEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email, for your application number.</span></div>
             <div class="field gi__doc" data-doc="photo"><label for="cgPhoto">Your photograph</label>
               <input id="cgPhoto" type="file" accept="image/*" capture="user">
@@ -976,7 +981,8 @@ if (root.document && root.document.head) apply(read());
             <!-- posted by courier: the door first (owner, 29 Oct 2026: "ask for proper mailing address including their house number") -->
             <div class="field gi__wide"><label for="cgHouse">House or flat number, and building</label><input id="cgHouse" name="house" type="text" autocomplete="address-line1" maxlength="80" placeholder="Flat 4B, Sai Residency" required><span class="error">Add the house or flat number and building, so the courier finds the door.</span></div>
             <div class="field gi__wide"><label for="cgAddress">Street and area</label><input id="cgAddress" name="street" type="text" autocomplete="address-line2" maxlength="120" placeholder="12th Cross, Kodavoor" required><span class="error">Add the street and area.</span></div>
-            <div class="field gi__wide"><label for="cgLandmark">Landmark <span class="opt">(optional)</span></label><input id="cgLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"><span class="hint">Helps the courier find you.</span></div>
+            <div class="field"><label for="cgFloor">Floor <span class="opt">(optional)</span></label><input id="cgFloor" name="floor" type="text" maxlength="40" placeholder="2nd"><span class="hint">If it is a flat or upstairs.</span></div>
+            <div class="field"><label for="cgLandmark">Landmark <span class="opt">(optional)</span></label><input id="cgLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"><span class="hint">Helps the courier find you.</span></div>
             <div class="field"><label for="cgCity">City, town or village</label><input id="cgCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us where.</span></div>
             <div class="field"><label for="cgState">State</label><select id="cgState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="cgDistrict">District</label><select id="cgDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
@@ -1435,6 +1441,9 @@ if (root.document && root.document.head) apply(read());
         if (el.name === 'pincode') return !/^[1-9]\d{5}$/.test(el.value.replace(/\D/g, ''));
         return !el.value.trim();
       });
+      /* the courier's second number: optional, but a real one if given */
+      var alt = form.querySelector('[name="altMobile"]');
+      if (alt && alt.value.trim() && !/^[6-9]\d{9}$/.test(alt.value.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, ''))) bad.push(alt);
       bad.forEach(function(el){ var f = el.closest('.field'); if (f) f.classList.add('is-bad'); });
       /* the PIN beside the state chosen (assets/address.js) */
       var pinEl = form.querySelector('[name="pincode"]'), stEl = form.querySelector('[name="state"]');
@@ -1522,6 +1531,8 @@ if (root.document && root.document.head) apply(read());
       var errs = 0;
       errs += bad(n, !n.value.trim()) ? 1 : 0;
       errs += bad(m, !mobileOk(m.value)) ? 1 : 0;
+      var alt = $('#cgAltMobile');
+      if (alt) errs += bad(alt, !!alt.value.trim() && !mobileOk(alt.value.replace(/^\+?91(?=\d{10}$)/, ''))) ? 1 : 0;
       errs += bad(em, !emailOk(em.value)) ? 1 : 0;
       errs += bad(h, !h.value.trim()) ? 1 : 0;
       errs += bad(a, !a.value.trim()) ? 1 : 0;

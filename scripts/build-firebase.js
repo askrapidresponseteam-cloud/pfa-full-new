@@ -74,6 +74,9 @@ const PANEL_ASSETS = [
   /* The membership card the panel draws (26 Oct 2026): its renderer, its two
      faces' fonts and the transparent PFA logo. */
   'assets/member-card.js',
+  /* the registers (2 Nov 2026): moved out of admin.html to keep it under
+     the page-weight ceiling */
+  'assets/admin-registers.js',
   'fonts/cinzel-latin-500.woff2',
   'fonts/cinzel-latin-600.woff2',
   'fonts/dm-sans-latin-400.woff2',

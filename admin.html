@@ -145,6 +145,62 @@ button{font:inherit;color:inherit}
 .pane[data-pane="apply"]::before{content:"Applications to decide"}
 .pane[data-pane="audit"]::before{content:"History"}
 .pane[data-pane="donations"]::before,.pane[data-pane="verify"]::before,.pane[data-pane="cards"]::before,.pane[data-pane="apply"]::before,.pane[data-pane="audit"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+/* The registers (2 Nov 2026): the colony cards and the members, laid out as
+   the office's own sheets are, every item one click to copy */
+.pane[data-pane="caregivers"]::before{content:"Card studio";display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.rg-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 10px}
+.rg-tools input{flex:1 1 240px;min-width:0;height:38px;padding:0 12px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;color:var(--ink)}
+.rg-tools input:focus-visible{outline:none;border-color:var(--ink)}
+.rg-seg{display:inline-flex;border:1px solid var(--line)}
+.rg-seg button{min-height:38px;padding:0 12px;border:0;border-right:1px solid var(--line);background:var(--paper);font:inherit;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.rg-seg button:last-child{border-right:0}
+.rg-seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.rg-hint{margin:0 0 12px;font-size:12px;color:var(--muted)}
+.rg-say{margin:0 0 10px;font-size:12px;min-height:18px}
+.rg table{min-width:900px}
+.rg th{white-space:nowrap}
+.rg td{padding:6px 4px;vertical-align:top}
+.rg tr.rg-done td{background:#e7f5dd}
+.rg-c{display:block;width:100%;padding:6px;margin:0;border:0;background:none;font:inherit;font-size:13px;line-height:1.45;color:inherit;text-align:left;white-space:pre-line;overflow-wrap:break-word;word-break:normal;cursor:copy}
+.rg td.rg-nw .rg-c{white-space:nowrap}
+.rg td.rg-name{min-width:130px}
+.rg td.rg-addr{min-width:220px}
+.pane[data-pane="cgsheet"]::before,.pane[data-pane="memsheet"]::before{content:"Register";display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.rg-c:hover{background:rgba(0,0,0,.06)}
+.rg-c:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.rg-c.is-copied{background:var(--ink);color:var(--paper)}
+.rg-sub{color:var(--muted);font-size:12px}
+.rg-row{min-height:32px;padding:0 10px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.rg-row:hover{border-color:var(--ink)}
+.rg-empty{padding:28px 14px;color:var(--muted);text-align:center}
+.rg-pick{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;cursor:pointer}
+.rg-pick input{width:16px;height:16px;margin:0;cursor:pointer}
+.rg td.rg-nw .rg-pick+.rg-row{margin-left:2px}
+.rg-ship{display:grid;gap:6px;min-width:170px}
+.rg-ship select,.rg-ship input{width:100%;height:32px;padding:0 8px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:12.5px;color:var(--ink)}
+.rg-ship select:focus-visible,.rg-ship input:focus-visible{outline:none;border-color:var(--ink)}
+.rg-acts{display:flex;gap:6px}
+.rg-acts .rg-row{flex:1}
+.rg-row[disabled]{opacity:.45;cursor:default}
+.rg-last{display:block;font-size:11.5px;line-height:1.4}
+.rgm{width:min(1180px,94vw);max-height:92vh;padding:0;border:1px solid var(--ink);background:var(--paper);color:var(--ink)}
+.rgm::backdrop{background:rgba(0,0,0,.45)}
+.rgm[open]{display:flex;flex-direction:column}
+.rgm-head{padding:20px 22px 12px;border-bottom:1px solid var(--line)}
+.rgm-head h3{margin:0 0 4px;font-size:18px}
+.rgm-sub{margin:0;font-size:13px;color:var(--muted)}
+.rgm-cards{flex:1;overflow-y:auto;padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:16px;align-content:start;background:#f6f5f3}
+.rgm-card{border:1px solid var(--line);background:var(--paper);display:flex;flex-direction:column;min-width:0}
+.rgm-card--no{border-color:#b3261e}
+.rgm-to{margin:0;padding:10px 12px 0;font-size:13px;display:grid;gap:2px;overflow-wrap:anywhere}
+.rgm-to span{color:var(--muted)}
+.rgm-subj{margin:0;padding:6px 12px 10px;font-size:13px;font-weight:700;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.rgm-frame{display:block;width:100%;height:440px;border:0;background:#fff}
+.rgm-why{margin:0;padding:12px;font-size:13px;color:#b3261e}
+.rgm-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--line)}
+.rgm-foot .rg-say{flex:1;margin:0}
+.rg-tools .press,.rgm-foot .press{display:inline-flex;align-items:center;justify-content:center;width:auto;min-height:38px;padding:0 18px}
+.rg-tools .press[disabled]{opacity:.4;cursor:default}
 
 /* ---------- overview ---------- */
 .lead{border-bottom:1px solid var(--line);padding:0 0 30px;margin:0 0 30px;display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
@@ -821,6 +877,10 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
            applications, emailed every Monday with a link to each record
            (lib/weekly-digest.js). Filled by weeklyDigests(). -->
       <details class="fold fr" id="wdFold"><summary>Monday digest</summary><div id="wdBody"><div class="loading">Reading&#8230;</div></div></details>
+      <!-- Monthly cruelty report (2 Nov 2026): last month's cruelty reports,
+           state by state, as one PDF to gandhim on the 2nd
+           (lib/cruelty-report.js). Filled by crueltyReports(). -->
+      <details class="fold fr" id="crFold"><summary>Monthly cruelty report</summary><div id="crBody"><div class="loading">Reading&#8230;</div></div></details>
     </div>
 
     <div class="pane" data-pane="volunteers">
@@ -831,6 +891,16 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     </div>
 
     
+
+    <!-- The registers (owner, 2 Nov 2026, with the office's CACT 2026 and
+         membership sheets: "make the admin center for catc and membership look
+         simple and easy to consume like this. with option to export and copy
+         paste each item"). Filled by assets/admin-registers.js; read from
+         /api/admin/registers. -->
+    <div class="pane rg" data-pane="cgsheet" role="region" aria-label="Colony card register"><div class="loading">Reading the register&#8230;</div></div>
+    <div class="pane rg" data-pane="memsheet" role="region" aria-label="Membership register"><div class="loading">Reading the register&#8230;</div></div>
+    <!-- the shipping letters, before they go: one card each (filled by regPreview()) -->
+    <dialog class="rgm" id="rgMail" aria-label="Check the emails before they go"></dialog>
 
     <div class="pane" data-pane="apply" role="region" aria-label="Applications to decide"><div class="loading">Reading the applications&#8230;</div></div>
 
@@ -1099,6 +1169,10 @@ window.addEventListener('unhandledrejection', function (event) {
 (function () {
   'use strict';
 
+  /* what assets/admin-registers.js uses of this script (2 Nov 2026: moved
+     out to keep this page under the page-weight ceiling) */
+  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on };
+
   var KEY = window.PFA_FIREBASE_API_KEY || '';
   var IDENTITY = 'https://identitytoolkit.googleapis.com/v1/accounts:';
   var REFRESH_URL = 'https://securetoken.googleapis.com/v1/token?key=';
@@ -1342,9 +1416,11 @@ window.addEventListener('unhandledrejection', function (event) {
     submissions: { title: 'Submissions',   module: 'submissions', needs: 'submissions' },
     volunteers:  { title: 'Volunteers',    module: 'volunteers',  needs: 'submissions' },
     donations:   { title: 'Donations',     module: 'donations',   needs: 'payments' },
-    caregivers:  { title: 'Colony cards',  module: 'caregivers',  needs: 'caregivers', panes: ['apply', 'caregivers', 'verify', 'cards'] },
+    caregivers:  { title: 'Colony cards',  module: 'caregivers',  needs: 'caregivers', panes: ['cgsheet', 'apply', 'caregivers', 'verify', 'cards'] },
+    cgsheet:     { title: 'Colony card register', module: 'caregivers', needs: 'caregivers' },
     apply:       { title: 'Applications to decide', module: 'caregivers', needs: 'caregivers' },
-    membership:  { title: 'Membership cards', module: 'membership', needs: 'membership' },
+    membership:  { title: 'Membership cards', module: 'membership', needs: 'membership', panes: ['memsheet', 'membership'] },
+    memsheet:    { title: 'Membership register', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
     shop:        { title: 'Shop orders',   module: 'shop',        needs: 'shop' },
     internship:  { title: 'Internship',    module: 'internship',  needs: 'internship', panes: ['internship', 'certificates'] },
@@ -1394,7 +1470,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* A section folded into another keeps its name here, so an old link or an
      internal show('donations') lands on the section that now holds it. */
-  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', audit: 'people', certificates: 'internship' };
+  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', certificates: 'internship' };
   function panesOf(tab) { return (TABS[tab] || {}).panes || [tab]; }
   function paneAllowed(pane) {
     var spec = TABS[pane];
@@ -1436,6 +1512,8 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'cards') return cardsPane();
     if (tab === 'apply') return applicationsPane();
     if (tab === 'membership') return membershipPane();
+    if (tab === 'cgsheet') return window.PFARegisters && window.PFARegisters.pane('caregiver');
+    if (tab === 'memsheet') return window.PFARegisters && window.PFARegisters.pane('membership');
     if (tab === 'shop') return shopPane();
     if (tab === 'internship') return internshipPane();
     if (tab === 'certificates') return certificatesPane();
@@ -2296,6 +2374,53 @@ window.addEventListener('unhandledrejection', function (event) {
       var res = r.result || {};
       weeklyDigests({ text: (res.state === 'sent' ? 'Sent: ' : 'Queued: ') + res.count + ' listed.', tone: 'good' });
     }).catch(function (err) { b.disabled = false; say($('[data-wd-say]'), err.message, 'bad'); });
+  });
+
+  /* The monthly cruelty report: each month's PDF, whether it went, and Send again */
+  function crueltyReports(said) {
+    var box = $('#crBody');
+    if (!box) return;
+    api('/api/admin/cruelty-report').then(function (d) {
+      var rc = d.recipients || {};
+      box.innerHTML = '<p class="fr-who">On the 2nd of every month, India time, last month\'s cruelty reports go to <b>' + esc(rc.to || '') + '</b> as one PDF: each state on its own pages, with who reported each case, when, from where and what they saw. Download any month; this month shows what has come in so far.</p>'
+        + '<div class="wrap"><table><thead><tr><th>Month</th><th class="num">Reports</th><th>States</th><th>Email</th><th aria-label="Actions"></th></tr></thead><tbody>'
+        + (d.months || []).map(function (m) {
+          var r = m.report;
+          var mail = m.current ? '<span class="note">Goes on the 2nd</span>' : r && r.email ? (FR_MAIL[r.email.status] || r.email.status) + (r.email.lastError && r.email.status !== 'sent' ? '<br><span class="note">' + esc(r.email.lastError) + '</span>' : '') : (r ? esc(r.state) : '<span class="note">Not made yet</span>');
+          var states = r && r.states ? r.states.map(function (s) { return esc(s.state) + ' ' + esc(String(s.count)); }).join(', ') : '';
+          return '<tr data-month="' + esc(m.month) + '"><td><b>' + esc(m.label) + '</b>' + (m.current ? '<br><span class="note">so far</span>' : '') + '</td>'
+            + '<td class="num">' + (r ? esc(String(r.count)) : '') + '</td>'
+            + '<td>' + states + '</td>'
+            + '<td>' + mail + (r && r.error ? '<br><span class="note">' + esc(r.error) + '</span>' : '') + '</td>'
+            + '<td><span class="fr-acts"><button class="ghost" type="button" data-cr="pdf">PDF</button>'
+            + (m.current ? '' : '<button class="ghost" type="button" data-cr="send">' + (r && r.state !== 'failed' ? 'Send again' : 'Send now') + '</button>') + '</span></td></tr>';
+        }).join('') + '</tbody></table></div><p class="say" data-cr-say role="status" aria-live="polite"></p>';
+      if (said) say($('[data-cr-say]'), said.text, said.tone);
+    }).catch(function (e) { box.innerHTML = '<div class="empty"><b>Could not read the cruelty reports</b>' + esc(e.message) + '</div>'; });
+  }
+  on('#crFold', 'toggle', function (e) { if (e.target.open && !e.target.getAttribute('data-read')) { e.target.setAttribute('data-read', '1'); crueltyReports(); } });
+  on('#crBody', 'click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-cr]');
+    if (!b) return;
+    var month = b.closest('tr').getAttribute('data-month');
+    if (b.getAttribute('data-cr') === 'pdf') {
+      b.disabled = true;
+      token().then(function (id) {
+        return fetch('/api/admin/cruelty-report?month=' + encodeURIComponent(month) + '&format=pdf', { headers: { Authorization: 'Bearer ' + id } });
+      }).then(function (r) { if (!r.ok) throw new Error('The PDF could not be made.'); return r.blob(); }).then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'PFA-cruelty-reports-' + month + '.pdf'; a.click();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      }).catch(function (err) { say($('[data-cr-say]'), err.message, 'bad'); }).then(function () { b.disabled = false; });
+      return;
+    }
+    if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Email it now?'; return; }
+    b.disabled = true;
+    api('/api/admin/cruelty-report', { method: 'POST', body: { action: 'send', month: month } }).then(function (r) {
+      var res = r.result || {};
+      crueltyReports({ text: (res.state === 'sent' ? 'Sent: ' : 'Queued: ') + res.count + ' reports.', tone: 'good' });
+    }).catch(function (err) { b.disabled = false; say($('[data-cr-say]'), err.message, 'bad'); });
   });
 
   function pendingPayments() {
@@ -6122,6 +6247,7 @@ window.addEventListener('unhandledrejection', function (event) {
   }
 }());
 </script>
+<script src="assets/admin-registers.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by
    the panel later, is folded behind a round (i) at the end of the heading

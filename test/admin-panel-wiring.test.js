@@ -130,12 +130,15 @@ test('every section in the rail is one the module list knows', () => {
      after Colony cards. */
   assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'shop', 'caregivers', 'membership', 'internship', 'website', 'people', 'oldmembers'],
     'the rail is the nine sections, in order (Certificates joined on 31 Oct 2026, and became Internship with the portal on 1 Nov 2026), then the one kept apart');
-  /* Applications to decide joined Colony cards, first, on 24 Oct 2026 */
-  const stacks = /caregivers:[^}]*panes: \['apply', 'caregivers', 'verify', 'cards'\]/.test(script)
+  /* Applications to decide joined Colony cards, first, on 24 Oct 2026; the
+     registers (the office's sheets, 2 Nov 2026) went above everything in
+     Colony cards and Membership cards */
+  const stacks = /caregivers:[^}]*panes: \['cgsheet', 'apply', 'caregivers', 'verify', 'cards'\]/.test(script)
+    && /membership:[^}]*panes: \['memsheet', 'membership'\]/.test(script)
     && /payments:[^}]*panes: \['payments', 'donations'\]/.test(script)
     && /people:[^}]*panes: \['people', 'audit'\]/.test(script);
   assert.ok(stacks, 'each merged tab names the panes it stacks');
-  assert.match(script, /HOMES = \{ donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', audit: 'people', certificates: 'internship' \}/,
+  assert.match(script, /HOMES = \{ donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', certificates: 'internship' \}/,
     'old section names still land on the section that holds them');
   const registry = script.slice(script.indexOf('var TABS = {'), script.indexOf('function can(module)'));
   for (const tab of tabs) {

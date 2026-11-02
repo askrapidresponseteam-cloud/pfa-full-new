@@ -1,0 +1,317 @@
+/* People for Animals - the registers in the admin panel (admin.html).
+   ------------------------------------------------------------------------
+   The colony card applications and the members, one line each, as the
+   office keeps them in its own sheets (owner, 2 Nov 2026), from
+   /api/admin/registers (lib/routes/admin/registers.js). Kept in its own
+   file so admin.html stays under the page-weight ceiling; it uses the
+   panel's own helpers, which admin.html puts on window.PFAAdmin, and the
+   panel calls PFARegisters.pane(kind) when the tab opens.
+   ------------------------------------------------------------------------ */
+(function () {
+  'use strict';
+  var A = window.PFAAdmin;
+  if (!A) return;
+  var $ = A.$, esc = A.esc, say = A.say, api = A.api, token = A.token, on = A.on;
+
+  /* The registers: the colony card applications and the members, one line
+     each, as the office keeps them in its own sheets, and only what the
+     website captured. Every item is a button that copies itself; Copy row
+     puts the line on the clipboard as cells, so it pastes into Google Sheets
+     or Excel across the columns; Export downloads it all as a CSV (logged).
+     Shipping, on each line: the status, the courier and the tracking number,
+     saved to the application; then the standard letter to the person, one
+     or many, always previewed first, one card per letter (owner, 2 Nov 2026).
+     Green: shipped or delivered. */
+  var REG = {
+    caregiver: {
+      pane: 'cgsheet', noun: 'applications', todo: 'Not shipped', done: 'Shipped', file: 'colony-cards',
+      cols: [
+        ['Name', function (r) { return [[r.name]]; }, 'rg-name'],
+        ['Phone number', function (r) { return [[r.mobile], r.altMobile ? [r.altMobile, 'other'] : null]; }, 'rg-nw'],
+        ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
+        ['Application', function (r) { return [[r.id], r.cardId ? [r.cardId, 'card'] : null, r.appliedOn ? [r.appliedOn, 'sub'] : null]; }, 'rg-nw'],
+        ['District / State', function (r) { return [[r.district], [r.state]]; }]
+      ]
+    },
+    membership: {
+      pane: 'memsheet', noun: 'members', todo: 'Not shipped', done: 'Shipped', file: 'members',
+      cols: [
+        ['Name / number / email', function (r) { return [[r.name], [r.mobile], r.altMobile ? [r.altMobile, 'other'] : null, [r.email]]; }, 'rg-name'],
+        ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
+        ['Membership type', function (r) { return [[r.type], r.amount ? [r.amount, 'sub'] : null, r.cardId ? [r.cardId, 'card'] : null]; }],
+        ['Date', function (r) { return [[r.paidOn]]; }, 'rg-nw']
+      ]
+    }
+  };
+  var SHIP_LABELS = { processing: 'Processing', shipped: 'Shipped', delivered: 'Delivered', returned: 'Returned to sender' };
+  var regState = { caregiver: { rows: [], q: '', show: 'all', picked: {} }, membership: { rows: [], q: '', show: 'all', picked: {} } };
+
+  function registerPane(kind) {
+    var spec = REG[kind];
+    var box = $('[data-pane="' + spec.pane + '"]');
+    if (!box) return;
+    api('/api/admin/registers?kind=' + kind).then(function (d) {
+      regState[kind].rows = d.rows || [];
+      regState[kind].picked = {};
+      paintRegister(kind);
+    }).catch(function (e) { box.innerHTML = '<div class="empty"><b>Could not read the register</b>' + esc(e.message) + '</div>'; });
+  }
+
+  function regRows(kind) {
+    var st = regState[kind];
+    var q = st.q.trim().toLowerCase();
+    return st.rows.filter(function (r) {
+      if (st.show === 'todo' && r.done) return false;
+      if (st.show === 'done' && !r.done) return false;
+      if (!q) return true;
+      return [r.name, r.mobile, r.altMobile, r.email, r.id, r.cardId, r.lines.join(' '), r.district, r.state, r.type, r.courier, r.tracking].join(' ').toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  function regPickedIds(kind) { var p = regState[kind].picked; return Object.keys(p).filter(function (k) { return p[k]; }); }
+
+  function paintRegister(kind) {
+    var spec = REG[kind];
+    var st = regState[kind];
+    var box = $('[data-pane="' + spec.pane + '"]');
+    var all = st.rows;
+    var nDone = all.filter(function (r) { return r.done; }).length;
+    var seg = [['all', 'All', all.length], ['todo', spec.todo, all.length - nDone], ['done', spec.done, nDone]];
+    box.innerHTML = '<div class="rg-tools">'
+      + '<input type="search" data-rg="q" placeholder="Find a name, phone, email, number or place" aria-label="Find in the register" value="' + esc(st.q) + '">'
+      + '<span class="rg-seg" role="group" aria-label="Show">' + seg.map(function (x) { return '<button type="button" data-rg-show="' + x[0] + '" aria-pressed="' + (st.show === x[0]) + '">' + esc(x[1]) + ' ' + x[2] + '</button>'; }).join('') + '</span>'
+      + '<button class="press" type="button" data-rg="mailpicked" disabled>Email selected</button>'
+      + '<button class="ghost" type="button" data-rg="copyall">Copy table</button>'
+      + '<button class="ghost" type="button" data-rg="csv">Export to Excel</button>'
+      + '</div><p class="rg-hint">Click any item to copy it. Set the status, courier and tracking number, Save, then Email the person, or tick several and Email selected. Every email is shown to you before it goes. Green rows are shipped.</p>'
+      + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
+      + '<div class="wrap"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + spec.cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th>Shipping</th></tr></thead><tbody data-rg-body></tbody></table></div>';
+    paintRegisterRows(kind);
+  }
+
+  function regShipHtml(r) {
+    return '<div class="rg-ship">'
+      + '<select data-f="ship" aria-label="Status">' + '<option value="">Status not set</option>' + Object.keys(SHIP_LABELS).map(function (k) { return '<option value="' + k + '"' + (r.ship === k ? ' selected' : '') + '>' + esc(SHIP_LABELS[k]) + '</option>'; }).join('') + '</select>'
+      + '<input data-f="courier" maxlength="60" placeholder="Courier" aria-label="Courier" value="' + esc(r.courier || '') + '">'
+      + '<input data-f="tracking" maxlength="40" placeholder="Tracking number" aria-label="Tracking number" value="' + esc(r.tracking || '') + '">'
+      + '<span class="rg-acts"><button type="button" class="rg-row" data-rg="save" disabled>Save</button><button type="button" class="rg-row" data-rg="mail">Email</button></span>'
+      + (r.emailed ? '<span class="rg-sub rg-last">Emailed: ' + esc(r.emailed) + '</span>' : '')
+      + '</div>';
+  }
+
+  function regRowHtml(kind, r) {
+    var spec = REG[kind];
+    return '<tr' + (r.done ? ' class="rg-done"' : '') + ' data-rg-id="' + esc(r.id) + '">'
+      + '<td class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pick" aria-label="Select ' + esc(r.name) + '"' + (regState[kind].picked[r.id] ? ' checked' : '') + '></label><button type="button" class="rg-row" data-rg="row">Copy row</button></td>'
+      + spec.cols.map(function (c) {
+        return '<td' + (c[2] ? ' class="' + c[2] + '"' : '') + '>' + c[1](r).filter(function (x) { return x && x[0]; }).map(function (x) {
+          return '<button type="button" class="rg-c' + (x[1] ? ' rg-sub' : '') + '" data-copy="' + esc(x[0]) + '" title="Copy">' + (x[1] === 'other' ? 'Other: ' : x[1] === 'card' ? 'Card ' : '') + esc(x[0]) + '</button>';
+        }).join('') + '</td>';
+      }).join('')
+      + '<td>' + regShipHtml(r) + '</td></tr>';
+  }
+
+  function paintRegisterRows(kind) {
+    var spec = REG[kind];
+    var box = $('[data-pane="' + spec.pane + '"]');
+    var body = box.querySelector('[data-rg-body]');
+    var rows = regRows(kind);
+    body.innerHTML = rows.length ? rows.map(function (r) { return regRowHtml(kind, r); }).join('')
+      : '<tr><td class="rg-empty" colspan="' + (spec.cols.length + 2) + '">' + (regState[kind].rows.length ? 'Nothing matches.' : 'No ' + spec.noun + ' yet.') + '</td></tr>';
+    regPickCount(kind);
+  }
+
+  function regPickCount(kind) {
+    var box = $('[data-pane="' + REG[kind].pane + '"]');
+    var n = regPickedIds(kind).length;
+    var b = box.querySelector('[data-rg="mailpicked"]');
+    if (b) { b.disabled = !n; b.textContent = n ? 'Email selected (' + n + ')' : 'Email selected'; }
+  }
+
+  /* text for a sheet: one line per row, a tab between cells; a cell with a
+     line break is quoted, as Sheets and Excel read it. With it, the same
+     rows as an HTML table, which Sheets prefers. Shipping goes as three
+     columns: status, courier, tracking number. */
+  function regHead(kind) { return REG[kind].cols.map(function (c) { return c[0]; }).concat(['Status', 'Courier', 'Tracking number']); }
+  function regCells(kind, r) {
+    return REG[kind].cols.map(function (c) { return c[1](r).filter(function (x) { return x && x[0]; }).map(function (x) { return (x[1] === 'other' ? 'Other: ' : x[1] === 'card' ? 'Card ' : '') + x[0]; }).join('\n'); })
+      .concat([r.shipLabel || '', r.courier || '', r.tracking || '']);
+  }
+  function regClip(kind, rows, header) {
+    var lines = (header ? [regHead(kind)] : []).concat(rows.map(function (r) { return regCells(kind, r); }));
+    var text = lines.map(function (cells) { return cells.map(function (v) { return /[\t\n"]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join('\t'); }).join('\n');
+    var html = '<table>' + lines.map(function (cells, i) { var t = header && i === 0 ? 'th' : 'td'; return '<tr>' + cells.map(function (v) { return '<' + t + '>' + esc(v).replace(/\n/g, '<br>') + '</' + t + '>'; }).join('') + '</tr>'; }).join('') + '</table>';
+    return copyText(text, html);
+  }
+  function copyText(text, html) {
+    try {
+      if (html && window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+        return navigator.clipboard.write([new window.ClipboardItem({ 'text/plain': new Blob([text], { type: 'text/plain' }), 'text/html': new Blob([html], { type: 'text/html' }) })]).catch(function () { return navigator.clipboard.writeText(text); });
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+    } catch (_) { /* the fallback below */ }
+    var t = document.createElement('textarea');
+    t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+    t.remove();
+    return ok ? Promise.resolve() : Promise.reject(new Error('This browser would not copy. Select the text and copy it instead.'));
+  }
+
+  /* a line whose fields differ from what is saved */
+  function regDirty(tr, r) {
+    var v = function (f) { var el = tr.querySelector('[data-f="' + f + '"]'); return el ? el.value.trim() : ''; };
+    return v('ship') !== (r.ship || '') || v('courier') !== (r.courier || '') || v('tracking').toUpperCase().replace(/\s+/g, '') !== (r.tracking || '');
+  }
+
+  /* The letters, before they go: one card each, as the person will read it,
+     with who it goes to and the subject; a line that cannot be sent says
+     why. Send sends exactly these (the server checks the preview token). */
+  function regPreview(kind, ids) {
+    var box = $('[data-pane="' + REG[kind].pane + '"]');
+    var said = box.querySelector('[data-rg-say]');
+    var dirty = ids.filter(function (id) {
+      var tr = box.querySelector('tr[data-rg-id="' + id + '"]');
+      var r = regState[kind].rows.filter(function (x) { return x.id === id; })[0];
+      return tr && r && regDirty(tr, r);
+    });
+    if (dirty.length) { say(said, 'Save the changes on ' + dirty.join(', ') + ' first; the email says what is saved.', 'bad'); return; }
+    say(said, 'Making the preview...', '');
+    api('/api/admin/registers', { method: 'POST', body: { action: 'preview', kind: kind, ids: ids } }).then(function (d) {
+      say(said, '');
+      var items = d.items || [];
+      var good = items.filter(function (x) { return x.ok; });
+      var dlg = $('#rgMail');
+      dlg.innerHTML = '<div class="rgm-head"><h3>' + (good.length === 1 ? 'Check this email before it goes' : 'Check these ' + good.length + ' emails before they go') + '</h3>'
+        + '<p class="rgm-sub">Each card is one email, exactly as the person will get it.' + (items.length > good.length ? ' ' + (items.length - good.length) + ' cannot be sent; each says why.' : '') + '</p></div>'
+        + '<div class="rgm-cards">' + items.map(function (x) {
+          return '<article class="rgm-card' + (x.ok ? '' : ' rgm-card--no') + '">'
+            + '<p class="rgm-to"><b>' + esc(x.name || x.id) + '</b><span>' + esc(x.to || 'No email address') + '</span></p>'
+            + (x.ok ? '<p class="rgm-subj">' + esc(x.subject) + '</p><iframe class="rgm-frame" sandbox="" title="' + esc('Email to ' + (x.name || x.to)) + '" srcdoc="' + esc(x.html) + '"></iframe>'
+              : '<p class="rgm-why">' + esc(x.problem) + '</p>')
+            + '</article>';
+        }).join('') + '</div>'
+        + '<div class="rgm-foot"><p class="rg-say" data-rgm-say role="status" aria-live="polite"></p><button class="ghost" type="button" data-rgm="cancel">Cancel</button>'
+        + (good.length ? '<button class="press" type="button" data-rgm="send">Send ' + (good.length === 1 ? 'this email' : good.length + ' emails') + '</button>' : '') + '</div>';
+      dlg.setAttribute('data-kind', kind);
+      dlg.setAttribute('data-token', d.token || '');
+      dlg.setAttribute('data-ids', JSON.stringify(ids));
+      if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+    }).catch(function (err) { say(said, err.message, 'bad'); });
+  }
+
+  on('#rgMail', 'click', function (e) {
+    var dlg = $('#rgMail');
+    var b = e.target.closest && e.target.closest('[data-rgm]');
+    if (!b) return;
+    if (b.getAttribute('data-rgm') === 'cancel') { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); return; }
+    var kind = dlg.getAttribute('data-kind');
+    var said = dlg.querySelector('[data-rgm-say]');
+    b.disabled = true;
+    say(said, 'Sending...', '');
+    api('/api/admin/registers', { method: 'POST', body: { action: 'send', kind: kind, ids: JSON.parse(dlg.getAttribute('data-ids') || '[]'), token: dlg.getAttribute('data-token') } }).then(function (d) {
+      if (dlg.close) dlg.close(); else dlg.removeAttribute('open');
+      registerPane(kind);
+      var bad = (d.results || []).filter(function (x) { return x.state === 'failed'; }).length;
+      setTimeout(function () {
+        var box = $('[data-pane="' + REG[kind].pane + '"]');
+        say(box.querySelector('[data-rg-say]'), (d.sent || 0) + ' sent' + (d.queued ? ', ' + d.queued + ' queued (they go within minutes)' : '') + (bad ? ', ' + bad + ' could not be queued' : '') + '.', bad ? 'bad' : 'good');
+      }, 400);
+    }).catch(function (err) { b.disabled = false; say(said, err.message, 'bad'); });
+  });
+
+  ['caregiver', 'membership'].forEach(function (kind) {
+    var pane = '[data-pane="' + REG[kind].pane + '"]';
+    on(pane, 'input', function (e) {
+      var t = e.target;
+      if (t.getAttribute('data-rg') === 'q') { regState[kind].q = t.value; paintRegisterRows(kind); return; }
+      var tr = t.closest && t.closest('tr[data-rg-id]');
+      if (tr && t.hasAttribute('data-f')) {
+        var r = regState[kind].rows.filter(function (x) { return x.id === tr.getAttribute('data-rg-id'); })[0];
+        var save = tr.querySelector('[data-rg="save"]');
+        if (r && save) save.disabled = !regDirty(tr, r);
+      }
+    });
+    on(pane, 'change', function (e) {
+      var t = e.target;
+      var box = $(pane);
+      if (t.getAttribute('data-rg') === 'pick') { regState[kind].picked[t.closest('tr').getAttribute('data-rg-id')] = t.checked; regPickCount(kind); return; }
+      if (t.getAttribute('data-rg') === 'pickall') {
+        regRows(kind).forEach(function (r) { regState[kind].picked[r.id] = t.checked; });
+        [].forEach.call(box.querySelectorAll('[data-rg="pick"]'), function (x) { x.checked = t.checked; });
+        regPickCount(kind);
+        return;
+      }
+      if (t.getAttribute('data-f') === 'ship') {
+        var tr = t.closest('tr[data-rg-id]');
+        var r = regState[kind].rows.filter(function (x) { return x.id === tr.getAttribute('data-rg-id'); })[0];
+        tr.querySelector('[data-rg="save"]').disabled = !regDirty(tr, r);
+      }
+    });
+    on(pane, 'click', function (e) {
+      var box = $(pane);
+      var said = box.querySelector('[data-rg-say]');
+      var b = e.target.closest && e.target.closest('button');
+      if (!b) return;
+      if (b.hasAttribute('data-rg-show')) {
+        regState[kind].show = b.getAttribute('data-rg-show');
+        [].forEach.call(box.querySelectorAll('[data-rg-show]'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        paintRegisterRows(kind);
+        return;
+      }
+      if (b.classList.contains('rg-c')) {
+        copyText(b.getAttribute('data-copy')).then(function () {
+          b.classList.add('is-copied');
+          setTimeout(function () { b.classList.remove('is-copied'); }, 700);
+          say(said, 'Copied: ' + b.getAttribute('data-copy').split('\n')[0], 'good');
+        }, function (err) { say(said, err.message, 'bad'); });
+        return;
+      }
+      var what = b.getAttribute('data-rg');
+      var tr = b.closest('tr[data-rg-id]');
+      var id = tr ? tr.getAttribute('data-rg-id') : '';
+      var row = id ? regState[kind].rows.filter(function (r) { return r.id === id; })[0] : null;
+      if (what === 'row' && row) {
+        regClip(kind, [row], false).then(function () { say(said, 'Row copied: ' + row.name + '. Paste it into a sheet.', 'good'); }, function (err) { say(said, err.message, 'bad'); });
+        return;
+      }
+      if (what === 'save' && row) {
+        var v = function (f) { return tr.querySelector('[data-f="' + f + '"]').value.trim(); };
+        b.disabled = true;
+        api('/api/admin/registers', { method: 'POST', body: { action: 'save', kind: kind, id: id, status: v('ship'), courier: v('courier'), trackingNumber: v('tracking') } }).then(function () {
+          row.ship = v('ship'); row.shipLabel = SHIP_LABELS[row.ship] || ''; row.courier = v('courier'); row.tracking = v('tracking').toUpperCase().replace(/\s+/g, '');
+          row.done = row.ship === 'shipped' || row.ship === 'delivered';
+          tr.outerHTML = regRowHtml(kind, row);
+          say(said, 'Saved: ' + row.name + ', ' + (row.shipLabel || 'no status') + '. Email them when you are ready.', 'good');
+        }).catch(function (err) { b.disabled = false; say(said, err.message, 'bad'); });
+        return;
+      }
+      if (what === 'mail' && row) { regPreview(kind, [id]); return; }
+      if (what === 'mailpicked') { regPreview(kind, regPickedIds(kind)); return; }
+      if (what === 'copyall') {
+        var rows = regRows(kind);
+        regClip(kind, rows, true).then(function () { say(said, rows.length + ' rows copied, with the headings. Paste them into a sheet.', 'good'); }, function (err) { say(said, err.message, 'bad'); });
+        return;
+      }
+      if (what === 'csv') {
+        b.disabled = true;
+        token().then(function (idt) {
+          return fetch('/api/admin/registers?kind=' + kind + '&format=csv', { headers: { Authorization: 'Bearer ' + idt } });
+        }).then(function (r) {
+          if (!r.ok) throw new Error('The export could not be made.');
+          var name = (/filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '') || [])[1] || ('PFA-' + REG[kind].file + '.csv');
+          return r.blob().then(function (blob) { return { blob: blob, name: name }; });
+        }).then(function (x) {
+          var url = URL.createObjectURL(x.blob);
+          var a = document.createElement('a');
+          a.href = url; a.download = x.name; a.click();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+          say(said, 'Saved ' + x.name + '. It opens in Excel or Google Sheets.', 'good');
+        }).catch(function (err) { say(said, err.message, 'bad'); }).then(function () { b.disabled = false; });
+      }
+    });
+  });
+
+  window.PFARegisters = { pane: registerPane };
+}());

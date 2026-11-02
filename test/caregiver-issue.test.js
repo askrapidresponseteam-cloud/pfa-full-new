@@ -243,7 +243,9 @@ test('the panel puts Issue and Reject on every waiting application, and in the d
   const fs = require('node:fs'); const path = require('node:path');
   const html = fs.readFileSync(path.join(__dirname, '..', 'admin.html'), 'utf8');
   assert.match(html, /<div class="pane" data-pane="apply" role="region" aria-label="Applications to decide">/);
-  assert.match(html, /caregivers:[^}]*panes: \['apply', 'caregivers', 'verify', 'cards'\]/, 'first in Colony cards');
+  /* first of the working steps in Colony cards; the register (the office's
+     sheet, 2 Nov 2026) is above them all */
+  assert.match(html, /caregivers:[^}]*panes: \['cgsheet', 'apply', 'caregivers', 'verify', 'cards'\]/, 'first in Colony cards, after the register');
   assert.match(html, /data-ap="issue"[\s\S]{0,200}>Issue card<\/button>/);
   assert.match(html, /data-ap="reject">Reject<\/button>/);
   assert.match(html, /id="caseApprove" style="width:auto">Issue card<\/button>\s*<button class="ghost danger" type="button" id="caseReject">Reject<\/button>/);

@@ -27,3 +27,5 @@ process.env.PFA_SENT_COPY = 'off';
    every day of the year; their own tests call them with a fixed date. */
 process.env.PFA_WEEKLY_DIGEST = 'off';
 process.env.PFA_FINANCE_REPORT = 'off';
+/* and the monthly cruelty report (lib/cruelty-report.js, the 2nd to the 8th) */
+process.env.PFA_CRUELTY_REPORT = 'off';
