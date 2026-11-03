@@ -399,6 +399,7 @@
 
   window.PFAInternship = {
     pane: function (name) { return name === 'shelters' ? sheltersPane() : internsPane(); },
+    shelter: function (id) { showShelter(id); },
     open: function (id) { IN.open = ''; if (IN.rows.length) openIntern(id); else api(URL_ + '?interns=all').then(function (d) { IN.rows = d.interns || []; paintInterns(); openIntern(id); }); try { box('interns').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) {} }
   };
 })();

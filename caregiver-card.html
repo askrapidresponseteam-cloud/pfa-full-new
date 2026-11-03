@@ -676,7 +676,7 @@ if (root.document && root.document.head) apply(read());
     var st = $('#cStanding');
     st.textContent = state === 'valid' ? 'Valid' : state === 'expired' ? 'Expired' : 'Revoked';
     st.setAttribute('data-state', state);
-    var rows = [['District', c.district, true], ['State', c.state, true], ['Issued', c.issuedAt], ['Valid until', c.validUntil]].filter(function(r){ return r[1]; })
+    var rows = [['Caregiver number', c.caregiverNo, true], ['District', c.district, true], ['State', c.state, true], ['Issued', c.issuedAt], ['Valid until', c.validUntil]].filter(function(r){ return r[1]; })
       .map(function(r){ return '<li><span>' + esc(r[0]) + '</span><span>' + esc(r[2] ? r[1] : when(r[1])) + '</span></li>'; }).join('');
     $('#cLine').innerHTML = rows; $('#cLine').hidden = !rows;
     card.hidden = false;

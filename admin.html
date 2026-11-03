@@ -461,7 +461,7 @@ details.fold[open] > summary{margin-bottom:8px}
 .pick{position:fixed;left:-9999px;width:1px;height:1px;opacity:0}
 /* Applications to decide (24 Oct 2026): one application to a row, the card
    as it would be issued beside what was checked, and Issue or Reject. */
-.apq{display:grid;gap:14px}
+.apq{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .ap{border:1px solid var(--line);padding:16px;display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
 .ap[data-done]{grid-template-columns:minmax(0,340px) minmax(0,1fr);background:var(--stone)}
 .ap canvas{width:100%;height:auto;display:block;border:1px solid var(--line);background:#fff}
@@ -573,11 +573,11 @@ details.fold[open] > summary{margin-bottom:8px}
 .fr-sum .fr-total td{border-bottom:0;padding-top:10px;font-size:14px;font-weight:700}
 .fr-list{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.6}
  /* the internship portal (1 Nov 2026) */
-.ip{display:grid;gap:6px;max-width:1180px}
+.ip{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;max-width:1180px}
 .ip-line{margin:0;font-size:13px;line-height:1.6;color:var(--muted)}
 .ip-line b{color:var(--ink)}
 .ip-line .linky,.ip-t .linky,.ip-links .linky{display:inline;margin:0;padding:0}
-.ip-q{display:grid;gap:10px;margin:10px 0 0}
+.ip-q{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin:10px 0 0}
 .ip-item{border:1px solid var(--line);padding:12px 14px}
 .ip-item__h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:14px;line-height:1.5}
 .ip-item__b{display:grid;gap:10px;margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line)}
@@ -603,7 +603,7 @@ details.fold[open] > summary{margin-bottom:8px}
 #ipBPlan{width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;padding:10px;border:1px solid var(--line);background:var(--paper)}
 @media (max-width:700px){.ip-rev{grid-template-columns:minmax(0,1fr)}.ip-item__h{flex-direction:column}}
  /* internship certificates (31 Oct 2026) */
-.ct{display:grid;gap:22px;max-width:1080px}
+.ct{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;max-width:1080px}
 .ct-fields{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:10px 14px}
 .ct-fields label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
 .ct-fields input{display:block;width:100%;height:42px;padding:0 12px;border:1px solid var(--line);font:inherit;font-size:14px;background:var(--paper);color:var(--ink)}
@@ -825,14 +825,15 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="railgroup">
       <button class="tab" type="button" data-tab="overview">Overview</button>
       <button class="tab" type="button" data-tab="submissions">Submissions<span class="pip" id="pipWaiting" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="membership">Members<span class="pip" id="pipMembers" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="caregivers">Caregivers<span class="pip" id="pipApps" hidden>0</span></button>
       <button class="tab" type="button" data-tab="volunteers">Volunteers</button>
+      <button class="tab" type="button" data-tab="internship">Internship<span class="pip" id="pipIntern" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="employees">Job applicants</button>
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
-      <button class="tab" type="button" data-tab="caregivers">Colony cards<span class="pip" id="pipApps" hidden>0</span></button>
-      <button class="tab" type="button" data-tab="membership">Membership cards<span class="pip" id="pipMembers" hidden>0</span></button>
-      <button class="tab" type="button" data-tab="internship">Internship<span class="pip" id="pipIntern" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
-      <button class="tab" type="button" data-tab="people" data-super>People &amp; audit</button>
+      <button class="tab" type="button" data-tab="people" data-super>Admins &amp; audit</button>
     </div>
 
     <!-- Kept apart (26 Oct 2026): the old website's members are in no other
@@ -899,6 +900,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <details class="fold fr" id="crFold"><summary>Monthly cruelty report</summary><div id="crBody"><div class="loading">Reading&#8230;</div></div></details>
     </div>
 
+    <div class="pane" data-pane="employees" role="region" aria-label="Job applicants"></div>
     <div class="pane" data-pane="volunteers">
       <div class="wrap"><table><thead><tr>
         <th>Reference</th><th>Name</th><th>Contact</th><th>Status</th><th>Arrived</th>
@@ -1196,7 +1198,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* what assets/admin-registers.js uses of this script (2 Nov 2026: moved
      out to keep this page under the page-weight ceiling) */
-  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, certificates: function () { return ct.rows; } };
+  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t) { show(t); }, certificates: function () { return ct.rows; } };
 
   var KEY = window.PFA_FIREBASE_API_KEY || '';
   var IDENTITY = 'https://identitytoolkit.googleapis.com/v1/accounts:';
@@ -1335,18 +1337,7 @@ window.addEventListener('unhandledrejection', function (event) {
     return FRIENDLY[code] || 'Sign-in did not go through. Check the details and try again.';
   }
 
-  /* ---- Continue with Google ---------------------------------------------
-
-     Firebase's own sign-in library, fetched from Google only when the button
-     is pressed, opens Google's account chooser and hands back the same kind
-     of ID token and refresh token the password form gets; from there the
-     panel treats both sign-ins alike. The library keeps nothing on this
-     device (persistence off) and is signed out of as soon as the tokens are
-     in hand. An account that signs in with Google but has not been given the
-     panel is refused by the server exactly as a password account would be;
-     a super administrator adds it on the People page. A Google sign-in with
-     the same email as an existing password account is the same account, so
-     its access carries over. */
+  /* ---- Continue with Google: Firebase sign-in with Google, the panel's own allow-list decides (see ADMIN-SECURITY.md). */
   var FIREBASE_JS = 'https://www.gstatic.com/firebasejs/10.14.1/';
   var sdk = null;
 
@@ -1440,11 +1431,12 @@ window.addEventListener('unhandledrejection', function (event) {
     overview:    { title: 'Overview',      module: 'overview',    needs: 'overview' },
     submissions: { title: 'Submissions',   module: 'submissions', needs: 'submissions' },
     volunteers:  { title: 'Volunteers',    module: 'volunteers',  needs: 'submissions' },
+    employees:   { title: 'Job applicants', module: 'employees',  needs: 'submissions' },
     donations:   { title: 'Donations',     module: 'donations',   needs: 'payments' },
-    caregivers:  { title: 'Colony cards',  module: 'caregivers',  needs: 'caregivers', panes: ['cgsheet', 'apply', 'caregivers', 'verify', 'cards'] },
+    caregivers:  { title: 'Caregivers',    module: 'caregivers',  needs: 'caregivers', panes: ['cgsheet', 'apply', 'caregivers', 'verify', 'cards'] },
     cgsheet:     { title: 'Colony card register', module: 'caregivers', needs: 'caregivers' },
     apply:       { title: 'Applications to decide', module: 'caregivers', needs: 'caregivers' },
-    membership:  { title: 'Membership cards', module: 'membership', needs: 'membership', panes: ['memsheet', 'membership'] },
+    membership:  { title: 'Members',       module: 'membership', needs: 'membership', panes: ['memsheet', 'membership'] },
     memsheet:    { title: 'Membership register', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
     shop:        { title: 'Shop orders',   module: 'shop',        needs: 'shop' },
@@ -1455,7 +1447,7 @@ window.addEventListener('unhandledrejection', function (event) {
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
-    people:      { title: 'People & audit', module: 'people',     needs: 'people', panes: ['people', 'audit'] },
+    people:      { title: 'Admins & audit', module: 'people',     needs: 'people', panes: ['people', 'audit'] },
     audit:       { title: 'Audit log',     module: 'people',      needs: 'people' },
     oldmembers:  { title: 'Old site members', module: 'oldmembers', needs: 'oldmembers' }
   };
@@ -1545,6 +1537,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'internship') return internshipPane();
     if (tab === 'certificates') return certificatesPane();
     if (tab === 'interns' || tab === 'shelters') return window.PFAInternship && window.PFAInternship.pane(tab);
+    if (tab === 'employees') return window.PFAPeople && window.PFAPeople.pane();
     if (tab === 'website') return website();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -2207,16 +2200,7 @@ window.addEventListener('unhandledrejection', function (event) {
     });
   }
 
-  /* ---- payments still waiting for CCAvenue ------------------------------
-     8 Oct 2026 (review D3). A payment is settled by CCAvenue's callback; when
-     the callback never arrives (the tab closed on the bank's page) the
-     payment stays started here while CCAvenue knows how it ended.
-     /api/admin/payments-pending lists those started 30 minutes or more ago
-     in the last 14 days, and the paid caregiver applications whose
-     photograph is not on the record yet. "Check with CCAvenue" asks
-     CCAvenue's Order Status API and applies a final answer through the
-     callback's own path; an answer that is not final changes nothing and
-     is said as it is. Every press is in the audit log. */
+  /* ---- payments still waiting for CCAvenue (8 Oct 2026): /api/admin/payments-pending lists those started 30+ minutes ago in the last 14 days; Check with CCAvenue asks its Order Status API, applies a final answer, and is audited. */
 
   /* Read at most once a minute unless asked afresh, and shared with the
      case drawer, which asks the same list whether an application is still
@@ -4313,13 +4297,16 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Payments & donations', line: 'Every card payment', tab: 'payments', words: 'payments donations money ccavenue receipts transactions orders gifts paid rupees given received' },
     { title: 'Not finished payments', line: 'Payments started and never completed on CCAvenue', tab: 'payments', anchor: '#payPending', words: 'pending stuck awaited ccavenue check status photograph unfinished incomplete started abandoned' },
     { title: 'Download payments as CSV', line: 'Payments & donations', tab: 'payments', anchor: '#payCsv', words: 'csv export download spreadsheet excel' },
-    { title: 'Colony cards', line: 'Issued caregiver cards', tab: 'caregivers', words: 'caregiver cards colony cct' },
+    { title: 'Caregivers', line: 'Colony caregivers, their cards and numbers', tab: 'caregivers', words: 'caregiver carer cards colony cct number' },
+    { title: 'Members', line: 'Every member, their number and card', tab: 'membership', words: 'members membership number card register patron' },
+    { title: 'Internship', line: 'Interns given an ID, their work, shelters and certificates', tab: 'internship', words: 'interns internship shelters certificates batch' },
+    { title: 'Job applicants', line: 'Applications from the careers page', tab: 'employees', words: 'jobs careers applicants applications hiring posts vacancies' },
     { title: 'Verify a card', line: 'The same answer the public check gives', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid' },
     { title: 'Print and post', line: 'Print approved cards and post them', tab: 'caregivers', anchor: '[data-pane="cards"]', words: 'issue print pdf bulk post posted cards' },
     { title: 'Card studio', line: 'A card front and back, actual size, PDF, A4 and PNG', tab: 'caregivers', anchor: '[data-pane="caregivers"]', words: 'card studio preview front back print pdf png a4 paper actual size photo' },
     { title: 'Website', line: 'Show or hide pages and sections', tab: 'website', words: 'website visibility visible hidden hide show pages sections public site' },
     { title: 'Old site members', line: 'The old website\u2019s membership list, kept apart', tab: 'oldmembers', words: 'old site members membership list legacy previous earlier website joined before workbook excel' },
-    { title: 'People & audit', line: 'Who can use the panel, and what they did', tab: 'people', words: 'people staff admins accounts access permissions invite roles add person user login password team' },
+    { title: 'Admins & audit', line: 'Who can use the panel, and what they did', tab: 'people', words: 'people staff admins accounts access permissions invite roles add person user login password team' },
     { title: 'History', line: 'Who changed what in the panel', tab: 'people', anchor: '#auQ', words: 'audit log history actions who did changed changes' },
     { title: 'Email', line: 'Copies to PFA\u2019s inbox, failures and Send again', tab: 'overview', anchor: '#mailbox', module: 'submissions', words: 'email mail inbox gandhim smtp godaddy sent failed resend send again test copies' },
     { title: 'Replies', line: 'Emails read back from the mailbox', tab: 'overview', anchor: '#replies', module: 'submissions', words: 'replies imap mailbox read inbound parked' }
@@ -4430,8 +4417,8 @@ window.addEventListener('unhandledrejection', function (event) {
     var html = [];
     /* spelling forgiven, and said so, as a search engine says it */
     if (!gs.busy && gs.near && gs.server.length) html.push('<p class="gnote gnear">No exact match for \u201c' + esc(gs.q) + '\u201d. Showing close spellings.</p>');
-    GS_GROUPS.forEach(function (g) {
-      var rows = all.filter(function (r) { return r.type === g[0]; });
+    ((window.PFAPeople && window.PFAPeople.groups) || GS_GROUPS).forEach(function (g) {
+      var rows = all.filter(function (r) { return (r.group || r.type) === g[0]; });
       if (!rows.length) return;
       html.push('<h4>' + esc(g[1]) + '</h4>');
       rows.forEach(function (r) {
@@ -4482,6 +4469,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (!r) return;
     gsClose();
     $('#gq').blur();
+    if (window.PFAPeople && window.PFAPeople.open(r)) return undefined;
     if (r.type === 'case') return showCase(r.id);
     if (r.type === 'payment') {
       show('payments');
@@ -6357,6 +6345,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-registers.js"></script>
 <script src="assets/admin-internship.js"></script>
 <script src="assets/admin-payreport.js"></script>
+<script src="assets/admin-people.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by

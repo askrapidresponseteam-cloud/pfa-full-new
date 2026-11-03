@@ -83,7 +83,7 @@ test('MP and CG take turns from one count, past the old numbers; each state coun
   assert.equal(numberOf(tn), 'TN 4789', 'past the highest old TN number');
   assert.equal(numberOf(tg), 'TG 1133');
   assert.equal(numberOf(uk), 'UK 1485', 'UP and UK share the count past UK 1484');
-  assert.equal(numberOf(ka), 'KA 1', 'a state with no old numbers starts at 1');
+  assert.equal(numberOf(ka), `KA ${NUM.startOf('KA')}`, 'a state with no old numbers starts at its own four-digit point, never 1');
   /* every number is in the register once; old ones first */
   const dump = db.dump();
   const register = Object.keys(dump).filter((k) => k.startsWith('member_numbers/'));
@@ -118,7 +118,7 @@ test('a membership with no state, or a PIN not in its state, is held, not number
   /* put right: numbered on the next run, and the hold cleared */
   await db.collection('submissions').doc(wrongPin).set({ fields: { state: 'Maharashtra', pin: '400001' } }, { merge: true });
   const again = await CASE.numberWaitingMembers(db, { readOld: oldList() });
-  assert.deepEqual(again.numbered.map((x) => x.number), ['MH 1']);
+  assert.deepEqual(again.numbered.map((x) => x.number), [`MH ${NUM.startOf('MH')}`]);
   assert.equal(db.dump()[`submissions/${wrongPin}`].memberNumberHold, null);
 });
 
@@ -168,10 +168,10 @@ test('the old list changed later: new old numbers are held at once; one a new me
   assert.equal(st.oldVersion, 'IMP-2:0');
 });
 
-test('with no old list imported, numbers still start at 1 and nothing breaks', async () => {
+test('with no old list imported, numbers still start at four digits and nothing breaks', async () => {
   const a = await member('Goa', '403001');
   const r = await CASE.giveMemberNumber(db, a, { nowMs: NOV });
-  assert.equal(r.number.label, 'GA 1');
+  assert.equal(r.number.label, `GA ${NUM.startOf('GA')}`);
   assert.equal((await NUM.status(db)).oldVersion, 'none');
 });
 
@@ -192,7 +192,7 @@ test('members held for their state never keep the others waiting; a failure is s
   for (let i = 0; i < 30; i += 1) await member('', '', NOV - 100000 + i);
   const ready = await member('Karnataka', '576102');
   const r = await CASE.numberWaitingMembers(db, { readOld: oldList(), limit: 25 });
-  assert.equal(numberOf(ready), 'KA 1', 'numbered, though thirty held members joined before');
+  assert.equal(numberOf(ready), `KA ${NUM.startOf('KA')}`, 'numbered, though thirty held members joined before');
   assert.equal(r.numbered.length, 1);
   assert.equal(r.held.length, 25);
   /* a number that cannot be given just now: the reason is on the record for the panel */
@@ -222,8 +222,8 @@ test('opening the membership register numbers whoever is waiting, and says so', 
       Promise.resolve(handler({ method: 'GET', url: '/api/admin/registers?kind=membership', query: { kind: 'membership' }, headers: {} }, response)).catch(reject);
     });
     assert.equal(out.status, 200, JSON.stringify(out.json));
-    assert.deepEqual(out.json.numbering.numbered, [{ reference: a, number: 'MP 1' }]);
-    assert.equal(out.json.rows.find((r) => r.id === a).memberNo, 'MP 1', 'on the list the panel draws');
+    assert.deepEqual(out.json.numbering.numbered, [{ reference: a, number: `MP ${NUM.startOf('MP-CG')}` }]);
+    assert.equal(out.json.rows.find((r) => r.id === a).memberNo, `MP ${NUM.startOf('MP-CG')}`, 'on the list the panel draws');
     assert.match(out.json.rows.find((r) => r.id === b).numberHold, /No state on the membership/);
     assert.equal(db.dump()[`submissions/${a}`].memberNo.by, undefined);
     assert.match(JSON.stringify(db.dump()[`submissions/${a}`].history), /"by":"admin:k@pfa\.test"/);
@@ -232,4 +232,66 @@ test('opening the membership register numbers whoever is waiting, and says so', 
   assert.match(js, /members numbered just now: /);
   assert.match(js, /could not be numbered: /);
   assert.doesNotMatch(js, /waiting for the next run/);
+});
+
+/* owner, 3 Nov 2026: "always have membership , caregiver numbers in 4 digits.. never like 1,2,3 etc..
+   except for the old ones" ... "new ones cannot start with 0001 etc.. cause it cannot look like
+   membership started just now" */
+test('four digits, never a fresh start: each series from its own fixed point; a short number given before is replaced once', async () => {
+  for (const s of ['KA', 'MP-CG', 'GA', 'PUD']) {
+    const n = NUM.startOf(s);
+    assert.ok(n >= 1201 && n <= 2800, `${s} ${n}`);
+    assert.equal(NUM.startOf(s), n, 'the same on every server');
+  }
+  assert.notEqual(NUM.startOf('KA'), NUM.startOf('KA', 'caregivers'), 'the caregivers count on their own');
+  /* a member numbered KA 1 under the old rule */
+  const ka = await member('Karnataka', '560001');
+  await db.collection('member_numbers').doc('KA-1').set({ kind: 'new', holder: ka, label: 'KA 1', code: 'KA', n: 1, series: 'KA', state: 'Karnataka' });
+  await db.collection('member_number_holders').doc(ka).set({ number: { label: 'KA 1', code: 'KA', n: 1, series: 'KA', state: 'Karnataka' }, holder: ka });
+  await db.collection('counters').doc('memberNumbers').set({ last: { KA: 1 } });
+  await db.collection('submissions').doc(ka).set({ memberNo: { label: 'KA 1', code: 'KA', n: 1, series: 'KA', state: 'Karnataka' } }, { merge: true });
+  const r = await CASE.numberWaitingMembers(db, { readOld: oldList() });
+  assert.deepEqual(r.numbered, [{ reference: ka, number: `KA ${NUM.startOf('KA')}` }]);
+  const rec = db.dump()[`submissions/${ka}`];
+  assert.equal(rec.memberNo.label, `KA ${NUM.startOf('KA')}`);
+  assert.deepEqual(rec.memberNoBefore, ['KA 1']);
+  assert.ok(rec.history.some((h) => h.event === 'member-renumbered' && h.was === 'KA 1'));
+  assert.equal(db.dump()['member_numbers/KA-1'].retired, true, 'the short number stays taken, never given again');
+  /* once is enough */
+  const again = await CASE.numberWaitingMembers(db, { readOld: oldList() });
+  assert.deepEqual(again.numbered, []);
+  /* a series with old four-digit numbers carries on from them */
+  const tn = await member('Tamil Nadu', '600037');
+  await CASE.numberWaitingMembers(db, { readOld: oldList() });
+  assert.equal(numberOf(tn), 'TN 4789');
+  /* every new number has four digits */
+  for (const [k, v] of Object.entries(db.dump())) if (k.startsWith('member_numbers/') && v.kind === 'new' && !v.retired) assert.ok(v.n >= 1000, k);
+});
+
+test('colony caregivers: their own four-digit state numbers, once the card is issued; on the card check too', async () => {
+  const cg = async (id, state, pin, cardId) => db.collection('submissions').doc(id).set({ kind: 'PFA-CG', status: 'approved', receivedAtMs: NOV, cardId, fields: { name: id, state, pin } });
+  await cg('PFA-CG-2026-00011', 'Tamil Nadu', '641062', 'PFA-CCT-4K2M8QRT');
+  await cg('PFA-CG-2026-00012', 'Tamil Nadu', '600037', 'PFA-CCT-7Z2M8QRT');
+  await cg('PFA-CG-2026-00013', 'West Bengal', '741222', '');
+  await cg('PFA-CG-2026-00014', '', '110009', 'PFA-CCT-9Y2M8QRT');
+  await db.collection('caretakerPublic').doc('PFA-CCT-4K2M8QRT').set({ cardId: 'PFA-CCT-4K2M8QRT', district: 'Coimbatore' });
+  const r = await CASE.numberWaitingCaregivers(db, {});
+  const tn = NUM.startOf('TN', 'caregivers');
+  assert.deepEqual(r.numbered.map((x) => x.number), [`TN ${tn}`, `TN ${tn + 1}`], 'the caregivers count on their own, from their own point');
+  assert.ok(!r.numbered.some((x) => x.reference === 'PFA-CG-2026-00013'), 'no card yet, no number yet');
+  assert.match(r.held[0].reason, /No state on the application/);
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00011'].caregiverNo.label, `TN ${tn}`);
+  assert.equal(db.dump()['caretakerPublic/PFA-CCT-4K2M8QRT'].caregiverNo, `TN ${tn}`, 'a card check shows it');
+  assert.equal(db.dump()['caretakerCards/PFA-CCT-4K2M8QRT'].caregiverNo, `TN ${tn}`);
+  assert.equal(db.dump()[`caregiver_numbers/TN-${tn}`].holder, 'PFA-CG-2026-00011');
+  /* never the members' register */
+  assert.ok(!Object.keys(db.dump()).some((k) => k.startsWith('member_numbers/TN-')));
+  const again = await CASE.numberWaitingCaregivers(db, {});
+  assert.deepEqual(again.numbered, []);
+  /* wired: at approval, on every worker run, as the register opens, on the card check page */
+  assert.match(read('lib/routes/admin/case.js'), /if \(recorded === 'done'\) await giveCaregiverNumber\(db, reference, \{ by \}\)/);
+  assert.match(read('lib/routes/caregiver/email-worker.js'), /numberWaitingCaregivers\(getDb\(\), \{ limit: 25 \}\)/);
+  assert.match(read('lib/routes/admin/registers.js'), /kind === 'membership' \? CASEMOD\.numberWaitingMembers : CASEMOD\.numberWaitingCaregivers/);
+  assert.match(read('caregiver-card.html'), /\['Caregiver number', c\.caregiverNo, true\]/);
+  assert.match(read('assets/admin-registers.js'), /\['Caregiver number', function \(r\)/);
 });

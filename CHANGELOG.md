@@ -1,3 +1,31 @@
+## v1.520
+
+- **Member numbers: four digits, never a fresh start.** Owner, 3 Nov 2026: "always have membership , caretaker numbers in 4 digits.. never like 1,2,3 etc.. except for the old ones" and "new ones cannot start with 0001 etc.. cause it cannot look like membership started just now".
+  - Every new number has four digits. A state with old numbers carries on from its highest (TN 4789 after TN 4788, MP 1501 after MP CG 1500). A state with none starts at its own fixed point between 1201 and 2800, the same on every server and never moving (Karnataka at KA 2036), never at 1.
+  - Any member given a short number before this (KA 1) is renumbered once, the next time numbers are given; the short number stays in the register as replaced, is never given to anyone again, and still finds them in search. Old site numbers are untouched.
+- **Colony caregivers get state numbers too.** Their own register and their own four-digit count by state (Tamil Nadu from TN 2074), given the moment the card is issued, and caught up for cards issued before: on opening Caregivers and on every background run. Shown in the caregiver register and its Excel file, and on the public card check. The random card number stays the one that proves a card is real; the printed card's layout is unchanged. Called caregiver, as the site and the card call them.
+- **The panel by people.** Owner: "admin should have sections like members, caretakers, interns, employees etc..not like membership cards etc."
+  - The rail is now Overview, Submissions, Members, Caregivers, Volunteers, Internship, Job applicants, Payments & donations, Shop orders, Website, Admins & audit, and Old site members kept apart as before.
+  - Job applicants is new: everyone who applied through the careers page, with the post (and zone), contact, status and date, a find box, a post filter and Download for Excel; each opens the full application. Staff can be given it on its own. Not "Employees": owner, "these are not employees, they are people who applied. same with interns. only if approved they become interns".
+- **Search, Google grade.** Owner: "the search should work like google grade".
+  - Finds members and caregivers by their number however it is typed (KA 2036, ka2036, KA-2036, 2036), interns by name, ID, phone or shelter, and shelters by name, phone, person or place, beside everything it found before.
+  - Results come grouped by who someone is: Members, Caregivers, Interns (only those given an Intern ID), Volunteers, Internship applicants, Job applicants, Shelters, then the other cases, payments, cards, emails and the rest; people are shown by name, with their number and reference beside it.
+  - Ranked best first: the number typed, then the person whose name it is (whole, then its beginning, then every word), above a report that merely mentions them. A letter wrong is still forgiven and said so.
+
+## v1.519
+
+- **Shop: the new studio photographs.** Owner, 3 Nov 2026: "this is the shop I need. ensure the font family matches the rest of the site".
+  - The seventeen photographs that changed in the shop the owner sent are in, each on its own coloured studio ground (Sabyasachi, Rocky Star, Raw Mango, Ashima Singh, Gaurav Gupta, the PFA logo tee in red, white and pink, Varun Bahl, Geisha Designs, Muzaffar Ali, Nida Mahmood, J J Valaya, Gaurav Gupta charcoal, Monisha Jaisingh, Varun Bahl design 2, Masaba Gupta). They carry new names so no browser shows the old ones from its cache, and are smaller than the files they replace. The yellow tee came through empty in the file sent, so its photograph stays as it was.
+  - Shown in their own colours: the blending that suited cut-out product shots is off. Everything else on the page was already the same; the shop's type is the site's (Marcellus and Helvetica).
+- **One family of type on every screen.** Owner: "audit achievements html and ensure the font there also matches the rest properly. and ensure each and every screen renders super cool in mobile screens".
+  - Every page checked at 360 and 390 wide and on desktop: nothing runs off the side, and every word is in Marcellus or Helvetica, save the handwritten captions under the events photographs and the reader's serif sample, kept on purpose. Achievements was already right.
+  - The internship page's field notes were in Arial and Courier New, with lines as small as 6px on a phone: now the site's faces, nothing under 10px. On a phone the PFA header vanished from the first screen (it hid as soon as the field notes peeped in at the foot); it now hides only once they reach the top.
+  - Cinekind's Sound button and chapter numbers, the payment result pages (the thank-you after a donation, the shop's, the error pages) and an empty photograph slot are in the site's faces too; the thank-you after a donation was in EB Garamond.
+  - The red line over "PFA Library" on a document that is not on the shelves is gone, as everywhere.
+  - Small captions and labels raised to 10px (Academy photographs, the laws' Basis, the units gallery numbers).
+- **The panel on a phone.** The Internship section was laid out 593px wide on a 390px screen, so its notes, the batch list and the week line ran off the edge. Its grids (and those of Applications and Certificates) now never grow past the screen; tables still scroll sideways inside their own frame. Every section checked on a phone.
+- **End to end on a phone:** the shop from a tee to the bag to checkout, donate to its details, the menu, search, report cruelty, the intern portal's shelter form, and every section of the panel.
+
 ## v1.518
 
 - **Member numbers: given when the register is opened, and every hold says why.** Owner, 3 Nov 2026: "still dont see the membership number issue sorted".

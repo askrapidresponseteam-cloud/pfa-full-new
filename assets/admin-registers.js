@@ -27,6 +27,8 @@
       pane: 'cgsheet', noun: 'applications', todo: 'Not shipped', done: 'Shipped', file: 'colony-cards',
       cols: [
         ['Name', function (r) { return [[r.name]]; }, 'rg-name'],
+        /* the caregiver's state number (3 Nov 2026), given when the card is issued */
+        ['Caregiver number', function (r) { return [r.caregiverNo ? [r.caregiverNo] : [r.cardId ? 'Not yet' : 'When the card is issued', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null]; }, 'rg-nw'],
         ['Phone number', function (r) { return [[r.mobile], r.altMobile ? [r.altMobile, 'other'] : null]; }, 'rg-nw'],
         ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
         ['Application', function (r) { return [[r.id], r.cardId ? [r.cardId, 'card'] : null, r.appliedOn ? [r.appliedOn, 'sub'] : null]; }, 'rg-nw'],
@@ -68,7 +70,7 @@
       if (st.show === 'todo' && r.done) return false;
       if (st.show === 'done' && !r.done) return false;
       if (!q) return true;
-      return [r.name, r.mobile, r.altMobile, r.email, r.id, r.memberNo, r.cardId, r.lines.join(' '), r.district, r.state, r.type, r.courier, r.tracking].join(' ').toLowerCase().indexOf(q) !== -1;
+      return [r.name, r.mobile, r.altMobile, r.email, r.id, r.memberNo, r.caregiverNo, r.cardId, r.lines.join(' '), r.district, r.state, r.type, r.courier, r.tracking].join(' ').toLowerCase().indexOf(q) !== -1;
     });
   }
 
@@ -89,7 +91,7 @@
       + '<button class="ghost" type="button" data-rg="csv">Export to Excel</button>'
       + '</div><p class="rg-hint">Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.</p>'
       + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
-      + (kind === 'membership' ? numbersHtml(st) : '')
+      + (kind === 'membership' ? numbersHtml(st) : caregiverNews(st))
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
       + '<div class="wrap"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + spec.cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th>Shipping</th></tr></thead><tbody data-rg-body></tbody></table></div>';
     paintRegisterRows(kind);
@@ -105,6 +107,14 @@
     css.textContent = '.rg-hint.rg-good{color:#1f6b3a}.rg-hint.rg-bad{color:#a3251f;overflow-wrap:anywhere}';
     document.head.appendChild(css);
   })();
+  /* the caregiver numbers given as the register opened, and any that could not be */
+  function caregiverNews(st) {
+    var done = st.numbering || {};
+    var held = st.rows.filter(function (r) { return r.cardId && !r.caregiverNo; });
+    return (done.numbered && done.numbered.length ? '<p class="rg-hint rg-good">' + esc(done.numbered.length === 1 ? 'One caregiver numbered just now: ' : done.numbered.length + ' caregivers numbered just now: ') + esc(done.numbered.map(function (x) { return x.number; }).join(', ')) + '.</p>' : '')
+      + (done.error ? '<p class="rg-hint rg-bad">' + esc(done.error) + '</p>' : '')
+      + (held.length ? '<p class="rg-hint rg-bad">' + esc(held.length + (held.length === 1 ? ' caregiver' : ' caregivers') + ' with a card and no number yet: ' + held.map(function (r) { return r.name + ' (' + (r.numberHold || 'not numbered: open this page again') + ')'; }).join('; ')) + '</p>' : '');
+  }
   function numbersHtml(st) {
     var n = st.numbers;
     if (!n) return '';
@@ -120,7 +130,7 @@
       + (done.error || n.error || failed.length ? '<p class="rg-hint rg-bad">' + esc(done.error || n.error || (failed.length + (failed.length === 1 ? ' member' : ' members') + ' could not be numbered: ' + failed[0].numberHold)) + '</p>' : '');
     return news + '<details class="rg-nums"' + (held.length ? ' open' : '') + '><summary>Member numbers: ' + used.length + ' series in use'
       + (held.length ? ' · ' + held.length + ' not numbered yet' : '') + (check ? ' · ' + check + ' old numbers to check' : '') + '</summary>'
-      + '<p class="rg-hint">A member number is the state code and a number, given once from the state on the membership, the moment the payment succeeds. AP and TG, UP and UK, and MP and CG each share one count. No number is ever given twice: every old number from the old site lists is held first, and each count starts past the highest old number in it.</p>'
+      + '<p class="rg-hint">A member number is the state code and a number, given once from the state on the membership, the moment the payment succeeds. AP and TG, UP and UK, and MP and CG each share one count. No number is ever given twice: every old number from the old site lists is held first, and each count starts past the highest old number in it. Every new number has four digits: a state with no old numbers starts at its own point above 1200, never at 1, and a short number given before this rule was replaced once.</p>'
       + (held.length ? '<p class="rg-hint"><b>Not numbered yet</b></p><ul class="rg-list">' + held.map(function (r) { return line(r.name + ' (' + r.id + '): ' + (r.numberHold || 'not numbered: open this page again')); }).join('') + '</ul>' : '')
       + '<div class="wrap"><table><thead><tr><th>Series</th><th>States</th><th>Last given</th><th>Next</th></tr></thead><tbody>'
       + (n.series || []).map(function (x) { return '<tr><td>' + esc(x.series) + '</td><td>' + esc(x.states.map(function (s) { return s.code + ' ' + s.state; }).join(', ')) + '</td><td>' + (x.last || '') + '</td><td>' + esc(x.states[0].code + ' ' + x.next) + (x.states.length > 1 ? ' (or ' + esc(x.states.slice(1).map(function (s) { return s.code; }).join(', ')) + ')' : '') + '</td></tr>'; }).join('')

@@ -139,8 +139,7 @@ mark.rd-hit.is-on{background:var(--rd-hit-on);box-shadow:0 0 0 2px var(--rd-hit-
 
 /* a link to a document the library does not have */
 .rd-missing{margin:auto;max-width:34em;padding:24px;font-family:var(--rd-ui)}
-.rd-missing__kind{margin:0;padding-top:18px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--rd-soft);
-  background:linear-gradient(var(--rd-pop),var(--rd-pop)) 0 0 / 34px 3px no-repeat}
+.rd-missing__kind{margin:0;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--rd-soft)}   /* no red line over it (owner, 31 Oct 2026: "dont need it anywhere") */
 .rd-missing__title{margin:22px 0 0;font-family:var(--rd-display);font-weight:400;font-size:clamp(28px,4.4vw,44px);line-height:1.08;letter-spacing:.015em;text-transform:uppercase;text-wrap:balance;color:var(--rd-ink)}
 .rd-missing__text{margin:18px 0 26px;font-size:15px;line-height:1.6;color:var(--rd-soft)}
 

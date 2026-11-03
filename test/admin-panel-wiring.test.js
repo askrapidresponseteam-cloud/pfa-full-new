@@ -128,8 +128,16 @@ test('every section in the rail is one the module list knows', () => {
   /* Old site members joined on 26 Oct 2026, in a group of its own below
      the rest, marked "Kept apart". Membership cards joined the same day,
      after Colony cards. */
-  assert.deepEqual(tabs, ['overview', 'submissions', 'volunteers', 'payments', 'shop', 'caregivers', 'membership', 'internship', 'website', 'people', 'oldmembers'],
-    'the rail is the nine sections, in order (Certificates joined on 31 Oct 2026, and became Internship with the portal on 1 Nov 2026), then the one kept apart');
+  /* By people (owner, 3 Nov 2026: "admin should have sections like members,
+     [caregivers], interns, employees etc..not like membership cards etc."):
+     Members, Caregivers, Volunteers, Internship and Job applicants (not
+     employees: "they are people who applied") after Submissions,
+     then the money, the shop, the website and the admins. */
+  assert.deepEqual(tabs, ['overview', 'submissions', 'membership', 'caregivers', 'volunteers', 'internship', 'employees', 'payments', 'shop', 'website', 'people', 'oldmembers'],
+    'the rail is by people, then the rest, then the one kept apart');
+  for (const [tab, label] of [['membership', 'Members'], ['caregivers', 'Caregivers'], ['internship', 'Internship'], ['employees', 'Job applicants'], ['people', 'Admins &amp; audit']]) {
+    assert.match(panel, new RegExp(`data-tab="${tab}"[^>]*>${label}`), label);
+  }
   /* Applications to decide joined Colony cards, first, on 24 Oct 2026; the
      registers (the office's sheets, 2 Nov 2026) went above everything in
      Colony cards and Membership cards */
