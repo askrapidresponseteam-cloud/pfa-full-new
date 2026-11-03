@@ -153,8 +153,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .item{display:flex;flex-direction:column;min-width:0}
 .item__media{position:relative;display:block;width:100%;aspect-ratio:4/5;padding:0;border:0;background:var(--stone);overflow:hidden;cursor:pointer}
 .item__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;transition:opacity .45s,transform .7s cubic-bezier(.2,.7,.2,1)}
-.item__alt{opacity:0}
-.item__media:hover .item__alt{opacity:1}
 .item__media:hover .item__img:not(:only-of-type){opacity:0}
 .item__media:hover img{transform:scale(1.035)}
 .item__fallback{position:absolute;inset:0;display:none;place-items:center;padding:12%;font-family:var(--display);font-size:clamp(22px,2vw,30px);line-height:1.05;text-transform:uppercase;text-align:center;color:var(--ink)}
@@ -890,10 +888,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="gaurav-gupta" data-id="26" data-kind="designer" data-order="1"
         data-name="Gaurav Gupta x PFA" data-designer="Gaurav Gupta" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/1745704396-studio.webp|media/shop/v4/160937322-1744522642.webp|media/shop/v4/560918646-1744522769.webp|media/shop/v4/1843996607-1745704257.webp|media/shop/v4/524535961-1745704396.webp">
+        data-images="media/shop/v4/1745704396-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Gaurav Gupta x PFA">
           <img class="item__img" src="media/shop/v4/1745704396-studio.webp" alt="Gaurav Gupta x PFA T-shirt" loading="eager" decoding="async">
-          <img class="item__alt" src="media/shop/v4/160937322-1744522642.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Gaurav Gupta</span>
         </button>
         <div class="item__bd">
@@ -913,10 +910,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="pfa-logo-tee" data-id="21" data-kind="essentials" data-order="2"
         data-name="PFA logo T-shirt" data-designer="People for Animals" data-price="350" data-was="450" data-colour-at-dispatch
-        data-images="media/shop/v4/t-shirt-red-front-studio.webp|media/shop/v4/t-shirt-yellow-front.webp|media/shop/v4/t-shirt-white-front-studio.webp|media/shop/v4/t-shirt-pink-front-studio.webp|media/shop/v4/t-shirt-red-back.webp|media/shop/v4/t-shirt-yellow-back.webp|media/shop/v4/t-shirt-white-back.webp|media/shop/v4/t-shirt-pink-back.webp">
+        data-images="media/shop/v4/t-shirt-red-front-studio.webp|media/shop/v4/t-shirt-yellow-front.webp|media/shop/v4/t-shirt-white-front-studio.webp|media/shop/v4/t-shirt-pink-front-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at PFA logo T-shirt">
           <img class="item__img" src="media/shop/v4/t-shirt-red-front-studio.webp" alt="PFA logo T-shirt" loading="eager" decoding="async">
-          <img class="item__alt" src="media/shop/v4/t-shirt-red-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">People for Animals</span>
         </button>
         <div class="item__bd">
@@ -936,10 +932,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="varun-bahl" data-id="27" data-kind="designer" data-order="3"
         data-name="Varun Bahl x PFA" data-designer="Varun Bahl" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/1745706391-studio.webp|media/shop/v4/1662351743-1744522686.webp|media/shop/v4/552126632-1744522798.webp|media/shop/v4/626410566-1745706391.webp|media/shop/v4/163281179-1745706391.webp|media/shop/v4/1532406164-1745706391.webp|media/shop/v4/722274283-1745706610.webp|media/shop/v4/2012418041-1745706610.webp|media/shop/v4/248165720-1745706610.webp">
+        data-images="media/shop/v4/1745706391-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Varun Bahl x PFA">
           <img class="item__img" src="media/shop/v4/1745706391-studio.webp" alt="Varun Bahl x PFA T-shirt" loading="eager" decoding="async">
-          <img class="item__alt" src="media/shop/v4/1662351743-1744522686.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Varun Bahl</span>
         </button>
         <div class="item__bd">
@@ -981,10 +976,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="geisha-designs" data-id="30" data-kind="designer" data-order="5"
         data-name="Geisha Designs x PFA" data-designer="Geisha Designs" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/geisha-designs-x-pfa-front-studio.webp|media/shop/v4/geisha-designs-x-pfa-back.webp">
+        data-images="media/shop/v4/geisha-designs-x-pfa-front-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Geisha Designs x PFA">
           <img class="item__img" src="media/shop/v4/geisha-designs-x-pfa-front-studio.webp" alt="Geisha Designs x PFA T-shirt" loading="lazy" decoding="async">
-          <img class="item__alt" src="media/shop/v4/geisha-designs-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Geisha Designs</span>
         </button>
         <div class="item__bd">
@@ -1004,10 +998,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="muzaffar-ali" data-id="31" data-kind="designer" data-order="6"
         data-name="Muzaffar Ali x PFA" data-designer="Muzaffar Ali" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/muzaffar-ali-x-pfa-front-studio.webp|media/shop/v4/muzaffar-ali-x-pfa-back.webp">
+        data-images="media/shop/v4/muzaffar-ali-x-pfa-front-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Muzaffar Ali x PFA">
           <img class="item__img" src="media/shop/v4/muzaffar-ali-x-pfa-front-studio.webp" alt="Muzaffar Ali x PFA T-shirt" loading="lazy" decoding="async">
-          <img class="item__alt" src="media/shop/v4/muzaffar-ali-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Muzaffar Ali</span>
         </button>
         <div class="item__bd">
@@ -1027,10 +1020,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="nida-mahmood" data-id="32" data-kind="designer" data-order="7"
         data-name="Nida Mahmood x PFA" data-designer="Nida Mahmood" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/nida-mahmood-x-pfa-front-studio.webp|media/shop/v4/nida-mahmood-x-pfa-back.webp">
+        data-images="media/shop/v4/nida-mahmood-x-pfa-front-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Nida Mahmood x PFA">
           <img class="item__img" src="media/shop/v4/nida-mahmood-x-pfa-front-studio.webp" alt="Nida Mahmood x PFA T-shirt" loading="lazy" decoding="async">
-          <img class="item__alt" src="media/shop/v4/nida-mahmood-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Nida Mahmood</span>
         </button>
         <div class="item__bd">
@@ -1050,10 +1042,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="jj-valaya" data-id="33" data-kind="designer" data-order="8"
         data-name="J J Valaya x PFA" data-designer="J J Valaya" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/j-j-valaya-x-pfa-front-studio.webp|media/shop/v4/j-j-valaya-x-pfa-back.webp">
+        data-images="media/shop/v4/j-j-valaya-x-pfa-front-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at J J Valaya x PFA">
           <img class="item__img" src="media/shop/v4/j-j-valaya-x-pfa-front-studio.webp" alt="J J Valaya x PFA T-shirt" loading="lazy" decoding="async">
-          <img class="item__alt" src="media/shop/v4/j-j-valaya-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">J J Valaya</span>
         </button>
         <div class="item__bd">
@@ -1073,10 +1064,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="gaurav-gupta-charcoal" data-id="34" data-kind="designer" data-order="9"
         data-name="Gaurav Gupta x PFA, Charcoal" data-designer="Gaurav Gupta" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/gaurav-gupta-x-pfa-charcoal-front-studio.webp|media/shop/v4/gaurav-gupta-x-pfa-charcoal-back.webp">
+        data-images="media/shop/v4/gaurav-gupta-x-pfa-charcoal-front-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Gaurav Gupta x PFA, Charcoal">
           <img class="item__img" src="media/shop/v4/gaurav-gupta-x-pfa-charcoal-front-studio.webp" alt="Gaurav Gupta x PFA, Charcoal T-shirt" loading="lazy" decoding="async">
-          <img class="item__alt" src="media/shop/v4/gaurav-gupta-x-pfa-charcoal-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Gaurav Gupta</span>
         </button>
         <div class="item__bd">
@@ -1140,10 +1130,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="raw-mango" data-id="37" data-kind="designer" data-order="12"
         data-name="Raw Mango x PFA" data-designer="Raw Mango" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/raw-mango-x-pfa-front-studio.webp|media/shop/v4/raw-mango-x-pfa-back.webp">
+        data-images="media/shop/v4/raw-mango-x-pfa-front-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Raw Mango x PFA">
           <img class="item__img" src="media/shop/v4/raw-mango-x-pfa-front-studio.webp" alt="Raw Mango x PFA T-shirt" loading="lazy" decoding="async">
-          <img class="item__alt" src="media/shop/v4/raw-mango-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Raw Mango</span>
         </button>
         <div class="item__bd">
@@ -1163,10 +1152,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="masaba-gupta" data-id="38" data-kind="designer" data-order="13"
         data-name="Masaba Gupta x PFA" data-designer="Masaba Gupta" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/1745705914-studio.webp|media/shop/v4/1811195198-1745705914.webp">
+        data-images="media/shop/v4/1745705914-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Masaba Gupta x PFA">
           <img class="item__img" src="media/shop/v4/1745705914-studio.webp" alt="Masaba Gupta x PFA T-shirt" loading="lazy" decoding="async">
-          <img class="item__alt" src="media/shop/v4/1811195198-1745705914.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Masaba Gupta</span>
         </button>
         <div class="item__bd">
@@ -1186,10 +1174,9 @@ if (root.document && root.document.head) apply(read());
       </article>
       <article class="item" id="ashima-singh" data-id="39" data-kind="designer" data-order="14"
         data-name="Ashima Singh x PFA" data-designer="Ashima Singh" data-price="2500" data-was="5000"
-        data-images="media/shop/v4/ashima-singh-x-pfa-front-studio.webp|media/shop/v4/ashima-singh-x-pfa-back.webp">
+        data-images="media/shop/v4/ashima-singh-x-pfa-front-studio.webp">
         <button class="item__media" type="button" data-open aria-label="Look closer at Ashima Singh x PFA">
           <img class="item__img" src="media/shop/v4/ashima-singh-x-pfa-front-studio.webp" alt="Ashima Singh x PFA T-shirt" loading="lazy" decoding="async">
-          <img class="item__alt" src="media/shop/v4/ashima-singh-x-pfa-back.webp" alt="" loading="lazy" decoding="async">
           <span class="item__fallback" aria-hidden="true">Ashima Singh</span>
         </button>
         <div class="item__bd">

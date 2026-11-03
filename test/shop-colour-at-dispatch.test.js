@@ -87,7 +87,7 @@ test('the feature photographs open the closer look at that colour, which says ho
   assert.equal(d.getElementById('look').hidden, false);
   assert.match(d.getElementById('lookImg').src, /t-shirt-yellow-front\.webp$/);
   assert.equal(d.getElementById('lookColours'), null);
-  assert.equal(d.querySelectorAll('#lookThumbs button').length, 8, 'every colour, front and back');
+  assert.equal(d.querySelectorAll('#lookThumbs button').length, 4, 'every colour, from the front (the old back views are gone, 3 Nov 2026)');
   assert.match(d.getElementById('lookCopy').textContent, /limited palette of red, yellow, white and pink\. Each piece is hand-picked from the edition at dispatch, its colour chosen for you according to availability\./);
   const spec = [...d.querySelectorAll('#lookSpec div')].map((r) => [r.querySelector('dt').textContent, r.querySelector('dd').textContent]);
   assert.deepEqual(spec, [['Sizes', 'L, XL'], ['Colour', 'Chosen for you at dispatch']]);

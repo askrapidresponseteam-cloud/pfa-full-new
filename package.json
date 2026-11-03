@@ -17,6 +17,7 @@
     "build:csr": "node scripts/build-csr-projects.js",
     "check:csr": "node scripts/build-csr-projects.js --check",
     "build:gbp": "node scripts/build-gbp-sheet.js",
+    "check:ui": "node scripts/ui-scan.js",
     "build:seo": "node scripts/build-seo.js",
     "check:seo": "node scripts/build-seo.js --check",
     "build:events": "node scripts/build-events.js",

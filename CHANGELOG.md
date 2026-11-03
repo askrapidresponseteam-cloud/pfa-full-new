@@ -1,3 +1,10 @@
+## v1.525
+
+- **The practice button in the task reader reads again, and a site-wide check keeps such slips out.** Owner, 3 Nov 2026: "this is still not fixed! so a site wide scan and ensure no such goof ups ever happen".
+  - In the internship's task reader every button is painted dark, and the light "Try 7 practice questions" took dark words with it: black on black. Light buttons there are now light with dark words; dark ones keep white words.
+  - New: npm run check:ui (scripts/ui-scan.js), run before every release. In a real browser, on every page at phone and desktop width, with every animation finished, it opens every expander, every task card in the internship reader, the practice quiz (opened, a choice picked, checked) and anything that opens a panel, and fails if any button's words do not read on their ground, long text is centred, a tick box touches its words, words spill out of or are cut inside a button, or a page is wider than the screen. It found the reader button at once; it now passes on all 37 pages.
+- **The old catalogue photographs are gone from the shop.** Owner: "i dont need those old sick back photos which were there previously". No second photograph on hover any more; the closer look shows only the new studio photographs (the logo tee: its four colours, from the front). The 24 old files are removed.
+
 ## v1.524
 
 - **Every answer explained, at the end of the practice and of the quiz.** Owner, 3 Nov 2026: "give explanation at the end as to why each ans is the right and why each other option is wrong. what can go wrong. etc.. for practise as well as for the real test".

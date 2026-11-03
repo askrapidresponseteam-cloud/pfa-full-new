@@ -36,7 +36,10 @@ function webpSize(file) {
 test('every shop photograph is a framed 2:3 copy, and the tiles are 2:3', () => {
   const html = read('shop.html');
   const all = [...new Set(html.match(/media\/shop\/[\w./-]+\.webp/g))];
-  assert.ok(all.length >= 40, 'the shop names its photographs');
+  /* 18 since 3 Nov 2026: the old catalogue shots and back views are gone (owner: "i dont need those old sick back photos") */
+  assert.ok(all.length >= 16, 'the shop names its photographs');
+  assert.ok(!all.some((p) => /\/(\d+-\d+|[a-z0-9-]+-back)\.webp$/.test(p)), 'none of the old catalogue shots or back views');
+  assert.doesNotMatch(html, /class="item__alt"/, 'no second photograph on hover');
   const outside = all.filter((p) => !p.startsWith('media/shop/v4/'));
   assert.deepEqual(outside, [], 'the page uses the framed copies only');
   for (const rel of all) {
