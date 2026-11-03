@@ -88,7 +88,7 @@
       return [c.name, r.reference, role(r), (r.fields || {}).zone, c.email, c.mobile, STATUS[r.status] || r.status || 'New', day(r.createdAt)].map(cell).join(',');
     }));
     var a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' }));
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' }));
     a.download = 'pfa-job-applicants-' + new Date().toISOString().slice(0, 10) + '.csv';
     document.body.appendChild(a); a.click(); a.remove();
   }

@@ -52,8 +52,10 @@
       out += '<button class="btn btn--light" type="button" data-qz="review">See the answers</button>';
     }
     if (q.attempts && q.attempts.length) out += '<ul class="qzc__past">' + lines(q) + '</ul>';
+    /* seven practice questions, never in the quiz (assets/law-quiz-sample.js) */
+    if (!q.passed && root.PFALawSample) out += '<div data-law-sample-host><button class="btn btn--light" type="button" data-law-sample>Try 7 practice questions first</button></div>';
     out += '<details class="fold"><summary>How the quiz works</summary><ul>'
-      + '<li>Three sections in order: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ' each)'; }).join(', ') + '.</li>'
+      + '<li>Ten common incidents, three questions on each: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ' each)'; }).join(', ') + ', all mixed together.</li>'
       + '<li>One question at a time, five choices, one best answer. Once you confirm an answer it is final: there is no going back.</li>'
       + '<li>The ' + q.minutes + ' minutes run from when you start, even if you close the page. Unanswered questions count as wrong.</li>'
       + '<li>' + q.maxAttempts + ' attempts, at least a day apart; your best counts. Pass with ' + q.passMark + '% and this task is done.</li>'
@@ -76,8 +78,9 @@
     stopClock(); guard(false);
     frame('<div class="qz__intro"><p class="tile__h">The quiz' + (q.attempts.length ? ', attempt ' + (q.attempts.length + 1) + ' of ' + q.maxAttempts : '') + '</p>'
       + '<h2 class="qz__h">' + q.count + ' questions. ' + q.minutes + ' minutes.</h2>'
+      + '<p class="qz__p">Three questions on each of ten incidents you will meet, mixed: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ')'; }).join(', ') + '. Two minutes a question.</p>'
       + '<ol class="qz__rules">'
-      + q.sections.map(function (s, i) { return '<li><b>Section ' + (i + 1) + ': ' + esc(s.label) + '</b><span>' + plural(s.count, 'question', 'questions') + ', ' + plural(s.points, 'mark', 'marks') + ' each</span></li>'; }).join('')
+      + (q.incidents || []).map(function (x, i) { return '<li><b>' + (i + 1) + '. ' + esc(x.label) + '</b><span>' + plural(x.count, 'question', 'questions') + '</span></li>'; }).join('')
       + '</ol>'
       + '<p class="qz__p">Answer each question, then confirm it. A confirmed answer is final. The clock starts when you press Start and keeps running if you leave. Find a quiet ' + q.minutes + ' minutes before you begin.</p>'
       + '<div class="qz__acts"><button class="btn" type="button" data-qz="start">Start the ' + q.minutes + ' minutes</button><button class="linkish" type="button" data-qz="back">Not now</button></div></div>');
@@ -104,20 +107,13 @@
     var q = a.question;
     var sec = q.section;
     var pct = Math.round(((q.index - 1) / q.total) * 100);
-    var head = sec.at === 1 && q.index > 1 ? '<p class="qz__sec-new">Section ' + sec.n + ' of 3 begins: ' + esc(sec.label) + '.</p>' : '';
-    var map = '<aside class="qz__map" aria-label="Where you are"><p class="tile__h">Where you are</p>' + ['Easy', 'Medium', 'Hard'].map(function (label, si) {
-      var from = [0, 10, 30][si];
-      var of = [10, 20, 25][si];
-      var cells = '';
-      for (var i = 0; i < of; i += 1) {
-        var n = from + i + 1;
-        cells += '<i data-s="' + (n < q.index ? 'done' : n === q.index ? 'now' : '') + '"></i>';
-      }
-      return '<div class="qz__mapsec"><span>' + label + '</span><div>' + cells + '</div></div>';
-    }).join('') + '<p class="qz__mapnote">' + plural(a.answered, 'answer', 'answers') + ' saved. Marks: easy 1, medium 2, hard 3.</p></aside>';
-    frame('<div class="qz__wrap"><div class="qz__main"><div class="qz__top"><span class="qz__sec">Section ' + sec.n + ' of 3 · ' + esc(sec.label) + '</span><span class="qz__n">Question ' + q.index + ' of ' + q.total + '</span><span class="qz__clock" data-qz-clock aria-label="Time left">' + clock(a.secondsLeft) + '</span></div>'
+    /* all thirty in one mixed run: where you are, one square a question */
+    var cells = '';
+    for (var i = 1; i <= q.total; i += 1) cells += '<i data-s="' + (i < q.index ? 'done' : i === q.index ? 'now' : '') + '"></i>';
+    var map = '<aside class="qz__map" aria-label="Where you are"><p class="tile__h">Where you are</p><div class="qz__mapsec"><span>' + plural(q.total, 'question', 'questions') + '</span><div>' + cells + '</div></div>'
+      + '<p class="qz__mapnote">' + plural(a.answered, 'answer', 'answers') + ' saved. Marks: easy 1, medium 2, hard 3.</p></aside>';
+    frame('<div class="qz__wrap"><div class="qz__main"><div class="qz__top"><span class="qz__sec">' + esc(sec.incident || '') + ' · ' + esc(sec.label) + '</span><span class="qz__n">Question ' + q.index + ' of ' + q.total + '</span><span class="qz__clock" data-qz-clock aria-label="Time left">' + clock(a.secondsLeft) + '</span></div>'
       + '<div class="bar" aria-hidden="true"><i style="width:' + pct + '%"></i></div>'
-      + head
       + '<p class="qz__q" id="qzQ">' + esc(q.text) + '</p>'
       + (q.dataSufficiency ? '<p class="qz__hint">Data sufficiency: decide whether the statements give enough to answer, not what the answer is.</p>' : '')
       + '<div class="qz__opts" role="radiogroup" aria-labelledby="qzQ">' + q.choices.map(function (c) {

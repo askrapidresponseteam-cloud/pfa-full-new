@@ -125,6 +125,12 @@ function prose(html) {
   return paras.join(' ');
 }
 
+/* A page per unit (scripts/build-unit-pages.js, 3 Nov 2026), in the sitemap
+   after the pages. */
+function unitPages() {
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'assets', 'unit-pages.json'), 'utf8')).units || []; } catch (_) { return []; }
+}
+
 function publicPages() {
   return fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !EXCLUDE.has(f)).sort();
 }
@@ -413,7 +419,7 @@ function build() {
      its extension: search.html and the popular-searches API key off it. */
   const loc = (p) => (p.url === '/' ? '/' : p.url.replace(/\.html$/, ''));
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    pages.map((p) => `  <url><loc>${SITE}${loc(p)}</loc><lastmod>${today}</lastmod></url>`).join('\n') + '\n</urlset>\n';
+    pages.map((p) => `  <url><loc>${SITE}${loc(p)}</loc><lastmod>${today}</lastmod></url>`).concat(unitPages().map((u) => `  <url><loc>${SITE}/units/${u.slug}</loc><lastmod>${today}</lastmod></url>`)).join('\n') + '\n</urlset>\n';
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sitemap);
   return pages;
 }

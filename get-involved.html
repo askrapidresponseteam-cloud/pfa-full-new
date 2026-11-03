@@ -132,7 +132,7 @@ input,button,textarea,select{font-family:inherit;font-size:inherit;color:inherit
 .hero .eyebrow{color:rgba(17,17,17,.55);margin:0 0 18px}
 .hero h1{font-size:clamp(34px,4.4vw,62px)}
 .hero p.lede{margin:26px 0 0;max-width:46ch;font-size:14px;line-height:1.6;color:rgba(17,17,17,.78)}
-.hero 
+.hero
 
 /* ---------- filter bar ---------- */
 .btn--ghost{background:transparent;color:var(--ink)}
@@ -739,7 +739,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=e758b6cbbb"></script>
+<script src="assets/chrome.js?v=c94b69f654"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -897,11 +897,11 @@ if (root.document && root.document.head) apply(read());
             <div class="field gi__wide"><label for="memAddress">Street and area</label><input id="memAddress" name="street" type="text" autocomplete="address-line2" maxlength="120" placeholder="12th Cross, Kodavoor" required><span class="error">Add the street and area.</span></div>
             <div class="field"><label for="memFloor">Floor <span class="opt">(optional)</span></label><input id="memFloor" name="floor" type="text" maxlength="40" placeholder="2nd"><span class="hint">If it is a flat or upstairs.</span></div>
             <div class="field"><label for="memLandmark">Landmark <span class="opt">(optional)</span></label><input id="memLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"><span class="hint">Helps the courier find you.</span></div>
+            <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
+            <div class="field"><label for="memPin">PIN code</label><input id="memPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span><span class="hint">Typed in full, it fills the town, district and state.</span></div>
             <div class="field"><label for="memCity">City, town or village</label><input id="memCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us the city or town.</span></div>
             <div class="field"><label for="memState">State</label><select id="memState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="memDistrict">District</label><select id="memDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
-            <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
-            <div class="field"><label for="memPin">PIN code</label><input id="memPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span></div>
           </div>
         </div>
 
@@ -983,11 +983,11 @@ if (root.document && root.document.head) apply(read());
             <div class="field gi__wide"><label for="cgAddress">Street and area</label><input id="cgAddress" name="street" type="text" autocomplete="address-line2" maxlength="120" placeholder="12th Cross, Kodavoor" required><span class="error">Add the street and area.</span></div>
             <div class="field"><label for="cgFloor">Floor <span class="opt">(optional)</span></label><input id="cgFloor" name="floor" type="text" maxlength="40" placeholder="2nd"><span class="hint">If it is a flat or upstairs.</span></div>
             <div class="field"><label for="cgLandmark">Landmark <span class="opt">(optional)</span></label><input id="cgLandmark" name="landmark" type="text" maxlength="80" placeholder="Near the Krishna temple"><span class="hint">Helps the courier find you.</span></div>
+            <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
+            <div class="field"><label for="cgPin">PIN code</label><input id="cgPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span><span class="hint">Typed in full, it fills the town, district and state.</span></div>
             <div class="field"><label for="cgCity">City, town or village</label><input id="cgCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us where.</span></div>
             <div class="field"><label for="cgState">State</label><select id="cgState" name="state" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="cgDistrict">District</label><select id="cgDistrict" name="district" required disabled><option value="">Select the state first</option></select><span class="error">Pick your district.</span></div>
-            <!-- goes on to CCAvenue with the city and state, so its page arrives filled in (21 Oct 2026) -->
-            <div class="field"><label for="cgPin">PIN code</label><input id="cgPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span></div>
           </div>
         </div>
 

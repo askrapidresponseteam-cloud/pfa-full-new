@@ -65,7 +65,7 @@ test('no page uses a class it never defines', () => {
     const missing = [...classesUsed(html)]
       .filter((c) => !defined.has(c))
       .filter((c) => !EXEMPT.has(c))
-  
+
     if (missing.length) problems.push(`${page}: ${missing.join(', ')}`);
   }
   assert.deepEqual(problems, [], `markup styled by nothing:\n  ${problems.join('\n  ')}`);

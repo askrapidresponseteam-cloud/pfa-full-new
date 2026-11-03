@@ -152,7 +152,7 @@ async function one(PAGE, OUT) {
 
     let title = film.title;
     if (!title) {
-      try { var meta = await grabMeta(film.id); title = (meta && meta.title) || ''; 
+      try { var meta = await grabMeta(film.id); title = (meta && meta.title) || '';
              if (meta && meta.by) channels.set(film.id, meta.by); } catch { title = ''; }
       if (title) titles.set(film.id, title);
     }

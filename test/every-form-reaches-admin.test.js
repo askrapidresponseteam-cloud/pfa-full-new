@@ -1,7 +1,7 @@
 'use strict';
 
 /* Every public form, one by one, all the way to the panel.
-   
+
    site-integrity.test.js already checks that no form sends a kind the server
    would refuse. That is a static scan of the source. This is the other half:
    it drives the real intake route with a real payload for each kind, then reads

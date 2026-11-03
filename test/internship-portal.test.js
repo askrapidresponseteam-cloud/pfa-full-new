@@ -142,7 +142,7 @@ test('the default plan is the eight weeks on the internship page: all eight task
   assert.equal(b.weeks.length, 8);
   assert.deepEqual(b.weeks.slice(0, 3).map((w) => w.title), ['Learn the law', 'Map your district', 'Bring people onto the RRT']);
   assert.deepEqual(b.tasks.map((t) => [t.key, t.kind, t.week, t.goal]), [
-    ['law', 'core', 1, '55-question quiz'], ['map', 'core', 2, '1 district'], ['rrt', 'core', 3, '50 people'], ['films', 'core', 4, '2 films'],
+    ['law', 'core', 1, '30-question quiz'], ['map', 'core', 2, '1 district'], ['rrt', 'core', 3, '50 people'], ['films', 'core', 4, '2 films'],
     ['shelter', 'core', 5, '20 hours'], ['rti', 'core', 6, '1 RTI'], ['cinekind', 'core', 7, '1 nomination'], ['story', 'core', 8, '1 story']
   ]);
   assert.deepEqual(b.tasks.map((t) => t.title), ['Learn the law', 'Map your district', 'Bring 50 people onto the RRT', 'Two films for The Wall', 'Shelter work', 'An RTI to the municipality', 'One CineKind nomination', 'Your own story with animals'],
@@ -351,7 +351,7 @@ test('reminders: on each week\'s Sunday, once per intern, only when something is
   assert.equal(sent.length, 1, 'Asha sent hers; only Zoya is reminded');
   assert.equal(sent[0].to, 'zoya@example.com');
   assert.match(sent[0].subject, /week 1: 1 still open/);
-  assert.match(sent[0].text, /Learn the law \(55-question quiz\)/);
+  assert.match(sent[0].text, /Learn the law \(30-question quiz\)/);
   assert.match(sent[0].text, /Sun 15 Nov, 11:59 pm/);
   /* every later run that Sunday: no second email */
   await R.run({ db, nowMs: SUN + 600000 });
@@ -367,7 +367,7 @@ test('reminders: on each week\'s Sunday, once per intern, only when something is
   await R.run({ db, nowMs: at('2026-11-29T03:30:00.000Z') });
   const zoya = sent.find((m) => m.to === 'zoya@example.com');
   assert.match(zoya.text, /Bring 50 people onto the RRT: 12 of 50 have registered/);
-  assert.match(zoya.text, /Learn the law \(55-question quiz\) \(Overdue\)/);
+  assert.match(zoya.text, /Learn the law \(30-question quiz\) \(Overdue\)/);
   /* a closed batch is not reminded */
   sent = [];
   await db.collection('intern_batches').doc(id).set({ status: 'closed' }, { merge: true });

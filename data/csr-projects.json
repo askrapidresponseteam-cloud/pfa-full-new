@@ -1,0 +1,452 @@
+{
+ "note": "The fixed-price CSR projects on csr.html and their one-page PDFs (media/csr). Built by scripts/build-csr-projects.js. Costs researched 3 Nov 2026; construction, equipment and fit-out lines are estimates to confirm with local quotes.",
+ "projects": [
+  {
+   "id": "ambulance",
+   "name": "Animal ambulance, one year on the road",
+   "price": 3175000,
+   "pitch": "One fully fitted animal ambulance for a PFA unit, with its crew, fuel and medicines paid for the first full year.",
+   "what": "1 new ambulance van (Tata Winger or Force Traveller class, high roof) fitted for animals, plus 12 months of operation",
+   "scale": "1 vehicle, 1 driver, 1 para-vet rescuer, about 80 km a day, helpline number",
+   "time": "12 months of operation after delivery (vehicle remains with the PFA unit)",
+   "where": "One PFA unit's city or district",
+   "lines": [
+    {
+     "item": "Ambulance van, ex-showroom (high roof, non-AC)",
+     "inr": 1640000
+    },
+    {
+     "item": "Animal fit-out: stretcher, 2 cages, loading ramp, restraint kit, oxygen, first-aid cabinet, light bar and siren, GPS, branding",
+     "inr": 200000
+    },
+    {
+     "item": "Registration, road tax and first-year insurance",
+     "inr": 150000
+    },
+    {
+     "item": "Driver, 12 months at Rs 22,500",
+     "inr": 270000
+    },
+    {
+     "item": "Para-vet rescuer, 12 months at Rs 25,000",
+     "inr": 300000
+    },
+    {
+     "item": "Diesel, 80 km a day, 365 days, 10 km per litre, Rs 90 per litre",
+     "inr": 263000
+    },
+    {
+     "item": "Servicing, tyres and PUC",
+     "inr": 60000
+    },
+    {
+     "item": "Medicines, dressings and rescue consumables, Rs 10,000 a month",
+     "inr": 120000
+    },
+    {
+     "item": "Helpline phone and GPS data",
+     "inr": 24000
+    },
+    {
+     "item": "Admin, monitoring and funder reporting",
+     "inr": 148000
+    }
+   ],
+   "outcomes": [
+    "Animals rescued and transported (target 1,500 in the year, about 4 to 5 calls a day)",
+    "Average response time from call to pickup",
+    "Animals treated on site",
+    "Km driven and GPS trip log",
+    "Monthly photo report and year-end report with case stories"
+   ],
+   "suits": [
+    "Mid-size companies wanting a visible, branded asset",
+    "Pharma and animal health",
+    "Pet food and pet care"
+   ],
+   "schedule": "Item (iv) animal welfare",
+   "smaller": "Year 2 running cost only: about Rs 11.5 lakh (crew, fuel, medicines, insurance, servicing, admin)",
+   "note": ""
+  },
+  {
+   "id": "abc-town",
+   "name": "Sterilise a town: 1,000 dogs",
+   "price": 1800000,
+   "pitch": "Humanely sterilise and vaccinate 1,000 street dogs in one town under the Animal Birth Control Rules 2023, to bring down litters, bites and rabies.",
+   "what": "Catch, sterilise, vaccinate against rabies, care for and return 1,000 street dogs to the same street",
+   "scale": "1,000 dogs, ear-notched, with before and after headcount surveys",
+   "time": "About 6 months",
+   "where": "One town or a set of municipal wards, with the local body's consent",
+   "lines": [
+    {
+     "item": "Humane capture, transport and return to the same spot, 1,000 dogs at Rs 200",
+     "inr": 200000
+    },
+    {
+     "item": "Pre-op check, surgery, anaesthesia, anti-rabies vaccine, post-op care and food, 1,000 dogs at Rs 1,450",
+     "inr": 1450000
+    },
+    {
+     "item": "Baseline and end-line dog headcount, ear-notch checks",
+     "inr": 50000
+    },
+    {
+     "item": "Resident and feeder awareness (notices, ward meetings)",
+     "inr": 25000
+    },
+    {
+     "item": "Admin, monitoring and funder reporting",
+     "inr": 75000
+    }
+   ],
+   "outcomes": [
+    "Dogs sterilised (1,000), split male and female",
+    "Dogs vaccinated against rabies (1,000)",
+    "Share of the town's dogs sterilised, from before and after headcounts (aim 70%, the national target)",
+    "Surgical complication and mortality rate",
+    "Dog-bite cases reported at the local hospital, before and after (where data is shared)"
+   ],
+   "suits": [
+    "Pet food and pet care",
+    "Pharma and vaccine makers",
+    "Mid-size companies near the town (plants, offices)"
+   ],
+   "schedule": "Item (iv) animal welfare (with item (i) preventive health care for the rabies element)",
+   "smaller": "Rs 1,800 per dog all-in; sold in blocks of 500 dogs (Rs 9 lakh)",
+   "note": "Run by a PFA unit recognised by the Animal Welfare Board of India for this work, with the local body's agreement, under the Animal Birth Control Rules, 2023."
+  },
+  {
+   "id": "rabies-drive",
+   "name": "Rabies-free district: 10,000 dogs",
+   "price": 2315000,
+   "pitch": "Vaccinate 10,000 street and community dogs against rabies in one district in about 3 months, with a coverage survey to prove it.",
+   "what": "Mass anti-rabies vaccination of free-roaming and community dogs, each marked and logged",
+   "scale": "10,000 dogs vaccinated, 4 field teams, 1 supervising vet, coverage survey",
+   "time": "About 3 months (60 field days)",
+   "where": "One district or a large city zone",
+   "lines": [
+    {
+     "item": "Veterinary anti-rabies vaccine, 10,500 doses (5% wastage) at Rs 50",
+     "inr": 525000
+    },
+    {
+     "item": "Cold chain: vaccine cool boxes, ice packs, fridge hire",
+     "inr": 50000
+    },
+    {
+     "item": "Field teams: 4 teams x 3 people x 60 days at Rs 800 a day",
+     "inr": 576000
+    },
+    {
+     "item": "Supervising vet, 3 months at Rs 60,000",
+     "inr": 180000
+    },
+    {
+     "item": "Vehicle hire: 4 vehicles x 60 days at Rs 2,500",
+     "inr": 600000
+    },
+    {
+     "item": "Marking paint or collars, mobile data app, ID tags",
+     "inr": 100000
+    },
+    {
+     "item": "Awareness and dog-bite first-aid talks in schools and wards",
+     "inr": 100000
+    },
+    {
+     "item": "Post-drive coverage survey",
+     "inr": 75000
+    },
+    {
+     "item": "Admin, monitoring and funder reporting",
+     "inr": 109000
+    }
+   ],
+   "outcomes": [
+    "Dogs vaccinated (10,000), mapped by ward",
+    "Vaccination coverage from the post-drive survey (aim 70% or more)",
+    "People reached with dog-bite first-aid messages",
+    "Human dog-bite and rabies cases at district hospitals, before and after (where shared)"
+   ],
+   "suits": [
+    "Pharma, especially vaccine and animal health makers (vaccine can be given in kind)",
+    "Pet food and pet care",
+    "Mid-size companies"
+   ],
+   "schedule": "Item (iv) animal welfare and item (i) preventive health care (rabies is a human health risk)",
+   "smaller": "About Rs 2.3 lakh per 1,000 dogs; if the vaccine is donated in kind, the cash price is about Rs 17.9 lakh for 10,000 dogs",
+   "note": "Vaccine can also be given in kind by a vaccine maker, lowering the price."
+  },
+  {
+   "id": "para-vets",
+   "name": "Village vet assistants: 25 trained",
+   "price": 2100000,
+   "pitch": "Train 25 young people from villages with no vet nearby to give first aid, deworm, vaccinate and call for help, then equip and mentor them for six months.",
+   "what": "A 3-month course (1 month residential at a PFA hospital, 2 months supervised field work), a first-aid kit each, certification and 6 months of mentoring",
+   "scale": "25 trainees in one batch",
+   "time": "9 months in all",
+   "where": "One block or district cluster of villages around a PFA hospital",
+   "lines": [
+    {
+     "item": "Training: trainers, practicals at the PFA hospital, course material, 25 x Rs 30,000",
+     "inr": 750000
+    },
+    {
+     "item": "Board and lodging for the 30-day residential month, 25 x 30 days x Rs 500",
+     "inr": 375000
+    },
+    {
+     "item": "Field placement stipend, 25 x 2 months x Rs 5,000",
+     "inr": 250000
+    },
+    {
+     "item": "First-aid and vaccination kit per graduate, 25 x Rs 15,000",
+     "inr": 375000
+    },
+    {
+     "item": "Third-party assessment and certification, 25 x Rs 1,000",
+     "inr": 25000
+    },
+    {
+     "item": "Six months of mentoring, refresher day, phone support from PFA vets",
+     "inr": 150000
+    },
+    {
+     "item": "Trainee travel",
+     "inr": 75000
+    },
+    {
+     "item": "Admin, monitoring and funder reporting",
+     "inr": 100000
+    }
+   ],
+   "outcomes": [
+    "People trained and certified (25)",
+    "Graduates still active after 6 months (aim 20 or more)",
+    "Animals given first aid, dewormed or vaccinated by graduates, logged monthly",
+    "Villages covered",
+    "Share of women trainees"
+   ],
+   "suits": [
+    "Dairy companies (milk-shed villages)",
+    "Agriculture and agri-input companies",
+    "Animal health and pharma"
+   ],
+   "schedule": "Item (iv) animal welfare and item (ii) employment-enhancing vocational skills",
+   "smaller": "Rs 84,000 per trainee; minimum batch about 13 (A-HELP needs at least half a batch of 25)",
+   "note": "Graduates give first aid and support under a veterinarian's supervision, as the Indian Veterinary Council Act, 1984 allows."
+  },
+  {
+   "id": "mobile-clinic",
+   "name": "Mobile vet clinic for villages, one year",
+   "price": 3650000,
+   "pitch": "A clinic on wheels with a vet and para-vet that visits the same villages every week, treating cows, buffaloes, goats, bullocks, donkeys and horses where there is no vet.",
+   "what": "1 van with a treatment cabin and equipment, plus a vet, para-vet, driver, fuel and medicines for 12 months",
+   "scale": "1 vehicle, fixed weekly route of about 25 villages, about 280 clinic days",
+   "time": "12 months of operation (van remains with the PFA unit)",
+   "where": "One rural block",
+   "lines": [
+    {
+     "item": "Van with clinical cabin, treatment table, storage, fridge and equipment",
+     "inr": 1600000
+    },
+    {
+     "item": "Veterinarian, 12 months at Rs 60,000",
+     "inr": 720000
+    },
+    {
+     "item": "Para-vet, 12 months at Rs 25,000",
+     "inr": 300000
+    },
+    {
+     "item": "Driver-cum-attendant, 12 months at Rs 22,500",
+     "inr": 270000
+    },
+    {
+     "item": "Diesel",
+     "inr": 260000
+    },
+    {
+     "item": "Medicines, dewormers, mineral mixture, dressings",
+     "inr": 262000
+    },
+    {
+     "item": "Servicing and insurance",
+     "inr": 60000
+    },
+    {
+     "item": "Admin, monitoring and funder reporting",
+     "inr": 178000
+    }
+   ],
+   "outcomes": [
+    "Animal treatments given (target 8,000 in the year)",
+    "Villages and farming households served",
+    "Animals dewormed and vaccinated",
+    "Working animals treated for harness and neck wounds",
+    "Clinic days run against plan"
+   ],
+   "suits": [
+    "Dairy companies (their milk-shed villages)",
+    "Agriculture, tractor and agri-input companies",
+    "Mid-size companies with rural plants"
+   ],
+   "schedule": "Item (iv) animal welfare (also item (x) rural development projects)",
+   "smaller": "Year 2 running cost only: about Rs 19.7 lakh (DAHD recurring norm + admin)",
+   "note": ""
+  },
+  {
+   "id": "kennel-ward",
+   "name": "Recovery ward: 20 kennels and a year of care",
+   "price": 3750000,
+   "pitch": "Build a clean, covered recovery ward of 20 steel kennels at a PFA shelter, and pay for a full year of care for the animals in it.",
+   "what": "A roofed ward of about 1,000 sq ft with washable sloped floors and drains, 20 stainless steel kennels, water and power, plus 12 months of care",
+   "scale": "20 kennels, about 700 recoveries a year at a 10-day average stay",
+   "time": "About 4 months to build, then 12 months of care",
+   "where": "One PFA shelter or hospital",
+   "lines": [
+    {
+     "item": "Ward shell: steel frame, insulated roof, sloped washable floor, drains, about 1,000 sq ft at Rs 1,500",
+     "inr": 1500000
+    },
+    {
+     "item": "20 stainless steel kennels at Rs 55,000",
+     "inr": 1100000
+    },
+    {
+     "item": "Water lines, drainage and washing point",
+     "inr": 150000
+    },
+    {
+     "item": "Fans, lights and wiring",
+     "inr": 100000
+    },
+    {
+     "item": "One year of care for 20 animals at Rs 3,035 a month",
+     "inr": 728400
+    },
+    {
+     "item": "Admin, monitoring and funder reporting",
+     "inr": 171600
+    }
+   ],
+   "outcomes": [
+    "Kennels built (20) and handed over with photos",
+    "Animals recovered and released or adopted (target about 700 a year)",
+    "Recovery and survival rate",
+    "Adoptions"
+   ],
+   "suits": [
+    "Pet food and pet care",
+    "Real estate and construction (in-kind build possible)",
+    "Mid-size companies wanting a named, permanent asset"
+   ],
+   "schedule": "Item (iv) animal welfare",
+   "smaller": "Build only (no care year): about Rs 30 lakh; half ward of 10 kennels with a year of care about Rs 20 lakh",
+   "note": ""
+  },
+  {
+   "id": "diagnostics",
+   "name": "Hospital diagnostics: X-ray, ultrasound, lab",
+   "price": 2500000,
+   "pitch": "Give a PFA hospital the X-ray, ultrasound and blood-test machines it needs to find out quickly what is wrong with an injured or sick animal.",
+   "what": "Digital X-ray with table, room shielding, a veterinary ultrasound, a haematology analyser and a biochemistry analyser, installed with staff training",
+   "scale": "1 X-ray, 1 ultrasound, 2 lab analysers",
+   "time": "About 3 months to install and license, then a year of service cover",
+   "where": "One PFA hospital",
+   "lines": [
+    {
+     "item": "Digital X-ray system with table",
+     "inr": 1250000
+    },
+    {
+     "item": "Room lead shielding and AERB registration",
+     "inr": 200000
+    },
+    {
+     "item": "Portable veterinary ultrasound with 2 probes",
+     "inr": 450000
+    },
+    {
+     "item": "Veterinary haematology analyser",
+     "inr": 250000
+    },
+    {
+     "item": "Semi-automatic biochemistry analyser with starter reagents",
+     "inr": 150000
+    },
+    {
+     "item": "Staff training and first-year service cover",
+     "inr": 100000
+    },
+    {
+     "item": "Admin, monitoring and funder reporting",
+     "inr": 100000
+    }
+   ],
+   "outcomes": [
+    "X-rays taken (target 2,000 a year)",
+    "Ultrasound scans (target 1,000 a year)",
+    "Blood tests run (target 3,000 a year)",
+    "Animals referred out for imaging, before and after (should fall)"
+   ],
+   "suits": [
+    "Pharma and medical device companies",
+    "Mid-size companies"
+   ],
+   "schedule": "Item (iv) animal welfare",
+   "smaller": "X-ray only (with shielding and admin): about Rs 15.2 lakh; ultrasound and lab only: about Rs 9.5 lakh",
+   "note": "Includes the X-ray room's registration with the Atomic Energy Regulatory Board."
+  },
+  {
+   "id": "gaushala-upgrade",
+   "name": "Cattle shelter: shade, water and care",
+   "price": 2700000,
+   "pitch": "Give about 150 rescued and abandoned cattle shade from the sun, clean drinking water, a dry fodder store and a year of vet visits.",
+   "what": "An open-sided shade shed of about 4,000 sq ft, a water point with pump, tank and 6 troughs, a fodder store, fans and foggers, and 12 months of vet visits and medicines",
+   "scale": "For about 150 cattle",
+   "time": "About 4 months to build, then 12 months of vet care",
+   "where": "One PFA cattle shelter (gaushala)",
+   "lines": [
+    {
+     "item": "Open-sided shade shed, about 4,000 sq ft, steel frame and insulated roof, at Rs 350",
+     "inr": 1400000
+    },
+    {
+     "item": "Drinking water: borewell or solar pump, 10,000 litre tank, 6 troughs",
+     "inr": 400000
+    },
+    {
+     "item": "Dry fodder store, about 600 sq ft",
+     "inr": 400000
+    },
+    {
+     "item": "Fans and foggers for summer heat",
+     "inr": 150000
+    },
+    {
+     "item": "Vet visits and medicines for 12 months",
+     "inr": 240000
+    },
+    {
+     "item": "Admin, monitoring and funder reporting",
+     "inr": 110000
+    }
+   ],
+   "outcomes": [
+    "Cattle with shade and clean water (about 150)",
+    "Sq ft of shade built",
+    "Deaths in summer months, before and after",
+    "Cattle treated by the visiting vet"
+   ],
+   "suits": [
+    "Dairy companies",
+    "Agriculture companies",
+    "Mid-size companies (cattle shelters are the most common animal cause in company CSR filings)"
+   ],
+   "schedule": "Item (iv) animal welfare",
+   "smaller": "Shade and water only: about Rs 19 lakh",
+   "note": ""
+  }
+ ]
+}

@@ -707,7 +707,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=e758b6cbbb"></script>
+<script src="assets/chrome.js?v=c94b69f654"></script>
 <script src="assets/india-districts.js"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
@@ -808,9 +808,9 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="giftTo">Their name</label><input id="giftTo" name="giftTo" type="text" autocomplete="off" required form="giveForm"><span class="error">Add the name of the person the gift is for.</span><span class="hint">As it should read on the certificate.</span></div>
             <!-- the certificate is posted: the door first (owner, 29 Oct 2026: "ask for proper mailing address including their house number") -->
             <div class="field"><label for="giftHouse">Their house or flat number, and building</label><input id="giftHouse" name="giftHouse" type="text" autocomplete="off" maxlength="80" placeholder="Flat 4B, Sai Residency" required form="giveForm"><span class="error">Add their house or flat number and building, so the certificate reaches the door.</span></div>
+            <div class="field"><label for="giftPin">PIN code</label><input id="giftPin" name="giftPin" type="text" inputmode="numeric" maxlength="6" autocomplete="off" required form="giveForm"><span class="error">Enter the 6-digit PIN code.</span><span class="hint" id="giftWhere" aria-live="polite"></span></div>
             <div class="field"><label for="giftAddress">Their street, area and town</label><input id="giftAddress" name="giftStreet" type="text" autocomplete="off" maxlength="120" placeholder="12th Cross, Kodavoor, Udupi" required form="giveForm"><span class="error">Add their street, area and town.</span></div>
             <div class="field"><label for="giftLandmark">Landmark (optional)</label><input id="giftLandmark" name="giftLandmark" type="text" autocomplete="off" maxlength="80" placeholder="Near the Krishna temple" form="giveForm"></div>
-            <div class="field"><label for="giftPin">PIN code</label><input id="giftPin" name="giftPin" type="text" inputmode="numeric" maxlength="6" autocomplete="off" required form="giveForm"><span class="error">Enter the 6-digit PIN code.</span></div>
             <div class="field"><label for="giftEmail">Their email (optional)</label><input id="giftEmail" name="giftEmail" type="email" autocomplete="off" form="giveForm"><span class="error">Check this email address.</span><span class="hint">For a digital copy of the certificate as well as the one by post.</span></div>
             <button class="btn btn--full" type="button" id="nextGift">Continue</button>
           </fieldset>
@@ -836,8 +836,8 @@ if (root.document && root.document.head) apply(read());
                  billing_city and billing_state, so its page arrives filled in
                  (owner, 21 Oct 2026: "so that user doesnt have to fill again") -->
             <div class="field2">
+              <div class="field"><label for="gPin">PIN code</label><input id="gPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span><span class="hint">Typed in full, it fills the town, district and state.</span></div>
               <div class="field"><label for="gCity">City or town</label><input id="gCity" name="city" type="text" autocomplete="address-level2" required><span class="error">Tell us the city or town.</span></div>
-              <div class="field"><label for="gPin">PIN code</label><input id="gPin" name="pincode" type="text" inputmode="numeric" maxlength="6" autocomplete="postal-code" required><span class="error">Enter the 6-digit PIN code.</span></div>
             </div>
             <div class="field"><label for="gState">State</label><select id="gState" name="state" autocomplete="address-level1" required><option value="">Select</option></select><span class="error">Pick your state.</span></div>
             <div class="field"><label for="gCause">Where it should go</label>
@@ -1226,6 +1226,31 @@ if (root.document && root.document.head) apply(read());
       setTimeout(function(){ $('#gName').focus(); }, 300);
     });
     $('#giftSet').addEventListener('input', function(e){ var t = e.target; if (t.closest('.field')) bad(t, false); });
+    /* The gift's PIN names the town (3 Nov 2026: "Autofill city and state
+       from the PIN code on every form"). This address has no town or state
+       boxes of its own, so the town found is said under the PIN, shown in
+       the street box's example, and added to the street line if it was left
+       out, so the certificate's envelope carries it. */
+    var giftPlace = '';
+    $('#giftPin').addEventListener('input', function(){
+      var v = this.value.replace(/\D/g, ''); var say = $('#giftWhere');
+      giftPlace = ''; say.textContent = '';
+      if (!/^[1-9]\d{5}$/.test(v) || typeof fetch !== 'function') return;
+      fetch('/api/location-lookup?pin=' + v, { headers: { Accept: 'application/json' } }).then(function(r){ return r.ok ? r.json() : null; }).then(function(p){
+        if (!p || $('#giftPin').value.replace(/\D/g, '') !== v) return;
+        var town = String(p.city || p.district || '').trim(); var st = String(p.state || '').trim();
+        if (!town || /^n\.?a\.?$/i.test(town)) return;
+        giftPlace = town + (st ? ', ' + st : '');
+        say.textContent = 'PIN ' + v + ' is ' + giftPlace + '.';
+        $('#giftAddress').placeholder = '12th Cross, Kodavoor, ' + town;
+      }).catch(function(){});
+    });
+    $('#nextGift').addEventListener('click', function(){
+      var box = $('#giftAddress'); var town = giftPlace.split(',')[0];
+      if (!giftPlace || !box.value.trim() || box.value.toLowerCase().indexOf(town.toLowerCase()) !== -1) return;
+      var more = box.value.trim().replace(/[\s,]+$/, '') + ', ' + giftPlace;
+      if (more.length <= Number(box.getAttribute('maxlength') || 120)) box.value = more;
+    }, true);
 
     /* the state list every form on the site uses (assets/india-districts.js) */
     (function(){

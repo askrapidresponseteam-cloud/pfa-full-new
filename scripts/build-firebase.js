@@ -78,7 +78,7 @@ const PANEL_ASSETS = [
      the page-weight ceiling */
   'assets/admin-registers.js',
   /* emailing an internship certificate (2 Nov 2026) */
-  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js',
+  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-analytics.js',
   'fonts/cinzel-latin-500.woff2',
   'fonts/cinzel-latin-600.woff2',
   'fonts/dm-sans-latin-400.woff2',
@@ -95,7 +95,7 @@ const PANEL_ASSETS = [
 
 /* ---- the whole site, for --full only ----------------------------------- */
 /* resources/ holds the library's documents, the PDFs PFA supplied. */
-const PUBLIC_DIRS = ['assets', 'fonts', 'img', 'media', '.well-known', 'resources'];
+const PUBLIC_DIRS = ['assets', 'fonts', 'img', 'media', '.well-known', 'resources', 'units'];
 const PUBLIC_FILES = [
   'pfa-search.js', 'pfa-search.css', 'pfa-forms.js',
   'search-index.json', 'search-index.js', 'sitemap.xml', 'robots.txt'
@@ -115,7 +115,7 @@ const FN_DIRS = ['api', 'lib'];
    "Cannot find module '../assets/field-rules.js'" and the panel reported that
    it could not reach /api/admin. checkRequires() below now stops the build if
    anything lib/ or api/ loads is missing from the bundle. */
-const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json'];
+const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json', 'assets/unit-pages.json'];
 
 function rmrf(dir) { fs.rmSync(dir, { recursive: true, force: true }); }
 

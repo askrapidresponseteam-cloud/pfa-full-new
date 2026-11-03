@@ -29,6 +29,10 @@
      "label": "Each group is doing different things."
     },
     {
+     "id": "unit-pages",
+     "label": "A page for every unit"
+    },
+    {
      "id": "setup",
      "label": "Start the next one."
     },
@@ -134,7 +138,7 @@
     },
     {
      "id": "filing-a-complaint",
-     "label": "Name the section."
+     "label": "How to file a cruelty complaint."
     }
    ]
   },
@@ -404,6 +408,10 @@
     {
      "id": "top",
      "label": "Fund work that lasts."
+    },
+    {
+     "id": "projects",
+     "label": "8 projects, fixed prices."
     },
     {
      "id": "start",
@@ -1317,6 +1325,14 @@
    "doneRef": "start"
   },
   "csr": {
+   "project-ambulance": "projects",
+   "project-abc-town": "projects",
+   "project-rabies-drive": "projects",
+   "project-para-vets": "projects",
+   "project-mobile-clinic": "projects",
+   "project-kennel-ward": "projects",
+   "project-diagnostics": "projects",
+   "project-gaushala-upgrade": "projects",
    "done": "start",
    "doneRef": "start"
   },

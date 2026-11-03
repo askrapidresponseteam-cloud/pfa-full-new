@@ -944,6 +944,40 @@
   });
 })();
 
+/* ---------- page counts for the panel's Analytics --------------------------
+   One small post per page opened (owner, 3 Nov 2026: "admin to get analytics
+   of how many visited which page"): the page, whether it is the first of
+   this visit, where the visit came from, the screen's width. No cookie, no
+   identifier: the server adds one to a few counters for the day and keeps
+   nothing about who sent it (lib/analytics.js). A browser that asks not to
+   be tracked sends nothing. A script that fails on the page is counted too,
+   so a broken page shows in the panel. */
+(function () {
+  'use strict';
+  var nav = window.navigator || {};
+  if (nav.doNotTrack === '1' || window.doNotTrack === '1' || nav.globalPrivacyControl === true) return;
+  if (!window.fetch || !/^https?:$/.test(location.protocol)) return;
+  function send(body) {
+    try {
+      fetch('/api/analytics', { method: 'POST', keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).catch(function () {});
+    } catch (_) {}
+  }
+  var first = false;
+  try { first = window.sessionStorage.getItem('pfa_an_s') !== '1'; window.sessionStorage.setItem('pfa_an_s', '1'); } catch (_) { first = false; }
+  var ref = '';
+  try { var r = document.referrer ? new URL(document.referrer) : null; if (r && r.host !== location.host) ref = r.host; } catch (_) {}
+  var q = {};
+  try { var sp = new URLSearchParams(location.search); q.us = sp.get('utm_source') || ''; q.uc = sp.get('utm_campaign') || ''; } catch (_) {}
+  send({ p: location.pathname, n: first ? 1 : 0, r: ref, us: q.us, uc: q.uc, w: window.innerWidth || 0 });
+  var errors = 0;
+  window.addEventListener('error', function (e) {
+    if (errors >= 3 || !e || !e.message || /^Script error\.?$|ResizeObserver loop/i.test(e.message)) return;
+    if (e.filename && e.filename.indexOf(location.origin) !== 0) return;
+    errors += 1;
+    send({ p: location.pathname, e: String(e.message).slice(0, 160) });
+  });
+})();
+
 /* Rows that scroll sideways: filters, tabs, shelf chips.
    ------------------------------------------------------------------------
    On a phone these rows are wider than the screen and scroll sideways with

@@ -833,6 +833,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
+      <button class="tab" type="button" data-tab="analytics">Analytics</button>
       <button class="tab" type="button" data-tab="people" data-super>Admins &amp; audit</button>
     </div>
 
@@ -901,6 +902,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     </div>
 
     <div class="pane" data-pane="employees" role="region" aria-label="Job applicants"></div>
+    <div class="pane" data-pane="analytics" role="region" aria-label="Analytics"></div>
     <div class="pane" data-pane="volunteers">
       <div class="wrap"><table><thead><tr>
         <th>Reference</th><th>Name</th><th>Contact</th><th>Status</th><th>Arrived</th>
@@ -908,7 +910,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <div class="more"><button class="ghost" type="button" id="volMore" hidden>Load more</button></div>
     </div>
 
-    
+
 
     <!-- The registers (owner, 2 Nov 2026, with the office's CACT 2026 and
          membership sheets: "make the admin center for catc and membership look
@@ -1447,6 +1449,7 @@ window.addEventListener('unhandledrejection', function (event) {
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
+    analytics:   { title: 'Analytics',     module: 'analytics',   needs: 'analytics' },
     people:      { title: 'Admins & audit', module: 'people',     needs: 'people', panes: ['people', 'audit'] },
     audit:       { title: 'Audit log',     module: 'people',      needs: 'people' },
     oldmembers:  { title: 'Old site members', module: 'oldmembers', needs: 'oldmembers' }
@@ -1539,6 +1542,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'interns' || tab === 'shelters') return window.PFAInternship && window.PFAInternship.pane(tab);
     if (tab === 'employees') return window.PFAPeople && window.PFAPeople.pane();
     if (tab === 'website') return website();
+    if (tab === 'analytics') return window.PFAAnalytics && window.PFAAnalytics.pane();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
     if (tab === 'oldmembers') return oldMembers();
@@ -6346,6 +6350,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-internship.js"></script>
 <script src="assets/admin-payreport.js"></script>
 <script src="assets/admin-people.js"></script>
+<script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by

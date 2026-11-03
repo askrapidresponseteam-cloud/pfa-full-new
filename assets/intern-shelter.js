@@ -29,10 +29,10 @@
       + field('phone', 'Their phone number', { type: 'tel', inputmode: 'tel', max: 16, hint: 'A mobile, or a landline with its STD code.', raw: true })
       + field('house', 'Building, plot or gate', { max: 120 })
       + field('street', 'Street and area', { max: 160 })
+      + field('pin', 'PIN code', { inputmode: 'numeric', max: 6, hint: 'Typed in full, it fills the town, district and state.' })
       + field('city', 'Town or village', { max: 80 })
       + field('state', 'State', { select: states })
       + field('district', 'District', { select: '<option value="">Choose the state first</option>' })
-      + field('pin', 'PIN code', { inputmode: 'numeric', max: 6 })
       + '<details class="fold sh-more"><summary>More about the place (optional)</summary>'
       + field('landmark', 'A landmark near it', { optional: true, max: 120 })
       + field('altPhone', 'Another phone number', { optional: true, type: 'tel', inputmode: 'tel', max: 16, raw: true })
@@ -83,6 +83,11 @@
     if (slot.innerHTML) { slot.innerHTML = ''; return; }
     slot.innerHTML = form(b.textContent.indexOf('another') !== -1 || b.textContent.indexOf('Change') !== -1);
     var f = slot.querySelector('form');
+    /* the PIN fills the town, district and state, as on every other form (3 Nov 2026) */
+    if (root.PFAAddress && f) {
+      var at = function (n) { return f.querySelector('[name="' + n + '"]'); };
+      root.PFAAddress.enhance(f, { pincode: at('pin'), state: at('state'), district: at('district'), city: at('city'), address: at('street') });
+    }
     try { f.querySelector('input').focus(); } catch (_) {}
   });
   document.addEventListener('input', function (e) {

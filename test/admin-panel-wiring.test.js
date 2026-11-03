@@ -132,8 +132,9 @@ test('every section in the rail is one the module list knows', () => {
      [caregivers], interns, employees etc..not like membership cards etc."):
      Members, Caregivers, Volunteers, Internship and Job applicants (not
      employees: "they are people who applied") after Submissions,
-     then the money, the shop, the website and the admins. */
-  assert.deepEqual(tabs, ['overview', 'submissions', 'membership', 'caregivers', 'volunteers', 'internship', 'employees', 'payments', 'shop', 'website', 'people', 'oldmembers'],
+     then the money, the shop, the website and the admins. Analytics (3 Nov
+     2026: "how many visited which page") after the website. */
+  assert.deepEqual(tabs, ['overview', 'submissions', 'membership', 'caregivers', 'volunteers', 'internship', 'employees', 'payments', 'shop', 'website', 'analytics', 'people', 'oldmembers'],
     'the rail is by people, then the rest, then the one kept apart');
   for (const [tab, label] of [['membership', 'Members'], ['caregivers', 'Caregivers'], ['internship', 'Internship'], ['employees', 'Job applicants'], ['people', 'Admins &amp; audit']]) {
     assert.match(panel, new RegExp(`data-tab="${tab}"[^>]*>${label}`), label);

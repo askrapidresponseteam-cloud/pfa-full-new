@@ -12,6 +12,11 @@
     "build:search": "node scripts/build-search-index.js && node scripts/build-site-modules.js",
     "build:site-modules": "node scripts/build-site-modules.js",
     "check:site-modules": "node scripts/build-site-modules.js --check",
+    "build:units": "node scripts/build-unit-pages.js",
+    "check:units": "node scripts/build-unit-pages.js --check",
+    "build:csr": "node scripts/build-csr-projects.js",
+    "check:csr": "node scripts/build-csr-projects.js --check",
+    "build:gbp": "node scripts/build-gbp-sheet.js",
     "build:seo": "node scripts/build-seo.js",
     "check:seo": "node scripts/build-seo.js --check",
     "build:events": "node scripts/build-events.js",
@@ -54,8 +59,8 @@
   "dependencies": {
     "firebase-admin": "^13.4.0",
     "imapflow": "^1.7.8",
-    "mailparser": "^3.9.36",
-    "nodemailer": "^7.0.13",
+    "mailparser": "^3.14.1",
+    "nodemailer": "^10.3.1",
     "pdfkit": "^0.17.2"
   },
   "devDependencies": {

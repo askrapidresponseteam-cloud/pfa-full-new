@@ -187,6 +187,9 @@ function labelOf(f, inner, menuLabels) {
 
 function titleOf(file, html) {
   if (file === 'index.html') return 'Home';
+  /* a page whose title is written for search results names itself here */
+  const own = /<meta name="pfa-name" content="([^"]+)">/i.exec(html);
+  if (own) return text(own[1]);
   const t = /<title>([\s\S]*?)<\/title>/i.exec(html);
   return text(t ? t[1] : file).replace(/\s*[|·]\s*People for Animals\s*$/i, '') || file;
 }

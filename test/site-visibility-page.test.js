@@ -195,7 +195,7 @@ test('in a page: a hidden page shows a polite notice with the way home, noindex 
   dom.window.PFA_VISIBILITY.apply({ version: 2, pages: [], modules: [] });
   assert.equal(d.getElementById('pfa-gone'), null);
   assert.equal(d.getElementById('pfa-vis-robots'), null);
-  assert.equal(d.title, 'Units | People for Animals');
+  assert.equal(d.title, 'Animal rescue near you: PFA units across India | People for Animals');
   assert.equal(d.getElementById('pfa-vis-css').textContent, '');
 });
 
