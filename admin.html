@@ -980,6 +980,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         <input type="search" id="payQ" placeholder="Name, email, mobile or order" aria-label="Find a payment by name, email, mobile, order or bank reference">
         <button class="ghost" type="button" id="payGo">Apply</button>
         <button class="ghost" type="button" id="payCsv">Download the list</button>
+        <button class="ghost" type="button" id="payMail">Email this report</button>
       </div>
       <!-- the period's total, by purpose, held in view while the list scrolls (3 Nov 2026) -->
       <div class="paysum" id="paySum" aria-live="polite"></div>
@@ -6355,6 +6356,7 @@ window.addEventListener('unhandledrejection', function (event) {
 </script>
 <script src="assets/admin-registers.js"></script>
 <script src="assets/admin-internship.js"></script>
+<script src="assets/admin-payreport.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by

@@ -1,3 +1,13 @@
+## v1.517
+
+- **Payments & donations: Email this report.** Owner, 3 Nov 2026: "have 1 option to send report from here to selected people with segregation. it should go as report, for the selected duration".
+  - One button beside Download the list. It opens a short box: the period and purpose chosen above the list, and who it goes to, ticked. Send the report makes it and emails it at once, and says to whom it went.
+  - The report is the monthly report's, for the period chosen (a month, two dates, or all time; a period still running ends today and says so): successful payments only, grouped by purpose (Donations, Patrons and membership, Shop orders, Colony caregiver cards, Other) with each subtotal and the grand total, every payment listed, and the full list attached as a CSV.
+  - Who it may go to is only where money already goes: either payments inbox on its own, or the forms inbox, which always has both payments inboxes copied (as the monthly report). Any other address is refused by the server and again at the moment of sending. Each send is kept with its CSV and is in the audit log.
+- **Achievements: a new hero.** Owner: "lets try this look and feel for achievements".
+  - "Change their world" set large, over a slow ring of twelve cards drawn from the record below; each lap a card turns to the next entry. Hovering or tabbing to a card stops the ring, and a card opens its entry in the list. Pause motion stops it; with reduced motion set, it starts still.
+  - The record below is unchanged. The old drum of cards, which was never shown, is gone.
+
 ## v1.516
 
 - **Payments & donations: the period's total, always in view.** Owner, 3 Nov 2026: "this view also should include the summary, total for the selected duration at all times".

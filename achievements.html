@@ -350,8 +350,11 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 ::selection{background:var(--pop,#ff3b18);color:#fff}
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
+  .gcard footer,
+  .grail-bottom{font-size:10px}
   .search{height:44px}
   .search input{height:100%}
+  .check input{width:20px;height:20px;margin-top:1px;flex:none}
   .arcc__cap{font-size:max(10px,calc(var(--cw) * .034))}
 }
 /* ---- end phone pass ---- */
@@ -376,6 +379,48 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .arcc__art:has(.arcc__photo){flex:1 1 auto;min-height:42%}
 @media(max-width:640px){.rec{flex-direction:column;gap:18px}.rec__media{width:100%;flex:none}.rec__b{width:100%}}
 </style>
+<style>
+/* The hero as a ring of cards (owner, 3 Nov 2026: "lets try this look and
+   feel for achievements"). White, as the rest of the site. */
+@font-face{font-family:AchievementSerif;src:url('fonts/eb-garamond-latin-500.woff2') format('woff2');font-display:swap}
+html{scroll-behavior:smooth}
+.grail-hero{position:relative;overflow:hidden;isolation:isolate;background:#fff;color:#111;font-family:var(--body);padding-top:calc(var(--ann,34px) + var(--nav,81px) + 28px);height:calc(var(--ann,34px) + var(--nav,81px) + 210px + clamp(235px,24.6vw,440px) + 170px)}
+.grail-intro{margin:0 20px 24px;text-align:center;color:#6a6a6a;font-size:13px;line-height:1.5}
+.grail-title{position:relative;z-index:3;pointer-events:none;font-family:AchievementSerif,'Times New Roman',serif;font-size:8.55vw;font-weight:400;letter-spacing:-.055em;line-height:1;margin:0 2.4vw;white-space:nowrap;text-transform:uppercase;color:#111;animation:titleIn 1.5s cubic-bezier(.2,.7,.2,1) both}
+.grail-stage{position:absolute;left:0;right:0;top:calc(var(--ann,34px) + var(--nav,81px) + 210px);height:calc(clamp(235px,24.6vw,440px) + 90px);perspective:1400px;transform-style:preserve-3d;touch-action:pan-y;pointer-events:none}
+.orbit{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
+.gcard{position:absolute;width:clamp(145px,15.8vw,280px);height:clamp(235px,24.6vw,440px);border-radius:12px;border:1px solid #dedbd6;overflow:hidden;backface-visibility:hidden;transform-style:preserve-3d;cursor:pointer;text-align:left;color:#151515;background:#fff;padding:18px;display:flex;flex-direction:column;box-shadow:0 6px 28px #0002;transition:box-shadow .25s;pointer-events:auto}
+.gcard:hover,.gcard:focus-visible{box-shadow:0 0 0 3px #c7a8ce,0 12px 35px #0002;outline:none}
+.gcard .seal{font-size:30px;color:var(--tone);line-height:1;margin-bottom:7px}
+.gcard small{font-size:10px;color:#797973}
+.gcard h2{font-size:clamp(17px,1.65vw,29px);line-height:1.03;letter-spacing:-.045em;margin:8px 0 14px;font-family:Arial,sans-serif;font-weight:700;text-transform:none}
+.gcard p{font-size:clamp(9px,.78vw,13px);line-height:1.3;margin:0;color:#62625e;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.gcard footer{margin-top:auto;border-top:1px solid #dddcd7;padding-top:10px;font-size:9px;color:#73736c;display:flex;justify-content:space-between}
+.card-reverse{pointer-events:none;backface-visibility:hidden;position:absolute;width:clamp(145px,15.8vw,280px);height:clamp(235px,24.6vw,440px);border-radius:12px;transform:translate(-50%,-50%) rotateY(180deg);background-color:var(--tone);background-image:radial-gradient(circle at 50% 100%,#504832 0 47%,transparent 49%);background-size:50% 14%}
+.card-reverse.tree{background-image:none;display:grid;place-items:center;color:#51472f;font:200px Georgia}
+.card-reverse.tree:after{content:'\2663'}
+.card-reverse.check{background-image:conic-gradient(#342d21 25%,transparent 0 50%,#342d21 0 75%,transparent 0);background-size:38% 26%}
+.grail-bottom{position:absolute;bottom:22px;left:2.4vw;right:2.4vw;display:flex;justify-content:space-between;gap:15px;align-items:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#666;z-index:5}
+.grail-bottom button{background:none;border:1px solid #ccc;border-radius:30px;color:#111;font-size:11px;letter-spacing:.06em;text-transform:none;padding:10px 16px;cursor:pointer}
+.grail-bottom a{color:#111;text-transform:none;letter-spacing:.04em}
+#records{scroll-margin-top:20px;padding-top:100px}
+.rec:target{background:#f5f0f6}
+@keyframes titleIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@media(max-width:700px){
+  .grail-hero{height:calc(var(--ann,34px) + var(--nav,81px) + 210px + 285px + 190px)}
+  .grail-intro{font-size:12px;max-width:290px;margin:0 auto 25px}
+  .grail-title{font-size:14.5vw;line-height:.9;white-space:normal;text-align:center;margin:0 14px}
+  .grail-stage{height:375px}
+  .gcard,.card-reverse{width:180px;height:285px}
+  .gcard{padding:14px}.gcard h2{font-size:21px}.gcard p{font-size:10px}
+  .grail-bottom{flex-wrap:wrap;left:20px;right:20px;letter-spacing:.02em;font-size:9px}
+  .grail-bottom>span{width:100%;text-align:center}
+  .grail-bottom button{padding:8px 12px}
+  #records{padding-top:60px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.grail-title{animation:none}.orbit{will-change:auto}}
+</style>
+
 <link rel="stylesheet" href="assets/pfa-theme.css">
   <!-- seo:start  generated by scripts/build-seo.js - do not edit by hand -->
   <link rel="canonical" href="https://peopleforanimalsindia.org/achievements">
@@ -628,29 +673,15 @@ if (root.document && root.document.head) apply(read());
 <script src="assets/chrome.js?v=e758b6cbbb"></script>
 
 <main>
-  <section class="hero" id="top">
-    <div class="hero__in">
-      <p class="eyebrow pfa-kicker">Our work</p>
-      <h1 class="pfa-title display">Policies and&nbsp;achievements.</h1>
-    </div>
-  </section>
-
-  <!-- The record as an arc of cards: every entry below, on a drum you turn.
-       Hidden until the script builds it out of the list, so without
-       JavaScript there is no empty band and the list stays the page. -->
-  <section class="arc" data-screen-label="The arc" id="arc" hidden>
-    <div class="arc__head">
-      <p class="arc__eye">Thirty years &middot; eight fronts</p>
-      <h2 class="display arc__title">What changed.</h2>
-    </div>
-    <div class="arc__stage" id="arcStage" tabindex="0" role="region" aria-roledescription="carousel" aria-label="The record, card by card. Use the arrow keys to turn, Enter to open a card.">
-      <div class="arc__drum" id="arcDrum"></div>
-      <button class="arc__nav arc__nav--prev" type="button" id="arcPrev" aria-label="Previous card"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <button class="arc__nav arc__nav--next" type="button" id="arcNext" aria-label="Next card"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
-      <p class="arc__live" id="arcLive" aria-live="polite"></p>
-    </div>
-    <nav class="arc__tabs" id="arcTabs" aria-label="The record by front"></nav>
-    <p class="arc__hint">Drag or swipe to turn &middot; choose a card to open it</p>
+  <!-- The hero (owner, 3 Nov 2026: "lets try this look and feel for
+       achievements"): the record's own entries as cards on one slow ring.
+       Built by the script at the foot of the page out of the list below, so
+       without JavaScript the list is the page. -->
+  <section class="grail-hero" id="top" aria-label="PFA achievements">
+    <p class="grail-intro">Three decades of action for animals. Every card is a change worth fighting for.</p>
+    <h1 class="grail-title">Change their world</h1>
+    <div class="grail-stage" id="grailStage" aria-label="Achievements, card by card"></div>
+    <div class="grail-bottom"><span>Policies &amp; achievements &middot; since 1994</span><button id="motionToggle" type="button" aria-pressed="false">Pause motion</button><a href="#records">Scroll to the record &darr;</a></div>
   </section>
 
   <section class="band rband" id="records">
@@ -952,744 +983,24 @@ if (root.document && root.document.head) apply(read());
 </script>
 
 <script>
-/* The arc. The record's entries as tall cards on a shallow drum: the card in
-   the middle faces you, the rest turn away round the drum and soften with
-   distance, and you turn it by dragging, swiping, a sideways scroll, the
-   arrow keys or the buttons at its sides, and between turns it drifts. Tabs underneath show one front at
-   a time. The cards are read out of the list below; this script owns no
-   copy of the record.
-
-   Each card's art is a field of digits on a canvas, after the numeral
-   portraits on jjettas.com/on-field. An entry with a figure in its title
-   (data-fig) or a year (data-year) has its title spelled out in the art,
-   built out of that number's digits, since the number itself is printed
-   large beneath; any other entry has its own pattern, one of six, the same six the
-   cards have always had, laid on a soft central mass so it reads as a
-   subject rather than wallpaper. The card in the middle stays faintly alive:
-   a few of its digits turn over while it is looked at. */
-(function(){
-  'use strict';
-  var sec = document.getElementById('arc');
-  var recs = document.getElementById('recs');
-  if (!sec || !recs || !window.requestAnimationFrame) return;
-  var rows = [].slice.call(recs.querySelectorAll('.rec'));
-  if (rows.length < 3) return;
-
-  var stage = document.getElementById('arcStage');
-  var drum = document.getElementById('arcDrum');
-  var tabs = document.getElementById('arcTabs');
-  var live = document.getElementById('arcLive');
-  var prevB = document.getElementById('arcPrev');
-  var nextB = document.getElementById('arcNext');
-  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* One colour per front, editorial rather than candy, so the cards read as
-     a legend: cobalt is the courts, vermilion the farms. */
-  var PALETTE = ['#2b50e0', '#e2572b', '#0e9a80', '#7040dd', '#eaa628', '#d84f86', '#2e9fd8', '#5d8f3c'];
-  var FRONTCOLOR = {
-    'Courts & law': '#2b50e0',
-    'Farmed animals': '#e2572b',
-    'Policy & systems': '#0e9a80',
-    'Wildlife & shows': '#7040dd',
-    'Community dogs': '#eaa628',
-    'Testing & labs': '#d84f86',
-    'Teaching': '#2e9fd8',
-    'Working animals': '#5d8f3c'
-  };
-  var spare = 0;
-  function tone(front){
-    if (!FRONTCOLOR[front]) { FRONTCOLOR[front] = PALETTE[spare % PALETTE.length]; spare += 1; }
-    return FRONTCOLOR[front];
-  }
-  function el(tag, cls, text){
-    var e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (text != null) e.textContent = text;
-    return e;
-  }
-
-  var data = rows.map(function(rec, i){
-    var fig = rec.getAttribute('data-fig') || '';
-    var year = rec.getAttribute('data-year') || '';
-    return {
-      i: i,
-      id: rec.id,
-      photo: rec.querySelector('.rec__image') ? rec.querySelector('.rec__image').getAttribute('src') : '',
-      photoAlt: rec.querySelector('.rec__image') ? rec.querySelector('.rec__image').getAttribute('alt') : '',
-      no: parseInt(rec.querySelector('.rec__n').textContent, 10) || i + 1,
-      title: rec.querySelector('.rec__t').textContent,
-      body: rec.querySelector('.rec__p').textContent,
-      front: rec.getAttribute('data-theme') || '',
-      year: year,
-      big: fig || year,
-      label: fig ? (rec.getAttribute('data-figl') || '') : ''
-    };
-  });
-
-  /* ---- the art: a field of digits ---------------------------------------- */
-  var MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace';
-  var RAMP = '1742359608';      // the digits from lightest to heaviest on the page
-  function hash(s){
-    var h = 2166136261;
-    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
-    return h >>> 0;
-  }
-  function rng(seed){
-    var s = seed || 1;
-    return function(){ s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) % 1000003) / 1000003; };
-  }
-
-  /* The entry's title, set in capitals in the display face at the largest
-     size whose word-wrapped lines fit the box. Words joined by a no-break
-     space stay together. Returns the size and the lines. */
-  var fitter = null;
-  function fitTitle(text, bw, bh){
-    if (!fitter) fitter = document.createElement('canvas').getContext('2d');
-    var words = text.toUpperCase().split(/ +/).filter(Boolean);
-    fitter.font = '400 100px Marcellus, Georgia, serif';
-    var ww = words.map(function(w){ return fitter.measureText(w).width / 100; });
-    var sp = fitter.measureText(' ').width / 100;
-    var LH = 1.04;
-    function wrap(size){
-      var lines = [], cur = '', curW = 0;
-      for (var i = 0; i < words.length; i++) {
-        var w = ww[i] * size;
-        if (w > bw) return null;
-        if (cur && curW + sp * size + w > bw) { lines.push(cur); cur = words[i]; curW = w; }
-        else { cur = cur ? cur + ' ' + words[i] : words[i]; curW = cur === words[i] ? w : curW + sp * size + w; }
-      }
-      if (cur) lines.push(cur);
-      return lines.length * size * LH <= bh ? lines : null;
-    }
-    var lo = 6, hi = bh, best = wrap(lo) || [text.toUpperCase()];
-    for (var it = 0; it < 18; it++) {
-      var mid = (lo + hi) / 2, got = wrap(mid);
-      if (got) { lo = mid; best = got; } else hi = mid;
-    }
-    return { size: lo, lines: best, lh: LH };
-  }
-
-  /* How much of each cell the title covers, drawn as fitTitle set it and
-     thickened a little, so its strokes survive being made of digits. */
-  function titleMask(fit, W, H, cy, cols, rowsN, cw, ch){
-    var c = document.createElement('canvas');
-    c.width = Math.ceil(W); c.height = Math.ceil(H);
-    var x = c.getContext('2d');
-    x.font = '400 ' + fit.size + 'px Marcellus, Georgia, serif';
-    x.textAlign = 'center';
-    x.textBaseline = 'middle';
-    x.fillStyle = '#000';
-    x.strokeStyle = '#000';
-    x.lineWidth = Math.max(1.2, fit.size * 0.08);
-    x.lineJoin = 'round';
-    var lead = fit.size * fit.lh;
-    var top = cy - (fit.lines.length - 1) * lead / 2;
-    fit.lines.forEach(function(line, i){
-      x.fillText(line, W / 2, top + i * lead);
-      x.strokeText(line, W / 2, top + i * lead);
-    });
-    var px = x.getImageData(0, 0, c.width, c.height).data;
-    var out = new Float32Array(cols * rowsN);
-    for (var r = 0; r < rowsN; r++) {
-      for (var q = 0; q < cols; q++) {
-        var x0 = Math.floor(q * cw), x1 = Math.min(c.width, Math.floor((q + 1) * cw));
-        var y0 = Math.floor(r * ch), y1 = Math.min(c.height, Math.floor((r + 1) * ch));
-        var sum = 0, n = 0;
-        for (var yy = y0; yy < y1; yy += 1) for (var xx = x0; xx < x1; xx += 1) { sum += px[(yy * c.width + xx) * 4 + 3]; n += 1; }
-        out[r * cols + q] = n ? sum / n / 255 : 0;
-      }
-    }
-    return out;
-  }
-
-  function grid(d, W, H){
-    /* A card with a year or a figure has its title drawn in the art (the
-       number is already printed large beneath it); its grid is made fine and
-       close enough that a capital stands about ten digits tall, solid enough
-       to read. */
-    var fit = d.big ? fitTitle(d.title, W * 0.88, H * 0.66) : null;
-    var cell = fit ? Math.max(1.6, Math.min(5.1, fit.size * 0.7 / 13)) : 5.1;
-    var cols = Math.max(40, Math.round(W / cell));
-    var cw = W / cols, ch = cw * (fit ? 1.18 : 1.5);
-    var rowsN = Math.ceil(H / ch);
-    var n = cols * rowsN;
-    var v = new Float32Array(n), k = new Uint8Array(n), chars = new Array(n);
-    var r = rng(hash(d.id || String(d.no)));
-    var kind = d.no % 6, f = 1.5 + r() * 1.3, ph = r() * 6.283;
-    var Hn = H / W, fx = 0.28 + r() * 0.44, fy = Hn * (0.28 + r() * 0.36);
-    var mask = fit ? titleMask(fit, W, H, H * 0.39, cols, rowsN, cw, ch) : null;
-    var digits = (d.big || '').replace(/\D/g, '') || '0';
-    var TAU = 6.2832;
-    for (var y = 0; y < rowsN; y++) {
-      for (var x = 0; x < cols; x++) {
-        var i = y * cols + x;
-        var X = (x + 0.5) / cols, Y = (y + 0.5) * ch / W;
-        var m;
-        if (kind === 0) m = 0.5 + 0.5 * Math.sin((X * 0.8 + Y) * f * TAU * 0.5 + ph);
-        else if (kind === 1) m = Math.pow(Math.max(0, 0.5 + 0.5 * Math.cos(X * f * TAU * 0.7) * Math.cos(Y * f * TAU * 0.7)), 1.6);
-        else if (kind === 2) m = Math.max(Math.pow(Math.abs(Math.cos(X * f * Math.PI)), 7), Math.pow(Math.abs(Math.cos(Y * f * Math.PI)), 7));
-        else if (kind === 3) m = 0.5 + 0.5 * Math.tanh(4 * Math.sin(X * f * Math.PI) * Math.sin(Y * f * Math.PI));
-        else if (kind === 4) m = 0.5 + 0.5 * Math.cos(Math.sqrt((X - fx) * (X - fx) + (Y - fy) * (Y - fy)) * f * TAU * 1.1 + ph);
-        else m = 0.5 + 0.5 * Math.sin(X * f * TAU * 0.9 + 1.8 * Math.sin(Y * f * TAU * 0.35 + ph));
-        var dx = (X - 0.5) / 0.56, dy = (Y - Hn * 0.44) / (Hn * 0.52);
-        var mass = Math.exp(-(dx * dx + dy * dy) * 1.15);
-        var val = m * (0.16 + 0.84 * mass) + (r() - 0.5) * 0.1;
-        var g = mask ? mask[i] : 0;
-        if (mask) val = g > 0.3 ? 0.62 + 0.38 * Math.min(1, g * 1.3) : val * 0.2;
-        val = Math.max(0, Math.min(1, val));
-        v[i] = val;
-        if (mask && g > 0.3) { k[i] = 10; chars[i] = digits.charAt((x + y * 2) % digits.length); }
-        else { k[i] = Math.min(9, Math.round(val * 9)); chars[i] = RAMP.charAt(k[i]); }
-      }
-    }
-    return { cols: cols, rows: rowsN, cw: cw, ch: ch, n: n, v: v, k: k, c: chars, font: (cw * 1.24).toFixed(2) + 'px ' + MONO,
-      bold: '700 ' + (cw * (mask ? 1.66 : 1.24)).toFixed(2) + 'px ' + MONO, fit: fit, cy: H * 0.39 };
-  }
-
-  /* chaos: the share of cells drawn at random (the turn-over as a card
-     arrives); jitter: the share whose digit moves one step lighter or
-     heavier (the card in the middle, breathing). */
-  function paint(card, chaos, jitter){
-    if (card.d.photo) { card.painted = true; return true; }
-    var cv = card.canvas;
-    var W = cv.clientWidth, H = cv.clientHeight;
-    if (!W || !H) return false;
-    var dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (card.W !== W || card.H !== H || card.dpr !== dpr) {
-      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-      card.W = W; card.H = H; card.dpr = dpr; card.g = null;
-    }
-    if (!card.g) card.g = grid(card.d, W, H);
-    var g = card.g, ctx = cv.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    /* a title is first laid down as a faint solid print, so its letters read
-       as letters at any size; the digits are its texture */
-    if (g.fit) {
-      ctx.font = '400 ' + g.fit.size + 'px Marcellus, Georgia, serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(17,17,17,.26)';
-      ctx.strokeStyle = 'rgba(17,17,17,.26)';
-      ctx.lineWidth = Math.max(1, g.fit.size * 0.05);
-      ctx.lineJoin = 'round';
-      var lead = g.fit.size * g.fit.lh, top = g.cy - (g.fit.lines.length - 1) * lead / 2;
-      for (var L = 0; L < g.fit.lines.length; L++) {
-        ctx.fillText(g.fit.lines[L], W / 2, top + L * lead);
-        ctx.strokeText(g.fit.lines[L], W / 2, top + L * lead);
-      }
-    }
-    ctx.font = g.font;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    /* eight greys for the ground, and a ninth, near-black, for a number */
-    var buckets = [[], [], [], [], [], [], [], [], []];
-    for (var i = 0; i < g.n; i++) {
-      var v = g.v[i], c = g.c[i], strong = g.k[i] === 10;
-      if (chaos && Math.random() < chaos) { v = Math.random() * 0.85; c = RAMP.charAt((Math.random() * 10) | 0); strong = false; }
-      else if (jitter && v > 0.12 && Math.random() < jitter) c = strong ? RAMP.charAt(7 + ((Math.random() * 3) | 0)) : RAMP.charAt(Math.max(0, Math.min(9, g.k[i] + ((Math.random() * 3) | 0) - 1)));
-      if (v < 0.1) continue;
-      buckets[strong ? 8 : Math.min(7, (v * 8) | 0)].push(i, c);
-    }
-    for (var b = 0; b < 9; b++) {
-      var list = buckets[b];
-      if (!list.length) continue;
-      if (b === 8) ctx.font = g.bold;
-      ctx.fillStyle = b === 8 ? (g.fit ? 'rgba(17,17,17,.78)' : 'rgba(17,17,17,.9)') : 'rgba(17,17,17,' + (0.1 + b * 0.09).toFixed(3) + ')';
-      for (var j = 0; j < list.length; j += 2) {
-        var idx = list[j];
-        ctx.fillText(list[j + 1], (idx % g.cols + 0.5) * g.cw, (((idx / g.cols) | 0) + 0.5) * g.ch);
-      }
-    }
-    card.painted = true;
-    return true;
-  }
-
-  function turnOver(card){
-    if (still) { paint(card, 0, 0); return; }
-    var t0 = null;
-    if (card.anim) window.cancelAnimationFrame(card.anim);
-    function step(ts){
-      if (t0 === null) t0 = ts;
-      var k = Math.min(1, (ts - t0) / 420);
-      paint(card, 0.55 * (1 - k) * (1 - k), 0);
-      card.anim = k < 1 ? window.requestAnimationFrame(step) : 0;
-    }
-    card.anim = window.requestAnimationFrame(step);
-  }
-
-  /* ---- the cards ----------------------------------------------------------- */
-  function buildCard(d){
-    var b = el('button', d.big ? 'arcc arcc--said' : 'arcc');
-    b.type = 'button';
-    b.tabIndex = -1;
-    b.style.setProperty('--a', tone(d.front));
-    b.setAttribute('aria-label', d.title + '. ' + d.front + (d.year ? ', ' + d.year : ''));
-    var art = el('span', 'arcc__art');
-    var cv = document.createElement('canvas');
-    cv.setAttribute('aria-hidden', 'true');
-    art.appendChild(cv);
-    if (d.photo) {
-      var photo = el('img', 'arcc__photo');
-      photo.src = d.photo; photo.alt = d.photoAlt; photo.decoding = 'async'; photo.loading = 'lazy';
-      art.appendChild(photo);
-    }
-    var bd = el('span', 'arcc__bd');
-    if (d.big) {
-      bd.appendChild(el('span', 'arcc__fig', d.big));
-      bd.appendChild(el('span', 'arcc__lab', d.label || d.front));
-      bd.appendChild(el('span', 'arcc__cap', d.title));
-    } else {
-      bd.appendChild(el('span', 'arcc__t', d.title));
-      bd.appendChild(el('span', 'arcc__cap arcc__cap--front', d.front));
-    }
-    b.appendChild(art);
-    b.appendChild(bd);
-    return { el: b, canvas: cv, d: d };
-  }
-
-  var cards = data.map(function(d){
-    var c = buildCard(d);
-    drum.appendChild(c.el);
-    return c;
-  });
-
-  /* ---- the drum ------------------------------------------------------------ */
-  /* The drum never quite stops: on its own it drifts slowly to the left, and
-     a long enough list goes round and round, the first card following the
-     last. A list too short to go round drifts to its end, rests, and drifts
-     back. The drift eases to a stop while a pointer is over the cards, while
-     the drum has keyboard focus, while a card is open or the arc is off
-     screen, and picks up again a few seconds after the last turn by hand.
-     Reduced motion keeps the drum still. */
-  var probe = el('div');
-  probe.style.cssText = 'position:absolute;visibility:hidden;width:var(--cw);height:0;pointer-events:none';
-  stage.appendChild(probe);
-  var list = cards.slice();
-  var pos = 0, target = null, fade = 1, fadeTo = 1, swapTo = null;
-  var step = 360, R = 1600, ang = 0.2, reach = 4, round = false;
-  var raf = 0, last = 0, drag = null, mid = null, overlayOpen = false;
-  var DRIFT = 0.14;                   // cards a second
-  var vel = 0, dir = 1, restUntil = 0, idleUntil = 0, hover = false, focused = false, onScreen = false;
-  var IDLE = 3200;                    // ms after a turn by hand before the drift resumes
-
-  function measure(){
-    var cw = probe.offsetWidth || 300;
-    step = cw * 1.1;
-    R = Math.max(step * 3.1, stage.clientWidth * 1.15);
-    ang = 2 * Math.asin(Math.min(1, step / (2 * R)));
-    reach = Math.ceil(stage.clientWidth / 2 / step) + 1.6;
-    round = list.length > 2 * reach + 1;
-  }
-  /* a card's place relative to the middle, the short way round */
-  function wrapOff(off){
-    if (!round) return off;
-    var N = list.length;
-    off = ((off % N) + N) % N;
-    return off > N / 2 ? off - N : off;
-  }
-  function nearest(){
-    var N = list.length;
-    var i = Math.round(pos);
-    return round ? ((i % N) + N) % N : Math.max(0, Math.min(N - 1, i));
-  }
-  function clampPos(p, give){
-    return round ? p : Math.max(-give, Math.min(list.length - 1 + give, p));
-  }
-
-  function layout(){
-    var DEG = 180 / Math.PI;
-    for (var n = 0; n < cards.length; n++) cards[n].idx = -1;
-    list.forEach(function(c, i){ c.idx = i; });
-    cards.forEach(function(c){
-      var off = c.idx < 0 ? 99 : wrapOff(c.idx - pos);
-      var a = Math.abs(off);
-      if (a > reach) {
-        if (c.on) { c.el.classList.remove('is-on'); c.on = false; }
-        return;
-      }
-      if (!c.on) { c.el.classList.add('is-on'); c.on = true; }
-      c.el.style.transform = 'translateZ(' + (-R).toFixed(1) + 'px) rotateY(' + (off * ang * DEG).toFixed(3) + 'deg) translateZ(' + R.toFixed(1) + 'px)';
-      var blur = a <= 1.3 ? 0 : Math.min(9, (a - 1.3) * 4.2);
-      c.el.style.filter = blur ? 'blur(' + blur.toFixed(2) + 'px)' : '';
-      var op = a <= 2.2 ? 1 : Math.max(0, 1 - (a - 2.2) / Math.max(0.6, reach - 2.2));
-      c.el.style.opacity = (op * fade).toFixed(3);
-      if (!c.painted) paint(c, 0, 0);
-    });
-    var at = nearest();
-    prevB.disabled = !round && at <= 0;
-    nextB.disabled = !round && at >= list.length - 1;
-  }
-
-  /* The card nearest the middle turns its digits over as it arrives. */
-  function settle(announce){
-    var c = list[nearest()];
-    if (!c) return;
-    if (c !== mid) {
-      if (mid) mid.el.classList.remove('is-mid');
-      mid = c;
-      mid.el.classList.add('is-mid');
-      turnOver(c);
-    }
-    if (announce) live.textContent = c.d.title + '. ' + c.d.front + (c.d.year ? ', ' + c.d.year : '');
-  }
-
-  function canDrift(now){
-    return !still && onScreen && !hover && !focused && !overlayOpen && !document.hidden && !drag &&
-      target === null && fade === fadeTo && now >= idleUntil && now >= restUntil && list.length > 1;
-  }
-
-  function tick(ts){
-    raf = 0;
-    var now = performance.now();
-    var dt = last ? Math.min(64, ts - last) : 16;
-    last = ts;
-    if (!drag && target !== null) {
-      var gap = target - pos;
-      if (still || Math.abs(gap) < 0.001) {
-        pos = target; target = null; vel = 0;
-        idleUntil = now + IDLE;
-        settle(true);
-      } else pos += gap * (1 - Math.pow(0.85, dt / 16.7));
-    } else if (!drag) {
-      var want = canDrift(now) ? dir * DRIFT : 0;
-      if (want && !round) {
-        /* slow into either end, rest there, then drift back */
-        var left = dir > 0 ? list.length - 1 - pos : pos;
-        want = dir * Math.max(0.02, Math.min(DRIFT, Math.sqrt(2 * 0.06 * Math.max(0, left))));
-        if (left <= 0.002) {
-          pos = dir > 0 ? list.length - 1 : 0;
-          dir = -dir; vel = 0; want = 0;
-          restUntil = now + 1800;
-        }
-      }
-      vel += (want - vel) * Math.min(1, dt / 520);
-      if (Math.abs(vel) < 0.0004 && !want) vel = 0;
-      pos = clampPos(pos + vel * dt / 1000, 0);
-    }
-    if (fade !== fadeTo) {
-      fade = still || Math.abs(fadeTo - fade) < 0.02 ? fadeTo : fade + (fadeTo - fade) * 0.28;
-      if (fade === 0 && swapTo) {
-        list = swapTo.list; pos = swapTo.at; target = null; vel = 0; dir = 1; swapTo = null; fadeTo = 1;
-        measure();
-        idleUntil = now + 900;
-        if (mid) mid.el.classList.remove('is-mid');
-        mid = null;
-      }
-    }
-    layout();
-    if (!drag && fade === fadeTo) settle(false);
-    var busyNow = drag || target !== null || fade !== fadeTo || vel !== 0 || canDrift(now) ||
-      (onScreen && !still && (now < idleUntil || now < restUntil));
-    if (busyNow) raf = window.requestAnimationFrame(tick);
-    else last = 0;
-  }
-  function kick(){ if (!raf) { last = 0; raf = window.requestAnimationFrame(tick); } }
-  /* turn to a place on the drum (pos units) */
-  function go(i){
-    target = round ? Math.round(i) : Math.max(0, Math.min(list.length - 1, Math.round(i)));
-    vel = 0;
-    kick();
-  }
-  /* turn to a card by its index in the list, the short way round */
-  function goIdx(i){ go(round ? pos + wrapOff(i - pos) : i); }
-  function by(n){ go((target !== null ? target : Math.round(pos)) + n); }
-
-  /* Dragging. Capture is taken only once a drag is real, and a clean tap is
-     resolved from the pointerup hit-test, not from click delivery, which a
-     capture taken on press retargets at the stage. The click handler on each
-     card stays for keyboard activation. */
-  stage.addEventListener('pointerdown', function(e){
-    if (e.target.closest && e.target.closest('.arc__nav')) return;
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    drag = { x: e.clientX, y: e.clientY, at: pos, id: e.pointerId, moved: false, lx: e.clientX, lt: performance.now(), v: 0 };
-    vel = 0;
-  });
-  stage.addEventListener('pointermove', function(e){
-    if (!drag) return;
-    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    if (!drag.moved) {
-      if (Math.abs(dx) < 6 || Math.abs(dx) < Math.abs(dy)) return;
-      drag.moved = true;
-      target = null;
-      stage.classList.add('is-drag');
-      if (stage.setPointerCapture) { try { stage.setPointerCapture(drag.id); } catch (err) { void err; } }
-    }
-    var now = performance.now();
-    var dt = Math.max(1, now - drag.lt);
-    drag.v = drag.v * 0.6 + ((e.clientX - drag.lx) / dt) * 0.4;
-    drag.lx = e.clientX; drag.lt = now;
-    pos = clampPos(drag.at - dx / step, 0.45);
-    kick();
-  });
-  function release(e){
-    if (!drag) return;
-    var d = drag;
-    drag = null;
-    stage.classList.remove('is-drag');
-    if (d.moved) { go(pos - d.v * 240 / step); return; }
-    kick();
-    if (e && e.type === 'pointerup' && document.elementFromPoint) {
-      var hit = document.elementFromPoint(e.clientX, e.clientY);
-      var face = hit && hit.closest ? hit.closest('.arcc') : null;
-      var c = null;
-      for (var i = 0; i < list.length; i++) if (list[i].el === face) c = list[i];
-      if (!c) return;
-      if (c === mid && Math.abs(wrapOff(c.idx - pos)) < 0.5) open(c);
-      else goIdx(c.idx);
-    }
-  }
-  stage.addEventListener('pointerup', release);
-  stage.addEventListener('pointercancel', function(){ if (drag && drag.moved) release(); else drag = null; stage.classList.remove('is-drag'); kick(); });
-  stage.addEventListener('pointerenter', function(e){ if (e.pointerType === 'mouse') hover = true; });
-  stage.addEventListener('pointerleave', function(e){ if (e.pointerType === 'mouse') { hover = false; kick(); } });
-  /* only keyboard focus holds the drift; a click focuses the stage too */
-  stage.addEventListener('focusin', function(){
-    try { focused = stage.matches(':focus-visible'); } catch (err) { focused = false; }
-  });
-  stage.addEventListener('focusout', function(){ focused = false; kick(); });
-
-  /* A sideways scroll turns the drum; an up-and-down one is left to the page. */
-  var wheelTimer = 0;
-  stage.addEventListener('wheel', function(e){
-    var dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
-    if (!dx) return;
-    e.preventDefault();
-    target = null; vel = 0;
-    pos = clampPos(pos + dx / step, 0.3);
-    idleUntil = performance.now() + IDLE;
-    window.clearTimeout(wheelTimer);
-    wheelTimer = window.setTimeout(function(){ go(pos); }, 120);
-    kick();
-  }, { passive: false });
-
-  stage.addEventListener('keydown', function(e){
-    if (e.target !== stage) return;
-    if (e.key === 'ArrowRight') { e.preventDefault(); by(1); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); by(-1); }
-    else if (e.key === 'Home') { e.preventDefault(); goIdx(0); }
-    else if (e.key === 'End') { e.preventDefault(); goIdx(list.length - 1); }
-    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (mid) open(mid); }
-  });
-  prevB.addEventListener('click', function(){ by(-1); });
-  nextB.addEventListener('click', function(){ by(1); });
-  cards.forEach(function(c){
-    c.el.addEventListener('click', function(e){ if (e.detail === 0 && c === mid) open(c); });
-  });
-  document.addEventListener('visibilitychange', function(){ if (!document.hidden) kick(); });
-
-  /* ---- the fronts ---------------------------------------------------------- */
-  var fronts = [];
-  data.forEach(function(d){ if (d.front && fronts.indexOf(d.front) < 0) fronts.push(d.front); });
-  var active = null;
-  function startOf(n){ return Math.min(n - 1, 2); }
-  function choose(key, b){
-    if (key === active) return;
-    active = key;
-    [].forEach.call(tabs.querySelectorAll('.arc__tab'), function(x){ x.setAttribute('aria-pressed', String(x === b)); });
-    var next = cards.filter(function(c){ return !key || c.d.front === key; });
-    swapTo = { list: next, at: startOf(next.length) };
-    fadeTo = 0;
-    kick();
-  }
-  function tab(name, key){
-    var b = el('button', 'arc__tab', name);
-    b.type = 'button';
-    b.setAttribute('aria-pressed', key === '' ? 'true' : 'false');
-    b.addEventListener('click', function(){ choose(key, b); });
-    tabs.appendChild(b);
-  }
-  tab('Everything', '');
-  fronts.forEach(function(f){ tab(f, f); });
-  active = '';
-
-  /* ---- the entry, opened --------------------------------------------------- */
-  var lay = el('div', 'arclay');
-  lay.hidden = true;
-  lay.setAttribute('role', 'dialog');
-  lay.setAttribute('aria-modal', 'true');
-  lay.setAttribute('aria-label', 'Record entry');
-  var box = el('div', 'arclay__card');
-  var fig = el('div', 'arclay__fig');
-  var info = el('div', 'arclay__info');
-  var meta = el('div', 'arclay__meta');
-  var mFront = el('b'), mYear = el('span');
-  meta.appendChild(mFront); meta.appendChild(mYear);
-  var lt = el('h2', 'display arclay__t');
-  var lp = el('p', 'arclay__p');
-  var row = el('div', 'arclay__row');
-  var goRec = el('button', 'btn', 'Read it in the record'); goRec.type = 'button';
-  var again = el('button', 'btn btn--ghost', 'Another'); again.type = 'button';
-  var shut = el('button', 'btn btn--ghost', 'Back to the cards'); shut.type = 'button';
-  row.appendChild(goRec); row.appendChild(again); row.appendChild(shut);
-  info.appendChild(meta); info.appendChild(lt); info.appendChild(lp); info.appendChild(row);
-  box.appendChild(fig); box.appendChild(info);
-  lay.appendChild(box);
-  document.body.appendChild(lay);
-
-  var showing = null, print = null, wasFocused = null, busy = false;
-  function fill(c){
-    var d = c.d;
-    lay.style.setProperty('--a', tone(d.front));
-    fig.textContent = '';
-    print = buildCard(d);
-    print.el.tabIndex = -1;
-    print.el.setAttribute('aria-hidden', 'true');
-    fig.appendChild(print.el);
-    mFront.textContent = d.front;
-    mYear.textContent = d.year;
-    lt.textContent = d.title;
-    lp.textContent = d.body;
-  }
-  /* Carry the print between the card's box on screen and its own place. */
-  function flight(from){
-    var F = fig.getBoundingClientRect();
-    if (!from || !F.width) return false;
-    fig.style.transformOrigin = '0 0';
-    fig.style.transform = 'translate(' + (from.left - F.left).toFixed(1) + 'px,' + (from.top - F.top).toFixed(1) + 'px) scale(' +
-      (from.width / F.width).toFixed(4) + ',' + (from.height / F.height).toFixed(4) + ')';
-    return true;
-  }
-  function open(c){
-    if (busy || !c) return;
-    busy = true;
-    showing = c;
-    fill(c);
-    wasFocused = document.activeElement;
-    lay.hidden = false;
-    overlayOpen = true;
-    vel = 0;
-    var flew = !still && flight(c.el.getBoundingClientRect());
-    c.el.style.visibility = 'hidden';
-    paint(print, 0, 0);
-    window.requestAnimationFrame(function(){
-      window.requestAnimationFrame(function(){
-        lay.classList.add('is-in');
-        if (flew) fig.classList.add('arclay__fly');
-        fig.style.transform = '';
-        window.setTimeout(function(){ busy = false; paint(print, 0, 0); }, still ? 0 : 540);
-      });
-    });
-    shut.focus();
-  }
-  function land(){
-    fig.classList.remove('arclay__fly');
-    fig.style.transform = '';
-    if (showing) showing.el.style.visibility = '';
-    lay.hidden = true;
-    overlayOpen = false;
-    idleUntil = performance.now() + 1500;
-    kick();
-    if (wasFocused && wasFocused.focus) wasFocused.focus({ preventScroll: true });
-  }
-  function close(fast){
-    lay.classList.remove('is-in');
-    /* A close during the opening flight lands at once rather than being
-       refused: escape has to mean escape, whatever the animation is doing. */
-    if (fast === true || still || busy || !showing || !flight(showing.el.getBoundingClientRect())) { land(); busy = false; return; }
-    busy = true;
-    fig.classList.add('arclay__fly');
-    window.setTimeout(function(){ land(); busy = false; }, 540);
-  }
-  shut.addEventListener('click', function(){ close(); });
-  lay.addEventListener('click', function(e){ if (e.target === lay) close(); });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !lay.hidden) close(); });
-  again.addEventListener('click', function(){
-    if (busy) return;
-    var pool = list.filter(function(c){ return c !== showing; });
-    if (!pool.length) return;
-    var next = pool[Math.floor(Math.random() * pool.length)];
-    busy = true;
-    lay.classList.add('is-swap');
-    window.setTimeout(function(){
-      showing.el.style.visibility = '';
-      /* the drum turns to it unseen, so closing flies the print home to it */
-      pos = round ? pos + wrapOff(next.idx - pos) : next.idx;
-      target = null; vel = 0;
-      layout();
-      settle(true);
-      showing = next;
-      fill(next);
-      paint(print, 0, 0);
-      next.el.style.visibility = 'hidden';
-      lay.classList.remove('is-swap');
-      window.setTimeout(function(){ busy = false; }, still ? 0 : 200);
-    }, still ? 0 : 190);
-  });
-  goRec.addEventListener('click', function(){
-    if (!showing) return;
-    var target = document.getElementById(showing.d.id);
-    close(true);
-    if (!target) return;
-    if (target.hidden) {
-      var everything = document.querySelector('.rfil__b[data-filter=""]');
-      if (everything) everything.click();
-    }
-    target.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'center' });
-    target.classList.add('is-lit');
-    window.setTimeout(function(){ target.classList.remove('is-lit'); }, 2400);
-  });
-
-  /* ---- start --------------------------------------------------------------- */
-  sec.hidden = false;
-  measure();
-  var first = startOf(list.length);
-  /* the cards deal in from the right the first time the arc is seen, then
-     settle into the drift */
-  target = still ? null : first;
-  pos = still ? first : first - 3.2;
-  fade = still ? 1 : 0;
-  layout();
-  var seen = false;
-  function arrive(){
-    if (seen) return;
-    seen = true;
-    fadeTo = 1;
-    kick();
-  }
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        onScreen = en.isIntersecting;
-        if (onScreen) { arrive(); kick(); }
-      });
-    }, { threshold: 0.2 }).observe(stage);
-  } else {
-    onScreen = true;
-    arrive();
-  }
-  if (still) { fadeTo = 1; settle(true); }
-
-  /* The card in the middle breathes while the arc is on screen. */
-  if (!still) {
-    window.setInterval(function(){
-      if (!onScreen || overlayOpen || document.hidden || !mid || target !== null || drag || (mid && mid.anim)) return;
-      paint(mid, 0, 0.03);
-    }, 160);
-  }
-
-  window.addEventListener('resize', (function(){
-    var t = 0;
-    return function(){
-      window.clearTimeout(t);
-      t = window.setTimeout(function(){
-        measure();
-        cards.forEach(function(c){ c.painted = false; });
-        layout();
-        kick();
-      }, 120);
-    };
-  }()));
-
-  /* The titles in the art are set in Marcellus; when it arrives after the
-     first paint, the cards that carry one are set and drawn again in it. */
-  if (document.fonts && document.fonts.load) {
-    document.fonts.load('400 80px Marcellus').then(function(){
-      cards.forEach(function(c){ if (c.d.big) { c.g = null; c.painted = false; } });
-      layout();
-    }, function(){});
-  }
-})();
-</script>
+/* The ring of cards in the hero (3 Nov 2026). Twelve cards, filled from the
+   record below as they come round; one turns to the next entry each lap.
+   Hovering or tabbing to a card stops the ring; a card opens its entry in
+   the list. Pause motion stops it for good; reduced motion starts paused. */
+(()=>{'use strict';
+const stage=document.getElementById('grailStage'),rows=[...document.querySelectorAll('.rec')];
+const tones=['#ba9bc8','#ceac32','#b83b1e','#87b9c3'];
+let paused=matchMedia('(prefers-reduced-motion: reduce)').matches,visible=true,hovered=false,focused=false,speed=paused?0:1,angle=0,last=0,mx=0,my=0,nextRecord=12;
+const N=12,SPIN=.085;
+const cards=Array.from({length:N},(_,i)=>{const orbit=document.createElement('div');orbit.className='orbit';const b=document.createElement('button');b.type='button';b.className='gcard';const back=document.createElement('div');back.className='card-reverse '+(i%3===0?'tree':i%3===1?'check':'');back.setAttribute('aria-hidden','true');back.style.setProperty('--tone',tones[i%4]);orbit.append(b,back);stage.append(orbit);const card={el:orbit,b,i,row:null,turn:0};b.addEventListener('click',()=>{const row=card.row;document.querySelector('.rfil__b[data-filter=""]').click();row.scrollIntoView({behavior:paused?'auto':'smooth',block:'center'});history.replaceState(null,'','#'+row.id)});fill(card,i);return card;});
+function fill(card,index){const row=rows[index%rows.length],b=card.b;card.row=row;b.replaceChildren();b.style.setProperty('--tone',tones[index%4]);const title=row.querySelector('.rec__t').textContent;b.setAttribute('aria-label','Read achievement: '+title);const seal=document.createElement('span');seal.className='seal';seal.textContent=['♣','✦','≋','✺'][index%4];const cat=document.createElement('small');cat.textContent=row.dataset.theme;const h=document.createElement('h2');h.textContent=title;const p=document.createElement('p');p.textContent=row.querySelector('.rec__p').textContent;const f=document.createElement('footer');f.textContent='People for Animals · '+(row.dataset.year||'Our work')+'   ↗';b.append(seal,cat,h,p,f);}
+/* One row: every card sits on the same horizontal ring, evenly spaced, and the ring turns slowly. Each card is angled to the ring's curve so the ones in front stay readable. */
+function draw(){const w=stage.clientWidth,mobile=w<700,a=w*(mobile?1.15:.5),d=mobile?260:420;cards.forEach(card=>{const {el,i,b}=card,theta=angle+i*Math.PI*2/N,turn=Math.floor((theta+Math.PI)/(Math.PI*2));if(turn>card.turn){fill(card,nextRecord++);card.turn=turn;}const s=Math.sin(theta),c=Math.cos(theta),x=s*a,z=c*d-d,face=Math.atan2(d*s,a*c);el.style.transform=`translate3d(${x+mx}px,${my}px,${z}px) rotateY(${face*180/Math.PI}deg)`;b.style.transform='translate(-50%,-50%)';el.style.opacity='1';b.tabIndex=c>.25?0:-1;});}
+/* Hovering a card (or tabbing to one) eases the ring to a stop; leaving eases it back. */
+function tick(t){const dt=last?Math.min(t-last,50)/1000:0;last=t;const want=(paused||hovered||focused)?0:1;speed=want>speed?Math.min(want,speed+dt/.6):Math.max(want,speed-dt/.25);if(visible&&!document.hidden)angle+=speed*SPIN*dt;draw();if(inside&&t-lastProbe>120){lastProbe=t;probe()}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+/* Hover is read from what is under the pointer, not only from enter/leave events, so a card that slides under a still mouse also stops the ring. */
+let px=0,py=0,inside=false,lastProbe=0;const hero=stage.parentElement;function probe(){const e=inside&&document.elementFromPoint(px,py);hovered=!!(e&&e.closest('#grailStage .gcard'))}hero.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;px=e.clientX;py=e.clientY;inside=true;probe()});hero.addEventListener('pointerleave',()=>{inside=false;hovered=false});stage.addEventListener('focusin',()=>{focused=true});stage.addEventListener('focusout',()=>{focused=false});
+const toggle=document.getElementById('motionToggle');function label(){toggle.textContent=paused?'Resume motion':'Pause motion';toggle.setAttribute('aria-pressed',String(paused))}label();toggle.addEventListener('click',()=>{paused=!paused;label()});stage.parentElement.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&!paused){mx=(e.clientX/innerWidth-.5)*8;my=(e.clientY/innerHeight-.5)*6}});stage.parentElement.addEventListener('pointerleave',()=>{mx=my=0});new IntersectionObserver(e=>visible=e[0].isIntersecting).observe(stage);
+})();</script>
 </body>
 </html>

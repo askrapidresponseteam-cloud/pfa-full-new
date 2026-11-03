@@ -24,7 +24,10 @@ const { JSDOM } = require('jsdom');
 
 const ROOT = path.join(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
-const PAGES = ['academy', 'achievements', 'ask', 'campaign', 'campus', 'careers', 'caregiver-card', 'csr', 'donate', 'events',
+/* achievements.html left the shared block for its own hero, a ring of cards
+   under "Change their world" (owner, 3 Nov 2026: "lets try this look and feel
+   for achievements"); its test is below. */
+const PAGES = ['academy', 'ask', 'campaign', 'campus', 'careers', 'caregiver-card', 'csr', 'donate', 'events',
   'founder', 'get-involved', 'laws', 'legacy', 'library', 'newsroom', 'privacy', 'quiz', 'report', 'search', 'sgacc', 'shop',
   'track', 'units', 'wall'].map((n) => n + '.html');
 
@@ -85,4 +88,20 @@ test('a caption stands on its picture', () => {
   const events = read('events.html');
   assert.match(events, /\.ev-pola figcaption\{[^}]*font-size:clamp\(15px,12cqi,28px\);[^}]*text-align:center;/, 'a name sized to its polaroid');
   assert.doesNotMatch(events, /\.ev-pola figcaption\{[^}]*text-overflow:ellipsis/, 'never "John Abrah..."');
+});
+
+test('achievements: its own hero, one title, the ring built from the record below', () => {
+  const html = read('achievements.html');
+  const doc = new JSDOM(html).window.document;
+  const titles = doc.querySelectorAll('main h1');
+  assert.equal(titles.length, 1);
+  assert.equal(titles[0].className, 'grail-title');
+  assert.equal(titles[0].textContent, 'Change their world');
+  assert.ok(doc.getElementById('grailStage'));
+  assert.ok(doc.querySelectorAll('#recs .rec').length >= 100, 'the record is still the page');
+  assert.ok(!doc.getElementById('arc'), 'the old drum is gone');
+  assert.match(html, /stage=document\.getElementById\('grailStage'\),rows=\[\.\.\.document\.querySelectorAll\('\.rec'\)\]/);
+  assert.match(html, /toggle\.textContent=paused\?'Resume motion':'Pause motion'/);
+  assert.match(html, /@media\(prefers-reduced-motion:reduce\)\{html\{scroll-behavior:auto\}\.grail-title\{animation:none\}/);
+  assert.match(html, /<link rel="stylesheet" href="assets\/pfa-theme\.css/);
 });

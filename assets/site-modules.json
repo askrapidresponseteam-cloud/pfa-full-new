@@ -93,11 +93,7 @@
    "modules": [
     {
      "id": "top",
-     "label": "Policies and achievements."
-    },
-    {
-     "id": "arc",
-     "label": "What changed."
+     "label": "Change their world"
     },
     {
      "id": "records",
@@ -881,9 +877,7 @@
    "case-001": "cases"
   },
   "achievements": {
-   "arcStage": "arc",
-   "arcDrum": "arc",
-   "arcLive": "arc",
+   "grailStage": "top",
    "recCount": "records",
    "recs": "records",
    "rec-001": "records",
