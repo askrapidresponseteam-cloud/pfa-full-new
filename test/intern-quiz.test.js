@@ -362,7 +362,7 @@ test('wired: the route, the portal page, the plan, the email worker and the inte
   assert.match(api, /'intern\/quiz': '\.\/intern\/portal\.js'/);
   assert.match(api, /'intern\/quiz': \(\) => require\('\.\.\/lib\/routes\/intern\/portal\.js'\)\.quiz/);
   const page = read('intern.html');
-  assert.match(page, /<script src="assets\/intern-quiz\.js"><\/script>\n<script>\n\(function \(\) \{/, 'loaded before the portal script, which uses it');
+  assert.match(page, /<script src="assets\/intern-quiz\.js"><\/script>\n(<script src="assets\/[\w-]+\.js"><\/script>\n)*<script>\n\(function \(\) \{/,'loaded before the portal script, which uses it');
   const js = read('assets/intern-quiz.js');
   assert.match(js, /'\/api\/intern\/quiz'/);
   assert.match(js, /action: 'answer'/);

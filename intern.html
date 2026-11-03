@@ -223,6 +223,16 @@ input,button,textarea,select{font-family:inherit;font-size:inherit;color:inherit
 .skel{height:120px;background:linear-gradient(90deg,var(--soft),#fff,var(--soft));background-size:200% 100%;animation:sk 1.2s linear infinite}
 @keyframes sk{to{background-position:-200% 0}}
 
+/* ---------- where they do their shelter work (assets/intern-shelter.js) ---------- */
+.sh{display:grid;gap:12px}
+.sh .btn{justify-self:start}
+.sh__place{display:grid;gap:4px;padding:14px 16px;border:1px solid var(--ink)}
+.sh__place b{font-size:16px}
+.sh__place span{font-size:13px;line-height:1.5;color:rgba(17,17,17,.78);overflow-wrap:anywhere}
+.sh__place .sh__st{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.sh-form{max-width:520px}
+.sh-more>summary{font-size:12px}
+.sh-more .ip-field{margin-top:12px}
 /* ---------- the quiz (assets/intern-quiz.js) ---------- */
 .qzc{display:grid;gap:12px}
 .qzc__facts{display:flex;flex-wrap:wrap;gap:8px}
@@ -769,6 +779,8 @@ if (root.document && root.document.head) apply(read());
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/intern-quiz.js"></script>
+<script src="assets/india-districts.js"></script>
+<script src="assets/intern-shelter.js"></script>
 <script>
 (function () {
   'use strict';
@@ -956,6 +968,9 @@ if (root.document && root.document.head) apply(read());
       out += root.PFAQuiz ? root.PFAQuiz.card(data.quiz) : '<p class="task__ask">The quiz could not load. Reload the page.</p>';
       return out + '</div></details>';
     }
+    /* shelter work: where, first (assets/intern-shelter.js) */
+    var shelter = t.key === 'shelter' && root.PFAShelter;
+    if (shelter) out += root.PFAShelter.card(data.place, state === 'accepted');
     if (t.auto === 'rrt') {
       var r = data.referral;
       var pct = r.target ? Math.min(100, Math.round((r.registrations / r.target) * 100)) : 0;
@@ -968,11 +983,13 @@ if (root.document && root.document.head) apply(read());
         + w.files.map(function (f) { return '<a href="/api/intern/file?id=' + encodeURIComponent(f.id) + '" target="_blank" rel="noopener">' + esc(f.name) + '</a>'; }).join('')
         + (w.note ? '<span>' + esc(w.note) + '</span>' : '') + '</div>';
     }
+    if (shelter && (!data.place || data.place.state === 'change') && state !== 'accepted') return out + '</div></details>';
     if (state !== 'accepted') {
       var L = data.limits;
       out += '<form class="ip-form" data-send="' + esc(t.key) + '" novalidate>'
         + '<div class="ip-field"><label>Links' + (t.auto === 'rrt' ? ' (optional)' : '') + '</label><textarea name="links" placeholder="One link a line: Google Drive, YouTube, a published page">' + (w && state === 'revise' ? esc(w.links.join('\n')) : '') + '</textarea><small>Up to ' + L.linksPerTask + '. For anything large, a link is best.</small></div>'
         + '<div class="ip-field"><label>Files (optional)</label><input type="file" name="files" accept="image/jpeg,image/png,image/webp,application/pdf" multiple><small>Photographs or PDFs, up to ' + L.filesPerTask + ', each up to ' + L.fileMb + ' MB.</small></div>'
+        + (shelter ? '<div class="ip-field"><label>Hours you did there</label><input name="hours" type="number" min="1" max="500" step="0.5" inputmode="decimal"' + (w && w.hours ? ' value="' + esc(w.hours) + '"' : '') + '><small>Send the sheet the shelter signed, as a photograph or a PDF.</small></div>' : '')
         + '<div class="ip-field"><label>A note for PFA' + (t.auto === 'rrt' ? '' : ' (optional)') + '</label><textarea name="note" maxlength="' + L.noteChars + '" placeholder="What you did, in a few lines"></textarea></div>'
         + '<button class="btn" type="submit">' + (state === 'revise' ? 'Send the revision' : state === 'submitted' ? 'Send again' : 'Send proof') + '</button><p class="say" data-say role="status" aria-live="polite"></p></form>';
     }
@@ -1009,6 +1026,8 @@ if (root.document && root.document.head) apply(read());
     if (files.length > L.filesPerTask) { note.textContent = 'Up to ' + L.filesPerTask + ' files.'; return; }
     for (var i = 0; i < files.length; i += 1) if (files[i].size > L.fileMb * 1048576) { note.textContent = files[i].name + ' is over ' + L.fileMb + ' MB. Send it as a link.'; return; }
     if (!links.length && !files.length && !(taskById(key).auto && form.note.value.trim())) { note.textContent = 'Add a link or a file as proof.'; return; }
+    var hours = form.hours ? Number(form.hours.value) : null;
+    if (form.hours && !(hours >= 1 && hours <= 500)) { note.textContent = 'Type how many hours you did there.'; form.hours.focus(); return; }
     button.disabled = true;
     var ids = [];
     var chain = Promise.resolve();
@@ -1020,7 +1039,7 @@ if (root.document && root.document.head) apply(read());
     });
     chain.then(function () {
       note.textContent = 'Sending your proof...';
-      return api('/api/intern/work', { method: 'POST', body: { taskKey: key, links: links, note: form.note.value, files: ids } });
+      return api('/api/intern/work', { method: 'POST', body: { taskKey: key, links: links, note: form.note.value, files: ids, hours: hours } });
     }).then(function (d) {
       data = d;
       draw();
@@ -1086,6 +1105,7 @@ if (root.document && root.document.head) apply(read());
   });
 
   var root = window;
+  if (root.PFAShelter) root.PFAShelter.init({ api: api, esc: esc, done: function (d, text) { data = d; draw(); tell(text); } });
   if (root.PFAQuiz) root.PFAQuiz.init({
     api: api, esc: esc, when: when, view: view, reload: load,
     data: function () { return data; },

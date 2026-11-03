@@ -146,6 +146,8 @@ button{font:inherit;color:inherit}
 .pane[data-pane="cards"]::before{content:"Print and post"}
 .pane[data-pane="apply"]::before{content:"Applications to decide"}
 .pane[data-pane="audit"]::before{content:"History"}
+.pane[data-pane="interns"]::before{content:"Interns"}.pane[data-pane="shelters"]::before{content:"Shelter directory"}
+.pane[data-pane="interns"]::before,.pane[data-pane="shelters"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
 .pane[data-pane="donations"]::before,.pane[data-pane="verify"]::before,.pane[data-pane="cards"]::before,.pane[data-pane="apply"]::before,.pane[data-pane="audit"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
 /* The registers (2 Nov 2026): the colony cards and the members, laid out as
    the office's own sheets are, every item one click to copy */
@@ -952,6 +954,9 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <!-- The internship portal (1 Nov 2026): review proof, batches and their
          interns, issuing Intern IDs, the plan. Filled by internshipPane(). -->
     <div class="pane" data-pane="internship" role="region" aria-label="Internship"><div class="loading">Reading the internship&#8230;</div></div>
+    <!-- every intern and the shelter directory (3 Nov 2026): assets/admin-internship.js -->
+    <div class="pane" data-pane="interns" role="region" aria-label="Interns"><div class="loading">Reading the interns&#8230;</div></div>
+    <div class="pane" data-pane="shelters" role="region" aria-label="Shelter directory"><div class="loading">Reading the shelter directory&#8230;</div></div>
     <div class="pane" data-pane="certificates" role="region" aria-label="Internship certificates"><div class="loading">Reading the certificates&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
@@ -1439,7 +1444,9 @@ window.addEventListener('unhandledrejection', function (event) {
     memsheet:    { title: 'Membership register', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
     shop:        { title: 'Shop orders',   module: 'shop',        needs: 'shop' },
-    internship:  { title: 'Internship',    module: 'internship',  needs: 'internship', panes: ['internship', 'certificates'] },
+    internship:  { title: 'Internship',    module: 'internship',  needs: 'internship', panes: ['internship', 'interns', 'shelters', 'certificates'] },
+    interns:     { title: 'Interns',       module: 'internship',  needs: 'internship' },
+    shelters:    { title: 'Shelter directory', module: 'internship', needs: 'internship' },
     certificates: { title: 'Internship certificates', module: 'certificates', needs: 'certificates' },
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
@@ -1486,7 +1493,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* A section folded into another keeps its name here, so an old link or an
      internal show('donations') lands on the section that now holds it. */
-  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', certificates: 'internship' };
+  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', certificates: 'internship', interns: 'internship', shelters: 'internship' };
   function panesOf(tab) { return (TABS[tab] || {}).panes || [tab]; }
   function paneAllowed(pane) {
     var spec = TABS[pane];
@@ -1533,6 +1540,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'shop') return shopPane();
     if (tab === 'internship') return internshipPane();
     if (tab === 'certificates') return certificatesPane();
+    if (tab === 'interns' || tab === 'shelters') return window.PFAInternship && window.PFAInternship.pane(tab);
     if (tab === 'website') return website();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -4924,7 +4932,7 @@ window.addEventListener('unhandledrejection', function (event) {
       ]);
     }).then(function (r) {
       ip.queue = r[0].queue || [];
-      ipPip(ip.queue.length);
+      ipPip(ip.queue.length + (Number(ip.home && ip.home.sheltersNew) || 0));
       ip.view = r[1];
       ipRender(said);
     }).catch(function (e) { fail(node, e); });
@@ -4992,7 +5000,7 @@ window.addEventListener('unhandledrejection', function (event) {
       var dots = p.tasks.filter(function (t) { return t.chosen; }).map(function (t) { return '<i class="ip-dot" data-s="' + t.state + '" title="' + esc(t.key + ': ' + IP_STATE[t.state] + (t.score != null ? ' ' + t.score : '')) + '"></i>'; }).join('');
       var target = (b.tasks.filter(function (t) { return t.auto === 'rrt'; })[0] || {}).target || 0;
       var act = ip.who === r.internId;
-      return '<tr data-intern="' + esc(r.internId) + '"><td><b>' + esc(r.name) + '</b><br><span class="note">' + esc(r.internId) + ' · ' + esc(r.email) + '</span></td>'
+      return '<tr data-intern="' + esc(r.internId) + '"><td><button class="linky" type="button" data-ip="profile"><b>' + esc(r.name) + '</b></button><br><span class="note">' + esc(r.internId) + ' · ' + esc(r.email) + '</span></td>'
         + '<td class="num">' + p.percent + '%<br><span class="note">' + p.accepted + '/' + p.need + (p.average != null ? ' · ' + p.average : '') + '</span></td>'
         + '<td><span class="ip-dots">' + dots + '</span>' + (p.waiting ? '<br><span class="note">' + p.waiting + ' waiting</span>' : '') + '</td>'
         + '<td class="num">' + r.referral.registrations + (target ? '/' + target : '') + '<br><span class="note">' + r.referral.clicks + ' clicks · ' + r.referral.firstOpens + ' opens</span></td>'
@@ -5041,6 +5049,7 @@ window.addEventListener('unhandledrejection', function (event) {
     var sayNode = $('[data-ip-say]');
     var item = b.closest('[data-task]');
     var row = b.closest('tr[data-intern]');
+    if (what === 'profile') { if (window.PFAInternship) window.PFAInternship.open(row.getAttribute('data-intern')); return; }
     if (what === 'review') { var k = item.getAttribute('data-intern') + '|' + item.getAttribute('data-task'); ip.reviewing = ip.reviewing === k ? '' : k; ipRender(); return; }
     if (what === 'file') {
       token().then(function (id) { return fetch('/api/admin/internship?file=' + encodeURIComponent(b.getAttribute('data-file')), { headers: { Authorization: 'Bearer ' + id } }); })
@@ -6324,6 +6333,7 @@ window.addEventListener('unhandledrejection', function (event) {
 }());
 </script>
 <script src="assets/admin-registers.js"></script>
+<script src="assets/admin-internship.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by
