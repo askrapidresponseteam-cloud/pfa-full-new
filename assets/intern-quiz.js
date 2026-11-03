@@ -215,8 +215,10 @@
           + '<div class="task__body">' + (x.text.indexOf('\n') !== -1 ? '<p class="qz__q">' + esc(x.text) + '</p>' : '')
           + '<ul class="qz__ans">' + x.choices.map(function (c) {
             var tag = c.right ? 'The answer' : c.chosen ? 'Your answer' : '';
-            return '<li data-right="' + (c.right ? '1' : '') + '" data-chosen="' + (c.chosen ? '1' : '') + '"><b>' + c.key + '</b><span>' + esc(c.text) + (tag ? ' <em>' + tag + (c.right && c.chosen ? ', and yours' : '') + '</em>' : '') + '</span></li>';
-          }).join('') + '</ul><p class="task__ask"><b>Why:</b> ' + esc(x.why) + '</p></div></details>';
+            return '<li data-right="' + (c.right ? '1' : '') + '" data-chosen="' + (c.chosen ? '1' : '') + '"><b>' + c.key + '</b><span><span class="qz__t">' + esc(c.text) + '</span>' + (tag ? ' <em>' + tag + (c.right && c.chosen ? ', and yours' : '') + '</em>' : '')
+              + (c.why ? '<small class="qz__whyo"><i>' + (c.right ? 'Why it is right:' : 'Why it is wrong:') + '</i> ' + esc(c.why) + '</small>' : '') + '</span></li>';
+          }).join('') + '</ul><p class="task__ask"><b>In short:</b> ' + esc(x.why) + '</p>'
+          + (x.risk ? '<p class="task__ask qz__risk"><b>What can go wrong:</b> ' + esc(x.risk) + '</p>' : '') + '</div></details>';
       }).join('') + '</div>'
       + '<div class="qz__acts"><button class="btn" type="button" data-qz="back">Back to my dashboard</button></div>');
   }

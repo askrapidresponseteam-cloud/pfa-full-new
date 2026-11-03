@@ -398,7 +398,6 @@ html{scroll-behavior:smooth}
 .card-reverse.tree:after{content:'\2663'}
 .card-reverse.check{background-image:conic-gradient(#342d21 25%,transparent 0 50%,#342d21 0 75%,transparent 0);background-size:38% 26%}
 .grail-bottom{position:absolute;font-family:var(--body);bottom:22px;left:2.4vw;right:2.4vw;display:flex;justify-content:space-between;gap:15px;align-items:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#666;z-index:5}
-.grail-bottom button{background:none;border:1px solid #ccc;border-radius:30px;color:#111;font-size:11px;letter-spacing:.06em;text-transform:none;padding:10px 16px;cursor:pointer}
 .grail-bottom a{color:#111;text-transform:none;letter-spacing:.04em;font-size:11px}
 #records{scroll-margin-top:20px;padding-top:100px}
 .rec:target{background:#f5f0f6}
@@ -412,8 +411,7 @@ html{scroll-behavior:smooth}
   .gcard{padding:14px}.gcard h2{font-size:19px}.gcard p{font-size:11px}
   .grail-bottom{flex-wrap:wrap;left:20px;right:20px;letter-spacing:.06em;font-size:10px}
   .grail-bottom>span{width:100%;text-align:center}
-  .grail-bottom button{padding:8px 12px}
-  #records{padding-top:60px}
+    #records{padding-top:60px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.grail-title{animation:none}.orbit{will-change:auto}}
 </style>
@@ -678,7 +676,7 @@ if (root.document && root.document.head) apply(read());
     <p class="grail-intro">Three decades of action for animals. Every card is a change worth fighting for.</p>
     <h1 class="grail-title">Change their world</h1>
     <div class="grail-stage" id="grailStage" aria-label="Achievements, card by card"></div>
-    <div class="grail-bottom"><span>Policies &amp; achievements &middot; since 1994</span><button id="motionToggle" type="button" aria-pressed="false">Pause motion</button><a href="#records">Scroll to the record &darr;</a></div>
+    <div class="grail-bottom"><span>Policies &amp; achievements &middot; since 1994</span><a href="#records">Scroll to the record &darr;</a></div>
   </section>
 
   <section class="band rband" id="records">
@@ -983,7 +981,7 @@ if (root.document && root.document.head) apply(read());
 /* The ring of cards in the hero (3 Nov 2026). Twelve cards, filled from the
    record below as they come round; one turns to the next entry each lap.
    Hovering or tabbing to a card stops the ring; a card opens its entry in
-   the list. Pause motion stops it for good; reduced motion starts paused. */
+   the list. Reduced motion starts it paused. */
 (()=>{'use strict';
 const stage=document.getElementById('grailStage'),rows=[...document.querySelectorAll('.rec')];
 const tones=['#ba9bc8','#ceac32','#b83b1e','#87b9c3'];
@@ -997,7 +995,7 @@ function draw(){const w=stage.clientWidth,mobile=w<700,a=w*(mobile?1.15:.5),d=mo
 function tick(t){const dt=last?Math.min(t-last,50)/1000:0;last=t;const want=(paused||hovered||focused)?0:1;speed=want>speed?Math.min(want,speed+dt/.6):Math.max(want,speed-dt/.25);if(visible&&!document.hidden)angle+=speed*SPIN*dt;draw();if(inside&&t-lastProbe>120){lastProbe=t;probe()}requestAnimationFrame(tick)}requestAnimationFrame(tick);
 /* Hover is read from what is under the pointer, not only from enter/leave events, so a card that slides under a still mouse also stops the ring. */
 let px=0,py=0,inside=false,lastProbe=0;const hero=stage.parentElement;function probe(){const e=inside&&document.elementFromPoint(px,py);hovered=!!(e&&e.closest('#grailStage .gcard'))}hero.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;px=e.clientX;py=e.clientY;inside=true;probe()});hero.addEventListener('pointerleave',()=>{inside=false;hovered=false});stage.addEventListener('focusin',()=>{focused=true});stage.addEventListener('focusout',()=>{focused=false});
-const toggle=document.getElementById('motionToggle');function label(){toggle.textContent=paused?'Resume motion':'Pause motion';toggle.setAttribute('aria-pressed',String(paused))}label();toggle.addEventListener('click',()=>{paused=!paused;label()});stage.parentElement.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&!paused){mx=(e.clientX/innerWidth-.5)*8;my=(e.clientY/innerHeight-.5)*6}});stage.parentElement.addEventListener('pointerleave',()=>{mx=my=0});new IntersectionObserver(e=>visible=e[0].isIntersecting).observe(stage);
+/* no pause button (owner, 3 Nov 2026: "dont need these pause buttons"); hover, focus and reduced motion still stop the ring */stage.parentElement.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&!paused){mx=(e.clientX/innerWidth-.5)*8;my=(e.clientY/innerHeight-.5)*6}});stage.parentElement.addEventListener('pointerleave',()=>{mx=my=0});new IntersectionObserver(e=>visible=e[0].isIntersecting).observe(stage);
 })();</script>
 </body>
 </html>

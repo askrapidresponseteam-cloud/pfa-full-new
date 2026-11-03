@@ -1,3 +1,14 @@
+## v1.524
+
+- **Every answer explained, at the end of the practice and of the quiz.** Owner, 3 Nov 2026: "give explanation at the end as to why each ans is the right and why each other option is wrong. what can go wrong. etc.. for practise as well as for the real test".
+  - All 37 questions (the 30 of the quiz and the 7 of the practice) now say, for each of the five choices, why it is right or why it is wrong, and what can go wrong in real life when someone acts on a wrong answer. Each was checked against the question's marked answer.
+  - The practice ends with every question under a plus sign: your answer and the right one marked, the reason beside each choice, and what can go wrong. The quiz's answers screen in the portal (open once you pass or have used your three attempts) shows the same.
+- **The practice quiz looks right wherever it opens.** In the internship's task reader it took the reader's own button rules: the choices were centred, the type small, and Start and Check were dark on dark. It now carries its own complete styles: choices left aligned at 14px, buttons always readable, Check plainly greyed until a choice is made.
+- **The shop's moving cards as square-cornered prints.** Owner: "the edges are not proper.. make the card rectangle with even offset". Each card is now cut to its 2:3 photograph with the same 8px white border on every side (6px on a phone), the designer's name in the white strip under it, no rounded corners and no letterboxing.
+- **No pause buttons.** Owner: "dont need these pause buttons". Gone from the shop's moving cards and the achievements ring; both still stop on hover and focus and stay still for anyone who asks for reduced motion. The shop's space kept for the button is closed.
+- **The shop's filter labels readable**: the unselected ones were light grey on white (2.3 to 1); now the site's muted grey (5.3 to 1).
+- Checked across every page, with every expander open and the practice run through, at phone and desktop widths: every button's text readable on its ground, no long text centred, no tick box touching its words.
+
 ## v1.523
 
 - **The quiz no longer names the exam it is modelled on.** Owner, 3 Nov 2026: the standard stays, its name is not to appear anywhere. The standard is unchanged; the name is gone from the internship page, the intern portal, the code and this log, and a test keeps it out.

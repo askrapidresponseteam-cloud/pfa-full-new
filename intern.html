@@ -288,7 +288,9 @@ input,button,textarea,select{font-family:inherit;font-size:inherit;color:inherit
 .qz__ans{display:grid;gap:6px;margin:16px 0 0;padding:0;list-style:none}
 .qz__ans li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;padding:10px 12px;border:1px solid var(--line);font-size:14px;line-height:1.5}
 .qz__ans li[data-right="1"]{border-color:var(--ink);background:var(--soft)}
-.qz__ans li[data-chosen="1"]:not([data-right="1"]){text-decoration:line-through;text-decoration-thickness:1px}
+.qz__ans li[data-chosen="1"]:not([data-right="1"]) .qz__t{text-decoration:line-through;text-decoration-thickness:1px}
+.qz__whyo{display:block;margin-top:6px;font-size:13px;line-height:1.55;color:#444}.qz__whyo i{font-style:normal;font-weight:700;color:var(--ink)}
+.qz__risk{padding:10px 12px;background:var(--soft)}
 .qz__ans em{display:block;font-style:normal;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
 
 @media (max-width:720px){

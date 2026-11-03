@@ -167,7 +167,7 @@ test('seven practice questions, none of them in the quiz, the same on the open p
   assert.deepEqual([...new Set(BANK.SAMPLE.map((q) => q.level))].sort(), ['easy', 'hard', 'medium'], 'every level, so it shows what the quiz is like');
   /* the open page carries the same seven, with their answers (they count for nothing) */
   const page = require('../assets/law-quiz-sample.js');
-  assert.deepEqual(page.QUESTIONS.map((q) => [q.q, q.choices, q.answer, q.why, Boolean(q.fixed)]), BANK.SAMPLE.map((q) => [q.q, q.choices, q.answer, q.why, Boolean(q.fixed)]));
+  assert.deepEqual(page.QUESTIONS.map((q) => [q.q, q.choices, q.answer, q.why, Boolean(q.fixed), q.explain, q.risk]), BANK.SAMPLE.map((q) => [q.q, q.choices, q.answer, q.why, Boolean(q.fixed), q.explain, q.risk]));
   /* the quiz never serves one */
   for (let i = 0; i < 20; i += 1) assert.ok(Q.newPaper().order.every((id) => !id.startsWith('sample-')));
 });
@@ -472,4 +472,24 @@ test('the exam the quiz is modelled on is never named (owner, 3 Nov 2026)', () =
   };
   walk(root);
   assert.deepEqual(hits, []);
+});
+
+test('every question, in the quiz and the practice, explains each choice and what can go wrong (owner, 3 Nov 2026)', () => {
+  for (const q of BANK.QUESTIONS.concat(BANK.SAMPLE)) {
+    assert.equal(q.explain && q.explain.length, 5, `${q.id}: a reason for each of the five choices`);
+    q.explain.forEach((t, i) => { assert.ok(t.length > 20, `${q.id} choice ${i}`); assert.doesNotMatch(t, /^(Right|Wrong)\b/, 'the screen says right or wrong itself'); assert.doesNotMatch(t, /[\u2013\u2014]/); });
+    assert.ok(q.risk && q.risk.length > 30, `${q.id}: what can go wrong`);
+  }
+  /* the review after the quiz carries them, in the order that person saw the choices */
+  const Q = require('../lib/intern-quiz');
+  const paper = Q.newPaper(() => 0);
+  const a = Object.assign({ answers: {}, startedMs: 0, deadlineMs: 1 }, paper);
+  const r = Q.reviewOf(a);
+  r.forEach((x, i) => {
+    const q = BANK.QUESTIONS.find((y) => y.id === a.order[i]);
+    x.choices.forEach((c, k) => assert.equal(c.why, q.explain[a.perm[q.id][k]]));
+    assert.equal(x.risk, q.risk);
+  });
+  assert.match(read('assets/intern-quiz.js'), /What can go wrong:/);
+  assert.match(read('assets/law-quiz-sample.js'), /What can go wrong/);
 });

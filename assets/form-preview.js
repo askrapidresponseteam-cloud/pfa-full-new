@@ -241,7 +241,7 @@
     '.pfa-pv__v.is-missing{color:#a3261e;font-weight:400;font-size:17px}',
     '.pfa-pv__v.is-none{color:#595959;font-weight:400;font-size:17px}',
     '.pfa-pv__note{margin:8px 0 0;font-size:14px;line-height:1.45;color:#595959}',
-    '.pfa-pv__fix{margin:12px 0 0;padding:10px 12px;background:#fff5d1;border-left:4px solid #9a6b00;font-size:15px;line-height:1.5}',
+    '.pfa-pv__fix{margin:12px 0 0;padding:10px 12px;background:#fff5d1;border:1px solid #e3c766;font-size:15px;line-height:1.5}',
     '.pfa-pv button.pfa-pv__use{min-height:40px;margin-left:6px;padding:8px 14px;font-size:14px}',
     '.pfa-pv__check{display:flex;gap:12px;align-items:flex-start;font-size:16px;font-weight:700;line-height:1.4;cursor:pointer}',
     '.pfa-pv__check input{width:22px;height:22px;margin:1px 0 0;flex:none;accent-color:var(--ink,#111)}',

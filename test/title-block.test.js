@@ -101,7 +101,8 @@ test('achievements: its own hero, one title, the ring built from the record belo
   assert.ok(doc.querySelectorAll('#recs .rec').length >= 100, 'the record is still the page');
   assert.ok(!doc.getElementById('arc'), 'the old drum is gone');
   assert.match(html, /stage=document\.getElementById\('grailStage'\),rows=\[\.\.\.document\.querySelectorAll\('\.rec'\)\]/);
-  assert.match(html, /toggle\.textContent=paused\?'Resume motion':'Pause motion'/);
+  /* no pause button (owner, 3 Nov 2026: "dont need these pause buttons"); hover, focus and reduced motion stop the ring */
+  assert.doesNotMatch(html, /motionToggle|Pause motion/);
   assert.match(html, /@media\(prefers-reduced-motion:reduce\)\{html\{scroll-behavior:auto\}\.grail-title\{animation:none\}/);
   assert.match(html, /<link rel="stylesheet" href="assets\/pfa-theme\.css/);
   /* the site's own faces, and no diagonal arrow (owner, 3 Nov 2026: "that diagnol arrow pointing right top has to go.. ensure the font matches with the rest of the site") */

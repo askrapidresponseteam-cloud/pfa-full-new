@@ -392,7 +392,7 @@ main .hero .btn{min-height:50px;padding:0 30px;border-radius:0}
 main .hero .btn--light{background:transparent}
 
 /* the hand: --cw a card's width, --step the distance between cards */
-main .stage{--cw:clamp(150px,13vw,210px);--step:calc(var(--cw) * .66);--ch:calc(var(--cw) * 1.25);position:relative;padding:44px 22px 46px}
+main .stage{--cw:clamp(150px,13vw,210px);--step:calc(var(--cw) * .66);--ch:calc(var(--cw) * 1.25);position:relative;padding:44px 22px 30px}
 main .mosaic{position:relative;display:block;width:calc(var(--cw) + var(--step) * 3);height:calc(var(--ch) + 16px);margin:0 auto}
 main .mosaic__t{position:absolute;top:0;width:var(--cw);height:var(--ch);aspect-ratio:auto;background:none;overflow:visible;
   transform:translateY(var(--y)) rotate(var(--r));will-change:transform;-webkit-tap-highlight-color:transparent}
@@ -412,10 +412,6 @@ main .mosaic__face::after{content:"";position:absolute;inset:0;pointer-events:no
 /* the label stays on the part of the card the next card does not cover; a long name wraps, never cuts */
 main .mosaic__t span{left:10px;bottom:10px;max-width:calc(var(--step) - 22px);padding:6px 8px;border-radius:0;font-size:10px;line-height:1.25;letter-spacing:.12em;white-space:normal}
 main .mosaic__t:last-child span{max-width:calc(100% - 20px)}
-/* motion pause: under the middle of the hand, where no card reaches */
-main .hero__pause{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);height:30px;min-width:0;width:auto;padding:0 12px;border:1px solid var(--line);border-radius:0;
-  background:var(--paper);font-family:var(--body);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer}
-main .hero__pause:hover{color:var(--ink);border-color:var(--ink)}
 
 /* the collection follows the opening at once */
 main .band#collection{padding-top:28px}
@@ -486,7 +482,7 @@ main .mosaic__t span{max-width:calc(100% - 20px)}
 /* tablet and phone: the hand moves under the words */
 @media(max-width:980px){
   main .hero{grid-template-columns:minmax(0,1fr);row-gap:0}
-  main .stage{--cw:clamp(84px,calc((100vw - 80px) / 4.4),170px);padding:30px 14px 44px}
+  main .stage{--cw:clamp(84px,calc((100vw - 80px) / 4.4),170px);padding:30px 14px 30px}
 }
 @media(max-width:719px){
   main .hero{margin:calc(var(--ann) + var(--nav) + 10px) 10px 0;padding:26px 16px 4px;border-radius:18px}
@@ -504,7 +500,7 @@ main .mosaic__t span{max-width:calc(100% - 20px)}
 }
 /* on a phone, two rows of two: each card big enough to see the person whole */
 @media(max-width:719px){
-  main .stage{--cw:min(calc((100vw - 96px) / 2),170px);--ch:calc(var(--cw) * 1.5);--gap:calc(var(--cw) * .1);--step:calc(var(--cw) + var(--gap));padding:22px 12px 44px}
+  main .stage{--cw:min(calc((100vw - 96px) / 2),170px);--ch:calc(var(--cw) * 1.5);--gap:calc(var(--cw) * .1);--step:calc(var(--cw) + var(--gap));padding:22px 12px 30px}
   main .mosaic{--row:calc(var(--ch) + var(--gap) + 18px);width:calc(var(--cw) * 2 + var(--gap));height:calc(var(--row) + var(--ch) + 16px)}
   main .mosaic__t:nth-child(1){left:0;top:0;--r:-3deg;--y:6px}
   main .mosaic__t:nth-child(2){left:var(--step);top:0;--r:2deg;--y:0px}
@@ -512,7 +508,20 @@ main .mosaic__t span{max-width:calc(100% - 20px)}
   main .mosaic__t:nth-child(4){left:var(--step);top:var(--row);--r:3deg;--y:6px}
   main .mosaic__face img{height:100%}
 }
-@media(prefers-reduced-motion:reduce){.motion-reveal.is-waiting{opacity:1;transform:none}main .hero__pause{display:none}main .stage{padding-bottom:30px}}
+@media(prefers-reduced-motion:reduce){.motion-reveal.is-waiting{opacity:1;transform:none}main .stage{padding-bottom:30px}}
+/* The cards as square-cornered prints with an even white border (owner, 3 Nov 2026: "the edges are not
+   proper.. make the card rectangle with even offset"). The card is cut to the photograph: 8px of white on
+   every side of a 2:3 picture, the designer's name in the white strip under it, so nothing is letterboxed
+   and the border is the same width all round. */
+main .mosaic__face{border-radius:0;background:#fff;box-shadow:0 22px 40px -26px rgba(17,17,17,.55),0 0 0 1px rgba(17,17,17,.08)}
+main .mosaic__face img{inset:8px 8px auto 8px;width:calc(100% - 16px);height:calc(100% - 46px);object-fit:cover;object-position:50% 50%}
+main .mosaic__t span{left:8px;right:8px;bottom:8px;height:30px;padding:0 2px;background:#fff;max-width:none}
+main .stage{--ch:calc((var(--cw) - 16px) * 1.5 + 46px)}
+@media(max-width:719px){
+  main .mosaic__face{border-radius:0}
+  main .mosaic__face img{inset:6px;width:calc(100% - 12px);height:calc(100% - 12px)}
+  main .stage{--ch:calc((var(--cw) - 12px) * 1.5 + 12px)}
+}
 </style>
 <link rel="stylesheet" href="pfa-search.css">
 <script src="pfa-search.js" defer></script>
@@ -522,7 +531,7 @@ main .mosaic__t span{max-width:calc(100% - 20px)}
 main .feature,main .promises,main .shop-end{display:none}
 main .band#collection{max-width:none;margin:0;padding:28px 24px 64px}
 main .bar{position:relative;top:auto;display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:0 0 24px;padding:0;background:#fff;border:0;backdrop-filter:none}
-main .chip{height:36px;padding:0 5px;background:transparent;border:0;border-radius:0;color:#aaa;font-weight:700;letter-spacing:0;text-transform:uppercase}
+main .chip{height:36px;padding:0 5px;background:transparent;border:0;border-radius:0;color:#6a6a6a;font-weight:700;letter-spacing:0;text-transform:uppercase}
 main .chip[aria-pressed="true"]{color:var(--ink);background:transparent;border:0;text-decoration:underline;text-underline-offset:5px}
 main .bar__sort{margin-left:18px;padding:0;font-size:11px}
 main .bar__sort select{border:0;height:36px;background:#fff}
@@ -837,7 +846,6 @@ if (root.document && root.document.head) apply(read());
         <a class="mosaic__t" href="#raw-mango" data-open-id="37"><div class="mosaic__face"><img src="media/shop/v4/raw-mango-x-pfa-front-studio.webp" alt="Raw Mango x PFA" decoding="async"><span>Raw Mango</span></div></a>
         <a class="mosaic__t" href="#ashima-singh" data-open-id="39"><div class="mosaic__face"><img src="media/shop/v4/ashima-singh-x-pfa-front-studio.webp" alt="Ashima Singh x PFA" decoding="async"><span>Ashima Singh</span></div></a>
       </div>
-      <button class="hero__pause" type="button" aria-pressed="false" aria-label="Pause the moving cards">Pause</button>
     </div>
   </section>
 
@@ -1526,7 +1534,8 @@ function flip(){
 }
 setInterval(flip,3400);
 
-pause.addEventListener('click',function(){
+/* no pause button (owner, 3 Nov 2026: "dont need these pause buttons"); hover, focus and reduced motion still stop the cards */
+if(pause)pause.addEventListener('click',function(){
  stopped=!stopped;
  pause.setAttribute('aria-pressed',String(stopped));
  pause.setAttribute('aria-label',stopped?'Start the moving cards':'Pause the moving cards');
