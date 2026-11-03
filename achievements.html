@@ -350,7 +350,6 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 ::selection{background:var(--pop,#ff3b18);color:#fff}
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
-  .gcard footer,
   .grail-bottom{font-size:10px}
   .search{height:44px}
   .search input{height:100%}
@@ -382,25 +381,24 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 <style>
 /* The hero as a ring of cards (owner, 3 Nov 2026: "lets try this look and
    feel for achievements"). White, as the rest of the site. */
-@font-face{font-family:AchievementSerif;src:url('fonts/eb-garamond-latin-500.woff2') format('woff2');font-display:swap}
 html{scroll-behavior:smooth}
 .grail-hero{position:relative;overflow:hidden;isolation:isolate;background:#fff;color:#111;font-family:var(--body);padding-top:calc(var(--ann,34px) + var(--nav,81px) + 28px);height:calc(var(--ann,34px) + var(--nav,81px) + 210px + clamp(235px,24.6vw,440px) + 170px)}
 .grail-intro{margin:0 20px 24px;text-align:center;color:#6a6a6a;font-size:13px;line-height:1.5}
-.grail-title{position:relative;z-index:3;pointer-events:none;font-family:AchievementSerif,'Times New Roman',serif;font-size:8.55vw;font-weight:400;letter-spacing:-.055em;line-height:1;margin:0 2.4vw;white-space:nowrap;text-transform:uppercase;color:#111;animation:titleIn 1.5s cubic-bezier(.2,.7,.2,1) both}
+.grail-title{position:relative;z-index:3;pointer-events:none;font-family:var(--display);font-size:min(7.6vw,132px);font-weight:400;letter-spacing:.01em;line-height:1;margin:0 2.4vw;white-space:nowrap;text-align:center;text-transform:uppercase;color:#111;animation:titleIn 1.5s cubic-bezier(.2,.7,.2,1) both}
 .grail-stage{position:absolute;left:0;right:0;top:calc(var(--ann,34px) + var(--nav,81px) + 210px);height:calc(clamp(235px,24.6vw,440px) + 90px);perspective:1400px;transform-style:preserve-3d;touch-action:pan-y;pointer-events:none}
 .orbit{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
-.gcard{position:absolute;width:clamp(145px,15.8vw,280px);height:clamp(235px,24.6vw,440px);border-radius:12px;border:1px solid #dedbd6;overflow:hidden;backface-visibility:hidden;transform-style:preserve-3d;cursor:pointer;text-align:left;color:#151515;background:#fff;padding:18px;display:flex;flex-direction:column;box-shadow:0 6px 28px #0002;transition:box-shadow .25s;pointer-events:auto}
+.gcard{position:absolute;font-family:var(--body);width:clamp(145px,15.8vw,280px);height:clamp(235px,24.6vw,440px);border-radius:12px;border:1px solid #dedbd6;overflow:hidden;backface-visibility:hidden;transform-style:preserve-3d;cursor:pointer;text-align:left;color:#151515;background:#fff;padding:18px;display:flex;flex-direction:column;box-shadow:0 6px 28px #0002;transition:box-shadow .25s;pointer-events:auto}
 .gcard:hover,.gcard:focus-visible{box-shadow:0 0 0 3px #c7a8ce,0 12px 35px #0002;outline:none}
 .gcard .seal{font-size:30px;color:var(--tone);line-height:1;margin-bottom:7px}
-.gcard small{font-size:10px;color:#797973}
-.gcard h2{font-size:clamp(17px,1.65vw,29px);line-height:1.03;letter-spacing:-.045em;margin:8px 0 14px;font-family:Arial,sans-serif;font-weight:700;text-transform:none}
-.gcard p{font-size:clamp(9px,.78vw,13px);line-height:1.3;margin:0;color:#62625e;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.gcard footer{margin-top:auto;border-top:1px solid #dddcd7;padding-top:10px;font-size:9px;color:#73736c;display:flex;justify-content:space-between}
+.gcard small{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#797973}
+.gcard h2{font-size:clamp(17px,1.6vw,27px);line-height:1.12;letter-spacing:.005em;margin:8px 0 14px;font-family:var(--display);font-weight:400;text-transform:none}
+.gcard p{font-size:clamp(10px,.8vw,13px);line-height:1.45;margin:0;color:#62625e;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.gcard footer{margin-top:auto;border-top:1px solid #dddcd7;padding-top:10px;font-size:10px;letter-spacing:.04em;color:#73736c}
 .card-reverse{pointer-events:none;backface-visibility:hidden;position:absolute;width:clamp(145px,15.8vw,280px);height:clamp(235px,24.6vw,440px);border-radius:12px;transform:translate(-50%,-50%) rotateY(180deg);background-color:var(--tone);background-image:radial-gradient(circle at 50% 100%,#504832 0 47%,transparent 49%);background-size:50% 14%}
 .card-reverse.tree{background-image:none;display:grid;place-items:center;color:#51472f;font:200px Georgia}
 .card-reverse.tree:after{content:'\2663'}
 .card-reverse.check{background-image:conic-gradient(#342d21 25%,transparent 0 50%,#342d21 0 75%,transparent 0);background-size:38% 26%}
-.grail-bottom{position:absolute;bottom:22px;left:2.4vw;right:2.4vw;display:flex;justify-content:space-between;gap:15px;align-items:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#666;z-index:5}
+.grail-bottom{position:absolute;font-family:var(--body);bottom:22px;left:2.4vw;right:2.4vw;display:flex;justify-content:space-between;gap:15px;align-items:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#666;z-index:5}
 .grail-bottom button{background:none;border:1px solid #ccc;border-radius:30px;color:#111;font-size:11px;letter-spacing:.06em;text-transform:none;padding:10px 16px;cursor:pointer}
 .grail-bottom a{color:#111;text-transform:none;letter-spacing:.04em}
 #records{scroll-margin-top:20px;padding-top:100px}
@@ -409,10 +407,10 @@ html{scroll-behavior:smooth}
 @media(max-width:700px){
   .grail-hero{height:calc(var(--ann,34px) + var(--nav,81px) + 210px + 285px + 190px)}
   .grail-intro{font-size:12px;max-width:290px;margin:0 auto 25px}
-  .grail-title{font-size:14.5vw;line-height:.9;white-space:normal;text-align:center;margin:0 14px}
+  .grail-title{font-size:13vw;line-height:1;white-space:normal;text-align:center;margin:0 14px}
   .grail-stage{height:375px}
   .gcard,.card-reverse{width:180px;height:285px}
-  .gcard{padding:14px}.gcard h2{font-size:21px}.gcard p{font-size:10px}
+  .gcard{padding:14px}.gcard h2{font-size:19px}.gcard p{font-size:11px}
   .grail-bottom{flex-wrap:wrap;left:20px;right:20px;letter-spacing:.02em;font-size:9px}
   .grail-bottom>span{width:100%;text-align:center}
   .grail-bottom button{padding:8px 12px}
@@ -993,7 +991,7 @@ const tones=['#ba9bc8','#ceac32','#b83b1e','#87b9c3'];
 let paused=matchMedia('(prefers-reduced-motion: reduce)').matches,visible=true,hovered=false,focused=false,speed=paused?0:1,angle=0,last=0,mx=0,my=0,nextRecord=12;
 const N=12,SPIN=.085;
 const cards=Array.from({length:N},(_,i)=>{const orbit=document.createElement('div');orbit.className='orbit';const b=document.createElement('button');b.type='button';b.className='gcard';const back=document.createElement('div');back.className='card-reverse '+(i%3===0?'tree':i%3===1?'check':'');back.setAttribute('aria-hidden','true');back.style.setProperty('--tone',tones[i%4]);orbit.append(b,back);stage.append(orbit);const card={el:orbit,b,i,row:null,turn:0};b.addEventListener('click',()=>{const row=card.row;document.querySelector('.rfil__b[data-filter=""]').click();row.scrollIntoView({behavior:paused?'auto':'smooth',block:'center'});history.replaceState(null,'','#'+row.id)});fill(card,i);return card;});
-function fill(card,index){const row=rows[index%rows.length],b=card.b;card.row=row;b.replaceChildren();b.style.setProperty('--tone',tones[index%4]);const title=row.querySelector('.rec__t').textContent;b.setAttribute('aria-label','Read achievement: '+title);const seal=document.createElement('span');seal.className='seal';seal.textContent=['♣','✦','≋','✺'][index%4];const cat=document.createElement('small');cat.textContent=row.dataset.theme;const h=document.createElement('h2');h.textContent=title;const p=document.createElement('p');p.textContent=row.querySelector('.rec__p').textContent;const f=document.createElement('footer');f.textContent='People for Animals · '+(row.dataset.year||'Our work')+'   ↗';b.append(seal,cat,h,p,f);}
+function fill(card,index){const row=rows[index%rows.length],b=card.b;card.row=row;b.replaceChildren();b.style.setProperty('--tone',tones[index%4]);const title=row.querySelector('.rec__t').textContent;b.setAttribute('aria-label','Read achievement: '+title);const seal=document.createElement('span');seal.className='seal';seal.textContent=['♣','✦','≋','✺'][index%4];const cat=document.createElement('small');cat.textContent=row.dataset.theme;const h=document.createElement('h2');h.textContent=title;const p=document.createElement('p');p.textContent=row.querySelector('.rec__p').textContent;const f=document.createElement('footer');f.textContent='People for Animals · '+(row.dataset.year||'Our work');b.append(seal,cat,h,p,f);}
 /* One row: every card sits on the same horizontal ring, evenly spaced, and the ring turns slowly. Each card is angled to the ring's curve so the ones in front stay readable. */
 function draw(){const w=stage.clientWidth,mobile=w<700,a=w*(mobile?1.15:.5),d=mobile?260:420;cards.forEach(card=>{const {el,i,b}=card,theta=angle+i*Math.PI*2/N,turn=Math.floor((theta+Math.PI)/(Math.PI*2));if(turn>card.turn){fill(card,nextRecord++);card.turn=turn;}const s=Math.sin(theta),c=Math.cos(theta),x=s*a,z=c*d-d,face=Math.atan2(d*s,a*c);el.style.transform=`translate3d(${x+mx}px,${my}px,${z}px) rotateY(${face*180/Math.PI}deg)`;b.style.transform='translate(-50%,-50%)';el.style.opacity='1';b.tabIndex=c>.25?0:-1;});}
 /* Hovering a card (or tabbing to one) eases the ring to a stop; leaving eases it back. */

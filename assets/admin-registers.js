@@ -55,6 +55,7 @@
     api('/api/admin/registers?kind=' + kind).then(function (d) {
       regState[kind].rows = d.rows || [];
       regState[kind].numbers = d.numbers || null;
+      regState[kind].numbering = d.numbering || null;
       regState[kind].picked = {};
       paintRegister(kind);
     }).catch(function (e) { box.innerHTML = '<div class="empty"><b>Could not read the register</b>' + esc(e.message) + '</div>'; });
@@ -99,20 +100,30 @@
      and future"): every series, its last number and the next; the members
      not numbered yet and why; and what the old lists left for PFA to check.
      Folded: one line until opened. */
+  (function () {
+    var css = document.createElement('style');
+    css.textContent = '.rg-hint.rg-good{color:#1f6b3a}.rg-hint.rg-bad{color:#a3251f;overflow-wrap:anywhere}';
+    document.head.appendChild(css);
+  })();
   function numbersHtml(st) {
     var n = st.numbers;
     if (!n) return '';
     var held = st.rows.filter(function (r) { return !r.memberNo; });
     var rep = n.oldReport || {};
     var check = (rep.unplacedCount || 0) + (rep.sharedByTwoCount || 0) + (rep.takenByNewCount || 0);
-    var used = n.series.filter(function (x) { return x.last; });
+    var used = (n.series || []).filter(function (x) { return x.last; });
+    var done = st.numbering || {};
+    var failed = held.filter(function (r) { return /^Not given yet/.test(r.numberHold || ''); });
     var line = function (t) { return '<li>' + esc(t) + '</li>'; };
-    return '<details class="rg-nums"><summary>Member numbers: ' + used.length + ' series in use'
+    /* said above the fold, not inside it: numbers given just now, and any that could not be */
+    var news = (done.numbered && done.numbered.length ? '<p class="rg-hint rg-good">' + esc(done.numbered.length === 1 ? 'One member numbered just now: ' : done.numbered.length + ' members numbered just now: ') + esc(done.numbered.map(function (x) { return x.number; }).join(', ')) + '.</p>' : '')
+      + (done.error || n.error || failed.length ? '<p class="rg-hint rg-bad">' + esc(done.error || n.error || (failed.length + (failed.length === 1 ? ' member' : ' members') + ' could not be numbered: ' + failed[0].numberHold)) + '</p>' : '');
+    return news + '<details class="rg-nums"' + (held.length ? ' open' : '') + '><summary>Member numbers: ' + used.length + ' series in use'
       + (held.length ? ' · ' + held.length + ' not numbered yet' : '') + (check ? ' · ' + check + ' old numbers to check' : '') + '</summary>'
       + '<p class="rg-hint">A member number is the state code and a number, given once from the state on the membership, the moment the payment succeeds. AP and TG, UP and UK, and MP and CG each share one count. No number is ever given twice: every old number from the old site lists is held first, and each count starts past the highest old number in it.</p>'
-      + (held.length ? '<p class="rg-hint"><b>Not numbered yet</b></p><ul class="rg-list">' + held.map(function (r) { return line(r.name + ' (' + r.id + '): ' + (r.numberHold || 'waiting for the next run, every few minutes')); }).join('') + '</ul>' : '')
+      + (held.length ? '<p class="rg-hint"><b>Not numbered yet</b></p><ul class="rg-list">' + held.map(function (r) { return line(r.name + ' (' + r.id + '): ' + (r.numberHold || 'not numbered: open this page again')); }).join('') + '</ul>' : '')
       + '<div class="wrap"><table><thead><tr><th>Series</th><th>States</th><th>Last given</th><th>Next</th></tr></thead><tbody>'
-      + n.series.map(function (x) { return '<tr><td>' + esc(x.series) + '</td><td>' + esc(x.states.map(function (s) { return s.code + ' ' + s.state; }).join(', ')) + '</td><td>' + (x.last || '') + '</td><td>' + esc(x.states[0].code + ' ' + x.next) + (x.states.length > 1 ? ' (or ' + esc(x.states.slice(1).map(function (s) { return s.code; }).join(', ')) + ')' : '') + '</td></tr>'; }).join('')
+      + (n.series || []).map(function (x) { return '<tr><td>' + esc(x.series) + '</td><td>' + esc(x.states.map(function (s) { return s.code + ' ' + s.state; }).join(', ')) + '</td><td>' + (x.last || '') + '</td><td>' + esc(x.states[0].code + ' ' + x.next) + (x.states.length > 1 ? ' (or ' + esc(x.states.slice(1).map(function (s) { return s.code; }).join(', ')) + ')' : '') + '</td></tr>'; }).join('')
       + '</tbody></table></div>'
       + (rep.unplacedCount ? '<p class="rg-hint"><b>Old numbers with no state (' + rep.unplacedCount + ')</b>: held nowhere, so give each a state code on the old site members page.</p><ul class="rg-list">' + (rep.unplaced || []).map(function (x) { return line(x.why); }).join('') + '</ul>' : '')
       + (rep.sharedByTwoCount ? '<p class="rg-hint"><b>Old numbers held by two different people (' + rep.sharedByTwoCount + ')</b>: never given again; decide whose it is on the old site members page.</p><ul class="rg-list">' + (rep.sharedByTwo || []).map(function (x) { return line(x.label + ': ' + x.people + ' people'); }).join('') + '</ul>' : '')

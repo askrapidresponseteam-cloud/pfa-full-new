@@ -104,4 +104,10 @@ test('achievements: its own hero, one title, the ring built from the record belo
   assert.match(html, /toggle\.textContent=paused\?'Resume motion':'Pause motion'/);
   assert.match(html, /@media\(prefers-reduced-motion:reduce\)\{html\{scroll-behavior:auto\}\.grail-title\{animation:none\}/);
   assert.match(html, /<link rel="stylesheet" href="assets\/pfa-theme\.css/);
+  /* the site's own faces, and no diagonal arrow (owner, 3 Nov 2026: "that diagnol arrow pointing right top has to go.. ensure the font matches with the rest of the site") */
+  assert.doesNotMatch(html, /\u2197/);
+  assert.doesNotMatch(html, /AchievementSerif|eb-garamond|font-family:Arial/);
+  assert.match(html, /\.grail-title\{[^}]*font-family:var\(--display\)/);
+  assert.match(html, /\.gcard h2\{[^}]*font-family:var\(--display\)/);
+  assert.match(html, /\.gcard\{position:absolute;font-family:var\(--body\);/);
 });

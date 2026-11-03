@@ -1,3 +1,12 @@
+## v1.518
+
+- **Member numbers: given when the register is opened, and every hold says why.** Owner, 3 Nov 2026: "still dont see the membership number issue sorted".
+  - Opening Membership cards now numbers every paid member still without a number, there and then, instead of waiting for the background run. Above the numbers fold it says who was numbered just now (KA 1, TN 4789...), and in red anything that could not be numbered and why.
+  - A member held for a missing state, or a PIN code not in the state, no longer takes the turn of one who can be numbered: before, the first twenty-five held members could keep every later member waiting.
+  - A number that cannot be given (a database error, the old site lists unreadable) is written on the membership with the reason and shown in the register, not only in a server log; the next try clears it. The numbers fold opens by itself while anyone is waiting.
+- **Achievements: the site's own type, no diagonal arrow.** Owner: "that diagnol arrow pointing right top has to go.. ensure the font matches with the rest of the site".
+  - "Change their world" and each card's title in Marcellus, the site's display face; the rest in the site's Helvetica. The arrow on each card's foot is gone.
+
 ## v1.517
 
 - **Payments & donations: Email this report.** Owner, 3 Nov 2026: "have 1 option to send report from here to selected people with segregation. it should go as report, for the selected duration".

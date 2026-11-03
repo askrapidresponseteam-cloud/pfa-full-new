@@ -186,3 +186,50 @@ test('wired: given at payment, on the card, in the letters and the register; cau
   /* the record is written only by the case module, as every submission write is */
   assert.doesNotMatch(read('lib/member-numbers.js'), /collection\('submissions'\)/);
 });
+
+/* owner, 3 Nov 2026: "still dont see the membership number issue sorted" */
+test('members held for their state never keep the others waiting; a failure is said on the record', async () => {
+  for (let i = 0; i < 30; i += 1) await member('', '', NOV - 100000 + i);
+  const ready = await member('Karnataka', '576102');
+  const r = await CASE.numberWaitingMembers(db, { readOld: oldList(), limit: 25 });
+  assert.equal(numberOf(ready), 'KA 1', 'numbered, though thirty held members joined before');
+  assert.equal(r.numbered.length, 1);
+  assert.equal(r.held.length, 25);
+  /* a number that cannot be given just now: the reason is on the record for the panel */
+  const tn = await member('Tamil Nadu', '600037');
+  const broken = async () => { throw new Error('The old list could not be read'); };
+  const r2 = await CASE.numberWaitingMembers(db, { readOld: broken, limit: 5 });
+  assert.equal(r2.failed.length, 1);
+  assert.match(db.dump()[`submissions/${tn}`].memberNumberHold.reason, /^Not given yet: The old list could not be read/);
+  /* put right, it is numbered and the hold is cleared */
+  await CASE.numberWaitingMembers(db, { readOld: oldList() });
+  assert.equal(numberOf(tn), 'TN 4789');
+  assert.equal(db.dump()[`submissions/${tn}`].memberNumberHold, null);
+});
+
+test('opening the membership register numbers whoever is waiting, and says so', async () => {
+  const OLDMEM = require('../lib/routes/admin/old-members')._private;
+  const realStanding = OLDMEM.standing;
+  OLDMEM.standing = async () => null;
+  try {
+    const a = await member('Madhya Pradesh', '462001');
+    const b = await member('', '');
+    const ROUTE = require('../lib/routes/admin/registers');
+    const handler = ROUTE.createHandler({ getDb: () => db, requireAdmin: async () => ({ uid: 'u', email: 'k@pfa.test', role: 'super' }), now: () => NOV + 3600000 });
+    const out = await new Promise((resolve, reject) => {
+      const o = { status: 200, headers: {} };
+      const response = { set statusCode(v) { o.status = v; }, get statusCode() { return o.status; }, setHeader(k, v) { o.headers[k] = v; }, end(raw) { o.json = JSON.parse(String(raw)); resolve(o); } };
+      Promise.resolve(handler({ method: 'GET', url: '/api/admin/registers?kind=membership', query: { kind: 'membership' }, headers: {} }, response)).catch(reject);
+    });
+    assert.equal(out.status, 200, JSON.stringify(out.json));
+    assert.deepEqual(out.json.numbering.numbered, [{ reference: a, number: 'MP 1' }]);
+    assert.equal(out.json.rows.find((r) => r.id === a).memberNo, 'MP 1', 'on the list the panel draws');
+    assert.match(out.json.rows.find((r) => r.id === b).numberHold, /No state on the membership/);
+    assert.equal(db.dump()[`submissions/${a}`].memberNo.by, undefined);
+    assert.match(JSON.stringify(db.dump()[`submissions/${a}`].history), /"by":"admin:k@pfa\.test"/);
+  } finally { OLDMEM.standing = realStanding; }
+  const js = read('assets/admin-registers.js');
+  assert.match(js, /members numbered just now: /);
+  assert.match(js, /could not be numbered: /);
+  assert.doesNotMatch(js, /waiting for the next run/);
+});
