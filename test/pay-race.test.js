@@ -101,6 +101,11 @@ test('a membership: both pages show the same member number, and there is one mem
   const recs = records('PFA-MEM');
   assert.deepEqual(recs, [`PFA-MEM-${YEAR}-00001`]);
   for (const page of pages) assert.deepEqual(numbersOn(page.raw, 'PFA-MEM'), recs, 'each page shows the one number');
+  /* and the one state member number (lib/member-numbers.js, 3 Nov 2026) */
+  const given = db.dump()[`submissions/${recs[0]}`].memberNo;
+  assert.ok(given && /^[A-Z]{2,3} \d+$/.test(given.label), JSON.stringify(given));
+  for (const page of pages) assert.ok(page.raw.includes(`<strong>${given.label}</strong>`), 'each page shows the same member number');
+  assert.equal(Object.keys(db.dump()).filter((k) => k.startsWith('member_number_holders/')).length, 1, 'one number for the one member');
   /* and a later visit (a refresh) shows it too */
   const later = await callback(out);
   assert.deepEqual(numbersOn(later.raw, 'PFA-MEM'), recs);

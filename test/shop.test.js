@@ -261,3 +261,15 @@ test('the shop routes are served by the one API function', () => {
   const { ROUTES } = require('../api/index.js')._private;
   assert.ok(ROUTES['shop/checkout'] && ROUTES['shop/response']);
 });
+
+/* Owner, 3 Nov 2026, with shop.html: "update with this shop". The gallery
+   layout: six across, name and price on hover (always shown on a phone),
+   and a full-page look with Back; buying stays in the look. */
+test('the shop gallery layout, as the owner sent it', () => {
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'shop.html'), 'utf8');
+  assert.match(html, /<style id="pfa-palace-shop-layout">/);
+  assert.match(html, /main \.grid\{grid-template-columns:repeat\(6,minmax\(0,1fr\)\);gap:12px\}/);
+  assert.match(html, /main \.item:hover \.item__bd,main \.item:focus-within \.item__bd\{opacity:1;/, 'name and price on hover and on keyboard focus');
+  assert.match(html, /@media\(max-width:700px\)\{[^\n]*main \.item__bd\{position:static;opacity:1;/, 'always shown on a phone');
+  assert.match(html, /#look\{bottom:var\(--tabbar,58px\)\}/, 'on a phone the look ends at the tab bar, nothing showing between');
+});

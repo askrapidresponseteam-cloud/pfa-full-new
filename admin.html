@@ -159,6 +159,7 @@ button{font:inherit;color:inherit}
 .rg-seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .rg-hint{margin:0 0 12px;font-size:12px;color:var(--muted)}
 .rg-say{margin:0 0 10px;font-size:12px;min-height:18px}
+.rg-nums{margin:0 0 14px;border:1px solid var(--line);padding:10px 14px}.rg-nums>summary{cursor:pointer;font-size:13px;font-weight:700}.rg-nums .wrap{margin:8px 0 12px}.rg-list{margin:0 0 12px;padding-left:18px;font-size:12px;line-height:1.6}
 .rg table{min-width:900px}
 .rg th{white-space:nowrap}
 .rg td{padding:6px 4px;vertical-align:top}
@@ -231,6 +232,7 @@ button.cell:hover{background:var(--stone,#f4f3f1)}
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
 .tools input,.tools select{padding:0 11px;height:38px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px}
 .tools input{min-width:230px}
+#payRange:not([hidden]){display:inline-flex;gap:8px;align-items:center}#payRange input{min-width:0;width:150px}
 .tools input:focus,.tools select:focus{border-color:var(--ink);outline:none}
 .ghost{padding:0 15px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 .ghost:hover{border-color:var(--ink)}
@@ -955,7 +957,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="payments">
       <div class="tools">
         <select id="payType" aria-label="Purpose">
-          <option value="">Every purpose</option><option value="donate">Donation</option>
+          <option value="">Every purpose</option><option value="donate">Donation</option><option value="membership">Membership</option>
           <option value="caregiver">Colony card postage</option><option value="caregiver-application">Caregiver application fee</option><option value="shop">Shop order</option>
         </select>
         <!-- Paid first, and chosen (owner, 1 Nov 2026: "by default show
@@ -966,6 +968,9 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
           <option value="failed">Failed</option><option value="unverified">Not confirmed</option>
           <option value="abandoned">Abandoned</option><option value="started">Not finished</option>
         </select>
+        <!-- when (3 Nov 2026): any time, a month, or dates chosen; the dates show only when asked for -->
+        <select id="payWhen" aria-label="When"><option value="">Any time</option></select>
+        <span id="payRange" hidden><input type="date" id="payFrom" aria-label="From"> <input type="date" id="payTo" aria-label="To"></span>
         <input type="search" id="payQ" placeholder="Name, email, mobile or order" aria-label="Find a payment by name, email, mobile, order or bank reference">
         <button class="ghost" type="button" id="payGo">Apply</button>
         <button class="ghost" type="button" id="payCsv">Download the list</button>
@@ -2120,7 +2125,33 @@ window.addEventListener('unhandledrejection', function (event) {
     if ($('#payType').value) url += '&purpose=' + encodeURIComponent($('#payType').value);
     if ($('#payStatus').value) url += '&status=' + encodeURIComponent($('#payStatus').value);
     if ($('#payQ') && $('#payQ').value.trim()) url += '&q=' + encodeURIComponent($('#payQ').value.trim());
+    var when = $('#payWhen') ? $('#payWhen').value : '';
+    if (/^\d{4}-\d{2}$/.test(when)) url += '&month=' + when;
+    if (when === 'range') {
+      if ($('#payFrom').value) url += '&from=' + $('#payFrom').value;
+      if ($('#payTo').value) url += '&to=' + $('#payTo').value;
+    }
     return url;
+  }
+  /* this month and the eleven before it, India time, then Choose dates */
+  (function () {
+    var sel = $('#payWhen');
+    if (!sel) return;
+    var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var d = new Date(Date.now() + 330 * 60000);
+    var y = d.getUTCFullYear(); var m = d.getUTCMonth();
+    var html = '';
+    for (var i = 0; i < 12; i += 1) {
+      html += '<option value="' + y + '-' + String(m + 1).padStart(2, '0') + '">' + MON[m] + ' ' + y + '</option>';
+      m -= 1; if (m < 0) { m = 11; y -= 1; }
+    }
+    sel.insertAdjacentHTML('beforeend', html + '<option value="range">Choose dates\u2026</option>');
+  })();
+  function payWhenLabel() {
+    var sel = $('#payWhen');
+    if (!sel || !sel.value) return '';
+    if (sel.value !== 'range') return sel.value;
+    return [$('#payFrom').value, $('#payTo').value].filter(Boolean).join('-to-');
   }
   function payments(reset) {
     var body = $('#payRows');
@@ -3659,6 +3690,14 @@ window.addEventListener('unhandledrejection', function (event) {
   on('#payGo', 'click', function () { payments(true); });
   on('#payType', 'change', function () { payments(true); });
   on('#payStatus', 'change', function () { payments(true); });
+  on('#payWhen', 'change', function () {
+    var range = this.value === 'range';
+    $('#payRange').hidden = !range;
+    if (range) { $('#payFrom').focus(); return; }
+    payments(true);
+  });
+  on('#payFrom', 'change', function () { if ($('#payTo').value) payments(true); });
+  on('#payTo', 'change', function () { payments(true); });
   on('#payQ', 'keydown', function (e) { if (e.key === 'Enter') payments(true); });
   on('#payMore', 'click', function () { payments(false); });
   on('#payCsv', 'click', function () {
@@ -3668,7 +3707,7 @@ window.addEventListener('unhandledrejection', function (event) {
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
-      a.download = 'pfa-payments.csv';
+      a.download = 'pfa-payments' + (payWhenLabel() ? '-' + payWhenLabel() : '') + '.csv';
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -4419,6 +4458,7 @@ window.addEventListener('unhandledrejection', function (event) {
       if ($('#payQ')) $('#payQ').value = r.id;
       if ($('#payType')) $('#payType').value = '';
       if ($('#payStatus')) $('#payStatus').value = '';
+      if ($('#payWhen')) { $('#payWhen').value = ''; $('#payRange').hidden = true; }
       return payments(true);
     }
     if (r.type === 'card') { show('caregivers'); $('#cgQ').value = r.id; return caregivers(true); }

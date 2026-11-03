@@ -37,6 +37,8 @@
       pane: 'memsheet', noun: 'members', todo: 'Not shipped', done: 'Shipped', file: 'members',
       cols: [
         ['Name / number / email', function (r) { return [[r.name], [r.mobile], r.altMobile ? [r.altMobile, 'other'] : null, [r.email]]; }, 'rg-name'],
+        /* the state member number (lib/member-numbers.js); the reference under it */
+        ['Member number', function (r) { return [r.memberNo ? [r.memberNo] : ['Not yet', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null, [r.id, 'sub']]; }, 'rg-nw'],
         ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
         ['Membership type', function (r) { return [[r.type], r.amount ? [r.amount, 'sub'] : null, r.cardId ? [r.cardId, 'card'] : null]; }],
         ['Date', function (r) { return [[r.paidOn]]; }, 'rg-nw']
@@ -52,6 +54,7 @@
     if (!box) return;
     api('/api/admin/registers?kind=' + kind).then(function (d) {
       regState[kind].rows = d.rows || [];
+      regState[kind].numbers = d.numbers || null;
       regState[kind].picked = {};
       paintRegister(kind);
     }).catch(function (e) { box.innerHTML = '<div class="empty"><b>Could not read the register</b>' + esc(e.message) + '</div>'; });
@@ -64,7 +67,7 @@
       if (st.show === 'todo' && r.done) return false;
       if (st.show === 'done' && !r.done) return false;
       if (!q) return true;
-      return [r.name, r.mobile, r.altMobile, r.email, r.id, r.cardId, r.lines.join(' '), r.district, r.state, r.type, r.courier, r.tracking].join(' ').toLowerCase().indexOf(q) !== -1;
+      return [r.name, r.mobile, r.altMobile, r.email, r.id, r.memberNo, r.cardId, r.lines.join(' '), r.district, r.state, r.type, r.courier, r.tracking].join(' ').toLowerCase().indexOf(q) !== -1;
     });
   }
 
@@ -85,9 +88,37 @@
       + '<button class="ghost" type="button" data-rg="csv">Export to Excel</button>'
       + '</div><p class="rg-hint">Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.</p>'
       + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
+      + (kind === 'membership' ? numbersHtml(st) : '')
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
       + '<div class="wrap"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + spec.cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th>Shipping</th></tr></thead><tbody data-rg-body></tbody></table></div>';
     paintRegisterRows(kind);
+  }
+
+  /* Member numbers (owner, 3 Nov 2026: "enterprise grade numbering-
+     statewise and ensure that no 2 members ever get same number, old , new
+     and future"): every series, its last number and the next; the members
+     not numbered yet and why; and what the old lists left for PFA to check.
+     Folded: one line until opened. */
+  function numbersHtml(st) {
+    var n = st.numbers;
+    if (!n) return '';
+    var held = st.rows.filter(function (r) { return !r.memberNo; });
+    var rep = n.oldReport || {};
+    var check = (rep.unplacedCount || 0) + (rep.sharedByTwoCount || 0) + (rep.takenByNewCount || 0);
+    var used = n.series.filter(function (x) { return x.last; });
+    var line = function (t) { return '<li>' + esc(t) + '</li>'; };
+    return '<details class="rg-nums"><summary>Member numbers: ' + used.length + ' series in use'
+      + (held.length ? ' · ' + held.length + ' not numbered yet' : '') + (check ? ' · ' + check + ' old numbers to check' : '') + '</summary>'
+      + '<p class="rg-hint">A member number is the state code and a number, given once from the state on the membership, the moment the payment succeeds. AP and TG, UP and UK, and MP and CG each share one count. No number is ever given twice: every old number from the old site lists is held first, and each count starts past the highest old number in it.</p>'
+      + (held.length ? '<p class="rg-hint"><b>Not numbered yet</b></p><ul class="rg-list">' + held.map(function (r) { return line(r.name + ' (' + r.id + '): ' + (r.numberHold || 'waiting for the next run, every few minutes')); }).join('') + '</ul>' : '')
+      + '<div class="wrap"><table><thead><tr><th>Series</th><th>States</th><th>Last given</th><th>Next</th></tr></thead><tbody>'
+      + n.series.map(function (x) { return '<tr><td>' + esc(x.series) + '</td><td>' + esc(x.states.map(function (s) { return s.code + ' ' + s.state; }).join(', ')) + '</td><td>' + (x.last || '') + '</td><td>' + esc(x.states[0].code + ' ' + x.next) + (x.states.length > 1 ? ' (or ' + esc(x.states.slice(1).map(function (s) { return s.code; }).join(', ')) + ')' : '') + '</td></tr>'; }).join('')
+      + '</tbody></table></div>'
+      + (rep.unplacedCount ? '<p class="rg-hint"><b>Old numbers with no state (' + rep.unplacedCount + ')</b>: held nowhere, so give each a state code on the old site members page.</p><ul class="rg-list">' + (rep.unplaced || []).map(function (x) { return line(x.why); }).join('') + '</ul>' : '')
+      + (rep.sharedByTwoCount ? '<p class="rg-hint"><b>Old numbers held by two different people (' + rep.sharedByTwoCount + ')</b>: never given again; decide whose it is on the old site members page.</p><ul class="rg-list">' + (rep.sharedByTwo || []).map(function (x) { return line(x.label + ': ' + x.people + ' people'); }).join('') + '</ul>' : '')
+      + (rep.takenByNewCount ? '<p class="rg-hint"><b>Old numbers a new member already holds (' + rep.takenByNewCount + ')</b>: added to the old lists after the new number was given; the new member keeps it, so give the old one another.</p><ul class="rg-list">' + (rep.takenByNew || []).map(function (x) { return line(x.label + ': ' + x.reference); }).join('') + '</ul>' : '')
+      + (n.oldSyncedAt ? '<p class="rg-hint">Old site lists last read ' + esc(String(n.oldSyncedAt).slice(0, 16).replace('T', ' ')) + ' UTC.</p>' : '<p class="rg-hint">The old site lists have not been read yet: they are, before the first number is given.</p>')
+      + '</details>';
   }
 
   function regShipHtml(kind, r) {

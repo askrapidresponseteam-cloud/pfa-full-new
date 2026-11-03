@@ -372,3 +372,29 @@ test('wired: the route, the portal page, the plan, the email worker and the inte
   assert.match(internship, /55 questions/);
   assert.doesNotMatch(internship, /The ten questions/, 'the old ten questions are gone from the public page');
 });
+
+/* owner, 3 Nov 2026: "hope quiz results get emailed to gandhim as well as one taking it" */
+test('each attempt’s marks are emailed to the intern who took it, once; no answers in it', async () => {
+  NOW = at('2026-11-09T05:00:00.000Z');
+  const { br } = await intern();
+  NOW = at('2026-11-10T05:00:00.000Z');
+  sent = [];
+  await sit(br, (q) => q.section.level === 'easy');
+  assert.equal(sent.length, 1);
+  const m = sent[0];
+  assert.equal(m.to, 'asha@example.com');
+  assert.equal(m.subject, 'Your PFA internship quiz: 8%, attempt 1 of 3');
+  assert.match(m.text, /Asha, here are your marks for attempt 1 of 3 of the internship quiz\./);
+  assert.match(m.text, /Easy 10 of 10, medium 0 of 20, hard 0 of 25\./);
+  assert.match(m.text, /You have 2 more attempts; the next opens Wed 11 Nov, 10:30 am\./);
+  assert.doesNotMatch(m.text + m.html, /The answer|Why:/, 'no answers by email');
+  /* the dashboard reading the finished attempt again sends nothing more */
+  await br.go('me', 'GET');
+  assert.equal(sent.length, 1);
+  NOW = at('2026-11-11T06:00:00.000Z');
+  sent = [];
+  await sit(br, () => true);
+  assert.equal(sent.length, 1, 'one email: the quiz result, not a second "accepted" email as well');
+  assert.equal(sent[0].subject, 'You passed the PFA internship quiz: 100%');
+  assert.match(sent[0].text, /Week 1's task, Learn the law, is marked done\./);
+});

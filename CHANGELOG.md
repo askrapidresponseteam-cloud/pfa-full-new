@@ -1,3 +1,33 @@
+## v1.514
+
+- **Payments & donations: by month, or between two dates.** Owner, 3 Nov 2026: "this needs to have filter by month, and date range".
+  - A When list beside Purpose and Outcome: Any time, this month and the eleven before it, or Choose dates, which shows a From and a To date only when chosen. The count and total at the top, the list and Download the list all follow it, and the downloaded file is named for the period (pfa-payments-2026-10.csv).
+  - Months and days are India's: 1 November starts at midnight IST, so a payment at 00:30 on the 1st is in November, not October. Two dates entered the wrong way round are read as the range they plainly mean.
+  - Membership added to the Purpose list, which did not have it.
+
+## v1.513
+
+- **Member numbers, state by state, never the same twice.** Owner, 3 Nov 2026: "MP and Chhattisgarh go on rotational basis. Is that possible to detect and allot the membership on rotational basis depending upon the address ... how to ensure we do enterprise grade numbering- statewise and ensure that no 2 members ever get same number, old , new and future". Answered: MP and CG share one count; the members who joined on the website get state numbers too.
+  - A member number is the state code and a number: TN 4789, MP 1503. Each state counts on its own; Andhra Pradesh and Telangana, Uttar Pradesh and Uttarakhand, and Madhya Pradesh and Chhattisgarh each share one running count, as their old lists did, each number with its own state's code (MP 1501, CG 1502, MP 1503). Codes follow the old lists where they had one (HRY, DLH, PUD).
+  - The state comes from the membership form, which only takes a state from the list and a PIN code in it. A membership with no state or a PIN not in its state is held, with the reason, and numbered on the next run once put right.
+  - Never twice: every number, old and new, has one entry in a register (member_numbers), and a new number is taken in one database transaction with that entry, the count and the membership, so two payments in the same second get different numbers and a membership never gets two. Before any number is given, every number on the old site lists is entered as taken and each count starts past the highest old number in it; this runs again whenever the old list is imported or edited. Old numbers with no state, an old number held by two people, and an old number a new member already holds are listed for PFA, never given again. The register keeps no names from the old list.
+  - Given the moment the payment succeeds: on the welcome page and in the welcome letter (with the membership reference beside it, which the track page uses; the letter's subject keeps the reference, so every later email stays in the same conversation), on the membership card and the card emails. The members who joined before are numbered, oldest first, by the email worker's next run.
+  - In the panel, the membership register has a Member number column (searchable, in the Excel export too), and a folded Member numbers summary: each series with its last and next number, the members not numbered yet and why, and what the old lists left to check.
+
+## v1.512
+
+- **The internship quiz: each attempt's marks emailed to the intern too.** Owner, 3 Nov 2026: "hope quiz results get emailed to gandhim as well as one taking it".
+  - After every attempt, the intern gets one email: the score and marks out of 125, pass or below the pass mark, easy, medium and hard, how many answered and how long it took. Then what is next: on a pass, that week 1's task is done and every answer with its reason is open in the dashboard; otherwise how many attempts are left and when the next opens, or, after the last, that PFA will look at the best one. No answers in the email. A pass sends only this email, not a second "accepted" one.
+  - gandhim still gets every attempt of the week in the Monday email, as before.
+- **The shop layout, fitted to the site's rules without changing its look.** The site's theme stylesheet loads after each page's own styles, so the gallery block now comes before it; the product names keep the block's line height, and the full-page piece sits at layer 44, under the header and the phone tab bar as before. Every computed style of the grid and the full-page piece, on a computer and a phone, is the same as the block as sent.
+
+## v1.511
+
+- **The shop, in the owner's gallery layout.** Owner, 3 Nov 2026, with shop.html: "update with this shop".
+  - Taken as sent: the collection on its own, six across on a computer (four on a tablet, two on a phone), each piece on a pale square; the name and price show on hover or keyboard focus, and always on a phone. The filters as plain words (Everything, Designer edit, Everyday) with the sort and the count. Opening a piece shows it full page, the photograph beside its name, price, sizes and Add to bag, with Back at the top.
+  - One fix: on a phone the full-page piece stopped short of the tab bar, so a strip of the grid showed between them; it now ends at the tab bar.
+  - Checked in a browser on a computer and a phone: 15 pieces, a piece opens, a size is chosen and it goes in the bag.
+
 ## v1.510
 
 - **Internship page: the PFA logo on the dark field notes, with its name in solid white.** Owner, 2 Nov 2026, with PFA_Website_logo_fixed.zip: "use the internship html from this zip and give me the updated zip. but ensure pfa logo and the text below it renders properly . text below the logo should be in white since it will be on a dark bg."

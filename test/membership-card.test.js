@@ -227,12 +227,15 @@ test('ask, send, approve, print: the whole journey on the real routes', async ()
   const approved = await admin({ action: 'approve', reference: REF, printName: 'Karthik Dhanya' });
   assert.equal(approved.statusCode, 200, JSON.stringify(approved.body));
   const card = db.dump()[`memberCards/${REF}`];
-  assert.equal(card.cardId, REF, 'the card carries the member number');
+  /* the card carries the state member number (lib/member-numbers.js, 3 Nov 2026); the record keeps its reference */
+  const memberNo = db.dump()[`submissions/${REF}`].memberNo;
+  assert.ok(memberNo && memberNo.label, 'numbered before the card');
+  assert.equal(card.cardId, memberNo.label, 'the card carries the member number');
   assert.equal(card.printName, 'Karthik Dhanya');
   assert.equal(card.photo, rec.memberPhoto.current);
   rec = record(db, REF);
   assert.equal(rec.status, 'card-approved');
-  assert.equal(rec.memberCard.cardId, REF);
+  assert.equal(rec.memberCard.cardId, memberNo.label);
   assert.ok(rec.history.some((h) => h.status === 'card-approved' && h.by === 'office@pfa.test'));
   assert.equal((await admin({ action: 'approve', reference: REF })).statusCode, 409, 'a card is approved once');
   assert.equal((await admin({ action: 'request-photo', references: [REF] })).body.results[0].code, 'ALREADY_ISSUED', 'no link after the card exists');

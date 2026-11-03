@@ -28,6 +28,7 @@ const CASES = {
   'a dollar donation': ['payment_received', 'person', { ...base, name: 'Karthik Dhanya', amount: '25', currency: 'USD', orderId: 'PFA-DON-USD11111', paidAt: '2026-10-21T09:10:00Z', cause: 'Rescue' }],
   'a gift': ['payment_received', 'person', { ...base, name: 'Karthik Dhanya', amount: '2500', currency: 'INR', orderId: 'PFA-DON-GIFT2222', paidAt: '2026-10-21T09:10:00Z', cause: 'Rescue', giftTo: 'Ravi Kumar', giftAddress: '12 MG Road, Bengaluru, 560038', bankReference: 'BNK2' }],
   'a membership with no kit': ['membership_welcome', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00004', reference: 'PFA-MEM-2026-00004', tierLabel: 'Student membership', amount: '500', kit: [], paidAt: '2026-10-21T09:10:00Z', orderId: 'PFA-MEM-XYZ11111' }],
+  'a membership with its state member number': ['membership_welcome', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00007', memberNo: 'MP 1503', reference: 'PFA-MEM-2026-00007', tierLabel: 'Golden membership', amount: '2500', kit: [], paidAt: '2026-11-03T09:10:00Z', orderId: 'PFA-MEM-XYZ33333' }],
   'a membership with a kit': ['membership_welcome', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', reference: 'PFA-MEM-2026-00005', tierLabel: 'Platinum membership', amount: '5000', kit: ['A PFA T-shirt', 'A PFA wristband'], paidAt: '2026-10-21T09:10:00Z', orderId: 'PFA-MEM-XYZ22222' }],
   'a caregiver application': ['caregiver_application_received', 'person', { ...base, name: 'Asha Rao', applicationRef: 'PFA-CG-2026-00011', reference: 'PFA-CG-2026-00011', amount: '50', orderId: 'PFA-CGA-ABCD1234', paidAt: '2026-10-21T09:10:00Z', colony: 'Car Street, Udupi' }],
   'a volunteer application': ['submission_received', 'person', { ...base, kind: 'PFA-V', kindLabel: 'Volunteer application', name: 'Asha Rao', reference: 'PFA-V-2026-00003', receivedAt: '2026-10-21T09:10:00Z', followUrl: `${site}/track.html#ref=PFA-V-2026-00003` }],
@@ -65,6 +66,9 @@ const CASES = {
   'an intern given a new key': ['intern_welcome', 'person', { ...base, name: 'Arjun Nair', link: `${site}/intern.html#onboard=abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG`, expiresAt: '2026-11-08T09:00:00Z', again: true }],
   'an intern reminded at the end of a week': ['intern_reminder', 'person', { ...base, name: 'Arjun Nair', week: 3, weeks: 8, weekTitle: 'Bring people onto the RRT', due: 'Sun 29 Nov, 11:59 pm', items: [{ line: 'Bring your town onto the RRT: 12 of 50 have registered', state: 'Due tonight' }, { line: 'Learn the law (4 laws)', state: 'Sent back for a revision' }], next: 'Week 4: A lawyer for animals', link: `${site}/intern.html` }],
   'an intern told their proof is accepted': ['intern_feedback', 'person', { ...base, name: 'Arjun Nair', task: 'Learn the law', state: 'accepted', score: 8.5, feedback: 'Clear and in your own words.', link: `${site}/intern.html` }],
+  'an intern who passed the quiz': ['intern_quiz_result', 'person', { ...base, name: 'Arjun Nair', n: 1, of: 3, percent: 88, points: 110, max: 125, pass: true, passMark: 60, easy: '10 of 10', medium: '20 of 20', hard: '20 of 25', minutes: 52, answered: 55, count: 55, timedOut: false, best: 88, left: 0, next: '', lastAttempt: false, link: `${site}/intern.html` }],
+  'an intern below the quiz pass mark': ['intern_quiz_result', 'person', { ...base, name: 'Arjun Nair', n: 1, of: 3, percent: 40, points: 50, max: 125, pass: false, passMark: 60, easy: '10 of 10', medium: '20 of 20', hard: '0 of 25', minutes: 75, answered: 41, count: 55, timedOut: true, best: 40, left: 2, next: 'Wed 11 Nov, 10:30 am', lastAttempt: false, link: `${site}/intern.html` }],
+  'an intern after the last quiz attempt': ['intern_quiz_result', 'person', { ...base, name: 'Arjun Nair', n: 3, of: 3, percent: 32, points: 40, max: 125, pass: false, passMark: 60, easy: '10 of 10', medium: '15 of 20', hard: '0 of 25', minutes: 60, answered: 55, count: 55, timedOut: false, best: 40, left: 0, next: '', lastAttempt: true, link: `${site}/intern.html` }],
   'an intern asked to revise': ['intern_feedback', 'person', { ...base, name: 'Arjun Nair', task: 'Map your town or district', state: 'revise', score: null, feedback: 'Add the government vet centre in Kaup, with its photograph.', link: `${site}/intern.html` }],
   'the Monday digest, to gandhim': ['weekly_digest', 'pfa', { ...base, week: '2026-11-02', label: '26 Oct to 1 Nov 2026', count: 2, waiting: 1, panelUrl: 'https://pfa-new-website.web.app/admin.html', groups: [
     { key: 'shop', label: 'Shop orders', count: 1, waiting: 1, more: 0, rows: [{ reference: 'PFA-SHP-ZX81QW22', kindLabel: 'Shop order', name: 'Asha Rao', place: '', date: '27 Oct, 11:30', status: 'New', link: 'https://pfa-new-website.web.app/admin.html#case=PFA-SHP-ZX81QW22' }] },
@@ -147,3 +151,12 @@ test('a value that did not arrive leaves its sentence out rather than printing n
   const invite = m.render('staff_invite', { ...CASES['panel access'][2], modules: [] });
   assert.doesNotMatch(visible(invite.html), /with:\s*\./);
 });
+
+test('a member\u2019s letter shows the state member number, and keeps the reference for the track page', () => {
+  const [t, , p] = CASES['a membership with its state member number'];
+  const r = m.render(t, p);
+  assert.match(r.subject, /PFA member PFA-MEM-2026-00007$/, 'the subject keeps the conversation\u2019s name, as later emails in it do');
+  assert.match(r.text, /Member number: MP 1503\nMembership reference: PFA-MEM-2026-00007/);
+  assert.match(r.html, /track\.html#ref=PFA-MEM-2026-00007/, 'the track link still finds the membership');
+});
+

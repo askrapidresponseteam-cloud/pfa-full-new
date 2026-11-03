@@ -220,3 +220,38 @@ test('payments: sorting by amount pages by offset and a CSV export carries the f
   assert.ok(lines[1].includes(',membership,success,'));
   current = db;
 });
+
+/* owner, 3 Nov 2026: "this needs to have filter by month, and date range".
+   A month and a day are India's: midnight IST, not UTC. */
+test('payments: by month and by a date range, India time; the dates the wrong way round still mean the range', async () => {
+  current = strictWithPayments();
+  const late = 'PFA-T-IST1';
+  /* 00:30 on 1 August in India is 19:00 on 31 July in UTC */
+  transactions[late] = Object.assign({}, transactions['PFA-T-0000'], { orderId: late, createdAt: ts(Date.UTC(2026, 6, 31, 19)), updatedAt: ts(Date.UTC(2026, 6, 31, 19)) });
+  try {
+    const aug = await get({ type: 'payments', month: '2026-08', limit: '100' });
+    assert.equal(aug.statusCode, 200, JSON.stringify(aug.body));
+    const augIds = aug.body.rows.map((r) => r.orderId);
+    assert.ok(augIds.includes(late), 'a payment at 00:30 IST on 1 August is in August');
+    assert.equal(aug.body.summary.count, 23 + 1, 'every day of August to the 23rd, and the one just after midnight');
+    const jul = await get({ type: 'payments', month: '2026-07', limit: '100' });
+    assert.ok(!jul.body.rows.some((r) => r.orderId === late), 'and not in July');
+    assert.equal(jul.body.summary.count, 31);
+    const range = await get({ type: 'payments', from: '2026-08-01', to: '2026-08-05', limit: '100' });
+    assert.equal(range.body.summary.count, 5 + 1);
+    const back = await get({ type: 'payments', from: '2026-08-05', to: '2026-08-01', limit: '100' });
+    assert.equal(back.body.summary.count, range.body.summary.count, 'from and to swapped: the same range');
+    const one = await get({ type: 'payments', from: '2026-08-10', to: '2026-08-10', limit: '100' });
+    assert.equal(one.body.summary.count, 1, 'one day');
+    assert.equal((await get({ type: 'payments', month: '2026-13', limit: '100' })).body.summary.count, Object.keys(transactions).length, 'a month that is not one is no filter');
+  } finally { delete transactions[late]; }
+});
+
+test('the panel: Any time, the last twelve months, or Choose dates, which shows the two dates only when chosen', () => {
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'admin.html'), 'utf8');
+  assert.match(html, /<select id="payWhen" aria-label="When"><option value="">Any time<\/option><\/select>/);
+  assert.match(html, /<span id="payRange" hidden><input type="date" id="payFrom" aria-label="From"> <input type="date" id="payTo" aria-label="To"><\/span>/);
+  assert.match(html, /if \(\/\^\\d\{4\}-\\d\{2\}\$\/\.test\(when\)\) url \+= '&month=' \+ when;/);
+  assert.match(html, /for \(var i = 0; i < 12; i \+= 1\)/);
+  assert.match(html, /a\.download = 'pfa-payments' \+ \(payWhenLabel\(\) \? '-' \+ payWhenLabel\(\) : ''\) \+ '\.csv';/, 'the file says which period');
+});
