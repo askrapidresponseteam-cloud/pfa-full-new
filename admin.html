@@ -234,6 +234,7 @@ button.cell:hover{background:var(--stone,#f4f3f1)}
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
 .tools input,.tools select{padding:0 11px;height:38px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px}
 .tools input{min-width:230px}
+.paysum{position:sticky;z-index:6;background:var(--paper);border:1px solid var(--line);padding:12px 16px;margin:0 0 12px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 22px}.paysum:empty{display:none}.paysum small{flex:1 0 100%;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.paysum b{font-size:22px;font-weight:600}.paysum span{font-size:13px;color:var(--muted)}.paysum span i{font-style:normal;color:var(--ink)}
 #payRange:not([hidden]){display:inline-flex;gap:8px;align-items:center}#payRange input{min-width:0;width:150px}
 .tools input:focus,.tools select:focus{border-color:var(--ink);outline:none}
 .ghost{padding:0 15px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
@@ -980,6 +981,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         <button class="ghost" type="button" id="payGo">Apply</button>
         <button class="ghost" type="button" id="payCsv">Download the list</button>
       </div>
+      <!-- the period's total, by purpose, held in view while the list scrolls (3 Nov 2026) -->
+      <div class="paysum" id="paySum" aria-live="polite"></div>
       <div class="wrap"><table><thead><tr>
         <th>Order</th><th>Purpose</th><th>Name</th><th class="num">Amount</th><th>Outcome</th><th>Bank reference</th><th>When</th>
       </tr></thead><tbody id="payRows"></tbody></table></div>
@@ -2161,6 +2164,23 @@ window.addEventListener('unhandledrejection', function (event) {
     if (sel.value !== 'range') return sel.value;
     return [$('#payFrom').value, $('#payTo').value].filter(Boolean).join('-to-');
   }
+  /* The period chosen, its total and each purpose's share, kept in view. */
+  function paySummary(m, capped) {
+    var box = $('#paySum');
+    if (!box) return;
+    var text = function (id) { var x = $(id); return x && x.selectedIndex >= 0 ? x.options[x.selectedIndex].textContent : ''; };
+    var when = $('#payWhen') && $('#payWhen').value ? text('#payWhen') : 'All time';
+    if ($('#payWhen') && $('#payWhen').value === 'range') when = [$('#payFrom').value, $('#payTo').value].filter(Boolean).map(function (v) { return new Date(v + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }).join(' to ') || 'Chosen dates';
+    var sum = function (inr, usd) { return money(inr || 0) + (usd ? ' + ' + money(usd, 'USD') : ''); };
+    var by = m.byPurpose || {};
+    var parts = Object.keys(by).sort(function (x, y) { return by[y].inr - by[x].inr; }).map(function (k) { return '<span>' + esc(purposeWord(k)) + ' <i>' + esc(sum(by[k].inr, by[k].usd)) + '</i> \u00b7 ' + by[k].count + '</span>'; });
+    var other = [m.failed && m.failed + ' failed', m.abandoned && m.abandoned + ' abandoned', m.unverified && m.unverified + ' not confirmed', m.started && m.started + ' not finished'].filter(Boolean);
+    box.innerHTML = '<small>' + esc([when, $('#payType').value ? text('#payType') : '', $('#payStatus').value === 'paid' ? '' : text('#payStatus')].filter(Boolean).join(' \u00b7 ')) + '</small>'
+      + '<b>' + (capped ? 'At least ' : '') + esc(sum(m.paidInr, m.paidUsd)) + '</b><span>' + m.paidCount + (m.paidCount === 1 ? ' payment' : ' payments') + ' received</span>'
+      + parts.join('') + (other.length ? '<span>' + esc(other.join(' \u00b7 ')) + '</span>' : '');
+    var bar = $('.bar');
+    box.style.top = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight + 'px' : '0px';
+  }
   function payments(reset) {
     var body = $('#payRows');
     if (reset) { payCursor = null; body.innerHTML = '<tr><td colspan="7" class="loading">Reading\u2026</td></tr>'; }
@@ -2175,6 +2195,7 @@ window.addEventListener('unhandledrejection', function (event) {
       body.insertAdjacentHTML('beforeend', rows.map(function (r) { return payRow(r, false); }).join(''));
       payCursor = data.cursor || null;
       $('#payMore').hidden = !payCursor;
+      if (data.summary) paySummary(data.summary, data.capped);
       if (data.summary) {
         say($('#paneNote'), data.summary.paidCount + ' paid \u00b7 ' + money(data.summary.paidInr || 0)
           + (data.summary.failed ? ' \u00b7 ' + data.summary.failed + ' failed' : '')

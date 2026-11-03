@@ -1,3 +1,9 @@
+## v1.516
+
+- **Payments & donations: the period's total, always in view.** Owner, 3 Nov 2026: "this view also should include the summary, total for the selected duration at all times".
+  - Between the filters and the list, a summary of what is chosen: the period (November 2026, the two dates, or All time), the total received and how many payments, then each purpose with its total and count (Membership, Donation, Caregiver application fee...). With Every outcome chosen it also counts the failed, abandoned and unfinished ones.
+  - It stays pinned under the panel's header while the list scrolls, and stays when more rows load. The totals are for the whole period, not the rows on screen; a period too large to read in full says "At least".
+
 ## v1.515
 
 - **Shelter work: any shelter, named first; a shelter directory; the whole internship in the panel.** Mrs Gandhi, 3 Nov 2026: "Just remove one sentence : shelter work only at shelters PFA knows .... We do not know half of them as of now. They keep starting and all of them need help." Owner: "before one starts, the applicant needs to enter where they plan to work. the address in full with phone number, 2-3 photos of the place. this needs to come to admin and it has to start building a directory. and there needs to be a proper panel for the admin to see who worked where."

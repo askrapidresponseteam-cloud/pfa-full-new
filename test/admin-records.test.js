@@ -255,3 +255,24 @@ test('the panel: Any time, the last twelve months, or Choose dates, which shows 
   assert.match(html, /for \(var i = 0; i < 12; i \+= 1\)/);
   assert.match(html, /a\.download = 'pfa-payments' \+ \(payWhenLabel\(\) \? '-' \+ payWhenLabel\(\) : ''\) \+ '\.csv';/, 'the file says which period');
 });
+
+/* owner, 3 Nov 2026: "this view also should include the summary, total for
+   the selected duration at all times" */
+test('payments: the period’s total, purpose by purpose, held in view above the list', async () => {
+  current = strictWithPayments();
+  const aug = await get({ type: 'payments', month: '2026-08', status: 'paid', limit: '5' });
+  assert.equal(aug.statusCode, 200, JSON.stringify(aug.body));
+  const m = aug.body.summary;
+  const want = Object.values(transactions).filter((t) => t.status === 'success' && t.createdAt.toMillis() >= Date.UTC(2026, 6, 31, 18, 30) && t.createdAt.toMillis() < Date.UTC(2026, 7, 31, 18, 30));
+  const by = {};
+  want.forEach((t) => { const p = by[t.type] || (by[t.type] = { count: 0, inr: 0, usd: 0 }); p.count += 1; if (t.currency === 'USD') p.usd += t.amount; else p.inr += t.amount; });
+  assert.deepEqual(m.byPurpose, by, 'each purpose: how many and how much, the whole month, not the page of five');
+  assert.equal(Object.values(m.byPurpose).reduce((s, p) => s + p.inr, 0), m.paidInr, 'the parts add up to the total');
+  assert.equal(Object.values(m.byPurpose).reduce((s, p) => s + p.count, 0), m.paidCount);
+  current = db;
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'admin.html'), 'utf8');
+  assert.match(html, /<div class="paysum" id="paySum" aria-live="polite"><\/div>\n {6}<div class="wrap"><table><thead><tr>\n {8}<th>Order<\/th><th>Purpose<\/th>/, 'between the filters and the list');
+  assert.match(html, /\.paysum\{position:sticky;/, 'held in view while the list scrolls');
+  assert.match(html, /if \(data\.summary\) paySummary\(data\.summary, data\.capped\);/, 'drawn from the first page, kept while more load');
+  assert.match(html, /\(capped \? 'At least ' : ''\)/, 'a total from a capped scan says so');
+});
