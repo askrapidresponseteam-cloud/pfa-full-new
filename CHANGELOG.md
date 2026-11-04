@@ -1,3 +1,15 @@
+## v1.530
+
+- **Every caregiver gets a caregiver number as soon as their application is filed.** Owner, 4 Nov 2026: "system has to gen caregiver a cg number for each person. ensure it works fool proof".
+  - Until now a number came only once the card was issued, so everyone waiting had none. Now each paid application is numbered as it is filed, in its state's four-digit caregiver series (WB 2591, KA 1295), and the card carries the same number when it is issued later.
+  - Fool proof: four separate chances, so one missed step is made good by the next: at filing, at card issue, on every email-worker run (every ten minutes on Firebase), and whenever the Caregivers register is opened. Each number is taken in one database transaction that refuses a number already given, so two caregivers never share one, and one caregiver never gets two, even when all four happen at the same moment (tested: ten applications, each numbered twice over at once, ten different numbers).
+  - A caregiver with no state, or a PIN code that is not in their state, is held with the reason on the register, and numbered as soon as it is put right. Applications turned down, removed or marked spam are not numbered.
+- **Reports also go to nishthapfa@gmail.com, and every report has a sign-in to the admin panel.** Owner: "have this email ID as well for report nishthapfa@gmail.com. also each report should have option to login to admin panel".
+  - Nishtha is offered beside Anushka on every section report. Like Anushka, she is not offered the shop report, which is money.
+  - Every report email (the section reports, the monthly and period payments reports, the monthly cruelty report, the weekly quiz report and the Monday digest) carries a "Sign in to the admin panel" button. It asks for the sign-in, then opens the section the report is about.
+- **The Members register's email report, checked with real rows.** Owner, on Members: "need option to send this as a report as well!". It is the bar at the top of the register (period, Download CSV, Email this report), live since v1.528; a panel tab opened before that deploy needs a reload to show it.
+- **The release scan now signs in to the admin panel and checks every tab**, at phone and desktop width, with the same rules as the public pages; it found a round (i) sitting flush on a button in Members, now spaced.
+
 ## v1.529
 
 - **No two buttons ever touch: fixed, and the release scan now checks every form too.** Owner, 4 Nov 2026: "wtf is this.. look at the buttons. we can never have such issues ever".

@@ -26,6 +26,7 @@ const NOW = Date.parse('2026-11-04T10:00:00.000Z');
 const PAY = ['pfadcmho@gmail.com', 'ozairhusain@gmail.com'];
 const FORM = 'gandhim@exmpls.sansad.in';
 const ANUSHKA = 'anushkapfacampus@gmail.com';
+const NISHTHA = 'nishthapfa@gmail.com';
 
 let db; let sent; let realRecord; let modules;
 const ENV = ['PFA_SMTP_USER', 'PFA_SMTP_PASS', 'PFA_MAIL_API_KEY', 'PFA_PAYMENTS_INBOX', 'PFA_SUBMISSIONS_INBOX', 'PFA_SECTION_REPORT_TO'];
@@ -96,7 +97,7 @@ test('volunteers in the period only, newest first; spam and the site’s testing
   assert.deepEqual(r.json.columns.slice(0, 2), ['Reference', 'Name']);
   assert.equal(r.json.rows[0].cells[5], 'Rescue, Fostering');
   assert.equal(r.json.rows[2].cells[7], '1 Nov 2026');
-  assert.deepEqual(r.json.recipients.map((x) => x.address), [FORM, ANUSHKA, ...PAY]);
+  assert.deepEqual(r.json.recipients.map((x) => x.address), [FORM, ANUSHKA, NISHTHA, ...PAY]);
 });
 
 test('each section is behind its own part of the panel', async () => {
@@ -206,4 +207,35 @@ test('the Members register too: in the period, to Anushka and the forms inbox, a
   assert.equal(sent.length, 1);
   assert.match(sent[0].subject, /^PFA Members register: 1 Nov 2026 to 4 Nov 2026 \(1 line\)$/);
   assert.doesNotMatch(Buffer.from(sent[0].attachments[0].content, 'base64').toString('utf8'), /INR|1,000\.00/);
+});
+
+/* owner, 4 Nov 2026: "have this email ID as well for report nishthapfa@gmail.com.
+   also each report should have option to login to admin panel" */
+test('Nishtha gets the reports Anushka gets, never the shop\'s money; every report carries a sign-in to the panel, at its own section', async () => {
+  volunteer('PFA-V-2026-00040', '2026-11-02T05:00:00.000Z', { name: 'Asha Rao' });
+  for (const kind of ['volunteers', 'jobs', 'interns', 'caregivers', 'members']) {
+    assert.ok(SR.recipients(kind).some((x) => x.address === NISHTHA && x.role === 'Reports'), kind);
+  }
+  assert.ok(!SR.recipients('shop').some((x) => x.address === NISHTHA), 'the shop report is money');
+  const r = await call('POST', { query: { kind: 'volunteers' }, body: { from: '2026-11-01', to: '2026-11-04', recipients: [NISHTHA] } });
+  assert.equal(r.status, 200, r.raw);
+  assert.equal([].concat(sent[0].to)[0], NISHTHA);
+  assert.match(sent[0].html, /href="https:\/\/pfa-new-website\.web\.app\/admin\.html#tab=volunteers"[^>]*>Sign in to the admin panel/);
+  assert.match(sent[0].text, /Admin panel: https:\/\/pfa-new-website\.web\.app\/admin\.html#tab=volunteers/);
+  /* every report the site sends, by hand or on its own */
+  const cases = {
+    section_report: [{ kind: 'shop', label: 'Shop orders', period: 'x', count: 0, rows: [], columns: [] }, 'shop'],
+    finance_monthly: [{ reportMonth: '2026-10', label: 'October 2026', count: 0, total: 'INR 0.00', heads: [] }, 'payments'],
+    finance_period: [{ sendId: 'R-0A1B2C3D4E', label: 'x', count: 0, total: 'INR 0.00', heads: [] }, 'payments'],
+    cruelty_monthly: [{ reportMonth: '2026-11', label: 'November 2026', count: 0, states: [], leftOut: {} }, 'submissions'],
+    quiz_weekly: [{ week: '2026-11-16', label: 'x', count: 0, rows: [], hardest: [], passMark: 60 }, 'internship'],
+    weekly_digest: [{ week: '2026-11-02', label: 'x', count: 0, groups: [] }, 'submissions']
+  };
+  for (const [template, [payload, tab]] of Object.entries(cases)) {
+    const out = mail.render(template, Object.assign({ siteUrl: 'https://peopleforanimalsindia.org' }, payload));
+    assert.match(out.html, new RegExp(`admin\\.html#tab=${tab}"[^>]*>Sign in to the admin panel`), template);
+    assert.match(out.text, /Admin panel: https:\/\//, template);
+  }
+  /* the panel opens the section named after signing in */
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'admin.html'), 'utf8'), /var t = \/\(\?:\^#\|&\)tab=\(\[a-z\]\+\)\/\.exec\(location\.hash \|\| ''\);\s*show\(t \? t\[1\] : 'overview'\);/);
 });

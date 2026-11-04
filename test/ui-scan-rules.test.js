@@ -71,3 +71,13 @@ test('the Send proof buttons sit in a row with room, and the tight spots found w
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'events.html'), 'utf8'), /\.ev-nav\{display:flex;gap:10px\}/);
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'assets', 'deck.css'), 'utf8'), /\.deck__ctl\{position:static;transform:none;display:inline-block;margin:6px 14px\}/);
 });
+
+test('the scan signs in to the admin panel and checks every tab, and says so if it cannot', () => {
+  assert.match(scan, /if \(f === 'admin\.html'\)/);
+  assert.match(scan, /querySelectorAll\('\.tab\[data-tab\]'\)/);
+  assert.match(scan, /panel walk: signed in to only/);
+  /* a lone (i) never sits flush on what follows it */
+  const admin = fs.readFileSync(path.join(__dirname, '..', 'admin.html'), 'utf8');
+  assert.match(admin, /\.info--alone\{display:grid;margin:8px 0 10px\}/);
+  assert.match(admin, /b\.classList\.add\('info--alone'\)/);
+});

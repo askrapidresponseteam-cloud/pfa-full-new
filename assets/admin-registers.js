@@ -27,8 +27,8 @@
       pane: 'cgsheet', noun: 'applications', todo: 'Not shipped', done: 'Shipped', file: 'colony-cards',
       cols: [
         ['Name', function (r) { return [[r.name]]; }, 'rg-name'],
-        /* the caregiver's state number (3 Nov 2026), given when the card is issued */
-        ['Caregiver number', function (r) { return [r.caregiverNo ? [r.caregiverNo] : [r.cardId ? 'Not yet' : 'When the card is issued', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null]; }, 'rg-nw'],
+        /* the caregiver's state number (3 Nov 2026), given as the application is filed (4 Nov 2026) */
+        ['Caregiver number', function (r) { return [r.caregiverNo ? [r.caregiverNo] : ['Not yet', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null]; }, 'rg-nw'],
         ['Phone number', function (r) { return [[r.mobile], r.altMobile ? [r.altMobile, 'other'] : null]; }, 'rg-nw'],
         ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
         ['Application', function (r) { return [[r.id], r.cardId ? [r.cardId, 'card'] : null, r.appliedOn ? [r.appliedOn, 'sub'] : null]; }, 'rg-nw'],
@@ -110,10 +110,10 @@
   /* the caregiver numbers given as the register opened, and any that could not be */
   function caregiverNews(st) {
     var done = st.numbering || {};
-    var held = st.rows.filter(function (r) { return r.cardId && !r.caregiverNo; });
+    var held = st.rows.filter(function (r) { return !r.caregiverNo; });
     return (done.numbered && done.numbered.length ? '<p class="rg-hint rg-good">' + esc(done.numbered.length === 1 ? 'One caregiver numbered just now: ' : done.numbered.length + ' caregivers numbered just now: ') + esc(done.numbered.map(function (x) { return x.number; }).join(', ')) + '.</p>' : '')
       + (done.error ? '<p class="rg-hint rg-bad">' + esc(done.error) + '</p>' : '')
-      + (held.length ? '<p class="rg-hint rg-bad">' + esc(held.length + (held.length === 1 ? ' caregiver' : ' caregivers') + ' with a card and no number yet: ' + held.map(function (r) { return r.name + ' (' + (r.numberHold || 'not numbered: open this page again') + ')'; }).join('; ')) + '</p>' : '');
+      + (held.length ? '<p class="rg-hint rg-bad">' + esc(held.length + (held.length === 1 ? ' caregiver' : ' caregivers') + ' with no number yet: ' + held.map(function (r) { return r.name + ' (' + (r.numberHold || 'not numbered: open this page again') + ')'; }).join('; ')) + '</p>' : '');
   }
   function numbersHtml(st) {
     var n = st.numbers;

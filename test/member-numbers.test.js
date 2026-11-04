@@ -268,30 +268,67 @@ test('four digits, never a fresh start: each series from its own fixed point; a 
   for (const [k, v] of Object.entries(db.dump())) if (k.startsWith('member_numbers/') && v.kind === 'new' && !v.retired) assert.ok(v.n >= 1000, k);
 });
 
-test('colony caregivers: their own four-digit state numbers, once the card is issued; on the card check too', async () => {
-  const cg = async (id, state, pin, cardId) => db.collection('submissions').doc(id).set({ kind: 'PFA-CG', status: 'approved', receivedAtMs: NOV, cardId, fields: { name: id, state, pin } });
+test('colony caregivers: their own four-digit state numbers, for every caregiver as the application is filed; on the card when it is issued', async () => {
+  /* owner, 4 Nov 2026: "system has to gen caregiver a cg number for each person. ensure it works fool proof" */
+  const cg = async (id, state, pin, cardId, status) => db.collection('submissions').doc(id).set({ kind: 'PFA-CG', status: status || 'approved', receivedAtMs: NOV, cardId, fields: { name: id, state, pin } });
   await cg('PFA-CG-2026-00011', 'Tamil Nadu', '641062', 'PFA-CCT-4K2M8QRT');
   await cg('PFA-CG-2026-00012', 'Tamil Nadu', '600037', 'PFA-CCT-7Z2M8QRT');
-  await cg('PFA-CG-2026-00013', 'West Bengal', '741222', '');
+  await cg('PFA-CG-2026-00013', 'West Bengal', '741222', '', 'new');
   await cg('PFA-CG-2026-00014', '', '110009', 'PFA-CCT-9Y2M8QRT');
+  await cg('PFA-CG-2026-00015', 'Kerala', '682001', '', 'rejected');
   await db.collection('caretakerPublic').doc('PFA-CCT-4K2M8QRT').set({ cardId: 'PFA-CCT-4K2M8QRT', district: 'Coimbatore' });
   const r = await CASE.numberWaitingCaregivers(db, {});
   const tn = NUM.startOf('TN', 'caregivers');
-  assert.deepEqual(r.numbered.map((x) => x.number), [`TN ${tn}`, `TN ${tn + 1}`], 'the caregivers count on their own, from their own point');
-  assert.ok(!r.numbered.some((x) => x.reference === 'PFA-CG-2026-00013'), 'no card yet, no number yet');
+  const wb = NUM.startOf('WB', 'caregivers');
+  assert.deepEqual(r.numbered.map((x) => x.number), [`TN ${tn}`, `TN ${tn + 1}`, `WB ${wb}`], 'every caregiver, card or not, in their own state count');
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00013'].caregiverNo.label, `WB ${wb}`, 'no card yet, and numbered all the same');
+  assert.ok(!db.dump()['submissions/PFA-CG-2026-00015'].caregiverNo, 'an application turned down is not numbered');
   assert.match(r.held[0].reason, /No state on the application/);
   assert.equal(db.dump()['submissions/PFA-CG-2026-00011'].caregiverNo.label, `TN ${tn}`);
   assert.equal(db.dump()['caretakerPublic/PFA-CCT-4K2M8QRT'].caregiverNo, `TN ${tn}`, 'a card check shows it');
   assert.equal(db.dump()['caretakerCards/PFA-CCT-4K2M8QRT'].caregiverNo, `TN ${tn}`);
   assert.equal(db.dump()[`caregiver_numbers/TN-${tn}`].holder, 'PFA-CG-2026-00011');
+  /* the card issued later carries the number given at filing, and the number does not change */
+  await db.collection('submissions').doc('PFA-CG-2026-00013').set({ cardId: 'PFA-CCT-5W2M8QRT', status: 'approved' }, { merge: true });
+  const issued = await CASE.giveCaregiverNumber(db, 'PFA-CG-2026-00013', {});
+  assert.equal(issued.number.label, `WB ${wb}`);
+  assert.equal(issued.already, true);
+  assert.equal(db.dump()['caretakerCards/PFA-CCT-5W2M8QRT'].caregiverNo, `WB ${wb}`);
+  assert.equal(db.dump()['caretakerPublic/PFA-CCT-5W2M8QRT'].caregiverNo, `WB ${wb}`);
+  /* the held one is numbered once its state is put right */
+  await db.collection('submissions').doc('PFA-CG-2026-00014').set({ fields: { name: 'PFA-CG-2026-00014', state: 'Delhi', pin: '110009' } }, { merge: true });
+  const fixed = await CASE.numberWaitingCaregivers(db, {});
+  assert.equal(fixed.numbered.length, 1);
+  assert.match(fixed.numbered[0].number, /^DLH? \d{4}$/);
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00014'].caregiverNumberHold, null, 'its hold is cleared');
   /* never the members' register */
   assert.ok(!Object.keys(db.dump()).some((k) => k.startsWith('member_numbers/TN-')));
   const again = await CASE.numberWaitingCaregivers(db, {});
   assert.deepEqual(again.numbered, []);
-  /* wired: at approval, on every worker run, as the register opens, on the card check page */
+  /* wired: at filing, at approval, on every worker run, as the register opens, on the card check page */
+  assert.match(read('lib/routes/payment/response.js'), /giveCaregiverNumber\(getDb\(\), applicationRef, \{ by: 'website' \}\)/);
   assert.match(read('lib/routes/admin/case.js'), /if \(recorded === 'done'\) await giveCaregiverNumber\(db, reference, \{ by \}\)/);
   assert.match(read('lib/routes/caregiver/email-worker.js'), /numberWaitingCaregivers\(getDb\(\), \{ limit: 25 \}\)/);
   assert.match(read('lib/routes/admin/registers.js'), /kind === 'membership' \? CASEMOD\.numberWaitingMembers : CASEMOD\.numberWaitingCaregivers/);
   assert.match(read('caregiver-card.html'), /\['Caregiver number', c\.caregiverNo, true\]/);
   assert.match(read('assets/admin-registers.js'), /\['Caregiver number', function \(r\)/);
+});
+
+test('caregiver numbers never clash: ten applications numbered at the same moment get ten different numbers, each once', async () => {
+  const ids = [];
+  for (let i = 0; i < 10; i += 1) {
+    const id = `PFA-CG-2026-001${String(i).padStart(2, '0')}`;
+    ids.push(id);
+    await db.collection('submissions').doc(id).set({ kind: 'PFA-CG', status: 'new', receivedAtMs: NOV + i, fields: { name: id, state: 'Karnataka', pin: '576101' } });
+  }
+  /* each one given twice over, all at once: filing, the worker and the register racing */
+  const results = await Promise.all(ids.concat(ids).map((id) => CASE.giveCaregiverNumber(db, id, {})));
+  assert.ok(results.every((x) => x.ok), JSON.stringify(results.filter((x) => !x.ok)));
+  const labels = ids.map((id) => db.dump()[`submissions/${id}`].caregiverNo.label);
+  assert.equal(new Set(labels).size, 10, labels.join(', '));
+  for (const id of ids) {
+    const mine = results.filter((x, i) => ids.concat(ids)[i] === id).map((x) => x.number.label);
+    assert.equal(new Set(mine).size, 1, `${id} was given two numbers: ${mine.join(', ')}`);
+  }
+  for (const l of labels) assert.match(l, /^KA \d{4}$/);
 });

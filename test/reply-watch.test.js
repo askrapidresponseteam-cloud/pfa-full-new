@@ -174,7 +174,8 @@ test('the panel shows the red notice on every page and looks again every three m
   const main = html.slice(html.indexOf('<main class="main">'), html.indexOf('data-pane="overview"'));
   assert.match(main, /<div class="ralert" id="replyAlert" role="alert" hidden><p id="replyAlertText"><\/p><button class="ghost" type="button" id="replyAlertCheck">Check now<\/button><\/div>/);
   assert.match(html, /\.ralert\{[^}]*border:1px solid #b3261e;background:#fdecea/);
-  assert.ok(html.includes("show('overview');\n    replyWatch();"), 'looked for as soon as the panel opens');
+  /* the first section (the one a report's link names, or Overview), then the replies are looked for at once */
+  assert.ok(html.includes("show(t ? t[1] : 'overview');\n    replyWatch();"), 'looked for as soon as the panel opens');
   assert.match(html, /setInterval\(look, 180000\)/);
   assert.match(html, /A Reply to any copy comes to <b>' \+ esc\(r\.mailbox\) \+ '<\/b>\. The site reads it every two minutes/, 'the Replies box says how it works now');
   assert.doesNotMatch(html, /A Reply from the inbox goes to the person and a copy comes back/);

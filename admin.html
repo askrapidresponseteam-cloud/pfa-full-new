@@ -428,7 +428,7 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
    (i) beside its heading; a list or a block of detail folds under a + (a
    <details class="fold">). The text is all still there for a screen reader
    and for search; only the eye is spared it until asked. */
-.info{display:inline-grid;place-items:center;width:22px;height:22px;margin:0 0 0 8px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--paper,#fff);color:var(--muted);font:italic 600 12px/1 Georgia,'Times New Roman',serif;cursor:pointer;vertical-align:middle;flex:0 0 auto;transition:background .15s,color .15s,border-color .15s}
+.info{display:inline-grid;place-items:center;width:22px;height:22px;margin:0 0 0 8px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--paper,#fff);color:var(--muted);font:italic 600 12px/1 Georgia,'Times New Roman',serif;cursor:pointer;vertical-align:middle;flex:0 0 auto;transition:background .15s,color .15s,border-color .15s}.info--alone{display:grid;margin:8px 0 10px}
 .info:hover{border-color:var(--ink);color:var(--ink)}
 .info[aria-expanded="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 .hint.is-folded{display:none!important}
@@ -4590,7 +4590,9 @@ window.addEventListener('unhandledrejection', function (event) {
     $('#signin').hidden = true;
     $('#app').hidden = false;
     applyAccess();
-    show('overview');
+    /* a report's link names its section: admin.html#tab=payments */
+    var t = /(?:^#|&)tab=([a-z]+)/.exec(location.hash || '');
+    show(t ? t[1] : 'overview');
     replyWatch();
     openWantedCase();
     /* proof waiting for review shows on the rail */
@@ -6389,7 +6391,7 @@ window.addEventListener('unhandledrejection', function (event) {
       b.setAttribute('aria-expanded', String(open));
     });
     var head = headingFor(hint);
-    if (head) head.appendChild(b); else hint.parentNode.insertBefore(b, hint);
+    if (head) head.appendChild(b); else { b.classList.add('info--alone'); hint.parentNode.insertBefore(b, hint); }
   }
   function sweep(root) {
     if (!root || !root.querySelectorAll) return;

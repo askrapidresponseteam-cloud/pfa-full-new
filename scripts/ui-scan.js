@@ -268,6 +268,30 @@ async function run() {
         await look(`after opener ${i + 1}`);
         await closeAll();
       }
+      /* the admin panel, signed in (with a stand-in sign-in and empty
+         answers: nothing real is reached), every tab in turn: what PFA's
+         own people use is held to the same rules */
+      if (f === 'admin.html') {
+        await page.route(/identitytoolkit|securetoken/, (r) => r.fulfill({ json: { idToken: 'scan', refreshToken: 'scan', expiresIn: '3600', localId: 'scan', email: 'scan@pfa.test' } }));
+        await page.route(/127\.0\.0\.1:\d+\/api\//, (r) => {
+          const u = r.request().url();
+          if (/type=session/.test(u)) return r.fulfill({ json: { ok: true, admin: { uid: 'scan', email: 'scan@pfa.test', role: 'super', modules: [] } } });
+          return r.fulfill({ json: { ok: true, rows: [], items: [], queues: {}, applications: [], orders: [], interns: [], batches: [], recipients: [], reports: [] } });
+        });
+        await page.fill('#who', 'scan@pfa.test').catch(() => {});
+        await page.fill('#pass', 'scan').catch(() => {});
+        await page.click('#signinGo').catch(() => {});
+        await page.waitForTimeout(900);
+        const tabs = await page.evaluate(() => [...document.querySelectorAll('.tab[data-tab]')].filter((t) => !t.hidden && t.getBoundingClientRect().width).map((t) => t.getAttribute('data-tab'))).catch(() => []);
+        /* a walk that never got past the sign-in proves nothing: say so */
+        if (tabs.length < 8) found.add(`panel walk: signed in to only ${tabs.length} tabs; the scan's stand-in sign-in no longer works`);
+        else console.log(`  panel walk @${w}px: ${tabs.length} tabs`);
+        for (const t of tabs) {
+          await page.evaluate((x) => { const b = document.querySelector(`.tab[data-tab="${x}"]`); if (b) b.click(); }, t).catch(() => {});
+          await page.waitForTimeout(500);
+          await look(`panel tab ${t}`);
+        }
+      }
       /* every section that stays closed until it is asked for (a form behind
          Apply, Send proof, Join): opened as a visitor opens it, by its
          address, and looked at (owner, 4 Nov 2026, of two buttons touching
