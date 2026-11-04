@@ -212,7 +212,8 @@ test('A6 the table: every kind with stages can reach each of its stages from new
 /* ---- A7: the audit row is written before the answer --------------------- */
 
 test('A7 each action has its audit row written before the response is sent', async () => {
-  await seed('PFA-S-2026-00009');
+  /* a film the wall can play: one it cannot is refused (The Wall, 4 Nov 2026) */
+  await seed('PFA-S-2026-00009', { fields: { name: 'Asha Rao', email: 'asha@example.com', url: 'https://youtu.be/abcdefghijk', wall: 'Short form, under a minute' } });
   /* an audit write that takes 60 ms: a route that does not wait for it answers first */
   const real = db.collection.bind(db);
   db.collection = (name) => {

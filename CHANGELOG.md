@@ -1,3 +1,14 @@
+## v1.531
+
+- **The Wall has its own section in the admin panel, to review every film sent.** Owner, 4 Nov 2026: "admin panel does not have section to review wall submissions!".
+  - New on the rail, under Submissions: The Wall, with the number of films waiting. It opens on Waiting; the views are Waiting, On the wall, Not for the wall and All, and Long wall, Short wall or both.
+  - Each film is a card: its picture (YouTube) or its platform, the name it is credited to, which wall it was sent for, when, and the sender's note. Watch opens it; Put on the wall publishes it (it shows on the wall within a minute); Take off the wall takes it back; Not for the wall sets it aside; Open shows the whole submission, to reply to the sender.
+  - The wall plays YouTube and Vimeo only. An Instagram or Facebook post is marked on its card ("ask the sender for a YouTube or Vimeo link") and has no Put on the wall button, and the server refuses to publish one: until now such a film could be "put on the wall" and silently never appear.
+  - Access: a new panel area, The Wall, that an admin can be given on its own.
+- **Reply to a film's sender from its card on The Wall.** Owner: "admin should be able to reply to wall submissions from the same space".
+  - Reply opens a box on the card, addressed to the sender, with four ready replies to start from and edit (it is on the wall; ask for a YouTube or Vimeo link; ask about the film; not this time). Send reply emails it in the submission's own thread, keeps it on the submission, and says where it went; a second press sends nothing more.
+  - The card shows how many replies have gone, and "Wrote back" when the sender has answered, with Open to read the conversation. A film sent without an email says so, with the mobile to call.
+
 ## v1.530
 
 - **Every caregiver gets a caregiver number as soon as their application is filed.** Owner, 4 Nov 2026: "system has to gen caregiver a cg number for each person. ensure it works fool proof".

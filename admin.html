@@ -825,6 +825,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="railgroup">
       <button class="tab" type="button" data-tab="overview">Overview</button>
       <button class="tab" type="button" data-tab="submissions">Submissions<span class="pip" id="pipWaiting" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="wall">The Wall<span class="pip" id="pipWall" hidden>0</span></button>
       <button class="tab" type="button" data-tab="membership">Members<span class="pip" id="pipMembers" hidden>0</span></button>
       <button class="tab" type="button" data-tab="caregivers">Caregivers<span class="pip" id="pipApps" hidden>0</span></button>
       <button class="tab" type="button" data-tab="volunteers">Volunteers</button>
@@ -1432,6 +1433,7 @@ window.addEventListener('unhandledrejection', function (event) {
   var TABS = {
     overview:    { title: 'Overview',      module: 'overview',    needs: 'overview' },
     submissions: { title: 'Submissions',   module: 'submissions', needs: 'submissions' },
+    wall:        { title: 'The Wall', module: 'wall', needs: 'submissions' },
     volunteers:  { title: 'Volunteers',    module: 'volunteers',  needs: 'submissions' },
     employees:   { title: 'Job applicants', module: 'employees',  needs: 'submissions' },
     donations:   { title: 'Donations',     module: 'donations',   needs: 'payments' },
@@ -1540,6 +1542,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'internship') return internshipPane();
     if (tab === 'certificates') return certificatesPane();
     if (tab === 'interns' || tab === 'shelters') return window.PFAInternship && window.PFAInternship.pane(tab);
+    if (tab === 'wall') return window.PFAWall && window.PFAWall.pane();
     if (tab === 'employees') return window.PFAPeople && window.PFAPeople.pane();
     if (tab === 'website') return website();
     if (tab === 'analytics') return window.PFAAnalytics && window.PFAAnalytics.pane();
@@ -6355,6 +6358,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>
+<script src="assets/admin-wall.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by
    the panel later, is folded behind a round (i) at the end of the heading
