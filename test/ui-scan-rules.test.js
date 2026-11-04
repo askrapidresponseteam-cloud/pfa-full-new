@@ -46,3 +46,28 @@ test('the scan keeps every table\'s columns at least 24px apart, by the room the
   assert.match(admin, /\.rg td\{padding:6px;/);
   assert.match(admin, /\.fr-sum td \+ td\{[^}]*padding-left:28px/);
 });
+
+/* owner, 4 Nov 2026, of two buttons stacked edge to edge under "Send your
+   proof": "wtf is this.. look at the buttons. we can never have such issues
+   ever" */
+test('the scan fails any two boxed buttons closer than 8px, and opens every closed form section to look', () => {
+  assert.match(scan, /buttons \$\{yOver > 0 \? 'overlap'/);
+  assert.match(scan, /yOver > -8/);
+  assert.match(scan, /xOver > -8/);
+  /* sections that open only when asked for, by their address */
+  assert.match(scan, /querySelectorAll\('\[data-flow\]\[id\]'\)/);
+  assert.match(scan, /\$\{base\}\/\$\{f\}#\$\{id\}/);
+  /* the application with the guide unread and read */
+  assert.match(scan, /pfa\.internGuideRead/);
+  /* what sits in a closed <details> is not on the screen */
+  assert.match(scan, /const folded = /);
+});
+
+test('the Send proof buttons sit in a row with room, and the tight spots found with them are opened up', () => {
+  const page = fs.readFileSync(path.join(__dirname, '..', 'internship.html'), 'utf8');
+  assert.match(page, /<div class="btn-row"><a class="btn" href="intern\.html">Open your intern dashboard<\/a><a class="btn btn--light" href="intern-guide\.html">The two-page guide<\/a><\/div>/);
+  assert.match(page, /\.btn-row\{display:flex;flex-wrap:wrap;gap:12px;/);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'laws.html'), 'utf8'), /\.cites\{[^}]*gap:10px/);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'events.html'), 'utf8'), /\.ev-nav\{display:flex;gap:10px\}/);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'assets', 'deck.css'), 'utf8'), /\.deck__ctl\{position:static;transform:none;display:inline-block;margin:6px 14px\}/);
+});

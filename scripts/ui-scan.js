@@ -20,12 +20,15 @@
      - every tick box or radio level with the first line of its words,
        beside them and at least 6px from them;
      - words in neighbouring table columns at least 24px apart;
+     - no two buttons touching or overlapping: at least 8px apart;
+   and the same again in every section that opens only when asked for (a
+   form behind Apply or Send proof), by its address.
      - no button whose words run outside it or are cut;
      - nothing wider than the screen.
    It starts its own server on a free port; nothing is fetched from outside. */
 
 'use strict';
-/* global document, getComputedStyle, CSS, innerWidth */ /* the audit below runs in the page */
+/* global document, getComputedStyle, CSS, innerWidth, localStorage */ /* the audit below runs in the page */
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -64,7 +67,9 @@ const AUDIT = () => {
   const lum = (c) => c.slice(0, 3).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
   const mix = (top, a, under) => top.slice(0, 3).map((v, i) => v * a + under[i] * (1 - a));
   const ground = (el) => { let e = el; while (e) { const c = rgb(getComputedStyle(e).backgroundColor); if (c && (c.length < 4 || c[3] > 0.5)) return c; if (getComputedStyle(e).backgroundImage !== 'none' && e !== el) return null; e = e.parentElement; } return [255, 255, 255]; };
-  const shown = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 1 && r.height > 1 && cs.visibility !== 'hidden' && !el.closest('[hidden],[aria-hidden="true"],[inert]'); };
+  /* inside a closed <details>, only its summary is on the screen */
+  const folded = (el) => { for (let d = el.closest('details'); d; d = d.parentElement && d.parentElement.closest('details')) { if (!d.open && !el.closest('summary')) return true; if (!d.open && el.closest('summary') && el.closest('summary').parentElement !== d) return true; } return false; };
+  const shown = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 1 && r.height > 1 && cs.visibility !== 'hidden' && !el.closest('[hidden],[aria-hidden="true"],[inert]') && !folded(el); };
   const opacity = (el) => { let o = 1; let e = el; while (e) { o *= Number(getComputedStyle(e).opacity); e = e.parentElement; } return o; };
   const out = [];
   const name = (el, t) => `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}${typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\s+/)[0] : ''} "${t.slice(0, 40)}"`;
@@ -158,6 +163,43 @@ const AUDIT = () => {
       if (gap < 24) out.push(`table columns ${gap.toFixed(1)}px apart: "${cells[i - 1].textContent.trim().replace(/\s+/g, ' ').slice(-24)}" | "${cells[i].textContent.trim().replace(/\s+/g, ' ').slice(0, 24)}"`);
     }
   });
+  /* no two buttons touching or overlapping (owner, 4 Nov 2026, of two
+     buttons stacked edge to edge under "Send your proof": "we can never have
+     such issues ever"): side by side or one above the other, at least 8px
+     apart. A segmented control (buttons sharing one bordered group, like
+     filter chips) is one control, and is left alone. */
+  const btns = [...document.querySelectorAll('button, a.btn, a[class*="btn"], [role="button"], input[type="submit"], input[type="button"]')]
+    .filter((el) => shown(el) && opacity(el) > 0.05 && !el.closest('dialog:not([open])'))
+    .map((el) => ({ el, r: el.getBoundingClientRect(), t: (el.innerText || el.value || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ') }))
+    /* things shaped like buttons: a card, a tile or a photograph that opens
+       is not one, and a deck of them may overlap on purpose */
+    .filter((x) => x.r.width > 8 && x.r.height > 8 && x.r.height <= 80 && x.t.length <= 60)
+    /* a button you see as a box (a border or a fill of its own): words that
+       act as a button touch nothing; and not one that floats over the page
+       (the phone's tab bar) */
+    .filter((x) => {
+      const cs = getComputedStyle(x.el);
+      const edge = ['Top', 'Right', 'Bottom', 'Left'].some((k) => parseFloat(cs[`border${k}Width`]) > 0 && (rgb(cs[`border${k}Color`]) || [0, 0, 0, 0])[3] !== 0);
+      const fill = rgb(cs.backgroundColor);
+      const own = fill && (fill.length < 4 || fill[3] > 0.1) && x.el.parentElement && String(getComputedStyle(x.el.parentElement).backgroundColor) !== cs.backgroundColor;
+      if (!edge && !own) return false;
+      for (let e = x.el; e; e = e.parentElement) if (/^(fixed|sticky)$/.test(getComputedStyle(e).position)) return false;
+      return true;
+    });
+  const joined = (a, b) => a.parentElement === b.parentElement && /seg|chips?|tabs?|toggle|group|pager/i.test(String(a.parentElement.className || '') + ' ' + (a.parentElement.getAttribute('role') || ''));
+  for (let i = 0; i < btns.length; i += 1) {
+    for (let j = i + 1; j < btns.length; j += 1) {
+      const a = btns[i]; const b = btns[j];
+      if (a.el.contains(b.el) || b.el.contains(a.el) || joined(a.el, b.el)) continue;
+      const xOver = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left);
+      const yOver = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
+      if (xOver > 2 && yOver > -8 && yOver < Math.min(a.r.height, b.r.height)) {
+        out.push(`buttons ${yOver > 0 ? 'overlap' : (-yOver).toFixed(1) + 'px apart, one above the other'}: ${name(a.el, a.t)} | ${name(b.el, b.t)}`);
+      } else if (yOver > 2 && xOver > -8 && xOver < Math.min(a.r.width, b.r.width)) {
+        out.push(`buttons ${xOver > 0 ? 'overlap' : (-xOver).toFixed(1) + 'px apart, side by side'}: ${name(a.el, a.t)} | ${name(b.el, b.t)}`);
+      }
+    }
+  }
   const wide = document.documentElement.scrollWidth - innerWidth;
   if (wide > 1) out.push(`page ${wide}px wider than the screen`);
   return [...new Set(out)];
@@ -225,6 +267,32 @@ async function run() {
         await page.waitForTimeout(500);
         await look(`after opener ${i + 1}`);
         await closeAll();
+      }
+      /* every section that stays closed until it is asked for (a form behind
+         Apply, Send proof, Join): opened as a visitor opens it, by its
+         address, and looked at (owner, 4 Nov 2026, of two buttons touching
+         in the closed Send proof section: "we can never have such issues
+         ever"). On the internship page the application waits for the guide:
+         looked at with the guide open, closed unread, and read. */
+      const flows = await page.evaluate(() => [...document.querySelectorAll('[data-flow][id]')].map((x) => x.id)).catch(() => []);
+      for (const id of flows) {
+        for (const read of f === 'internship.html' && id === 'apply' ? [false, true] : [null]) {
+          await page.goto('about:blank');
+          if (read !== null) {
+            await page.goto(`${base}/${f}`, { waitUntil: 'load' }).catch(() => {});
+            await page.evaluate((r) => { try { if (r) localStorage.setItem('pfa.internGuideRead', '1'); else localStorage.removeItem('pfa.internGuideRead'); } catch (_) { /* none */ } }, read);
+            await page.goto('about:blank');
+          }
+          await page.goto(`${base}/${f}#${id}`, { waitUntil: 'load' }).catch(() => {});
+          await page.waitForTimeout(900);
+          const tag = `form #${id} opened${read === false ? ', guide not yet read' : read ? ', guide read' : ''}`;
+          await look(tag);
+          await closeAll();
+          await look(tag + ', any dialog closed');
+          await page.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.open = true; }));
+          await page.waitForTimeout(150);
+          await look(tag + ', expanders open');
+        }
       }
       if (found.size) problems.push(...[...found].map((x) => `${f} @${w}px, ${x}`));
       await ctx.close();

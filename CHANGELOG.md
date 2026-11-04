@@ -1,3 +1,10 @@
+## v1.529
+
+- **No two buttons ever touch: fixed, and the release scan now checks every form too.** Owner, 4 Nov 2026: "wtf is this.. look at the buttons. we can never have such issues ever".
+  - Send your proof (internship page): "Open your intern dashboard" and "The two-page guide" sat edge to edge when they stacked. They are now a row with 12px between them, the same width when stacked, with room above.
+  - The scan missed it because that section opens only when asked for, and the scan never opened such sections. It now opens every one on every page (Apply, Send proof, the forms elsewhere), and the internship application with the guide unread and read, and checks each.
+  - New rule in the scan: any two buttons with a box (a border or a fill) closer than 8px, side by side or one above the other, or overlapping, fail the release. It found three more, all fixed: the laws page's citation chips (now 10px apart), the events page's Newer and Older buttons (10px), and the academy deck's Next card and Show me on a phone (12px).
+
 ## v1.528
 
 - **The intern guide is read and ticked before anyone can apply.** Owner, 4 Nov 2026: "one should read this before starting right. have a proper viewer of the guide and show it mandatorily, i understand chck box, and then allow to apply".
