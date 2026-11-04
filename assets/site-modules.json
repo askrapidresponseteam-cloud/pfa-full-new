@@ -578,6 +578,23 @@
    ]
   },
   {
+   "id": "intern-guide",
+   "file": "intern-guide.html",
+   "title": "Internship: getting started",
+   "group": "Get Involved",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Getting started."
+    },
+    {
+     "id": "guide",
+     "label": "Guide"
+    }
+   ]
+  },
+  {
    "id": "member-photo",
    "file": "member-photo.html",
    "title": "Membership card photograph",
@@ -1412,6 +1429,10 @@
    "dbLink": "portal",
    "dbRrtWhen": "portal",
    "ipQuiz": "portal"
+  },
+  "intern-guide": {
+   "gd1": "guide",
+   "gd2": "guide"
   },
   "member-photo": {
    "mpSay": "photo",

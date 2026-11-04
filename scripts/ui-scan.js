@@ -17,7 +17,9 @@
      - every button, button-styled link and summary: its text reads on its
        own ground (contrast 3 to 1 or more, with the opacity it is shown at);
      - no long text (a choice, a sentence) set centred inside a button;
-     - no tick box or radio closer than 6px to its words;
+     - every tick box or radio level with the first line of its words,
+       beside them and at least 6px from them;
+     - words in neighbouring table columns at least 24px apart;
      - no button whose words run outside it or are cut;
      - nothing wider than the screen.
    It starts its own server on a free port; nothing is fetched from outside. */
@@ -100,11 +102,61 @@ const AUDIT = () => {
     const lab = inp.closest('label') || (inp.id && document.querySelector(`label[for="${CSS.escape(inp.id)}"]`));
     if (!lab) return;
     const r = inp.getBoundingClientRect();
-    const range = document.createRange(); range.selectNodeContents(lab);
-    const rects = [...range.getClientRects()].filter((x) => x.width > 2 && x.left >= r.right - 1 && Math.abs((x.top + x.bottom) / 2 - (r.top + r.bottom) / 2) < 14);
-    if (!rects.length) return;
-    const gap = Math.min(...rects.map((x) => x.left)) - r.right;
-    if (gap < 6) out.push(`tick box ${gap.toFixed(1)}px from "${lab.textContent.trim().slice(0, 30)}"`);
+    const words = lab.textContent.trim().replace(/\s+/g, ' ').slice(0, 30);
+    /* the words' own lines, not the box's */
+    const lines = [];
+    const walk = document.createTreeWalker(lab, 4);
+    for (let t = walk.nextNode(); t; t = walk.nextNode()) {
+      if (!t.nodeValue.trim() || !shown(t.parentElement)) continue;
+      const range = document.createRange(); range.selectNodeContents(t);
+      [...range.getClientRects()].forEach((x) => { if (x.width > 2 && x.height > 2) lines.push(x); });
+    }
+    if (!lines.length) return;
+    /* the first line of words: it must sit level with the box, and beside it
+       (owner, 4 Nov 2026: "this kinda misalignment issue can never happen
+       anywhere on any page", of a label set above its tick box) */
+    const top = Math.min(...lines.map((x) => x.top));
+    const first = lines.filter((x) => x.top < top + 4);
+    const band = { top: Math.min(...first.map((x) => x.top)), bottom: Math.max(...first.map((x) => x.bottom)), left: Math.min(...first.map((x) => x.left)), right: Math.max(...first.map((x) => x.right)) };
+    const mid = (r.top + r.bottom) / 2;
+    if (mid < band.top - 3 || mid > band.bottom + 3) out.push(`tick box not level with its words "${words}": box centre ${Math.round(mid - band.top)}px from the first line's top`);
+    const after = band.left >= r.right - 1;
+    const before = band.right <= r.left + 1;
+    if (!after && !before) out.push(`tick box overlaps its words "${words}"`);
+    const gap = after ? band.left - r.right : before ? r.left - band.right : 0;
+    if ((after || before) && gap < 6) out.push(`tick box ${gap.toFixed(1)}px from "${words}"`);
+  });
+  /* words in neighbouring columns of a table: at least 24px apart, so one
+     column never reads into the next (owner, 4 Nov 2026, of "First tell"
+     beside "Your hours" in the interns' guide: "not enough gap ... fix
+     holistically") */
+  const textBox = (el) => {
+    let left = Infinity; let right = -Infinity;
+    const walk = document.createTreeWalker(el, 4);
+    for (let t = walk.nextNode(); t; t = walk.nextNode()) {
+      if (!t.nodeValue.trim() || !shown(t.parentElement)) continue;
+      const range = document.createRange(); range.selectNodeContents(t);
+      [...range.getClientRects()].forEach((x) => { if (x.width > 1) { left = Math.min(left, x.left); right = Math.max(right, x.right); } });
+    }
+    return left === Infinity ? null : { left, right };
+  };
+  document.querySelectorAll('tr').forEach((tr) => {
+    if (!shown(tr)) return;
+    const cells = [...tr.children].filter((c) => /^(TD|TH)$/.test(c.tagName) && shown(c));
+    for (let i = 1; i < cells.length; i += 1) {
+      const a = cells[i - 1].getBoundingClientRect(); const b = cells[i].getBoundingClientRect();
+      if (b.left < a.right - 1 || Math.abs(a.top - b.top) > 2) continue; /* stacked on a phone, not side by side */
+      const x = textBox(cells[i - 1]); const y = textBox(cells[i]);
+      if (!x || !y) continue;
+      /* the room the table always keeps between the two, whatever the width:
+         where a line wraps changes with the screen, so the words' own edges
+         at one width are not enough (a line that fills its cell at another
+         width runs up to the padding) */
+      const ca = getComputedStyle(cells[i - 1]); const cb = getComputedStyle(cells[i]);
+      const kept = (b.left + parseFloat(cb.paddingLeft) + parseFloat(cb.borderLeftWidth)) - (a.right - parseFloat(ca.paddingRight) - parseFloat(ca.borderRightWidth));
+      const gap = Math.min(kept, y.left - x.right);
+      if (gap < 24) out.push(`table columns ${gap.toFixed(1)}px apart: "${cells[i - 1].textContent.trim().replace(/\s+/g, ' ').slice(-24)}" | "${cells[i].textContent.trim().replace(/\s+/g, ' ').slice(0, 24)}"`);
+    }
   });
   const wide = document.documentElement.scrollWidth - innerWidth;
   if (wide > 1) out.push(`page ${wide}px wider than the screen`);

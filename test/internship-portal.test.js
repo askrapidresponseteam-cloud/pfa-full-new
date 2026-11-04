@@ -259,6 +259,34 @@ test('signing in: wrong keys lock the ID, growing; the address is braked too; a 
   assert.equal((await a.b.go('me', 'GET')).status, 401);
 });
 
+test('signing in as people type: the ID in small letters, with spaces or only its six characters, the key with spaces or dashes', async () => {
+  await batch();
+  const a = await onboarded('Asha Rao', 'asha@example.com', '9000000001');
+  const six = a.internId.slice(7);
+  const spaced = `${a.key.slice(0, 4)} ${a.key.slice(4, 7)} ${a.key.slice(7)}`;
+  const dashed = `${a.key.slice(0, 4)}-${a.key.slice(4, 7)}-${a.key.slice(7)}`;
+  for (const [id, key] of [[a.internId.toLowerCase(), a.key], [` ${a.internId} `, spaced], [six, dashed], [six.toLowerCase(), a.key], [`PFA IN ${six}`, a.key], [`PFA--IN-${six}`, spaced]]) {
+    const r = await browser('192.0.2.30').go('session', 'POST', { internId: id, key });
+    assert.equal(r.status, 200, `${JSON.stringify(id)} / ${JSON.stringify(key)}: ${JSON.stringify(r.json)}`);
+  }
+  assert.equal(I.internIdOf('abc'), 'ABC');
+  assert.equal(I.keyOf('12 34-56'), '123456');
+});
+
+test('a whole batch signing in from one college network is never stopped; only misses are braked', async () => {
+  await batch();
+  const people = [];
+  for (let i = 0; i < 26; i += 1) people.push(await onboarded(`Intern ${i}`, `intern${i}@example.com`, `90000${String(10000 + i)}`));
+  /* twenty-six onboarding links and twenty-six sign-ins, all from one address */
+  for (const p of people) {
+    const r = await browser('203.0.113.50').go('session', 'POST', { internId: p.internId, key: p.key });
+    assert.equal(r.status, 200, JSON.stringify(r.json));
+  }
+  /* a few typing slips among them still leave everyone in */
+  for (let i = 0; i < 5; i += 1) await browser('203.0.113.50').go('session', 'POST', { internId: people[i].internId, key: '1111111111' });
+  assert.equal((await browser('203.0.113.50').go('session', 'POST', { internId: people[9].internId, key: people[9].key })).status, 200);
+});
+
 test('the full journey: plan and deadlines, electives, proof with a file, revision, acceptance, privacy between interns', async () => {
   /* a batch whose own plan has electives: the portal still handles a choice */
   await batch(ELECTIVE_PLAN);

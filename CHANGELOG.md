@@ -1,3 +1,19 @@
+## v1.527
+
+- **Table columns never run into each other.** Owner: "not enough gap betwen tell and your hours.. fix holistically". Every table keeps at least 24px between columns: the interns' guide (on screen and in the PDF), the CSR project costs, and the panel's registers and payment totals. The release scan now fails any table on any page that keeps less, measured by the room the table keeps rather than where lines happen to end at one screen width.
+
+## v1.526
+
+- **Date filters and an emailed report on five sections of the panel.** Owner, 4 Nov 2026: "these also should have date and range filters and option to send the report to those email; anushkapfacampus@gmail.com".
+  - Volunteers, Interns, Shop orders, Job applicants and the Colony card register each open with a period bar: all time, today, the last 7 or 30 days, this month, last month, or two dates. With a period chosen the section lists that period's lines, with every column; Download CSV gives the same.
+  - Email this report: tick who it goes to, press Send. The report lists the lines and carries the CSV. Volunteers, interns, job applicants and caregivers can go to anushkapfacampus@gmail.com, the forms inbox and the payments inboxes.
+  - Shop orders are a record of money, so they go only to the payments inboxes, or to the forms inbox with the payments inboxes copied; never to Anushka. The server refuses any other address, and the mail sender checks again.
+- **A two-page guide for interns, and a sign-in that forgives typing.** Owner: "for interns- have a quick guide on how to get started. 2 pages. what to do each week , how to submit ... ensure login works perfectly".
+  - New page: intern-guide.html, also a two-page A4 PDF. Page one: getting in, what each message means, keeping the key safe. Page two: the eight weeks (what to do, what to send) and how to send work. Linked from the portal, the internship page and the welcome email.
+  - The Intern ID is taken in small letters, with spaces, or as only its six characters; the key with spaces or dashes. A box shows the key while typing. A short key says how many digits were typed.
+  - A batch signing in together from one college network is no longer stopped: only wrong keys and bad links count toward the 15-minute pause for an address. A used link opened by someone signed in goes to their dashboard.
+- **Every tick box level with its words, checked on every page.** Owner: "this kinda misalignment issue can never happen anywhere on any page". The release scan (npm run check:ui) now fails if a tick box or radio is not level with the first line of its words, sits on top of them, or is closer than 6px. It caught the new show-key tick in its first draft; the shipped one is level.
+
 ## v1.525
 
 - **The practice button in the task reader reads again, and a site-wide check keeps such slips out.** Owner, 3 Nov 2026: "this is still not fixed! so a site wide scan and ensure no such goof ups ever happen".

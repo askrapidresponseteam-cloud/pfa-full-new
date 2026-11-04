@@ -145,6 +145,8 @@ input,button,textarea,select{font-family:inherit;font-size:inherit;color:inherit
 .ip-key__val{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:clamp(22px,5vw,30px);letter-spacing:.08em;word-break:break-all}
 .ip-check{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5}
 .ip-check input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:#111}
+.ip-field label.ip-show{display:flex;align-items:center;gap:10px;margin:4px 0 0;font-size:14px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--ink);cursor:pointer}
+.ip-field label.ip-show input{margin:0}
 
 /* ---------- the dashboard ---------- */
 .db{display:grid;gap:28px;max-width:1080px}
@@ -593,9 +595,10 @@ if (root.document && root.document.head) apply(read());
         <label for="ipKey">Access key</label>
         <input id="ipKey" name="key" type="password" inputmode="numeric" autocomplete="current-password" maxlength="14" placeholder="10 digits" required>
         <small>The ten digit key you were shown once, when you opened PFA's email. It is never your mobile number.</small>
+        <label class="ip-check ip-show"><input type="checkbox" id="ipShow"> <span>Show the key as I type</span></label>
       </div>
       <button class="btn" type="submit" id="ipGo">Sign in</button>
-      <p class="ip-fine">Lost your key? <a href="ask.html" class="linkish">Write to PFA</a> with your Intern ID. PFA checks it is you, then emails you a new link; the old key stops working.</p>
+      <p class="ip-fine">New here? Read the <a href="intern-guide.html" class="linkish">two-page guide</a>. Lost your key? <a href="ask.html" class="linkish">Write to PFA</a> with your Intern ID. PFA checks it is you, then emails you a new link; the old key stops working.</p>
     </form>
 
     <!-- 2. The key, shown once, from the emailed link. -->
@@ -671,7 +674,7 @@ if (root.document && root.document.head) apply(read());
         </details>
       </div>
 
-      <div class="foot"><span id="dbId"></span><button class="linkish" type="button" id="dbOut">Sign out</button></div>
+      <div class="foot"><span id="dbId"></span><a class="linkish" href="intern-guide.html">The two-page guide</a><button class="linkish" type="button" id="dbOut">Sign out</button></div>
     </div>
 
     <div class="qz" id="ipQuiz" hidden></div>
@@ -832,10 +835,15 @@ if (root.document && root.document.head) apply(read());
 
   $('#ipSignin').addEventListener('submit', function (e) {
     e.preventDefault();
-    var id = String($('#ipId').value || '').trim().toUpperCase();
-    var key = String($('#ipKey').value || '').replace(/\s+/g, '');
-    if (!/^PFA-IN-[A-Z0-9]{6}$/.test(id)) { tell('Type your Intern ID as it was shown: PFA-IN- and six letters or numbers.', true); $('#ipId').focus(); return; }
-    if (!/^\d{10}$/.test(key)) { tell('Your access key is ten digits.', true); $('#ipKey').focus(); return; }
+    /* as people type it: small letters, spaces, a dash missed, or only the
+       six characters; the key with spaces or dashes (lib/internship.js internIdOf) */
+    var raw = String($('#ipId').value || '').toUpperCase();
+    var six = /^PFAIN([A-Z0-9]{6})$/.exec(raw.replace(/[^A-Z0-9]+/g, '')) || /^([A-Z0-9]{6})$/.exec(raw.replace(/[^A-Z0-9]+/g, ''));
+    var id = six ? 'PFA-IN-' + six[1] : raw.trim();
+    var key = String($('#ipKey').value || '').replace(/\D+/g, '');
+    if (!/^PFA-IN-[A-Z0-9]{6}$/.test(id)) { tell('Type your Intern ID as it was shown: PFA-IN- and six letters or numbers, for example PFA-IN-K7M2QX.', true); $('#ipId').focus(); return; }
+    if (!/^\d{10}$/.test(key)) { tell('Your access key is ten digits. You typed ' + key.length + '.', true); $('#ipKey').focus(); return; }
+    $('#ipId').value = id;
     $('#ipGo').disabled = true;
     tell('Signing in...');
     api('/api/intern/session', { method: 'POST', body: { internId: id, key: key } }).then(function () {
@@ -843,6 +851,8 @@ if (root.document && root.document.head) apply(read());
       return load();
     }).catch(function (err) { tell(err.message, true); }).then(function () { $('#ipGo').disabled = false; });
   });
+
+  $('#ipShow').addEventListener('change', function () { $('#ipKey').type = this.checked ? 'text' : 'password'; });
 
   /* ---- the key, once ---------------------------------------------------- */
 
@@ -860,7 +870,14 @@ if (root.document && root.document.head) apply(read());
       };
       $('#ipWrote').onchange = function () { $('#ipOn').disabled = !this.checked; };
       $('#ipOn').onclick = function () { r.key = ''; $('#ipOnceKey').textContent = ''; load(); };
-    }).catch(function (err) { showSignin(err.message, true); });
+    }).catch(function (err) {
+      /* a link already used, opened again (a reload, the email pressed a
+         second time): someone still signed in goes to their dashboard */
+      if (err.code === 'USED_LINK') {
+        return api('/api/intern/me').then(function (d) { data = d; draw(); }, function () { showSignin(err.message, true); });
+      }
+      showSignin(err.message, true);
+    });
   }
 
   /* ---- the dashboard ---------------------------------------------------- */
@@ -1121,6 +1138,14 @@ if (root.document && root.document.head) apply(read());
   try { token = new URLSearchParams(String(location.hash || '').replace(/^#/, '')).get('onboard') || ''; } catch (_) { token = ''; }
   try { if (token) history.replaceState(null, '', location.pathname); } catch (_) {}
   if (token) onboard(token); else load();
+  /* the email's link opened in a tab already on this page */
+  window.addEventListener('hashchange', function () {
+    var t = '';
+    try { t = new URLSearchParams(String(location.hash || '').replace(/^#/, '')).get('onboard') || ''; } catch (_) { t = ''; }
+    if (!t) return;
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    onboard(t);
+  });
 })();
 </script>
 

@@ -327,7 +327,7 @@ dialog.m-lb::backdrop{background:rgba(17,17,17,.82)}
 #projects .cp__body p{margin:0 0 10px;font-size:14px;line-height:1.6}
 #projects .cp__lines{width:100%;border-collapse:collapse;margin:4px 0 14px;font-size:13px}
 #projects .cp__lines td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
-#projects .cp__lines td+td{text-align:right;white-space:nowrap;padding-left:12px;font-variant-numeric:tabular-nums}
+#projects .cp__lines td+td{text-align:right;white-space:nowrap;padding-left:28px;font-variant-numeric:tabular-nums}
 #projects .cp__sum td{font-weight:700;border-bottom:0}
 #projects .cp__law{color:var(--muted)}
 #projects .cp__acts{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:6px 0 0}
