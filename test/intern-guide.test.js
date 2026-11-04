@@ -77,3 +77,30 @@ test('the portal takes the Intern ID and key however they are typed, and can sho
   assert.match(portal, /\$\('#ipKey'\)\.type = this\.checked \? 'text' : 'password'/);
   assert.match(portal, /addEventListener\('hashchange'/);
 });
+
+/* owner, 4 Nov 2026: "one should read this before starting right. have a
+   proper viewer of the guide and show it mandatorily, i understand chck box,
+   and then allow to apply" */
+test('the guide is read and ticked before applying: a viewer, a locked form, and a server that asks for it', () => {
+  const page = read('internship.html');
+  const viewer = read('assets/intern-guide-viewer.js');
+  assert.match(page, /<script src="assets\/intern-guide-viewer\.js"><\/script>/);
+  assert.match(page, /<div class="ig-gate">[\s\S]*?data-guide-open="apply"[\s\S]*?<\/div>/, 'the apply form opens with the guide, not the fields');
+  assert.match(page, /class="ig-open" data-guide-open aria-haspopup="dialog">Read the guide<\/button><button type="button" id="back-process">/, 'the plan links the guide');
+  assert.match(page, /guide: window\.PFAInternGuide && !window\.PFAInternGuide\.ok\(\) \? '' : 'Read and understood'/);
+  /* one copy of the words: the viewer shows the guide page's own pages */
+  assert.match(viewer, /var SRC = 'intern-guide\.html'/);
+  assert.match(viewer, /querySelectorAll\('\.gd-page'\)/);
+  assert.match(read('intern-guide.html'), /<link rel="stylesheet" href="assets\/intern-guide\.css">/);
+  /* locked until read to the end and ticked */
+  assert.match(viewer, /apply\.classList\.add\('ig-locked'\)/);
+  assert.match(page, /#apply\.ig-locked \.m-tabs,#apply\.ig-locked \.m-bar,#apply\.ig-locked \.m-form\{display:none\}/);
+  assert.match(viewer, /<input type="checkbox" id="igOk" disabled>/);
+  assert.match(viewer, /body\.scrollTop \+ body\.clientHeight >= body\.scrollHeight - 48/);
+  assert.match(viewer, /tick\.addEventListener\('change', function \(\) \{ go\.disabled = !tick\.checked; \}\)/);
+  assert.match(viewer, /pfa:flow-open/);
+  /* the server holds an application to it */
+  const F = require('../lib/submission-fields');
+  const spec = (F.KINDS || F.SPECS || {})['PFA-VI'] || {};
+  assert.ok(spec.required && spec.required.guide, 'PFA-VI requires guide');
+});

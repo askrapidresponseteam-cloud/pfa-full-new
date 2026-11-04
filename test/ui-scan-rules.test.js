@@ -37,7 +37,7 @@ test('the scan keeps every table\'s columns at least 24px apart, by the room the
   assert.match(scan, /if \(gap < 24\) out\.push\(`table columns/);
   assert.match(scan, /paddingLeft[\s\S]*paddingRight/);
   /* owner, 4 Nov 2026, of the interns' guide: "not enough gap ... fix holistically" */
-  const guide = fs.readFileSync(path.join(__dirname, '..', 'intern-guide.html'), 'utf8');
+  const guide = fs.readFileSync(path.join(__dirname, '..', 'assets', 'intern-guide.css'), 'utf8');
   assert.match(guide, /\.gd-weeks td\{padding:10px 28px 10px 0;/);
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'assets', 'micro.css'), 'utf8'), /#projects \.cp__lines td\+td\{[^}]*padding-left:28px/);
   /* the panel, which the scan cannot sign in to: its tables keep the same room */

@@ -24,10 +24,11 @@
     employees: 'jobs',
     interns: 'interns',
     shop: 'shop',
-    cgsheet: 'caregivers'
+    cgsheet: 'caregivers',
+    memsheet: 'members'
   };
-  var NOUN = { volunteers: ['volunteer', 'volunteers'], jobs: ['applicant', 'applicants'], interns: ['intern', 'interns'], shop: ['order', 'orders'], caregivers: ['application', 'applications'] };
-  var OPENS = { volunteers: true, jobs: true, caregivers: true };
+  var NOUN = { volunteers: ['volunteer', 'volunteers'], jobs: ['applicant', 'applicants'], interns: ['intern', 'interns'], shop: ['order', 'orders'], caregivers: ['application', 'applications'], members: ['member', 'members'] };
+  var OPENS = { volunteers: true, jobs: true, caregivers: true, members: true };
   var SHOW = 500;
   var state = {};
 
@@ -38,7 +39,7 @@
     + '.sr-box label{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:13px;cursor:pointer}.sr-box label input{margin:2px 0 0;flex:0 0 auto}.sr-box label small{display:block;color:var(--muted);font-size:12px}.sr-box label.is-off{opacity:.6;cursor:default}'
     + '.sr-acts{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0;align-items:center}.sr-acts .press,.sr-acts .ghost{width:auto;margin:0;min-height:38px;padding:0 18px}'
     + '.sr-say{font-size:13px;line-height:1.5;margin:10px 0 0;overflow-wrap:anywhere}.sr-say:empty{display:none}.sr-say[data-tone="bad"]{color:#a3251f}.sr-say[data-tone="good"]{color:#1f6b3a}'
-    + '.sr-out{margin:14px 0 0}.sr-out[hidden]{display:none}.sr-line{margin:0 0 10px;font-size:14px}.sr-out td{font-size:13px;vertical-align:top}.sr-out td:first-child{white-space:nowrap}.sr-more{font-size:12px;color:var(--muted);margin:8px 0 0}'
+    + '.sr-out{margin:14px 0 0}.sr-out[hidden]{display:none}.sr-line{margin:0 0 10px;font-size:14px}.sr .sr-out th,.sr .sr-out td{padding:10px 14px;vertical-align:top}.sr .sr-out td{font-size:13px}.sr .sr-out td.sr-wide{min-width:240px}.sr .sr-out td.sr-nw{white-space:nowrap}.sr-out td:first-child{white-space:nowrap}.sr-more{font-size:12px;color:var(--muted);margin:8px 0 0}'
     + '.pane.sr-on>:not(.sr){display:none!important}';
   document.head.appendChild(style);
 
@@ -119,7 +120,10 @@
       + (rows.length ? rows.map(function (r) {
         return '<tr>' + r.cells.map(function (c, i) {
           if (i === 0 && OPENS[kind]) return '<td><button class="rowopen" type="button" data-open-case="' + esc(c) + '">' + esc(c) + '</button></td>';
-          return '<td>' + esc(c) + '</td>';
+          /* long words get room; short ones stay on one line */
+          var col = d.columns[i] || '';
+          var cls = /^(Address|Deliver to|Items|Areas)$/.test(col) ? ' class="sr-wide"' : String(c).length <= 24 ? ' class="sr-nw"' : '';
+          return '<td' + cls + '>' + esc(c) + '</td>';
         }).join('') + '</tr>';
       }).join('') : '<tr><td colspan="' + d.columns.length + '"><div class="empty"><b>Nothing in this period</b>Choose a longer period.</div></td></tr>')
       + '</tbody></table></div>'

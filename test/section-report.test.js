@@ -100,7 +100,7 @@ test('volunteers in the period only, newest first; spam and the site’s testing
 });
 
 test('each section is behind its own part of the panel', async () => {
-  for (const [kind, module] of [['volunteers', 'volunteers'], ['jobs', 'employees'], ['interns', 'internship'], ['shop', 'shop'], ['caregivers', 'caregivers']]) {
+  for (const [kind, module] of [['volunteers', 'volunteers'], ['jobs', 'employees'], ['interns', 'internship'], ['shop', 'shop'], ['caregivers', 'caregivers'], ['members', 'membership']]) {
     modules = [];
     const r = await call('GET', { query: { kind } });
     assert.equal(r.status, 200, kind);
@@ -183,8 +183,27 @@ test('a CSV is only read for the section it was made for', async () => {
 
 test('the panel: a period bar and an email box on all five sections, from a script of its own', () => {
   const js = read('assets/admin-reports.js');
-  for (const pane of ['volunteers', 'employees', 'interns', 'shop', 'cgsheet']) assert.match(js, new RegExp(`${pane}:\\s*'`), pane);
+  for (const pane of ['volunteers', 'employees', 'interns', 'shop', 'cgsheet', 'memsheet']) assert.match(js, new RegExp(`${pane}:\\s*'`), pane);
   assert.match(read('admin.html'), /<script src="assets\/admin-reports\.js"><\/script>/);
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-reports\.js'/);
   assert.match(read('api/index.js'), /'admin\/section-report'/);
+});
+
+/* owner, 4 Nov 2026, on the Members register: "where is the option to send
+   this to email.." */
+test('the Members register too: in the period, to Anushka and the forms inbox, and no amount in it', async () => {
+  db.collection('submissions').doc('PFA-MEM-2026-00001').set({ kind: 'PFA-MEM', status: 'new', receivedAtMs: Date.parse('2026-11-02T05:00:00.000Z'), createdAt: '2026-11-02T05:00:00.000Z', fields: { name: 'Deepa Ujjawal', mobile: '9412420113', email: 'deepa@example.com', address: 'Qtr D21, IVRI Campus', city: 'Bareilly', state: 'Uttar Pradesh', pin: '243122', tier: 'silver', tierLabel: 'Silver membership', amount: '1000' } });
+  db.collection('submissions').doc('PFA-MEM-2026-00000').set({ kind: 'PFA-MEM', status: 'new', receivedAtMs: Date.parse('2026-10-20T05:00:00.000Z'), createdAt: '2026-10-20T05:00:00.000Z', fields: { name: 'Last Month', mobile: '9412420000', email: 'last@example.com', amount: '1000' } });
+  const g = await call('GET', { query: { kind: 'members', from: '2026-11-01', to: '2026-11-04' } });
+  assert.equal(g.status, 200, g.raw);
+  assert.deepEqual(modules, ['membership']);
+  assert.deepEqual(g.json.rows.map((r) => r.cells[2]), ['Deepa Ujjawal']);
+  assert.ok(g.json.recipients.some((x) => x.address === ANUSHKA));
+  assert.doesNotMatch(JSON.stringify(g.json.columns), /amount|INR|fee/i);
+  assert.doesNotMatch(JSON.stringify(g.json.rows), /1,?000\.00|INR/);
+  const r = await call('POST', { query: { kind: 'members' }, body: { from: '2026-11-01', to: '2026-11-04', recipients: [ANUSHKA] } });
+  assert.equal(r.status, 200, r.raw);
+  assert.equal(sent.length, 1);
+  assert.match(sent[0].subject, /^PFA Members register: 1 Nov 2026 to 4 Nov 2026 \(1 line\)$/);
+  assert.doesNotMatch(Buffer.from(sent[0].attachments[0].content, 'base64').toString('utf8'), /INR|1,000\.00/);
 });

@@ -1,3 +1,12 @@
+## v1.528
+
+- **The intern guide is read and ticked before anyone can apply.** Owner, 4 Nov 2026: "one should read this before starting right. have a proper viewer of the guide and show it mandatorily, i understand chck box, and then allow to apply".
+  - Apply (on the opening photograph, in the plan, or at the top) opens the two-page guide in a viewer over the page. The tick "I have read the guide and understand what the eight weeks ask of me" is offered once the guide has been read to its end; ticked, Continue to apply opens the form at its first field.
+  - Until then the application shows only a short note and a Read the guide button. The tick is remembered in that browser, travels with the application, and the server refuses an application without it.
+  - The plan ("One task a week. Each one signed off.") has a Read the guide button beside Back to the process.
+  - The viewer shows the guide page's own two pages, so the page, the viewer and the PDF always say the same.
+- **The Members register can be emailed too.** Owner: "where is the option to send this to email..". Members now has the same period bar, Download CSV and Email this report as the other registers. It goes to Anushka, the forms inbox or the payments inboxes; it carries no amounts, so it is a register, not a money record. The report's own table keeps its columns apart and its addresses readable inside the registers.
+
 ## v1.527
 
 - **Table columns never run into each other.** Owner: "not enough gap betwen tell and your hours.. fix holistically". Every table keeps at least 24px between columns: the interns' guide (on screen and in the PDF), the CSR project costs, and the panel's registers and payment totals. The release scan now fails any table on any page that keeps less, measured by the room the table keeps rather than where lines happen to end at one screen width.

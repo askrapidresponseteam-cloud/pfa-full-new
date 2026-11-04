@@ -80,6 +80,7 @@ const FORMS = {
       "why": "I feed twelve dogs on my street and want to learn to do it properly, with the law behind me.",
       "work": "B.Com, second year",
       "social": "@asharao",
+      "guide": "Read and understood",
       "address": "House 14, Barakhamba Road, Connaught Place",
       "pincode": "110001",
       "city": "New Delhi",
