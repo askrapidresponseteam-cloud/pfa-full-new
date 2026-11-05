@@ -86,11 +86,12 @@ async function intern(name, mobile) {
     const b = await admin('POST', { body: { action: 'batch-save', name: 'November 2026', startDate: '2026-11-09' } });
     batchId = b.json.batch.batchId;
   }
-  const issued = await admin('POST', { body: { action: 'issue', batchId, name, email: `${name.split(' ')[0].toLowerCase()}@example.com`, mobile: mobile || '9876543210' } });
+  const email = `${name.split(' ')[0].toLowerCase()}@example.com`;
+  const issued = await admin('POST', { body: { action: 'issue', batchId, name, email, mobile: mobile || '9876543210', dob: '2004-05-14' } });
   assert.equal(issued.status, 200, JSON.stringify(issued.json));
-  const token = /intern\.html#onboard=([A-Za-z0-9_-]+)/.exec(sent[sent.length - 1].text)[1];
+  /* approved: signed in with the three (5 Nov 2026) */
   const br = browser();
-  assert.equal((await br.go('onboard', 'POST', { token })).status, 200);
+  assert.equal((await br.go('session', 'POST', { email, mobile: mobile || '9876543210', dob: '2004-05-14' })).status, 200);
   return { br, internId: issued.json.internId };
 }
 test.beforeEach(() => { batchId = ''; });

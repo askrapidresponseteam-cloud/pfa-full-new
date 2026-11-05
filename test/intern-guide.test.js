@@ -31,18 +31,17 @@ test('every week of the standard plan is on page two, in order', () => {
   for (const t of I.DEFAULT_TASKS) assert.ok(t.week >= 1 && t.week <= 8);
 });
 
-test('getting in says what the portal and the email really say', () => {
-  for (const said of ['Your PFA internship access', 'Get my access key', 'I have written down my Intern ID and access key', 'Open my dashboard', 'Sign in', 'Send proof', 'Sent, with PFA', 'Send the revision']) {
+test('getting in says what the portal and the email really say (5 Nov 2026: email, mobile and date of birth)', () => {
+  for (const said of ['Your PFA internship has started', 'email, mobile number and date of birth', 'Sign in', 'Send proof', 'Sent, with PFA', 'Send the revision']) {
     assert.ok(words.includes(said), said);
   }
+  assert.doesNotMatch(words, /access key|Get my access key|written down my Intern ID/);
   const portal = read('intern.html');
-  for (const said of ['Open my dashboard', 'I have written down my Intern ID and access key', 'Sign in']) assert.ok(portal.includes(said), said);
-  assert.match(read('lib/caregiver-mail.js'), /label: 'Get my access key'/);
-  assert.match(words, /five wrong tries in a row, the ID rests for 15 minutes/);
+  for (const said of ['>Email<', '>Mobile number<', '>Date of birth<', '>Sign in<']) assert.ok(portal.includes(said), said);
+  assert.match(read('lib/caregiver-mail.js'), /subject: 'Your PFA internship has started'/);
+  assert.match(words, /five wrong tries in a row, sign-in rests for 15 minutes/);
   assert.equal(I.LOCK.after, 5);
   assert.equal(I.LOCK.baseMs, 15 * 60000);
-  assert.match(words, /within 7 days/);
-  assert.equal(I.LIMITS.onboardDays, 7);
   assert.match(words, /up to 3 MB each/);
   assert.equal(I.LIMITS.fileBytes, 3 * 1024 * 1024);
 });
@@ -67,7 +66,7 @@ test('found from the portal, the internship page and the welcome email; the PDF 
   assert.ok(pdf.length < 400 * 1024);
 });
 
-test('the portal takes the Intern ID and key however they are typed, and can show the key', () => {
+test('an Intern ID and key from before 5 Nov 2026 still sign in, however they are typed', () => {
   assert.equal(I.internIdOf(' pfa-in-k7m2qx '), 'PFA-IN-K7M2QX');
   assert.equal(I.internIdOf('k7m2qx'), 'PFA-IN-K7M2QX');
   assert.equal(I.internIdOf('PFA IN K7M2QX'), 'PFA-IN-K7M2QX');

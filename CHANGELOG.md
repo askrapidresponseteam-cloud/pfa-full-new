@@ -1,3 +1,15 @@
+## v1.535
+
+- **Interns sign in with their email, mobile and date of birth, once PFA approves them.** Owner, 5 Nov 2026: "one has to register with entering email id, mobile number and date of birth. login creds would be the same. once approved by admin. and then can login with entering the 3 correctly. no otp. just the right combi should allow the person inside. 1st time the approval goes to the admin and only on clicking approve, the start internship email will go from admin to the applicant and then the person can login ... also update the guide accordingly. test and ensure nothing breaks".
+  - The internship application asks for the date of birth instead of the age (the age, the under-16 check and the parent's agreement for 16 and 17 come from it, on the page and on the server) and says these three become the sign-in.
+  - In the panel, Internship, "Approve applications": Approve makes the intern, active at once, marks the application Accepted, and emails "Your PFA internship has started" with the sign-in page. Nothing goes to the applicant before it. An application from before the date of birth was asked shows a date field to fill in first. One intern per email.
+  - The portal's sign-in is email, mobile number and date of birth, typed however people type them (capitals, +91, spaces, 14/05/2004). The answer never says which one was wrong. Five tries that do not match rest the sign-in for 15 minutes, doubling each time; the address is braked as before.
+  - Each intern's profile shows the date of birth and a Change for the sign-in details, after checking it is them; every device is signed out and the change is in the audit log. "New key" is gone from the batch table.
+  - Interns made before today with an Intern ID and access key can still sign in with them under "Have an Intern ID and access key from before?", until PFA adds their date of birth.
+  - The two-page guide's first page now explains applying, the approval email and signing in with the three; the PDF is rebuilt, still two pages.
+- **The Google Sheet fills: Google refused the sheet's date setting.** Owner, 5 Nov 2026, with the panel saying "Google refused the change: Invalid requests[0].updateSpreadsheetProperties: Unsupported locale: en_IN". Google has no en_IN; the sheet is now set to British English, which reads 05/11/2026 as 5 November, in India time. That setting is asked on its own, and if Google refuses any colour, note or date rule, the rows are still written and the tabs still locked.
+- **The membership tab of the Google Sheet is called Membership.** Owner, 5 Nov 2026: "1 tab should be catc and another membership". A sheet that already has the "Members" tab has it renamed in place, rows and lock kept.
+
 ## v1.534
 
 - **Colony cards and members written to the office's Google Sheet, locked.** Owner, 5 Nov 2026: "can membership, catc be written here [the sheet] user data should be protected. locked so that one doesnt accidentally mess with it?", "1 tab for members 1 for catc", "only courier details and date of shipping should be editable. the whole details and address of the user should be captured in the sheet", "enterprise grade".

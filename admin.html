@@ -4985,7 +4985,7 @@ window.addEventListener('unhandledrejection', function (event) {
     out.push('</details>');
 
     /* 3. issue */
-    out.push('<details class="fold" id="ipIssueFold"' + (ip.issued ? ' open' : '') + '><summary>Issue Intern IDs</summary>' + ipIssue() + '</details>');
+    out.push('<details class="fold" id="ipIssueFold"' + (ip.issued ? ' open' : '') + '><summary>Approve applications</summary>' + ipIssue() + '</details>');
 
     /* 4. a batch, new or edited */
     out.push('<details class="fold"><summary>' + (bs.length ? 'A new batch, or edit this one' : 'A new batch') + '</summary>' + ipBatchForm() + '</details>');
@@ -5022,11 +5022,9 @@ window.addEventListener('unhandledrejection', function (event) {
         + '<td class="num">' + p.percent + '%<br><span class="note">' + p.accepted + '/' + p.need + (p.average != null ? ' · ' + p.average : '') + '</span></td>'
         + '<td><span class="ip-dots">' + dots + '</span>' + (p.waiting ? '<br><span class="note">' + p.waiting + ' waiting</span>' : '') + '</td>'
         + '<td class="num">' + r.referral.registrations + (target ? '/' + target : '') + '<br><span class="note">' + r.referral.clicks + ' clicks · ' + r.referral.firstOpens + ' opens</span></td>'
-        + '<td>' + esc(r.status === 'invited' ? 'Link sent, no key yet' : r.status === 'active' ? 'Active' : r.status === 'revoked' ? 'Withdrawn' : r.status) + (r.lastSignInAt ? '<br><span class="note">in ' + esc(when(r.lastSignInAt)) + '</span>' : '') + (r.lockedUntil && Date.parse(r.lockedUntil) > Date.now() ? '<br><span class="note">locked after wrong keys</span>' : '') + '</td>'
-        + '<td><button class="linky" type="button" data-ip="key">New key</button>' + (r.status !== 'revoked' ? ' · <button class="linky" type="button" data-ip="revoke">Withdraw</button>' : '')
-        + (act && ip.doing === 'key' ? '<div class="ct-why"><input id="ipWhy" maxlength="300" placeholder="How you verified it is them (a call to the number they applied with)"><button class="ghost" type="button" data-ip="key-yes">Email a new link</button></div>' : '')
+        + '<td>' + esc(r.status === 'invited' ? 'Link sent, no key yet' : r.status === 'active' ? 'Active' : r.status === 'revoked' ? 'Withdrawn' : r.status) + (r.lastSignInAt ? '<br><span class="note">in ' + esc(when(r.lastSignInAt)) + '</span>' : '') + (r.lockedUntil && Date.parse(r.lockedUntil) > Date.now() ? '<br><span class="note">locked after wrong tries</span>' : '') + '</td>'
+        + '<td>' + (r.status !== 'revoked' ? '<button class="linky" type="button" data-ip="revoke">Withdraw</button>' : '')
         + (act && ip.doing === 'revoke' ? '<div class="ct-why"><input id="ipWhy" maxlength="200" placeholder="Why access is withdrawn"><button class="ghost" type="button" data-ip="revoke-yes">Withdraw access</button></div>' : '')
-        + (act && ip.link ? '<p class="note">Link sent (works once, for 7 days): <input class="ip-copy" readonly value="' + esc(ip.link) + '"></p>' : '')
         + '</td></tr>';
     }).join('');
     out += '</tbody></table></div>';
@@ -5038,14 +5036,14 @@ window.addEventListener('unhandledrejection', function (event) {
     var bs = (ip.home || {}).batches || [];
     if (!bs.length) return '<p class="note">Make a batch first.</p>';
     var out = '';
-    if (ip.issued) out += '<div class="ct-issued"><p><b>' + esc(ip.issued.internId) + '</b> issued; referral code ' + esc(ip.issued.referralCode) + '. The onboarding email was ' + esc(ip.issued.mailed === 'sent' ? 'sent' : ip.issued.mailed === 'queued' ? 'queued' : 'not sent') + '. If it does not arrive, give them this link (works once, for 7 days):<br><input class="ip-copy" readonly value="' + esc(ip.issued.onboardUrl) + '"></p></div>';
-    out += '<p class="note">Into the batch chosen above. Each intern is emailed a link that shows their Intern ID and a ten digit key, once.</p>';
+    if (ip.issued) out += '<div class="ct-issued"><p><b>' + esc(ip.issued.internId) + '</b> approved. The start email was ' + esc(ip.issued.mailed === 'sent' ? 'sent' : ip.issued.mailed === 'queued' ? 'queued' : 'not sent') + '.</p></div>';
+    out += '<p class="note">Into the batch chosen above. Approve emails them that the internship has started; they sign in with the email, mobile and date of birth they applied with.</p>';
     if (ip.apps === null) out += '<button class="ghost" type="button" data-ip="apps">Show internship applications</button>';
     else if (!ip.apps.length) out += '<p class="note">Every internship application has an Intern ID.</p>';
     else out += '<div class="wrap"><table><thead><tr><th>Application</th><th>Applicant</th><th aria-label="Actions"></th></tr></thead><tbody>' + ip.apps.map(function (a) {
-      return '<tr data-app="' + esc(a.reference) + '"><td><button class="linky" type="button" data-open-case="' + esc(a.reference) + '">' + esc(a.reference) + '</button><br><span class="note">' + esc(dayOf(a.createdAt)) + '</span></td><td>' + esc(a.name) + '<br><span class="note">' + esc(a.email) + (a.city ? ' · ' + esc(a.city) : '') + '</span></td><td><button class="press" type="button" data-ip="issue-app">Issue ID</button></td></tr>';
+      return '<tr data-app="' + esc(a.reference) + '"><td><button class="linky" type="button" data-open-case="' + esc(a.reference) + '">' + esc(a.reference) + '</button><br><span class="note">' + esc(dayOf(a.createdAt)) + '</span></td><td>' + esc(a.name) + '<br><span class="note">' + esc(a.email) + (a.city ? ' · ' + esc(a.city) : '') + '</span></td><td>' + (a.dob ? '' : '<input type="date" data-ip-dob aria-label="Date of birth (not on the application)"> ') + '<button class="press" type="button" data-ip="issue-app">Approve</button></td></tr>';
     }).join('') + '</tbody></table></div>';
-    out += '<details class="fold"><summary>Someone without an application</summary><div class="so-fields"><div><label for="ipName">Name</label><input id="ipName" maxlength="120"></div><div><label for="ipEmail">Email</label><input id="ipEmail" type="email" maxlength="160"></div><div><label for="ipMobile">Mobile (for the self-referral check)</label><input id="ipMobile" inputmode="tel" maxlength="16"></div></div><div class="so-save"><button class="press" type="button" data-ip="issue">Issue ID</button></div></details>';
+    out += '<details class="fold"><summary>Someone without an application</summary><div class="so-fields"><div><label for="ipName">Name</label><input id="ipName" maxlength="120"></div><div><label for="ipEmail">Email</label><input id="ipEmail" type="email" maxlength="160"></div><div><label for="ipMobile">Mobile</label><input id="ipMobile" inputmode="tel" maxlength="16"></div><div><label for="ipDob">Date of birth</label><input id="ipDob" type="date"></div></div><div class="so-save"><button class="press" type="button" data-ip="issue">Approve</button></div></details>';
     return out;
   }
   function ipBatchForm() {
@@ -5092,15 +5090,13 @@ window.addEventListener('unhandledrejection', function (event) {
         .catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
       return;
     }
-    if (what === 'key' || what === 'revoke') { ip.who = row.getAttribute('data-intern'); ip.doing = what; ip.link = ''; ipRender(); var w = $('#ipWhy'); if (w) w.focus(); return; }
-    if (what === 'key-yes' || what === 'revoke-yes') {
+    if (what === 'revoke') { ip.who = row.getAttribute('data-intern'); ip.doing = what; ipRender(); var w = $('#ipWhy'); if (w) w.focus(); return; }
+    if (what === 'revoke-yes') {
       var note = ($('#ipWhy') || {}).value || '';
       b.disabled = true;
-      var body = what === 'key-yes' ? { action: 'regenerate', internId: ip.who, verifiedHow: note } : { action: 'revoke', internId: ip.who, reason: note };
-      api('/api/admin/internship', { method: 'POST', body: body }).then(function (r) {
+      api('/api/admin/internship', { method: 'POST', body: { action: 'revoke', internId: ip.who, reason: note } }).then(function () {
         ip.doing = '';
-        ip.link = what === 'key-yes' ? r.onboardUrl : '';
-        internshipPane({ text: what === 'key-yes' ? 'A new link is ' + (r.mailed === 'sent' ? 'emailed' : 'queued') + '; the old key has stopped working.' : 'Access withdrawn. Their referral credits so far stay.', tone: 'good' });
+        internshipPane({ text: 'Access withdrawn. Their referral credits so far stay.', tone: 'good' });
       }).catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
       return;
     }
@@ -5114,7 +5110,8 @@ window.addEventListener('unhandledrejection', function (event) {
         var ref = b.closest('tr').getAttribute('data-app');
         var a = ip.apps.filter(function (x) { return x.reference === ref; })[0] || {};
         payload.name = a.name; payload.email = a.email; payload.mobile = a.mobile; payload.applicationRef = a.reference;
-      } else { payload.name = $('#ipName').value; payload.email = $('#ipEmail').value; payload.mobile = $('#ipMobile').value; }
+        payload.dob = a.dob || (b.closest('tr').querySelector('[data-ip-dob]') || {}).value;
+      } else { payload.name = $('#ipName').value; payload.email = $('#ipEmail').value; payload.mobile = $('#ipMobile').value; payload.dob = $('#ipDob').value; }
       b.disabled = true;
       api('/api/admin/internship', { method: 'POST', body: payload }).then(function (r) {
         ip.issued = r;

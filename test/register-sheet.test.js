@@ -90,6 +90,8 @@ function google(options) {
     if (method === 'POST' && rest === ':batchUpdate') {
       g.shapes.push(body.requests);
       for (const q of body.requests) {
+        if (q.updateSpreadsheetProperties && (g.refuseLocale || !['en_GB', 'en_US'].includes(q.updateSpreadsheetProperties.properties.locale))) return answer(400, { error: { code: 400, message: `Invalid requests[0].updateSpreadsheetProperties: Unsupported locale: ${q.updateSpreadsheetProperties.properties.locale}.` } });
+        if (g.refuseLook && body.requests.some((r) => r.setDataValidation)) return answer(400, { error: { code: 400, message: 'Invalid requests[9].setDataValidation: something Google did not like.' } });
         if (q.updateSpreadsheetProperties) { g.locale = q.updateSpreadsheetProperties.properties.locale; g.timeZone = q.updateSpreadsheetProperties.properties.timeZone; }
         if (q.addSheet) g.sheets.push({ properties: Object.assign({ sheetId: 100 + g.nextId++ }, q.addSheet.properties), protectedRanges: [], values: [] });
         if (q.deleteSheet) g.sheets = g.sheets.filter((s) => s.properties.sheetId !== q.deleteSheet.sheetId);
@@ -163,14 +165,14 @@ test('dates: what the office types, read the Indian way, and the sheet\'s own da
 
 /* ---- the first run ------------------------------------------------------- */
 
-test('first run: a CATC tab and a Members tab, every detail and the full address, no money, the empty Sheet1 gone', async () => {
+test('first run: a CATC tab and a Membership tab, every detail and the full address, no money, the empty Sheet1 gone', async () => {
   const db = memoryFirestore(); seed(db);
   const g = google();
   const ran = await run(db, g);
   assert.equal(ran.ok, true, ran.message);
   assert.equal(ran.wrote, true);
-  assert.deepEqual(g.sheets.map((s) => s.properties.title), ['CATC', 'Members']);
-  assert.equal(g.locale, 'en_IN');
+  assert.deepEqual(g.sheets.map((s) => s.properties.title), ['CATC', 'Membership']);
+  assert.equal(g.locale, 'en_GB', 'dates read day first (Google takes no en_IN)');
   assert.equal(g.timeZone, 'Asia/Kolkata');
 
   const catc = g.tab('CATC').values;
@@ -190,7 +192,7 @@ test('first run: a CATC tab and a Members tab, every detail and the full address
   assert.equal(manasa['Card number'], 'PFA-CCT-2B6N4XKE');
   assert.equal(manasa['Issued on'], '30/10/2026');
 
-  const mem = g.tab('Members').values;
+  const mem = g.tab('Membership').values;
   const s = Object.fromEntries(mem[0].map((h, i) => [h, mem[1][i]]));
   assert.equal(s['Membership type'], 'Golden membership');
   assert.equal(s['Welcome kit'], 'Card, badge');
@@ -201,7 +203,7 @@ test('first run: a CATC tab and a Members tab, every detail and the full address
   for (const money of ['2500', '300', 'ORD-CG-1', 'ORD-MEM-1', 'BANK-777', 'BANK-888', 'Amount', 'INR']) assert.ok(!all.includes(money), money);
 
   /* locked, all but the yellow cells under their headings */
-  for (const title of ['CATC', 'Members']) {
+  for (const title of ['CATC', 'Membership']) {
     const t = g.tab(title);
     const p = t.protectedRanges.filter((x) => x.description === SHEET.PROTECTION);
     assert.equal(p.length, 1, title);
@@ -218,13 +220,46 @@ test('first run: a CATC tab and a Members tab, every detail and the full address
   assert.ok(reqs.some((q) => q.repeatCell && q.repeatCell.cell.userEnteredFormat.numberFormat && q.repeatCell.cell.userEnteredFormat.numberFormat.type === 'TEXT'), 'a tracking number keeps its zeros');
 });
 
+test('the v1.534 "Members" tab is renamed Membership in place, its rows and lock kept', async () => {
+  const db = memoryFirestore(); seed(db);
+  const g = google();
+  await run(db, g);
+  const t = g.tab('Membership');
+  t.properties.title = 'Members';
+  const id = t.properties.sheetId;
+  const orig = g.fetch;
+  g.fetch = async (url, init) => {
+    if (init && init.method === 'POST' && url.endsWith(':batchUpdate') && !url.includes('/values')) {
+      for (const q of JSON.parse(init.body).requests) if (q.updateSheetProperties && q.updateSheetProperties.fields === 'title') g.sheets.find((x) => x.properties.sheetId === q.updateSheetProperties.properties.sheetId).properties.title = q.updateSheetProperties.properties.title;
+    }
+    return orig(url, init);
+  };
+  const ran = await SHEET.sync(db, { fetch: g.fetch, now: () => NOW, backoffMs: 0, force: true });
+  assert.equal(ran.ok, true, ran.message);
+  assert.deepEqual(g.sheets.map((x) => x.properties.title), ['CATC', 'Membership']);
+  assert.equal(g.tab('Membership').properties.sheetId, id);
+  assert.equal(g.tab('Membership').protectedRanges.length, 1);
+});
+
+test('a setting Google will not take (a locale, a date rule) never stops the rows being written or the tab being locked', async () => {
+  const db = memoryFirestore(); seed(db);
+  const g = google();
+  g.refuseLocale = true;
+  g.refuseLook = true;
+  const ran = await run(db, g);
+  assert.equal(ran.ok, true, ran.message);
+  assert.equal(g.tab('CATC').values.length, 3);
+  assert.equal(g.tab('Membership').values.length, 2);
+  for (const t of ['CATC', 'Membership']) assert.equal(g.tab(t).protectedRanges.filter((x) => x.description === SHEET.PROTECTION).length, 1, `${t} still locked`);
+});
+
 test('a sheet that already holds something of the office\'s keeps it', async () => {
   const db = memoryFirestore(); seed(db);
   const g = google();
   g.sheets[0].values = [['Old notes']];
   const ran = await run(db, g);
   assert.equal(ran.ok, true);
-  assert.deepEqual(g.sheets.map((s) => s.properties.title).sort(), ['CATC', 'Members', 'Sheet1']);
+  assert.deepEqual(g.sheets.map((s) => s.properties.title).sort(), ['CATC', 'Membership', 'Sheet1']);
   assert.deepEqual(g.tab('Sheet1').values, [['Old notes']]);
 });
 
@@ -264,7 +299,7 @@ test('only the courier typed so far: being prepared, nothing marked shipped', as
   const db = memoryFirestore(); seed(db);
   const g = google();
   await run(db, g);
-  g.type('Members', 'PFA-MEM-2026-00031', 'Courier', 'India Post');
+  g.type('Membership', 'PFA-MEM-2026-00031', 'Courier', 'India Post');
   const ran = await run(db, g);
   assert.deepEqual(ran.applied, [{ kind: 'membership', id: 'PFA-MEM-2026-00031', status: 'processing' }]);
   const d = (await db.collection('submissions').doc('PFA-MEM-2026-00031').get()).data();
@@ -324,12 +359,12 @@ test('anything changed outside the yellow columns is put back at the next run', 
   const g = google();
   await run(db, g);
   g.type('CATC', 'PFA-CG-2026-00011', 'Name', 'Someone Else');
-  g.type('Members', 'PFA-MEM-2026-00031', 'PIN code', '000000');
+  g.type('Membership', 'PFA-MEM-2026-00031', 'PIN code', '000000');
   g.tab('CATC').values.push(['A stray line']);
   const ran = await run(db, g);
   assert.equal(ran.wrote, true);
   assert.equal(g.cell('CATC', 'PFA-CG-2026-00011', 'Name'), 'Manasa P');
-  assert.equal(g.cell('Members', 'PFA-MEM-2026-00031', 'PIN code'), '700156');
+  assert.equal(g.cell('Membership', 'PFA-MEM-2026-00031', 'PIN code'), '700156');
   assert.equal(g.tab('CATC').values.length, 3);
   /* no shipment came of it */
   assert.equal((await db.collection('submissions').doc('PFA-CG-2026-00011').get()).data().shipment, undefined);

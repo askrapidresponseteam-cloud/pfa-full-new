@@ -89,9 +89,10 @@ function browser(ip) {
   return { go, get cookie() { return cookie; }, set cookie(v) { cookie = v; } };
 }
 
-function application(ref, name, email, mobile) {
-  db.collection('submissions').doc(ref).set({ reference: ref, kind: 'PFA-VI', status: 'new', createdAt: '2026-11-01T06:00:00.000Z', fields: { name, email, mobile, city: 'Udupi' } });
+function application(ref, name, email, mobile, dob) {
+  db.collection('submissions').doc(ref).set({ reference: ref, kind: 'PFA-VI', status: 'new', createdAt: '2026-11-01T06:00:00.000Z', history: [], fields: Object.assign({ name, email, mobile, city: 'Udupi' }, dob === undefined ? { dob: '2004-05-14' } : dob ? { dob } : { age: '22' }) });
 }
+const DOB = '2004-05-14';
 
 /* A batch with electives, as the plan was before 2 Nov 2026: a batch's own
    plan can still have them, and the portal still handles a choice. */
@@ -174,57 +175,160 @@ test('the default plan is the eight weeks on the internship page: all eight task
 
 /* ---- credentials -------------------------------------------------------- */
 
-test('issuing: an Intern ID and an emailed one-time link; the key is shown once, kept only as a hash, never the mobile', async () => {
+test('approving: the intern is made, active at once, emailed that the internship has started; the application is Accepted; they sign in with the three (5 Nov 2026)', async () => {
   const id = await batch();
   application('PFA-VI-2026-00001', 'arjun nair', 'arjun@example.com', '9876543210');
   const apps = await admin('GET', { query: { applications: '1' } });
-  assert.deepEqual(apps.json.applications.map((a) => a.reference), ['PFA-VI-2026-00001']);
-  const issued = await admin('POST', { body: { action: 'issue', batchId: id, name: 'arjun nair', email: 'arjun@example.com', mobile: '9876543210', applicationRef: 'PFA-VI-2026-00001' } });
+  assert.deepEqual(apps.json.applications.map((a) => [a.reference, a.dob]), [['PFA-VI-2026-00001', DOB]]);
+  /* before Approve, the three let nobody in */
+  const early = await browser('198.51.100.9').go('session', 'POST', { email: 'arjun@example.com', mobile: '9876543210', dob: DOB });
+  assert.equal(early.status, 401);
+  assert.equal(early.json.message, S.NO_MATCH_SAY);
+  assert.match(early.json.message, /once PFA emails you that your internship has started/);
+
+  assert.equal((await admin('POST', { body: { action: 'issue', batchId: id, name: 'arjun nair', email: 'arjun@example.com', mobile: '9876543210', applicationRef: 'PFA-VI-2026-00001' } })).status, 400, 'no date of birth, no approval');
+  const issued = await admin('POST', { body: { action: 'issue', batchId: id, name: 'arjun nair', email: 'Arjun@Example.com', mobile: '+91 98765 43210', dob: DOB, applicationRef: 'PFA-VI-2026-00001' } });
   assert.equal(issued.status, 200, JSON.stringify(issued.json));
   assert.match(issued.json.internId, /^PFA-IN-[A-HJ-NP-Z2-9]{6}$/);
   assert.match(issued.json.referralCode, /^PFA[A-HJ-NP-Z2-9]{5}$/);
   assert.equal(issued.json.mailed, 'sent');
-  assert.equal((await admin('GET', { query: { applications: '1' } })).json.applications.length, 0, 'an issued application leaves the list');
-  assert.equal((await admin('POST', { body: { action: 'issue', batchId: id, name: 'Arjun', email: 'arjun@example.com', applicationRef: 'PFA-VI-2026-00001' } })).status, 409, 'once per application');
+  const intern = await S.getIntern(db, issued.json.internId);
+  assert.equal(intern.status, 'active');
+  assert.deepEqual([intern.email, intern.mobile, intern.dob], ['arjun@example.com', '9876543210', DOB]);
+  assert.equal((await db.collection('submissions').doc('PFA-VI-2026-00001').get()).data().status, 'approved', 'the application shows Accepted');
+  assert.ok(audits.some((x) => x.action === 'intern-approved' && x.subject === issued.json.internId));
+  assert.equal((await admin('GET', { query: { applications: '1' } })).json.applications.length, 0, 'an approved application leaves the list');
+  assert.equal((await admin('POST', { body: { action: 'issue', batchId: id, name: 'Arjun', email: 'arjun2@example.com', mobile: '9876543211', dob: DOB, applicationRef: 'PFA-VI-2026-00001' } })).status, 409, 'once per application');
+  assert.equal((await admin('POST', { body: { action: 'issue', batchId: id, name: 'Arjun', email: 'arjun@example.com', mobile: '9876543211', dob: DOB } })).status, 409, 'one place per email');
+
+  /* the start email: no link to keep, no secret, not the date of birth */
   assert.equal(sent.length, 1);
   assert.equal(sent[0].to, 'arjun@example.com');
-  const token = linkIn(sent[0]);
-  assert.doesNotMatch(sent[0].text + sent[0].html, /\b\d{10}\b/, 'no key in any email');
+  assert.equal(sent[0].subject, 'Your PFA internship has started');
+  assert.match(sent[0].text, /Sign in with this email address, your mobile number \(ending 3210\) and your date of birth/);
+  assert.match(sent[0].text, /intern\.html/);
+  assert.doesNotMatch(sent[0].text + sent[0].html, /onboard=|access key|2004|14\/05|9876543210/);
 
-  const b = browser();
-  const once = await b.go('onboard', 'POST', { token });
-  assert.equal(once.status, 200, JSON.stringify(once.json));
-  assert.equal(once.json.internId, issued.json.internId);
-  assert.match(once.json.key, /^[1-9]\d{9}$/);
-  assert.notEqual(once.json.key, '9876543210');
-  assert.match(once.headers['set-cookie'], /^pfa_intern=[A-Za-z0-9_-]{43}; Path=\/api\/intern; HttpOnly; Secure; SameSite=Strict; Max-Age=604800$/);
-  /* stored as a scrypt hash, nowhere in plain */
-  const dump = JSON.stringify(db.dump());
-  assert.ok(!dump.includes(once.json.key), 'the key is nowhere in the database');
-  assert.ok(!dump.includes(token), 'nor the link');
-  assert.ok(!dump.includes(b.cookie), 'nor the session');
-  assert.match((await S.getIntern(db, once.json.internId)).keyHash, /^scrypt\$16384\$/);
-  /* the link works once */
-  const again = await browser('198.51.100.2').go('onboard', 'POST', { token });
-  assert.equal(again.status, 410);
-  /* and the panel never shows the hash */
-  const view = await admin('GET', { query: { intern: once.json.internId } });
+  /* signing in: the three, however they are typed */
+  for (const [email, mobile, dob] of [['arjun@example.com', '9876543210', DOB], [' ARJUN@example.com ', '+91 98765-43210', '14/05/2004'], ['arjun@example.com', '09876543210', '2004-5-14']]) {
+    const b = browser('198.51.100.20');
+    const r = await b.go('session', 'POST', { email, mobile, dob });
+    assert.equal(r.status, 200, `${email} ${mobile} ${dob}: ${JSON.stringify(r.json)}`);
+    assert.match(r.headers['set-cookie'], /^pfa_intern=[A-Za-z0-9_-]{43}; Path=\/api\/intern; HttpOnly; Secure; SameSite=Strict; Max-Age=604800$/);
+    assert.equal((await b.go('me', 'GET')).json.intern.internId, issued.json.internId);
+    assert.ok(!JSON.stringify(db.dump()).includes(b.cookie), 'the session is kept only as its hash');
+  }
+  /* one wrong, any one, and the same answer */
+  for (const wrong of [{ email: 'arjun@example.com', mobile: '9876543219', dob: DOB }, { email: 'arjun@example.com', mobile: '9876543210', dob: '2004-05-15' }, { email: 'nobody@example.com', mobile: '9876543210', dob: DOB }]) {
+    const r = await browser('198.51.100.21').go('session', 'POST', wrong);
+    assert.equal(r.status, 401);
+    assert.equal(r.json.message, S.NO_MATCH_SAY);
+  }
+  assert.equal((await browser('198.51.100.22').go('session', 'POST', { email: 'arjun@example.com', mobile: '98765', dob: DOB })).status, 400, 'all three, filled in');
+  /* the panel never shows a hash */
+  const view = await admin('GET', { query: { intern: issued.json.internId } });
   assert.doesNotMatch(JSON.stringify(view.json), /scrypt|keyHash|onboardHash/);
+  assert.equal(view.json.intern.dob, DOB);
 });
 
-async function onboarded(name, email, mobile) {
+test('an application from before the date of birth was asked: Approve takes it from PFA', async () => {
+  const id = await batch();
+  application('PFA-VI-2026-00002', 'Meera Das', 'meera@example.com', '9876500000', null);
+  const apps = await admin('GET', { query: { applications: '1' } });
+  assert.equal(apps.json.applications[0].dob, '');
+  const ok = await admin('POST', { body: { action: 'issue', batchId: id, name: 'Meera Das', email: 'meera@example.com', mobile: '9876500000', dob: '2003-01-31', applicationRef: 'PFA-VI-2026-00002' } });
+  assert.equal(ok.status, 200, JSON.stringify(ok.json));
+  assert.equal((await browser().go('session', 'POST', { email: 'meera@example.com', mobile: '9876500000', dob: '2003-01-31' })).status, 200);
+  const panel = read('admin.html');
+  assert.match(panel, /\(a\.dob \? '' : '<input type="date" data-ip-dob/);
+  assert.match(panel, /payload\.dob = a\.dob \|\| \(b\.closest\('tr'\)\.querySelector\('\[data-ip-dob\]'\)/);
+  assert.match(panel, /<summary>Approve applications<\/summary>/);
+  assert.doesNotMatch(panel, /data-ip="key"|Email a new link/);
+});
+
+test('signing in with the three: tries that do not match rest the email, growing; the address is braked; a cross-site post is refused', async () => {
+  await batch();
+  const a = await approved('Asha Rao', 'asha@example.com', '9000000001', '2001-02-03');
+  const right = { email: 'asha@example.com', mobile: '9000000001', dob: '2001-02-03' };
+  const b = browser('192.0.2.110');
+  for (let i = 0; i < 5; i += 1) assert.equal((await b.go('session', 'POST', Object.assign({}, right, { dob: '2001-02-04' }))).status, 401);
+  const locked = await b.go('session', 'POST', right);
+  assert.equal(locked.status, 429, 'resting, even with the right three');
+  assert.match(locked.json.message, /Too many tries that did not match/);
+  NOW += 16 * 60000;
+  assert.equal((await b.go('session', 'POST', right)).status, 200);
+  for (let i = 0; i < 5; i += 1) await browser('192.0.2.111').go('session', 'POST', Object.assign({}, right, { mobile: '9000000009' }));
+  NOW += 16 * 60000;
+  assert.equal((await browser('192.0.2.112').go('session', 'POST', right)).status, 429, 'a second rest lasts twice as long');
+  NOW += 16 * 60000;
+  assert.equal((await browser('192.0.2.112').go('session', 'POST', right)).status, 200);
+  /* one address guessing emails is braked */
+  const guesser = browser('192.0.2.199');
+  let last;
+  for (let i = 0; i < 22; i += 1) last = await guesser.go('session', 'POST', { email: `x${i}@example.com`, mobile: '9000000001', dob: '2001-02-03' });
+  assert.equal(last.status, 429);
+  assert.equal((await browser().go('session', 'POST', right, { header: false })).status, 403);
+  /* withdrawn: the three are refused, and say so */
+  assert.equal((await admin('POST', { body: { action: 'revoke', internId: a.internId, reason: 'Left the internship' } })).status, 200);
+  assert.equal((await a.b.go('me', 'GET')).status, 401);
+  const gone = await browser('192.0.2.113').go('session', 'POST', right);
+  assert.equal(gone.status, 403);
+  assert.match(gone.json.message, /withdrawn/);
+});
+
+test('PFA corrects the sign-in details: every device is signed out, the change is logged, the new three work', async () => {
+  await batch();
+  const a = await approved('Asha Rao', 'asha@example.com', '9000000001', '2001-02-03');
+  await approved('Zoya Khan', 'zoya@example.com', '9000000002', '2002-02-02');
+  assert.equal((await admin('POST', { body: { action: 'details', internId: a.internId, email: 'zoya@example.com', mobile: '9000000001', dob: '2001-02-03' } })).status, 409, 'an email another intern signs in with');
+  assert.equal((await admin('POST', { body: { action: 'details', internId: a.internId, email: 'asha@example.com', mobile: '123', dob: '2001-02-03' } })).status, 400);
+  const r = await admin('POST', { body: { action: 'details', internId: a.internId, email: 'asha.rao@example.com', mobile: '9000000011', dob: '2001-02-03' } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.deepEqual(r.json.changed, ['email', 'mobile']);
+  assert.ok(audits.some((x) => x.action === 'intern-sign-in-details' && x.detail === 'changed: email, mobile'));
+  assert.equal((await a.b.go('me', 'GET')).status, 401, 'signed out everywhere');
+  assert.equal((await browser().go('session', 'POST', { email: 'asha@example.com', mobile: '9000000001', dob: '2001-02-03' })).status, 401);
+  assert.equal((await browser().go('session', 'POST', { email: 'asha.rao@example.com', mobile: '9000000011', dob: '2001-02-03' })).status, 200);
+  /* an intern from before, with only a key: given a date of birth, they sign in with the three */
+  const k = await keyed('Old Timer', 'old@example.com', '9000000003');
+  await db.collection('interns').doc(k.internId).set({ dob: '' }, { merge: true });
+  assert.equal((await browser().go('session', 'POST', { email: 'old@example.com', mobile: '9000000003', dob: '1999-09-09' })).status, 401);
+  assert.equal((await admin('POST', { body: { action: 'details', internId: k.internId, email: 'old@example.com', mobile: '9000000003', dob: '1999-09-09' } })).status, 200);
+  assert.equal((await browser().go('session', 'POST', { email: 'old@example.com', mobile: '9000000003', dob: '1999-09-09' })).status, 200);
+});
+
+/* approved and signed in with the three (5 Nov 2026) */
+async function approved(name, email, mobile, dob) {
   const id = (await S.listBatches(db))[0] ? (await S.listBatches(db))[0].batchId : await batch();
   sent = [];
-  const issued = await admin('POST', { body: { action: 'issue', batchId: id, name, email, mobile } });
+  const issued = await admin('POST', { body: { action: 'issue', batchId: id, name, email, mobile, dob: dob || DOB } });
+  assert.equal(issued.status, 200, JSON.stringify(issued.json));
   const b = browser();
-  const once = await b.go('onboard', 'POST', { token: linkIn(sent[0]) });
+  const r = await b.go('session', 'POST', { email, mobile, dob: dob || DOB });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
   sent = [];
-  return { b, internId: issued.json.internId, key: once.json.key, code: issued.json.referralCode };
+  return { b, internId: issued.json.internId, code: issued.json.referralCode, email, mobile, dob: dob || DOB };
+}
+const onboarded = (name, email, mobile) => approved(name, email, mobile);
+
+/* an intern as before 5 Nov 2026: an Intern ID and a ten digit key, from an
+   emailed link (PFA's New key still makes one) */
+async function keyed(name, email, mobile) {
+  const a = await approved(name, email, mobile);
+  const r = await admin('POST', { body: { action: 'regenerate', internId: a.internId, verifiedHow: 'Called the number on the application' } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  const b = browser();
+  const once = await b.go('onboard', 'POST', { token: linkIn(sent[sent.length - 1]) });
+  assert.equal(once.status, 200, JSON.stringify(once.json));
+  assert.match(once.json.key, /^[1-9]\d{9}$/);
+  assert.ok(!JSON.stringify(db.dump()).includes(once.json.key), 'the key is nowhere in the database');
+  sent = [];
+  return { b, internId: a.internId, key: once.json.key, code: a.code };
 }
 
-test('signing in: wrong keys lock the ID, growing; the address is braked too; a cross-site post is refused', async () => {
+test('an Intern ID and key from before: wrong keys lock the ID, growing; the address is braked too; a cross-site post is refused', async () => {
   await batch();
-  const a = await onboarded('Asha Rao', 'asha@example.com', '9000000001');
+  const a = await keyed('Asha Rao', 'asha@example.com', '9000000001');
   const b = browser('192.0.2.10');
   for (let i = 0; i < 4; i += 1) assert.equal((await b.go('session', 'POST', { internId: a.internId, key: '1111111111' })).status, 401);
   assert.equal((await b.go('session', 'POST', { internId: a.internId, key: '1111111111' })).status, 401);
@@ -261,7 +365,7 @@ test('signing in: wrong keys lock the ID, growing; the address is braked too; a 
 
 test('signing in as people type: the ID in small letters, with spaces or only its six characters, the key with spaces or dashes', async () => {
   await batch();
-  const a = await onboarded('Asha Rao', 'asha@example.com', '9000000001');
+  const a = await keyed('Asha Rao', 'asha@example.com', '9000000001');
   const six = a.internId.slice(7);
   const spaced = `${a.key.slice(0, 4)} ${a.key.slice(4, 7)} ${a.key.slice(7)}`;
   const dashed = `${a.key.slice(0, 4)}-${a.key.slice(4, 7)}-${a.key.slice(7)}`;
@@ -276,15 +380,15 @@ test('signing in as people type: the ID in small letters, with spaces or only it
 test('a whole batch signing in from one college network is never stopped; only misses are braked', async () => {
   await batch();
   const people = [];
-  for (let i = 0; i < 26; i += 1) people.push(await onboarded(`Intern ${i}`, `intern${i}@example.com`, `90000${String(10000 + i)}`));
-  /* twenty-six onboarding links and twenty-six sign-ins, all from one address */
+  for (let i = 0; i < 26; i += 1) people.push(await approved(`Intern ${i}`, `intern${i}@example.com`, `90000${String(10000 + i)}`));
+  /* twenty-six sign-ins, all from one address */
   for (const p of people) {
-    const r = await browser('203.0.113.50').go('session', 'POST', { internId: p.internId, key: p.key });
+    const r = await browser('203.0.113.50').go('session', 'POST', { email: p.email, mobile: p.mobile, dob: p.dob });
     assert.equal(r.status, 200, JSON.stringify(r.json));
   }
   /* a few typing slips among them still leave everyone in */
-  for (let i = 0; i < 5; i += 1) await browser('203.0.113.50').go('session', 'POST', { internId: people[i].internId, key: '1111111111' });
-  assert.equal((await browser('203.0.113.50').go('session', 'POST', { internId: people[9].internId, key: people[9].key })).status, 200);
+  for (let i = 0; i < 5; i += 1) await browser('203.0.113.50').go('session', 'POST', { email: people[i].email, mobile: people[i].mobile, dob: '1990-01-01' });
+  assert.equal((await browser('203.0.113.50').go('session', 'POST', { email: people[9].email, mobile: people[9].mobile, dob: people[9].dob })).status, 200);
 });
 
 test('the full journey: plan and deadlines, electives, proof with a file, revision, acceptance, privacy between interns', async () => {

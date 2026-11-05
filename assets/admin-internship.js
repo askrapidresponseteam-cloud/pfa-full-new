@@ -36,7 +36,9 @@
 
   /* its own styles, here so admin.html stays under its weight ceiling */
   var style = document.createElement('style');
-  style.textContent = '.rg-tools select{height:38px;padding:0 10px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;color:var(--ink);max-width:100%}.rg-tools select:focus-visible{outline:none;border-color:var(--ink)}.ix-line{margin:0 0 10px;font-size:14px}.ix-row{cursor:pointer}.ix-row:hover td,.ix-row.is-open td{background:var(--soft,#f6f6f4)}.ix-detail>td{padding:0 0 18px}' +
+  style.textContent = '@media (max-width:640px){#ipIssueFold thead{display:none}#ipIssueFold tr[data-app]{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:10px 0}#ipIssueFold tr[data-app] td{padding:0;border:0}#ipIssueFold tr[data-app] td:last-child{grid-column:1/-1}#ipIssueFold tr[data-app] [data-ip="issue-app"]{width:100%}#ipIssueFold [data-ip-dob]{width:100%}}'
+    + '[data-ip-dob]{height:36px;margin:0 8px 8px 0;padding:0 8px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper);color:var(--ink);max-width:100%}.ix-det{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:12px 0;padding:12px;border:1px solid var(--line)}.ix-det .note{grid-column:1/-1;margin:0}.ix-det label{display:grid;gap:4px;font-size:12px;color:var(--muted)}.ix-det input{height:36px;padding:0 10px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper);color:var(--ink);min-width:0}.ix-det__acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}.ix-det__acts .press,.ix-det__acts .ghost{width:auto}' +
+    '.rg-tools select{height:38px;padding:0 10px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;color:var(--ink);max-width:100%}.rg-tools select:focus-visible{outline:none;border-color:var(--ink)}.ix-line{margin:0 0 10px;font-size:14px}.ix-row{cursor:pointer}.ix-row:hover td,.ix-row.is-open td{background:var(--soft,#f6f6f4)}.ix-detail>td{padding:0 0 18px}' +
     '.ix-d{display:grid;gap:18px;padding:16px;border:1px solid var(--line);border-top:0}.ix-d h4{margin:0 0 8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}' +
     '.ix-dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;margin:0;font-size:13px}.ix-dl dt{color:var(--muted)}.ix-dl dd{margin:0;overflow-wrap:anywhere}' +
     '.ix-list{margin:0;padding-left:18px;font-size:13px;line-height:1.6}.ix-tasks td{vertical-align:top;font-size:13px;overflow-wrap:anywhere}' +
@@ -124,7 +126,7 @@
   function paintInternRows() {
     var body = box('interns').querySelector('[data-ix-body]');
     var rows = internsShown();
-    body.innerHTML = rows.length ? rows.map(internRow).join('') : '<tr><td colspan="6" class="rg-empty">' + (IN.rows.length ? 'Nothing matches.' : 'No interns yet. Issue Intern IDs above.') + '</td></tr>';
+    body.innerHTML = rows.length ? rows.map(internRow).join('') : '<tr><td colspan="6" class="rg-empty">' + (IN.rows.length ? 'Nothing matches.' : 'No interns yet. Approve applications under Internship.') + '</td></tr>';
   }
 
   function internRow(r) {
@@ -149,12 +151,20 @@
     out += '<section><h4>How to reach them</h4><dl class="ix-dl">'
       + '<dt>Email</dt><dd><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a></dd>'
       + (c.mobile ? '<dt>Mobile</dt><dd><a href="tel:' + esc(c.mobile) + '">' + esc(c.mobile) + '</a></dd>' : '')
+      /* what they sign in with (5 Nov 2026): email, mobile and date of birth */
+      + '<dt>Date of birth</dt><dd>' + (c.dob ? esc(c.dob.split('-').reverse().join('/')) : '<span class="note">Not on record: they cannot sign in until it is added</span>') + '</dd>'
+      + (c.status !== 'revoked' ? '<dt>Sign-in</dt><dd>Their email, mobile and date of birth. <button class="linky" type="button" data-ix="details">Change</button></dd>' : '')
       + (c.town ? '<dt>From</dt><dd>' + esc(c.town) + '</dd>' : '')
       + (c.college ? '<dt>College</dt><dd>' + esc(c.college) + (c.course ? ', ' + esc(c.course) : '') + '</dd>' : '')
       + (d.application ? '<dt>Application</dt><dd><button class="linky" type="button" data-open-case="' + esc(d.application.reference) + '">' + esc(d.application.reference) + '</button> · ' + esc(day(d.application.receivedAt)) + '</dd>' : '')
       + '<dt>Signed in</dt><dd>' + (r.lastSignInAt ? esc(when(r.lastSignInAt)) : 'Not yet') + '</dd>'
       + '<dt>RRT</dt><dd>' + (Number((d.referral || {}).registrations) || 0) + ' joined through code ' + esc((d.referral || {}).code || '') + '</dd>'
       + '</dl>'
+      + (IN.doing === 'details' ? '<div class="ix-det"><p class="note">Change these only after checking it is them, for example by calling the number they applied with. Any device signed in is signed out.</p>'
+        + '<label>Email<input type="email" maxlength="160" data-ix-d="email" value="' + esc(c.email || '') + '"></label>'
+        + '<label>Mobile<input inputmode="tel" maxlength="16" data-ix-d="mobile" value="' + esc(c.mobile || '') + '"></label>'
+        + '<label>Date of birth<input type="date" data-ix-d="dob" value="' + esc(c.dob || '') + '"></label>'
+        + '<div class="ix-det__acts"><button class="press" type="button" data-ix="details-yes">Save sign-in details</button><button class="ghost" type="button" data-ix="details-no">Cancel</button></div></div>' : '')
       + (d.application && d.application.answers && d.application.answers.length ? '<details class="fold"><summary>Their application</summary><dl class="ix-dl">' + d.application.answers.map(function (x) { return '<dt>' + esc(x.q) + '</dt><dd>' + esc(x.a) + '</dd>'; }).join('') + '</dl></details>' : '')
       + '</section>';
 
@@ -207,6 +217,16 @@
     if (b) {
       var what = b.getAttribute('data-ix');
       if (what === 'csv') { download(URL_ + '?interns=all&format=csv', 'pfa-interns.csv', sayNode, b); return; }
+      if (what === 'details' || what === 'details-no') { IN.doing = what === 'details' ? 'details' : ''; paintInternRows(); var first = node.querySelector('[data-ix-d="email"]'); if (first) first.focus(); return; }
+      if (what === 'details-yes') {
+        var v = function (k) { return (node.querySelector('[data-ix-d="' + k + '"]') || {}).value || ''; };
+        b.disabled = true;
+        api(URL_, { method: 'POST', body: { action: 'details', internId: IN.open, email: v('email'), mobile: v('mobile'), dob: v('dob') } }).then(function (r) {
+          say(sayNode, r.changed && r.changed.length ? 'Saved: ' + r.changed.join(', ') + ' changed. They sign in with the new details.' : 'Saved. Nothing had changed.', 'good');
+          var id = IN.open; IN.open = ''; internsPane(); setTimeout(function () { openIntern(id); }, 400);
+        }).catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
+        return;
+      }
       if (what === 'change') { IN.doing = 'change'; paintInternRows(); var w = node.querySelector('[data-ix-why]'); if (w) w.focus(); return; }
       if (what === 'change-yes') {
         var reason = (node.querySelector('[data-ix-why]') || {}).value || '';

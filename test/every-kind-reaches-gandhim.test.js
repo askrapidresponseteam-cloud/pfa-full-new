@@ -88,6 +88,7 @@ function valueFor(spec, field) {
   if (/^(mobile|phone)$/i.test(field)) return '9876543210';
   if (/^(url|link)$/i.test(field)) return 'https://www.youtube.com/watch?v=LCwIbbSg-8E';
   if (/^(pincode)$/i.test(field)) return '110001';
+  if (/^dob$/i.test(field)) return '2005-03-10';
   if (/name$|^nominee$/i.test(field)) return 'Asha Rao';
   if (/^state$/i.test(field)) return 'Delhi';
   if (/^city$/i.test(field)) return 'New Delhi';

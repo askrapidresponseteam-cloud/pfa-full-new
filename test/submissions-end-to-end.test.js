@@ -74,6 +74,7 @@ const FORMS = {
     "page": "internship.html",
     "data": {
       "name": "Asha Rao",
+      "dob": "2005-03-10",
       "age": "21",
       "mobile": "9876543210",
       "email": "tester.pfa@example.com",

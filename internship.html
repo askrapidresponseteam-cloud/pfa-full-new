@@ -582,12 +582,13 @@ if (root.document && root.document.head) apply(read());
           <h3>Who is applying?</h3>
           <div class="row">
             <div class="field"><label for="name">Your name</label><input id="name" name="name" required data-say="Add your name." autocomplete="name"><p class="err" hidden></p></div>
-            <div class="field"><label for="age">Age</label><input id="age" name="age" required data-say="Add your age." inputmode="numeric" maxlength="2" placeholder="18"><p class="err" hidden></p></div>
+            <div class="field"><label for="dob">Date of birth</label><input id="dob" name="dob" type="date" required data-say="Add your date of birth." autocomplete="bday" min="1920-01-01"><p class="err" hidden></p></div>
           </div>
           <div class="row">
             <div class="field"><label for="mobile">Mobile</label><input id="mobile" name="mobile" required data-mobile data-say="Enter a 10-digit Indian mobile number." inputmode="tel" autocomplete="tel" placeholder="10 digits"><p class="err" hidden></p></div>
             <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required data-say="Add an email, so PFA can reply." autocomplete="email"><p class="err" hidden></p></div>
           </div>
+          <p class="m-note">Once PFA approves you, you sign in to the internship with these three: your email, mobile number and date of birth.</p>
         </div>
 
         <div class="m-step" data-step="Where">
@@ -647,7 +648,7 @@ if (root.document && root.document.head) apply(read());
       <h2 class="display">Send your proof.</h2>
       <p>One task at a time, as each is done. PFA checks it, and signs the task off or writes back with what is missing.</p>
       <div class="btn-row"><a class="btn" href="intern.html">Open your intern dashboard</a><a class="btn btn--light" href="intern-guide.html">The two-page guide</a></div>
-      <p>Your dashboard has your weekly plan, deadlines, PFA's feedback and your RRT link. Sign in with the Intern ID and access key PFA sent you. New here? The guide shows how to get in, what to do each week and how to send your work. No ID yet? Send your proof here instead.</p>
+      <p>Your dashboard has your weekly plan, deadlines, PFA's feedback and your RRT link. Once PFA approves your application and emails you, sign in with your email, mobile number and date of birth. New here? The guide shows how to get in, what to do each week and how to send your work. No ID yet? Send your proof here instead.</p>
     </div>
     <div class="m-stage">
       <ol class="m-tabs" aria-hidden="true"><li><span>01</span>You</li><li><span>02</span>The task</li><li><span>03</span>Where</li><li><span>04</span>Send</li></ol>
@@ -850,9 +851,18 @@ if (root.document && root.document.head) apply(read());
 
   if (!M || !form) return;
 
+  /* the age, from the date of birth (5 Nov 2026: the date of birth is one
+     of the three an intern signs in with) */
+  function ageOf() {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec($('#dob').value || '');
+    if (!m) return 0;
+    var t = new Date();
+    var a = t.getFullYear() - m[1] - ((t.getMonth() + 1 < +m[2] || (t.getMonth() + 1 === +m[2] && t.getDate() < +m[3])) ? 1 : 0);
+    return a;
+  }
   /* 16 or 17: a parent or guardian agrees, on the last step */
   function minor() {
-    var a = parseInt($('#age').value, 10);
+    var a = ageOf();
     var young = a === 16 || a === 17;
     $('#minorBox').hidden = !young;
     if (young) $('#parent').setAttribute('data-confirm', ''); else $('#parent').removeAttribute('data-confirm');
@@ -864,9 +874,9 @@ if (root.document && root.document.head) apply(read());
   var flow = M.steps(form, {
     check: function (at) {
       if (at !== 0) return null;
-      var el = $('#age');
-      var a = parseInt(String(el.value).replace(/\D/g, ''), 10);
-      var said = !a ? 'Add your age.' : a < 16 ? 'The internship is for people aged 16 and over.' : a > 99 ? 'Check your age.' : '';
+      var el = $('#dob');
+      var a = ageOf();
+      var said = !el.value ? 'Add your date of birth.' : a < 16 ? 'The internship is for people aged 16 and over.' : a > 100 ? 'Check your date of birth.' : '';
       M.flag(el, said);
       return said ? el : null;
     }
@@ -882,11 +892,12 @@ if (root.document && root.document.head) apply(read());
     done: $('#done'),
     doneRef: $('#doneRef'),
     hideOnDone: [$('#apply .m-tabs'), $('#apply .m-bar')],
-    preview: { title: 'Check your application before it is sent', send: 'Send my application', labels: { age: 'Age', why: 'Why they want to do it', work: 'College or work', social: 'Instagram or YouTube', parent: 'A parent or guardian agrees', guide: 'The two-page guide' } },
+    preview: { title: 'Check your application before it is sent', send: 'Send my application', labels: { dob: 'Date of birth', age: 'Age', why: 'Why they want to do it', work: 'College or work', social: 'Instagram or YouTube', parent: 'A parent or guardian agrees', guide: 'The two-page guide' } },
     data: function () {
       return {
         name: $('#name').value.trim(),
-        age: String(parseInt($('#age').value, 10) || ''),
+        dob: $('#dob').value,
+        age: String(ageOf() || ''),
         mobile: M.digits($('#mobile').value),
         email: $('#email').value.trim(),
         why: $('#why').value.trim(),

@@ -90,11 +90,13 @@ function browser() {
 async function intern(name) {
   const b = await admin('POST', { body: { action: 'batch-save', name: 'November 2026', startDate: START } });
   assert.equal(b.status, 200, JSON.stringify(b.json));
-  const issued = await admin('POST', { body: { action: 'issue', batchId: b.json.batch.batchId, name: name || 'Asha Rao', email: 'asha@example.com', mobile: '9876543210' } });
+  /* one intern per email (5 Nov 2026: the email finds them at sign-in) */
+  const email = `${String(name || 'Asha Rao').split(' ')[0].toLowerCase()}@example.com`;
+  const issued = await admin('POST', { body: { action: 'issue', batchId: b.json.batch.batchId, name: name || 'Asha Rao', email, mobile: '9876543210', dob: '2004-05-14' } });
   assert.equal(issued.status, 200, JSON.stringify(issued.json));
-  const token = /intern\.html#onboard=([A-Za-z0-9_-]+)/.exec(sent[sent.length - 1].text)[1];
+  /* approved: signed in with the three */
   const br = browser();
-  assert.equal((await br.go('onboard', 'POST', { token })).status, 200);
+  assert.equal((await br.go('session', 'POST', { email, mobile: '9876543210', dob: '2004-05-14' })).status, 200);
   return { br, internId: issued.json.internId };
 }
 

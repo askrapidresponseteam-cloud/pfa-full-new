@@ -87,7 +87,7 @@ const FORMS = [
   ['get-involved.html', 'Volunteer', 'PFA-V', { city: 'Udupi', title: 'Volunteer: Rescue Operations' }],
   ['events.html', 'Ask for an event', 'PFA-EV', { title: 'An adoption drive', city: 'Udupi' }],
   ['cinekind.html', 'Nominate for CineKind', 'PFA-CK', { nominee: 'A rescue documentary', category: 'A film or documentary', why: 'It changed how a town treats its dogs' }],
-  ['internship.html', 'Apply for the remote internship', 'PFA-VI', { age: '21', why: 'I feed twelve dogs on my street and want to do it properly.', guide: 'Read and understood' }],
+  ['internship.html', 'Apply for the remote internship', 'PFA-VI', { dob: '2005-03-10', age: '21', why: 'I feed twelve dogs on my street and want to do it properly.', guide: 'Read and understood' }],
   ['internship.html', 'Send internship proof', 'PFA-VP', { application: 'PFA-VI-2026-00001', task: 'An RTI to the municipality', what: 'Filed an RTI with Udupi City Municipal Council on dog sterilisation; acknowledgement UCMC/RTI/2026/118.', links: 'https://drive.google.com/drive/folders/abc' }],
   ['campus.html', 'Register a campus society', 'PFA-CAM', { college: 'Government College, Udupi', city: 'Udupi, Karnataka', desks: 'Rescue and first aid', faculty: 'Yes' }],
   ['sgacc.html', 'Offer help to the Animal Care Centre', 'PFA-SG', { offer: 'Supplies for the animals', items: 'Blankets and bedding' }],

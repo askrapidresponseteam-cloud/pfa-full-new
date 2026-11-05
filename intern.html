@@ -70,9 +70,10 @@
 <style>
 /* The intern's dashboard (owner, 1 Nov 2026: "a neat, state-of-the-art PFA
    internship portal with a dynamic weekly plan, intern dashboard"). Not
-   indexed, not in the sitemap or site search: it does nothing without an
-   Intern ID and key. One thing at a time: sign in, or the key shown once,
-   or the dashboard; on the dashboard, one week at a time. */
+   indexed, not in the sitemap or site search: it does nothing for someone
+   PFA has not approved. One thing at a time: sign in (the email, mobile
+   and date of birth they applied with, 5 Nov 2026), or the dashboard; on
+   the dashboard, one week at a time. */
 :root{
   --paper:#fff;
   --ink:#111;
@@ -147,6 +148,12 @@ input,button,textarea,select{font-family:inherit;font-size:inherit;color:inherit
 .ip-check input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:#111}
 .ip-field label.ip-show{display:flex;align-items:center;gap:10px;margin:4px 0 0;font-size:14px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--ink);cursor:pointer}
 .ip-field label.ip-show input{margin:0}
+.ip-signin{display:grid;gap:24px;max-width:440px}
+.ip-old summary{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;list-style:none;padding:4px 0}
+.ip-old summary::-webkit-details-marker{display:none}
+.ip-old summary::before{content:"";flex:none;box-sizing:border-box;width:23px;height:23px;border:1px solid var(--ink);background:linear-gradient(currentColor,currentColor) center/11px 1px no-repeat,linear-gradient(currentColor,currentColor) center/1px 11px no-repeat}
+.ip-old[open] summary::before{background:linear-gradient(45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/11px 11px no-repeat,linear-gradient(-45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/11px 11px no-repeat}
+.ip-old[open] summary{margin-bottom:16px}
 
 /* ---------- the dashboard ---------- */
 .db{display:grid;gap:28px;max-width:1080px}
@@ -585,21 +592,41 @@ if (root.document && root.document.head) apply(read());
     <p class="say" id="ipSay" role="status" aria-live="polite"></p>
     <div class="skel" id="ipLoading" aria-hidden="true"></div>
 
-    <!-- 1. Sign in: the Intern ID and the key, nothing else. -->
-    <form class="ip-form" id="ipSignin" hidden novalidate>
+    <!-- 1. Sign in: the email, mobile and date of birth they applied with
+         (5 Nov 2026); an Intern ID and key from before, folded under it. -->
+    <div class="ip-signin" id="ipSignin" hidden>
+    <form class="ip-form" id="ipNew" novalidate>
       <div class="ip-field">
-        <label for="ipId">Intern ID</label>
-        <input id="ipId" name="internId" autocomplete="username" autocapitalize="characters" spellcheck="false" placeholder="PFA-IN-XXXXXX" required>
+        <label for="ipEmail">Email</label>
+        <input id="ipEmail" name="email" type="email" autocomplete="email" spellcheck="false" placeholder="The email you applied with" required>
       </div>
       <div class="ip-field">
-        <label for="ipKey">Access key</label>
-        <input id="ipKey" name="key" type="password" inputmode="numeric" autocomplete="current-password" maxlength="14" placeholder="10 digits" required>
-        <small>The ten digit key you were shown once, when you opened PFA's email. It is never your mobile number.</small>
-        <label class="ip-check ip-show"><input type="checkbox" id="ipShow"> <span>Show the key as I type</span></label>
+        <label for="ipMobile">Mobile number</label>
+        <input id="ipMobile" name="mobile" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="10 digits" required>
+      </div>
+      <div class="ip-field">
+        <label for="ipDob">Date of birth</label>
+        <input id="ipDob" name="dob" type="date" autocomplete="bday" min="1920-01-01" required>
       </div>
       <button class="btn" type="submit" id="ipGo">Sign in</button>
-      <p class="ip-fine">New here? Read the <a href="intern-guide.html" class="linkish">two-page guide</a>. Lost your key? <a href="ask.html" class="linkish">Write to PFA</a> with your Intern ID. PFA checks it is you, then emails you a new link; the old key stops working.</p>
+      <p class="ip-fine">Use the three you applied with. Applied but not approved yet? You can sign in once PFA emails you that your internship has started. New here? Read the <a href="intern-guide.html" class="linkish">two-page guide</a>. Changed your email or number? <a href="ask.html" class="linkish">Write to PFA</a>.</p>
     </form>
+    <details class="ip-old">
+      <summary>Have an Intern ID and access key from before?</summary>
+      <form class="ip-form" id="ipOld" novalidate>
+        <div class="ip-field">
+          <label for="ipId">Intern ID</label>
+          <input id="ipId" name="internId" autocomplete="username" autocapitalize="characters" spellcheck="false" placeholder="PFA-IN-XXXXXX" required>
+        </div>
+        <div class="ip-field">
+          <label for="ipKey">Access key</label>
+          <input id="ipKey" name="key" type="password" inputmode="numeric" autocomplete="current-password" maxlength="14" placeholder="10 digits" required>
+          <label class="ip-check ip-show"><input type="checkbox" id="ipShow"> <span>Show the key as I type</span></label>
+        </div>
+        <button class="btn btn--light" type="submit" id="ipOldGo">Sign in with the key</button>
+      </form>
+    </details>
+    </div>
 
     <!-- 2. The key, shown once, from the emailed link. -->
     <div class="ip-key" id="ipOnce" hidden>
@@ -833,7 +860,24 @@ if (root.document && root.document.head) apply(read());
     tell(text || '', bad);
   }
 
-  $('#ipSignin').addEventListener('submit', function (e) {
+  /* the email, mobile and date of birth they applied with (5 Nov 2026) */
+  $('#ipNew').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = String($('#ipEmail').value || '').trim();
+    var mobile = String($('#ipMobile').value || '').replace(/\D+/g, '').replace(/^(?:91|0)(?=\d{10}$)/, '');
+    var dob = $('#ipDob').value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { tell('Type the email you applied with.', true); $('#ipEmail').focus(); return; }
+    if (!/^[6-9]\d{9}$/.test(mobile)) { tell('Your mobile number is 10 digits. You typed ' + mobile.length + '.', true); $('#ipMobile').focus(); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dob)) { tell('Choose your date of birth.', true); $('#ipDob').focus(); return; }
+    $('#ipGo').disabled = true;
+    tell('Signing in...');
+    api('/api/intern/session', { method: 'POST', body: { email: email, mobile: mobile, dob: dob } }).then(function () {
+      return load();
+    }).catch(function (err) { tell(err.message, true); }).then(function () { $('#ipGo').disabled = false; });
+  });
+
+  /* an Intern ID and key from before 5 Nov 2026 */
+  $('#ipOld').addEventListener('submit', function (e) {
     e.preventDefault();
     /* as people type it: small letters, spaces, a dash missed, or only the
        six characters; the key with spaces or dashes (lib/internship.js internIdOf) */
@@ -844,12 +888,12 @@ if (root.document && root.document.head) apply(read());
     if (!/^PFA-IN-[A-Z0-9]{6}$/.test(id)) { tell('Type your Intern ID as it was shown: PFA-IN- and six letters or numbers, for example PFA-IN-K7M2QX.', true); $('#ipId').focus(); return; }
     if (!/^\d{10}$/.test(key)) { tell('Your access key is ten digits. You typed ' + key.length + '.', true); $('#ipKey').focus(); return; }
     $('#ipId').value = id;
-    $('#ipGo').disabled = true;
+    $('#ipOldGo').disabled = true;
     tell('Signing in...');
     api('/api/intern/session', { method: 'POST', body: { internId: id, key: key } }).then(function () {
       $('#ipKey').value = '';
       return load();
-    }).catch(function (err) { tell(err.message, true); }).then(function () { $('#ipGo').disabled = false; });
+    }).catch(function (err) { tell(err.message, true); }).then(function () { $('#ipOldGo').disabled = false; });
   });
 
   $('#ipShow').addEventListener('change', function () { $('#ipKey').type = this.checked ? 'text' : 'password'; });

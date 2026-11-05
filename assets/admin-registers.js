@@ -138,7 +138,7 @@
   }
   function sheetHtml(kind, sh) {
     if (!sh || !sh.on) return '';
-    var tab = kind === 'membership' ? 'Members' : 'CATC';
+    var tab = kind === 'membership' ? 'Membership' : 'CATC';
     var n = (sh.rows || {})[kind] || 0;
     var held = (sh.held || {})[kind] || 0;
     var e = sh.error;
