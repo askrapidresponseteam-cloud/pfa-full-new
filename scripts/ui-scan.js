@@ -21,6 +21,8 @@
        beside them and at least 6px from them;
      - words in neighbouring table columns at least 24px apart;
      - no two buttons touching or overlapping: at least 8px apart;
+     - no control in a table cut off by, or out of sight in, a box that
+       scrolls sideways: what is done on a row is in view without scrolling;
    and the same again in every section that opens only when asked for (a
    form behind Apply or Send proof), by its address.
      - no button whose words run outside it or are cut;
@@ -183,7 +185,7 @@ const AUDIT = () => {
       const fill = rgb(cs.backgroundColor);
       const own = fill && (fill.length < 4 || fill[3] > 0.1) && x.el.parentElement && String(getComputedStyle(x.el.parentElement).backgroundColor) !== cs.backgroundColor;
       if (!edge && !own) return false;
-      for (let e = x.el; e; e = e.parentElement) if (/^(fixed|sticky)$/.test(getComputedStyle(e).position)) return false;
+      for (let e = x.el; e; e = e.parentElement) if (/^(fixed|sticky)$/.test(getComputedStyle(e).position) && !/^T[DH]$/.test(e.tagName)) return false;
       return true;
     });
   const joined = (a, b) => a.parentElement === b.parentElement && /seg|chips?|tabs?|toggle|group|pager/i.test(String(a.parentElement.className || '') + ' ' + (a.parentElement.getAttribute('role') || ''));
@@ -199,6 +201,27 @@ const AUDIT = () => {
         out.push(`buttons ${xOver > 0 ? 'overlap' : (-xOver).toFixed(1) + 'px apart, side by side'}: ${name(a.el, a.t)} | ${name(b.el, b.t)}`);
       }
     }
+  }
+  /* a control on a table row cut off, or out of sight, in a box that scrolls
+     sideways (5 Nov 2026: the register's Save and Preview email hidden past
+     the right edge): whatever is done on a row is in view without scrolling,
+     on a desktop screen; a phone may scroll a table */
+  if (innerWidth >= 1000) {
+    [...document.querySelectorAll('table')].forEach((t) => {
+      if (!shown(t)) return;
+      let box = t.parentElement;
+      while (box && box !== document.body && !/(auto|scroll|hidden|clip)/.test(getComputedStyle(box).overflowX)) box = box.parentElement;
+      if (!box || box === document.body || box.scrollWidth <= box.clientWidth + 1) return;
+      const br = box.getBoundingClientRect();
+      const left = br.left + box.clientLeft; const right = left + box.clientWidth;
+      t.querySelectorAll('td button, td select, td input:not([type="hidden"]), td textarea, td a.btn').forEach((c) => {
+        /* a value shown as a button only to copy it is data, which a wide
+           table may scroll to; what acts on the row may not */
+        if (!shown(c) || c.hasAttribute('data-copy')) return;
+        const r = c.getBoundingClientRect();
+        if (r.right > right + 1 || r.left < left - 1) out.push(`out of sight in a table that scrolls sideways: ${name(c, (c.innerText || c.value || c.getAttribute('placeholder') || c.getAttribute('aria-label') || '').trim())}`);
+      });
+    });
   }
   const wide = document.documentElement.scrollWidth - innerWidth;
   if (wide > 1) out.push(`page ${wide}px wider than the screen`);
@@ -276,6 +299,15 @@ async function run() {
         await page.route(/127\.0\.0\.1:\d+\/api\//, (r) => {
           const u = r.request().url();
           if (/type=session/.test(u)) return r.fulfill({ json: { ok: true, admin: { uid: 'scan', email: 'scan@pfa.test', role: 'super', modules: [] } } });
+          /* the registers with lines in them, one with the longest note a
+             number can carry: a table is only checked when it has rows */
+          if (/\/api\/admin\/registers\?/.test(u) && !/format=/.test(u)) {
+            const line = (id, more) => Object.assign({ id, name: 'Dr Gurmeet Mangat', mobile: '9820504779', email: 'gurmeet@example.com', lines: ['Bhagoji Keer Marg, Mahim West', 'Mumbai', 'Maharashtra - 400016'], district: 'Mumbai', state: 'Maharashtra', appliedOn: '22/10/2026', paidOn: '22/10/2026', type: 'Annual member', amount: 'INR 500.00', cardId: 'PFA-CCT-4K2M8QRT' }, more);
+            return r.fulfill({ json: { ok: true, rows: [
+              line('PFA-CG-2026-00001', { caregiverNo: 'MH 2399', memberNo: 'MH 2399', numberNote: 'PIN code 400016 is not in Tamil Nadu: numbered in Tamil Nadu, as the form says; check the address.' }),
+              line('PFA-CG-2026-00002', { numberHold: 'No state, PIN code or place in India on the application: put the state right, then it is numbered.', ship: 'shipped', courier: 'India Post', tracking: 'EE123456789IN', done: true, emailed: '23/10/2026' })
+            ] } });
+          }
           return r.fulfill({ json: { ok: true, rows: [], items: [], queues: {}, applications: [], orders: [], interns: [], batches: [], recipients: [], reports: [] } });
         });
         await page.fill('#who', 'scan@pfa.test').catch(() => {});

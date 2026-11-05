@@ -28,7 +28,7 @@
       cols: [
         ['Name', function (r) { return [[r.name]]; }, 'rg-name'],
         /* the caregiver's state number (3 Nov 2026), given as the application is filed (4 Nov 2026) */
-        ['Caregiver number', function (r) { return [r.caregiverNo ? [r.caregiverNo] : ['Not yet', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null]; }, 'rg-nw'],
+        ['Caregiver number', function (r) { return [r.caregiverNo ? [r.caregiverNo] : ['Not yet', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null, r.numberNote ? [r.numberNote, 'sub'] : null]; }, 'rg-nw'],
         ['Phone number', function (r) { return [[r.mobile], r.altMobile ? [r.altMobile, 'other'] : null]; }, 'rg-nw'],
         ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
         ['Application', function (r) { return [[r.id], r.cardId ? [r.cardId, 'card'] : null, r.appliedOn ? [r.appliedOn, 'sub'] : null]; }, 'rg-nw'],
@@ -40,7 +40,7 @@
       cols: [
         ['Name / number / email', function (r) { return [[r.name], [r.mobile], r.altMobile ? [r.altMobile, 'other'] : null, [r.email]]; }, 'rg-name'],
         /* the state member number (lib/member-numbers.js); the reference under it */
-        ['Member number', function (r) { return [r.memberNo ? [r.memberNo] : ['Not yet', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null, [r.id, 'sub']]; }, 'rg-nw'],
+        ['Member number', function (r) { return [r.memberNo ? [r.memberNo] : ['Not yet', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null, r.numberNote ? [r.numberNote, 'sub'] : null, [r.id, 'sub']]; }, 'rg-nw'],
         ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
         ['Membership type', function (r) { return [[r.type], r.amount ? [r.amount, 'sub'] : null, r.cardId ? [r.cardId, 'card'] : null]; }],
         ['Date', function (r) { return [[r.paidOn]]; }, 'rg-nw']
@@ -104,7 +104,18 @@
      Folded: one line until opened. */
   (function () {
     var css = document.createElement('style');
-    css.textContent = '.rg-hint.rg-good{color:#1f6b3a}.rg-hint.rg-bad{color:#a3251f;overflow-wrap:anywhere}';
+    css.textContent = '.rg-hint.rg-good{color:#1f6b3a}.rg-hint.rg-bad{color:#a3251f;overflow-wrap:anywhere}'
+      /* a note under a number wraps in a narrow column, never widening it
+         until Shipping is pushed out of sight (5 Nov 2026) */
+      + '.rg td.rg-nw .rg-c.rg-sub{white-space:normal;min-width:140px;max-width:200px}'
+      /* 24px between the words of neighbouring columns, and 8px between
+         Save and Preview email (the release scan's rules) */
+      + '.rg td{padding:6px 12px}.rg-acts{gap:8px}'
+      /* Shipping, where the work is done, held at the right edge on every
+         screen: the columns before it scroll under it, so its Save and
+         Preview email are never cut off (5 Nov 2026) */
+      + '.rg .wrap th:last-child,.rg .wrap td:last-child{position:sticky;right:0;z-index:1;background:var(--paper);box-shadow:-12px 0 12px -12px rgba(0,0,0,.28)}'
+      + '.rg .wrap tr.rg-done td:last-child{background:#e7f5dd}';
     document.head.appendChild(css);
   })();
   /* the caregiver numbers given as the register opened, and any that could not be */

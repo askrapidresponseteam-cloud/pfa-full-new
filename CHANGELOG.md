@@ -1,3 +1,13 @@
+## v1.532
+
+- **No caregiver or member is left without a number for a blank state.** Owner, 5 Nov 2026: "why no number for the 1st caregiver. you can never miss it".
+  - Dr Gurmeet Mangat's application had no state (state is optional on the caregiver form), so her number was held. The state is now found wherever the application gives it: the form, else the PIN code (the PIN field or the six digits in the address), else a state or district named in the address. Her PIN 400016 gives Maharashtra, so she is numbered MH on the next run or when the register opens.
+  - The state found is written on the application and on the card, and the register shows how it was found ("State taken from PIN code 400016.") under the number.
+  - A PIN that is not in the state chosen on the form no longer holds the number: it is given in the state chosen from the list, with a note to check the address.
+  - Only a record with no state, no PIN and no place in India at all is still held, with that reason.
+- **The Shipping column in the Caregivers and Members registers is never cut off.** It is held at the right edge on every screen, and the columns before it scroll under it. A long note under a number now wraps instead of widening the table, columns are 24px apart and Save and Preview email 8px apart.
+  - The release scan now fills both registers with sample lines, and fails any control on a table row that is cut off or out of sight in a table that scrolls sideways.
+
 ## v1.531
 
 - **The Wall has its own section in the admin panel, to review every film sent.** Owner, 4 Nov 2026: "admin panel does not have section to review wall submissions!".

@@ -107,19 +107,42 @@ test('what the old lists leave for PFA: no state, one number held by two people'
   assert.deepEqual(st.series.find((s) => s.series === 'MP-CG').states.map((s) => s.code), ['CG', 'MP']);
 });
 
-test('a membership with no state, or a PIN not in its state, is held, not numbered, until put right', async () => {
+test('a membership is never left unnumbered for a blank state: the PIN gives it; a PIN not in the state chosen keeps the chosen state, with a note; only a record with no place at all is held', async () => {
+  /* owner, 5 Nov 2026: "why no number for the 1st caregiver. you can never miss it" */
   const wrongPin = await member('Karnataka', '400001');
   const noState = await member('', '560001');
+  const nothing = await member('', '');
   const r = await CASE.numberWaitingMembers(db, { readOld: oldList() });
-  assert.deepEqual(r.numbered, []);
-  assert.match(r.held.find((x) => x.reference === wrongPin).reason, /PIN code 400001 is not in Karnataka/);
-  assert.match(r.held.find((x) => x.reference === noState).reason, /No state on the membership/);
-  assert.match(db.dump()[`submissions/${wrongPin}`].memberNumberHold.reason, /not in Karnataka/);
+  const ka = NUM.startOf('KA');
+  assert.deepEqual(r.numbered.map((x) => x.number), [`KA ${ka}`, `KA ${ka + 1}`]);
+  assert.equal(numberOf(wrongPin), `KA ${ka}`, 'numbered in the state the member chose from the list');
+  assert.match(db.dump()[`submissions/${wrongPin}`].memberNo.note, /PIN code 400001 is not in Karnataka: numbered in Karnataka/);
+  assert.equal(numberOf(noState), `KA ${ka + 1}`, 'the state read from PIN code 560001');
+  assert.equal(db.dump()[`submissions/${noState}`].memberNo.stateFrom, 'pin');
+  assert.equal(db.dump()[`submissions/${noState}`].fields.state, 'Karnataka', 'and written on the membership, so every list shows it');
+  assert.equal(db.dump()[`submissions/${noState}`].fields.pin, '560001', 'the rest of the form untouched');
+  assert.match(db.dump()[`submissions/${noState}`].fields.name, /^Member \d+$/);
+  assert.match(r.held.find((x) => x.reference === nothing).reason, /No state, PIN code or place in India on the application/);
   /* put right: numbered on the next run, and the hold cleared */
-  await db.collection('submissions').doc(wrongPin).set({ fields: { state: 'Maharashtra', pin: '400001' } }, { merge: true });
+  await db.collection('submissions').doc(nothing).set({ fields: { state: 'Maharashtra', pin: '400001' } }, { merge: true });
   const again = await CASE.numberWaitingMembers(db, { readOld: oldList() });
   assert.deepEqual(again.numbered.map((x) => x.number), [`MH ${NUM.startOf('MH')}`]);
-  assert.equal(db.dump()[`submissions/${wrongPin}`].memberNumberHold, null);
+  assert.equal(db.dump()[`submissions/${nothing}`].memberNumberHold, null);
+});
+
+test('the state is found wherever the application says it: form, PIN field, PIN in the address, a state or district named in the address', () => {
+  const at = (f) => NUM.stateOf(f);
+  assert.deepEqual(at({ state: 'Tamil Nadu', pin: '641062' }), { state: 'Tamil Nadu', from: 'form', note: '' });
+  assert.equal(at({ address: 'Bhagoji Keer Marg, Mahim West Mumbai 400016' }).state, 'Maharashtra');
+  assert.equal(at({ state: 'Maharastra', pin: '400016' }).state, 'Maharashtra', 'a misspelt state falls back to the PIN');
+  assert.equal(at({ pin: '737101' }).state, 'Sikkim', 'the closest range first');
+  assert.equal(at({ pin: '160017', district: 'Chandigarh' }).state, 'Chandigarh');
+  assert.equal(at({ address: 'Near the temple, Udupi, Karnataka' }).state, 'Karnataka');
+  assert.equal(at({ address: 'Gandhi Road', district: 'Coimbatore' }).state, 'Tamil Nadu');
+  assert.match(at({ address: 'nowhere at all' }).problem, /No state, PIN code or place in India/);
+  /* every state on the forms is one the numbers know, so a state found is always numbered */
+  const INDIA = require('../assets/india-districts.js');
+  for (const s of INDIA.STATES) assert.ok(NUM.placeOf(s), s);
 });
 
 test('many joining in the same moment: every one a different number; asking again changes nothing', async () => {
@@ -224,7 +247,7 @@ test('opening the membership register numbers whoever is waiting, and says so', 
     assert.equal(out.status, 200, JSON.stringify(out.json));
     assert.deepEqual(out.json.numbering.numbered, [{ reference: a, number: `MP ${NUM.startOf('MP-CG')}` }]);
     assert.equal(out.json.rows.find((r) => r.id === a).memberNo, `MP ${NUM.startOf('MP-CG')}`, 'on the list the panel draws');
-    assert.match(out.json.rows.find((r) => r.id === b).numberHold, /No state on the membership/);
+    assert.match(out.json.rows.find((r) => r.id === b).numberHold, /No state, PIN code or place in India/);
     assert.equal(db.dump()[`submissions/${a}`].memberNo.by, undefined);
     assert.match(JSON.stringify(db.dump()[`submissions/${a}`].history), /"by":"admin:k@pfa\.test"/);
   } finally { OLDMEM.standing = realStanding; }
@@ -276,14 +299,23 @@ test('colony caregivers: their own four-digit state numbers, for every caregiver
   await cg('PFA-CG-2026-00013', 'West Bengal', '741222', '', 'new');
   await cg('PFA-CG-2026-00014', '', '110009', 'PFA-CCT-9Y2M8QRT');
   await cg('PFA-CG-2026-00015', 'Kerala', '682001', '', 'rejected');
+  /* 5 Nov 2026: Dr Gurmeet Mangat, no state on the form, the PIN only in the address */
+  await db.collection('submissions').doc('PFA-CG-2026-00016').set({ kind: 'PFA-CG', status: 'new', receivedAtMs: NOV, fields: { name: 'Dr Gurmeet Mangat', address: 'Bhagoji Keer Marg, Mahim West Mumbai 400016' } });
+  await cg('PFA-CG-2026-00017', '', '', '');
   await db.collection('caretakerPublic').doc('PFA-CCT-4K2M8QRT').set({ cardId: 'PFA-CCT-4K2M8QRT', district: 'Coimbatore' });
   const r = await CASE.numberWaitingCaregivers(db, {});
   const tn = NUM.startOf('TN', 'caregivers');
   const wb = NUM.startOf('WB', 'caregivers');
-  assert.deepEqual(r.numbered.map((x) => x.number), [`TN ${tn}`, `TN ${tn + 1}`, `WB ${wb}`], 'every caregiver, card or not, in their own state count');
+  const dl = NUM.placeOf('Delhi').code;
+  assert.deepEqual(r.numbered.map((x) => x.number), [`TN ${tn}`, `TN ${tn + 1}`, `WB ${wb}`, `${dl} ${NUM.startOf(dl, 'caregivers')}`, `MH ${NUM.startOf('MH', 'caregivers')}`], 'every caregiver, card or not, in their own state count; no state on the form is no bar');
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00016'].caregiverNo.label, `MH ${NUM.startOf('MH', 'caregivers')}`, 'the state read from the PIN in the address');
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00016'].fields.state, 'Maharashtra');
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00016'].fields.address, 'Bhagoji Keer Marg, Mahim West Mumbai 400016');
+  assert.equal(db.dump()['caretakerCards/PFA-CCT-9Y2M8QRT'].state, 'Delhi', 'the state found prints on the card too');
   assert.equal(db.dump()['submissions/PFA-CG-2026-00013'].caregiverNo.label, `WB ${wb}`, 'no card yet, and numbered all the same');
   assert.ok(!db.dump()['submissions/PFA-CG-2026-00015'].caregiverNo, 'an application turned down is not numbered');
-  assert.match(r.held[0].reason, /No state on the application/);
+  assert.deepEqual(r.held.map((x) => x.reference), ['PFA-CG-2026-00017'], 'held only when nothing names a place');
+  assert.match(r.held[0].reason, /No state, PIN code or place in India/);
   assert.equal(db.dump()['submissions/PFA-CG-2026-00011'].caregiverNo.label, `TN ${tn}`);
   assert.equal(db.dump()['caretakerPublic/PFA-CCT-4K2M8QRT'].caregiverNo, `TN ${tn}`, 'a card check shows it');
   assert.equal(db.dump()['caretakerCards/PFA-CCT-4K2M8QRT'].caregiverNo, `TN ${tn}`);
@@ -296,11 +328,11 @@ test('colony caregivers: their own four-digit state numbers, for every caregiver
   assert.equal(db.dump()['caretakerCards/PFA-CCT-5W2M8QRT'].caregiverNo, `WB ${wb}`);
   assert.equal(db.dump()['caretakerPublic/PFA-CCT-5W2M8QRT'].caregiverNo, `WB ${wb}`);
   /* the held one is numbered once its state is put right */
-  await db.collection('submissions').doc('PFA-CG-2026-00014').set({ fields: { name: 'PFA-CG-2026-00014', state: 'Delhi', pin: '110009' } }, { merge: true });
+  await db.collection('submissions').doc('PFA-CG-2026-00017').set({ fields: { name: 'PFA-CG-2026-00017', state: 'Delhi', pin: '110009' } }, { merge: true });
   const fixed = await CASE.numberWaitingCaregivers(db, {});
   assert.equal(fixed.numbered.length, 1);
   assert.match(fixed.numbered[0].number, /^DLH? \d{4}$/);
-  assert.equal(db.dump()['submissions/PFA-CG-2026-00014'].caregiverNumberHold, null, 'its hold is cleared');
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00017'].caregiverNumberHold, null, 'its hold is cleared');
   /* never the members' register */
   assert.ok(!Object.keys(db.dump()).some((k) => k.startsWith('member_numbers/TN-')));
   const again = await CASE.numberWaitingCaregivers(db, {});

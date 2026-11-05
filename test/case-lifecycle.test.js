@@ -294,7 +294,10 @@ test('A9 two approves at once issue one card and record it once', async () => {
   assert.deepEqual([a.statusCode, b.statusCode].sort(), [200, 409], `${a.raw} ${b.raw}`);
   assert.equal(Object.keys(db.dump()).filter((k) => /^caretakerCards\/[^/]+$/.test(k)).length, 1, 'one card');
   assert.equal(msgs('PFA-CG-2026-00012').filter((m) => /Approved/.test(m.text || '')).length, 1, 'one "Approved" note');
-  assert.equal(rec('PFA-CG-2026-00012').history.filter((h) => h.status === 'approved').length, 1);
+  /* one approval; the caregiver number (from PIN 600017, Tamil Nadu, 5 Nov 2026) is its own line */
+  assert.equal(rec('PFA-CG-2026-00012').history.filter((h) => h.status === 'approved' && h.event !== 'caregiver-number').length, 1);
+  assert.equal(rec('PFA-CG-2026-00012').history.filter((h) => h.event === 'caregiver-number').length, 1, 'numbered once');
+  assert.match(rec('PFA-CG-2026-00012').caregiverNo.label, /^TN \d{4}$/);
   assert.equal(smtp.sent.filter((m) => m.to === 'ravi@example.com').length, 1, 'one card email');
 });
 
