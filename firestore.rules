@@ -77,6 +77,8 @@ service cloud.firestore {
     match /finance_reports/{id}       { allow read, write: if false; }
     match /cruelty_reports/{id}       { allow read, write: if false; }
     match /weekly_digests/{id}        { allow read, write: if false; }
+    /* the Google Sheet's state: what was last written there (lib/register-sheet.js) */
+    match /registerSheet/{id}         { allow read, write: if false; }
     /* the internship portal (1 Nov 2026): server routes only; an intern
        reaches their own records through /api/intern, never directly */
     match /intern_batches/{id}        { allow read, write: if false; }

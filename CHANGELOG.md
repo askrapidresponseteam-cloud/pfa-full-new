@@ -1,3 +1,13 @@
+## v1.534
+
+- **Colony cards and members written to the office's Google Sheet, locked.** Owner, 5 Nov 2026: "can membership, catc be written here [the sheet] user data should be protected. locked so that one doesnt accidentally mess with it?", "1 tab for members 1 for catc", "only courier details and date of shipping should be editable. the whole details and address of the user should be captured in the sheet", "enterprise grade".
+  - Two tabs, CATC and Members: every paid application and membership the panel's registers list, with everything the person gave (name, both phone numbers, email, the full address and each part of it, floor, colony, what they said about the colony, welcome kit) and where the card stands. No fee, order or bank reference: money records still go only to the two finance addresses.
+  - Each tab is protected so only the website can change it, except three yellow columns: Courier, Tracking number and Shipped on (a date picker; only a real date can be typed). Anything changed outside them, even by the sheet's owner, is put back at the next run.
+  - What the office types in yellow reaches the panel through the register's own save, with the same checks, a history note and an audit entry by "Google Sheet". All three filled: shipped. Some: being prepared. A value that cannot be taken stays as typed and a locked Sheet check column says why. No email ever goes from the sheet; the shipping letter still goes from the panel, previewed first.
+  - Runs every ten minutes with the email worker, and at once from Update now above each register. A run reads the sheet; the records are read and the tabs written only when something changed (or once a day). One run at a time.
+  - The website signs in as its own Google service account, at no cost. Above each register: when it was last written, Open the sheet, Update now, and when it cannot write, what to do (share the sheet with the address shown, or switch on the Google Sheets API).
+  - A shipment now keeps the day it left (the day it is marked shipped, or the date typed in the sheet), shown as "Sent on" in the register.
+
 ## v1.533
 
 - **Ready replies in every reply box of the panel.** Owner, 5 Nov 2026: "option to ask standard reply also should be there? everywhere."

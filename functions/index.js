@@ -108,6 +108,16 @@ exports.caregiverEmailWorker = onSchedule(
     } catch (error) {
       console.error('admin search index not brought up to date', String(error && error.message).slice(0, 300));
     }
+    /* the two registers in the office's Google Sheet, and what the office
+       typed in its yellow columns back into the panel (lib/register-sheet.js) */
+    try {
+      const SHEET = require('./lib/register-sheet.js');
+      const { getDb } = require('./lib/firebase.js');
+      const ran = await SHEET.sync(getDb());
+      console.log('register sheet', JSON.stringify({ ok: ran.ok, code: ran.code || '', wrote: ran.wrote || false, applied: (ran.applied || []).length, refused: (ran.refused || []).length }));
+    } catch (error) {
+      console.error('register sheet not brought up to date', String(error && error.message).slice(0, 300));
+    }
     try {
       const WATCH = require('./lib/reply-watch.js');
       const { getDb } = require('./lib/firebase.js');

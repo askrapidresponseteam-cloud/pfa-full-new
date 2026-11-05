@@ -161,7 +161,7 @@ test('saving where a card stands: checked, kept on the application beside what t
   const h = rec.history[rec.history.length - 1];
   assert.deepEqual([h.event, h.shipStatus, h.courier, h.trackingNumber, h.by], ['shipment', 'shipped', 'DTDC', 'D12345678', 'staff@pfa.test']);
   const notes = Object.entries(db.dump()).filter(([k]) => k.startsWith('submissions/PFA-CG-2026-00011/messages/')).map(([, v]) => v.text);
-  assert.deepEqual(notes.sort(), ['Card being prepared.', 'Card shipped, DTDC, tracking number D12345678.']);
+  assert.deepEqual(notes.sort(), ['Card being prepared.', 'Card shipped, DTDC, tracking number D12345678, sent on 02/11/2026.']);
   assert.deepEqual(logged.map((x) => [x.action, x.subject]), [['shipment-updated', 'PFA-CG-2026-00011'], ['shipment-updated', 'PFA-CG-2026-00011']]);
   const rows = (await call(db, { kind: 'caregiver' })).json.rows;
   assert.deepEqual([rows[0].ship, rows[0].shipLabel, rows[0].courier, rows[0].tracking, rows[0].done], ['shipped', 'Shipped', 'DTDC', 'D12345678', true]);

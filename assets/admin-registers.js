@@ -53,11 +53,12 @@
   function registerPane(kind) {
     var spec = REG[kind];
     var box = $('[data-pane="' + spec.pane + '"]');
-    if (!box) return;
-    api('/api/admin/registers?kind=' + kind).then(function (d) {
+    if (!box) return Promise.resolve();
+    return api('/api/admin/registers?kind=' + kind).then(function (d) {
       regState[kind].rows = d.rows || [];
       regState[kind].numbers = d.numbers || null;
       regState[kind].numbering = d.numbering || null;
+      regState[kind].sheet = d.sheet || null;
       regState[kind].picked = {};
       paintRegister(kind);
     }).catch(function (e) { box.innerHTML = '<div class="empty"><b>Could not read the register</b>' + esc(e.message) + '</div>'; });
@@ -91,6 +92,7 @@
       + '<button class="ghost" type="button" data-rg="csv">Export to Excel</button>'
       + '</div><p class="rg-hint">Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.</p>'
       + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
+      + '<div data-rg-sheet>' + sheetHtml(kind, st.sheet) + '</div>'
       + (kind === 'membership' ? numbersHtml(st) : caregiverNews(st))
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
       + '<div class="wrap"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + spec.cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th>Shipping</th></tr></thead><tbody data-rg-body></tbody></table></div>';
@@ -116,6 +118,56 @@
          Preview email are never cut off (5 Nov 2026) */
       + '.rg .wrap th:last-child,.rg .wrap td:last-child{position:sticky;right:0;z-index:1;background:var(--paper);box-shadow:-12px 0 12px -12px rgba(0,0,0,.28)}'
       + '.rg .wrap tr.rg-done td:last-child{background:#e7f5dd}';
+    document.head.appendChild(css);
+  })();
+  /* The office's Google Sheet (5 Nov 2026, lib/register-sheet.js): one line
+     saying where it stands, Open the sheet and Update now; when it cannot
+     be written, what to do about it; how it works, folded. */
+  var SHEET_FIX = {
+    'not-shared': 'Share the sheet with the website as an Editor: in the sheet, Share, add the address below, choose Editor, untick Notify. Then Update now.',
+    'api-off': 'Switch on the Google Sheets API for the website\'s Google project (one click, no cost), wait a minute, then Update now.',
+    'no-sheet': 'The sheet\'s address is wrong, or the sheet was deleted.',
+    'not-set-up': 'This server has no Google account to write with. The panel on Firebase has one.'
+  };
+  function sheetWhen(ms) {
+    if (!ms) return '';
+    var d = new Date(ms);
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    var today = new Date().toDateString() === d.toDateString();
+    return (today ? 'today ' : d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()] + ', ') + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function sheetHtml(kind, sh) {
+    if (!sh || !sh.on) return '';
+    var tab = kind === 'membership' ? 'Members' : 'CATC';
+    var n = (sh.rows || {})[kind] || 0;
+    var held = (sh.held || {})[kind] || 0;
+    var e = sh.error;
+    var head = e ? '<b>Google Sheet not updated.</b> ' + esc(e.message)
+      : sh.lastOkMs ? 'Google Sheet, ' + esc(tab) + ' tab: ' + n + (n === 1 ? ' line' : ' lines') + ', up to date ' + esc(sheetWhen(sh.lastOkMs)) + '.'
+      : 'Google Sheet: not written yet.';
+    var fix = e ? (SHEET_FIX[e.code] || 'It is tried again every ten minutes.') : '';
+    return '<div class="rg-sheet' + (e ? ' rg-sheet--bad' : '') + '">'
+      + '<p class="rg-sheet__line"><span>' + head + '</span>'
+      + '<span class="rg-sheet__acts"><a class="ghost" href="' + esc(sh.url) + '" target="_blank" rel="noopener">Open the sheet</a>'
+      + '<button class="ghost" type="button" data-rg="sheet">Update now</button></span></p>'
+      + (fix ? '<p class="rg-hint rg-bad">' + esc(fix) + (e.code === 'api-off' && e.link ? ' <a href="' + esc(e.link) + '" target="_blank" rel="noopener">Switch it on</a>' : '') + '</p>' : '')
+      + (e && e.code === 'not-shared' && sh.email ? '<p class="rg-sheet__mail"><button type="button" class="rg-c" data-copy="' + esc(sh.email) + '" title="Copy">' + esc(sh.email) + '</button></p>' : '')
+      + (held ? '<p class="rg-hint rg-bad">' + held + (held === 1 ? ' value typed in the sheet was' : ' values typed in the sheet were') + ' not taken: its Sheet check column says why.</p>' : '')
+      + '<details class="fold"><summary>How the sheet works</summary><ul class="rg-list">'
+      + '<li>Every paid ' + (kind === 'membership' ? 'membership' : 'colony card application') + ' is a line in the ' + esc(tab) + ' tab, with the full address. No fees or payment details.</li>'
+      + '<li>The sheet is locked. Only the yellow columns, Courier, Tracking number and Shipped on, can be typed in. Anything else changed is put back.</li>'
+      + '<li>What is typed in yellow reaches this register within ten minutes, or at once with Update now. With all three filled, the card is shipped. The email to the person still goes from here, previewed first.</li>'
+      + '</ul></details></div>';
+  }
+  (function () {
+    var css = document.createElement('style');
+    css.textContent = '.rg-sheet{margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);background:var(--paper)}'
+      + '.rg-sheet--bad{border-color:#e3b4b0}'
+      + '.rg-sheet__line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;margin:0;font-size:13px;overflow-wrap:anywhere}'
+      + '.rg-sheet__acts{display:inline-flex;flex-wrap:wrap;gap:8px}'
+      + '.rg-sheet__acts .ghost{display:inline-flex;align-items:center;min-height:34px;padding:0 14px;font-size:13px;text-decoration:none}'
+      + '.rg-sheet .rg-hint{margin:8px 0 0}.rg-sheet__mail{margin:8px 0 0}.rg-sheet__mail .rg-c{display:inline-block;width:auto;padding:6px 10px;border:1px dashed var(--line)}'
+      + '.rg-sheet details.fold{margin:6px 0 0}.rg-sheet .rg-list{margin:0;padding-left:18px;font-size:12px;color:var(--muted)}.rg-sheet .rg-list li{margin:0 0 4px}';
     document.head.appendChild(css);
   })();
   /* the caregiver numbers given as the register opened, and any that could not be */
@@ -160,6 +212,7 @@
       + '<input data-f="tracking" maxlength="40" placeholder="Tracking number" aria-label="Tracking number" autocomplete="off" spellcheck="false" value="' + esc(r.tracking || '') + '">'
       + '<span class="rg-why" data-rg-why></span>'
       + '<span class="rg-acts"><button type="button" class="rg-row" data-rg="save" disabled>Save</button><button type="button" class="rg-row" data-rg="mail" disabled>Preview email</button></span>'
+      + (r.shippedOnLabel ? '<span class="rg-sub rg-last">Sent on ' + esc(r.shippedOnLabel) + '</span>' : '')
       + (r.emailed ? '<span class="rg-sub rg-last">Emailed: ' + esc(r.emailed) + '</span>' : '')
       + '</div>';
   }
@@ -444,6 +497,26 @@
       if (what === 'mailpicked') {
         var ready = regPickedReady(kind);
         if (ready.length) regPreview(kind, ready);
+        return;
+      }
+      if (what === 'sheet') {
+        b.disabled = true;
+        say(said, 'Updating the Google Sheet...', '');
+        api('/api/admin/registers', { method: 'POST', body: { action: 'sheet', kind: kind } }).then(function (d) {
+          var r = d.sheet || {};
+          var took = (r.applied || []).length;
+          var not = (r.refused || []).length;
+          var msg = r.ok || r.code === 'running'
+            ? [r.code === 'running' ? r.message : 'The sheet is up to date.' + (took ? ' ' + took + (took === 1 ? ' line' : ' lines') + ' typed in the sheet taken.' : '') + (not ? ' ' + not + ' not taken: see Sheet check.' : ''), not ? 'bad' : 'good']
+            : ['The sheet was not updated: ' + (r.message || 'try again in a minute.'), 'bad'];
+          if (r.on !== undefined) {
+            regState[kind].sheet = r;
+            var slot = box.querySelector('[data-rg-sheet]');
+            if (slot) slot.innerHTML = sheetHtml(kind, r);
+          }
+          /* what the office typed is in the register now: drawn again, then said */
+          return (took ? registerPane(kind) : Promise.resolve()).then(function () { say($(pane).querySelector('[data-rg-say]'), msg[0], msg[1]); });
+        }).catch(function (err) { say(said, err.message, 'bad'); }).then(function () { var x = box.querySelector('[data-rg="sheet"]'); if (x) x.disabled = false; });
         return;
       }
       if (what === 'copyall') {
