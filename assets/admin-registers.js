@@ -219,7 +219,9 @@
   function regRowHtml(kind, r) {
     var spec = REG[kind];
     return '<tr' + (r.done ? ' class="rg-done"' : '') + ' data-rg-id="' + esc(r.id) + '">'
-      + '<td class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pick" aria-label="Select ' + esc(r.name) + '"' + (regState[kind].picked[r.id] ? ' checked' : '') + '></label><button type="button" class="rg-row" data-rg="row">Copy row</button></td>'
+      + '<td class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pick" aria-label="Select ' + esc(r.name) + '"' + (regState[kind].picked[r.id] ? ' checked' : '') + '></label><button type="button" class="rg-row" data-rg="row">Copy row</button>'
+        /* the record, open at its reply box with the ready replies (5 Nov 2026) */
+        + (r.email ? '<button type="button" class="rg-row" data-open-case="' + esc(r.id) + '" data-reply-case>Reply</button>' : '') + '</td>'
       + spec.cols.map(function (c) {
         return '<td' + (c[2] ? ' class="' + c[2] + '"' : '') + '>' + c[1](r).filter(function (x) { return x && x[0]; }).map(function (x) {
           return '<button type="button" class="rg-c' + (x[1] ? ' rg-sub' : '') + '" data-copy="' + esc(x[0]) + '" title="Copy">' + (x[1] === 'other' ? 'Other: ' : x[1] === 'card' ? 'Card ' : '') + esc(x[0]) + '</button>';

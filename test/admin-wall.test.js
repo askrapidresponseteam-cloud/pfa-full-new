@@ -65,7 +65,9 @@ test('a reply is written and sent from the film\'s own card, through the submiss
   const js = read('assets/admin-wall.js');
   assert.match(js, /data-wl-reply/);
   assert.match(js, /action: 'reply', text: text, requestId: W\.req\[ref\]/);
-  assert.match(js, /Ask for a YouTube or Vimeo link/);
+  /* its ready replies come from the one list every reply box uses (5 Nov 2026) */
+  assert.match(read('assets/admin-replies.js'), /Ask for a YouTube or Vimeo link/);
+  assert.match(js, /R\.options\(r\.reference\)/);
   assert.match(js, /No email was given/);
   /* the cards keep their own height, so an open reply leaves no gaps beside it */
   assert.match(js, /\.wl-grid\{[^}]*align-items:start/);

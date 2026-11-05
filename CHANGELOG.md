@@ -1,3 +1,11 @@
+## v1.533
+
+- **Ready replies in every reply box of the panel.** Owner, 5 Nov 2026: "option to ask standard reply also should be there? everywhere."
+  - Above the reply box of every record the panel opens (Submissions, Members, Caregivers, Volunteers, Internship, Job applicants, Payments, Shop orders, Overview), a "Start from a ready reply" list: first the replies for that kind of record (a caregiver card being printed, confirm the postal address, an order being packed, shortlisted or not this time, and so on), then four that fit anything (we have it, ask for more detail, ask for a time to call, done and closing it).
+  - A ready reply only fills the box, to be edited before Send reply. It never replaces words already typed without asking. A part in square brackets is picked out so typing replaces it, and a reply still holding one is not sent.
+  - The Wall's cards use the same list, so they now offer the general replies too.
+  - Each line of the Caregivers and Members registers with an email has a Reply button under Copy row: it opens that record at its reply box, with the ready replies.
+
 ## v1.532
 
 - **No caregiver or member is left without a number for a blank state.** Owner, 5 Nov 2026: "why no number for the 1st caregiver. you can never miss it".

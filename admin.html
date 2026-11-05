@@ -1089,9 +1089,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         <option value="handled">Handled</option>
         <option value="spam">Spam</option>
       </select>
-      <!-- Only on a wall submission, and deliberately not in the Move to list
-           above: that list is about this queue, and most submissions end up
-           handled without ever belonging on a public page. -->
+      <!-- Only on a wall submission, and not in the Move to list above:
+           most submissions are handled without ever going on a page. -->
       <button class="press" type="button" id="caseWall" style="width:auto" hidden></button>
       <!-- Last on purpose, and it asks first. Remove is not delete: the
            record keeps its messages, files and history, and Restore brings
@@ -6358,6 +6357,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>
+<script src="assets/admin-replies.js"></script>
 <script src="assets/admin-wall.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by

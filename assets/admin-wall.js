@@ -94,14 +94,9 @@
     });
   }
 
-  /* ready starts for a reply, edited before it goes (no greeting or
-     sign-off: the email carries both) */
-  var STARTERS = [
-    ['on', 'It is on the wall', 'Thank you for your film. It is now on PFA\u2019s wall, for everyone to see: https://peopleforanimalsindia.org/wall'],
-    ['link', 'Ask for a YouTube or Vimeo link', 'Thank you for your film. The wall can only play YouTube or Vimeo links. Could you put it on YouTube or Vimeo and reply with the link? We would like to put it up.'],
-    ['more', 'Ask about the film', 'Thank you for your film. Before it goes on the wall, could you tell us where it was shot and who is in it?'],
-    ['no', 'Not this time', 'Thank you for sending your film to PFA. We will not be putting this one on the wall, but please do send us your next one.']
-  ];
+  /* ready starts for a reply, edited before it goes: the film ones and the
+     ones that fit anything, from the one list (assets/admin-replies.js) */
+  var R = window.PFAReplies;
   function newRequestId() {
     var bytes = new Uint8Array(16);
     if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(bytes);
@@ -114,7 +109,7 @@
     var note = W.notes[r.reference] || {};
     return '<div class="wl-reply">'
       + '<p class="wl-to">To ' + esc(f.email) + '. They can answer, and their answer comes to the submission.</p>'
-      + '<select data-wl-start aria-label="Start from"><option value="">Start from a ready reply\u2026</option>' + STARTERS.map(function (x) { return '<option value="' + x[0] + '">' + esc(x[1]) + '</option>'; }).join('') + '</select>'
+      + (R ? '<select data-wl-start aria-label="Start from a ready reply">' + R.options(r.reference) + '</select>' : '')
       + '<label for="wlr-' + esc(r.reference) + '">Your reply</label>'
       + '<textarea id="wlr-' + esc(r.reference) + '" data-wl-text maxlength="4000" placeholder="Write to ' + esc(f.name || 'the sender') + '">' + esc(W.drafts[r.reference] || '') + '</textarea>'
       + '<div class="wl-acts" style="padding-top:0"><button class="press" type="button" data-wl-send>Send reply</button><button class="ghost" type="button" data-wl-reply>Cancel</button></div>'
@@ -196,6 +191,7 @@
     if (t.hasAttribute('data-wl-send')) {
       var text = String(W.drafts[ref] || '').trim();
       if (!text) { W.notes[ref] = { text: 'Write the reply first.', tone: 'bad' }; paint(); return; }
+      if (R && R.blanks.test(text)) { W.notes[ref] = { text: 'Fill in the part in square brackets first.', tone: 'bad' }; paint(); return; }
       t.disabled = true;
       W.notes[ref] = { text: 'Sending\u2026' };
       var el = t.closest('.wl-reply').querySelector('.wl-rsay'); el.textContent = 'Sending\u2026'; el.removeAttribute('data-tone');
@@ -234,11 +230,11 @@
     if (e.target.hasAttribute('data-wl-wall')) { W.wall = e.target.value; paint(); return; }
     if (e.target.hasAttribute('data-wl-start')) {
       var ref = e.target.closest('[data-wl]').getAttribute('data-wl');
-      var pick = STARTERS.filter(function (x) { return x[0] === e.target.value; })[0];
+      var pick = R && R.pick(ref, e.target.value);
       if (!pick) return;
       W.drafts[ref] = pick[2];
       var box = document.getElementById('wlr-' + ref);
-      if (box) { box.value = pick[2]; box.focus(); }
+      if (box) { box.value = pick[2]; box.focus(); R.toBlank(box); }
       e.target.value = '';
     }
   });
