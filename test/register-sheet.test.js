@@ -95,6 +95,7 @@ function google(options) {
         if (q.updateSpreadsheetProperties) { g.locale = q.updateSpreadsheetProperties.properties.locale; g.timeZone = q.updateSpreadsheetProperties.properties.timeZone; }
         if (q.addSheet) g.sheets.push({ properties: Object.assign({ sheetId: 100 + g.nextId++ }, q.addSheet.properties), protectedRanges: [], values: [] });
         if (q.deleteSheet) g.sheets = g.sheets.filter((s) => s.properties.sheetId !== q.deleteSheet.sheetId);
+        if (q.deleteProtectedRange) for (const t of g.sheets) t.protectedRanges = t.protectedRanges.filter((x) => x.protectedRangeId !== q.deleteProtectedRange.protectedRangeId);
         if (q.addProtectedRange) {
           const p = q.addProtectedRange.protectedRange;
           g.sheets.find((s) => s.properties.sheetId === p.range.sheetId).protectedRanges.push(Object.assign({ protectedRangeId: g.nextId++ }, JSON.parse(JSON.stringify(p))));
@@ -114,7 +115,12 @@ function google(options) {
       return answer(200, {});
     }
     if (method === 'POST' && rest === '/values:batchClear') {
-      for (const r of body.ranges) { const t = tab(titleOf(r)); t.values.length = Math.min(t.values.length, startRow(r)); }
+      for (const r of body.ranges) {
+        const t = tab(titleOf(r));
+        const col = /!([A-Z]+)\d+/.exec(decodeURIComponent(r))[1].split('').reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
+        if (col === 0) t.values.length = Math.min(t.values.length, startRow(r));
+        else t.values.forEach((row, i) => { if (i >= startRow(r) && row) row.length = Math.min(row.length, col); });
+      }
       return answer(200, {});
     }
     return answer(400, { error: { message: `not in the stand-in: ${method} ${rest}` } });
@@ -188,12 +194,20 @@ test('first run: a CATC tab and a Membership tab, every detail and the full addr
   assert.equal(manasa.Colony, 'Mogappair');
   assert.equal(manasa['PIN code'], '600037');
   assert.equal(manasa['About the colony'], 'About 12 animals.');
-  assert.equal(manasa['Application status'], 'Card issued');
-  assert.equal(manasa['Card number'], 'PFA-CCT-2B6N4XKE');
+  /* no statuses or card numbers (owner, 5 Nov 2026) */
+  for (const gone of ['Application status', 'Status', 'Card number', 'Card stage', 'Card status']) {
+    assert.ok(!catc[0].includes(gone), `CATC: ${gone}`);
+  }
   assert.equal(manasa['Issued on'], '30/10/2026');
 
   const mem = g.tab('Membership').values;
   const s = Object.fromEntries(mem[0].map((h, i) => [h, mem[1][i]]));
+  assert.equal(s['Applied on'], '28/10/2026', 'Applied on, not Joined on');
+  for (const gone of ['Joined on', 'Status', 'Card number', 'Card stage', 'Card status']) assert.ok(!mem[0].includes(gone), `Membership: ${gone}`);
+  /* the written columns, A to P on Membership, carry an owner's warning too */
+  const warned = g.tab('Membership').protectedRanges.filter((x) => x.description === SHEET.WARNING);
+  assert.deepEqual(warned.map((x) => [x.warningOnly, x.range.startColumnIndex, x.range.endColumnIndex]), [[true, 0, mem[0].indexOf('Courier')], [true, mem[0].indexOf('Sheet check'), mem[0].length]]);
+  assert.equal(mem[0].indexOf('Courier'), 16, 'A to P are the written details; Q, R and S are the yellow columns');
   assert.equal(s['Membership type'], 'Golden membership');
   assert.equal(s['Welcome kit'], 'Card, badge');
   assert.equal(s.Floor, '3rd Floor');
@@ -216,7 +230,7 @@ test('first run: a CATC tab and a Membership tab, every detail and the full addr
   /* the date column: dd/mm/yyyy, and only a real date may be typed */
   const reqs = g.shapes.flat();
   assert.ok(reqs.some((q) => q.repeatCell && q.repeatCell.cell.userEnteredFormat.numberFormat && q.repeatCell.cell.userEnteredFormat.numberFormat.pattern === 'dd/mm/yyyy'));
-  assert.ok(reqs.some((q) => q.setDataValidation && q.setDataValidation.rule.condition.type === 'DATE_IS_VALID' && q.setDataValidation.rule.strict === true));
+  assert.ok(reqs.some((q) => q.setDataValidation && q.setDataValidation.rule && q.setDataValidation.rule.condition.type === 'DATE_IS_VALID' && q.setDataValidation.rule.strict === true));
   assert.ok(reqs.some((q) => q.repeatCell && q.repeatCell.cell.userEnteredFormat.numberFormat && q.repeatCell.cell.userEnteredFormat.numberFormat.type === 'TEXT'), 'a tracking number keeps its zeros');
 });
 
@@ -238,7 +252,7 @@ test('the v1.534 "Members" tab is renamed Membership in place, its rows and lock
   assert.equal(ran.ok, true, ran.message);
   assert.deepEqual(g.sheets.map((x) => x.properties.title), ['CATC', 'Membership']);
   assert.equal(g.tab('Membership').properties.sheetId, id);
-  assert.equal(g.tab('Membership').protectedRanges.length, 1);
+  assert.equal(g.tab('Membership').protectedRanges.filter((x) => x.description === SHEET.PROTECTION).length, 1);
 });
 
 test('a setting Google will not take (a locale, a date rule) never stops the rows being written or the tab being locked', async () => {
@@ -251,6 +265,28 @@ test('a setting Google will not take (a locale, a date rule) never stops the row
   assert.equal(g.tab('CATC').values.length, 3);
   assert.equal(g.tab('Membership').values.length, 2);
   for (const t of ['CATC', 'Membership']) assert.equal(g.tab(t).protectedRanges.filter((x) => x.description === SHEET.PROTECTION).length, 1, `${t} still locked`);
+});
+
+test('the columns changed under a sheet already written: typed yellow cells kept and taken, old columns emptied', async () => {
+  const db = memoryFirestore(); seed(db);
+  const g = google();
+  await run(db, g);
+  /* as v1.535 wrote it: four more columns before the yellow ones */
+  const t = g.tab('Membership');
+  const head = t.values[0];
+  const at = head.indexOf('Courier');
+  const old = (row, extra) => row.slice(0, at).concat(extra, row.slice(at));
+  t.values = t.values.map((r, i) => old(r, i === 0 ? ['Status', 'Card number', 'Card stage', 'Card status'] : ['Member', '', 'Waiting', '']));
+  t.values[0][1] = 'Joined on';
+  const typedRow = t.values.findIndex((r) => r[0] === 'PFA-MEM-2026-00031');
+  const c = t.values[0].indexOf('Courier');
+  t.values[typedRow][c] = 'DTDC'; t.values[typedRow][c + 1] = 'D1234567'; t.values[typedRow][c + 2] = '04/11/2026';
+  const ran = await run(db, g);
+  assert.equal(ran.ok, true, ran.message);
+  assert.deepEqual(ran.applied.map((x) => [x.id, x.status]), [['PFA-MEM-2026-00031', 'shipped']], JSON.stringify(ran.refused));
+  assert.deepEqual(g.tab('Membership').values[0], SHEET.LAYOUT.membership.cols.map((x) => x[0]));
+  assert.ok(g.tab('Membership').values.every((r) => r.length <= SHEET.LAYOUT.membership.cols.length || r.slice(SHEET.LAYOUT.membership.cols.length).every((v) => v === '' || v == null)), 'nothing left in the old columns');
+  assert.equal(g.cell('Membership', 'PFA-MEM-2026-00031', 'Tracking number'), 'D1234567');
 });
 
 test('a sheet that already holds something of the office\'s keeps it', async () => {
@@ -286,7 +322,6 @@ test('courier, tracking number and date typed in the sheet: the card is shipped 
   assert.ok(logged.some((x) => x.action === 'shipment-updated' && x.subject === 'PFA-CG-2026-00011' && x.who === 'Google Sheet'));
   /* the sheet shows it as kept: tidied, and the card status beside it */
   assert.equal(g.cell('CATC', 'PFA-CG-2026-00011', 'Tracking number'), 'D12345678');
-  assert.equal(g.cell('CATC', 'PFA-CG-2026-00011', 'Card status'), 'Shipped');
   assert.equal(g.cell('CATC', 'PFA-CG-2026-00011', 'Shipped on'), SHEET._test.serialOf('2026-11-04'));
   /* and the panel's register says the same */
   const rows = await ROUTE.register.caregiverRows(db);

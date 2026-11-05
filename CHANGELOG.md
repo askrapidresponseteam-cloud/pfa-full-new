@@ -1,3 +1,10 @@
+## v1.536
+
+- **The Google Sheet: four columns gone, Applied on, and a warning even for the owner.** Owner, 5 Nov 2026: "THESE COLUMNS Status Card number Card stage Card status ARE NOT NEEDED IN THE G SHEET", "A-P COLUMNS SHOULD BE STRICTLY NON EDITABLE!", "Joined on SHOULD BE APPLIED ON".
+  - Membership drops Status, Card number, Card stage and Card status; CATC drops the same (Application status, Card number, Card status). Membership's first date column is now Applied on.
+  - On Membership the person's details are A to P and the three yellow columns are Q, R and S. Everything but the yellow columns stays locked to everyone the sheet is shared with. Google always lets a sheet's owner past a lock, so a second, warning-only protection now asks even the owner to confirm before changing a written column, and any change is put back within ten minutes.
+  - The tabs are rewritten in the new layout at the next run: whatever was typed in the yellow columns is kept and taken, the old columns are emptied, and the old colours, notes and date rules are cleared before the new ones are set.
+
 ## v1.535
 
 - **Interns sign in with their email, mobile and date of birth, once PFA approves them.** Owner, 5 Nov 2026: "one has to register with entering email id, mobile number and date of birth. login creds would be the same. once approved by admin. and then can login with entering the 3 correctly. no otp. just the right combi should allow the person inside. 1st time the approval goes to the admin and only on clicking approve, the start internship email will go from admin to the applicant and then the person can login ... also update the guide accordingly. test and ensure nothing breaks".
