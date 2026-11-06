@@ -1,3 +1,10 @@
+## v1.537
+
+- **CineKind's ten honours: a photograph for everyone, every tile filled the same way.** Owner, 6 Nov 2026: "ensure you find images for all the people named here and they have to render the same way. not like some with edges and some not".
+  - Kushagra Dixit's tile was set in type: its LinkedIn photograph's address had expired. It now shows his portrait from his Times of India author page, a lasting address (named in the content policy; LinkedIn's is gone from it).
+  - The bands came from showing every photograph whole inside a 3:4 tile, so square and wide photographs sat on dark bars while 3:4 ones filled it, and two sources print a border: Dolly Vyas Ahuja's is a poster with a white frame and her name under the portrait, Rupali Ganguly's sits on a white canvas.
+  - Each photograph now carries its own 3:4 cut, measured on the source in the browser: the white frames and bands are left out, faces and heads are never cut, and the cut is the tile's shape, so every tile is filled edge to edge, nothing stretched. Checked on the real photographs at desktop and phone widths; test/cinekind-honours-cut.test.js holds every cut to 3:4 and inside its photograph.
+
 ## v1.536
 
 - **The Google Sheet: four columns gone, Applied on, and a warning even for the owner.** Owner, 5 Nov 2026: "THESE COLUMNS Status Card number Card stage Card status ARE NOT NEEDED IN THE G SHEET", "A-P COLUMNS SHOULD BE STRICTLY NON EDITABLE!", "Joined on SHOULD BE APPLIED ON".

@@ -103,3 +103,21 @@ and carry `aria-hidden`, so nothing depends on what is in them.
 
 If PFA does not have them, delete that strip from `cinekind.html` rather than
 leaving three empty frames.
+
+## The ten honours, 6 Nov 2026
+
+Owner: "ensure you find images for all the people named here and they have
+to render the same way. not like some with edges and some not".
+
+Every tile has a photograph now. Kushagra Dixit's is the portrait on his
+Times of India author page
+(`https://timesofindia.indiatimes.com/authorphoto/479256218.cms?len=207224`);
+the LinkedIn address had expired. Each `<img>` carries `class="cut"`, the
+photograph's own size in `data-size`, and a 3:4 cut measured on it
+(`--cx`, `--cy`, `--cw`, `--ch`, fractions of the photograph). The cuts leave
+out only background and the borders two sources print around the portrait
+(Dolly Vyas Ahuja's poster frame and name, the white bands either side of
+Rupali Ganguly's), never a head. `test/cinekind-honours-cut.test.js` holds
+every cut to 3:4 and inside its photograph. Swapping a photograph means
+measuring its new cut; a local file under the names above still works the
+same way.
