@@ -1,3 +1,9 @@
+## v1.538
+
+- **CineKind's section headings sit on one line wherever they fit.** Owner, 6 Nov 2026, of "On the national record." set over two rows with the second indented: "why 2 rows?".
+  - Two causes. The headings' letter animation split each one at every space, the non-breaking space too, so "national record." could part and the next row opened on a stray space (the indent). It now splits at ordinary spaces only. And section headings were capped at 16 characters wide, so any longer one wrapped; they now take the width they need and wrap only on a narrow screen, still balanced.
+  - Measured at 1440, 1024 and 390 wide: "On the national record." is one row on a laptop and "On the / national record." on a phone, with no indent. The only heading still on two rows on a laptop is "Filming a real animal needs permission first.", which is longer than the column.
+
 ## v1.537
 
 - **CineKind's ten honours: a photograph for everyone, every tile filled the same way.** Owner, 6 Nov 2026: "ensure you find images for all the people named here and they have to render the same way. not like some with edges and some not".

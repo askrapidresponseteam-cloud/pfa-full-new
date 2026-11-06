@@ -1027,6 +1027,12 @@ html body .mnav:not([hidden]){display:block!important}
 .mosaic .shot:hover img,.gate25__run .shot:hover img,.rollwall .rt.has-photo:hover img,.honours .roll li:hover img,.night__play:hover img,.night__play:focus-visible img{transform:none!important}
 .ck-motion .shot img{scale:1!important;translate:none!important}
 </style>
+<style id="ck-heads-wide">
+/* A section heading takes the width it needs and wraps only when the
+   screen is too narrow, balanced and never on a lone word (owner, 6 Nov
+   2026, of "On the national record." set over two rows: "why 2 rows?"). */
+.band__head h2,.band--grand .band__head h2{max-width:none}
+</style>
 <style id="ck-cut">
 /* The ten honours, every tile filled the same way (owner, 6 Nov 2026:
    "ensure you find images for all the people named here and they have to
@@ -3342,7 +3348,10 @@ if(image.complete&&image.naturalWidth)init();else image.addEventListener('load',
 document.querySelectorAll('.band__head h2').forEach(function(el){
  if(el.children.length)return;
  var text=el.textContent;el.setAttribute('aria-label',text);el.textContent='';var index=0;
- text.split(/(\s+)/).forEach(function(word){if(/^\s+$/.test(word)){el.appendChild(document.createTextNode(word));return;}
+ /* split at ordinary spaces only: a non-breaking space keeps its two
+    words in one piece, so "national record." never parts and no line
+    opens on a stray space (owner, 6 Nov 2026: "why 2 rows?") */
+ text.split(/([ \t\n\r\f]+)/).forEach(function(word){if(!word)return;if(/^[ \t\n\r\f]+$/.test(word)){el.appendChild(document.createTextNode(word));return;}
  var wrap=document.createElement('span');wrap.className='ck-letters';wrap.setAttribute('aria-hidden','true');
  Array.from(word).forEach(function(ch){var span=document.createElement('span');span.className='ck-letter';span.style.setProperty('--ck-letter-index',Math.min(index++,22));span.textContent=ch;wrap.appendChild(span);});el.appendChild(wrap);
  });
