@@ -1,3 +1,10 @@
+## v1.540
+
+- **The home page has a Join now button, and it opens the membership form.** Owner, 7 Nov 2026: "we need an attractive join now button on the landing page/home screen. find the best place and design for it. and it should take to membership application".
+  - Where: in the hero, straight under Enter PFA and Find a unit, exactly as wide as the two together. So it is on the first screen at every size, from a 360px phone to a 4K screen, and stays in the column that keeps clear of her photograph.
+  - How it looks: a black ticket with the paw on a white disc, "Join now" over "Become a member, from ₹500", and a chevron. On hover it turns to outline like the other doors, the paw tilts and the chevron steps forward. A soft light passes across it twice once the hero wakes, then never again, and not at all for anyone who has asked for reduced motion.
+  - Where it goes: get-involved.html#membership, which opens the membership form at its first step, the five tiers.
+
 ## v1.539
 
 - **An internship application can be approved in one click, from Submissions or Internship.** Owner, 7 Nov 2026, of PFA-VI-2026-00005 sitting in Submissions but nowhere under Internship: "this has to be approved ... once approved the person should be able to login with the combi of 3".
