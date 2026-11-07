@@ -432,17 +432,30 @@ deploy_firebase() {
     && npx --yes firebase-tools deploy --only functions,hosting --project "$PROJECT" 2>&1 | tee "$FB_LOG"
   return "${PIPESTATUS[0]}"
 }
-if deploy_firebase; then
-  :
-else
-  echo "  the Firebase deploy did not finish; trying once more in 15 seconds"
-  sleep 15
-  if ! deploy_firebase; then
+# Google counts project look-ups per minute (HTTP 429, "Quota exceeded ...
+# per minute", 6 Nov 2026): a retry 15 seconds later lands in the same
+# minute and is refused again. So on that answer it waits 90 seconds, for the
+# count to reset, and tries up to three times in all.
+fb_pause() {
+  if grep -qE 'HTTP Error: 429|Quota exceeded|RESOURCE_EXHAUSTED' "$FB_LOG" 2>/dev/null; then
+    echo "  Google's per-minute limit was reached; waiting 90 seconds for it to reset"
+    sleep 90
+  else
+    echo "  trying again in 15 seconds"
+    sleep 15
+  fi
+}
+FB_TRY=1
+until deploy_firebase; do
+  if [ "$FB_TRY" -ge 3 ]; then
     rm -f "$FB_LOG"
-    fail "Deploying the admin panel to Firebase failed twice. The website itself is pushed; only the panel at pfa-new-website.web.app is behind.
+    fail "Deploying the admin panel to Firebase failed three times. The website itself is pushed; only the panel at pfa-new-website.web.app is behind.
   Run this in a few minutes:  cd $LIVE && node scripts/build-firebase.js && node scripts/firebase-secrets.js && npm --prefix functions install --no-audit --no-fund && npx firebase-tools deploy --only functions,hosting --project $PROJECT"
   fi
-fi
+  echo "  the Firebase deploy did not finish (try $FB_TRY of 3)"
+  fb_pause
+  FB_TRY=$((FB_TRY + 1))
+done
 rm -f "$FB_LOG"
 
 step "Locking the file store (Storage rules)"

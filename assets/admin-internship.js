@@ -36,7 +36,7 @@
 
   /* its own styles, here so admin.html stays under its weight ceiling */
   var style = document.createElement('style');
-  style.textContent = '@media (max-width:640px){#ipIssueFold thead{display:none}#ipIssueFold tr[data-app]{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:10px 0}#ipIssueFold tr[data-app] td{padding:0;border:0}#ipIssueFold tr[data-app] td:last-child{grid-column:1/-1}#ipIssueFold tr[data-app] [data-ip="issue-app"]{width:100%}#ipIssueFold [data-ip-dob]{width:100%}}'
+  style.textContent = '#ipIssueFold td .linky{display:inline;width:auto;margin:0;padding:0;text-align:left}#ipIssueFold [data-ip="issue-app"]{width:auto;min-width:120px}.vi-ok{display:grid;gap:8px;margin:14px 0;padding:12px 14px;border:1px solid var(--ink)}.vi-ok[hidden]{display:none}.vi-ok .note,.vi-ok .say{margin:0}.vi-ok .say:empty{display:none}.vi-ok .press,.vi-ok .ghost{width:auto;justify-self:start;margin:0}.vi-again{margin:0}.vi-again .lab{margin:10px 0 4px}#ipIssueFold td .note+.ghost{width:auto;margin:0 0 0 10px;vertical-align:middle}@media (max-width:640px){.vi-ok .press,.vi-ok .ghost{width:100%}#ipIssueFold td .note+.ghost{display:block;width:100%;margin:8px 0 0}#ipIssueFold thead{display:none}#ipIssueFold tr[data-app]{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:10px 0}#ipIssueFold tr[data-app] td{padding:0;border:0}#ipIssueFold tr[data-app] td:last-child{grid-column:1/-1}#ipIssueFold tr[data-app] [data-ip="issue-app"]{width:100%}#ipIssueFold [data-ip-dob]{width:100%}}'
     + '[data-ip-dob]{height:36px;margin:0 8px 8px 0;padding:0 8px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper);color:var(--ink);max-width:100%}.ix-det{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:12px 0;padding:12px;border:1px solid var(--line)}.ix-det .note{grid-column:1/-1;margin:0}.ix-det label{display:grid;gap:4px;font-size:12px;color:var(--muted)}.ix-det input{height:36px;padding:0 10px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper);color:var(--ink);min-width:0}.ix-det__acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}.ix-det__acts .press,.ix-det__acts .ghost{width:auto}' +
     '.rg-tools select{height:38px;padding:0 10px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;color:var(--ink);max-width:100%}.rg-tools select:focus-visible{outline:none;border-color:var(--ink)}.ix-line{margin:0 0 10px;font-size:14px}.ix-row{cursor:pointer}.ix-row:hover td,.ix-row.is-open td{background:var(--soft,#f6f6f4)}.ix-detail>td{padding:0 0 18px}' +
     '.ix-d{display:grid;gap:18px;padding:16px;border:1px solid var(--line);border-top:0}.ix-d h4{margin:0 0 8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}' +
@@ -415,6 +415,59 @@
   document.addEventListener('keydown', function (e) {
     var row = e.target.closest && e.target.closest('tr[data-sx-id]');
     if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openShelter(row.getAttribute('data-sx-id')); }
+  });
+
+  /* The internship application in Submissions (owner, 7 Nov 2026: "this
+     has to be approved ... once approved the person should be able to login
+     with the combi of 3"; "if person had not provided whatever needs to go
+     in for login, ask for those to be submitted through the form. and the
+     application has to be merged"). admin.html leaves a box in the case;
+     this fills it from the application as it stands (every sending of the
+     form by that email, lib/intern-applications.js): Approve when it has all
+     three sign-in details, Ask for it when one is missing, and each later
+     sending under a +. Approve puts them in the open batch, or a new one,
+     emails them that the internship has started and marks it Accepted. */
+  var LABEL = { name: 'Name', email: 'Email', mobile: 'Mobile', dob: 'Date of birth', age: 'Age', city: 'City', why: 'Why', work: 'College or work' };
+  function vi(boxEl) {
+    var ref = boxEl.getAttribute('data-vi-case');
+    boxEl.setAttribute('data-vi-done', '1');
+    api(URL_ + '?application=' + encodeURIComponent(ref)).then(function (d) {
+      var a = d.application;
+      var out = '';
+      if (a.intern) out += '<p class="note">Approved as <b>' + esc(a.intern.internId) + '</b>' + (a.intern.applicationRef && a.intern.applicationRef !== a.reference ? ', from ' + esc(a.intern.applicationRef) + ' (the same email)' : '') + '. They sign in with their email, mobile and date of birth.</p>';
+      else if (a.missing.length) {
+        out += '<p class="note"><b>No ' + esc(a.missing.join(', ')) + '.</b> They sign in with it, so ask for it: they fill in the internship form again with the same email and it is added here.' + (a.askedAt ? ' Asked on ' + esc(day(a.askedAt)) + '.' : '') + '</p>'
+          + '<button class="ghost" type="button" data-vi-ask="' + esc(a.reference) + '">' + (a.askedAt ? 'Ask again' : 'Ask for it by email') + '</button>';
+      } else out += '<p class="note">Approve, and they can sign in with the email, mobile and date of birth below.</p><button class="press" type="button" data-vi-approve="' + esc(a.reference) + '">Approve</button>';
+      if (a.resent.length) {
+        out += '<details class="fold vi-again"><summary>Sent ' + a.sentTimes + ' times; the newest details count</summary>' + a.resent.map(function (x) {
+          var f = x.fields || {};
+          return '<p class="lab">Sent again ' + esc(when(x.at)) + '</p><dl class="ix-dl">' + Object.keys(f).filter(function (k) { return f[k] !== '' && f[k] != null; }).map(function (k) { return '<dt>' + esc(LABEL[k] || k) + '</dt><dd>' + esc(f[k]) + '</dd>'; }).join('') + '</dl>';
+        }).join('') + '</details>';
+      }
+      out += '<p class="say" data-vi-say role="status"></p>';
+      boxEl.innerHTML = out;
+      boxEl.hidden = !(a.intern ? a.resent.length || a.status !== 'approved' : true);
+    }).catch(function () { boxEl.hidden = true; });
+  }
+  function fillCases() { [].forEach.call(document.querySelectorAll('[data-vi-case]:not([data-vi-done])'), vi); }
+  if (window.MutationObserver) new MutationObserver(fillCases).observe(document.body, { childList: true, subtree: true });
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-vi-approve],[data-vi-ask]');
+    if (!b) return;
+    var approve = b.hasAttribute('data-vi-approve');
+    var ref = b.getAttribute(approve ? 'data-vi-approve' : 'data-vi-ask');
+    var node = b.parentNode.querySelector('[data-vi-say]');
+    b.disabled = true;
+    say(node, approve ? 'Approving…' : 'Sending…', '');
+    api(URL_, { method: 'POST', body: approve ? { action: 'issue', applicationRef: ref } : { action: 'ask-details', applicationRef: ref } }).then(function (r) {
+      var mailed = r.mailed === 'sent' ? 'The email went to them.' : r.mailed === 'queued' ? 'The email is queued and goes out shortly.' : 'The email could not be sent just now.';
+      var text = approve ? 'Approved as ' + r.internId + '. ' + mailed + ' They sign in with their email, mobile and date of birth.' : 'Asked for their ' + r.missing.join(', ') + '. ' + mailed + ' What they send is added to this application.';
+      var done = function () { say($('#caseSay'), text, 'good'); };
+      Promise.resolve(A.showCase && A.showCase(ref)).then(done, done);
+      if (A.refresh) A.refresh();
+    }).catch(function (err) { b.disabled = false; say(node, err.message, 'bad'); });
   });
 
   window.PFAInternship = {

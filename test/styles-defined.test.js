@@ -46,6 +46,13 @@ function classesDefined(html) {
     const file = path.join(ROOT, m[1]);
     if (fs.existsSync(file)) css += '\n' + fs.readFileSync(file, 'utf8');
   }
+  /* and the styles a local script adds for the markup it draws: the panel
+     keeps new styles in its assets/*.js files, under its weight ceiling */
+  for (const m of html.matchAll(/<script[^>]+src="(assets\/[^":?]+\.js)(?:\?[^"]*)?"/g)) {
+    const file = path.join(ROOT, m[1]);
+    if (!fs.existsSync(file)) continue;
+    for (const s of fs.readFileSync(file, 'utf8').matchAll(/style\.textContent\s*=\s*([\s\S]*?);\n/g)) css += '\n' + s[1];
+  }
   const defined = new Set();
   for (const m of css.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)) defined.add(m[1]);
   return defined;

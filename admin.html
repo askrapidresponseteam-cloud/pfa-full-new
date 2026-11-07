@@ -1200,7 +1200,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* what assets/admin-registers.js uses of this script (2 Nov 2026: moved
      out to keep this page under the page-weight ceiling) */
-  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t) { show(t); }, certificates: function () { return ct.rows; } };
+  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t) { show(t); }, showCase: function (r) { return showCase(r); }, refresh: function () { fill(current, true); }, certificates: function () { return ct.rows; } };
 
   var KEY = window.PFA_FIREBASE_API_KEY || '';
   var IDENTITY = 'https://identitytoolkit.googleapis.com/v1/accounts:';
@@ -1611,6 +1611,7 @@ window.addEventListener('unhandledrejection', function (event) {
       appsCount();
       membersCount();
       shopCount();
+      if (can('internship')) api('/api/admin/internship?applications=1').then(function (d) { ipPip(d.applications.length); }).catch(function () {});
       say($('#paneNote'), 'Read ' + when(m.generatedAt));
     }).catch(function (e) { fail(node, e); });
   }
@@ -3250,6 +3251,7 @@ window.addEventListener('unhandledrejection', function (event) {
     }
     if (c.attachments) out.push('<p class="lab">' + (c.kind === 'PFA-CG' ? 'Photograph and address proof' : 'Photographs') + '</p><div class="shots" id="caseShots"></div>');
 
+    if (c.kind === 'PFA-VI' && can('internship')) out.push('<div class="vi-ok" data-vi-case="' + esc(c.reference) + '" hidden></div>');
     out.push('<p class="lab">What was sent</p><dl class="kv">');
     Object.keys(c.fields || {}).forEach(function (name) {
       var value = c.fields[name];
@@ -4933,9 +4935,9 @@ window.addEventListener('unhandledrejection', function (event) {
     window.PFACertificate.draw(canvas, ctData(), 1);
   }
   /* ---- the internship portal (1 Nov 2026) --------------------------------
-     lib/routes/admin/internship.js. One screen, folded under +: what is
-     waiting for review first, then the batch and its interns, then issuing
-     Intern IDs, then the batch's plan and the reminder log. */
+     lib/routes/admin/internship.js. One screen, folded under +: applications
+     to approve first, then proof waiting for review, then the batch and its
+     interns, then the batch's plan and the reminder log. */
   var ip = { batch: '', home: null, view: null, apps: null, issued: null, reviewing: '', who: '' };
   var IP_STATE = { todo: 'To do', submitted: 'Waiting', revise: 'Revise', accepted: 'Accepted' };
   function internshipPane(said) {
@@ -4946,11 +4948,13 @@ window.addEventListener('unhandledrejection', function (event) {
       if (!ip.batch && d.batches.length) ip.batch = d.batches[0].batchId;
       return Promise.all([
         api('/api/admin/internship?queue=review'),
-        ip.batch ? api('/api/admin/internship?batch=' + encodeURIComponent(ip.batch)) : Promise.resolve(null)
+        ip.batch ? api('/api/admin/internship?batch=' + encodeURIComponent(ip.batch)) : Promise.resolve(null),
+        api('/api/admin/internship?applications=1')
       ]);
     }).then(function (r) {
       ip.queue = r[0].queue || [];
-      ipPip(ip.queue.length + (Number(ip.home && ip.home.sheltersNew) || 0));
+      ip.apps = r[2].applications || [];
+      ipPip(ip.queue.length + ip.apps.length + (Number(ip.home && ip.home.sheltersNew) || 0));
       ip.view = r[1];
       ipRender(said);
     }).catch(function (e) { fail(node, e); });
@@ -4962,10 +4966,14 @@ window.addEventListener('unhandledrejection', function (event) {
     var u = h.usage || {};
     var rrt = h.rrt || {};
     var out = ['<div class="ip">'];
-    out.push('<p class="ip-line">' + (ip.queue.length ? '<b>' + ip.queue.length + ' proof' + (ip.queue.length === 1 ? '' : 's') + ' waiting for review.</b> ' : 'Nothing waiting for review. ')
+    var na = ip.apps.length;
+    out.push('<p class="ip-line">' + (na ? '<b>' + na + ' application' + (na === 1 ? '' : 's') + ' to approve.</b> ' : '') + (ip.queue.length ? '<b>' + ip.queue.length + ' proof' + (ip.queue.length === 1 ? '' : 's') + ' waiting for review.</b> ' : 'Nothing waiting for review. ')
       + 'Files kept: ' + u.files + ' (' + (Math.round((u.bytes || 0) / 1048576 * 10) / 10) + ' MB of ' + Math.round(((u.limits || {}).bytesInAll || 0) / 1073741824) + ' GB)' + (u.refused ? ', ' + u.refused + ' refused for room' : '') + '. '
       + 'RRT counts: ' + (!rrt.configured ? 'not linked (PFA_RRT_REFERRAL_SECRET)' : rrt.state === 'failed' ? 'last read failed: ' + esc(rrt.error) : rrt.fetchedAt ? 'read ' + esc(when(rrt.fetchedAt)) : 'not read yet')
       + ' <button class="linky" type="button" data-ip="rrt">Read now</button></p><p class="say" data-ip-say role="status" aria-live="polite"></p>');
+
+    /* 0. applications, first: Approve, and they sign in with their three details */
+    out.push('<details class="fold" id="ipIssueFold"' + (na || ip.issued ? ' open' : '') + '><summary>Approve applications (' + na + ')</summary>' + ipIssue() + '</details>');
 
     /* 1. waiting for review */
     out.push('<details class="fold" ' + (ip.queue.length ? 'open' : '') + '><summary>Waiting for review (' + ip.queue.length + ')</summary>');
@@ -4975,7 +4983,7 @@ window.addEventListener('unhandledrejection', function (event) {
     /* 2. the batch */
     var bs = h.batches || [];
     out.push('<details class="fold" open><summary>Batches and interns</summary>');
-    if (!bs.length) out.push('<p class="note">No batch yet. Make one below, then issue Intern IDs into it.</p>');
+    if (!bs.length) out.push('<p class="note">No batch yet. The first approval makes one, starting the coming Monday.</p>');
     else {
       out.push('<div class="ip-bar"><label for="ipBatch">Batch</label><select id="ipBatch">' + bs.map(function (b) {
         return '<option value="' + esc(b.batchId) + '"' + (b.batchId === ip.batch ? ' selected' : '') + '>' + esc(b.name) + ' · from ' + esc(b.startDate) + ' · ' + b.interns + ' interns' + (b.status === 'closed' ? ' · closed' : '') + '</option>';
@@ -4983,9 +4991,6 @@ window.addEventListener('unhandledrejection', function (event) {
       if (ip.view) out.push(ipBatchView(ip.view));
     }
     out.push('</details>');
-
-    /* 3. issue */
-    out.push('<details class="fold" id="ipIssueFold"' + (ip.issued ? ' open' : '') + '><summary>Approve applications</summary>' + ipIssue() + '</details>');
 
     /* 4. a batch, new or edited */
     out.push('<details class="fold"><summary>' + (bs.length ? 'A new batch, or edit this one' : 'A new batch') + '</summary>' + ipBatchForm() + '</details>');
@@ -5033,15 +5038,12 @@ window.addEventListener('unhandledrejection', function (event) {
     return out;
   }
   function ipIssue() {
-    var bs = (ip.home || {}).batches || [];
-    if (!bs.length) return '<p class="note">Make a batch first.</p>';
     var out = '';
     if (ip.issued) out += '<div class="ct-issued"><p><b>' + esc(ip.issued.internId) + '</b> approved. The start email was ' + esc(ip.issued.mailed === 'sent' ? 'sent' : ip.issued.mailed === 'queued' ? 'queued' : 'not sent') + '.</p></div>';
-    out += '<p class="note">Into the batch chosen above. Approve emails them that the internship has started; they sign in with the email, mobile and date of birth they applied with.</p>';
-    if (ip.apps === null) out += '<button class="ghost" type="button" data-ip="apps">Show internship applications</button>';
-    else if (!ip.apps.length) out += '<p class="note">Every internship application has an Intern ID.</p>';
+    out += '<p class="note">Approve emails them that the internship has started; they sign in with the email, mobile and date of birth they applied with. Missing one? Ask for it: they send the form again and it joins the same application.</p>';
+    if (!ip.apps.length) out += '<p class="note">No application is waiting.</p>';
     else out += '<div class="wrap"><table><thead><tr><th>Application</th><th>Applicant</th><th aria-label="Actions"></th></tr></thead><tbody>' + ip.apps.map(function (a) {
-      return '<tr data-app="' + esc(a.reference) + '"><td><button class="linky" type="button" data-open-case="' + esc(a.reference) + '">' + esc(a.reference) + '</button><br><span class="note">' + esc(dayOf(a.createdAt)) + '</span></td><td>' + esc(a.name) + '<br><span class="note">' + esc(a.email) + (a.city ? ' · ' + esc(a.city) : '') + '</span></td><td>' + (a.dob ? '' : '<input type="date" data-ip-dob aria-label="Date of birth (not on the application)"> ') + '<button class="press" type="button" data-ip="issue-app">Approve</button></td></tr>';
+      return '<tr data-app="' + esc(a.reference) + '"><td><button class="linky" type="button" data-open-case="' + esc(a.reference) + '">' + esc(a.reference) + '</button><br><span class="note">' + esc(dayOf(a.createdAt)) + '</span></td><td>' + esc(a.name) + '<br><span class="note">' + esc(a.email) + (a.city ? ' · ' + esc(a.city) : '') + '</span></td><td>' + (a.missing.length ? '<span class="note">No ' + esc(a.missing.join(', ')) + (a.askedAt ? '. Asked ' + esc(dayOf(a.askedAt)) : '') + '</span> <button class="ghost" type="button" data-ip="ask-app">Ask for it</button>' : '<button class="press" type="button" data-ip="issue-app">Approve</button>') + '</td></tr>';
     }).join('') + '</tbody></table></div>';
     out += '<details class="fold"><summary>Someone without an application</summary><div class="so-fields"><div><label for="ipName">Name</label><input id="ipName" maxlength="120"></div><div><label for="ipEmail">Email</label><input id="ipEmail" type="email" maxlength="160"></div><div><label for="ipMobile">Mobile</label><input id="ipMobile" inputmode="tel" maxlength="16"></div><div><label for="ipDob">Date of birth</label><input id="ipDob" type="date"></div></div><div class="so-save"><button class="press" type="button" data-ip="issue">Approve</button></div></details>';
     return out;
@@ -5100,17 +5102,17 @@ window.addEventListener('unhandledrejection', function (event) {
       }).catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
       return;
     }
-    if (what === 'apps') {
-      api('/api/admin/internship?applications=1').then(function (d) { ip.apps = d.applications || []; ipRender(); var f = $('#ipIssueFold'); if (f) f.open = true; }).catch(function (err) { say(sayNode, err.message, 'bad'); });
+    if (what === 'ask-app') {
+      b.disabled = true;
+      api('/api/admin/internship', { method: 'POST', body: { action: 'ask-details', applicationRef: b.closest('tr').getAttribute('data-app') } }).then(function (r) { internshipPane({ text: 'Asked ' + r.reference + ' for their ' + r.missing.join(', ') + ' by email.', tone: 'good' }); })
+        .catch(function (err) { b.disabled = false; say(sayNode, err.message, 'bad'); });
       return;
     }
     if (what === 'issue' || what === 'issue-app') {
       var payload = { action: 'issue', batchId: ip.batch };
       if (what === 'issue-app') {
         var ref = b.closest('tr').getAttribute('data-app');
-        var a = ip.apps.filter(function (x) { return x.reference === ref; })[0] || {};
-        payload.name = a.name; payload.email = a.email; payload.mobile = a.mobile; payload.applicationRef = a.reference;
-        payload.dob = a.dob || (b.closest('tr').querySelector('[data-ip-dob]') || {}).value;
+        payload.applicationRef = ref;
       } else { payload.name = $('#ipName').value; payload.email = $('#ipEmail').value; payload.mobile = $('#ipMobile').value; payload.dob = $('#ipDob').value; }
       b.disabled = true;
       api('/api/admin/internship', { method: 'POST', body: payload }).then(function (r) {

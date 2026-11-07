@@ -270,7 +270,7 @@ test('the panel: each register first in its tab, every item copies, a row pastes
      under the page-weight ceiling); the panel loads it after its own script */
   const page = read('admin.html');
   const admin = page + read('assets/admin-registers.js');
-  assert.match(page, /window\.PFAAdmin = \{ \$: \$, esc: esc, say: say, api: api, token: token, on: on, show: function \(t\) \{ show\(t\); \}, certificates: function \(\) \{ return ct\.rows; \} \};/);
+  assert.match(page, /window\.PFAAdmin = \{ \$: \$, esc: esc, say: say, api: api, token: token, on: on, show: function \(t\) \{ show\(t\); \}, showCase: function \(r\) \{ return showCase\(r\); \}, refresh: function \(\) \{ fill\(current, true\); \}, certificates: function \(\) \{ return ct\.rows; \} \};/);
   assert.match(page, /<\/script>\n<script src="assets\/admin-registers\.js"><\/script>/);
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-registers\.js'/, 'the Firebase panel carries it');
   assert.match(admin, /caregivers:\s+\{ title: 'Caregivers',\s+module: 'caregivers',\s+needs: 'caregivers', panes: \['cgsheet', 'apply', 'caregivers', 'verify', 'cards'\] \}/);

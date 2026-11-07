@@ -1,3 +1,18 @@
+## v1.539
+
+- **An internship application can be approved in one click, from Submissions or Internship.** Owner, 7 Nov 2026, of PFA-VI-2026-00005 sitting in Submissions but nowhere under Internship: "this has to be approved ... once approved the person should be able to login with the combi of 3".
+  - Why it was missing: the Internship section listed applications only after a click on a folded line, and only once a batch existed, so with no batch it showed "Make a batch first" and nothing else.
+  - The Internship section now opens on "Approve applications (n)", listed at once, and the Internship tab shows the count from sign-in. The case itself, in Submissions, carries Approve.
+  - No batch is needed first: an approval joins the newest open batch, or the first one makes a batch named for its month, starting the coming Monday, with the standard eight-week plan.
+  - Approve takes the name, email, mobile and date of birth from the application, makes the intern active, emails them that the internship has started and marks the application Accepted. From then the email, mobile and date of birth together let them in.
+- **A missing sign-in detail is asked for, not typed in by PFA.** Owner, 7 Nov 2026: "if person had not provided whatever needs to go in for login, ask for those to be submitted through the form".
+  - An application without an email, a 10-digit mobile or a date of birth shows "No date of birth" and "Ask for it" instead of Approve. That emails them to fill in the internship form again with the same email, and notes it in the application's history. The date-of-birth box PFA used to fill in is gone.
+- **One internship application per person: the same email is the same person.** Owner, 7 Nov 2026: "the application has to be merged. cant have 2 applications for same person".
+  - The internship form sent with an email already on an application no longer takes a new number. It is added to that application, which keeps what they first wrote and lists each later sending under "Sent n times" in the case; the newest details count. They are answered with the application's own number, a double press adds it once, and if the lookup ever fails the form is filed as new rather than lost.
+  - Two applications from before this for one email show as one line, with the details from both, and Approve accepts both.
+  - Volunteer and internship applications are different programmes and stay separate.
+- **The deploy waits out Google's per-minute limit.** On 6 Nov the panel deploy was refused with "HTTP Error: 429, Quota exceeded ... per minute", and the retry 15 seconds later fell in the same minute. On that answer it now waits 90 seconds and tries up to three times in all (test/ship-firebase-retry.test.js).
+
 ## v1.538
 
 - **CineKind's section headings sit on one line wherever they fit.** Owner, 6 Nov 2026, of "On the national record." set over two rows with the second indented: "why 2 rows?".

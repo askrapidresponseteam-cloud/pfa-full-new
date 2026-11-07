@@ -186,7 +186,7 @@ test('approving: the intern is made, active at once, emailed that the internship
   assert.equal(early.json.message, S.NO_MATCH_SAY);
   assert.match(early.json.message, /once PFA emails you that your internship has started/);
 
-  assert.equal((await admin('POST', { body: { action: 'issue', batchId: id, name: 'arjun nair', email: 'arjun@example.com', mobile: '9876543210', applicationRef: 'PFA-VI-2026-00001' } })).status, 400, 'no date of birth, no approval');
+  assert.equal((await admin('POST', { body: { action: 'issue', batchId: id, name: 'arjun nair', email: 'arjun@example.com', mobile: '9876543210' } })).status, 400, 'no date of birth, no approval');
   const issued = await admin('POST', { body: { action: 'issue', batchId: id, name: 'arjun nair', email: 'Arjun@Example.com', mobile: '+91 98765 43210', dob: DOB, applicationRef: 'PFA-VI-2026-00001' } });
   assert.equal(issued.status, 200, JSON.stringify(issued.json));
   assert.match(issued.json.internId, /^PFA-IN-[A-HJ-NP-Z2-9]{6}$/);
@@ -231,19 +231,144 @@ test('approving: the intern is made, active at once, emailed that the internship
   assert.equal(view.json.intern.dob, DOB);
 });
 
-test('an application from before the date of birth was asked: Approve takes it from PFA', async () => {
+/* the internship form, as the site sends it */
+const FORM = require('../lib/routes/pfa-submissions')._private.createHandler({ getDb: () => db, deliver: mail.deliver, isConfigured: mail.isConfigured, smtpConfigured: mail.smtpConfigured, now: () => NOW });
+function sendForm(data, requestId) {
+  return respond(FORM, { method: 'POST', url: '/api/pfa-submissions', query: {}, body: { kind: 'PFA-VI', page: 'internship.html', data: Object.assign({ why: 'I care for the dogs on my street.', guide: 'Read and understood', address: 'House 14, Car Street', pincode: '576101', city: 'Udupi', state: 'Karnataka', district: 'Udupi' }, data), clientRequestId: requestId || `r-${Math.random()}` }, headers: { 'content-type': 'application/json', 'x-forwarded-for': '203.0.113.60' } });
+}
+
+test('a detail sign-in needs is missing: PFA asks for it, the form sent again joins the same application, then Approve (7 Nov 2026)', async () => {
   const id = await batch();
   application('PFA-VI-2026-00002', 'Meera Das', 'meera@example.com', '9876500000', null);
   const apps = await admin('GET', { query: { applications: '1' } });
-  assert.equal(apps.json.applications[0].dob, '');
-  const ok = await admin('POST', { body: { action: 'issue', batchId: id, name: 'Meera Das', email: 'meera@example.com', mobile: '9876500000', dob: '2003-01-31', applicationRef: 'PFA-VI-2026-00002' } });
+  assert.deepEqual([apps.json.applications[0].dob, apps.json.applications[0].missing], ['', ['date of birth']]);
+  /* PFA never types it in: Approve says what is missing */
+  const no = await admin('POST', { body: { action: 'issue', batchId: id, applicationRef: 'PFA-VI-2026-00002' } });
+  assert.equal(no.status, 400);
+  assert.equal(no.json.code, 'MISSING_DETAILS');
+  assert.match(no.json.message, /no date of birth/);
+  /* Ask for it: one email, a line in the history */
+  const asked = await admin('POST', { body: { action: 'ask-details', applicationRef: 'PFA-VI-2026-00002' } });
+  assert.equal(asked.status, 200, JSON.stringify(asked.json));
+  assert.deepEqual([asked.json.missing, asked.json.mailed], [['date of birth'], 'sent']);
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].to, 'meera@example.com');
+  assert.equal(sent[0].subject, 'One more step for your PFA internship application');
+  assert.match(sent[0].text, /PFA needs your date of birth/);
+  assert.match(sent[0].text, /Fill in the internship form again with this same email address\. It is added to your application PFA-VI-2026-00002, not filed as a new one/);
+  assert.match(sent[0].text, /\/internship\.html/);
+  assert.doesNotMatch(sent[0].text, /\?|meera@example\.com\//, 'nothing about them in the link');
+  const rec = (await db.collection('submissions').doc('PFA-VI-2026-00002').get()).data();
+  assert.ok(rec.detailsAskedAt);
+  assert.match(rec.history[rec.history.length - 1].note, /Asked them for their date of birth/);
+  assert.ok(audits.some((x) => x.action === 'intern-details-asked' && x.subject === 'PFA-VI-2026-00002'));
+  assert.equal((await admin('GET', { query: { applications: '1' } })).json.applications[0].askedAt, rec.detailsAskedAt);
+
+  /* they send the form again, same email in other capitals: no new number */
+  const before = Object.keys(db.dump()).filter((k) => k.startsWith('submissions/')).length;
+  const again = await sendForm({ name: 'Meera Das', email: 'Meera@Example.com', mobile: '98765 00000', dob: '2003-01-31' }, 'meera-1');
+  assert.equal(again.status, 200, JSON.stringify(again.json));
+  assert.equal(again.json.reference, 'PFA-VI-2026-00002', 'answered with the application it joined');
+  const twice = await sendForm({ name: 'Meera Das', email: 'meera@example.com', mobile: '9876500000', dob: '2003-01-31' }, 'meera-1');
+  assert.equal(twice.json.reference, 'PFA-VI-2026-00002', 'a double press is one sending');
+  assert.equal(Object.keys(db.dump()).filter((k) => k.startsWith('submissions/')).length, before, 'no second application');
+  const merged = (await db.collection('submissions').doc('PFA-VI-2026-00002').get()).data();
+  assert.equal(merged.resent.length, 1);
+  assert.deepEqual(merged.fields, { name: 'Meera Das', email: 'meera@example.com', mobile: '9876500000', city: 'Udupi', age: '22' }, 'what they wrote first is never written over');
+  assert.match(merged.history[merged.history.length - 1].note, /added to this application, not filed as a new one\. It now has all three details they sign in with/);
+  assert.ok(sent.some((m) => m.to === 'meera@example.com' && /PFA-VI-2026-00002/.test(m.subject)), 'they are told it arrived, under the same number');
+  const one = (await admin('GET', { query: { application: 'PFA-VI-2026-00002' } })).json.application;
+  assert.deepEqual([one.dob, one.missing, one.sentTimes, one.resent.length, one.intern], ['2003-01-31', [], 2, 1, null]);
+
+  /* now Approve, and the three let them in */
+  const ok = await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00002' } });
   assert.equal(ok.status, 200, JSON.stringify(ok.json));
   assert.equal((await browser().go('session', 'POST', { email: 'meera@example.com', mobile: '9876500000', dob: '2003-01-31' })).status, 200);
+  assert.equal((await admin('GET', { query: { application: 'PFA-VI-2026-00002' } })).json.application.intern.internId, ok.json.internId);
+  /* a different email is a different person: a new application */
+  const other = await sendForm({ name: 'Meera D', email: 'meera.d@example.com', mobile: '9876500001', dob: '2003-01-31' });
+  assert.notEqual(other.json.reference, 'PFA-VI-2026-00002');
+
   const panel = read('admin.html');
-  assert.match(panel, /\(a\.dob \? '' : '<input type="date" data-ip-dob/);
-  assert.match(panel, /payload\.dob = a\.dob \|\| \(b\.closest\('tr'\)\.querySelector\('\[data-ip-dob\]'\)/);
-  assert.match(panel, /<summary>Approve applications<\/summary>/);
+  assert.match(panel, /a\.missing\.length \? '<span class="note">No ' \+ esc\(a\.missing\.join/);
+  assert.match(panel, /data-ip="ask-app">Ask for it<\/button>/);
+  assert.doesNotMatch(panel, /data-ip-dob|payload\.dob = a\.dob/, 'PFA never types an applicant\'s sign-in detail');
+  assert.match(panel, /<summary>Approve applications \(' \+ na \+ '\)<\/summary>/);
   assert.doesNotMatch(panel, /data-ip="key"|Email a new link/);
+});
+
+test('one person, one application: two from before one-per-email show once, and Approve accepts both', async () => {
+  await batch();
+  application('PFA-VI-2026-00003', 'Anushka Das', 'anushka@example.com', '9880847070', null);
+  db.collection('submissions').doc('PFA-VI-2026-00004').set({ reference: 'PFA-VI-2026-00004', kind: 'PFA-VI', status: 'new', createdAt: '2026-11-02T06:00:00.000Z', history: [], fields: { name: 'Anushka Das', email: 'ANUSHKA@example.com', mobile: '9880847070', dob: '2007-10-14' } });
+  const apps = (await admin('GET', { query: { applications: '1' } })).json.applications;
+  assert.equal(apps.length, 1, 'one line for one email');
+  assert.deepEqual([apps[0].reference, apps[0].dob, apps[0].missing, apps[0].also], ['PFA-VI-2026-00003', '2007-10-14', [], ['PFA-VI-2026-00004']]);
+  /* a new sending joins the earliest */
+  const again = await sendForm({ name: 'Anushka Das', email: 'anushka@example.com', mobile: '9880847070', dob: '2007-10-14' });
+  assert.equal(again.json.reference, 'PFA-VI-2026-00003');
+  /* the earliest misses its date of birth on its own, but the person has
+     given it, so either reference approves them */
+  const ok = await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00004' } });
+  assert.equal(ok.status, 200, JSON.stringify(ok.json));
+  for (const ref of ['PFA-VI-2026-00003', 'PFA-VI-2026-00004']) assert.equal((await db.collection('submissions').doc(ref).get()).data().status, 'approved', `${ref} Accepted`);
+  assert.equal((await admin('GET', { query: { applications: '1' } })).json.applications.length, 0);
+  assert.equal((await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00003' } })).status, 409, 'one intern per email');
+});
+
+test('one click from the application (7 Nov 2026): no batch needed, the details come from the application, and the three sign in', async () => {
+  /* Saturday 7 Nov, India time; nothing set up yet */
+  NOW = at('2026-11-07T04:36:00.000Z');
+  assert.equal((await S.listBatches(db)).length, 0);
+  application('PFA-VI-2026-00005', 'anushka das', 'anushka.das@example.com', '9880847070', '2007-10-14');
+  /* waiting in the Internship section before anyone looks */
+  assert.deepEqual((await admin('GET', { query: { applications: '1' } })).json.applications.map((a) => a.reference), ['PFA-VI-2026-00005']);
+  const before = await browser('198.51.100.40').go('session', 'POST', { email: 'anushka.das@example.com', mobile: '9880847070', dob: '2007-10-14' });
+  assert.equal(before.status, 401, 'nobody in before Approve');
+
+  const r = await admin('POST', { body: { action: 'issue', applicationRef: 'pfa-vi-2026-00005' } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(r.json.mailed, 'sent');
+  const bs = await S.listBatches(db);
+  assert.equal(bs.length, 1, 'a batch is made for the first approval');
+  assert.deepEqual([bs[0].name, bs[0].startDate, bs[0].status, bs[0].tasks.length], ['November 2026', '2026-11-09', 'open', 8], 'named for its month, from the coming Monday, the standard plan');
+  const intern = await S.getIntern(db, r.json.internId);
+  assert.deepEqual([intern.name, intern.email, intern.mobile, intern.dob, intern.batchId, intern.status], ['Anushka Das', 'anushka.das@example.com', '9880847070', '2007-10-14', bs[0].batchId, 'active']);
+  assert.equal((await db.collection('submissions').doc('PFA-VI-2026-00005').get()).data().status, 'approved');
+  assert.equal((await admin('GET', { query: { applications: '1' } })).json.applications.length, 0);
+  assert.equal(sent[0].subject, 'Your PFA internship has started');
+
+  /* the combination of three lets them in, at once */
+  const b = browser('198.51.100.41');
+  const s = await b.go('session', 'POST', { email: 'Anushka.Das@example.com', mobile: '98808 47070', dob: '14/10/2007' });
+  assert.equal(s.status, 200, JSON.stringify(s.json));
+  assert.equal((await b.go('me', 'GET')).json.intern.internId, r.json.internId);
+
+  /* the next approval joins the same open batch */
+  application('PFA-VI-2026-00006', 'Ravi Rao', 'ravi@example.com', '9880800000', '2001-02-03');
+  const r2 = await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00006' } });
+  assert.equal(r2.status, 200, JSON.stringify(r2.json));
+  assert.equal((await S.getIntern(db, r2.json.internId)).batchId, bs[0].batchId);
+  assert.equal((await S.listBatches(db)).length, 1);
+  /* the same application twice, an unknown one, one missing a date of birth */
+  assert.equal((await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00006' } })).status, 409);
+  assert.equal((await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00099' } })).status, 404);
+  application('PFA-VI-2026-00007', 'Old Form', 'old@example.com', '9880811111', null);
+  const r3 = await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00007' } });
+  assert.equal(r3.status, 400);
+  assert.match(r3.json.message, /date of birth/);
+  assert.equal((await S.listBatches(db)).length, 1, 'a refused approval makes no batch');
+
+  /* the panel: the application lists open, first, with no batch asked for;
+     the case itself carries Approve; the tab shows the count at sign-in */
+  const panel = read('admin.html');
+  assert.match(panel, /api\('\/api\/admin\/internship\?applications=1'\)\n {6}\]\);/);
+  assert.match(panel, /\/\* 0\. applications, first/);
+  assert.doesNotMatch(panel, /Make a batch first|data-ip="apps"/);
+  assert.match(panel, /c\.kind === 'PFA-VI' && can\('internship'\)\) out\.push\('<div class="vi-ok" data-vi-case="' \+ esc\(c\.reference\)/);
+  assert.match(panel, /if \(can\('internship'\)\) api\('\/api\/admin\/internship\?applications=1'\)\.then\(function \(d\) \{ ipPip\(d\.applications\.length\); \}\)/);
+  assert.match(read('assets/admin-internship.js'), /body: approve \? \{ action: 'issue', applicationRef: ref \} : \{ action: 'ask-details', applicationRef: ref \}/);
+  assert.match(read('assets/admin-internship.js'), /URL_ \+ '\?application=' \+ encodeURIComponent\(ref\)/);
 });
 
 test('signing in with the three: tries that do not match rest the email, growing; the address is braked; a cross-site post is refused', async () => {
