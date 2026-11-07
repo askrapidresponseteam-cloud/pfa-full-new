@@ -1,3 +1,25 @@
+## v1.542
+
+- **PAN and Aadhaar numbers are now checked properly, and an Aadhaar is matched to the card in the photo.** Owner, 7 Nov 2026: "hope you can validate whether the input pan and aadhar number is valid or not. enterprise grade validation", with the open-source PAN and Aadhaar validators on GitHub for reference (shape, the PAN's 4th letter, Verhoeff). This goes past them.
+  - PAN: five letters, four digits, a letter; the 4th letter must be a real holder type (P person, C company, H HUF, F firm, A AOP, T trust, B BOI, L local authority, J juridical person, G government); the four digits are never 0000; the form's own example is refused. Each says what is wrong in plain words.
+  - PAN and the donor: the 5th letter of a personal PAN is the first letter of the holder's surname. When no word of the donor's name starts with it, the form shows a note and the panel flags the case. It is a note, not a refusal, as a PAN can be in an older or fuller name.
+  - Aadhaar: 12 digits, never starting 0 or 1, with UIDAI's Verhoeff check digit right, which catches every one-digit slip and every swap of two neighbouring digits (tested over every case). A 16-digit Virtual ID, a masked number (XXXX XXXX 1234) and a run of one digit are each told apart in their own words.
+  - Aadhaar card read from the photo: as soon as the photo is attached, the QR code UIDAI prints on every Aadhaar card, e-Aadhaar and letter is read (Secure QR and the older printed one). The form says "Read from the QR code on your card: Aadhaar ending 0124, Asha Rao", and a number that is not that card's is stopped on the form, and refused again by the server before CCAvenue opens. A name on the card that does not match the donor shows a note. A photo whose QR cannot be read is still accepted, and the panel says to check it by eye.
+  - In the panel, each case lists what was checked: the format, the holder type, whether the card's QR matched, and any name to look at.
+  - What this cannot do: confirm with the Income Tax Department or UIDAI that a number is live and belongs to the person. Those are licensed or paid services (Protean PAN verification, UIDAI authentication), so the photo stays the last check, by PFA's accounts team.
+- **Fixed from v1.541 before it shipped:** a test still sent a 5,000 rupee donation without a card, and the ordering check for the donate and membership forms followed their new send step.
+
+## v1.541
+
+- **Contributions of ₹5,000 or more now need a PAN or Aadhaar card for the 80G receipt.** Owner, 7 Nov 2026: "when someone is contributing 5k or more . make providing aadhar or pan upload mandatory for 80G receipt. give proper reason to people as well".
+  - Where: a donation of ₹5,000 or more (rupees; dollar gifts go through PayPal and carry no 80G), and the Platinum (₹5,000) and Lifetime (₹10,000) memberships. Below that, the PAN stays optional, as before.
+  - What they give: PAN or Aadhaar, the number, and a photo of the card. The number is checked as it is typed: a PAN by its shape, an Aadhaar by UIDAI's own check digit, so one wrong or swapped digit is caught on the form.
+  - The reason, on the form: "On ₹5,000 or more, your 80G tax certificate can only be issued against your PAN or Aadhaar." Under "+ Why we ask, and who sees it": PFA reports each donor's PAN or Aadhaar to the Income Tax Department in its yearly statement of donations, the certificate is issued from that statement, the photo lets the accounts team check the number, and nobody else sees it.
+  - Enforced on the server too: a payment of that size without the card is refused with the same reason, so it cannot be skipped by a form sent without its script.
+  - The photo is sent only after the person confirms, is never sent to CCAvenue, and moves beside the donation or membership case once the payment clears. A photo for a payment never made is emptied after a day.
+  - In the panel, the case shows the photo beside the full number, to check before filing. Everywhere else (the receipt PDF, the letters, the copy to PFA's inbox), an Aadhaar number shows only its last four digits. The privacy policy says all this.
+- **Join now reads "Become a member today."** Owner, 7 Nov 2026, from a screenshot of the button.
+
 ## v1.540
 
 - **The home page has a Join now button, and it opens the membership form.** Owner, 7 Nov 2026: "we need an attractive join now button on the landing page/home screen. find the best place and design for it. and it should take to membership application".

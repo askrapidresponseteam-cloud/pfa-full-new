@@ -88,8 +88,8 @@ const GIFT = {
 };
 
 test('D7: a donor who corrects their email, PAN and the gift address under the same key pays a fresh transaction carrying the corrections', async () => {
-  const first = await handoff(create(), { ...GIFT, email: 'asha@exmaple.com', pan: 'ABCDE1234F', giftAddress: '12 Lake View Road, Indiranagar, Bengaluru' });
-  const fixed = await handoff(create(), { ...GIFT, email: 'asha@example.com', pan: 'ABCDE9999Z', giftAddress: '99 New Road, Koramangala, Bengaluru' });
+  const first = await handoff(create(), { ...GIFT, email: 'asha@exmaple.com', pan: 'ABCPK1234F', giftAddress: '12 Lake View Road, Indiranagar, Bengaluru' });
+  const fixed = await handoff(create(), { ...GIFT, email: 'asha@example.com', pan: 'ABCPK9999Z', giftAddress: '99 New Road, Koramangala, Bengaluru' });
   assert.notEqual(fixed.order_id, first.order_id, 'the transaction with the old details is not reused');
   assert.equal(fixed.billing_email, 'asha@example.com');
 
@@ -97,7 +97,7 @@ test('D7: a donor who corrects their email, PAN and the gift address under the s
   const t = db.dump()[`transactions/${fixed.order_id}`];
   const record = db.dump()[`submissions/${t.donationReference}`];
   assert.equal(record.fields.giftAddress, '99 New Road, Koramangala, Bengaluru, 560038', 'the certificate goes to the corrected address');
-  assert.equal(record.fields.pan, 'ABCDE9999Z', 'the 80G PAN is the corrected one');
+  assert.equal(record.fields.pan, 'ABCPK9999Z', 'the 80G PAN is the corrected one');
   assert.equal(sent.find((m) => m.template === 'payment_received').to, 'asha@example.com', 'and so is the receipt');
   assert.equal(db.dump()[`transactions/${first.order_id}`].status, 'initiated', 'the first transaction stays on record, untouched');
 });
@@ -142,7 +142,7 @@ test('D7: donate.html makes a new key when any detail that matters changes, and 
     d.getElementById('giveForm').dispatchEvent(new dom.window.Event('submit', { cancelable: true, bubbles: true }));
     return d.getElementById('gRef').value;
   };
-  set('gName', 'Asha Kumar'); set('gMobile', '9876543210'); set('gEmail', 'asha@exmaple.com'); set('gAddress', '16 MG Road, Udupi'); set('gPan', 'ABCDE1234F');
+  set('gName', 'Asha Kumar'); set('gMobile', '9876543210'); set('gEmail', 'asha@exmaple.com'); set('gAddress', '16 MG Road, Udupi'); set('gPan', 'ABCPK1234F');
   set('gCity', 'Udupi'); set('gPin', '576101');
   const st = d.getElementById('gState');
   for (const name of ['Karnataka', 'Kerala']) if (![...st.options].some((o) => o.value === name)) st.add(new dom.window.Option(name, name));
@@ -151,7 +151,7 @@ test('D7: donate.html makes a new key when any detail that matters changes, and 
   const first = key();
   assert.match(first, /^donate-/);
   assert.equal(key(), first, 'pressing Pay again unchanged is the same request');
-  for (const [id, value] of [['gEmail', 'asha@example.com'], ['gPan', 'ABCDE9999Z'], ['gAddress', '22 Car Street, Udupi'], ['gName', 'Asha K Rao'], ['gMobile', '9123456780'], ['gCity', 'Kundapura'], ['gPin', '576201'], ['gState', 'Kerala']]) {
+  for (const [id, value] of [['gEmail', 'asha@example.com'], ['gPan', 'ABCPK9999Z'], ['gAddress', '22 Car Street, Udupi'], ['gName', 'Asha K Rao'], ['gMobile', '9123456780'], ['gCity', 'Kundapura'], ['gPin', '576201'], ['gState', 'Kerala']]) {
     const before = key();
     set(id, value);
     assert.notEqual(key(), before, `changing ${id} is a new key`);

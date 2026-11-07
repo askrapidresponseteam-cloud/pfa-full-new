@@ -82,12 +82,12 @@ test('Join now sits in the hero, under the two doors, and opens the membership f
   const acts = HTML.slice(HTML.indexOf('<div class="pfa-hero__acts">'), HTML.indexOf('</div>', HTML.indexOf('<div class="pfa-hero__acts">')));
   const order = ['>Enter PFA<', '>Find a unit<', 'class="pfa-join"'].map((s) => acts.indexOf(s));
   assert.ok(order.every((i) => i > 0) && order[0] < order[1] && order[1] < order[2], 'Enter PFA, Find a unit, then Join now');
-  assert.match(acts, /<a class="pfa-join" href="get-involved\.html#membership"[^>]*>.*<b>Join now<\/b><span>Become a member, from &#8377;500<\/span>/);
+  /* the owner's wording (7 Nov 2026, from a screenshot): "Become a member today." */
+  assert.match(acts, /<a class="pfa-join" href="get-involved\.html#membership"[^>]*>.*<b>Join now<\/b><span>Become a member today\.<\/span>/);
   assert.match(HTML, /\.pfa-join\{grid-column:1\/-1;/, 'as wide as both doors');
   const GI = read('get-involved.html');
   assert.match(GI, /<section class="gi__section" id="membership"/);
   assert.match(GI, /<form class="form gi__form" id="memForm"/);
-  assert.match(GI, /value="student" data-amount="500"/, 'the lowest fee it names is the real one');
   /* the light passes only once the hero has woken, and never with reduced motion */
   assert.match(HTML, /section\.is-waking \.pfa-join::after\{animation:pfa-join-light 1\.6s ease-in-out 2\.2s 2\}/);
   assert.match(HTML, /@media \(prefers-reduced-motion:reduce\)\{\s*section\.is-waking \.pfa-join::after\{animation:none\}/);

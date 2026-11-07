@@ -849,6 +849,29 @@ if (root.document && root.document.head) apply(read());
                 <option>Learning</option>
               </select>
             </div>
+<!-- 5,000 rupees or more: the PAN or Aadhaar card for the 80G receipt
+                 (owner, 7 Nov 2026). Shown and sent only at that amount
+                 (assets/tax-id.js); lib/payment.js refuses one without it. -->
+            <div class="taxid" id="gTax" data-tax-id data-instead="#gPan" data-name-from="#gName" data-preview="skip" hidden>
+              <p class="taxid__head">Your PAN or Aadhaar, for the 80G receipt</p>
+              <p class="taxid__why">On &#8377;5,000 or more, your 80G tax certificate can only be issued against your PAN or Aadhaar. Give one, with a photo of the card.</p>
+              <details class="taxid__more"><summary>Why we ask, and who sees it</summary>
+                <p>PFA reports every 80G contribution to the Income Tax Department in its yearly statement of donations, with each donor's PAN or Aadhaar number. Your tax certificate is issued from that statement, and you need it to claim the deduction in your return. If the number is wrong by one character, the certificate does not reach you.</p>
+                <p>The photo lets PFA's accounts team check the number before it is filed; on an Aadhaar card, the QR code UIDAI prints on it is read to check the number as soon as you attach it. Only PFA's accounts team sees the photo. It is never sent to the payment gateway or anyone else, and an Aadhaar number appears on your receipt by its last four digits only.</p>
+              </details>
+              <div class="taxid__pick" role="radiogroup" aria-label="Which card">
+                <label><input type="radio" name="idType" value="pan" checked disabled>PAN</label>
+                <label><input type="radio" name="idType" value="aadhaar" disabled>Aadhaar</label>
+              </div>
+              <div class="field" data-tax-for="pan"><label for="gTaxPan">PAN</label><input id="gTaxPan" name="pan" type="text" autocomplete="off" maxlength="10" placeholder="ABCDE1234F" style="text-transform:uppercase" disabled><span class="error">A PAN is five letters, four digits and a letter, like ABCDE1234F.</span></div>
+              <div class="field" data-tax-for="aadhaar" hidden><label for="gTaxAadhaar">Aadhaar number</label><input id="gTaxAadhaar" name="aadhaar" type="text" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="1234 5678 9012" disabled><span class="error">An Aadhaar number is 12 digits.</span></div>
+              <div class="field taxid__doc"><label for="gTaxPhoto">Photo of your <span data-tax-word>PAN</span> card</label>
+                <input id="gTaxPhoto" class="taxid__file" type="file" accept="image/*" disabled><label class="taxid__attach" for="gTaxPhoto">Take or choose a photo</label>
+                <div class="taxid__preview" hidden><img alt="Your card, as attached"><button type="button" data-tax-clear>Change photo</button></div>
+                <span class="hint">The side with the number, clear and whole.</span>
+                <span class="error">Attach a photo of the card.</span></div>
+              <input type="hidden" name="taxIdDoc" value="" disabled>
+            </div>
             <div class="field"><label for="gPan">PAN (optional, for 80G)</label><input id="gPan" name="pan" type="text" autocomplete="off" maxlength="10" style="text-transform:uppercase"><span class="error">Enter a PAN in the form ABCDE1234F.</span></div>
             <label class="agree"><input type="checkbox" id="gAgree" required><span id="gAgreeText">I confirm these details are mine and I accept the donation and receipt terms.</span></label>
             <span class="error" id="gAgreeErr">Accept the donation and receipt terms to continue.</span>
@@ -1115,7 +1138,15 @@ if (root.document && root.document.head) apply(read());
          amount the donor confirmed attached to the request. */
       $('#gAmount').value = String(amt);
       note();
+      taxPaint();
     }
+    /* 5,000 rupees or more: the PAN or Aadhaar card for the 80G receipt
+       takes the place of the optional PAN (assets/tax-id.js, lib/tax-id.js) */
+    function taxNeeded(){
+      var cur = (document.querySelector('#giveForm [name="currency"]') || {}).value || 'inr';
+      return !!window.PFATaxId && String(cur).toLowerCase() === 'inr' && amt >= window.PFATaxId.THRESHOLD;
+    }
+    function taxPaint(){ if (window.PFATaxId) window.PFATaxId.set($('#gTax'), taxNeeded()); }
     /* Donate: amount, details, done. A gift: amount, who it is for, your
        details. Each pane is one question, so the two people are never on
        one form. */
@@ -1125,6 +1156,7 @@ if (root.document && root.document.head) apply(read());
     function step(n){
       ['#p1', '#pG', '#p2', '#p3'].forEach(function(id){ $(id).classList.remove('on'); });
       $(panes()[n - 1]).classList.add('on');
+      taxPaint();
       document.querySelectorAll('#barGive span').forEach(function(sp){ var k = +sp.getAttribute('data-s'); sp.classList.toggle('on', k === n); sp.classList.toggle('done', k < n); });
       window.scrollTo({top:0, behavior:'smooth'});
     }
@@ -1278,13 +1310,16 @@ if (root.document && root.document.head) apply(read());
       if (pinSaid) { if (!pinSaid.hasAttribute('data-said')) pinSaid.setAttribute('data-said', pinSaid.textContent); pinSaid.textContent = pinWhy || pinSaid.getAttribute('data-said'); }
       errs += bad(pin, !!pinWhy) ? 1 : 0;
       errs += bad(st, !st.value) ? 1 : 0;
-      errs += bad(pan, !!pan.value.trim() && !/^[A-Za-z]{5}[0-9]{4}[A-Za-z]$/.test(pan.value.trim())) ? 1 : 0;
+      taxPaint();
+      var taxBox = $('#gTax'), taxOn = taxNeeded();
+      if (!taxOn) errs += bad(pan, !!pan.value.trim() && !/^[A-Za-z]{5}[0-9]{4}[A-Za-z]$/.test(pan.value.trim())) ? 1 : 0;
+      else errs += window.PFATaxId.check(taxBox);
       if (gift && !giftOk()){ e.preventDefault(); step(2); return; }
       var agreed = $('#gAgree').checked;
       $('#gAgreeErr').classList.toggle('on', !agreed);
       if (errs || !agreed){
         e.preventDefault();
-        var first = this.querySelector('.is-bad input, .is-bad select');
+        var first = this.querySelector('.is-bad input:not([type="file"]):not([disabled]), .is-bad select') || this.querySelector('.is-bad input');
         if (first) first.focus(); else $('#gAgree').focus();
         return;
       }
@@ -1303,7 +1338,8 @@ if (root.document && root.document.head) apply(read());
       var details = [amt, (this.querySelector('[name="currency"]') || {}).value || 'inr',
         n.value.trim(), mob.value.replace(/\D/g, ''), m.value.trim().toLowerCase(), ad.value.trim(),
         city.value.trim(), pin.value.replace(/\D/g, ''), st.value,
-        cause ? cause.value : '', pan.value.trim().toUpperCase()]
+        cause ? cause.value : '', taxOn ? '' : pan.value.trim().toUpperCase()]
+        .concat(taxOn ? [(taxBox.querySelector('input[name="idType"]:checked') || {}).value, ($('#gTaxPan').value + $('#gTaxAadhaar').value).replace(/\s+/g, '').toUpperCase()] : [])
         .concat(gift ? [$('#giftTo').value.trim(), $('#giftHouse').value.trim(), $('#giftAddress').value.trim(), $('#giftLandmark').value.trim(), $('#giftPin').value.replace(/\D/g, ''),
           $('#giftEmail').value.trim().toLowerCase()] : []);
       $('#gRef').value = visitRef(gift ? 'gift' : 'donate', details.join('|'));
@@ -1315,15 +1351,27 @@ if (root.document && root.document.head) apply(read());
       var giveForm = this;
       var dollars = (giveForm.querySelector('[name="currency"]') || {}).value === 'usd';
       function pay(){ $('#payBtn').disabled = true; $('#payBtn').textContent = 'Opening secure payment\u2026'; }
-      if (!window.PFAPreview) { pay(); return; }
+      /* The card's photo goes first, by fetch, once confirmed; the token it
+         comes back under rides with the payment. Only then to CCAvenue. */
+      function send(){
+        if (!taxOn) { pay(); giveForm.submit(); return; }
+        $('#payBtn').disabled = true; $('#payBtn').textContent = 'Sending the photo of your card\u2026';
+        window.PFATaxId.upload(taxBox).then(function(){ pay(); giveForm.submit(); }).catch(function(error){
+          $('#payBtn').disabled = false; render();
+          var doc = taxBox.querySelector('.taxid__doc'), said = doc.querySelector('.error');
+          said.textContent = error.message; doc.classList.add('is-bad');
+          doc.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        });
+      }
+      if (!window.PFAPreview) { if (taxOn) { e.preventDefault(); send(); } else pay(); return; }
       e.preventDefault();
       window.PFAPreview.confirm(giveForm, {
         title: gift ? 'Check your gift before you pay' : 'Check your donation before you pay',
         send: $('#payBtn').textContent,
         /* who the gift is for and where it is posted are listed from the
            gift's own fields already; repeating them here showed each twice */
-        extra: [['Amount', (dollars ? '$' : '\u20b9') + Number(amt).toLocaleString(dollars ? 'en-US' : 'en-IN')]]
-      }).then(function(confirmed){ if (!confirmed) return; pay(); giveForm.submit(); });
+        extra: [['Amount', (dollars ? '$' : '\u20b9') + Number(amt).toLocaleString(dollars ? 'en-US' : 'en-IN')]].concat(taxOn ? [window.PFATaxId.summary(taxBox)] : [])
+      }).then(function(confirmed){ if (!confirmed) return; send(); });
     });
     $('#giveForm').addEventListener('input', function(e){ var t = e.target; if (t.closest('.field')) bad(t, false); });
 
@@ -1465,6 +1513,7 @@ if (root.document && root.document.head) apply(read());
 }());
 </script>
 <script src="assets/form-preview.js" defer></script>
+<script src="assets/tax-id.js"></script>
 
 <script>
 (function(){

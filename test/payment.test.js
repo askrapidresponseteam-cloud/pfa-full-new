@@ -24,9 +24,9 @@ test('the PAN a donor gives for their 80G certificate reaches the receipt', () =
      never read it, so payment/response.js put an empty PAN on every receipt
      and the "including for your 80G certificate" line never appeared. */
   const parsed = parsePaymentRequest({
-    type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', terms: 'yes', pan: 'abcde1234f'
+    type: 'donate', amount: '365', ...customer, address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', terms: 'yes', pan: 'abcpr1234f'
   });
-  assert.equal(parsed.customer.pan, 'ABCDE1234F', 'the PAN is kept, upper case, as it is printed');
+  assert.equal(parsed.customer.pan, 'ABCPR1234F', 'the PAN is kept, upper case, as it is printed');
   assert.equal(Object.keys(parsed.merchantValues).some((k) => /pan/i.test(k)), false,
     'a donor tax number has no business going to CCAvenue');
 

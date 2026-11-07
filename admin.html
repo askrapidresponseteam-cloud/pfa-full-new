@@ -3251,6 +3251,7 @@ window.addEventListener('unhandledrejection', function (event) {
     }
     if (c.attachments) out.push('<p class="lab">' + (c.kind === 'PFA-CG' ? 'Photograph and address proof' : 'Photographs') + '</p><div class="shots" id="caseShots"></div>');
 
+    if (c.taxId) out.push('<div data-tax-id="' + esc(c.reference) + '" data-t="' + esc(JSON.stringify(c.taxId)) + '"></div>');
     if (c.kind === 'PFA-VI' && can('internship')) out.push('<div class="vi-ok" data-vi-case="' + esc(c.reference) + '" hidden></div>');
     out.push('<p class="lab">What was sent</p><dl class="kv">');
     Object.keys(c.fields || {}).forEach(function (name) {
@@ -6358,6 +6359,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-reports.js"></script>
 <script src="assets/admin-replies.js"></script>
 <script src="assets/admin-wall.js"></script>
+<script src="assets/admin-taxid.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by
    the panel later, is folded behind a round (i) at the end of the heading

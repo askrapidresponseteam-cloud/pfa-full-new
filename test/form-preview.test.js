@@ -251,9 +251,11 @@ test('every public form loads the preview and asks it before it sends, uploads o
   before('ask.html', "window.PFAForms.preview(form, { title: 'Check your question", "window.PFAForms.submit('PFA-Q'");
   before('careers.html', "window.PFAForms.preview(form, { title: 'Check your application", "window.PFAForms.submit('PFA-J'");
   before('wall.html', "window.PFAForms.preview(f, { title: 'Check your film", "window.PFAForms.submit('PFA-S'");
-  before('get-involved.html', "PFAPreview.confirm(form, {\n        title: 'Check your membership before you pay'", 'form.submit(); });');
+  /* since v1.541 the membership is sent by send(), which first sends the
+     photo of a PAN or Aadhaar card on 5,000 rupees or more (assets/tax-id.js) */
+  before('get-involved.html', "PFAPreview.confirm(form, {\n        title: 'Check your membership before you pay'", 'if (confirmed) send(); });');
   before('get-involved.html', "window.PFAForms.preview(form, { title: 'Check your application before you pay'", "fetch('/api/caregiver/documents'");
-  before('donate.html', "window.PFAPreview.confirm(giveForm", 'giveForm.submit();');
+  before('donate.html', "window.PFAPreview.confirm(giveForm", 'if (!confirmed) return; send(); });');
   for (const [page, kind] of [['events.html', 'PFA-EV'], ['cinekind.html', 'PFA-CK'], ['get-involved.html', 'PFA-V']]) {
     assert.match(read(page), new RegExp(`PFAForms\\.wire\\(form, \\{[\\s\\S]{0,160}${kind}|PFAForms\\.wire\\(form, \\{[\\s\\S]{0,80}previewTitle`), `${page} sends ${kind} through wire()`);
   }

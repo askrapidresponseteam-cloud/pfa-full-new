@@ -1407,6 +1407,9 @@
    "cLine": "check-a-card",
    "cLookup": "check-a-card"
   },
+  "get-involved": {
+   "memTax": "membership"
+  },
   "intern": {
    "ipTitle": "top",
    "ipWho": "top",
@@ -1521,6 +1524,7 @@
    "giftSet": "top",
    "p2": "top",
    "youHead": "top",
+   "gTax": "top",
    "payNote": "top",
    "p3": "top",
    "doneHead": "top",

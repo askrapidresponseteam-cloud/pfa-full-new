@@ -61,6 +61,8 @@
   "dependencies": {
     "firebase-admin": "^13.4.0",
     "imapflow": "^1.7.8",
+    "jpeg-js": "^0.4.4",
+    "jsqr": "^1.4.0",
     "mailparser": "^3.14.1",
     "nodemailer": "^10.3.1",
     "pdfkit": "^0.17.2"
@@ -70,6 +72,7 @@
     "eslint": "^9.30.0",
     "jsdom": "^26.0.0",
     "pdfjs-dist": "^6.3.289",
+    "qrcode": "^1.5.4",
     "terser": "^5.51.2"
   },
   "overrides": {

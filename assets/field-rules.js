@@ -54,6 +54,45 @@
     return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
   }
 
+  /* The Verhoeff check UIDAI puts on the last digit of every Aadhaar number. */
+  var VD = [[0,1,2,3,4,5,6,7,8,9],[1,2,3,4,0,6,7,8,9,5],[2,3,4,0,1,7,8,9,5,6],[3,4,0,1,2,8,9,5,6,7],[4,0,1,2,3,9,5,6,7,8],
+    [5,9,8,7,6,0,4,3,2,1],[6,5,9,8,7,1,0,4,3,2],[7,6,5,9,8,2,1,0,4,3],[8,7,6,5,9,3,2,1,0,4],[9,8,7,6,5,4,3,2,1,0]];
+  var VP = [[0,1,2,3,4,5,6,7,8,9],[1,5,7,6,2,8,3,0,9,4],[5,8,0,3,7,9,6,1,4,2],[8,9,1,6,0,4,3,5,2,7],[9,4,5,3,1,2,6,8,7,0],
+    [4,2,8,6,5,7,3,9,0,1],[2,7,9,3,8,0,6,4,1,5],[7,0,4,6,9,1,3,2,5,8]];
+  /* The 4th letter of a PAN: who holds it. */
+  var PAN_HOLDERS = { P: 'a person', C: 'a company', H: 'a Hindu undivided family', F: 'a firm or LLP', A: 'an association of persons', T: 'a trust', B: 'a body of individuals', L: 'a local authority', J: 'an artificial juridical person', G: 'a government body' };
+
+  function nameWords(name) {
+    return String(name == null ? '' : name).toUpperCase().replace(/[^A-Z ]+/g, ' ').split(/\s+/).filter(Boolean);
+  }
+  /* A personal PAN's 5th letter is the first letter of the holder's surname,
+     or of their name when there is no surname: so one word of the name given
+     starts with it. Not a person's PAN (a company, a trust): not compared. */
+  function panNameOk(pan, name) {
+    var p = String(pan || '').toUpperCase();
+    if (!/^[A-Z]{5}\d{4}[A-Z]$/.test(p) || p.charAt(3) !== 'P') return true;
+    var words = nameWords(name);
+    if (!words.length) return true;
+    for (var i = 0; i < words.length; i++) if (words[i].charAt(0) === p.charAt(4)) return true;
+    return false;
+  }
+  /* Two spellings of one person's name: a word of three letters or more in
+     common, or the same initials in the same order. Lenient on purpose: an
+     ID card often has a fuller or older form of a name. */
+  function namesAgree(a, b) {
+    var x = nameWords(a), y = nameWords(b);
+    if (!x.length || !y.length) return true;
+    for (var i = 0; i < x.length; i++) if (x[i].length >= 3 && y.indexOf(x[i]) >= 0) return true;
+    var ix = x.map(function (w) { return w.charAt(0); }).join(''), iy = y.map(function (w) { return w.charAt(0); }).join('');
+    return ix === iy;
+  }
+
+  function verhoeffOk(digits) {
+    var c = 0, s = String(digits).split('').reverse();
+    for (var i = 0; i < s.length; i++) c = VD[c][VP[i % 8][Number(s[i])]];
+    return c === 0;
+  }
+
   /* Collapse spaces and tabs but keep line breaks: addresses print on cards. */
   function squashLines(value) {
     return String(value == null ? '' : value)
@@ -519,8 +558,39 @@
       filter: function (v) { return String(v == null ? '' : v).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10); },
       normalise: function (v) { return squash(v).toUpperCase().replace(/[^A-Z0-9]/g, ''); },
       max: 10,
+      /* The Income Tax Department's own structure (owner, 7 Nov 2026:
+         "enterprise grade validation"): letters 1 to 3 a series, the 4th the
+         kind of holder, the 5th the first letter of the holder's surname (or
+         name), four digits from 0001 to 9999, and a check letter. The
+         check letter's formula is not published, so it is checked only for
+         being a letter; the name letter is compared with the name given
+         (panNameOk below), as a warning, since a PAN can be in an older or
+         fuller name. */
       check: function (v) {
-        return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(v) ? null : 'A PAN is five letters, four digits and a letter, like ABCDE1234F.';
+        if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(v)) return 'A PAN is five letters, four digits and a letter, like ABCDE1234F.';
+        if (v === 'ABCDE1234F') return 'That is an example PAN. Enter the one on your card.';
+        if (!PAN_HOLDERS[v.charAt(3)]) return 'Check the 4th letter. On every PAN it says who holds it: P for a person, C for a company, T for a trust, and so on. "' + v.charAt(3) + '" is not one of them.';
+        if (v.slice(5, 9) === '0000') return 'The four digits of a PAN run from 0001 to 9999, never 0000. Check the number.';
+        return null;
+      }
+    },
+    /* An Aadhaar number, for the 80G receipt on a contribution of 5,000
+       rupees or more (owner, 7 Nov 2026). Twelve digits, not starting 0 or
+       1, and the last digit is the Verhoeff check digit UIDAI issues every
+       number with, so a slip of one digit, or two swapped, is caught as it
+       is typed rather than on the receipt. Shown with spaces, stored bare. */
+    aadhaar: {
+      filter: function (v) { var d = digitsOnly(v).slice(0, 16); return d.replace(/(\d{4})(?=\d)/g, '$1 '); },
+      normalise: function (v) { return digitsOnly(v).slice(0, 16); },
+      max: 19,
+      check: function (v) {
+        /* a Virtual ID is 16 digits, and is not what the 80G statement takes */
+        if (/^\d{16}$/.test(v)) return 'That is 16 digits, a Virtual ID. Enter the 12-digit Aadhaar number instead.';
+        if (/^\d{4}$/.test(v)) return 'Enter all 12 digits. A masked Aadhaar shows only the last four; the full number is on your Aadhaar card or letter.';
+        if (!/^\d{12}$/.test(v)) return 'An Aadhaar number is 12 digits.';
+        if (!/^[2-9]/.test(v)) return 'An Aadhaar number never starts with 0 or 1. Check the first digit.';
+        if (/^(\d)\1{11}$/.test(v) || !verhoeffOk(v)) return 'Check the Aadhaar number: one of the 12 digits is not right.';
+        return null;
       }
     },
     handle: {
@@ -740,7 +810,7 @@
     cId: 'cardId',
 
     /* wall.html's note, and donate.html's own boxes */
-    note: 'note', pan: 'pan',
+    note: 'note', pan: 'pan', aadhaar: 'aadhaar',
     other: 'amount', usdOther: 'amount',
     fDist: 'place', fVill: 'locality', fPin: 'pin',
 
@@ -847,6 +917,10 @@
     isPin: function (v) { return PIN.test(digitsOnly(v)); },
     isName: function (v) { return !/\d/.test(squash(v)) && looksLikeName(squash(v)); },
     isCardId: function (v) { return CARD_ID.test(normaliseRef(v)); },
-    isMemberId: function (v) { return MEMBER_ID.test(normaliseRef(v)); }
+    isMemberId: function (v) { return MEMBER_ID.test(normaliseRef(v)); },
+    isAadhaar: function (v) { var d = digitsOnly(v); return /^[2-9]\d{11}$/.test(d) && !/^(\d)\1{11}$/.test(d) && verhoeffOk(d); },
+    panHolder: function (v) { return PAN_HOLDERS[String(v || '').toUpperCase().charAt(3)] || ''; },
+    panNameOk: panNameOk,
+    namesAgree: namesAgree
   };
 }));

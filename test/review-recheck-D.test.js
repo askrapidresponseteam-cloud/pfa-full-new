@@ -111,7 +111,8 @@ test('D2c caregiver application: two callbacks at once file one record with the 
 
 /* ---- D3 ---- */
 test('D3 a Firestore outage during the callback still leaves the order id, tracking id and status in the log', async () => {
-  const out = await start(Object.assign({ type: 'donate', currency: 'inr', amount: '5000', terms: 'yes' }, PERSON));
+  /* under 5,000 rupees: from 5,000 a donation also carries a PAN or Aadhaar card (v1.541), which is not what this is about */
+  const out = await start(Object.assign({ type: 'donate', currency: 'inr', amount: '4500', terms: 'yes' }, PERSON));
   const logs = []; const orig = console.error; console.error = (...a) => logs.push(a.map(String).join(' '));
   const rt = W.db.runTransaction; W.db.runTransaction = async () => { throw new Error('14 UNAVAILABLE: deadline exceeded'); };
   try { await callback(out); } finally { W.db.runTransaction = rt; console.error = orig; }
@@ -170,17 +171,17 @@ test('D6 a published field note photo is served through the real lib/firebase.js
 /* ---- D7 ---- */
 test('D7 corrected donor and gift details under the same page key are the ones used', async () => {
   const base = { type: 'donate', currency: 'inr', amount: '2500', terms: 'yes', name: 'Asha Kumar', mobile: '9876543210', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', gift: 'yes', giftTo: 'Ravi Menon', giftPin: '560038', client_ref: 'gift-VISIT-abc' };
-  const a = await start(Object.assign({}, base, { email: 'asha@exmaple.com', pan: 'ABCDE1234F', giftAddress: '12 Lake View Road, Indiranagar, Bengaluru' }));
-  const b = await start(Object.assign({}, base, { email: 'asha@example.com', pan: 'ABCDE9999Z', giftAddress: '99 New Road, Koramangala, Bengaluru' }));
+  const a = await start(Object.assign({}, base, { email: 'asha@exmaple.com', pan: 'ABCPK1234F', giftAddress: '12 Lake View Road, Indiranagar, Bengaluru' }));
+  const b = await start(Object.assign({}, base, { email: 'asha@example.com', pan: 'ABCPK9999Z', giftAddress: '99 New Road, Koramangala, Bengaluru' }));
   /* the same request twice (before paying) is still one transaction */
-  const c = await start(Object.assign({}, base, { email: 'asha@example.com', pan: 'ABCDE9999Z', giftAddress: '99 New Road, Koramangala, Bengaluru' }));
+  const c = await start(Object.assign({}, base, { email: 'asha@example.com', pan: 'ABCPK9999Z', giftAddress: '99 New Road, Koramangala, Bengaluru' }));
   assert.equal(c.order_id, b.order_id);
   assert.notEqual(a.order_id, b.order_id);
   await callback(b);
   const t = W.db.dump()[`transactions/${b.order_id}`];
   const rec = W.db.dump()[`submissions/${t.donationReference}`];
   assert.match(rec.fields.giftAddress, /99 New Road/);
-  assert.equal(rec.fields.pan, 'ABCDE9999Z');
+  assert.equal(rec.fields.pan, 'ABCPK9999Z');
   assert.ok(W.smtp.sent.some((m) => m.to === 'asha@example.com'));
 });
 

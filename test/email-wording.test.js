@@ -24,7 +24,7 @@ const DELIVERY = { name: 'Asha Rao', address: 'Flat 4, FC Road', city: 'Pune', d
 /* to the person (signed off) or to PFA (not) */
 const CASES = {
   'a donation': ['payment_received', 'person', { ...base, name: 'Karthik Dhanya', amount: '111', currency: 'INR', orderId: 'PFA-DON-MPTSVLDF', reference: 'PFA-DON-MPTSVLDF', paidAt: '2026-10-21T09:10:00Z', cause: 'Where it is needed most', bankReference: 'BNK900' }],
-  'a donation with a PAN': ['payment_received', 'person', { ...base, name: 'Karthik Dhanya', amount: '5000', currency: 'INR', orderId: 'PFA-DON-AAAA1111', paidAt: '2026-10-21T09:10:00Z', cause: 'Hospitals', pan: 'ABCDE1234F', bankReference: 'BNK1' }],
+  'a donation with a PAN': ['payment_received', 'person', { ...base, name: 'Karthik Dhanya', amount: '5000', currency: 'INR', orderId: 'PFA-DON-AAAA1111', paidAt: '2026-10-21T09:10:00Z', cause: 'Hospitals', pan: 'ABCPD1234F', bankReference: 'BNK1' }],
   'a dollar donation': ['payment_received', 'person', { ...base, name: 'Karthik Dhanya', amount: '25', currency: 'USD', orderId: 'PFA-DON-USD11111', paidAt: '2026-10-21T09:10:00Z', cause: 'Rescue' }],
   'a gift': ['payment_received', 'person', { ...base, name: 'Karthik Dhanya', amount: '2500', currency: 'INR', orderId: 'PFA-DON-GIFT2222', paidAt: '2026-10-21T09:10:00Z', cause: 'Rescue', giftTo: 'Ravi Kumar', giftAddress: '12 MG Road, Bengaluru, 560038', bankReference: 'BNK2' }],
   'a membership with no kit': ['membership_welcome', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00004', reference: 'PFA-MEM-2026-00004', tierLabel: 'Student membership', amount: '500', kit: [], paidAt: '2026-10-21T09:10:00Z', orderId: 'PFA-MEM-XYZ11111' }],

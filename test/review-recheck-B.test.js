@@ -116,7 +116,7 @@ function callback(out, status) {
 
 for (const [type, form, kind] of [
   ['membership', { type: 'membership', tier: 'silver', terms: 'yes' }, 'PFA-MEM'],
-  ['donate', { type: 'donate', currency: 'inr', amount: '1500', terms: 'yes', cause: 'Where it is needed most', pan: 'ABCDE1234F' }, 'PFA-DON']
+  ['donate', { type: 'donate', currency: 'inr', amount: '1500', terms: 'yes', cause: 'Where it is needed most', pan: 'ABCPK1234F' }, 'PFA-DON']
 ]) {
   test(`B3 ${type}: a second callback while the first is still writing files no second record`, async () => {
     const out = await handoff(cb(Object.assign({}, form, PERSON)));

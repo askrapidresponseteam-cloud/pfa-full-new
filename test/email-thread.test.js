@@ -451,7 +451,7 @@ for (const [kind, [page, data, label, subject]] of Object.entries(SAME_WAY)) {
 }
 
 test('a donation: a case under PFA-DON, the payments inboxes get it (never gandhim) with Reply-To the site, the receipt threads, a reply is filed on it, a repeated callback adds nothing', async () => {
-  const page = await pay(Object.assign({ type: 'donate', amount: '500', cause: 'Where it is needed most', terms: 'yes', pan: 'ABCDE1234F' }, PERSON));
+  const page = await pay(Object.assign({ type: 'donate', amount: '500', cause: 'Where it is needed most', terms: 'yes', pan: 'ABCPK1234F' }, PERSON));
   assert.match(page, /Donation successful/);
   const refs = records().filter((k) => k.startsWith('submissions/PFA-DON-'));
   assert.equal(refs.length, 1, 'one case for the gift');
@@ -469,7 +469,7 @@ test('a donation: a case under PFA-DON, the payments inboxes get it (never gandh
   assert.deepEqual(replyToList(copy), [SITE_MAILBOX], 'every kind of submission is answered to the site, not to the person');
   assert.match(copy.subject, new RegExp('^' + ref + ': Donation from Asha Rao$'));
   assert.match(copy.text, /Amount paid: INR 500/);
-  assert.match(copy.text, /PAN \(for the 80G certificate\): ABCDE1234F/);
+  assert.match(copy.text, /PAN \(for the 80G certificate\): ABCPK1234F/);
   const receipt = toPersonA().find((m) => /^Donation received by PFA - /.test(m.subject));
   assert.ok(receipt, 'the donor gets the receipt');
   assert.equal(receipt.messageId, `<${ref}.${record.threadId}.confirm@peopleforanimalsindia.org>`);

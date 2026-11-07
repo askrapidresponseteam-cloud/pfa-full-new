@@ -79,7 +79,7 @@ function recorder() {
 const DONOR = {
   type: 'donate', currency: 'inr', amount: '1500', terms: 'yes',
   name: 'Asha Kumar', mobile: '9876543210', email: 'Asha@Example.com',
-  address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', cause: 'Where it is needed most', pan: 'ABCDE1234F'
+  address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', pincode: '576101', cause: 'Where it is needed most', pan: 'ABCPK1234F'
 };
 
 let db;
@@ -478,7 +478,7 @@ test('the receipt: a PDF in PFA\'s type, with the donor, the amount in words and
   assert.ok(raw.includes('/BaseFont /PFAAAA+Marcellus') && raw.includes('/BaseFont /PFAAAB+EBGaramond-Medium'), 'the site\'s own type, embedded');
   assert.ok(raw.includes('/FontFile2') && raw.includes('/Subtype /Image'), 'and the logo');
   const words = pdfWords(got.body);
-  for (const bit of ['DONATION RECEIPT', t.donationReference, 'THANK YOU', 'INR 1,500.00', 'Rupees One Thousand Five Hundred only', 'Asha Kumar', 'PAN ABCDE1234F', '16 MG Road', 'Karnataka 576101',
+  for (const bit of ['DONATION RECEIPT', t.donationReference, 'THANK YOU', 'INR 1,500.00', 'Rupees One Thousand Five Hundred only', 'Asha Kumar', 'PAN ABCPK1234F', '16 MG Road', 'Karnataka 576101',
     sentOut.order_id, 'BNK900', '31233', 'UPI', 'Section 80G', 'needs no signature', 'PEOPLE FOR ANIMALS']) {
     assert.ok(words.includes(bit), `the receipt says ${bit}`);
   }
