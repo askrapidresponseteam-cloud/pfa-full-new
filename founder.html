@@ -340,11 +340,18 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
   .rrt__ghost{font-size:52vw;bottom:auto;top:-.2em;right:-.1em}
 }
 @media (prefers-reduced-motion:reduce){.rrt__rings{display:none}}
-}
+/* a stray closing brace stood here and swallowed the next rule, so the
+   head of Watch never got its flex row (found 9 Nov 2026) */
 
 .watch__head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:clamp(28px,3.4vw,48px)}
 .watch .eyebrow{color:rgba(17,17,17,.55);margin-bottom:16px}
 .watch h2{font-size:clamp(27px,3.6vw,56px);max-width:14ch}
+/* the way to her picks, on the head's other side (9 Nov 2026) */
+.watch__picks{flex:0 1 440px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:6px 18px;min-height:44px;margin-top:8px;padding:0 0 10px;border-bottom:1px solid var(--ink);color:var(--ink)}
+.watch__picks .eyebrow{grid-column:1 / -1;margin:0}
+.watch__picks b{font-family:var(--display);font-weight:400;font-size:clamp(17px,1.5vw,22px);line-height:1.15;text-transform:uppercase;letter-spacing:.01em}
+.watch__picks svg{width:16px;height:12px;margin-bottom:5px;transition:transform .25s}
+.watch__picks:hover{opacity:1}.watch__picks:hover svg{transform:translateX(4px)}
 /* The films as a constellation, after www.offforum.com. The brief here
    reversed on 13 Sep 2026: these tiles were typography-first with the still
    beneath the type, and the owner asked for the opposite - clean thumbnails
@@ -761,6 +768,7 @@ if (root.document && root.document.head) apply(read());
         <a href="founder.html" data-nav="founder.html" class="in-section">About</a>
         <div class="menu right">
           <a href="#top" data-nav="founder.html" class="current" aria-current="page">The founder</a>
+          <a href="manekas-picks.html" data-nav="manekas-picks.html">Maneka’s Picks</a>
           <a href="sgacc.html" data-nav="sgacc.html">Sanjay Gandhi Animal Care Centre</a>
           <a href="careers.html" data-nav="careers.html">Careers</a>
           <a href="ask.html" data-nav="ask.html">Contact</a>
@@ -838,6 +846,8 @@ if (root.document && root.document.head) apply(read());
         <p class="eyebrow">Watch</p>
         <h2 class="display">Her, in&nbsp;motion.</h2>
       </div>
+      <!-- Her picks (9 Nov 2026): the films and the book she recommends, on their own page. -->
+      <a class="watch__picks" href="manekas-picks.html"><span class="eyebrow">Her picks</span><b>Films and a book she recommends</b><svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
     </div>
     <div class="vgrid" id="vgrid"></div>
     <p class="watch__stage display" id="vcap" aria-live="polite"></p>
@@ -1067,6 +1077,7 @@ if (root.document && root.document.head) apply(read());
       <p class="pfa-footer__label">About</p>
       <ul>
         <li><a href="founder.html">Founder</a></li>
+        <li><a href="manekas-picks.html">Maneka’s Picks</a></li>
         <li><a href="sgacc.html">Animal Care Centre</a></li>
         <li><a href="careers.html">Careers</a></li>
         <li><a href="ask.html">Contact</a></li>

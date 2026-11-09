@@ -1231,9 +1231,52 @@
     /* The line above replaces the global outright, so mount is put back on
        it: a second page mounting its own theatre must still find the door. */
     window.PFA_THEATRE.mount = mount;
+    window.PFA_THEATRE.lens = lens;
     return window.PFA_THEATRE;
+  }
+
+  /* ---- the lens: a trailer played inside a shape on the page ----
+     Owner, 9 Nov 2026, of Maneka's Picks: "find the right trailer for each
+     and render within the specs perfectly". The trailer plays in the lens of
+     the glasses on her portrait, cut to the lens by the page, rather than in
+     the full theatre. Built here and not in the page, because one module
+     makes every YouTube frame on this site (test/mobile-players.test.js):
+     the page asks for a lens and never writes a YouTube address itself.
+
+     It is built only when Play is pressed, so nothing reaches YouTube while
+     the page loads. Bare, looping and without YouTube's own controls: the
+     page's own buttons drive it, by the player's postMessage commands, and
+     full screen is the theatre's open(). An iPhone will not start a YouTube
+     film with sound, so there it starts muted, as in the theatre. */
+  function lens(host, film, opts){
+    opts = opts || {};
+    if (!host || !film || !film.yt) return null;
+    var ios = /iP(hone|ad|od)/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var muted = !!opts.muted || ios;
+    var origin = '';
+    try { origin = /^https?:$/.test(location.protocol) ? '&origin=' + encodeURIComponent(location.origin) : ''; } catch (e) {}
+    var frame = document.createElement('iframe');
+    frame.className = 'th-lens';
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+    frame.title = (film.title || 'Film') + ', trailer';
+    frame.setAttribute('tabindex', '-1');
+    frame.src = 'https://www.youtube.com/embed/' + film.yt + '?autoplay=1&mute=' + (muted ? 1 : 0) +
+      '&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&enablejsapi=1' +
+      '&loop=1&playlist=' + film.yt + origin + (film.start ? '&start=' + Math.floor(film.start) : '');
+    while (host.firstChild) host.removeChild(host.firstChild);
+    host.appendChild(frame);
+    function say(func){
+      try { frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*'); } catch (e) {}
+    }
+    return {
+      frame: frame,
+      muted: function(){ return muted; },
+      sound: function(on){ muted = !on; say(on ? 'unMute' : 'mute'); if (on) say('playVideo'); return !muted; },
+      stop: function(){ say('stopVideo'); if (frame.parentNode) frame.parentNode.removeChild(frame); }
+    };
   }
 
   window.PFA_THEATRE = window.PFA_THEATRE || {};
   window.PFA_THEATRE.mount = mount;
+  window.PFA_THEATRE.lens = lens;
 }());

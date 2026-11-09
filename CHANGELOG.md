@@ -1,3 +1,19 @@
+## v1.543
+
+- **Maneka’s Picks is part of the site.** Owner, 9 Nov 2026: "maneka's picks has to go perfectly with this website. find the best place and append the link.. the theme should match with the website".
+  - Where: About, straight under The founder, in the header, the phone menu and the footer; and on the founder page, beside "Her, in motion.", a link to her picks.
+  - The page (manekas-picks.html) is the site's own: the header and footer, the title block, Marcellus and Helvetica, square buttons, a hairline over each band, white ground. The page it replaces carried its own fonts and three images inside the file; the portrait is now media/picks/portrait.webp.
+- **The right trailer for each film, and where to watch it.** Owner: "find the right trailer for each ... and have the right hyperlinks to watch from the OTT". Each was checked against YouTube's record of who published it.
+  - Test Subject V: JioHotstar's official trailer; Watch on JioHotstar.
+  - Oslo: A Tail of Promise: the official teaser, from the film's makers (Protecterra Ecological Foundation); it was their short before. Watch on Apple TV.
+  - Ohh My Dog: the official trailer of the 2026 Hindi film with Pankaj Tripathi, the one on Netflix. The page had the trailer and story of the 2022 Tamil "Oh My Dog", which is a different film on Prime Video. Watch on Netflix.
+  - Trailers play in the theatre, as every film on the site does.
+- **The trailer plays inside her glasses.** Owner: "render within the specs perfectly". Play in her glasses lays the trailer into the lenses, cut to the lenses' own outline and measured again at every width, with Sound, Next film, Full screen (the theatre) and Stop. At rest the lenses show three moments of each trailer in turn, standing still on hover, on focus and for reduced motion. The glasses were refitted: on the bridge of the nose, level with her eyes, the top along the brows, the arms meeting the tops of her ears.
+  - Built by assets/theatre.js (PFA_THEATRE.lens), so no page writes a YouTube player of its own; nothing reaches YouTube until Play is pressed.
+  - The stills and the lens frames are fetched by npm run media:films into media/picks-films/ (DEPLOY.command runs it). Until then a tile keeps its number and the lenses their amber glass.
+- **The book: Animals, by Raghu Rai, with Buy on Amazon.**
+- test/manekas-picks.test.js holds all of this; the header, footer and phone-menu tests list the new entry.
+
 ## v1.542
 
 - **PAN and Aadhaar numbers are now checked properly, and an Aadhaar is matched to the card in the photo.** Owner, 7 Nov 2026: "hope you can validate whether the input pan and aadhar number is valid or not. enterprise grade validation", with the open-source PAN and Aadhaar validators on GitHub for reference (shape, the PAN's 4th letter, Verhoeff). This goes past them.

@@ -66,6 +66,7 @@ const NAV = [
   'cinekind.html|CineKind',
   'founder.html|About',
   'founder.html|The founder',
+  'manekas-picks.html|Maneka’s Picks',             /* her films and a book (9 Nov 2026) */
   'sgacc.html|Sanjay Gandhi Animal Care Centre',
   'careers.html|Careers',
   'ask.html|Contact',
@@ -118,6 +119,7 @@ const EXPECTED = {
   'legacy.html':       ['Leave a legacy',            'get-involved.html'],
   'csr.html':          ['CSR partnerships',          'get-involved.html'],
   'sgacc.html':        ['Sanjay Gandhi Animal Care Centre', 'founder.html'],
+  'manekas-picks.html': ['Maneka’s Picks',            'founder.html'],
   'privacy.html':      [null,                        null]
 };
 

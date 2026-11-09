@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en" data-pfa-tabs>
+<head>
+<!-- Marcellus self-hosted, same files as the home page, so every display heading renders identically even when Google Fonts is slow or blocked -->
+<!-- Requested at parse time rather than when layout first needs it. Without this the
+     browser does not ask for the file until it lays out a heading, which is why the
+     display face arrived a beat late and swapped in over the fallback. Only the latin
+     file: latin-ext covers characters these pages do not use. -->
+<link rel="preload" href="fonts/marcellus-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* No black grounds (owner's instruction, 15 Sep 2026): the deep sections
+   now stand on stone with ink type, converted through the page's own
+   tokens; buttons, tags and photographs keep their weight. */
+/* latin-ext */
+@font-face {
+  font-family: 'Marcellus';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/marcellus-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Marcellus';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/marcellus-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* What a cold load paints while Marcellus arrives is the next face in the
+   stack, and the flash is the difference between the two: Georgia runs about
+   2% wider per line and sits on different vertical metrics, so the swap
+   rewrapped every heading and the boxes around them moved - the flash of
+   unstyled text, back on every hard refresh. These two faces are Georgia and
+   Times dressed in Marcellus's measurements (ascent 1995, descent 573, gap 0,
+   weighted advance 932.4, all per 2048 em, read from the woff2 itself;
+   Georgia 913, Times 832 per capsize). Scaled and overridden to occupy the
+   same lines and the same boxes, the swap exchanges glyphs in place and
+   moves nothing. The preload makes the window short; these make it
+   invisible. Keep the numbers and the font in step: they are pinned by
+   test/fout.test.js against the file on disk. */
+@font-face {
+  font-family: 'Marcellus Fallback';
+  src: local('Georgia');
+  size-adjust: 102.13%;
+  ascent-override: 95.38%;
+  descent-override: 27.39%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Marcellus Fallback Times';
+  src: local('Times New Roman'), local('Times'), local('Liberation Serif'), local('Tinos');
+  size-adjust: 112.07%;
+  ascent-override: 86.92%;
+  descent-override: 24.96%;
+  line-gap-override: 0%;
+}
+</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Maneka’s Picks | People for Animals</title>
+<meta name="description" content="Three films and a book about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
+<link rel="stylesheet" href="assets/theatre.css">
+<link rel="stylesheet" href="assets/chrome.css?v=2ddf9151a8">
+<style>
+/* Maneka's Picks (owner, 9 Nov 2026: "maneka's picks has to go perfectly with
+   this website. find the best place and append the link.. the theme should
+   match with the website"). Reached from About, under The founder, and from
+   the founder page's films. The page speaks the site's language: Marcellus
+   for what names something, Helvetica for what is read, square buttons, a
+   hairline over each band, white ground.
+
+   Her portrait wears amber glasses, and a trailer plays inside them when
+   asked ("render within the specs perfectly"): the lens is cut from the
+   glasses' own outline, measured from the drawing on every resize, so the
+   film stays inside the frame at every width. Full screen is the theatre,
+   the one player every film on the site uses. */
+:root{
+  --paper:#fff;
+  --ink:#111;
+  --deep:#0a0a0a;
+  --muted:#6a6a6a;
+  --stone:#fff;
+  --bone:#fff;
+  --line:#e4e2df;
+  --line-dark:#3a3a3a;
+  --accent:#111;
+  --pop:#ff3b18;
+  --display:Marcellus,'Marcellus Fallback','Marcellus Fallback Times',Georgia,'Times New Roman',serif;
+  --body:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --ann:34px;
+  /* 81px: the nav and its rule; assets/chrome.js measures the real height. */
+  --nav:81px;
+  --max:1440px;
+  --gutter:max(clamp(16px,4vw,72px),(100% - 1440px) / 2);
+  --gutter-lg:max(clamp(24px,5vw,84px),(100% - 1440px) / 2);
+  --band:clamp(76px,8.5vw,136px);
+  --room:#efece7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:hover{opacity:.65}
+img,svg{display:block}
+::selection{background:var(--pop);color:#fff}
+:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+[hidden]{display:none!important}
+.display{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:1.02;letter-spacing:.01em;margin:0;text-wrap:balance}
+.eyebrow{margin:0;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:0 30px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-align:center;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;transition:background .2s,color .2s}
+.btn:hover{background:transparent;color:var(--ink);opacity:1}
+.btn--light{background:#fff;color:var(--ink)}
+.btn--light:hover{background:var(--ink);color:#fff}
+.btn svg{width:12px;height:12px;flex:none}
+
+/* ---------- the title ---------- */
+.mp-hero{position:relative;background:var(--paper);color:var(--ink);padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) clamp(36px,4vw,56px)}
+.mp-hero__in{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(28px,5vw,84px);align-items:start;max-width:var(--max)}
+.mp-hero .eyebrow{color:rgba(17,17,17,.55)}
+.mp-hero__role{margin:0;max-width:46ch;font-size:15px;line-height:1.68;color:rgba(17,17,17,.78)}
+.mp-acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+
+/* ---------- her portrait, and the glasses ---------- */
+.mp-stage{margin:0;padding:0 var(--gutter)}
+.mp-room{position:relative;height:clamp(320px,min(64vw,72svh),820px);background:var(--room);overflow:hidden;isolation:isolate}
+.mp-room::before{content:"Picks";position:absolute;left:-.04em;top:-.2em;z-index:0;font:400 clamp(160px,27vw,420px)/1 var(--display);letter-spacing:-.02em;text-transform:uppercase;color:rgba(17,17,17,.045);pointer-events:none;white-space:nowrap}
+.mp-face,.mp-rim{position:absolute;inset:0;width:100%;height:100%}
+.mp-face{z-index:1}
+.mp-rim{z-index:3;pointer-events:none}
+.mp-shot-a,.mp-shot-b{transition:opacity .5s ease;filter:contrast(1.1) sepia(.75) saturate(2.1) brightness(1.12)}
+.mp-shot-b{opacity:0}
+.mp-room.is-b .mp-shot-a{opacity:0}
+.mp-room.is-b .mp-shot-b{opacity:1}
+.mp-lens{position:absolute;z-index:2;overflow:hidden;background:#2a1606}
+.mp-lens iframe{display:block;width:100%;height:100%;border:0;pointer-events:none}
+.mp-room.is-playing .mp-tint{opacity:.32}
+.mp-lensbtn{position:absolute;z-index:4;padding:0;border:0;background:transparent;border-radius:38%;cursor:pointer}
+.mp-lensbtn:focus-visible{outline:2px solid var(--ink);outline-offset:6px}
+.mp-cap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;padding:16px 0;border-bottom:1px solid var(--line)}
+.mp-cap__now{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;min-width:0}
+.mp-cap__now b{font-family:var(--display);font-weight:400;font-size:clamp(18px,1.7vw,24px);line-height:1.15;text-transform:uppercase;letter-spacing:.01em;overflow-wrap:anywhere}
+.mp-ctls{display:flex;flex-wrap:wrap;gap:8px}
+.mp-ctl{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border:1px solid var(--ink);background:#fff;color:var(--ink);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
+.mp-ctl:hover,.mp-ctl--go{background:var(--ink);color:#fff}
+.mp-ctl--go:hover{background:#fff;color:var(--ink)}
+.mp-ctl svg{width:11px;height:11px;flex:none}
+.mp-credit{margin:10px 0 0;font-size:11px;line-height:1.5;color:var(--muted)}
+
+/* ---------- bands ---------- */
+.band{padding:var(--band) var(--gutter)}
+.band__head{max-width:var(--max);margin:0 0 clamp(32px,4vw,56px)}
+.band__head h2{font-size:clamp(28px,3.4vw,52px);margin-top:14px;max-width:17ch}
+.band__head p{margin:20px 0 0;max-width:58ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.72)}
+
+/* ---------- films ---------- */
+.mp-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,2.4vw,36px)}
+.mp-film{display:flex;flex-direction:column;min-width:0}
+.mp-film__meta{margin:0 0 12px}
+.mp-shot{position:relative;display:block;width:100%;aspect-ratio:16/9;padding:0;border:0;background:var(--room);overflow:hidden;cursor:pointer}
+.mp-shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
+.mp-shot:hover img{transform:scale(1.04)}
+.mp-shot__n{position:absolute;left:16px;top:12px;font:400 clamp(26px,2.4vw,36px)/1 var(--display);color:rgba(17,17,17,.4)}
+.mp-shot img + .mp-shot__n{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.mp-shot__play{position:absolute;left:14px;bottom:14px;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--ink);color:#fff}
+.mp-shot__play svg{width:13px;height:15px;margin-left:3px;fill:currentColor}
+.mp-shot:hover .mp-shot__play{background:#fff;color:var(--ink)}
+.mp-film h3{margin:20px 0 0;font-size:clamp(22px,2vw,30px);line-height:1.06}
+.mp-film p{margin:12px 0 0;font-size:15px;line-height:1.65;color:rgba(17,17,17,.75)}
+.mp-film .mp-acts{margin-top:auto;padding-top:22px}
+
+/* ---------- the book ---------- */
+.mp-bk{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:clamp(22px,3vw,48px);align-items:start;max-width:760px}
+.mp-bk__cover{display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:3/4;padding:20px 18px;background:var(--ink);color:#fff}
+.mp-bk__cover span{font:400 clamp(24px,2.4vw,32px)/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.mp-bk__cover small{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.mp-bk h3{margin:12px 0 0;font-size:clamp(28px,3vw,44px)}
+.mp-bk p{margin:14px 0 0;max-width:44ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.75)}
+
+@media (max-width:900px){
+  .mp-grid{grid-template-columns:minmax(0,1fr);gap:48px}
+  .mp-film .mp-acts{margin-top:0}
+}
+@media (max-width:720px){
+  .mp-hero{padding:calc(var(--ann) + var(--nav) + 36px) 16px 28px}
+  .mp-hero__in{grid-template-columns:minmax(0,1fr);gap:20px}
+  .mp-stage{padding:0}
+  .mp-room{height:auto;aspect-ratio:1296/1024}
+  .mp-cap{padding:14px 16px}
+  .mp-ctls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:100%}
+  .mp-ctl--go{grid-column:1 / -1}
+  .mp-credit{padding:0 16px}
+  .band{padding-left:16px;padding-right:16px}
+  .mp-bk{grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:18px}
+  .mp-bk__cover{padding:14px 12px}
+  .mp-bk__cover span{font-size:20px}
+  .mp-acts .btn{flex:1 1 auto}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+/* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
+@media (max-width:700px),(pointer:coarse){
+  
+}
+/* ---- end phone pass ---- */
+</style>
+<link rel="stylesheet" href="assets/micro.css">
+<link rel="stylesheet" href="pfa-search.css">
+<script src="pfa-search.js" defer></script>
+<!-- The editorial layer: loads after the page's own style, so the theme wins
+     ties (test/hero-alignment.test.js). -->
+<link rel="stylesheet" href="assets/pfa-theme.css">
+  <!-- seo:start  generated by scripts/build-seo.js - do not edit by hand -->
+  <link rel="canonical" href="https://peopleforanimalsindia.org/manekas-picks">
+  <meta property="og:site_name" content="People for Animals">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Maneka’s Picks">
+  <meta property="og:description" content="Three films and a book about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
+  <meta property="og:url" content="https://peopleforanimalsindia.org/manekas-picks">
+  <meta property="og:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="A People for Animals caregiver with a rescued animal">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@pfaindia">
+  <meta name="twitter:title" content="Maneka’s Picks">
+  <meta name="twitter:description" content="Three films and a book about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
+  <meta name="twitter:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://peopleforanimalsindia.org/"},{"@type":"ListItem","position":2,"name":"Maneka’s Picks","item":"https://peopleforanimalsindia.org/manekas-picks"}]}</script>
+  <!-- seo:end -->
+</head>
+<body>
+
+<script id="pfa-vis">
+(function (root) {
+'use strict';
+var KEY = 'pfa:visibility';
+var LOCKED = { index: 1, track: 2, search: 2 };
+var NOTICE = 'This page is not available right now.';
+var HOME = 'Go to the home page';
+var CSS_ID = 'pfa-vis-css';
+var ROBOTS_ID = 'pfa-vis-robots';
+var GONE_ID = 'pfa-gone';
+var PAGE = /^[a-z0-9][a-z0-9-]*$/;
+var PART = /^[A-Za-z][A-Za-z0-9_-]*$/;
+var applied = { version: 0, pages: [], modules: [] };
+var title = null;
+function pagesOf(state) {
+return (state && Array.isArray(state.pages) ? state.pages : []).filter(function (p) {
+return typeof p === 'string' && PAGE.test(p) && !LOCKED[p];
+});
+}
+function modulesOf(state) {
+return (state && Array.isArray(state.modules) ? state.modules : []).filter(function (m) {
+var at = typeof m === 'string' ? m.indexOf('#') : -1;
+return at > 0 && PAGE.test(m.slice(0, at)) && PART.test(m.slice(at + 1)) && LOCKED[m.slice(0, at)] !== 2;
+});
+}
+function clean(state) {
+return { version: Number(state && state.version) || 0, pages: pagesOf(state), modules: modulesOf(state) };
+}
+function pageOf(url) {
+var p = String(url == null ? '' : url).split('#')[0].split('?')[0];
+p = p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/, '');
+try { p = decodeURIComponent(p); } catch (e) {}
+return p || 'index';
+}
+function linksTo(page) {
+var f = page + '.html';
+return ['a[href="' + f + '"]', 'a[href^="' + f + '#"]', 'a[href^="' + f + '?"]',
+'a[href$="/' + f + '"]', 'a[href*="/' + f + '#"]', 'a[href*="/' + f + '?"]'];
+}
+function plan(state, page) {
+var s = clean(state);
+var here = String(page || 'index');
+var gone = s.pages.indexOf(here) > -1;
+var links = [];
+var own = [];
+var css = '';
+s.pages.forEach(function (p) { links = links.concat(linksTo(p)); });
+s.modules.forEach(function (m) {
+var at = m.indexOf('#');
+var p = m.slice(0, at);
+var id = m.slice(at + 1);
+links.push('a[href$="' + p + '.html#' + id + '"]');
+if (p === here) {
+own.push('[id="' + id + '"]', '[data-module="' + id + '"]');
+links.push('a[href="#' + id + '"]:not([aria-current])');
+}
+});
+if (gone) links.push('a[aria-current="page"]');
+if (own.length) css += own.join(',') + '{display:none!important}';
+if (links.length) {
+var list = links.join(',');
+css += list + '{display:none!important}';
+css += links.map(function (l) { return '.navitem>' + l; }).join(',') + '{display:revert!important;pointer-events:none;cursor:default}';
+css += 'li:has(>:is(' + list + '):only-child){display:none!important}';
+css += '.navitem:not(:has(.menu>a:not(' + list + '))){display:none!important}';
+css += '.mnav__group:not(:has(a:not(' + list + '))){display:none!important}';
+css += '.mnav__list:not(:has(>a:not(' + list + '))){display:none!important}';
+css += '.pfa-footer__col:not(:has(li>a:not(' + list + '))){display:none!important}';
+css += '.menu-label:has(+a:is(' + list + ')),.menu-label:has(+a:is(' + list + '))~.menu-sep,.mnav__sub:has(+a:is(' + list + ')),.mnav__sub:has(+.mnav__list:not(:has(>a:not(' + list + ')))){display:none!important}';
+}
+if (gone) {
+css += 'body>:not(.announce):not(header):not(.pfa-tabs):not(.pfa-footer):not(.mnav):not(.cursor-layer):not(.pfa-search):not(#pfa-gone){display:none!important}'
++ '#pfa-gone{display:block!important;box-sizing:border-box;min-height:62vh;padding:calc(var(--ann,34px) + var(--nav,81px) + 72px) var(--gutter,20px) 96px;text-align:center;color:var(--ink,#111);background:#fff}'
++ '#pfa-gone h1{font-family:var(--display,Georgia,serif);font-weight:400;font-size:clamp(28px,4vw,44px);line-height:1.15;margin:0 0 20px}'
++ '#pfa-gone p{margin:0;font-size:16px}'
++ '#pfa-gone a{color:inherit;text-decoration:underline;text-underline-offset:4px}';
+}
+return { css: css, gone: gone };
+}
+function blocked(url, state, anchors) {
+var s = clean(state || applied);
+var u = String(url == null ? '' : url);
+var page = pageOf(u);
+if (s.pages.indexOf(page) > -1) return true;
+var at = u.indexOf('#');
+if (at < 0 || !s.modules.length) return false;
+var hash = u.slice(at + 1);
+var part = (anchors && anchors[page] && anchors[page][hash]) || hash;
+return s.modules.indexOf(page + '#' + part) > -1;
+}
+function read() {
+try {
+var raw = root.localStorage.getItem(KEY);
+return raw ? clean(JSON.parse(raw)) : null;
+} catch (e) { return null; }
+}
+function save(state) {
+try { root.localStorage.setItem(KEY, JSON.stringify(clean(state))); } catch (e) {}
+}
+function drop(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
+function apply(state) {
+var d = root.document;
+if (!d || !d.head) return null;
+applied = clean(state);
+var p = plan(applied, pageOf(root.location && root.location.pathname));
+var tag = d.getElementById(CSS_ID);
+if (!tag && p.css) {
+tag = d.createElement('style');
+tag.setAttribute('id', CSS_ID);
+d.head.appendChild(tag);
+}
+if (tag) tag.textContent = p.css;
+var robots = d.getElementById(ROBOTS_ID);
+var box = d.getElementById(GONE_ID);
+if (p.gone) {
+if (!robots) {
+robots = d.createElement('meta');
+robots.setAttribute('id', ROBOTS_ID);
+robots.setAttribute('name', 'robots');
+robots.setAttribute('content', 'noindex');
+d.head.appendChild(robots);
+}
+if (!box && d.body) {
+box = d.createElement('div');
+box.setAttribute('id', GONE_ID);
+var h = d.createElement('h1');
+h.textContent = NOTICE;
+var line = d.createElement('p');
+var home = d.createElement('a');
+home.setAttribute('href', '/');
+home.textContent = HOME;
+line.appendChild(home);
+box.appendChild(h);
+box.appendChild(line);
+d.body.insertBefore(box, d.body.firstChild);
+}
+if (title === null) title = d.title;
+d.title = 'Not available right now · People for Animals';
+} else {
+drop(robots);
+drop(box);
+if (title !== null) { d.title = title; title = null; }
+}
+return p;
+}
+root.PFA_VISIBILITY = {
+KEY: KEY, LOCKED: LOCKED, NOTICE: NOTICE,
+clean: clean, pageOf: pageOf, plan: plan, blocked: blocked,
+read: read, save: save, apply: apply,
+state: function () { return applied; }
+};
+try {
+if (root.document && root.document.head) apply(read());
+} catch (e) {}
+}(this));
+</script>
+<div class="announce" id="announce" data-cursor="light">
+  <p>Every drive, camp and open day is free to attend</p>
+  <button type="button" aria-label="Close" id="annClose"></button>
+</div>
+<header class="site" id="header" data-cursor="dark">
+  <nav aria-label="Main navigation">
+    <a class="wordmark" href="index.html" aria-label="People for Animals"><img src="img/logo.png" alt="People for Animals" width="231" height="79"></a>
+    <div class="navlinks">
+      <div class="navitem">
+        <a href="units.html" data-nav="units.html">Our Work</a>
+        <div class="menu">
+          <a href="units.html" data-nav="units.html">Units: find help near you</a>
+          <a href="report.html" data-nav="report.html">Report cruelty</a>
+          <a href="newsroom.html" data-nav="newsroom.html">Newsroom and cases</a>
+          <a href="achievements.html" data-nav="achievements.html">Policies and achievements</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="laws.html" data-nav="laws.html">Learn</a>
+        <div class="menu">
+          <a href="laws.html" data-nav="laws.html">What the law says</a>
+          <a href="library.html" data-nav="library.html">Resources library</a>
+          <a href="academy.html" data-nav="academy.html">Academy</a>
+          <a href="someone.html" data-nav="someone.html">Someone, not something</a>
+          <a href="quiz.html" data-nav="quiz.html">Test yourself</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="get-involved.html" data-nav="get-involved.html">Get Involved</a>
+        <div class="menu">
+          <span class="menu-label">Join the tribe</span>
+          <a href="get-involved.html#volunteer" data-nav="get-involved.html#volunteer">Volunteer</a>
+          <a href="get-involved.html#membership" data-nav="get-involved.html#membership">Become a member</a>
+          <a href="get-involved.html#caregiver" data-nav="get-involved.html#caregiver">Colony caregiver</a>
+          <a href="campus.html" data-nav="campus.html">PFA Campus</a>
+          <a href="internship.html" data-nav="internship.html">Remote internship</a>
+          <span class="menu-sep" aria-hidden="true"></span>
+          <span class="menu-label">Give and partner</span>
+          <a href="campaign.html" data-nav="campaign.html">Plan a campaign</a>
+          <a href="legacy.html" data-nav="legacy.html">Leave a legacy</a>
+          <a href="csr.html" data-nav="csr.html">CSR partnerships</a>
+          <span class="menu-sep" aria-hidden="true"></span>
+          <a href="wall.html" data-nav="wall.html">The Wall</a>
+          <a href="events.html" data-nav="events.html">Events</a>
+          <a href="cinekind.html" data-nav="cinekind.html">CineKind</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="founder.html" data-nav="founder.html" class="in-section">About</a>
+        <div class="menu right">
+          <a href="founder.html" data-nav="founder.html">The founder</a>
+          <a href="#top" data-nav="manekas-picks.html" class="current" aria-current="page">Maneka’s Picks</a>
+          <a href="sgacc.html" data-nav="sgacc.html">Sanjay Gandhi Animal Care Centre</a>
+          <a href="careers.html" data-nav="careers.html">Careers</a>
+          <a href="ask.html" data-nav="ask.html">Contact</a>
+        </div>
+      </div>
+      <a href="donate.html" data-nav="donate.html" class="donate">Donate</a>
+      <a href="shop.html" data-nav="shop.html" class="shop">Shop</a>
+    </div>
+    <a class="appsearch" href="search.html" data-open-search aria-label="Search the site"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg></a>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
+  </nav>
+</header>
+<nav class="pfa-tabs" aria-label="Main sections">
+  <a class="pfa-tab" href="index.html" data-tab="home"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7"/><path d="M5.5 8.8V20.5h4.6v-5.6h3.8v5.6h4.6V8.8"/></svg><span class="pfa-tab__label">Home</span></a>
+  <a class="pfa-tab" href="units.html" data-tab="help"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.8-6-6.8-11.3a6.8 6.8 0 0 1 13.6 0C18.8 15 12 21 12 21Z"/><path d="M12 6.9v5.4M9.3 9.6h5.4"/></svg><span class="pfa-tab__label">Find help</span></a>
+  <a class="pfa-tab pfa-tab--donate" href="donate.html" data-tab="donate"><span class="pfa-tab__give"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19.6s-7.1-4.3-7.1-9.5a4.1 4.1 0 0 1 7.1-2.8 4.1 4.1 0 0 1 7.1 2.8c0 5.2-7.1 9.5-7.1 9.5Z" fill="currentColor"/></svg></span><span class="pfa-tab__label">Donate</span></a>
+  <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
+  <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
+</nav>
+<script src="assets/chrome.js?v=c94b69f654"></script>
+
+<main>
+  <section class="mp-hero" id="top">
+    <div class="mp-hero__in">
+      <div>
+        <p class="eyebrow pfa-kicker">Chosen by the founder</p>
+        <h1 class="pfa-title display">Maneka’s Picks</h1>
+      </div>
+      <div>
+        <p class="mp-hero__role">Three films and a book about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers here, then the films on their streaming services.</p>
+        <div class="mp-acts">
+          <a class="btn" href="#films">The films</a>
+          <a class="btn btn--light" href="#book">The book</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <figure class="mp-stage" id="specs">
+    <div class="mp-room" id="mpRoom">
+      <svg class="mp-face" viewBox="120 0 1296 1024" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Smt. Maneka Sanjay Gandhi in amber glasses, a trailer in the lenses" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <path id="mpGlass" d="M4 14C20 5.75 48 2 85 2S147 5.75 165 13.25L168 23L166 39.5Q166 44.75 159 46.25L123 52.25Q111 53.75 104 50Q99 47 96 40.25L91 29Q89 25.5 85 25.5Q81 25.5 79 29L73 42Q69 49.25 62 51.5Q56 54.5 45 52.25L13 47Q5 45.5 4 41L2 23Z"/>
+          <clipPath id="mpCut"><use href="#mpGlass"/></clipPath>
+          <linearGradient id="mpTint" x1="0%" y1="0%" x2="100%" y2="100%"><stop stop-color="#562407" stop-opacity=".59"/><stop offset=".38" stop-color="#f9a011" stop-opacity=".38"/><stop offset=".66" stop-color="#e87500" stop-opacity=".45"/><stop offset="1" stop-color="#ffc52b" stop-opacity=".62"/></linearGradient>
+          <linearGradient id="mpGlint" x1="0%" y1="0%" x2="0%" y2="100%"><stop stop-color="#fff0a0" stop-opacity=".66"/><stop offset=".35" stop-color="#fff2c0" stop-opacity="0"/><stop offset=".88" stop-color="#ffad26" stop-opacity="0"/><stop offset="1" stop-color="#ffc759" stop-opacity=".6"/></linearGradient>
+        </defs>
+        <image href="media/picks/portrait.webp" width="1536" height="1024"/>
+        <!-- The glasses sit on the bridge of her nose, level with her eyes,
+             their top along the brows and their arms meeting the tops of her
+             ears (9 Nov 2026). The same transform is on .mp-rim below. -->
+        <g id="mpVisor" transform="translate(777 319) rotate(-1.4) scale(2.59) translate(-85 -2)">
+          <use href="#mpGlass" fill="#21120a" stroke="#100d0c" stroke-width="5" opacity=".24" transform="translate(0 1.5)"/>
+          <g clip-path="url(#mpCut)" style="isolation:isolate">
+            <use href="#mpGlass" fill="#864507"/>
+            <image class="mp-shot-a" id="mpShotA" x="1" y="-6" width="170" height="66.5" preserveAspectRatio="xMidYMid slice"/>
+            <image class="mp-shot-b" id="mpShotB" x="1" y="-6" width="170" height="66.5" preserveAspectRatio="xMidYMid slice"/>
+            <use href="#mpGlass" fill="url(#mpTint)" style="mix-blend-mode:multiply"/>
+            <use href="#mpGlass" fill="url(#mpTint)" opacity=".47" style="mix-blend-mode:color"/>
+            <use href="#mpGlass" fill="#fa8d00" opacity=".24" style="mix-blend-mode:screen"/>
+          </g>
+        </g>
+      </svg>
+      <div class="mp-lens" id="mpLens" hidden></div>
+      <svg class="mp-rim" viewBox="120 0 1296 1024" preserveAspectRatio="xMidYMax meet" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mpMetal" x2="20%" y2="100%"><stop stop-color="#705c4a"/><stop offset=".17" stop-color="#272021"/><stop offset=".5" stop-color="#1f1817"/><stop offset=".84" stop-color="#130e0f"/><stop offset="1" stop-color="#4f3b32"/></linearGradient>
+        </defs>
+        <g transform="translate(777 319) rotate(-1.4) scale(2.59) translate(-85 -2)">
+          <path d="M6 14L-7 16.25Q-9 17.38 -7 19.25L5 20ZM164 14L177 16.25Q179 17.38 177 19.25L165 20Z" fill="#281c18"/>
+          <use class="mp-tint" href="#mpGlass" fill="#fa8d00" opacity=".12"/>
+          <use href="#mpGlass" fill="url(#mpGlint)" opacity=".7"/>
+          <use href="#mpGlass" fill="none" stroke="url(#mpMetal)" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M4 15.5C23 5.75 49 2 85 2S148 5.75 165 14L167 21.5L161 17.75L159 14.75C139 8 113 5.75 85 5.75S30 8 11 15.5L8 20L3 22.25Z" fill="url(#mpMetal)"/>
+          <path d="M7 14C27 5 53 2 85 2S142 5 162 13.25" fill="none" stroke="#e3c49d" stroke-opacity=".52" stroke-width=".7"/>
+          <path d="M5 39.5Q10 39.5 15 40.25L24 47.75L12 46.25Q6 44.75 5 39.5ZM166 39.5Q160 39.5 155 41L148 48.5L159 46.25Q165 44.75 166 39.5Z" fill="url(#mpMetal)" stroke="#b49c82" stroke-opacity=".68" stroke-width=".7"/>
+          <path d="M72 43L79 29Q81 25 85 25Q90 25 92 29L99 43" fill="none" stroke="#4b3830" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <button class="mp-lensbtn" id="mpLensBtn" type="button" aria-label="Play the trailer in her glasses" hidden></button>
+    </div>
+    <figcaption class="mp-cap">
+      <span class="mp-cap__now"><span class="eyebrow">In her glasses</span> <b id="mpNow" aria-live="polite">Test Subject V</b></span>
+      <span class="mp-ctls">
+        <button class="mp-ctl mp-ctl--go" id="mpPlay" type="button"><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7-12 7z" fill="currentColor"/></svg>Play in her glasses</button>
+        <button class="mp-ctl" id="mpSound" type="button" aria-pressed="true" hidden>Sound: On</button>
+        <button class="mp-ctl" id="mpNext" type="button">Next film</button>
+        <button class="mp-ctl" id="mpFull" type="button">Full screen</button>
+        <button class="mp-ctl" id="mpStop" type="button" hidden>Stop</button>
+      </span>
+    </figcaption>
+    <p class="mp-credit">Portrait restored from an archival photograph.</p>
+  </figure>
+
+  <section class="band" id="films">
+    <div class="band__head">
+      <p class="eyebrow">Films</p>
+      <h2 class="display">Three to watch.</h2>
+      <p>The trailer plays here. The full film is on its streaming service.</p>
+    </div>
+    <ol class="mp-grid">
+      <li class="mp-film">
+        <p class="eyebrow mp-film__meta">Docu-feature &middot; JioHotstar</p>
+        <button class="mp-shot" type="button" data-film="0" aria-label="Play the trailer: Test Subject V"><img alt="" data-still="media/picks-films/jvTxVAMrgGA.jpg"><span class="mp-shot__n">01</span><span class="mp-shot__play"><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7-12 7z"/></svg></span></button>
+        <h3 class="display">Test Subject V</h3>
+        <p>Kunal Avanti once lived for food. A turning point makes him rethink what he was taught about food, health and compassion. Presented by John Abraham.</p>
+        <div class="mp-acts">
+          <a class="btn" href="https://www.hotstar.com/in/movies/test-subject-v/1271666270" target="_blank" rel="noopener noreferrer">Watch on JioHotstar <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        </div>
+      </li>
+      <li class="mp-film">
+        <p class="eyebrow mp-film__meta">Documentary &middot; Apple TV</p>
+        <button class="mp-shot" type="button" data-film="1" aria-label="Play the trailer: Oslo: A Tail of Promise"><img alt="" data-still="media/picks-films/Y4ftPP5XnAk.jpg"><span class="mp-shot__n">02</span><span class="mp-shot__play"><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7-12 7z"/></svg></span></button>
+        <h3 class="display">Oslo: A Tail of Promise</h3>
+        <p>Conservation biologist Pooja Bhale and Oslo, the Siberian husky whose bond with her shaped her life on a farm near Pune. Presented by John Abraham.</p>
+        <div class="mp-acts">
+          <a class="btn" href="https://tv.apple.com/in/movie/oslo---a-tail-of-promise/umc.cmc.1bftumclcvzdtx1o623j0aocg" target="_blank" rel="noopener noreferrer">Watch on Apple TV <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        </div>
+      </li>
+      <li class="mp-film">
+        <p class="eyebrow mp-film__meta">Hindi film &middot; Netflix</p>
+        <button class="mp-shot" type="button" data-film="2" aria-label="Play the trailer: Ohh My Dog"><img alt="" data-still="media/picks-films/Hkv1-F5-EaI.jpg"><span class="mp-shot__n">03</span><span class="mp-shot__play"><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7-12 7z"/></svg></span></button>
+        <h3 class="display">Ohh My Dog</h3>
+        <p>A schoolboy sets out to find his missing dog, while in Bihar a loyal dog searches for the young man he lives with. With Pankaj Tripathi and Pavan Malhotra.</p>
+        <div class="mp-acts">
+          <a class="btn" href="https://www.netflix.com/in/title/83197638" target="_blank" rel="noopener noreferrer">Watch on Netflix <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="band m-twin" id="book">
+    <div class="band__head">
+      <p class="eyebrow">Book</p>
+      <h2 class="display">One to read.</h2>
+    </div>
+    <article class="mp-bk">
+      <div class="mp-bk__cover" aria-hidden="true"><span>Animals</span><small>Raghu Rai</small></div>
+      <div>
+        <p class="eyebrow">Raghu Rai</p>
+        <h3 class="display">Animals</h3>
+        <p>By the photographer Raghu Rai.</p>
+        <div class="mp-acts">
+          <a class="btn" href="https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1" target="_blank" rel="noopener noreferrer">Buy on Amazon <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        </div>
+      </div>
+    </article>
+  </section>
+</main>
+
+<footer class="pfa-footer" data-cursor="dark" id="donate" data-screen-label="Footer">
+  <!-- Folded (owner, 25 Oct 2026: "make footer cleaner.. like expand only if
+       need be.. right now .. just a load of things"). The footer is one row
+       of headings, each opening its links when asked, and one slim line
+       under it: PFA on social media, the visit counter and the legal line
+       with the privacy policy. Five link groups follow the header (Our
+       Work, Learn, Get Involved, its "Give and partner" list, About), then
+       the registered office. assets/chrome.js folds them, one open at a
+       time; a page whose script does not run shows every group open, as a
+       directory.
+
+       Every block is block-level in the markup: assets/ is cached for an hour
+       and the HTML is not, so for up to an hour after a deploy this markup
+       meets the previous chrome.css, and it still reads top to bottom. -->
+  <div class="pfa-footer__grid">
+    <nav class="pfa-footer__col" aria-label="Our Work">
+      <p class="pfa-footer__label">Our Work</p>
+      <ul>
+        <li><a href="units.html">Units near you</a></li>
+        <li><a href="report.html">Report cruelty</a></li>
+        <li><a href="newsroom.html">Newsroom and cases</a></li>
+        <li><a href="achievements.html">Policies and achievements</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Learn">
+      <p class="pfa-footer__label">Learn</p>
+      <ul>
+        <li><a href="laws.html">What the law says</a></li>
+        <li><a href="library.html">Resources library</a></li>
+        <li><a href="academy.html">Academy</a></li>
+        <li><a href="quiz.html">Test yourself</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Get Involved">
+      <p class="pfa-footer__label">Get Involved</p>
+      <ul>
+        <li><a href="get-involved.html#volunteer">Volunteer</a></li>
+        <li><a href="get-involved.html#membership">Become a member</a></li>
+        <li><a href="caregiver-card.html">Colony caregiver card</a></li>
+        <li><a href="campus.html">PFA Campus</a></li>
+        <li><a href="internship.html">Remote internship</a></li>
+        <li><a href="wall.html">The Wall</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="cinekind.html">CineKind</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Give and partner">
+      <p class="pfa-footer__label">Give and partner</p>
+      <ul>
+        <li><a href="donate.html">Donate</a></li>
+        <li><a href="donate.html?gift=1">Make a gift</a></li>
+        <li><a href="campaign.html">Plan a campaign</a></li>
+        <li><a href="legacy.html">Leave a legacy</a></li>
+        <li><a href="csr.html">CSR partnerships</a></li>
+        <li><a href="shop.html">Shop</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="About">
+      <p class="pfa-footer__label">About</p>
+      <ul>
+        <li><a href="founder.html">Founder</a></li>
+        <li><a href="manekas-picks.html">Maneka’s Picks</a></li>
+        <li><a href="sgacc.html">Animal Care Centre</a></li>
+        <li><a href="careers.html">Careers</a></li>
+        <li><a href="ask.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="pfa-footer__office">
+      <p class="pfa-footer__label">Registered office</p>
+      <!-- As published on peopleforanimalsindia.org. tel: and mailto: so a
+           phone dials and a mail client opens; the numbers hold together with
+           non-breaking spaces, because a number split across two lines cannot
+           be dialled. -->
+      <address class="pfa-footer__where" id="contact">
+        <div>4-T, DCM Building, 16 Barakhamba Road, New Delhi 110001, India</div>
+        <div class="pfa-footer__tel"><a href="tel:+911120818191">+91&nbsp;11&nbsp;2081&nbsp;8191</a><span class="pfa-footer__dot"> · </span><a href="tel:+911120818194">+91&nbsp;11&nbsp;2081&nbsp;8194</a></div>
+        <div><a href="mailto:gandhim@exmpls.sansad.in">gandhim@exmpls.sansad.in</a></div>
+      </address>
+    </div>
+  </div>
+  <div class="pfa-footer__base">
+    <nav class="pfa-footer__social" aria-label="Social media">
+      <a href="https://www.instagram.com/pfa.official/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://www.facebook.com/people4animals/" target="_blank" rel="noopener noreferrer">Facebook</a>
+      <a href="https://x.com/pfaindia" target="_blank" rel="noopener noreferrer">X</a>
+      <a href="https://www.youtube.com/@peopleforanimals9047" target="_blank" rel="noopener noreferrer">YouTube</a>
+    </nav>
+    <!-- Real count, from /api/visits. Hidden until a number actually
+         arrives, so a counter that cannot reach the server shows nothing
+         rather than a zero or an invented figure. No caption; the
+         aria-label names it for a screen reader. -->
+    <div class="pfa-tally" id="pfaTally" hidden>
+      <div class="pfa-tally__odo" id="pfaTallyOdo" role="status" aria-live="polite" aria-label="Visit counter"></div>
+    </div>
+    <p>People for Animals © 2026</p>
+    <p>Registered charity · All donations tax-deductible</p>
+    <p><a href="privacy.html">Privacy policy</a></p>
+  </div>
+</footer>
+
+<script src="assets/theatre.js"></script>
+<script>
+/* ---------- the films, and the glasses ----------
+   Each trailer is the film's own, checked on 9 Nov 2026 against YouTube's
+   record of who published it:
+     Test Subject V           JioHotstar, "Official Trailer"
+     Oslo: A Tail of Promise  Protecterra Ecological Foundation (the film's
+                              makers), "Official Teaser"
+     Ohh My Dog               Babulal Biscope, "Official Trailer" of the 2026
+                              Hindi film, the one on Netflix (not the 2022
+                              Tamil "Oh My Dog")
+   The stills are served from this site, fetched by npm run media:films
+   (scripts/fetch-founder-films.js), with three frames of each trailer for
+   the glasses. Until they are here a tile keeps its number and the lens its
+   amber glass; nothing is asked of YouTube until Play is pressed. */
+(function picks(){
+  'use strict';
+  var FILMS = [
+    { wall:'long', title:'Test Subject V', credit:'JioHotstar', yt:'jvTxVAMrgGA', poster:'media/picks-films/jvTxVAMrgGA.jpg' },
+    { wall:'long', title:'Oslo: A Tail of Promise', credit:'Protecterra Ecological Foundation', yt:'Y4ftPP5XnAk', poster:'media/picks-films/Y4ftPP5XnAk.jpg' },
+    { wall:'long', title:'Ohh My Dog', credit:'Babulal Biscope', yt:'Hkv1-F5-EaI', poster:'media/picks-films/Hkv1-F5-EaI.jpg' }
+  ];
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+
+  var PT = window.PFA_THEATRE || {};
+  var T = PT.mount ? PT.mount({
+    films: FILMS,
+    progKey: 'pfa:picks:progress',
+    name: 'Maneka’s Picks',
+    credit: 'People for Animals · Maneka’s Picks',
+    foot: [{ href: '#films', text: 'Films' }, { href: '#book', text: 'The book' }]
+  }) : null;
+  var lensOf = (window.PFA_THEATRE && window.PFA_THEATRE.lens) || PT.lens;
+
+  /* the tiles' stills, laid in only once a file is really here */
+  [].forEach.call(document.querySelectorAll('.mp-shot img[data-still]'), function (img) {
+    img.addEventListener('error', function () { img.remove(); });
+    img.src = img.getAttribute('data-still');
+  });
+
+  var room = $('mpRoom'), visor = $('mpVisor'), glass = $('mpGlass'), host = $('mpLens'), hit = $('mpLensBtn');
+  var now = $('mpNow'), play = $('mpPlay'), sound = $('mpSound'), next = $('mpNext'), full = $('mpFull'), stop = $('mpStop');
+  var cur = 0, frame = 0, layerB = false, timer = null, held = false, seen = true, lens = null;
+
+  /* ---- the lens, measured from the drawing ----
+     The glasses' outline is sampled along its length and carried through the
+     drawing's own transform to the page, so the film is cut to exactly the
+     lens the eye sees, at any width and on any screen. The film is laid in
+     at 16:9 and as large as the lens needs to be filled, then cut. */
+  var box = null;
+  function measure(){
+    if (!room || !visor || !glass || !glass.getTotalLength || !visor.getScreenCTM) return null;
+    var m = visor.getScreenCTM(); if (!m) return null;
+    var r = room.getBoundingClientRect();
+    var len = glass.getTotalLength(), pts = [], N = 160, i, p, q;
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (i = 0; i < N; i++) {
+      p = glass.getPointAtLength(len * i / N);
+      q = { x: m.a * p.x + m.c * p.y + m.e - r.left, y: m.b * p.x + m.d * p.y + m.f - r.top };
+      pts.push(q);
+      x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y);
+    }
+    var w = x1 - x0, h = y1 - y0;
+    if (!(w > 0 && h > 0)) return null;
+    var fw = w, fh = w * 9 / 16;
+    if (fh < h) { fh = h; fw = h * 16 / 9; }
+    var fx = x0 + (w - fw) / 2, fy = y0 + (h - fh) / 2;
+    return { x0: x0, y0: y0, w: w, h: h, fx: fx, fy: fy, fw: fw, fh: fh,
+      clip: 'polygon(' + pts.map(function (q) { return (q.x - fx).toFixed(1) + 'px ' + (q.y - fy).toFixed(1) + 'px'; }).join(',') + ')' };
+  }
+  function place(){
+    box = measure();
+    if (!box) return;
+    host.style.left = box.fx + 'px'; host.style.top = box.fy + 'px';
+    host.style.width = box.fw + 'px'; host.style.height = box.fh + 'px';
+    host.style.clipPath = box.clip; host.style.webkitClipPath = box.clip;
+    hit.style.left = box.x0 + 'px'; hit.style.top = box.y0 + 'px';
+    hit.style.width = box.w + 'px'; hit.style.height = box.h + 'px';
+    hit.hidden = false;
+  }
+
+  /* ---- what the lens shows at rest: frames of each trailer, in turn ----
+     Still while a pointer or keyboard is on the portrait, for anyone who
+     has asked for less motion, while the film plays, and off screen. */
+  function framesOf(f){ return ['media/picks-films/' + f.yt + '-1.jpg', 'media/picks-films/' + f.yt + '-2.jpg', 'media/picks-films/' + f.yt + '-3.jpg', f.poster]; }
+  function show(url){
+    var probe = new Image();
+    probe.onload = function () {
+      var el = $(layerB ? 'mpShotA' : 'mpShotB');
+      el.setAttribute('href', url);
+      layerB = !layerB;
+      room.classList.toggle('is-b', layerB);
+    };
+    probe.src = url;
+  }
+  function name(){
+    var f = FILMS[cur];
+    now.textContent = f.title;
+    hit.setAttribute('aria-label', 'Play the trailer of ' + f.title + ' in her glasses');
+  }
+  function still(){ return held || !seen || lens || reduce.matches || document.hidden || (T && T.isOpen && T.isOpen()); }
+  function tick(){
+    if (still()) return;
+    frame += 1;
+    if (frame > 3) { frame = 0; cur = (cur + 1) % FILMS.length; name(); }
+    show(framesOf(FILMS[cur])[frame]);
+  }
+  function run(){ clearInterval(timer); timer = setInterval(tick, 2600); }
+
+  /* ---- playing in the glasses ---- */
+  function paint(){
+    var on = !!lens;
+    room.classList.toggle('is-playing', on);
+    host.hidden = !on;
+    play.hidden = on; stop.hidden = !on; sound.hidden = !on;
+    if (on) {
+      var loud = !lens.muted();
+      sound.textContent = loud ? 'Sound: On' : 'Sound: Off';
+      sound.setAttribute('aria-pressed', loud ? 'true' : 'false');
+    }
+  }
+  function playIn(i){
+    if (!lensOf) { if (T) T.open(i, 'long'); return; }
+    if (lens) lens.stop();
+    cur = i; name(); place();
+    lens = lensOf(host, FILMS[cur]);
+    paint();
+  }
+  function halt(){ if (lens) { lens.stop(); lens = null; } paint(); }
+
+  play.addEventListener('click', function () { playIn(cur); });
+  hit.addEventListener('click', function () { if (lens) halt(); else playIn(cur); });
+  stop.addEventListener('click', halt);
+  sound.addEventListener('click', function () { if (lens) { lens.sound(lens.muted()); paint(); } });
+  next.addEventListener('click', function () {
+    var i = (cur + 1) % FILMS.length;
+    if (lens) { playIn(i); return; }
+    cur = i; frame = 0; name(); show(framesOf(FILMS[cur])[0]);
+  });
+  full.addEventListener('click', function () { var i = cur; halt(); if (T) T.open(i, 'long'); });
+
+  [].forEach.call(document.querySelectorAll('[data-film]'), function (b) {
+    b.addEventListener('click', function () { halt(); if (T) T.open(+b.getAttribute('data-film'), 'long'); });
+  });
+
+  if (room) {
+    room.addEventListener('pointerenter', function () { held = true; });
+    room.addEventListener('pointerleave', function () { held = false; });
+    room.addEventListener('focusin', function () { held = true; });
+    room.addEventListener('focusout', function () { held = false; });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { seen = es[0].isIntersecting; }).observe(room);
+    if ('ResizeObserver' in window) new ResizeObserver(place).observe(room);
+    window.addEventListener('resize', place);
+    window.addEventListener('load', place);
+    place(); name(); show(framesOf(FILMS[cur])[0]); run();
+  }
+}());
+</script>
+</body>
+</html>

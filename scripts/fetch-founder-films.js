@@ -43,7 +43,11 @@ const ROOT = path.join(__dirname, '..');
    host list and the retry to drift apart. */
 const PAGES = [
   { page: path.join(ROOT, 'founder.html'), out: path.join(ROOT, 'media', 'founder-films') },
-  { page: path.join(ROOT, 'academy.html'), out: path.join(ROOT, 'media', 'academy-films') }
+  { page: path.join(ROOT, 'academy.html'), out: path.join(ROOT, 'media', 'academy-films') },
+  /* Maneka's Picks (9 Nov 2026): its films are written in the academy's
+     shape. frames: three moments of each trailer as well as its still, for
+     the lens of the glasses on her portrait to show in turn. */
+  { page: path.join(ROOT, 'manekas-picks.html'), out: path.join(ROOT, 'media', 'picks-films'), frames: true }
 ];
 
 const args = process.argv.slice(2);
@@ -121,7 +125,26 @@ function forPage(title) {
     .replace(/'/g, "\\'");
 }
 
-async function one(PAGE, OUT) {
+/* Three moments of a film, which YouTube publishes beside the still at the
+   same plain addresses (hq1, hq2, hq3). Saved as <id>-1.jpg to <id>-3.jpg. */
+async function grabFrames(id, OUT) {
+  let got = 0;
+  for (const n of [1, 2, 3]) {
+    const dest = path.join(OUT, `${id}-${n}.jpg`);
+    if (fs.existsSync(dest) && !FORCE) { got += 1; continue; }
+    try {
+      const res = await fetch(`https://i.ytimg.com/vi/${id}/hq${n}.jpg`);
+      if (!res.ok) continue;
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length < 4000) continue;
+      fs.writeFileSync(dest, buf);
+      got += 1;
+    } catch { /* a missing moment only leaves the lens on the others */ }
+  }
+  return got;
+}
+
+async function one(PAGE, OUT, FRAMES) {
   const html = fs.readFileSync(PAGE, 'utf8');
   const films = filmsFromPage(html);
   if (!films.length) {
@@ -149,6 +172,8 @@ async function one(PAGE, OUT) {
         else { failed += 1; note = 'NO STILL'; }
       } catch (error) { failed += 1; note = `failed: ${error.message}`; }
     }
+
+    if (FRAMES) note += `, ${await grabFrames(film.id, OUT)} of 3 frames`;
 
     let title = film.title;
     if (!title) {
@@ -191,7 +216,7 @@ async function one(PAGE, OUT) {
 }
 
 async function main() {
-  for (const target of PAGES) await one(target.page, target.out);
+  for (const target of PAGES) await one(target.page, target.out, !!target.frames);
 }
 
 module.exports = { filmsFromPage, forPage, PAGES };

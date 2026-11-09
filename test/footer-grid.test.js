@@ -60,7 +60,7 @@ test('five groups in the header\'s order, then the office, each a heading and wh
   const group = (label) => [...doc.querySelector(`nav[aria-label="${label}"]`).querySelectorAll('a')].map((a) => a.textContent);
   assert.deepEqual(group('Get Involved'), ['Volunteer', 'Become a member', 'Colony caregiver card', 'PFA Campus', 'Remote internship', 'The Wall', 'Events', 'CineKind']);
   assert.deepEqual(group('Give and partner'), ['Donate', 'Make a gift', 'Plan a campaign', 'Leave a legacy', 'CSR partnerships', 'Shop']);
-  assert.deepEqual(group('About'), ['Founder', 'Animal Care Centre', 'Careers', 'Contact']);
+  assert.deepEqual(group('About'), ['Founder', 'Maneka’s Picks', 'Animal Care Centre', 'Careers', 'Contact']);
   assert.deepEqual([...doc.querySelectorAll('.pfa-footer__base p')].map((p) => p.textContent),
     ['People for Animals © 2026', 'Registered charity · All donations tax-deductible', 'Privacy policy']);
   assert.ok(doc.querySelector('.pfa-footer__base a[href="privacy.html"]'));

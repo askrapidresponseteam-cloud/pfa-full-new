@@ -653,6 +653,27 @@
    ]
   },
   {
+   "id": "manekas-picks",
+   "file": "manekas-picks.html",
+   "title": "Maneka’s Picks",
+   "group": "About",
+   "menu": "Maneka’s Picks",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Maneka’s Picks"
+    },
+    {
+     "id": "films",
+     "label": "Three to watch."
+    },
+    {
+     "id": "book",
+     "label": "One to read."
+    }
+   ]
+  },
+  {
    "id": "sgacc",
    "file": "sgacc.html",
    "title": "Sanjay Gandhi Animal Care Centre",
