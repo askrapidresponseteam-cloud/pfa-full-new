@@ -831,6 +831,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="volunteers">Volunteers</button>
       <button class="tab" type="button" data-tab="internship">Internship<span class="pip" id="pipIntern" hidden>0</span></button>
       <button class="tab" type="button" data-tab="employees">Job applicants</button>
+      <button class="tab" type="button" data-tab="directory">People directory</button>
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
@@ -1017,6 +1018,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="website" role="region" aria-label="What the public site shows"><div class="loading">Reading the site&#8230;</div></div>
 
     <div class="pane" data-pane="gifts" role="region" aria-label="Seasonal gifts"></div>
+    <div class="pane" data-pane="directory" role="region" aria-label="People directory"></div>
 
     <div class="pane" data-pane="oldmembers" role="region" aria-label="Old site members"><div class="loading">Reading the old list&#8230;</div></div>
     <div class="om-sheet" id="omSheet" hidden role="dialog" aria-modal="true" aria-labelledby="omSheetTitle"><div class="om-box" id="omBox"></div></div>
@@ -1454,6 +1456,7 @@ window.addEventListener('unhandledrejection', function (event) {
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
     gifts: { title: 'Seasonal gifts', module: 'gifts', needs: 'gifts' },
+    directory: { title: 'People directory', module: 'directory', needs: 'directory' },
     analytics:   { title: 'Analytics',     module: 'analytics',   needs: 'analytics' },
     people:      { title: 'Admins & audit', module: 'people',     needs: 'people', panes: ['people', 'audit'] },
     audit:       { title: 'Audit log',     module: 'people',      needs: 'people' },
@@ -1549,6 +1552,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'employees') return window.PFAPeople && window.PFAPeople.pane();
     if (tab === 'website') return website();
     if (tab === 'gifts') return window.PFAGifts && window.PFAGifts.pane();
+    if (tab === 'directory') return window.PFADirectory && window.PFADirectory.pane();
     if (tab === 'analytics') return window.PFAAnalytics && window.PFAAnalytics.pane();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -3317,18 +3321,11 @@ window.addEventListener('unhandledrejection', function (event) {
     say($('#caseSay'), mailConfigured === false && caseMode === 'reply' ? 'Email is not configured, so a reply cannot be sent yet.' : '');
   }
 
-  /* The whole exchange, oldest first: the submission, the copy sent to
-     PFA's inbox, each reply either way, each note, each move. A message
-     document says what it is in `type` (reply, note, email) and which way
-     it went in `direction` and `party`; the moves come from history.
-
-     8 Oct 2026: a history row is read by its event. A reopen says so, and
-     why when the person's reply reopened it; a bounce reads "Email not
-     delivered"; an automatic reply is shown once, by its message, marked as
-     automatic; a reply row stands in only for a message older than the
-     ones shown; an event the panel does not know is named, never read as a
-     move. The order is the server's: when PFA recorded each (recordedAt,
-     else at), then seq (lib/message-order.js). */
+  /* The whole exchange, oldest first: submission, inbox copy, replies,
+     notes, moves (a message's `type`, `direction`, `party`; moves from
+     history). A history row reads by its event (8 Oct 2026): reopen and
+     why, a bounce, an automatic reply once; an unknown event is named, not
+     a move. Order: recordedAt else at, then seq (lib/message-order.js). */
   function conversation(c) {
     var items = [];
     var who = (c.contact && c.contact.name) || (c.contact && c.contact.email) || 'The sender';
@@ -6355,6 +6352,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-payreport.js"></script>
 <script src="assets/admin-people.js"></script>
 <script src="assets/admin-gifts.js"></script>
+<script src="assets/admin-directory.js"></script>
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>

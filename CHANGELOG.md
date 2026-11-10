@@ -1,3 +1,12 @@
+## v1.552
+
+- **A People directory in the panel: everyone once, by state and district.** Owner, 10 Nov 2026: "for admin create a people's directory section. state, district, name, address, phone number. ensure no duplicates. category- members, caregivers etc.. whatever applicable."
+  - One line per person, in the owner's order: State, District, Name, Address, Phone, Category. A member who also volunteers is one line with both.
+  - From what the website filed: members, colony caregivers, volunteers, interns (accepted) and internship applicants, job applicants, donors, shop customers and unit applicants. Left out: the site's testing, anything rejected, withdrawn, revoked, removed or spam, and the old website's members, which stay apart.
+  - The same person: a shared mobile or email and names that agree ("Asha" and "Asha Rao"). A family on one phone stays two people, each marked as sharing it.
+  - State and district as chosen on the form; for a donation or shop order, which keep the address as one line, read from the PIN code and marked *.
+  - Filter by category, state and district, find by anything, and download what is shown for Excel; every download is in the audit log. Its own module, People directory: super admins have it, staff when ticked under People.
+
 ## v1.551
 
 - **Two new pages: Fireworks and animals, and Seasonal gifts with seasons set in the panel.** Owner, 10 Nov 2026: "can you build a page related fireworks- indian context. and ensure it aligns with pfa site theme", and "Create a Seasonal Gifts page for Deepawali, Christmas, New Year, and other occasions."
