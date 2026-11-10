@@ -1,3 +1,10 @@
+## v1.547
+
+- **The film in her visor ends on one clean line, with not a pixel of fringe.** Owner, 10 Nov 2026: "the borders are bleeding. can you fix to perfection", "there cannot be even a pixel of fringe/bleed", "draw perfectly clean boundaries and work from there".
+  - The boundary is now drawn, not read pixel by pixel: one closed curve along the frame's inner edge, smoothed as a line (a long even sweep along the top and round the ends, following the corner pads and the nose bridge closely) and drawn at eight times the photograph's resolution, so its edge is exact.
+  - The film runs a few pixels under the frame, and the frame is laid back over it (media/picks/visor-frame.png): the photograph's own frame, with a fine dark lip on the curve. The ragged amber band the old mask left at the rim is gone: every pixel of glass or warmth outside the curve is covered by the frame, in its own grey.
+  - scripts/build-visor-mask.py proves it before writing the images, for any film colour, and the page was then checked in a browser at 390, 768, 1024, 1440 and 1920 wide, including retina: no amber left outside the line, no new colour anywhere outside it, and the film meeting the frame's lip within its one-pixel anti-aliased edge.
+
 ## v1.546
 
 - **Donating any amount is one step shorter: nothing about a PAN or Aadhaar is asked before paying.** Owner, 10 Nov 2026: "make donating any amount easier. dont ask for uploading whatever before the payment. after payment send a link over email which asks to upload those in the page if one needs tax exempt receipt".

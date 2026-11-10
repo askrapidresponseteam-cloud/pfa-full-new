@@ -130,16 +130,20 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .mp-stage{margin:0;padding:0 var(--gutter);scroll-margin-top:calc(var(--ann) + var(--nav) + 8px)}
 .mp-room{position:relative;width:100%;aspect-ratio:2576/2113;background:#e9e9e9;overflow:hidden;isolation:isolate}
 .mp-photo{position:absolute;inset:0;width:100%;height:100%;display:block}
-/* The visor's box, measured on the photograph (2576 by 2113): 925 to 1664
-   across, 663 to 899 down. The mask is the amber glass in that box. */
-.mp-lens{position:absolute;z-index:2;left:35.9084%;top:31.3772%;width:28.6879%;height:11.169%;overflow:hidden;isolation:isolate;opacity:0;transition:opacity .5s ease;
+/* The visor's box, on the photograph (2576 by 2113): 906 to 1676 across,
+   644 to 918 down (scripts/build-visor-mask.py). The boundary is drawn: one
+   smooth curve along the frame's inner edge. The film runs a few pixels
+   under the frame (visor-mask.png), and the frame is laid back over it
+   (visor-frame.png, the photograph's own frame with a fine dark lip on the
+   curve), so the film ends on that clean line and nowhere else. */
+.mp-lens{position:absolute;z-index:2;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;overflow:hidden;isolation:isolate;opacity:0;transition:opacity .5s ease;
   -webkit-mask-image:url("media/picks/visor-mask.png");mask-image:url("media/picks/visor-mask.png");
   -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .mp-room.has-still .mp-lens,.mp-room.is-playing .mp-lens{opacity:1}
 /* the film fills the visor, as the video does in a jjettas lens: 16:9 as
    wide as the visor and centred (the visor is 3.13 wide for 1), graded to
    the amber glass */
-.mp-lens__film,.mp-lens__still{position:absolute;left:0;top:-38.07%;width:100%;height:176.14%;border:0;filter:sepia(.42) saturate(1.3) hue-rotate(-6deg) contrast(1.06) brightness(.94)}
+.mp-lens__film,.mp-lens__still{position:absolute;left:0;top:-29.04%;width:100%;height:158.07%;border:0;filter:sepia(.42) saturate(1.3) hue-rotate(-6deg) contrast(1.06) brightness(.94)}
 .mp-lens__still{display:block;object-fit:cover;opacity:0;transition:opacity .5s ease}
 .mp-lens__still.is-in{opacity:1}
 .mp-room.is-playing .mp-lens__still{opacity:0}
@@ -149,8 +153,12 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .mp-lens__tone{background:radial-gradient(ellipse 60% 85% at 50% 42%,rgba(40,20,0,0) 55%,rgba(40,20,0,.38) 100%),rgba(255,166,48,.16);mix-blend-mode:multiply}
 .mp-lens__grille{background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,rgba(0,0,0,0) 1px 3px);mix-blend-mode:multiply;opacity:.45}
 .mp-lens__shine{display:block;mix-blend-mode:screen}
+/* the frame, laid back over the film and the glass's rim, outside the
+   film's mask: the film ends on its drawn edge, and no amber is left at it */
+.mp-frame{position:absolute;z-index:3;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;display:block;pointer-events:none;opacity:0;transition:opacity .5s ease}
+.mp-room.has-still .mp-frame,.mp-room.is-playing .mp-frame{opacity:1}
 .mp-lens iframe{display:block;width:100%;height:100%;border:0;pointer-events:none}
-.mp-lensbtn{position:absolute;z-index:4;left:35.9084%;top:31.3772%;width:28.6879%;height:11.169%;padding:0;border:0;background:transparent;border-radius:30%;cursor:pointer}
+.mp-lensbtn{position:absolute;z-index:4;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;padding:0;border:0;background:transparent;border-radius:30%;cursor:pointer}
 .mp-lensbtn:focus-visible{outline:2px solid var(--ink);outline-offset:6px}
 .mp-cap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;padding:16px 0;border-top:1px solid var(--line)}
 .mp-cap__now{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;min-width:0}
@@ -528,11 +536,13 @@ if (root.document && root.document.head) apply(read());
            There a WebGL shader fills the lens with a looping video through a
            mask of the lens's shape, grades it, lays a fine grille over it and
            the lens's own reflections on top. A YouTube trailer cannot be a
-           WebGL texture, so the browser composites the same layers. The mask
-           (media/picks/visor-mask.png) is the amber glass itself, read from
-           the photograph by its colour, smoothed and held three pixels inside
-           the glass, so not one pixel of the film reaches the frame, the nose
-           bridge or the corner pads. -->
+           WebGL texture, so the browser composites the same layers. The
+           boundary is drawn as one smooth curve along the frame's inner edge
+           (scripts/build-visor-mask.py); the film runs under the frame and
+           the frame is laid back over it (visor-frame.png), so the film ends
+           on that line, and not one pixel of it reaches the frame, the nose
+           bridge or the corner pads (owner, 10 Nov 2026: "the borders are
+           bleeding", "draw perfectly clean boundaries"). -->
       <div class="mp-lens" id="mpLens">
         <img class="mp-lens__still" alt="" data-lens-still>
         <div class="mp-lens__film" id="mpFilm"></div>
@@ -540,6 +550,7 @@ if (root.document && root.document.head) apply(read());
         <span class="mp-lens__grille" aria-hidden="true"></span>
         <img class="mp-lens__shine" src="media/picks/visor-shine.png" alt="">
       </div>
+      <img class="mp-frame" src="media/picks/visor-frame.png" alt="" aria-hidden="true">
       <button class="mp-lensbtn" id="mpLensBtn" type="button" aria-label="Play the trailer of Test Subject V in her glasses"></button>
     </div>
   </figure>

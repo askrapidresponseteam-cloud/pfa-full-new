@@ -111,16 +111,29 @@ test('her photograph in the amber visor, whole, and the visor filled with the fi
   const lens = doc.querySelector('#mpLens.mp-lens');
   for (const part of ['.mp-lens__still', '.mp-lens__film', '.mp-lens__tone', '.mp-lens__grille', '.mp-lens__shine']) assert.ok(lens.querySelector(part), part);
   assert.match(html, /\.mp-lens\{[^}]*mask-image:url\("media\/picks\/visor-mask\.png"\)/, 'masked to the amber glass');
-  for (const f of ['visor-mask.png', 'visor-shine.png', 'portrait-visor.jpg']) assert.ok(fs.existsSync(path.join(ROOT, 'media/picks', f)), f);
-  /* the visor box, in percent of the photograph: 925 to 1664 across, 663 to 899 down */
+  for (const f of ['visor-mask.png', 'visor-shine.png', 'visor-frame.png', 'portrait-visor.jpg']) assert.ok(fs.existsSync(path.join(ROOT, 'media/picks', f)), f);
+  /* the visor box, in percent of the photograph: 906 to 1676 across, 644 to 918 down */
   const pct = (re) => Number(re.exec(html)[1]) / 100;
   const W = 2576, H = 2113;
   const box = { l: pct(/\.mp-lens\{[^}]*left:([\d.]+)%/) * W, t: pct(/\.mp-lens\{[^}]*top:([\d.]+)%/) * H, w: pct(/\.mp-lens\{[^}]*width:([\d.]+)%/) * W, h: pct(/\.mp-lens\{[^}]*height:([\d.]+)%/) * H };
-  assert.ok(Math.abs(box.l - 925) < 0.5 && Math.abs(box.t - 663) < 0.5 && Math.abs(box.w - 739) < 0.5 && Math.abs(box.h - 236) < 0.5, JSON.stringify(box));
+  assert.ok(Math.abs(box.l - 906) < 0.5 && Math.abs(box.t - 644) < 0.5 && Math.abs(box.w - 770) < 0.5 && Math.abs(box.h - 274) < 0.5, JSON.stringify(box));
   /* the mask is exactly the box's size, so it lands on the glass it was read from */
-  const png = fs.readFileSync(path.join(ROOT, 'media/picks/visor-mask.png'));
-  assert.equal(png.readUInt32BE(16), 739);
-  assert.equal(png.readUInt32BE(20), 236);
+  for (const f of ['visor-mask.png', 'visor-frame.png', 'visor-shine.png']) {
+    const png = fs.readFileSync(path.join(ROOT, 'media/picks', f));
+    assert.equal(png.readUInt32BE(16), 770, f);
+    assert.equal(png.readUInt32BE(20), 274, f);
+  }
+  /* the frame laid back over the film, outside the film's mask and on the
+     same box, so the film ends on its drawn edge and no amber is left at it */
+  const frame = lens.nextElementSibling;
+  assert.equal(frame.className, 'mp-frame');
+  assert.equal(frame.getAttribute('src'), 'media/picks/visor-frame.png');
+  for (const k of ['left', 'top', 'width', 'height']) {
+    assert.equal(new RegExp(`\\.mp-frame\\{[^}]*${k}:([\\d.]+)%`).exec(html)[1], new RegExp(`\\.mp-lens\\{[^}]*${k}:([\\d.]+)%`).exec(html)[1], k);
+  }
+  assert.match(html, /\.mp-frame\{[^}]*z-index:3;/);
+  assert.match(html, /\.mp-room\.has-still \.mp-frame,\.mp-room\.is-playing \.mp-frame\{opacity:1\}/);
+  assert.match(read('scripts/build-visor-mask.py'), /assert not \(through\[~shadowed\] > 0\)\.any\(\), 'the film shows on the frame'/);
   /* the film covers the visor: 16:9 as wide as the box, centred down it */
   const filmH = pct(/\.mp-lens__film,\.mp-lens__still\{[^}]*height:([\d.]+)%/) * box.h;
   const filmTop = -pct(/\.mp-lens__film,\.mp-lens__still\{[^}]*top:-([\d.]+)%/) * box.h;
