@@ -1,3 +1,13 @@
+## v1.554
+
+- **Maneka's Picks opens on her, whole, under the header, the cards on the wall taking turns.** Owner, 10 Nov 2026, with jjettas.com's Justin Jefferson page: "opens like a hero ... full screen, powerful. both on mobile and web", then "her head is getting chopped. can you do it in a way where the header of the page is intact. her photo is adjusted so nothing gets clipped. and the books appear in turns, and the films too. the thumbnails should take turns".
+  - The hero fills the screen under the header, which stays as it is on every page. Her whole photograph is in it, from the top of her head, at its own shape and never stretched.
+  - She is cut from the photograph's wall (scripts/build-portrait-cut.py, media/picks/portrait-cut.png, her hair strand by strand) and stands on a wall that runs the width of the screen, her name drifting across it behind her, as jjettas.com stands its player.
+  - The film in her glasses is exactly as before: checked at seven screen sizes, no film on the frame.
+  - Along the foot, over a dark fade: "Maneka's Picks" in large type, and the film in her glasses with Play in her glasses, Next film and Full screen.
+  - On a wide screen two cards stand on the wall either side of her and take turns, five seconds each: the books (Animals, then Orange Dogs) and the films (Test Subject V, Oslo: A Tail of Promise, Ohh My Dog), each with its own line. They hold still while looked at, and do not turn when motion is reduced.
+  - On a phone the foot carries the title and the controls, above the tab bar, clear of the visor even on a small screen.
+
 ## v1.553
 
 - **Maneka's Picks opens on her photograph, the whole screen.** Owner, 10 Nov 2026, with jjettas.com's Justin Jefferson page: "can you do something so that it opens like a hero. like in the ref attached.. full screen, powerful. both on mobile and web".

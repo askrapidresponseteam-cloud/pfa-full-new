@@ -113,10 +113,17 @@ test('her photograph in the amber visor, whole, and the visor filled with the fi
   assert.equal(img.getAttribute('width'), '2576');
   assert.equal(img.getAttribute('height'), '2113');
   for (const gone of ['portrait.webp', 'portrait-glasses.jpg', 'lens-l-mask.png', 'lens-r-mask.png']) assert.ok(!fs.existsSync(path.join(ROOT, 'media/picks', gone)), gone);
-  /* the photograph at its own shape, covering the screen and never stretched,
-     the visor held 42% of the way down it */
-  assert.match(html, /\.mp-scene\{position:absolute;container-type:size;--sw:max\(100cqw,100cqh \* 2576 \/ 2113\);--sh:max\(100cqh,100cqw \* 2113 \/ 2576\);width:var\(--sw\);height:var\(--sh\);/, 'the photograph at its own shape');
-  assert.match(html, /top:clamp\(100cqh - var\(--sh\),100cqh \* \.42 - var\(--sh\) \* \.3697,0px\)/);
+  /* under the header, never behind it, and her whole photograph in it, at
+     its own shape, from the top of her head (owner, 10 Nov 2026: "her head
+     is getting chopped ... the header of the page is intact ... nothing gets
+     clipped") */
+  assert.match(html, /\.mp-room\{position:absolute;left:0;right:0;top:calc\(var\(--ann,0px\) \+ var\(--nav,81px\)\);bottom:0;/, 'the hero starts under the header');
+  assert.match(html, /\.mp-scene\{position:absolute;container-type:size;--pad:clamp\(10px,3cqh,32px\);--sh:min\(100cqh - var\(--pad\),100cqw \* 1\.7 \* 2113 \/ 2576\);--sw:calc\(var\(--sh\) \* 2576 \/ 2113\);width:var\(--sw\);height:var\(--sh\);left:calc\(50% - var\(--sw\) \/ 2\);top:var\(--pad\);/, 'the photograph at its own shape, her head at the top, never cut by the header');
+  /* she is cut from the photograph's wall and stands on the page's own */
+  assert.match(html, /\.mp-photo\{[^}]*mask-image:url\("media\/picks\/portrait-cut\.png"\)/);
+  const cut = fs.readFileSync(path.join(ROOT, 'media/picks/portrait-cut.png'));
+  assert.deepEqual([cut.readUInt32BE(16), cut.readUInt32BE(20)], [1288, 1056], 'the cut, at half the photograph\'s size');
+  assert.match(read('scripts/build-portrait-cut.py'), /assert alpha\[cy - 40:cy \+ 40, cx - 120:cx \+ 120\]\.min\(\) == 1, 'her face and the visor are whole'/);
   const lens = doc.querySelector('#mpLens.mp-lens');
   for (const part of ['.mp-lens__still', '.mp-lens__film', '.mp-lens__tone', '.mp-lens__grille', '.mp-lens__shine']) assert.ok(lens.querySelector(part), part);
   assert.match(html, /\.mp-lens__glass\{[^}]*mask-image:url\("media\/picks\/visor-mask\.png"\)/, 'masked to the glass');
@@ -177,9 +184,16 @@ test('npm run media:films fetches its stills', () => {
 
 test('the photograph\'s effects, as jjettas.com\'s hero: decorative, and all still when motion is reduced (10 Nov 2026)', () => {
   /* the type behind her drifts, a light runs across the visor, the picture leans to the pointer */
-  assert.ok(doc.querySelector('#mpRoom .mp-scene .mp-type[aria-hidden="true"] .mp-type__row--back .mp-type__track'));
-  assert.match(html, /\.mp-type\{[^}]*mask-image:url\("media\/picks\/portrait-wall\.png"\)/, 'on the wall only, behind her');
-  assert.ok(fs.existsSync(path.join(ROOT, 'media/picks/portrait-wall.png')));
+  assert.ok(doc.querySelector('#mpRoom > .mp-type[aria-hidden="true"] .mp-type__row--back .mp-type__track'), 'across the whole wall');
+  assert.ok(doc.querySelector('#mpRoom > .mp-type + .mp-scene'), 'behind her: she is in front of it');
+  assert.ok(fs.existsSync(path.join(ROOT, 'media/picks/portrait-wall.png')), 'the wall, which her cut is made from');
+  /* the cards on the wall take turns (owner, 10 Nov 2026: "the books appear in
+     turns, and the films too. the thumbnails should take turns") */
+  assert.equal(doc.querySelectorAll('.mp-card--books img[data-turn]').length, 2, 'both books');
+  assert.equal(doc.querySelectorAll('.mp-card--films img[data-turn]').length, 3, 'all three films');
+  assert.deepEqual([...doc.querySelectorAll('.mp-card--films img[data-turn]')].map((i) => i.getAttribute('data-turn')), FILMS.map((f) => `media/picks-films/${f.yt}.jpg`));
+  assert.match(html, /timer = setTimeout\(function \(\) \{[\s\S]{0,200}if \(!held && !document\.hidden && ok\.length > 1\)/, 'one picture after another, held while looked at');
+  assert.match(html, /if \(!calm\) setTimeout\(turn, n \* 2500\);/, 'and not at all when motion is reduced');
   assert.ok(doc.querySelector('.mp-lens__glass .mp-lens__glint'), 'the light inside the glass, under its mask');
   assert.match(html, /@media \(prefers-reduced-motion:reduce\)\{\n {2}\*\{transition:none!important;animation:none!important\}\n {2}\.mp-scene,\.mp-type__row,\.mp-card\{transform:none\}\n {2}\.mp-lens__glint\{display:none\}\n\}/);
   assert.match(html, /if \(calm \|\| !window\.matchMedia \|\| !window\.matchMedia\('\(hover: hover\)'\)\.matches\) return;/, 'the lean only with a pointer, never when motion is reduced');
