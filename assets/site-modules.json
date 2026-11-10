@@ -669,7 +669,7 @@
     },
     {
      "id": "book",
-     "label": "One to read."
+     "label": "Two to read."
     }
    ]
   },
@@ -1476,9 +1476,6 @@
    "vcap": "watch",
    "reels": "watch",
    "rrt-title": "rapid-response"
-  },
-  "manekas-picks": {
-   "mpCover": "book"
   },
   "sgacc": {
    "done": "help",

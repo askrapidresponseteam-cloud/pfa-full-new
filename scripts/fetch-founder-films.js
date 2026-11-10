@@ -192,17 +192,22 @@ async function one(PAGE, OUT) {
   }
 }
 
-/* The book on Maneka's Picks (owner, 10 Nov 2026: "book photo, actual cover
-   needs to be there"). Its cover is the one Amazon shows on the page the
-   Buy on Amazon button opens, so it is read from there: the largest image
-   that page names for the book, saved once beside the portrait and served
-   from this site. Best effort, like the stills: Amazon may answer a script
-   with a check instead of the page, and then the lettered cover stays until
-   a later run, or until a cover is put at that path by hand. */
-const BOOK = {
-  page: path.join(ROOT, 'manekas-picks.html'),
-  out: path.join(ROOT, 'media', 'picks', 'animals-raghu-rai-cover.jpg')
-};
+/* The books on Maneka's Picks (owner, 10 Nov 2026: "book photo, actual cover
+   needs to be there", then "add orange dogs - book"). Each cover is the one
+   Amazon.in shows for the book, saved once beside the portrait and served
+   from this site. image is the cover's own address on Amazon's image host,
+   read from the product page on 10 Nov 2026 (with no size in it, Amazon
+   sends the original); link is the page the Buy on Amazon button opens,
+   read again for its largest image if the address ever stops answering.
+   Best effort, like the stills: if neither answers, the lettered cover stays
+   until a later run, or until a cover is saved at that path by hand. */
+const BOOKS = [
+  { title: 'Animals', out: path.join(ROOT, 'media', 'picks', 'animals-raghu-rai-cover.jpg'),
+    image: 'https://m.media-amazon.com/images/I/61dsNajr5FL.jpg', link: 'https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1' },
+  { title: 'Orange Dogs', out: path.join(ROOT, 'media', 'picks', 'orange-dogs-cover.jpg'),
+    image: 'https://m.media-amazon.com/images/I/61kNcVt0D5L.jpg', link: 'https://www.amazon.in/dp/9334516496' }
+];
+const BOOK = BOOKS[0];
 const BROWSER = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
 
 function coverFromAmazon(html) {
@@ -221,32 +226,37 @@ function coverFromAmazon(html) {
   return null;
 }
 
-async function bookCover() {
-  if (!fs.existsSync(BOOK.page)) return;
-  if (fs.existsSync(BOOK.out) && !FORCE) { console.log('\n  Book cover already here.'); return; }
-  const link = (/href="(https:\/\/www\.amazon\.in\/[^"]*\/dp\/[0-9A-Z]{10}[^"]*)"/.exec(fs.readFileSync(BOOK.page, 'utf8')) || [])[1];
-  if (!link) { console.log('\n  No Amazon link for the book on the page.'); return; }
+async function grabImage(url) {
   try {
-    const res = await fetch(link.replace(/&amp;/g, '&'), { headers: { 'user-agent': BROWSER, 'accept-language': 'en-IN,en;q=0.9', accept: 'text/html' } });
-    const url = res.ok ? coverFromAmazon(await res.text()) : null;
-    if (!url) { console.log('\n  Book cover: Amazon did not show the page to a script this time; the lettered cover stays.'); return; }
-    const img = await fetch(url, { headers: { 'user-agent': BROWSER } });
-    const buf = img.ok ? Buffer.from(await img.arrayBuffer()) : null;
-    if (!buf || buf.length < 5000) { console.log('\n  Book cover: the image did not arrive; the lettered cover stays.'); return; }
-    fs.mkdirSync(path.dirname(BOOK.out), { recursive: true });
-    fs.writeFileSync(BOOK.out, buf);
-    console.log(`\n  Book cover saved, ${Math.round(buf.length / 1024)}KB, from ${url}`);
-  } catch (error) {
-    console.log(`\n  Book cover failed: ${error.message}; the lettered cover stays.`);
+    const res = await fetch(url, { headers: { 'user-agent': BROWSER } });
+    const buf = res.ok ? Buffer.from(await res.arrayBuffer()) : null;
+    return buf && buf.length >= 5000 ? buf : null;
+  } catch { return null; }
+}
+
+async function bookCover(book) {
+  if (fs.existsSync(book.out) && !FORCE) { console.log(`\n  ${book.title}: cover already here.`); return; }
+  let buf = await grabImage(book.image);
+  let from = book.image;
+  if (!buf) {
+    try {
+      const res = await fetch(book.link, { headers: { 'user-agent': BROWSER, 'accept-language': 'en-IN,en;q=0.9', accept: 'text/html' } });
+      const url = res.ok ? coverFromAmazon(await res.text()) : null;
+      if (url) { buf = await grabImage(url); from = url; }
+    } catch { /* the lettered cover stays */ }
   }
+  if (!buf) { console.log(`\n  ${book.title}: the cover did not arrive this time; the lettered cover stays.`); return; }
+  fs.mkdirSync(path.dirname(book.out), { recursive: true });
+  fs.writeFileSync(book.out, buf);
+  console.log(`\n  ${book.title}: cover saved, ${Math.round(buf.length / 1024)}KB, from ${from}`);
 }
 
 async function main() {
   for (const target of PAGES) await one(target.page, target.out);
-  await bookCover();
+  for (const book of BOOKS) await bookCover(book);
 }
 
-module.exports = { filmsFromPage, forPage, PAGES, BOOK, coverFromAmazon };
+module.exports = { filmsFromPage, forPage, PAGES, BOOK, BOOKS, coverFromAmazon };
 
 if (require.main === module) {
   main().catch((error) => {

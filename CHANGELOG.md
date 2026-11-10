@@ -1,3 +1,10 @@
+## v1.545
+
+- **A second book on Maneka’s Picks: Orange Dogs, by Deepak Virwani, with Buy on Amazon.** Owner, 10 Nov 2026: "add orange dogs - book".
+  - Under Books, now "Two to read.": Animals (Raghu Rai and Maneka Gandhi, HarperCollins India) and Orange Dogs, a story of two dogs, Zuzu and Dabbu, and the home they share. Details as Amazon.in lists them.
+  - Both covers are the real ones: npm run media:films (DEPLOY.command runs it) now saves each from the cover's own address on Amazon's image host, read from the product pages, and reads the product page only if that address ever stops answering. Until a cover is here its book shows a lettered cover.
+  - The page's line, its description and the founder page's link now say "two books" and "Films and books she recommends".
+
 ## v1.544
 
 - **Her photograph in an amber visor, and the trailer in it, done the way jjettas.com does it.** Owner, 10 Nov 2026, in turn: "video is currently zoomed in and clipped when being played within the glasses", "Remove the patchy look on the glass ... so the tint, transparency, and reflections flow seamlessly across the entire surface", "how is it being done in this [jjettas.com]. you need to do the same ... implement ditto", "not even 1 pixel should flow out. so either change the glass or fix the rendering", and with this photograph: "ur choice. goal is to play the video perfectly".

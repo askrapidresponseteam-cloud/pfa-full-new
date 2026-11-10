@@ -52,21 +52,30 @@ test('each film links to the service it streams on, and the book to Amazon', () 
     const play = li.querySelector('button.mp-shot');
     assert.equal(play.getAttribute('data-film'), String(i), 'a tile is a button that opens the theatre');
   });
-  const buy = doc.querySelector('#book a.btn');
-  assert.equal(buy.getAttribute('href'), 'https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1');
-  assert.equal(buy.textContent.trim(), 'Buy on Amazon');
-  assert.equal(doc.querySelector('#book h3').textContent, 'Animals');
+  /* two books (owner, 10 Nov 2026: "add orange dogs - book"), each with Buy on Amazon */
+  const books = [...doc.querySelectorAll('#book .mp-bk')];
+  assert.deepEqual(books.map((b) => b.querySelector('h3').textContent), ['Animals', 'Orange Dogs']);
+  assert.deepEqual(books.map((b) => b.querySelector('a.btn').getAttribute('href')),
+    ['https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1', 'https://www.amazon.in/dp/9334516496']);
+  for (const b of books) {
+    const buy = b.querySelector('a.btn');
+    assert.equal(buy.textContent.trim(), 'Buy on Amazon');
+    assert.equal(buy.getAttribute('target'), '_blank');
+    assert.equal(buy.getAttribute('rel'), 'noopener noreferrer');
+  }
+  assert.match(books[1].querySelector('.eyebrow').textContent, /Deepak Virwani/);
 });
 
-test('the book shows its real cover, whole, from this site (owner, 10 Nov 2026)', () => {
-  const img = doc.querySelector('#mpCover img');
-  assert.equal(img.getAttribute('data-still'), 'media/picks/animals-raghu-rai-cover.jpg');
-  assert.equal(img.getAttribute('alt'), 'The cover of Animals by Raghu Rai');
+test('each book shows its real cover, whole, from this site (owner, 10 Nov 2026)', () => {
+  const imgs = [...doc.querySelectorAll('#book .mp-bk__cover img')];
+  assert.deepEqual(imgs.map((i) => i.getAttribute('data-still')), ['media/picks/animals-raghu-rai-cover.jpg', 'media/picks/orange-dogs-cover.jpg']);
+  assert.deepEqual(imgs.map((i) => i.getAttribute('alt')), ['The cover of Animals by Raghu Rai and Maneka Gandhi', 'The cover of Orange Dogs by Deepak Virwani']);
   assert.match(html, /\.mp-bk__cover\.has-cover img\{display:block;width:100%;height:auto;/, 'at its own shape: never cut or stretched');
   assert.match(html, /img\.addEventListener\('load', function \(\) \{ box\.classList\.add\('has-cover'\); \}\);/, 'shown only once it has arrived');
-  const { BOOK, coverFromAmazon } = require('../scripts/fetch-founder-films.js');
-  assert.ok(BOOK.out.endsWith(path.join('media', 'picks', 'animals-raghu-rai-cover.jpg')));
-  assert.equal(coverFromAmazon('"hiRes":"https://m.media-amazon.com/images/I/81abc._SL1500_.jpg"'), 'https://m.media-amazon.com/images/I/81abc.jpg', 'the original, not a thumbnail');
+  const { BOOKS, coverFromAmazon } = require('../scripts/fetch-founder-films.js');
+  assert.deepEqual(BOOKS.map((b) => path.relative(ROOT, b.out)), imgs.map((i) => path.join(...i.getAttribute('data-still').split('/'))), 'npm run media:films fetches the very files the page asks for');
+  for (const b of BOOKS) assert.match(b.image, /^https:\/\/m\.media-amazon\.com\/images\/I\/[A-Za-z0-9+-]+\.jpg$/, `${b.title}: the original cover, not a thumbnail`);
+  assert.equal(coverFromAmazon('"hiRes":"https://m.media-amazon.com/images/I/81abc._SL1500_.jpg"'), 'https://m.media-amazon.com/images/I/81abc.jpg');
   assert.equal(coverFromAmazon('<html>a check page</html>'), null);
   assert.match(doc.querySelector('#book .mp-bk p:not(.eyebrow)').textContent, /introduction by Maneka Gandhi/);
 });

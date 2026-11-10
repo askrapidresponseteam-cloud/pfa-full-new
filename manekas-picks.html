@@ -63,7 +63,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Maneka’s Picks | People for Animals</title>
-<meta name="description" content="Three films and a book about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
+<meta name="description" content="Three films and two books about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
 <link rel="stylesheet" href="assets/theatre.css">
 <link rel="stylesheet" href="assets/chrome.css?v=2ddf9151a8">
 <style>
@@ -184,7 +184,9 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .mp-film .mp-acts{margin-top:auto;padding-top:22px}
 
 /* ---------- the book ---------- */
-.mp-bk{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:clamp(22px,3vw,48px);align-items:start;max-width:760px}
+.mp-bks{display:grid;gap:0;max-width:760px}
+.mp-bk{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:clamp(22px,3vw,48px);align-items:start}
+.mp-bk + .mp-bk{margin-top:clamp(32px,4vw,52px);padding-top:clamp(32px,4vw,52px);border-top:1px solid var(--line)}
 .mp-bk__cover{display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:3/4;padding:20px 18px;background:var(--ink);color:#fff}
 .mp-bk__cover span{font:400 clamp(24px,2.4vw,32px)/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
 .mp-bk__cover small{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.7)}
@@ -235,7 +237,7 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
   <meta property="og:locale" content="en_IN">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Maneka’s Picks">
-  <meta property="og:description" content="Three films and a book about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
+  <meta property="og:description" content="Three films and two books about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
   <meta property="og:url" content="https://peopleforanimalsindia.org/manekas-picks">
   <meta property="og:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
   <meta property="og:image:width" content="1200">
@@ -244,7 +246,7 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@pfaindia">
   <meta name="twitter:title" content="Maneka’s Picks">
-  <meta name="twitter:description" content="Three films and a book about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
+  <meta name="twitter:description" content="Three films and two books about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers, then the films on their streaming services.">
   <meta name="twitter:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://peopleforanimalsindia.org/"},{"@type":"ListItem","position":2,"name":"Maneka’s Picks","item":"https://peopleforanimalsindia.org/manekas-picks"}]}</script>
   <!-- seo:end -->
@@ -488,7 +490,7 @@ if (root.document && root.document.head) apply(read());
         <h1 class="pfa-title display">Maneka’s Picks</h1>
       </div>
       <div>
-        <p class="mp-hero__role">Three films and a book about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers here, then the films on their streaming services.</p>
+        <p class="mp-hero__role">Three films and two books about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi. Watch the trailers here, then the films on their streaming services.</p>
         <div class="mp-acts">
           <a class="btn" href="#films">The films</a>
           <a class="btn btn--light" href="#book">The book</a>
@@ -581,20 +583,37 @@ if (root.document && root.document.head) apply(read());
 
   <section class="band m-twin" id="book">
     <div class="band__head">
-      <p class="eyebrow">Book</p>
-      <h2 class="display">One to read.</h2>
+      <p class="eyebrow">Books</p>
+      <h2 class="display">Two to read.</h2>
     </div>
-    <article class="mp-bk">
-      <div class="mp-bk__cover" id="mpCover"><img alt="The cover of Animals by Raghu Rai" data-still="media/picks/animals-raghu-rai-cover.jpg"><span aria-hidden="true">Animals</span><small aria-hidden="true">Raghu Rai</small></div>
-      <div>
-        <p class="eyebrow">Raghu Rai &middot; HarperCollins India</p>
-        <h3 class="display">Animals</h3>
-        <p>More than two hundred of Raghu Rai&rsquo;s photographs of animals, taken across India over five decades, with an introduction by Maneka Gandhi.</p>
-        <div class="mp-acts">
-          <a class="btn" href="https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1" target="_blank" rel="noopener noreferrer">Buy on Amazon <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+    <!-- Each book's own cover, served from this site once npm run media:films
+         has fetched it from Amazon (scripts/fetch-founder-films.js, BOOKS);
+         until then a lettered cover. Details as Amazon.in lists them,
+         10 Nov 2026. -->
+    <div class="mp-bks">
+      <article class="mp-bk">
+        <div class="mp-bk__cover"><img alt="The cover of Animals by Raghu Rai and Maneka Gandhi" data-still="media/picks/animals-raghu-rai-cover.jpg"><span aria-hidden="true">Animals</span><small aria-hidden="true">Raghu Rai</small></div>
+        <div>
+          <p class="eyebrow">Raghu Rai and Maneka Gandhi &middot; HarperCollins India</p>
+          <h3 class="display">Animals</h3>
+          <p>More than two hundred of Raghu Rai&rsquo;s photographs of animals, taken across India over five decades, with an introduction by Maneka Gandhi.</p>
+          <div class="mp-acts">
+            <a class="btn" href="https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1" target="_blank" rel="noopener noreferrer">Buy on Amazon <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+      <article class="mp-bk">
+        <div class="mp-bk__cover"><img alt="The cover of Orange Dogs by Deepak Virwani" data-still="media/picks/orange-dogs-cover.jpg"><span aria-hidden="true">Orange Dogs</span><small aria-hidden="true">Deepak Virwani</small></div>
+        <div>
+          <p class="eyebrow">Deepak Virwani</p>
+          <h3 class="display">Orange Dogs</h3>
+          <p>A tender, funny story of two dogs, Zuzu and Dabbu, and the two people whose home they make their own: about the love that finds its way into ordinary homes, and what stays after it goes.</p>
+          <div class="mp-acts">
+            <a class="btn" href="https://www.amazon.in/dp/9334516496" target="_blank" rel="noopener noreferrer">Buy on Amazon <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+          </div>
+        </div>
+      </article>
+    </div>
   </section>
 </main>
 
@@ -736,14 +755,13 @@ if (root.document && root.document.head) apply(read());
     img.addEventListener('error', function () { img.remove(); });
     img.src = img.getAttribute('data-still');
   });
-  /* the book's own cover, shown only once it has really arrived */
-  (function cover(){
-    var box = $('mpCover'), img = box && box.querySelector('img[data-still]');
-    if (!img) return;
+  /* each book's own cover, shown only once it has really arrived */
+  [].forEach.call(document.querySelectorAll('.mp-bk__cover img[data-still]'), function (img) {
+    var box = img.parentNode;
     img.addEventListener('load', function () { box.classList.add('has-cover'); });
     img.addEventListener('error', function () { img.remove(); });
     img.src = img.getAttribute('data-still');
-  }());
+  });
 
   var room = $('mpRoom'), hosts = [$('mpFilm')], hit = $('mpLensBtn');
   var stills = [].slice.call(document.querySelectorAll('[data-lens-still]'));

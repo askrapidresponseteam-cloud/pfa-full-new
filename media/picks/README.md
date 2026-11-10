@@ -8,9 +8,10 @@
   it. `visor-shine.png`: the visor's own reflections and sheen, laid over the
   film. Both are made by `python3 scripts/build-visor-mask.py`; a different
   photograph needs that run again and the box measured again.
-- `animals-raghu-rai-cover.jpg`: the cover of Animals by Raghu Rai
-  (HarperCollins India), the book on the page. Fetched by
-  `npm run media:films` from the Amazon page its Buy on Amazon button opens
-  (DEPLOY.command runs it). If Amazon does not answer a script, save the
-  cover from that page under this name by hand. Until it is here the page
-  shows a lettered cover.
+- `animals-raghu-rai-cover.jpg` and `orange-dogs-cover.jpg`: the covers of
+  the two books on the page, Animals (Raghu Rai and Maneka Gandhi,
+  HarperCollins India) and Orange Dogs (Deepak Virwani). Fetched by
+  `npm run media:films` (DEPLOY.command runs it) from Amazon's image host,
+  the addresses in `BOOKS` in scripts/fetch-founder-films.js. If Amazon does
+  not answer, save each cover from its Amazon page under its name by hand.
+  Until a cover is here its book shows a lettered cover.
