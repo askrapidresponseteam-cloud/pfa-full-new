@@ -1250,29 +1250,71 @@
      film with sound, so there it starts muted, as in the theatre. */
   function lens(host, film, opts){
     opts = opts || {};
-    if (!host || !film || !film.yt) return null;
+    /* One host, or one per lens (owner, 10 Nov 2026: "video is currently
+       zoomed in and clipped when being played within the glasses"). A pair
+       of glasses has two lenses and a bridge between them, so a film laid
+       across both is cut by the bridge, and one filling a lens is cut at
+       its top and bottom. Each lens now shows the whole film at its own
+       16:9: the first host leads and carries the sound, the others follow
+       it muted and are kept to its moment. */
+    var hosts = [].concat(host).filter(Boolean);
+    if (!hosts.length || !film || !film.yt) return null;
     var ios = /iP(hone|ad|od)/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     var muted = !!opts.muted || ios;
     var origin = '';
     try { origin = /^https?:$/.test(location.protocol) ? '&origin=' + encodeURIComponent(location.origin) : ''; } catch (e) {}
-    var frame = document.createElement('iframe');
-    frame.className = 'th-lens';
-    frame.allow = 'autoplay; encrypted-media; picture-in-picture';
-    frame.title = (film.title || 'Film') + ', trailer';
-    frame.setAttribute('tabindex', '-1');
-    frame.src = 'https://www.youtube.com/embed/' + film.yt + '?autoplay=1&mute=' + (muted ? 1 : 0) +
-      '&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&enablejsapi=1' +
-      '&loop=1&playlist=' + film.yt + origin + (film.start ? '&start=' + Math.floor(film.start) : '');
-    while (host.firstChild) host.removeChild(host.firstChild);
-    host.appendChild(frame);
-    function say(func){
-      try { frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*'); } catch (e) {}
+    var frames = hosts.map(function(h, n){
+      var frame = document.createElement('iframe');
+      frame.className = 'th-lens';
+      frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+      frame.title = (film.title || 'Film') + ', trailer' + (n ? ' (second lens)' : '');
+      frame.setAttribute('tabindex', '-1');
+      if (n) frame.setAttribute('aria-hidden', 'true');
+      frame.src = 'https://www.youtube.com/embed/' + film.yt + '?autoplay=1&mute=' + (n || muted ? 1 : 0) +
+        '&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&enablejsapi=1' +
+        '&loop=1&playlist=' + film.yt + origin + (film.start ? '&start=' + Math.floor(film.start) : '');
+      while (h.firstChild) h.removeChild(h.firstChild);
+      h.appendChild(frame);
+      return frame;
+    });
+    function tell(frame, func, args){
+      try { frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args || [] }), '*'); } catch (e) {}
     }
+    /* Keeping the lenses together. A YouTube frame opened with enablejsapi
+       reports its moment to a page that says it is listening; the followers
+       are moved to the leader's moment whenever they drift by more than a
+       few frames. Nothing here is needed for the film to play: if the
+       reports never come, each lens simply plays on its own. */
+    var at = frames.map(function(){ return null; });
+    function heard(e){
+      var i = -1;
+      for (var k = 0; k < frames.length; k++) if (frames[k].contentWindow === e.source) i = k;
+      if (i < 0) return;
+      var d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (x) { return; }
+      if (d && d.info && typeof d.info.currentTime === 'number') at[i] = d.info.currentTime;
+    }
+    window.addEventListener('message', heard);
+    frames.forEach(function(frame, n){
+      frame.addEventListener('load', function(){
+        try { frame.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'pfa-lens-' + n, channel: 'widget' }), '*'); } catch (e) {}
+      });
+    });
+    var keep = frames.length > 1 ? setInterval(function(){
+      if (at[0] === null) return;
+      for (var k = 1; k < frames.length; k++) {
+        if (at[k] !== null && Math.abs(at[k] - at[0]) > 0.25) tell(frames[k], 'seekTo', [at[0] + 0.1, true]);
+      }
+    }, 1500) : null;
     return {
-      frame: frame,
+      frame: frames[0],
+      frames: frames,
       muted: function(){ return muted; },
-      sound: function(on){ muted = !on; say(on ? 'unMute' : 'mute'); if (on) say('playVideo'); return !muted; },
-      stop: function(){ say('stopVideo'); if (frame.parentNode) frame.parentNode.removeChild(frame); }
+      sound: function(on){ muted = !on; tell(frames[0], on ? 'unMute' : 'mute'); if (on) frames.forEach(function(f){ tell(f, 'playVideo'); }); return !muted; },
+      stop: function(){
+        clearInterval(keep);
+        window.removeEventListener('message', heard);
+        frames.forEach(function(f){ tell(f, 'stopVideo'); if (f.parentNode) f.parentNode.removeChild(f); });
+      }
     };
   }
 

@@ -44,10 +44,8 @@ const ROOT = path.join(__dirname, '..');
 const PAGES = [
   { page: path.join(ROOT, 'founder.html'), out: path.join(ROOT, 'media', 'founder-films') },
   { page: path.join(ROOT, 'academy.html'), out: path.join(ROOT, 'media', 'academy-films') },
-  /* Maneka's Picks (9 Nov 2026): its films are written in the academy's
-     shape. frames: three moments of each trailer as well as its still, for
-     the lens of the glasses on her portrait to show in turn. */
-  { page: path.join(ROOT, 'manekas-picks.html'), out: path.join(ROOT, 'media', 'picks-films'), frames: true }
+  /* Maneka's Picks (9 Nov 2026): its films are written in the academy's shape. */
+  { page: path.join(ROOT, 'manekas-picks.html'), out: path.join(ROOT, 'media', 'picks-films') }
 ];
 
 const args = process.argv.slice(2);
@@ -125,26 +123,7 @@ function forPage(title) {
     .replace(/'/g, "\\'");
 }
 
-/* Three moments of a film, which YouTube publishes beside the still at the
-   same plain addresses (hq1, hq2, hq3). Saved as <id>-1.jpg to <id>-3.jpg. */
-async function grabFrames(id, OUT) {
-  let got = 0;
-  for (const n of [1, 2, 3]) {
-    const dest = path.join(OUT, `${id}-${n}.jpg`);
-    if (fs.existsSync(dest) && !FORCE) { got += 1; continue; }
-    try {
-      const res = await fetch(`https://i.ytimg.com/vi/${id}/hq${n}.jpg`);
-      if (!res.ok) continue;
-      const buf = Buffer.from(await res.arrayBuffer());
-      if (buf.length < 4000) continue;
-      fs.writeFileSync(dest, buf);
-      got += 1;
-    } catch { /* a missing moment only leaves the lens on the others */ }
-  }
-  return got;
-}
-
-async function one(PAGE, OUT, FRAMES) {
+async function one(PAGE, OUT) {
   const html = fs.readFileSync(PAGE, 'utf8');
   const films = filmsFromPage(html);
   if (!films.length) {
@@ -172,8 +151,6 @@ async function one(PAGE, OUT, FRAMES) {
         else { failed += 1; note = 'NO STILL'; }
       } catch (error) { failed += 1; note = `failed: ${error.message}`; }
     }
-
-    if (FRAMES) note += `, ${await grabFrames(film.id, OUT)} of 3 frames`;
 
     let title = film.title;
     if (!title) {
@@ -215,11 +192,61 @@ async function one(PAGE, OUT, FRAMES) {
   }
 }
 
-async function main() {
-  for (const target of PAGES) await one(target.page, target.out, !!target.frames);
+/* The book on Maneka's Picks (owner, 10 Nov 2026: "book photo, actual cover
+   needs to be there"). Its cover is the one Amazon shows on the page the
+   Buy on Amazon button opens, so it is read from there: the largest image
+   that page names for the book, saved once beside the portrait and served
+   from this site. Best effort, like the stills: Amazon may answer a script
+   with a check instead of the page, and then the lettered cover stays until
+   a later run, or until a cover is put at that path by hand. */
+const BOOK = {
+  page: path.join(ROOT, 'manekas-picks.html'),
+  out: path.join(ROOT, 'media', 'picks', 'animals-raghu-rai-cover.jpg')
+};
+const BROWSER = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
+
+function coverFromAmazon(html) {
+  const pick = [
+    /"hiRes":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+?\.jpg)"/,
+    /data-old-hires="(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+?\.jpg)"/,
+    /"large":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+?\.jpg)"/,
+    /id="(?:landingImage|imgBlkFront|ebooksImgBlkFront)"[^>]*?src="(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+?\.jpg)"/,
+    /<meta[^>]+property="og:image"[^>]+content="(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+?\.jpg)"/
+  ];
+  for (const re of pick) {
+    const m = re.exec(html);
+    /* the size suffix (._SX300_ and the like) asks for a smaller copy; without it Amazon sends the original */
+    if (m) return m[1].replace(/\._[^/]*_\.jpg$/, '.jpg');
+  }
+  return null;
 }
 
-module.exports = { filmsFromPage, forPage, PAGES };
+async function bookCover() {
+  if (!fs.existsSync(BOOK.page)) return;
+  if (fs.existsSync(BOOK.out) && !FORCE) { console.log('\n  Book cover already here.'); return; }
+  const link = (/href="(https:\/\/www\.amazon\.in\/[^"]*\/dp\/[0-9A-Z]{10}[^"]*)"/.exec(fs.readFileSync(BOOK.page, 'utf8')) || [])[1];
+  if (!link) { console.log('\n  No Amazon link for the book on the page.'); return; }
+  try {
+    const res = await fetch(link.replace(/&amp;/g, '&'), { headers: { 'user-agent': BROWSER, 'accept-language': 'en-IN,en;q=0.9', accept: 'text/html' } });
+    const url = res.ok ? coverFromAmazon(await res.text()) : null;
+    if (!url) { console.log('\n  Book cover: Amazon did not show the page to a script this time; the lettered cover stays.'); return; }
+    const img = await fetch(url, { headers: { 'user-agent': BROWSER } });
+    const buf = img.ok ? Buffer.from(await img.arrayBuffer()) : null;
+    if (!buf || buf.length < 5000) { console.log('\n  Book cover: the image did not arrive; the lettered cover stays.'); return; }
+    fs.mkdirSync(path.dirname(BOOK.out), { recursive: true });
+    fs.writeFileSync(BOOK.out, buf);
+    console.log(`\n  Book cover saved, ${Math.round(buf.length / 1024)}KB, from ${url}`);
+  } catch (error) {
+    console.log(`\n  Book cover failed: ${error.message}; the lettered cover stays.`);
+  }
+}
+
+async function main() {
+  for (const target of PAGES) await one(target.page, target.out);
+  await bookCover();
+}
+
+module.exports = { filmsFromPage, forPage, PAGES, BOOK, coverFromAmazon };
 
 if (require.main === module) {
   main().catch((error) => {

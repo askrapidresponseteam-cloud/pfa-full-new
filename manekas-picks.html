@@ -74,11 +74,12 @@
    for what names something, Helvetica for what is read, square buttons, a
    hairline over each band, white ground.
 
-   Her portrait wears amber glasses, and a trailer plays inside them when
-   asked ("render within the specs perfectly"): the lens is cut from the
-   glasses' own outline, measured from the drawing on every resize, so the
-   film stays inside the frame at every width. Full screen is the theatre,
-   the one player every film on the site uses. */
+   Her photograph in dark glasses, and a trailer that plays in them when
+   asked ("render within the specs perfectly", then of this photograph:
+   "nothing to get clipped"): each lens holds the whole film at 16:9,
+   placed by percent of the photograph so it stays in the glass at every
+   width. Full screen is the theatre, the one player every film on the
+   site uses. */
 :root{
   --paper:#fff;
   --ink:#111;
@@ -125,23 +126,33 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .mp-hero__role{margin:0;max-width:46ch;font-size:15px;line-height:1.68;color:rgba(17,17,17,.78)}
 .mp-acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
 
-/* ---------- her portrait, and the glasses ---------- */
-.mp-stage{margin:0;padding:0 var(--gutter)}
-.mp-room{position:relative;height:clamp(320px,min(64vw,72svh),820px);background:var(--room);overflow:hidden;isolation:isolate}
-.mp-room::before{content:"Picks";position:absolute;left:-.04em;top:-.2em;z-index:0;font:400 clamp(160px,27vw,420px)/1 var(--display);letter-spacing:-.02em;text-transform:uppercase;color:rgba(17,17,17,.045);pointer-events:none;white-space:nowrap}
-.mp-face,.mp-rim{position:absolute;inset:0;width:100%;height:100%}
-.mp-face{z-index:1}
-.mp-rim{z-index:3;pointer-events:none}
-.mp-shot-a,.mp-shot-b{transition:opacity .5s ease;filter:contrast(1.1) sepia(.75) saturate(2.1) brightness(1.12)}
-.mp-shot-b{opacity:0}
-.mp-room.is-b .mp-shot-a{opacity:0}
-.mp-room.is-b .mp-shot-b{opacity:1}
-.mp-lens{position:absolute;z-index:2;overflow:hidden;background:#2a1606}
+/* ---------- her photograph, and the trailer in her glasses ---------- */
+.mp-stage{margin:0;padding:0 var(--gutter);scroll-margin-top:calc(var(--ann) + var(--nav) + 8px)}
+.mp-room{position:relative;width:100%;aspect-ratio:2576/2113;background:#e9e9e9;overflow:hidden;isolation:isolate}
+.mp-photo{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* The visor's box, measured on the photograph (2576 by 2113): 925 to 1664
+   across, 663 to 899 down. The mask is the amber glass in that box. */
+.mp-lens{position:absolute;z-index:2;left:35.9084%;top:31.3772%;width:28.6879%;height:11.169%;overflow:hidden;isolation:isolate;opacity:0;transition:opacity .5s ease;
+  -webkit-mask-image:url("media/picks/visor-mask.png");mask-image:url("media/picks/visor-mask.png");
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.mp-room.has-still .mp-lens,.mp-room.is-playing .mp-lens{opacity:1}
+/* the film fills the visor, as the video does in a jjettas lens: 16:9 as
+   wide as the visor and centred (the visor is 3.13 wide for 1), graded to
+   the amber glass */
+.mp-lens__film,.mp-lens__still{position:absolute;left:0;top:-38.07%;width:100%;height:176.14%;border:0;filter:sepia(.42) saturate(1.3) hue-rotate(-6deg) contrast(1.06) brightness(.94)}
+.mp-lens__still{display:block;object-fit:cover;opacity:0;transition:opacity .5s ease}
+.mp-lens__still.is-in{opacity:1}
+.mp-room.is-playing .mp-lens__still{opacity:0}
+/* over the film: the amber of the glass and a soft shade toward its rim, a
+   fine grille, then the visor's own reflections, all inside the mask */
+.mp-lens__tone,.mp-lens__grille,.mp-lens__shine{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mp-lens__tone{background:radial-gradient(ellipse 60% 85% at 50% 42%,rgba(40,20,0,0) 55%,rgba(40,20,0,.38) 100%),rgba(255,166,48,.16);mix-blend-mode:multiply}
+.mp-lens__grille{background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,rgba(0,0,0,0) 1px 3px);mix-blend-mode:multiply;opacity:.45}
+.mp-lens__shine{display:block;mix-blend-mode:screen}
 .mp-lens iframe{display:block;width:100%;height:100%;border:0;pointer-events:none}
-.mp-room.is-playing .mp-tint{opacity:.32}
-.mp-lensbtn{position:absolute;z-index:4;padding:0;border:0;background:transparent;border-radius:38%;cursor:pointer}
+.mp-lensbtn{position:absolute;z-index:4;left:35.9084%;top:31.3772%;width:28.6879%;height:11.169%;padding:0;border:0;background:transparent;border-radius:30%;cursor:pointer}
 .mp-lensbtn:focus-visible{outline:2px solid var(--ink);outline-offset:6px}
-.mp-cap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;padding:16px 0;border-bottom:1px solid var(--line)}
+.mp-cap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;padding:16px 0;border-top:1px solid var(--line)}
 .mp-cap__now{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;min-width:0}
 .mp-cap__now b{font-family:var(--display);font-weight:400;font-size:clamp(18px,1.7vw,24px);line-height:1.15;text-transform:uppercase;letter-spacing:.01em;overflow-wrap:anywhere}
 .mp-ctls{display:flex;flex-wrap:wrap;gap:8px}
@@ -149,7 +160,6 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .mp-ctl:hover,.mp-ctl--go{background:var(--ink);color:#fff}
 .mp-ctl--go:hover{background:#fff;color:var(--ink)}
 .mp-ctl svg{width:11px;height:11px;flex:none}
-.mp-credit{margin:10px 0 0;font-size:11px;line-height:1.5;color:var(--muted)}
 
 /* ---------- bands ---------- */
 .band{padding:var(--band) var(--gutter)}
@@ -178,6 +188,12 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .mp-bk__cover{display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:3/4;padding:20px 18px;background:var(--ink);color:#fff}
 .mp-bk__cover span{font:400 clamp(24px,2.4vw,32px)/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
 .mp-bk__cover small{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+/* the real cover, whole and at its own shape, once its file is here
+   (fetched by npm run media:films); until then the lettered block */
+.mp-bk__cover img{display:none}
+.mp-bk__cover.has-cover{display:block;aspect-ratio:auto;padding:0;background:none}
+.mp-bk__cover.has-cover img{display:block;width:100%;height:auto;box-shadow:0 1px 0 rgba(17,17,17,.06),0 14px 30px -12px rgba(17,17,17,.35)}
+.mp-bk__cover.has-cover span,.mp-bk__cover.has-cover small{display:none}
 .mp-bk h3{margin:12px 0 0;font-size:clamp(28px,3vw,44px)}
 .mp-bk p{margin:14px 0 0;max-width:44ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.75)}
 
@@ -189,11 +205,9 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
   .mp-hero{padding:calc(var(--ann) + var(--nav) + 36px) 16px 28px}
   .mp-hero__in{grid-template-columns:minmax(0,1fr);gap:20px}
   .mp-stage{padding:0}
-  .mp-room{height:auto;aspect-ratio:1296/1024}
   .mp-cap{padding:14px 16px}
   .mp-ctls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:100%}
   .mp-ctl--go{grid-column:1 / -1}
-  .mp-credit{padding:0 16px}
   .band{padding-left:16px;padding-right:16px}
   .mp-bk{grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:18px}
   .mp-bk__cover{padding:14px 12px}
@@ -483,49 +497,16 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
 
+  <!-- Her photograph, and a trailer in her glasses (owner, 10 Nov 2026: "can
+       you play the video in this. render perfectly. nothing to get clipped
+       pls"). The photograph is shown whole, at its own shape. Each lens holds
+       a screen the size of the largest 16:9 picture that sits inside its
+       glass with a margin all round, measured on the photograph itself, so
+       the film is shown entire in both lenses: never zoomed, never cut by
+       the frame. The places are in percent of the photograph, so they hold
+       at every width. The controls sit above the photograph, so the lenses
+       are in view when Play is pressed. -->
   <figure class="mp-stage" id="specs">
-    <div class="mp-room" id="mpRoom">
-      <svg class="mp-face" viewBox="120 0 1296 1024" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Smt. Maneka Sanjay Gandhi in amber glasses, a trailer in the lenses" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <path id="mpGlass" d="M4 14C20 5.75 48 2 85 2S147 5.75 165 13.25L168 23L166 39.5Q166 44.75 159 46.25L123 52.25Q111 53.75 104 50Q99 47 96 40.25L91 29Q89 25.5 85 25.5Q81 25.5 79 29L73 42Q69 49.25 62 51.5Q56 54.5 45 52.25L13 47Q5 45.5 4 41L2 23Z"/>
-          <clipPath id="mpCut"><use href="#mpGlass"/></clipPath>
-          <linearGradient id="mpTint" x1="0%" y1="0%" x2="100%" y2="100%"><stop stop-color="#562407" stop-opacity=".59"/><stop offset=".38" stop-color="#f9a011" stop-opacity=".38"/><stop offset=".66" stop-color="#e87500" stop-opacity=".45"/><stop offset="1" stop-color="#ffc52b" stop-opacity=".62"/></linearGradient>
-          <linearGradient id="mpGlint" x1="0%" y1="0%" x2="0%" y2="100%"><stop stop-color="#fff0a0" stop-opacity=".66"/><stop offset=".35" stop-color="#fff2c0" stop-opacity="0"/><stop offset=".88" stop-color="#ffad26" stop-opacity="0"/><stop offset="1" stop-color="#ffc759" stop-opacity=".6"/></linearGradient>
-        </defs>
-        <image href="media/picks/portrait.webp" width="1536" height="1024"/>
-        <!-- The glasses sit on the bridge of her nose, level with her eyes,
-             their top along the brows and their arms meeting the tops of her
-             ears (9 Nov 2026). The same transform is on .mp-rim below. -->
-        <g id="mpVisor" transform="translate(777 319) rotate(-1.4) scale(2.59) translate(-85 -2)">
-          <use href="#mpGlass" fill="#21120a" stroke="#100d0c" stroke-width="5" opacity=".24" transform="translate(0 1.5)"/>
-          <g clip-path="url(#mpCut)" style="isolation:isolate">
-            <use href="#mpGlass" fill="#864507"/>
-            <image class="mp-shot-a" id="mpShotA" x="1" y="-6" width="170" height="66.5" preserveAspectRatio="xMidYMid slice"/>
-            <image class="mp-shot-b" id="mpShotB" x="1" y="-6" width="170" height="66.5" preserveAspectRatio="xMidYMid slice"/>
-            <use href="#mpGlass" fill="url(#mpTint)" style="mix-blend-mode:multiply"/>
-            <use href="#mpGlass" fill="url(#mpTint)" opacity=".47" style="mix-blend-mode:color"/>
-            <use href="#mpGlass" fill="#fa8d00" opacity=".24" style="mix-blend-mode:screen"/>
-          </g>
-        </g>
-      </svg>
-      <div class="mp-lens" id="mpLens" hidden></div>
-      <svg class="mp-rim" viewBox="120 0 1296 1024" preserveAspectRatio="xMidYMax meet" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="mpMetal" x2="20%" y2="100%"><stop stop-color="#705c4a"/><stop offset=".17" stop-color="#272021"/><stop offset=".5" stop-color="#1f1817"/><stop offset=".84" stop-color="#130e0f"/><stop offset="1" stop-color="#4f3b32"/></linearGradient>
-        </defs>
-        <g transform="translate(777 319) rotate(-1.4) scale(2.59) translate(-85 -2)">
-          <path d="M6 14L-7 16.25Q-9 17.38 -7 19.25L5 20ZM164 14L177 16.25Q179 17.38 177 19.25L165 20Z" fill="#281c18"/>
-          <use class="mp-tint" href="#mpGlass" fill="#fa8d00" opacity=".12"/>
-          <use href="#mpGlass" fill="url(#mpGlint)" opacity=".7"/>
-          <use href="#mpGlass" fill="none" stroke="url(#mpMetal)" stroke-width="3.5" stroke-linejoin="round"/>
-          <path d="M4 15.5C23 5.75 49 2 85 2S148 5.75 165 14L167 21.5L161 17.75L159 14.75C139 8 113 5.75 85 5.75S30 8 11 15.5L8 20L3 22.25Z" fill="url(#mpMetal)"/>
-          <path d="M7 14C27 5 53 2 85 2S142 5 162 13.25" fill="none" stroke="#e3c49d" stroke-opacity=".52" stroke-width=".7"/>
-          <path d="M5 39.5Q10 39.5 15 40.25L24 47.75L12 46.25Q6 44.75 5 39.5ZM166 39.5Q160 39.5 155 41L148 48.5L159 46.25Q165 44.75 166 39.5Z" fill="url(#mpMetal)" stroke="#b49c82" stroke-opacity=".68" stroke-width=".7"/>
-          <path d="M72 43L79 29Q81 25 85 25Q90 25 92 29L99 43" fill="none" stroke="#4b3830" stroke-width="2.5" stroke-linecap="round"/>
-        </g>
-      </svg>
-      <button class="mp-lensbtn" id="mpLensBtn" type="button" aria-label="Play the trailer in her glasses" hidden></button>
-    </div>
     <figcaption class="mp-cap">
       <span class="mp-cap__now"><span class="eyebrow">In her glasses</span> <b id="mpNow" aria-live="polite">Test Subject V</b></span>
       <span class="mp-ctls">
@@ -536,7 +517,29 @@ if (root.document && root.document.head) apply(read());
         <button class="mp-ctl" id="mpStop" type="button" hidden>Stop</button>
       </span>
     </figcaption>
-    <p class="mp-credit">Portrait restored from an archival photograph.</p>
+    <div class="mp-room" id="mpRoom">
+      <img class="mp-photo" src="media/picks/portrait-visor.jpg" width="2576" height="2113" alt="Smt. Maneka Sanjay Gandhi in amber glasses, a black and white photograph" decoding="async">
+      <!-- The visor, as jjettas.com does its lens (owner, 10 Nov 2026: "how is
+           it being done in this. you need to do the same ... implement
+           ditto", then "not even 1 pixel should flow out", then this
+           photograph: "ur choice. goal is to play the video perfectly").
+           There a WebGL shader fills the lens with a looping video through a
+           mask of the lens's shape, grades it, lays a fine grille over it and
+           the lens's own reflections on top. A YouTube trailer cannot be a
+           WebGL texture, so the browser composites the same layers. The mask
+           (media/picks/visor-mask.png) is the amber glass itself, read from
+           the photograph by its colour, smoothed and held three pixels inside
+           the glass, so not one pixel of the film reaches the frame, the nose
+           bridge or the corner pads. -->
+      <div class="mp-lens" id="mpLens">
+        <img class="mp-lens__still" alt="" data-lens-still>
+        <div class="mp-lens__film" id="mpFilm"></div>
+        <span class="mp-lens__tone" aria-hidden="true"></span>
+        <span class="mp-lens__grille" aria-hidden="true"></span>
+        <img class="mp-lens__shine" src="media/picks/visor-shine.png" alt="">
+      </div>
+      <button class="mp-lensbtn" id="mpLensBtn" type="button" aria-label="Play the trailer of Test Subject V in her glasses"></button>
+    </div>
   </figure>
 
   <section class="band" id="films">
@@ -582,11 +585,11 @@ if (root.document && root.document.head) apply(read());
       <h2 class="display">One to read.</h2>
     </div>
     <article class="mp-bk">
-      <div class="mp-bk__cover" aria-hidden="true"><span>Animals</span><small>Raghu Rai</small></div>
+      <div class="mp-bk__cover" id="mpCover"><img alt="The cover of Animals by Raghu Rai" data-still="media/picks/animals-raghu-rai-cover.jpg"><span aria-hidden="true">Animals</span><small aria-hidden="true">Raghu Rai</small></div>
       <div>
-        <p class="eyebrow">Raghu Rai</p>
+        <p class="eyebrow">Raghu Rai &middot; HarperCollins India</p>
         <h3 class="display">Animals</h3>
-        <p>By the photographer Raghu Rai.</p>
+        <p>More than two hundred of Raghu Rai&rsquo;s photographs of animals, taken across India over five decades, with an introduction by Maneka Gandhi.</p>
         <div class="mp-acts">
           <a class="btn" href="https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1" target="_blank" rel="noopener noreferrer">Buy on Amazon <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
         </div>
@@ -697,7 +700,7 @@ if (root.document && root.document.head) apply(read());
 
 <script src="assets/theatre.js"></script>
 <script>
-/* ---------- the films, and the glasses ----------
+/* ---------- the films, and her glasses ----------
    Each trailer is the film's own, checked on 9 Nov 2026 against YouTube's
    record of who published it:
      Test Subject V           JioHotstar, "Official Trailer"
@@ -706,10 +709,9 @@ if (root.document && root.document.head) apply(read());
      Ohh My Dog               Babulal Biscope, "Official Trailer" of the 2026
                               Hindi film, the one on Netflix (not the 2022
                               Tamil "Oh My Dog")
-   The stills are served from this site, fetched by npm run media:films
-   (scripts/fetch-founder-films.js), with three frames of each trailer for
-   the glasses. Until they are here a tile keeps its number and the lens its
-   amber glass; nothing is asked of YouTube until Play is pressed. */
+   The tiles' stills are served from this site, fetched by npm run
+   media:films (scripts/fetch-founder-films.js). Until they are here a tile
+   keeps its number; nothing is asked of YouTube until Play is pressed. */
 (function picks(){
   'use strict';
   var FILMS = [
@@ -718,7 +720,6 @@ if (root.document && root.document.head) apply(read());
     { wall:'long', title:'Ohh My Dog', credit:'Babulal Biscope', yt:'Hkv1-F5-EaI', poster:'media/picks-films/Hkv1-F5-EaI.jpg' }
   ];
   var $ = function (id) { return document.getElementById(id); };
-  var reduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
 
   var PT = window.PFA_THEATRE || {};
   var T = PT.mount ? PT.mount({
@@ -735,94 +736,67 @@ if (root.document && root.document.head) apply(read());
     img.addEventListener('error', function () { img.remove(); });
     img.src = img.getAttribute('data-still');
   });
+  /* the book's own cover, shown only once it has really arrived */
+  (function cover(){
+    var box = $('mpCover'), img = box && box.querySelector('img[data-still]');
+    if (!img) return;
+    img.addEventListener('load', function () { box.classList.add('has-cover'); });
+    img.addEventListener('error', function () { img.remove(); });
+    img.src = img.getAttribute('data-still');
+  }());
 
-  var room = $('mpRoom'), visor = $('mpVisor'), glass = $('mpGlass'), host = $('mpLens'), hit = $('mpLensBtn');
+  var room = $('mpRoom'), hosts = [$('mpFilm')], hit = $('mpLensBtn');
+  var stills = [].slice.call(document.querySelectorAll('[data-lens-still]'));
   var now = $('mpNow'), play = $('mpPlay'), sound = $('mpSound'), next = $('mpNext'), full = $('mpFull'), stop = $('mpStop');
-  var cur = 0, frame = 0, layerB = false, timer = null, held = false, seen = true, lens = null;
+  if (!room) return;
+  var cur = 0, lens = null;
 
-  /* ---- the lens, measured from the drawing ----
-     The glasses' outline is sampled along its length and carried through the
-     drawing's own transform to the page, so the film is cut to exactly the
-     lens the eye sees, at any width and on any screen. The film is laid in
-     at 16:9 and as large as the lens needs to be filled, then cut. */
-  var box = null;
-  function measure(){
-    if (!room || !visor || !glass || !glass.getTotalLength || !visor.getScreenCTM) return null;
-    var m = visor.getScreenCTM(); if (!m) return null;
-    var r = room.getBoundingClientRect();
-    var len = glass.getTotalLength(), pts = [], N = 160, i, p, q;
-    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    for (i = 0; i < N; i++) {
-      p = glass.getPointAtLength(len * i / N);
-      q = { x: m.a * p.x + m.c * p.y + m.e - r.left, y: m.b * p.x + m.d * p.y + m.f - r.top };
-      pts.push(q);
-      x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y);
-    }
-    var w = x1 - x0, h = y1 - y0;
-    if (!(w > 0 && h > 0)) return null;
-    var fw = w, fh = w * 9 / 16;
-    if (fh < h) { fh = h; fw = h * 16 / 9; }
-    var fx = x0 + (w - fw) / 2, fy = y0 + (h - fh) / 2;
-    return { x0: x0, y0: y0, w: w, h: h, fx: fx, fy: fy, fw: fw, fh: fh,
-      clip: 'polygon(' + pts.map(function (q) { return (q.x - fx).toFixed(1) + 'px ' + (q.y - fy).toFixed(1) + 'px'; }).join(',') + ')' };
-  }
-  function place(){
-    box = measure();
-    if (!box) return;
-    host.style.left = box.fx + 'px'; host.style.top = box.fy + 'px';
-    host.style.width = box.fw + 'px'; host.style.height = box.fh + 'px';
-    host.style.clipPath = box.clip; host.style.webkitClipPath = box.clip;
-    hit.style.left = box.x0 + 'px'; hit.style.top = box.y0 + 'px';
-    hit.style.width = box.w + 'px'; hit.style.height = box.h + 'px';
-    hit.hidden = false;
-  }
-
-  /* ---- what the lens shows at rest: frames of each trailer, in turn ----
-     Still while a pointer or keyboard is on the portrait, for anyone who
-     has asked for less motion, while the film plays, and off screen. */
-  function framesOf(f){ return ['media/picks-films/' + f.yt + '-1.jpg', 'media/picks-films/' + f.yt + '-2.jpg', 'media/picks-films/' + f.yt + '-3.jpg', f.poster]; }
-  function show(url){
-    var probe = new Image();
+  /* at rest the visor carries the film's still, graded like the film,
+     once the still is on this site (npm run media:films) */
+  function still(){
+    var url = FILMS[cur].poster, probe = new Image();
+    stills.forEach(function (img) { img.classList.remove('is-in'); });
     probe.onload = function () {
-      var el = $(layerB ? 'mpShotA' : 'mpShotB');
-      el.setAttribute('href', url);
-      layerB = !layerB;
-      room.classList.toggle('is-b', layerB);
+      if (FILMS[cur].poster !== url) return;
+      stills.forEach(function (img) { img.src = url; img.classList.add('is-in'); });
+      room.classList.add('has-still');
     };
+    probe.onerror = function () { room.classList.remove('has-still'); };
     probe.src = url;
   }
   function name(){
     var f = FILMS[cur];
     now.textContent = f.title;
-    hit.setAttribute('aria-label', 'Play the trailer of ' + f.title + ' in her glasses');
+    hit.setAttribute('aria-label', (lens ? 'Stop the trailer of ' : 'Play the trailer of ') + f.title + ' in her glasses');
   }
-  function still(){ return held || !seen || lens || reduce.matches || document.hidden || (T && T.isOpen && T.isOpen()); }
-  function tick(){
-    if (still()) return;
-    frame += 1;
-    if (frame > 3) { frame = 0; cur = (cur + 1) % FILMS.length; name(); }
-    show(framesOf(FILMS[cur])[frame]);
-  }
-  function run(){ clearInterval(timer); timer = setInterval(tick, 2600); }
-
-  /* ---- playing in the glasses ---- */
   function paint(){
     var on = !!lens;
     room.classList.toggle('is-playing', on);
-    host.hidden = !on;
     play.hidden = on; stop.hidden = !on; sound.hidden = !on;
     if (on) {
       var loud = !lens.muted();
       sound.textContent = loud ? 'Sound: On' : 'Sound: Off';
       sound.setAttribute('aria-pressed', loud ? 'true' : 'false');
     }
+    name();
   }
+  /* the film fills the visor, with its sound (assets/theatre.js, lens) */
   function playIn(i){
     if (!lensOf) { if (T) T.open(i, 'long'); return; }
     if (lens) lens.stop();
-    cur = i; name(); place();
-    lens = lensOf(host, FILMS[cur]);
+    cur = i;
+    still();
+    lens = lensOf(hosts, FILMS[cur]);
     paint();
+    seeIt();
+  }
+  /* the lenses in view when the film starts, with the controls above them */
+  function seeIt(){
+    var r = $('mpLens').getBoundingClientRect(), bar = $('specs');
+    if (r.bottom > window.innerHeight - 16 || r.top < 0) {
+      var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      bar.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
+    }
   }
   function halt(){ if (lens) { lens.stop(); lens = null; } paint(); }
 
@@ -832,26 +806,15 @@ if (root.document && root.document.head) apply(read());
   sound.addEventListener('click', function () { if (lens) { lens.sound(lens.muted()); paint(); } });
   next.addEventListener('click', function () {
     var i = (cur + 1) % FILMS.length;
-    if (lens) { playIn(i); return; }
-    cur = i; frame = 0; name(); show(framesOf(FILMS[cur])[0]);
+    if (lens) playIn(i); else { cur = i; name(); still(); }
   });
   full.addEventListener('click', function () { var i = cur; halt(); if (T) T.open(i, 'long'); });
 
   [].forEach.call(document.querySelectorAll('[data-film]'), function (b) {
     b.addEventListener('click', function () { halt(); if (T) T.open(+b.getAttribute('data-film'), 'long'); });
   });
-
-  if (room) {
-    room.addEventListener('pointerenter', function () { held = true; });
-    room.addEventListener('pointerleave', function () { held = false; });
-    room.addEventListener('focusin', function () { held = true; });
-    room.addEventListener('focusout', function () { held = false; });
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { seen = es[0].isIntersecting; }).observe(room);
-    if ('ResizeObserver' in window) new ResizeObserver(place).observe(room);
-    window.addEventListener('resize', place);
-    window.addEventListener('load', place);
-    place(); name(); show(framesOf(FILMS[cur])[0]); run();
-  }
+  name();
+  still();
 }());
 </script>
 </body>

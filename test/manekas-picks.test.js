@@ -58,6 +58,19 @@ test('each film links to the service it streams on, and the book to Amazon', () 
   assert.equal(doc.querySelector('#book h3').textContent, 'Animals');
 });
 
+test('the book shows its real cover, whole, from this site (owner, 10 Nov 2026)', () => {
+  const img = doc.querySelector('#mpCover img');
+  assert.equal(img.getAttribute('data-still'), 'media/picks/animals-raghu-rai-cover.jpg');
+  assert.equal(img.getAttribute('alt'), 'The cover of Animals by Raghu Rai');
+  assert.match(html, /\.mp-bk__cover\.has-cover img\{display:block;width:100%;height:auto;/, 'at its own shape: never cut or stretched');
+  assert.match(html, /img\.addEventListener\('load', function \(\) \{ box\.classList\.add\('has-cover'\); \}\);/, 'shown only once it has arrived');
+  const { BOOK, coverFromAmazon } = require('../scripts/fetch-founder-films.js');
+  assert.ok(BOOK.out.endsWith(path.join('media', 'picks', 'animals-raghu-rai-cover.jpg')));
+  assert.equal(coverFromAmazon('"hiRes":"https://m.media-amazon.com/images/I/81abc._SL1500_.jpg"'), 'https://m.media-amazon.com/images/I/81abc.jpg', 'the original, not a thumbnail');
+  assert.equal(coverFromAmazon('<html>a check page</html>'), null);
+  assert.match(doc.querySelector('#book .mp-bk p:not(.eyebrow)').textContent, /introduction by Maneka Gandhi/);
+});
+
 test('the page is the site\'s: its header, title block, faces and footer', () => {
   const h1 = doc.querySelectorAll('main h1');
   assert.equal(h1.length, 1);
@@ -78,36 +91,64 @@ test('it is reached from About, the footer and the founder\'s films', () => {
   assert.deepEqual(PAGES['manekas-picks.html'], { current: 'manekas-picks.html', group: 'founder.html', announce: 'Every drive, camp and open day is free to attend' });
 });
 
-test('the glasses: one fit for the portrait and the rim drawn over the film', () => {
-  const fit = 'translate(777 319) rotate(-1.4) scale(2.59) translate(-85 -2)';
-  assert.equal(doc.getElementById('mpVisor').getAttribute('transform'), fit);
-  assert.equal(doc.querySelector('.mp-rim > g').getAttribute('transform'), fit);
-  assert.equal(doc.querySelector('.mp-face').getAttribute('viewBox'), doc.querySelector('.mp-rim').getAttribute('viewBox'));
-  assert.equal(doc.querySelector('.mp-face').getAttribute('preserveAspectRatio'), doc.querySelector('.mp-rim').getAttribute('preserveAspectRatio'));
-  assert.ok(fs.existsSync(path.join(ROOT, 'media/picks/portrait.webp')));
-  /* the film is cut to the outline itself, measured on every resize */
-  assert.match(html, /glass\.getPointAtLength\(len \* i \/ N\)/);
-  assert.match(html, /new ResizeObserver\(place\)\.observe\(room\)/);
+test('her photograph in the amber visor, whole, and the visor filled with the film as jjettas.com does it (owner, 10 Nov 2026)', () => {
+  /* "implement ditto", "not even 1 pixel should flow out", "goal is to play the video perfectly" */
+  const img = doc.querySelector('#mpRoom img.mp-photo');
+  assert.equal(img.getAttribute('src'), 'media/picks/portrait-visor.jpg');
+  assert.equal(img.getAttribute('width'), '2576');
+  assert.equal(img.getAttribute('height'), '2113');
+  for (const gone of ['portrait.webp', 'portrait-glasses.jpg', 'lens-l-mask.png', 'lens-r-mask.png']) assert.ok(!fs.existsSync(path.join(ROOT, 'media/picks', gone)), gone);
+  assert.match(html, /\.mp-room\{position:relative;width:100%;aspect-ratio:2576\/2113;/, 'the photograph at its own shape');
+  const lens = doc.querySelector('#mpLens.mp-lens');
+  for (const part of ['.mp-lens__still', '.mp-lens__film', '.mp-lens__tone', '.mp-lens__grille', '.mp-lens__shine']) assert.ok(lens.querySelector(part), part);
+  assert.match(html, /\.mp-lens\{[^}]*mask-image:url\("media\/picks\/visor-mask\.png"\)/, 'masked to the amber glass');
+  for (const f of ['visor-mask.png', 'visor-shine.png', 'portrait-visor.jpg']) assert.ok(fs.existsSync(path.join(ROOT, 'media/picks', f)), f);
+  /* the visor box, in percent of the photograph: 925 to 1664 across, 663 to 899 down */
+  const pct = (re) => Number(re.exec(html)[1]) / 100;
+  const W = 2576, H = 2113;
+  const box = { l: pct(/\.mp-lens\{[^}]*left:([\d.]+)%/) * W, t: pct(/\.mp-lens\{[^}]*top:([\d.]+)%/) * H, w: pct(/\.mp-lens\{[^}]*width:([\d.]+)%/) * W, h: pct(/\.mp-lens\{[^}]*height:([\d.]+)%/) * H };
+  assert.ok(Math.abs(box.l - 925) < 0.5 && Math.abs(box.t - 663) < 0.5 && Math.abs(box.w - 739) < 0.5 && Math.abs(box.h - 236) < 0.5, JSON.stringify(box));
+  /* the mask is exactly the box's size, so it lands on the glass it was read from */
+  const png = fs.readFileSync(path.join(ROOT, 'media/picks/visor-mask.png'));
+  assert.equal(png.readUInt32BE(16), 739);
+  assert.equal(png.readUInt32BE(20), 236);
+  /* the film covers the visor: 16:9 as wide as the box, centred down it */
+  const filmH = pct(/\.mp-lens__film,\.mp-lens__still\{[^}]*height:([\d.]+)%/) * box.h;
+  const filmTop = -pct(/\.mp-lens__film,\.mp-lens__still\{[^}]*top:-([\d.]+)%/) * box.h;
+  assert.ok(Math.abs(box.w / filmH - 16 / 9) < 0.01, `16:9, not ${box.w / filmH}`);
+  assert.ok(Math.abs(filmTop + (filmH - box.h) / 2) < 0.5, 'centred');
+  assert.match(html, /\.mp-lens__shine\{display:block;mix-blend-mode:screen\}/, 'the visor\'s reflections over the film');
+  assert.match(html, /\.mp-lens__grille\{background:repeating-linear-gradient/);
 });
 
-test('the trailer in the glasses is the theatre\'s, built only when Play is pressed', () => {
+test('the trailer in the visor is the theatre\'s, built only when Play is pressed', () => {
   const js = read('assets/theatre.js');
   assert.match(js, /function lens\(host, film, opts\)\{/);
+  assert.match(js, /var hosts = \[\]\.concat\(host\)\.filter\(Boolean\);/);
+  assert.match(js, /'\?autoplay=1&mute=' \+ \(n \|\| muted \? 1 : 0\)/, 'the first lens has the sound, the other follows muted');
+  assert.match(js, /tell\(frames\[k\], 'seekTo', \[at\[0\] \+ 0\.1, true\]\)/, 'and is kept to its moment');
   assert.match(js, /window\.PFA_THEATRE\.lens = lens;\n\}\(\)\);\s*$/, 'still there after a page mounts its theatre');
   assert.match(js, /window\.PFA_THEATRE\.mount = mount;\n {4}window\.PFA_THEATRE\.lens = lens;/);
   assert.match(js, /var muted = !!opts\.muted \|\| ios;/, 'an iPhone starts it muted, as the theatre does');
-  assert.match(html, /lens = lensOf\(host, FILMS\[cur\]\);/);
+  assert.match(html, /hosts = \[\$\('mpFilm'\)\]/);
+  assert.match(html, /lens = lensOf\(hosts, FILMS\[cur\]\);/);
 });
 
-test('npm run media:films fetches its stills and the lens\'s frames', () => {
+test('npm run media:films fetches its stills', () => {
   const { PAGES, filmsFromPage } = require('../scripts/fetch-founder-films.js');
   const own = PAGES.find((t) => t.page.endsWith('manekas-picks.html'));
-  assert.ok(own && own.frames && own.out.endsWith(path.join('media', 'picks-films')));
+  assert.ok(own && own.out.endsWith(path.join('media', 'picks-films')));
   assert.deepEqual(filmsFromPage(html).map((f) => f.id), FILMS.map((f) => f.yt));
 });
 
-test('no pause button: the glasses stand still on hover, on focus and for reduced motion', () => {
-  assert.match(html, /room\.addEventListener\('pointerenter', function \(\) \{ held = true; \}\);/);
-  assert.match(html, /room\.addEventListener\('focusin', function \(\) \{ held = true; \}\);/);
-  assert.match(html, /function still\(\)\{ return held \|\| !seen \|\| lens \|\| reduce\.matches/);
+test('nothing on the photograph moves until Play is pressed, so there is nothing to pause', () => {
+  assert.doesNotMatch(html, /setInterval|requestAnimationFrame/);
+  const controls = [...doc.querySelectorAll('.mp-ctl')].map((b) => b.textContent.trim());
+  assert.deepEqual(controls, ['Play in her glasses', 'Sound: On', 'Next film', 'Full screen', 'Stop']);
+});
+
+test('at rest the visor carries the film\'s still the same way, once it is on this site', () => {
+  assert.equal(doc.querySelectorAll('[data-lens-still]').length, 1);
+  assert.match(html, /\.mp-room\.has-still \.mp-lens,\.mp-room\.is-playing \.mp-lens\{opacity:1\}/, 'until then the photograph\'s own glass is seen');
+  assert.match(html, /probe\.onload = function \(\) \{\n\s*if \(FILMS\[cur\]\.poster !== url\) return;/);
 });

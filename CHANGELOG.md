@@ -1,3 +1,16 @@
+## v1.544
+
+- **Her photograph in an amber visor, and the trailer in it, done the way jjettas.com does it.** Owner, 10 Nov 2026, in turn: "video is currently zoomed in and clipped when being played within the glasses", "Remove the patchy look on the glass ... so the tint, transparency, and reflections flow seamlessly across the entire surface", "how is it being done in this [jjettas.com]. you need to do the same ... implement ditto", "not even 1 pixel should flow out. so either change the glass or fix the rendering", and with this photograph: "ur choice. goal is to play the video perfectly".
+  - How jjettas.com does it, read from its code: a WebGL shader (three.js) fills the lens with a looping video through a mask of the lens's shape, so the video covers the whole glass, grades it, lays a fine grille over it and puts the lens's own reflections and sheen on top.
+  - The same, here, in her photograph in an amber visor (media/picks/portrait-visor.jpg, shown whole at its own shape): one continuous visor, as on jjettas.com, the trailer filling it at 16:9 as wide as the visor, graded to the amber glass, under a soft shade at the rim, a fine grille and the visor's own reflections (visor-shine.png, screen-blended).
+  - Not one pixel outside the glass: the mask (visor-mask.png) is the amber glass itself, read from the photograph by its colour (the photograph is black and white, the glass alone is amber), smoothed, held 4 pixels inside and zeroed wherever the glass is not. Checked in a browser by filling the film with solid colour and comparing every pixel with the page at rest, at 390, 768, 1024, 1440 and 1920 wide: none outside the glass changes. scripts/build-visor-mask.py makes the mask and the reflections again if the photograph changes.
+  - A YouTube trailer cannot be a WebGL texture (YouTube gives no pixels to another site), so the browser composites these layers rather than a shader. The film plays when Play is pressed, as every film on the site does; at rest the visor carries the film's still the same way once npm run media:films has fetched it, and until then the photograph's own amber glass is seen.
+  - Sound, Next film, Full screen (the theatre) and Stop sit above the photograph, and Play brings the visor into view. PFA_THEATRE.lens (assets/theatre.js) builds the frame, and can drive more than one at once.
+- **The book on Maneka’s Picks shows its real cover.** Owner, 10 Nov 2026: "book photo, actual cover needs to be there".
+  - The cover is read from the Amazon page the Buy on Amazon button opens (the largest image it names for the book), saved once as media/picks/animals-raghu-rai-cover.jpg and served from this site. npm run media:films does it, and DEPLOY.command runs that.
+  - Shown whole, at its own shape, only once the file has arrived; until then the lettered cover stays. If Amazon will not show its page to a script, the cover can be saved from that page under that name by hand.
+  - The book's line is now what it is: more than two hundred of Raghu Rai’s photographs of animals, taken across India over five decades, with an introduction by Maneka Gandhi; HarperCollins India.
+
 ## v1.543
 
 - **Maneka’s Picks is part of the site.** Owner, 9 Nov 2026: "maneka's picks has to go perfectly with this website. find the best place and append the link.. the theme should match with the website".

@@ -1477,6 +1477,9 @@
    "reels": "watch",
    "rrt-title": "rapid-response"
   },
+  "manekas-picks": {
+   "mpCover": "book"
+  },
   "sgacc": {
    "done": "help",
    "doneRef": "help",
