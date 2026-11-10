@@ -112,6 +112,12 @@ test('her photograph in the amber visor, whole, and the visor filled with the fi
   for (const part of ['.mp-lens__still', '.mp-lens__film', '.mp-lens__tone', '.mp-lens__grille', '.mp-lens__shine']) assert.ok(lens.querySelector(part), part);
   assert.match(html, /\.mp-lens__glass\{[^}]*mask-image:url\("media\/picks\/visor-mask\.png"\)/, 'masked to the glass');
   for (const f of ['visor-mask.png', 'visor-shine.png', 'visor-frame.png', 'portrait-visor.jpg']) assert.ok(fs.existsSync(path.join(ROOT, 'media/picks', f)), f);
+  /* the photograph without the generated texture, made from the original kept out of the site (10 Nov 2026) */
+  const crypto = require('crypto');
+  const hash = (f) => crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, f))).digest('hex');
+  assert.ok(fs.existsSync(path.join(ROOT, 'scripts/source/portrait-visor-original.jpg')), 'the original, to make it again from');
+  assert.notEqual(hash('media/picks/portrait-visor.jpg'), hash('scripts/source/portrait-visor-original.jpg'), 'the page shows the retouched photograph');
+  assert.match(read('scripts/retouch-portrait.py'), /freckles/);
   /* the visor box, in percent of the photograph: 906 to 1676 across, 644 to 918 down */
   const pct = (re) => Number(re.exec(html)[1]) / 100;
   const W = 2576, H = 2113;
@@ -160,8 +166,15 @@ test('npm run media:films fetches its stills', () => {
   assert.deepEqual(filmsFromPage(html).map((f) => f.id), FILMS.map((f) => f.yt));
 });
 
-test('nothing on the photograph moves until Play is pressed, so there is nothing to pause', () => {
-  assert.doesNotMatch(html, /setInterval|requestAnimationFrame/);
+test('the photograph\'s effects, as jjettas.com\'s hero: decorative, and all still when motion is reduced (10 Nov 2026)', () => {
+  /* the type behind her drifts, a light runs across the visor, the picture leans to the pointer */
+  assert.ok(doc.querySelector('#mpRoom .mp-scene .mp-type[aria-hidden="true"] .mp-type__row--back .mp-type__track'));
+  assert.match(html, /\.mp-type\{[^}]*mask-image:url\("media\/picks\/portrait-wall\.png"\)/, 'on the wall only, behind her');
+  assert.ok(fs.existsSync(path.join(ROOT, 'media/picks/portrait-wall.png')));
+  assert.ok(doc.querySelector('.mp-lens__glass .mp-lens__glint'), 'the light inside the glass, under its mask');
+  assert.match(html, /@media \(prefers-reduced-motion:reduce\)\{\n {2}\*\{transition:none!important;animation:none!important\}\n {2}\.mp-scene,\.mp-type__row\{transform:none\}\n {2}\.mp-lens__glint\{display:none\}\n\}/);
+  assert.match(html, /if \(calm \|\| !window\.matchMedia \|\| !window\.matchMedia\('\(hover: hover\)'\)\.matches\) return;/, 'the lean only with a pointer, never when motion is reduced');
+  assert.doesNotMatch(html, /setInterval/);
   const controls = [...doc.querySelectorAll('.mp-ctl')].map((b) => b.textContent.trim());
   assert.deepEqual(controls, ['Play in her glasses', 'Sound: On', 'Next film', 'Full screen', 'Stop']);
 });

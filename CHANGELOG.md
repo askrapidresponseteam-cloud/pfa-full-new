@@ -1,3 +1,15 @@
+## v1.549
+
+- **Her photograph as a 60MP camera takes it: no generated texture, no blemishes, nothing blurred.** Owner, 10 Nov 2026: "the image has this kinda texture which is so gpt ish!. fix", "image cannot be blurred though", "it has to be like shot in 60MP canon mark dslr", "skin cannot have blemishes".
+  - The wandering-line pattern an image generator leaves on smooth surfaces is gone from her forehead, cheeks, lips, neck and chest, the sari and the blouse.
+  - In its place, the detail a high-resolution sensor records, sharp to the pixel: fine pores and the faint unevenness of real skin on her, and only the finest grain on cloth and the wall. Hair, lashes, the earrings, the sequins, the lips' outline and the glasses are left exactly as they were.
+  - Every blemish, freckle and mole on her skin is healed from the skin around it.
+  - scripts/retouch-portrait.py makes it from the original, which is kept out of the site (scripts/source/), and the visor's layers are made again from the new photograph.
+- **The hero, with jjettas.com's effects.** Owner: "have some effects as in https://jjettas.com/ so that it looks really amazing".
+  - As on their hero, two rows of giant type drift across the wall behind her, one each way, slowly: "Maneka’s" and "Picks". They are drawn on the wall alone, so she stands in front of them.
+  - The picture leans a little toward the pointer, the type behind her further than she does, for depth; a light runs across the visor every few seconds; a soft studio light and vignette over all; and the picture settles in as the page opens.
+  - All of it is still for a visitor who asks for reduced motion, and the lean is for a pointer only.
+
 ## v1.548
 
 - **The grey corner pads are gone from her visor: the film fills each corner, inside the frame's rim.** Owner, 10 Nov 2026: "this section looks odd.. either remove that piece or fill that with video in a seamless way. removing that part from both sides is easier I suppose".

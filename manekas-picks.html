@@ -128,7 +128,26 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 
 /* ---------- her photograph, and the trailer in her glasses ---------- */
 .mp-stage{margin:0;padding:0 var(--gutter);scroll-margin-top:calc(var(--ann) + var(--nav) + 8px)}
-.mp-room{position:relative;width:100%;aspect-ratio:2576/2113;background:#e9e9e9;overflow:hidden;isolation:isolate}
+.mp-room{position:relative;width:100%;aspect-ratio:2576/2113;background:#e9e9e9;overflow:hidden;isolation:isolate;container-type:inline-size;--mx:0;--my:0}
+/* As jjettas.com's hero (owner, 10 Nov 2026: "have some effects as in
+   https://jjettas.com/ so that it looks really amazing"): her name drifts
+   across the wall behind her in two rows of giant type, one each way, as
+   theirs does; the picture leans a little toward the pointer, the type
+   further than she does, so she stands in front of it; a light runs across
+   the visor now and then; a soft studio light over all; and the picture
+   settles in as it opens. All of it still when motion is reduced. */
+.mp-scene{position:absolute;inset:0;transform:translate3d(calc(var(--mx) * -6px),calc(var(--my) * -4px),0) scale(1.03);transition:transform .9s cubic-bezier(.22,1,.36,1);animation:mp-in 1.6s cubic-bezier(.22,1,.36,1) both}
+@keyframes mp-in{from{opacity:0;transform:scale(1.08)}to{opacity:1;transform:translate3d(0,0,0) scale(1.03)}}
+.mp-scene::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;mix-blend-mode:soft-light;
+  background:radial-gradient(ellipse 55% 60% at calc(50% + var(--mx) * 6%) calc(32% + var(--my) * 4%),rgba(255,255,255,.55),rgba(255,255,255,0) 70%),radial-gradient(ellipse 90% 90% at 50% 45%,rgba(0,0,0,0) 60%,rgba(0,0,0,.35) 100%)}
+.mp-type{position:absolute;inset:0;z-index:1;pointer-events:none;display:flex;flex-direction:column;justify-content:center;gap:1cqw;overflow:hidden;mix-blend-mode:multiply;
+  -webkit-mask-image:url("media/picks/portrait-wall.png");mask-image:url("media/picks/portrait-wall.png");-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.mp-type__row{display:flex;overflow:hidden;transform:translate3d(calc(var(--mx) * 22px),calc(var(--my) * 10px),0);transition:transform 1.2s cubic-bezier(.22,1,.36,1)}
+.mp-type__track{display:flex;flex:none;gap:6cqw;padding-right:6cqw;animation:mp-drift 90s linear infinite;will-change:transform}
+.mp-type__row--back .mp-type__track{animation-direction:reverse}
+.mp-type__track span{font-family:var(--display);font-weight:400;font-size:24cqw;line-height:.86;letter-spacing:.01em;text-transform:uppercase;white-space:nowrap;color:rgba(17,17,17,.075);filter:blur(1px)}
+@keyframes mp-drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.mp-photo{position:relative;z-index:0}
 .mp-photo{position:absolute;inset:0;width:100%;height:100%;display:block}
 /* The visor's box, on the photograph (2576 by 2113): 906 to 1676 across,
    644 to 918 down (scripts/build-visor-mask.py). The boundary is drawn: one
@@ -136,7 +155,7 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
    under the frame (visor-mask.png), and the frame is laid back over it
    (visor-frame.png, the photograph's own frame with a fine dark lip on the
    curve), so the film ends on that clean line and nowhere else. */
-.mp-lens{position:absolute;z-index:2;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;opacity:0;transition:opacity .5s ease}
+.mp-lens{position:absolute;z-index:3;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;opacity:0;transition:opacity .5s ease}
 /* the glass: the film and its layers, through the film's mask; the frame
    is its sibling in the same box, so the two land on the same pixels */
 .mp-lens__glass{position:absolute;inset:0;overflow:hidden;isolation:isolate;
@@ -156,6 +175,9 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .mp-lens__tone{background:radial-gradient(ellipse 60% 85% at 50% 42%,rgba(40,20,0,0) 55%,rgba(40,20,0,.38) 100%),rgba(255,166,48,.16);mix-blend-mode:multiply}
 .mp-lens__grille{background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,rgba(0,0,0,0) 1px 3px);mix-blend-mode:multiply;opacity:.45}
 .mp-lens__shine{display:block;mix-blend-mode:screen}
+/* a light run across the glass every few seconds */
+.mp-lens__glint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;background:linear-gradient(105deg,rgba(255,255,255,0) 42%,rgba(255,244,225,.42) 50%,rgba(255,255,255,0) 58%) no-repeat;background-size:260% 100%;background-position:160% 0;animation:mp-glint 7s cubic-bezier(.45,0,.2,1) 2.4s infinite}
+@keyframes mp-glint{0%{background-position:160% 0}28%,100%{background-position:-60% 0}}
 /* the frame, laid back over the film and the glass's rim, outside the
    film's mask: the film ends on its drawn edge, and no amber is left at it */
 .mp-lens__frame{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
@@ -228,6 +250,8 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
+  .mp-scene,.mp-type__row{transform:none}
+  .mp-lens__glint{display:none}
 }
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
@@ -530,7 +554,13 @@ if (root.document && root.document.head) apply(read());
       </span>
     </figcaption>
     <div class="mp-room" id="mpRoom">
+     <div class="mp-scene">
       <img class="mp-photo" src="media/picks/portrait-visor.jpg" width="2576" height="2113" alt="Smt. Maneka Sanjay Gandhi in amber glasses, a black and white photograph" decoding="async">
+      <!-- her name, drifting across the wall behind her (media/picks/portrait-wall.png is the wall) -->
+      <div class="mp-type" aria-hidden="true">
+        <div class="mp-type__row"><div class="mp-type__track"><span>Maneka’s</span><span>Maneka’s</span><span>Maneka’s</span><span>Maneka’s</span></div></div>
+        <div class="mp-type__row mp-type__row--back"><div class="mp-type__track"><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span></div></div>
+      </div>
       <!-- The visor, as jjettas.com does its lens (owner, 10 Nov 2026: "how is
            it being done in this. you need to do the same ... implement
            ditto", then "not even 1 pixel should flow out", then this
@@ -552,10 +582,12 @@ if (root.document && root.document.head) apply(read());
           <span class="mp-lens__tone" aria-hidden="true"></span>
           <span class="mp-lens__grille" aria-hidden="true"></span>
           <img class="mp-lens__shine" src="media/picks/visor-shine.png" alt="">
+          <span class="mp-lens__glint" aria-hidden="true"></span>
         </div>
         <img class="mp-lens__frame" src="media/picks/visor-frame.png" alt="">
       </div>
       <button class="mp-lensbtn" id="mpLensBtn" type="button" aria-label="Play the trailer of Test Subject V in her glasses"></button>
+     </div>
     </div>
   </figure>
 
@@ -783,6 +815,22 @@ if (root.document && root.document.head) apply(read());
   var now = $('mpNow'), play = $('mpPlay'), sound = $('mpSound'), next = $('mpNext'), full = $('mpFull'), stop = $('mpStop');
   if (!room) return;
   var cur = 0, lens = null;
+
+  /* the picture leans a little toward the pointer, the type behind her
+     further, as jjettas.com's hero does; still when motion is reduced */
+  (function lean(){
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (calm || !window.matchMedia || !window.matchMedia('(hover: hover)').matches) return;
+    var raf = 0, tx = 0, ty = 0;
+    window.addEventListener('pointermove', function (e) {
+      var r = room.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) return;
+      tx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2)));
+      ty = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2)));
+      if (raf) return;
+      raf = requestAnimationFrame(function () { raf = 0; room.style.setProperty('--mx', tx.toFixed(3)); room.style.setProperty('--my', ty.toFixed(3)); });
+    }, { passive: true });
+  }());
 
   /* at rest the visor carries the film's still, graded like the film,
      once the still is on this site (npm run media:films) */

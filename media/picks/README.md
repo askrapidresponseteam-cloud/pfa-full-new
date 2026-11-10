@@ -1,13 +1,17 @@
 # Maneka's Picks
 
 - `portrait-visor.jpg`: her photograph in an amber visor, 2576 by 2113,
-  shown whole on manekas-picks.html. The trailer plays in the visor.
-- `visor-mask.png`: the amber glass, read from the photograph by its colour
-  and held 4 pixels inside it, for the box 925 to 1664 across and 663 to 899
-  down (the `.mp-lens` rule on the page). Nothing of the film shows outside
-  it. `visor-shine.png`: the visor's own reflections and sheen, laid over the
-  film. Both are made by `python3 scripts/build-visor-mask.py`; a different
-  photograph needs that run again and the box measured again.
+  shown whole on manekas-picks.html. The trailer plays in the visor. Made by
+  `python3 scripts/retouch-portrait.py` from the original
+  (scripts/source/portrait-visor-original.jpg, not published): the generated
+  line texture on skin and cloth taken out, every blemish healed, and the
+  fine pores and grain of a high-resolution camera in their place.
+- `visor-mask.png`, `visor-frame.png`, `visor-shine.png`: the film's mask, the
+  frame laid back over it (with the corner pads taken out) and the glass's
+  own reflections, for the box 906 to 1676 across and 644 to 918 down (the
+  `.mp-lens` rule on the page). `portrait-wall.png`: the wall behind her, at
+  half size, the mask the drifting type is drawn through. All made by
+  `python3 scripts/build-visor-mask.py`, run after the retouch.
 - `animals-raghu-rai-cover.jpg` and `orange-dogs-cover.jpg`: the covers of
   the two books on the page, Animals (Raghu Rai and Maneka Gandhi,
   HarperCollins India) and Orange Dogs (Deepak Virwani). Fetched by

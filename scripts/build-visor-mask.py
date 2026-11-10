@@ -307,3 +307,24 @@ shine = Image.new('RGBA', (ww, hh), (255, 236, 200, 0))
 shine.putalpha(Image.fromarray((shine_a * 255).round().astype('uint8')))
 shine.save(OUT / 'visor-shine.png', optimize=True)
 print(f'visor-mask.png, visor-frame.png and visor-shine.png written for box {BOX}')
+
+# 6. the wall behind her, for the type that drifts across it as jjettas.com's
+#    does (owner, 10 Nov 2026: "have some effects as in https://jjettas.com/"):
+#    the bright, even wall, flooded in from the photograph's top corners, at
+#    half size, its edge softened over a pixel
+wall_l = nd.gaussian_filter(luma, 2)
+calm = nd.gaussian_gradient_magnitude(luma, 2) < 6
+wall = (wall_l > 215) & calm
+lab, n = nd.label(wall)
+ids = sorted(set(lab[[0, 0, 12, 12], [0, W - 1, 0, W - 1]].tolist()) - {0})
+wall = np.isin(lab, ids)
+wall = ~nd.binary_fill_holes(~wall)
+wall = nd.binary_opening(wall, iterations=2)
+wall = nd.binary_erosion(wall, iterations=3)      # never on a strand of her hair
+half = Image.fromarray((wall * 255).astype('uint8')).resize((W // 2, H // 2), Image.LANCZOS)
+half = half.filter(__import__('PIL.ImageFilter', fromlist=['GaussianBlur']).GaussianBlur(1.2))
+img = Image.new('RGBA', half.size, (255, 255, 255, 0))
+img.putalpha(half)
+img.save(OUT / 'portrait-wall.png', optimize=True)
+print('portrait-wall.png written')
+
