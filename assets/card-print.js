@@ -249,6 +249,7 @@
     'South Salmara-Mankachar': 'S. Salmara-Mankachar',
     'Jayashankar Bhoopalpally': 'J. Bhoopalpally',
     'Komaram Bheem Asifabad': 'K. B. Asifabad',
+    'Gaurela-Pendra-Marwahi': 'Gaurela-P-Marwahi',
     'Andaman and Nicobar Islands': 'Andaman and Nicobar',
     'Dadra and Nagar Haveli and Daman and Diu': 'DNH and Daman and Diu'
   };

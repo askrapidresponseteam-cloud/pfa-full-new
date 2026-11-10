@@ -1,3 +1,18 @@
+## v1.546
+
+- **Donating any amount is one step shorter: nothing about a PAN or Aadhaar is asked before paying.** Owner, 10 Nov 2026: "make donating any amount easier. dont ask for uploading whatever before the payment. after payment send a link over email which asks to upload those in the page if one needs tax exempt receipt".
+  - The donate form and the membership form no longer show the PAN or Aadhaar card block at ₹5,000 or more, nor the optional PAN box below it. The server no longer refuses a payment without one.
+  - After paying, the receipt email (and a member's welcome letter) says "Need the 80G tax receipt? Add your PAN or Aadhaar, with a photo of the card", and the donation thank-you page has the same link beside Download your receipt.
+  - The link opens tax-receipt.html, a private page (not indexed, not in search): the payment it is for, PAN or Aadhaar, the number, a photo of the card, and why PFA asks. The Aadhaar QR check, the PAN's name letter and every other check of the card stay as they were.
+  - Once sent: the number and photo are filed on the donation or membership record for the panel, the PDF receipt carries the PAN (an Aadhaar by its last four digits), the donor is emailed the receipt again, and the payments inboxes (pfadcmho@gmail.com, ozairhusain@gmail.com, never gandhim) are told. Given once per payment; a correction is by writing to PFA.
+  - The link's key rides in the page address after #, which no browser sends to a server, and is posted, never put in a URL.
+- **The PIN code and the place now agree, for every PIN in India.** Owner: "ensure pincode and area/place match, it should work seamlessly across each and every pincode in the country".
+  - India Post's own All India Pincode Directory is now kept with the site (lib/pin-directory.json.gz: 19,586 PINs, 165,627 post offices; npm run build:pins makes it again). A PIN is answered from it at once, with no call to India Post, which is now asked only about a PIN the directory does not have.
+  - A PIN typed in full fills the state, the district and the town, and offers its post offices as suggestions in the town box.
+  - A district that is not the PIN's (or a neighbour sharing its postal division) is said on the district box; a town that is clearly somewhere else ("Mumbai" with an Udupi PIN) is said on the town box, in words that name where the PIN is. The page, the form API, the payments and the shop all hold to the same rule.
+  - Fair at the edges: a village India Post does not list, a name many villages share, a district's old name (Bangalore, Gurgaon, Calcutta) and the city people write for a suburb (Hyderabad for a Rangareddy PIN, New Delhi for any Delhi PIN) are accepted. Checked over every PIN in the directory: none is refused its own town, post offices or districts.
+  - The district list is level with India Post: the districts formed since its source (Andhra Pradesh's 2022 districts, Telangana's, Tamil Nadu's, Mizoram's and others) are added, Warangal (Rural) and (Urban) are Hanumakonda and Warangal, Burdwan is Paschim and Purba Bardhaman, and Prayagraj, Ayodhya, Gurugram and Nuh keep their old names in brackets. 763 districts in all.
+
 ## v1.545
 
 - **A second book on Maneka’s Picks: Orange Dogs, by Deepak Virwani, with Buy on Amazon.** Owner, 10 Nov 2026: "add orange dogs - book".

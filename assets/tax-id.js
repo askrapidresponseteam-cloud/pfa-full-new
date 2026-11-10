@@ -5,14 +5,13 @@
    providing aadhar or pan upload mandatory for 80G receipt. give proper
    reason to people as well".
 
-   On 5,000 rupees or more the form shows one block, [data-tax-id]: PAN or
-   Aadhaar, the number, and a photo of the card, with the reason in two
-   lines and the rest under "Why we ask". Below that amount the block is
-   hidden and its boxes are disabled, so nothing in it is sent. The photo
-   is shrunk here, kept in memory, and sent to /api/payment/tax-id only once
-   the person has confirmed and is about to pay; the token it comes back
-   under rides with the payment (lib/payment.js refuses one of that size
-   without it, by the same rule: lib/tax-id.js).
+   Since 10 Nov 2026 the block is on one page only, tax-receipt.html, which
+   a donor or member reaches from the link in their receipt email after
+   paying: nothing about a card is asked for before paying. The block is
+   PAN or Aadhaar, the number, and a photo of the card, with the reason in
+   two lines and the rest under "Why we ask". The photo is shrunk here and
+   sent to /api/payment/tax-id as soon as it is attached; the token it comes
+   back under goes with the number to /api/payment/tax-receipt.
 
    window.PFATaxId:
      set(block, on)     show or hide the block for the amount chosen

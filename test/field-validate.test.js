@@ -253,6 +253,8 @@ const WIRED = ['report.html', 'ask.html', 'careers.html', 'wall.html', 'get-invo
   'lab-animal-rules.html',
   /* the membership card photograph, from the emailed link (26 Oct 2026) */
   'member-photo.html',
+  /* the PAN or Aadhaar for the 80G receipt, after paying (10 Nov 2026) */
+  'tax-receipt.html',
   /* the remote internship (31 Oct 2026) */
   'internship.html',
   /* the intern dashboard: the Intern ID, the key, proof links (1 Nov 2026) */

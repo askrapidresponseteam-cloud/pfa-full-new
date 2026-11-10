@@ -14,6 +14,7 @@
     "check:site-modules": "node scripts/build-site-modules.js --check",
     "build:units": "node scripts/build-unit-pages.js",
     "check:units": "node scripts/build-unit-pages.js --check",
+    "build:pins": "node scripts/build-pin-directory.js",
     "build:csr": "node scripts/build-csr-projects.js",
     "check:csr": "node scripts/build-csr-projects.js --check",
     "build:gbp": "node scripts/build-gbp-sheet.js",

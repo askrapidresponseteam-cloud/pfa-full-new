@@ -883,29 +883,8 @@ if (root.document && root.document.head) apply(read());
             <!-- a second number for the courier (owner, 2 Nov 2026: "phone number etc to send the card without failure of delivery") -->
             <div class="field"><label for="memAltMobile">Another number the courier can call <span class="opt">(optional)</span></label><input id="memAltMobile" name="altMobile" type="tel" inputmode="numeric" maxlength="14" autocomplete="tel"><span class="hint">A family member's, in case yours is busy.</span><span class="error">A 10-digit Indian mobile number, or leave it empty.</span></div>
             <div class="field"><label for="memEmail">Email</label><input id="memEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email for the welcome letter.</span></div>
-            <!-- 5,000 rupees or more: the PAN or Aadhaar card for the 80G receipt
-                 (owner, 7 Nov 2026). Shown and sent only at that amount
-                 (assets/tax-id.js); lib/payment.js refuses one without it. -->
-            <div class="taxid" id="memTax" data-tax-id data-name-from="#memName" data-preview="skip" hidden>
-              <p class="taxid__head">Your PAN or Aadhaar, for the 80G receipt</p>
-              <p class="taxid__why">On &#8377;5,000 or more, your 80G tax certificate can only be issued against your PAN or Aadhaar. Give one, with a photo of the card.</p>
-              <details class="taxid__more"><summary>Why we ask, and who sees it</summary>
-                <p>PFA reports every 80G contribution to the Income Tax Department in its yearly statement of donations, with each donor's PAN or Aadhaar number. Your tax certificate is issued from that statement, and you need it to claim the deduction in your return. If the number is wrong by one character, the certificate does not reach you.</p>
-                <p>The photo lets PFA's accounts team check the number before it is filed; on an Aadhaar card, the QR code UIDAI prints on it is read to check the number as soon as you attach it. Only PFA's accounts team sees the photo. It is never sent to the payment gateway or anyone else, and an Aadhaar number appears on your receipt by its last four digits only.</p>
-              </details>
-              <div class="taxid__pick" role="radiogroup" aria-label="Which card">
-                <label><input type="radio" name="idType" value="pan" checked disabled>PAN</label>
-                <label><input type="radio" name="idType" value="aadhaar" disabled>Aadhaar</label>
-              </div>
-              <div class="field" data-tax-for="pan"><label for="memTaxPan">PAN</label><input id="memTaxPan" name="pan" type="text" autocomplete="off" maxlength="10" placeholder="ABCDE1234F" style="text-transform:uppercase" disabled><span class="error">A PAN is five letters, four digits and a letter, like ABCDE1234F.</span></div>
-              <div class="field" data-tax-for="aadhaar" hidden><label for="memTaxAadhaar">Aadhaar number</label><input id="memTaxAadhaar" name="aadhaar" type="text" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="1234 5678 9012" disabled><span class="error">An Aadhaar number is 12 digits.</span></div>
-              <div class="field taxid__doc"><label for="memTaxPhoto">Photo of your <span data-tax-word>PAN</span> card</label>
-                <input id="memTaxPhoto" class="taxid__file" type="file" accept="image/*" disabled><label class="taxid__attach" for="memTaxPhoto">Take or choose a photo</label>
-                <div class="taxid__preview" hidden><img alt="Your card, as attached"><button type="button" data-tax-clear>Change photo</button></div>
-                <span class="hint">The side with the number, clear and whole.</span>
-                <span class="error">Attach a photo of the card.</span></div>
-              <input type="hidden" name="taxIdDoc" value="" disabled>
-            </div>
+            <!-- No PAN, Aadhaar or photo before paying, at any tier (owner,
+                 10 Nov 2026). The welcome email links to tax-receipt.html. -->
           </div>
         </div>
 
@@ -1164,7 +1143,6 @@ if (root.document && root.document.head) apply(read());
 <script src="pfa-forms.js"></script>
 <script src="assets/india-districts.js"></script>
 <script src="assets/address.js"></script>
-<script src="assets/tax-id.js"></script>
 <script>
 /* PFA_GI_JS_START */
 (function(){
@@ -1309,12 +1287,11 @@ if (root.document && root.document.head) apply(read());
       [].forEach.call(steps[at].querySelectorAll('[data-address]'), function(b){
         if (!window.PFAAddress || window.PFAAddress.check(b)) errs += 1;
       });
+      /* the district and the town against the PIN, on a form with its own
+         boxes (assets/address.js, 10 Nov 2026) */
+      if (window.PFAAddress && window.PFAAddress.verify && !steps[at].querySelector('[data-address]')) errs += window.PFAAddress.verify(steps[at]);
       [].forEach.call(steps[at].querySelectorAll('input[type="email"]:not([required])'), function(el){
         errs += bad(el, !!el.value.trim() && !emailOk(el.value)) ? 1 : 0;
-      });
-      /* the PAN or Aadhaar card on 5,000 rupees or more (assets/tax-id.js) */
-      [].forEach.call(steps[at].querySelectorAll('[data-tax-id]'), function(b){
-        if (window.PFATaxId) errs += window.PFATaxId.check(b);
       });
       [].forEach.call(steps[at].querySelectorAll('.gi__doc'), function(box){
         var kind = box.getAttribute('data-doc');
@@ -1449,11 +1426,7 @@ if (root.document && root.document.head) apply(read());
     function paintAmount(){
       var on = form.querySelector('input[name="tier"]:checked');
       if (on && label) label.textContent = 'Pay \u20b9' + Number(on.getAttribute('data-amount')).toLocaleString('en-IN') + ' and join';
-      /* Platinum and Lifetime are 5,000 rupees or more: the PAN or Aadhaar
-         card for the 80G receipt is asked for under About you */
-      if (window.PFATaxId) window.PFATaxId.set(taxBox, !!on && Number(on.getAttribute('data-amount')) >= window.PFATaxId.THRESHOLD);
     }
-    var taxBox = document.getElementById('memTax');
     form.addEventListener('change', function(e){ if (e.target.name === 'tier') paintAmount(); });
     paintAmount();
     var stateSel = document.getElementById('memState'), districtSel = document.getElementById('memDistrict');
@@ -1479,43 +1452,30 @@ if (root.document && root.document.head) apply(read());
       var alt = form.querySelector('[name="altMobile"]');
       if (alt && alt.value.trim() && !/^[6-9]\d{9}$/.test(alt.value.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, ''))) bad.push(alt);
       bad.forEach(function(el){ var f = el.closest('.field'); if (f) f.classList.add('is-bad'); });
-      var taxOn = !!(window.PFATaxId && taxBox && !taxBox.hidden);
-      if (taxOn && window.PFATaxId.check(taxBox)) bad.push(taxBox.querySelector('.is-bad input:not([type="file"])') || taxBox.querySelector('.is-bad input'));
       /* the PIN beside the state chosen (assets/address.js) */
       var pinEl = form.querySelector('[name="pincode"]'), stEl = form.querySelector('[name="state"]');
       var pinWhy = pinEl && window.PFAAddress ? window.PFAAddress.pinProblem(pinEl.value, stEl ? stEl.value : '') : '';
       if (pinEl && pinWhy && bad.indexOf(pinEl) < 0) bad.push(pinEl);
+      /* the district and the town against the PIN (assets/address.js, 10 Nov 2026) */
+      if (pinEl && !pinWhy && window.PFAAddress && window.PFAAddress.verify && window.PFAAddress.verify(form)) {
+        [].forEach.call(form.querySelectorAll('[data-addr="district"], [data-addr="city"]'), function(el){ var f = el.closest('.field'); if (f && f.classList.contains('is-bad') && bad.indexOf(el) < 0) bad.push(el); });
+      }
       if (pinEl && window.PFAAddress) { var ps = pinEl.closest('.field') && pinEl.closest('.field').querySelector('.error'); if (ps) { if (!ps.hasAttribute('data-said')) ps.setAttribute('data-said', ps.textContent); ps.textContent = pinWhy || ps.getAttribute('data-said'); } }
       if (bad.length) {
         e.preventDefault();
         var f = bad[0].closest('.field'); if (f) f.scrollIntoView({ block: 'center' }); bad[0].focus(); return;
       }
-      var btn = document.getElementById('memSend');
-      /* The card's photo goes first, by fetch, once confirmed; the token it
-         comes back under rides with the payment. Only then to CCAvenue. */
-      function send(){
-        if (!taxOn) { form.submit(); return; }
-        if (btn) btn.disabled = true;
-        if (label) label.textContent = 'Sending the photo of your card\u2026';
-        window.PFATaxId.upload(taxBox).then(function(){ form.submit(); }).catch(function(error){
-          if (btn) btn.disabled = false;
-          paintAmount();
-          var doc = taxBox.querySelector('.taxid__doc'), said = doc.querySelector('.error');
-          said.textContent = error.message; doc.classList.add('is-bad');
-          var note = form.querySelector('.gi__step.is-current .gi__body');
-          if (note) { var p = note.querySelector('[data-tax-say]') || note.appendChild(Object.assign(document.createElement('p'), { className: 'gi__note' })); p.setAttribute('data-tax-say', ''); p.setAttribute('role', 'alert'); p.textContent = error.message + ' Go back to About you to attach it again.'; }
-        });
-      }
+      function send(){ form.submit(); }
       /* The last look before paying, then the email and mobile on their own.
          form.submit() posts to CCAvenue without running this handler again. */
-      if (!window.PFAPreview) { if (taxOn) { e.preventDefault(); send(); } return; }
+      if (!window.PFAPreview) return;
       e.preventDefault();
       var tier = form.querySelector('input[name="tier"]:checked');
       window.PFAPreview.confirm(form, {
         title: 'Check your membership before you pay',
         send: label ? label.textContent : 'Pay and join',
         labels: { tier: 'Membership' },
-        extra: (tier ? [['Amount', '\u20b9' + Number(tier.getAttribute('data-amount')).toLocaleString('en-IN')]] : []).concat(taxOn ? [window.PFATaxId.summary(taxBox)] : [])
+        extra: (tier ? [['Amount', '\u20b9' + Number(tier.getAttribute('data-amount')).toLocaleString('en-IN')]] : [])
       }).then(function(confirmed){ if (confirmed) send(); });
     });
   })();
@@ -1601,6 +1561,8 @@ if (root.document && root.document.head) apply(read());
       var pinSaid = pin.closest('.field') && pin.closest('.field').querySelector('.error');
       if (pinSaid) { if (!pinSaid.hasAttribute('data-said')) pinSaid.setAttribute('data-said', pinSaid.textContent); pinSaid.textContent = pinWhy || pinSaid.getAttribute('data-said'); }
       errs += bad(pin, !!pinWhy) ? 1 : 0;
+      /* the district and the town against the PIN (assets/address.js, 10 Nov 2026) */
+      if (!pinWhy && window.PFAAddress && window.PFAAddress.verify) errs += window.PFAAddress.verify(form);
       ['photo'].forEach(function(kind){ var box = docBox(kind); if (box){ box.classList.toggle('is-bad', !docs[kind]); if (!docs[kind]) errs += 1; } });
       if (errs){
         e.preventDefault();

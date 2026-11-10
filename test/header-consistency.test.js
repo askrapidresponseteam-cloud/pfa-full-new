@@ -108,6 +108,7 @@ const EXPECTED = {
   'careers.html':      ['Careers',                   'founder.html'],
   'caregiver-card.html': [null,                       'get-involved.html'], /* in the section, no longer a destination in it */
   'member-photo.html':   [null,                       'get-involved.html'], /* reached only from the emailed photo link (26 Oct 2026) */
+  'tax-receipt.html':    [null,                       null], /* reached only from the 80G link in a receipt email (10 Nov 2026) */
   'intern.html':         [null,                       'get-involved.html'], /* the internship portal (1 Nov 2026) */
   'intern-guide.html':   [null,                       'get-involved.html'], /* the interns' two-page guide (4 Nov 2026) */
   'donate.html':       ['Donate',                    null],

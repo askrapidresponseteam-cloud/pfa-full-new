@@ -800,6 +800,23 @@
    ]
   },
   {
+   "id": "tax-receipt",
+   "file": "tax-receipt.html",
+   "title": "80G tax receipt",
+   "group": "Not in the menus",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Your PAN or Aadhaar."
+    },
+    {
+     "id": "card",
+     "label": "Card"
+    }
+   ]
+  },
+  {
    "id": "verify-certificate",
    "file": "verify-certificate.html",
    "title": "Check a certificate",
@@ -1428,9 +1445,6 @@
    "cLine": "check-a-card",
    "cLookup": "check-a-card"
   },
-  "get-involved": {
-   "memTax": "membership"
-  },
   "intern": {
    "ipTitle": "top",
    "ipWho": "top",
@@ -1545,7 +1559,6 @@
    "giftSet": "top",
    "p2": "top",
    "youHead": "top",
-   "gTax": "top",
    "payNote": "top",
    "p3": "top",
    "doneHead": "top",
@@ -1572,6 +1585,17 @@
   },
   "index": {
    "heroTitle": "welcome"
+  },
+  "tax-receipt": {
+   "trSay": "card",
+   "trHi": "card",
+   "trLead": "card",
+   "trTax": "card",
+   "trDone": "card",
+   "trDoneHi": "card",
+   "trDoneLead": "card",
+   "trIdKind": "card",
+   "trIdShown": "card"
   },
   "verify-certificate": {
    "cSay": "check",

@@ -109,16 +109,25 @@ function ask(query, answer) {
   });
 }
 
-test('a PIN is looked up with India Post: its state, district and town', async () => {
-  const res = await ask({ pin: '576222' }, [{ Status: 'Success', PostOffice: [{ Name: 'Koteshwara', Block: 'Kundapura', District: 'Udupi', State: 'Karnataka' }] }]);
+test('a PIN is answered from India Post\'s own directory: its state, district, town and post offices', async () => {
+  const res = await ask({ pin: '576222' }, new Error('India Post is not asked'));
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(res.body, { pincode: '576222', state: 'Karnataka', district: 'Udupi', city: 'Kundapura', street: '' });
-  assert.equal(res.asked[0], 'https://api.postalpincode.in/pincode/576222');
+  assert.deepEqual(res.asked, [], 'every PIN in the country is in the directory kept with the site');
+  assert.equal(res.body.state, 'Karnataka'); assert.equal(res.body.district, 'Udupi'); assert.equal(res.body.city, 'Koteshwara');
+  assert.deepEqual(res.body.districts, ['Udupi']);
+  assert.ok(res.body.areas.includes('Koteshwara') && res.body.areas.includes('Beejadi'), 'its post offices, for the town box');
   assert.match(res.headers['cache-control'], /max-age=86400/, 'a PIN does not move: kept a day');
 });
 
+test('a PIN the directory does not have is asked of India Post', async () => {
+  const res = await ask({ pin: '576999' }, [{ Status: 'Success', PostOffice: [{ Name: 'Koteshwara', Block: 'Kundapura', District: 'Udupi', State: 'Karnataka' }] }]);
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.body, { pincode: '576999', state: 'Karnataka', district: 'Udupi', city: 'Kundapura', street: '' });
+  assert.equal(res.asked[0], 'https://api.postalpincode.in/pincode/576999');
+});
+
 test('India Post\'s "NA" block is not a town', async () => {
-  const res = await ask({ pin: '700016' }, [{ Status: 'Success', PostOffice: [{ Block: 'NA', District: 'Kolkata', State: 'West Bengal' }] }]);
+  const res = await ask({ pin: '700999' }, [{ Status: 'Success', PostOffice: [{ Block: 'NA', District: 'Kolkata', State: 'West Bengal' }] }]);
   assert.equal(res.body.city, 'Kolkata');
 });
 
@@ -130,7 +139,7 @@ test('a PIN of the wrong shape, one India Post does not know, and India Post dow
   const unknown = await ask({ pin: '799999' }, [{ Status: 'Error', PostOffice: null }]);
   assert.equal(unknown.statusCode, 404);
   assert.equal(unknown.body.code, 'UNKNOWN_PIN');
-  const down = await ask({ pin: '576222' }, new Error('ETIMEDOUT'));
+  const down = await ask({ pin: '576999' }, new Error('ETIMEDOUT'));
   assert.equal(down.statusCode, 503, 'India Post being down is not the person\'s mistake');
   assert.equal(down.body.code, 'UNAVAILABLE');
 });

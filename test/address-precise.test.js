@@ -42,7 +42,7 @@ test('a PIN names a district only when it can only be that one', () => {
   const A = address();
   const cases = [
     ['Maharashtra', 'Mumbai', ''], ['Maharashtra', 'Mumbai Suburban', 'Mumbai Suburban'], ['Maharashtra', 'Mumbai City', 'Mumbai City'],
-    ['Telangana', 'Warangal', ''], ['Karnataka', 'Bangalore', ''],
+    ['Telangana', 'Warangal', 'Warangal'], ['Telangana', 'Hanumakonda', 'Hanumakonda'], ['Karnataka', 'Bangalore', ''],
     ['Assam', 'Kamrup', 'Kamrup'], ['Assam', 'Kamrup Metro', 'Kamrup Metropolitan'],
     ['Delhi', 'East Delhi', 'East Delhi'], ['Delhi', 'South Delhi', 'South Delhi'], ['Uttar Pradesh', 'Rampur', 'Rampur'],
     ['West Bengal', 'Kolkata', 'Kolkata'], ['Karnataka', 'Udupi', 'Udupi'], ['Telangana', 'Hyderabad', 'Hyderabad'], ['Odisha', 'Khordha', 'Khordha']

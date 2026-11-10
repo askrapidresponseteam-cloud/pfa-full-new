@@ -2,14 +2,18 @@
 
 /* The PAN or Aadhaar card behind an 80G receipt (owner, 7 Nov 2026: "when
    someone is contributing 5k or more . make providing aadhar or pan upload
-   mandatory for 80G receipt. give proper reason to people as well").
+   mandatory for 80G receipt. give proper reason to people as well"), and
+   since 10 Nov 2026 given after paying, never before ("make donating any
+   amount easier. dont ask for uploading whatever before the payment. after
+   payment send a link over email which asks to upload those in the page if
+   one needs tax exempt receipt").
 
-   Held here: on 5,000 rupees or more, in rupees, a donation or a membership
-   cannot be paid for without the number and a photo of the card; below
-   that the PAN stays optional; the reason is said on the page and in the
-   API's own refusal; the photo is kept away from the payment, moved beside
-   the record when it clears, and opened only in the panel; an Aadhaar
-   number is never shown in full outside the panel. */
+   Held here: nothing about a card is asked for or required before paying,
+   at any amount; the receipt email, the welcome letter and the thank-you
+   page link to tax-receipt.html; that page says why, takes the number and a
+   photo, and files them on the paid record and the payment; the photo is
+   kept away from the payment gateway and opened only in the panel; an
+   Aadhaar number is never shown in full outside the panel. */
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -34,13 +38,26 @@ const membership = (tier, more) => Object.assign({ type: 'membership', tier, ...
 
 function fakeDb() {
   const store = new Map();
+  const put = (obj, dotted, value) => {
+    const keys = dotted.split('.');
+    let at = obj;
+    for (const k of keys.slice(0, -1)) { at[k] = Object.assign({}, at[k]); at = at[k]; }
+    at[keys[keys.length - 1]] = value;
+  };
   const docRef = (c, id) => ({
     id,
     parent: { doc: (other) => docRef(c, other) },
     collection: (sub) => ({ doc: (subId) => docRef(`${c}/${id}/${sub}`, subId) }),
     async get() { const data = store.get(`${c}/${id}`); return { exists: Boolean(data), id, data: () => data }; },
     async create(data) { if (store.has(`${c}/${id}`)) throw new Error('already exists'); store.set(`${c}/${id}`, Object.assign({}, data)); },
-    async set(data, opts) { const prev = (opts && opts.merge && store.get(`${c}/${id}`)) || {}; store.set(`${c}/${id}`, Object.assign({}, prev, data)); }
+    async set(data, opts) { const prev = (opts && opts.merge && store.get(`${c}/${id}`)) || {}; store.set(`${c}/${id}`, Object.assign({}, prev, data)); },
+    async update(change) {
+      const prev = store.get(`${c}/${id}`);
+      if (!prev) throw new Error('no document to update');
+      const next = JSON.parse(JSON.stringify(prev));
+      for (const [k, v] of Object.entries(change)) put(next, k, v);
+      store.set(`${c}/${id}`, next);
+    }
   });
   return { store, collection: (c) => ({ doc: (id) => docRef(c, id) }) };
 }
@@ -64,35 +81,29 @@ test('an Aadhaar number is twelve digits with UIDAI\'s check digit; one slip is 
   assert.equal(RULES.filterField('aadhaar', '234567890124'), '2345 6789 0124');
 });
 
-test('5,000 rupees or more cannot be paid without the PAN or Aadhaar card; below that the PAN stays optional', () => {
-  /* below: as it was */
-  const small = parsePaymentRequest(donation({ amount: '4999' }));
-  assert.equal(small.customer.pan, ''); assert.equal(small.metadata.taxId, undefined);
-  assert.equal(parsePaymentRequest(donation({ amount: '1500', pan: 'abcpr1234f' })).customer.pan, 'ABCPR1234F');
-  /* at 5,000: refused with the reason, whichever part is missing */
-  for (const missing of [{}, { idType: 'pan' }, { idType: 'pan', pan: 'ABCPR1234F' }, { idType: 'aadhaar', aadhaar: '234567890125', taxIdDoc: TOKEN }]) {
-    assert.throws(() => parsePaymentRequest(donation({ amount: '5000', ...missing })), (e) => /PAN|Aadhaar/.test(e.message), JSON.stringify(missing));
+test('nothing about a PAN or Aadhaar is asked for before paying, at any amount', () => {
+  for (const amount of ['111', '4999', '5000', '25000', '500000']) {
+    const p = parsePaymentRequest(donation({ amount }));
+    assert.equal(p.customer.pan, '', amount);
+    assert.equal(p.customer.aadhaar, undefined, amount);
+    assert.equal(p.metadata.taxId, undefined, amount);
   }
-  assert.throws(() => parsePaymentRequest(donation({ amount: '5000' })), /Income Tax Department/, 'the reason, in the refusal itself');
-  /* with a PAN */
-  const pan = parsePaymentRequest(donation({ amount: '5000', idType: 'pan', pan: 'abcpr1234f', taxIdDoc: TOKEN }));
-  assert.equal(pan.customer.pan, 'ABCPR1234F');
-  assert.deepEqual(pan.metadata.taxId, { type: 'pan', token: TOKEN });
-  /* with an Aadhaar */
-  const aad = parsePaymentRequest(donation({ amount: '25000', idType: 'aadhaar', aadhaar: '2345 6789 0124', taxIdDoc: TOKEN }));
-  assert.equal(aad.customer.aadhaar, AADHAAR); assert.equal(aad.customer.pan, '');
-  assert.deepEqual(aad.metadata.taxId, { type: 'aadhaar', token: TOKEN });
-  /* neither ever goes to CCAvenue */
-  for (const p of [pan, aad]) assert.doesNotMatch(JSON.stringify(p.merchantValues), /ABCPR1234F|234567890124|cccc/);
+  /* a card sent anyway by an old tab is not required, and not kept */
+  const old = parsePaymentRequest(donation({ amount: '5000', idType: 'aadhaar', aadhaar: AADHAAR, taxIdDoc: TOKEN }));
+  assert.equal(old.customer.aadhaar, undefined); assert.equal(old.metadata.taxId, undefined);
+  /* a PAN a client still sends is checked and kept, as before */
+  assert.equal(parsePaymentRequest(donation({ amount: '1500', pan: 'abcpr1234f' })).customer.pan, 'ABCPR1234F');
+  assert.throws(() => parsePaymentRequest(donation({ amount: '1500', pan: 'ABC' })), /PAN/);
+  assert.doesNotMatch(JSON.stringify(parsePaymentRequest(donation({ amount: '1500', pan: 'abcpr1234f' })).merchantValues), /ABCPR1234F/, 'never to CCAvenue');
 });
 
-test('Platinum and Lifetime memberships need the card; Student, Silver and Golden do not', () => {
-  for (const tier of ['student', 'silver', 'golden']) assert.equal(parsePaymentRequest(membership(tier)).metadata.taxId, undefined, tier);
-  for (const tier of ['platinum', 'lifetime']) assert.throws(() => parsePaymentRequest(membership(tier)), /80G/, tier);
-  const life = parsePaymentRequest(membership('lifetime', { idType: 'aadhaar', aadhaar: AADHAAR, taxIdDoc: TOKEN }));
-  assert.equal(life.customer.aadhaar, AADHAAR);
-  assert.deepEqual(life.metadata.taxId, { type: 'aadhaar', token: TOKEN });
-  assert.equal(parsePaymentRequest(membership('platinum', { idType: 'pan', pan: 'ABCPR1234F', taxIdDoc: TOKEN })).customer.pan, 'ABCPR1234F');
+test('every membership, Platinum and Lifetime too, is paid for without the card', () => {
+  for (const tier of ['student', 'silver', 'golden', 'platinum', 'lifetime']) {
+    const p = parsePaymentRequest(membership(tier));
+    assert.equal(p.metadata.taxId, undefined, tier);
+    assert.equal(p.customer.aadhaar, undefined, tier);
+    assert.equal(p.customer.pan, undefined, tier);
+  }
 });
 
 test('the photo is checked by its bytes, kept under a token, and moved beside the record when the payment clears', async () => {
@@ -140,29 +151,172 @@ test('the record keeps the number for the panel; receipts, letters and the inbox
   assert.match(read('api/index.js'), /'payment\/tax-id': \(\) => require\('\.\.\/lib\/routes\/payment\/tax-id\.js'\)/);
 });
 
-test('both forms ask for it at 5,000 rupees, say why, and send the photo before paying', () => {
-  for (const [page, id] of [['donate.html', 'gTax'], ['get-involved.html', 'memTax']]) {
+test('neither form asks for the card before paying; the page from the receipt email does, and says why', () => {
+  for (const page of ['donate.html', 'get-involved.html']) {
     const html = read(page);
-    const at = html.indexOf(`id="${id}"`);
-    assert.ok(at > 0, page);
-    const block = html.slice(at, html.indexOf('name="taxIdDoc"', at));
-    assert.match(block, /data-tax-id/);
-    assert.match(block, /On &#8377;5,000 or more, your 80G tax certificate can only be issued against your PAN or Aadhaar/, `${page}: the reason, in two lines`);
-    assert.match(block, /<details class="taxid__more"><summary>Why we ask, and who sees it<\/summary>/, `${page}: the rest under +`);
-    assert.match(block, /yearly statement of donations/);
-    assert.match(block, /never sent to the payment gateway/);
-    assert.match(block, /name="idType" value="pan"/); assert.match(block, /name="idType" value="aadhaar"/);
-    assert.match(block, /name="pan"/); assert.match(block, /name="aadhaar"/);
-    assert.match(block, /type="file" accept="image\/\*"/);
-    assert.match(html, /<script src="assets\/tax-id\.js"><\/script>/);
+    assert.doesNotMatch(html, /data-tax-id/, `${page}: no card block`);
+    assert.doesNotMatch(html, /assets\/tax-id\.js/, `${page}: no card script`);
+    assert.doesNotMatch(html, /PFATaxId/, page);
+    assert.doesNotMatch(html, /id="gPan"/, `${page}: no PAN box either`);
   }
+  assert.match(read('donate.html'), /with a link to add your PAN or Aadhaar if you need the 80G tax receipt/);
+  const html = read('tax-receipt.html');
+  assert.match(html, /<meta name="robots" content="noindex, nofollow">/);
+  const at = html.indexOf('id="trTax"');
+  const block = html.slice(at, html.indexOf('name="taxIdDoc"', at));
+  assert.match(block, /data-tax-id data-name-from="#trName"/);
+  assert.match(block, /<details class="taxid__more"><summary>Why we ask, and who sees it<\/summary>/);
+  assert.match(block, /yearly statement of donations/);
+  assert.match(block, /never sent to the payment gateway/);
+  assert.match(block, /name="idType" value="pan"/); assert.match(block, /name="idType" value="aadhaar"/);
+  assert.match(block, /type="file" accept="image\/\*"/);
+  assert.match(html, /<script src="assets\/tax-id\.js"><\/script>/);
+  /* the key rides in the fragment and is posted, never put in a URL */
+  assert.match(html, /location\.hash/);
+  assert.match(html, /fetch\('\/api\/payment\/tax-receipt'/);
+  assert.match(html, /history\.replaceState\(null, '', location\.pathname\)/);
+  assert.match(html, /window\.PFATaxId\.upload\(box\)/);
   const js = read('assets/tax-id.js');
-  assert.match(js, /var THRESHOLD = 5000;/);
-  assert.equal(TAXID.THRESHOLD_INR, 5000, 'the page and the API agree');
   assert.match(js, /fetch\('\/api\/payment\/tax-id'/);
-  assert.match(read('donate.html'), /window\.PFATaxId\.upload\(taxBox\)\.then\(function\(\)\{ pay\(\); giveForm\.submit\(\); \}\)/);
-  assert.match(read('get-involved.html'), /window\.PFATaxId\.upload\(taxBox\)\.then\(function\(\)\{ form\.submit\(\); \}\)/);
   assert.match(read('privacy.html'), /your PAN or Aadhaar number and a photo of that card/);
+  assert.match(read('scripts/build-search-index.js'), /'tax-receipt\.html'/, 'not in site search');
+});
+
+/* ---- after paying: the link, the page, the record (10 Nov 2026) ---- */
+
+const RECEIPT = require('../lib/donation-receipt.js');
+const KEY = 'abcdefghijklmnopqrstuvwx';
+const tr = require('../lib/routes/payment/tax-receipt.js');
+
+function paid(over) {
+  return Object.assign({
+    type: 'donate', status: 'success', currency: 'INR', amount: 6000, receiptKey: KEY,
+    donationReference: 'PFA-DON-2026-00031', threadId: 'abc123def456', receiptIssuedAt: '2026-11-10T06:00:00Z',
+    customer: { name: 'Asha Rao', email: 'asha@example.com', mobile: '9876543210', address: '16 MG Road', city: 'Udupi', state: 'Karnataka', pin: '576101', pan: '' },
+    metadata: { cause: 'Hospitals' }
+  }, over);
+}
+
+async function world(order, t) {
+  const db = fakeDb();
+  await db.collection('transactions').doc(order).set(t);
+  const ref = t.type === 'membership' ? t.membershipReference : t.donationReference;
+  if (ref) await db.collection('submissions').doc(ref).set({ reference: ref, status: 'new', fields: { name: t.customer.name }, history: [{ status: 'new', at: '2026-11-10T06:00:00Z', note: 'Paid.' }] });
+  const told = [];
+  const handler = tr.createHandler({
+    getDb: () => db, siteUrl: 'https://peopleforanimalsindia.org',
+    getTransaction: async (id) => { const d = db.store.get(`transactions/${id}`); return d ? { id, ...d } : null; },
+    tell: async (x) => { told.push(x); }
+  });
+  const photo = route._private.createHandler({ getDb: () => db });
+  return { db, told, handler, photo };
+}
+
+test('the receipt email, the welcome letter and the thank-you page link to the page, in rupees, until a card is on record', () => {
+  const R = require('../lib/routes/payment/response.js')._private;
+  const site = 'https://peopleforanimalsindia.org';
+  assert.equal(R.taxUrlFor(site, paid(), 'PFA-DON-ABCD1234'), `${site}/tax-receipt.html#o=PFA-DON-ABCD1234&k=${KEY}`);
+  assert.equal(R.taxUrlFor(site, paid({ type: 'membership' }), 'PFA-MEM-ABCD1234'), `${site}/tax-receipt.html#o=PFA-MEM-ABCD1234&k=${KEY}`);
+  assert.equal(R.taxUrlFor(site, paid({ currency: 'USD' }), 'PFA-DON-ABCD1234'), '', 'no 80G on dollars');
+  assert.equal(R.taxUrlFor(site, paid({ customer: { pan: 'ABCPR1234F' } }), 'PFA-DON-ABCD1234'), '', 'a PAN already given');
+  assert.equal(R.taxUrlFor(site, paid({ type: 'caregiver-application' }), 'PFA-CGA-ABCD1234'), '');
+  assert.equal(R.taxUrlFor(site, paid({ receiptKey: '' }), 'PFA-DON-ABCD1234'), '');
+  const m = require('../lib/caregiver-mail.js');
+  const url = `${site}/tax-receipt.html#o=PFA-DON-ABCD1234&k=${KEY}`;
+  for (const t of ['payment_received', 'membership_welcome']) {
+    const r = m.render(t, { siteUrl: site, name: 'Asha Rao', amount: 6000, currency: 'INR', orderId: 'PFA-DON-ABCD1234', memberId: 'PFA-MEM-2026-00007', tierLabel: 'Platinum membership', kit: [], paidAt: '2026-11-10T06:00:00Z', taxUrl: url });
+    assert.ok(r.html.includes(`href="${url.replace('&', '&amp;')}"`), t);
+    assert.match(r.html, /Need the 80G tax receipt\?/, t);
+    assert.ok(r.text.includes(url), t);
+    const none = m.render(t, { siteUrl: site, name: 'Asha Rao', amount: 6000, currency: 'INR', orderId: 'PFA-DON-ABCD1234', memberId: 'PFA-MEM-2026-00007', kit: [], paidAt: '2026-11-10T06:00:00Z', taxUrl: 'https://evil.example/x' });
+    assert.doesNotMatch(none.html, /Need the 80G tax receipt/, `${t}: only a link to the page itself`);
+  }
+  const response = read('lib/routes/payment/response.js');
+  assert.match(response, /if \(transaction\.type === 'donate' \|\| transaction\.type === 'membership'\) \{\s*try \{\s*receiptKey = \(await RECEIPT\.keyFor/, 'a member is given a key too');
+  assert.match(response, /Add PAN or Aadhaar for 80G/, 'the thank-you page');
+  assert.match(read('api/index.js'), /'payment\/tax-receipt': \(\) => require\('\.\.\/lib\/routes\/payment\/tax-receipt\.js'\)/);
+});
+
+test('the page opens only with the key of a paid rupee payment, and says what it was', async () => {
+  const { handler } = await world('PFA-DON-ABCD1234', paid());
+  const open = (o, k) => run(handler, request({ action: 'open', o, k }));
+  const ok = await open('PFA-DON-ABCD1234', KEY);
+  assert.equal(ok.body.ok, true, JSON.stringify(ok.body));
+  assert.equal(ok.body.first, 'Asha'); assert.equal(ok.body.amount, '\u20b96,000.00'); assert.equal(ok.body.given, null);
+  assert.equal(ok.body.kind, 'donation');
+  assert.match(ok.body.receiptUrl, /\/api\/payment\/receipt\?order=PFA-DON-ABCD1234&k=/);
+  for (const [o, k] of [['PFA-DON-ABCD1234', 'x'.repeat(24)], ['PFA-DON-ZZZZ9999', KEY], ['PFA-CGA-ABCD1234', KEY], ['', '']]) {
+    const res = await open(o, k);
+    assert.equal(res.statusCode, 404, `${o} ${k}`); assert.equal(res.body.ok, false);
+  }
+  for (const over of [{ status: 'pending' }, { currency: 'USD' }]) {
+    const w = await world('PFA-DON-ABCD1234', paid(over));
+    assert.equal((await run(w.handler, request({ action: 'open', o: 'PFA-DON-ABCD1234', k: KEY }))).statusCode, 404, JSON.stringify(over));
+  }
+  assert.equal((await run(handler, Object.assign(request({}), { method: 'GET' }))).statusCode, 405, 'the key never in a URL');
+});
+
+test('a PAN given after paying is filed on the record and the payment, printed on the receipt, and given once', async () => {
+  const { db, told, handler, photo } = await world('PFA-DON-ABCD1234', paid());
+  const up = await run(photo, request({ type: 'pan', photo: url('image/jpeg', JPEG) }));
+  assert.equal(up.body.ok, true);
+  const bad = await run(handler, request({ o: 'PFA-DON-ABCD1234', k: KEY, idType: 'pan', pan: 'ABC', taxIdDoc: up.body.token }));
+  assert.equal(bad.statusCode, 422); assert.equal(bad.body.field, 'pan');
+  assert.doesNotMatch(bad.body.error, /Income Tax Department/, 'no lecture on the page that already said why');
+  const noPhoto = await run(handler, request({ o: 'PFA-DON-ABCD1234', k: KEY, idType: 'pan', pan: 'ABCPR1234F' }));
+  assert.equal(noPhoto.statusCode, 422); assert.equal(noPhoto.body.field, 'taxIdDoc');
+  const ok = await run(handler, request({ o: 'PFA-DON-ABCD1234', k: KEY, idType: 'pan', pan: 'abcpr1234f', taxIdDoc: up.body.token }));
+  assert.equal(ok.statusCode, 200, JSON.stringify(ok.body));
+  assert.deepEqual(ok.body.given, { type: 'pan', label: 'PAN card', shown: 'ABCPR1234F' });
+  const record = db.store.get('submissions/PFA-DON-2026-00031');
+  assert.equal(record.fields.pan, 'ABCPR1234F');
+  assert.equal(record.taxId.number, 'ABCPR1234F'); assert.equal(record.taxId.photo, 'attached'); assert.equal(record.taxId.givenAfterPayment, true);
+  assert.equal(record.taxId.cardMatch, 'by-eye');
+  assert.match(record.history[record.history.length - 1].note, /PAN given for the 80G receipt, after paying/);
+  assert.equal(record.history.length, 2, 'the earlier history kept');
+  assert.ok(db.store.get('submissions/PFA-DON-2026-00031/attachments/tax-id'), 'the photo beside the record');
+  const t = db.store.get('transactions/PFA-DON-ABCD1234');
+  assert.equal(t.customer.pan, 'ABCPR1234F'); assert.equal(t.customer.name, 'Asha Rao', 'the rest of the customer kept');
+  assert.equal(t.taxIdGiven.type, 'pan');
+  assert.equal(RECEIPT.dataFrom({ orderId: 'PFA-DON-ABCD1234', ...t }).pan, 'ABCPR1234F', 'the PDF receipt prints it');
+  assert.equal(told.length, 1); assert.equal(told[0].reference, 'PFA-DON-2026-00031'); assert.equal(told[0].card.shown, 'ABCPR1234F');
+  /* once: a forwarded link cannot change it */
+  const again = await run(handler, request({ o: 'PFA-DON-ABCD1234', k: KEY, idType: 'pan', pan: 'ABCPR9999F', taxIdDoc: up.body.token }));
+  assert.equal(again.statusCode, 409); assert.match(again.body.error, /already has your PAN.*write to PFA quoting PFA-DON-ABCD1234/);
+  assert.equal(db.store.get('transactions/PFA-DON-ABCD1234').customer.pan, 'ABCPR1234F');
+  assert.equal(told.length, 1);
+  assert.deepEqual((await run(handler, request({ action: 'open', o: 'PFA-DON-ABCD1234', k: KEY }))).body.given, { type: 'pan', label: 'PAN card', shown: 'ABCPR1234F' });
+});
+
+test('a member\'s Aadhaar is kept in full for the panel and shown by its last four digits everywhere else', async () => {
+  const { db, told, handler, photo } = await world('PFA-MEM-ABCD1234', paid({ type: 'membership', amount: 5000, donationReference: '', membershipReference: 'PFA-MEM-2026-00007', metadata: { tierLabel: 'Platinum membership' } }));
+  const up = await run(photo, request({ type: 'aadhaar', photo: url('image/jpeg', JPEG) }));
+  const ok = await run(handler, request({ o: 'PFA-MEM-ABCD1234', k: KEY, idType: 'aadhaar', aadhaar: '2345 6789 0124', taxIdDoc: up.body.token }));
+  assert.equal(ok.statusCode, 200, JSON.stringify(ok.body));
+  assert.equal(ok.body.given.shown, 'XXXX XXXX 0124'); assert.equal(ok.body.receiptUrl, '', 'a membership has no PDF receipt');
+  assert.equal(ok.body.kind, 'membership'); assert.equal(ok.body.tier, 'Platinum membership');
+  const record = db.store.get('submissions/PFA-MEM-2026-00007');
+  assert.equal(record.fields.aadhaar, 'XXXX XXXX 0124', 'what the inbox copy may show');
+  assert.equal(record.taxId.number, AADHAAR, 'the panel, in full');
+  assert.equal(record.taxId.cardMatch, 'unread');
+  assert.equal(db.store.get('transactions/PFA-MEM-ABCD1234').customer.aadhaar, AADHAAR);
+  assert.equal(told[0].card.shown, 'XXXX XXXX 0124');
+});
+
+test('the donor is told, and the payments inboxes, never gandhim, are told without the full Aadhaar', () => {
+  const m = require('../lib/caregiver-mail.js');
+  const p = { kind: 'membership', name: 'Asha Rao', amount: 5000, orderId: 'PFA-MEM-ABCD1234', reference: 'PFA-MEM-2026-00007', idLabel: 'Aadhaar', shown: 'XXXX XXXX 0124', photo: 'attached', cardMatch: 'unread', checks: [], email: 'asha@example.com', mobile: '9876543210' };
+  const staff = m.render('tax_id_staff', p);
+  assert.doesNotMatch(staff.html + staff.text, new RegExp(AADHAAR));
+  assert.match(staff.text, /XXXX XXXX 0124/);
+  assert.equal(m.moneyToWrongInbox('gandhim@exmpls.sansad.in', 'tax_id_staff', p), true);
+  assert.equal(m.moneyToWrongInbox('pfadcmho@gmail.com', 'tax_id_staff', p), false);
+  assert.equal(m.moneyToWrongInbox('ozairhusain@gmail.com', 'tax_id_staff', p), false);
+  const mine = m.render('tax_id_received', { ...p, receiptUrl: '' });
+  assert.match(mine.subject, /Your Aadhaar is with PFA/);
+  assert.doesNotMatch(mine.html + mine.text, new RegExp(AADHAAR));
+  const route = read('lib/routes/payment/tax-receipt.js');
+  assert.match(route, /for \(const to of FORWARD\.paymentInboxes\(\)\)/, 'only the payments inboxes');
 });
 
 /* ---- enterprise-grade checks (owner, 7 Nov 2026: "hope you can validate
@@ -262,7 +416,7 @@ test('the QR code on an Aadhaar card is read from its photo, Secure QR and the o
   assert.equal(READ.readAadhaar(Buffer.from('not a photo'), 'image/jpeg'), null, 'never throws');
 });
 
-test('a number that is not the card in the photo is refused before the payment starts', async () => {
+test('a number that is not the card in the photo is refused', async () => {
   const db = fakeDb();
   const handler = route._private.createHandler({ getDb: () => db });
   const photo = `data:image/jpeg;base64,${cardPhoto(secureQr('0124', 'Asha Rao')).toString('base64')}`;
@@ -275,9 +429,9 @@ test('a number that is not the card in the photo is refused before the payment s
   await assert.rejects(route.confirm(db, t, other), /does not match the card in the photo: the QR code on that card is for an Aadhaar ending 0124/);
   await assert.rejects(route.confirm(db, { type: 'pan', token: up.body.token }, 'ABCPR1234F'), /photo attached is of a Aadhaar card|Attach the photo of the same card/);
   await assert.rejects(route.confirm(db, { type: 'aadhaar', token: 'f'.repeat(48) }, AADHAAR), /Attach it again/);
-  const create = read('lib/routes/payment/create.js');
-  assert.match(create, /await taxIdDoc\.confirm\(getDb\(\), t, parsed\.customer\[t\.type\]\)/);
-  assert.ok(create.indexOf('taxIdDoc.confirm') < create.indexOf('createTransaction({'), 'before the transaction is made');
+  /* checked when the card is given, after paying, never before (10 Nov 2026) */
+  assert.doesNotMatch(read('lib/routes/payment/create.js'), /taxIdDoc/);
+  assert.match(read('lib/routes/payment/tax-receipt.js'), /await taxIdDoc\.confirm\(db, \{ type: card\.type, token: card\.token \}, card\.number\)/);
 });
 
 test('the form reads the card as soon as it is attached and says what it found; the panel lists every check', () => {
@@ -287,7 +441,7 @@ test('the form reads the card as soon as it is attached and says what it found; 
   assert.match(js, /This is not the number on the card in the photo/);
   assert.match(js, /The 5th letter of a personal PAN is the first letter of the holder.{1,6}s surname/);
   assert.match(js, /too small to read the card/);
-  for (const page of ['donate.html', 'get-involved.html']) assert.match(read(page), /data-tax-id data-instead="#gPan" data-name-from="#gName"|data-tax-id data-name-from="#memName"/);
+  assert.match(read('tax-receipt.html'), /data-tax-id data-name-from="#trName"/);
   const panel = read('assets/admin-taxid.js');
   for (const words of ['A valid PAN', "UIDAI\\\\'s check digit right", 'The QR code on the card is for an Aadhaar', 'not this number', 'could not be read from the photo']) assert.ok(panel.includes(words.replace(/\\\\/g, '\\')), words);
   const response = read('lib/routes/payment/response.js');

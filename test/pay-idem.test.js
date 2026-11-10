@@ -142,7 +142,7 @@ test('D7: donate.html makes a new key when any detail that matters changes, and 
     d.getElementById('giveForm').dispatchEvent(new dom.window.Event('submit', { cancelable: true, bubbles: true }));
     return d.getElementById('gRef').value;
   };
-  set('gName', 'Asha Kumar'); set('gMobile', '9876543210'); set('gEmail', 'asha@exmaple.com'); set('gAddress', '16 MG Road, Udupi'); set('gPan', 'ABCPK1234F');
+  set('gName', 'Asha Kumar'); set('gMobile', '9876543210'); set('gEmail', 'asha@exmaple.com'); set('gAddress', '16 MG Road, Udupi');
   set('gCity', 'Udupi'); set('gPin', '576101');
   const st = d.getElementById('gState');
   for (const name of ['Karnataka', 'Kerala']) if (![...st.options].some((o) => o.value === name)) st.add(new dom.window.Option(name, name));
@@ -151,7 +151,7 @@ test('D7: donate.html makes a new key when any detail that matters changes, and 
   const first = key();
   assert.match(first, /^donate-/);
   assert.equal(key(), first, 'pressing Pay again unchanged is the same request');
-  for (const [id, value] of [['gEmail', 'asha@example.com'], ['gPan', 'ABCPK9999Z'], ['gAddress', '22 Car Street, Udupi'], ['gName', 'Asha K Rao'], ['gMobile', '9123456780'], ['gCity', 'Kundapura'], ['gPin', '576201'], ['gState', 'Kerala']]) {
+  for (const [id, value] of [['gEmail', 'asha@example.com'], ['gAddress', '22 Car Street, Udupi'], ['gName', 'Asha K Rao'], ['gMobile', '9123456780'], ['gCity', 'Kundapura'], ['gPin', '576201'], ['gState', 'Kerala']]) {
     const before = key();
     set(id, value);
     assert.notEqual(key(), before, `changing ${id} is a new key`);

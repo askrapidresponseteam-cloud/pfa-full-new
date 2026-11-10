@@ -67,6 +67,9 @@
     + '.addr__plus::after{transform:translate(-50%,-50%) rotate(90deg);transition:transform .2s}'
     + '.addr__map[open] .addr__plus::after{transform:translate(-50%,-50%) rotate(0deg)}'
     + '.addr__map .field{margin:12px 0 0}'
+    /* the town box offers the PIN's post offices as it is typed; no arrow,
+       so it reads as the text box it is */
+    + 'input[data-addr="city"]::-webkit-calendar-picker-indicator{display:none!important}'
     + '@media (max-width:560px){.addr__grid{grid-template-columns:minmax(0,1fr)}}';
 
   function style() {
@@ -208,7 +211,10 @@
        district are not theirs to be given (the PIN says so on itself) */
     if (s && stateEl && stateEl.value && stateEl.value !== s && !free(stateEl, overwrite)) return false;
     if (s && stateEl && free(stateEl, overwrite) && stateEl.value !== s) { put(stateEl, s); listFor(block, distEl ? distEl.value : ''); did = true; }
-    var d = stateEl ? districtOf(stateEl.value, place.district) || districtOf(stateEl.value, place.city) : '';
+    /* the directory names the district exactly, or the PIN serves more
+       than one and the person chooses; India Post's own spelling otherwise */
+    var d = !stateEl ? '' : place.districts ? (place.district && india().pairOk(stateEl.value, place.district) ? place.district : '')
+      : districtOf(stateEl.value, place.district) || districtOf(stateEl.value, place.city);
     if (d && distEl && free(distEl, overwrite)) { put(distEl, d); did = true; }
     var c = String(place.city || '').trim();
     if (/^n\.?a\.?$/i.test(c)) c = '';
@@ -234,6 +240,86 @@
   /* What India Post said about each PIN asked on this page: its place, or
      'unknown'. A PIN it could not be asked about is simply not judged. */
   var verdicts = {};
+
+  /* The PIN against the district and the town (owner, 10 Nov 2026: "ensure
+     pincode and area/place match, it should work seamlessly across each and
+     every pincode in the country"). The server answers from India Post's own
+     directory of every PIN (lib/pin-directory.js): the districts the PIN may
+     be written with (its own, and those sharing its postal division), its
+     post offices, and, for a town typed, whether that town is clearly
+     somewhere else. A village India Post does not list is never refused. */
+  var places = {};
+  function placeKey(pin, city) { return pin + '|' + String(city || '').toLowerCase().replace(/[^a-z]+/g, ''); }
+  function bareName(d) { return String(d || '').replace(/\s*\([^)]*\)/g, ''); }
+  function districtWhy(pin, state, district) {
+    var v = verdicts[pin];
+    if (!v || v === 'unknown' || !district || !v.near || !v.near.length) return '';
+    if (v.state && state && v.state !== state) return '';
+    if (v.near.indexOf(district) > -1) return '';
+    var own = (v.districts || []).map(bareName);
+    return 'PIN code ' + pin + ' is in ' + (own.length ? own.join(' or ') : 'another') + ' district, not ' + bareName(district) + '. Check the PIN code or the district.';
+  }
+  function cityWhy(pin, city) {
+    var k = placeKey(pin, city);
+    return Object.prototype.hasOwnProperty.call(places, k) ? places[k] : '';
+  }
+  function askPlace(pin, city, then) {
+    var k = placeKey(pin, city);
+    if (!PIN.test(pin) || !String(city || '').trim()) return;
+    if (Object.prototype.hasOwnProperty.call(places, k)) { if (then) then(); return; }
+    lookup('pin=' + pin + '&place=' + encodeURIComponent(String(city).trim().slice(0, 80))).then(function (p) {
+      places[k] = (p && p.placeProblem) || '';
+      if (then) then();
+    }).catch(function () { /* not judged: the server checks again on send */ });
+  }
+  /* The PIN's post offices, offered in the town box as it is typed */
+  var lists = 0;
+  function offer(block, place) {
+    var cityEl = field(block, 'city');
+    if (!cityEl || !place) return;
+    var names = [place.city].concat(place.areas || []).filter(function (n, i, all) { return n && all.indexOf(n) === i; });
+    var id = cityEl.getAttribute('list');
+    var dl = id ? doc.getElementById(id) : null;
+    if (!dl) {
+      lists += 1;
+      dl = doc.createElement('datalist');
+      dl.id = 'pfaAreas' + lists;
+      (block.appendChild ? block : doc.body).appendChild(dl);
+      cityEl.setAttribute('list', dl.id);
+    }
+    dl.innerHTML = names.map(function (n) { return '<option value="' + esc(n) + '"></option>'; }).join('');
+  }
+  /* the district and the town, said on their boxes, for the PIN now typed */
+  function judge(block) {
+    var pinEl = field(block, 'pincode');
+    if (!pinEl) return;
+    var pin = pinEl.value.replace(/\D/g, '');
+    var stateEl = field(block, 'state');
+    var distEl = field(block, 'district');
+    var cityEl = field(block, 'city');
+    if (distEl && distEl.value) flag(distEl, districtWhy(pin, stateEl ? stateEl.value : '', distEl.value));
+    if (cityEl && cityEl.value.trim()) {
+      var c = cityEl.value;
+      askPlace(pin, c, function () { if (cityEl.value === c && pinEl.value.replace(/\D/g, '') === pin) flag(cityEl, cityWhy(pin, c)); });
+    }
+  }
+  /* For a page's own checks: what is wrong with the district and the town
+     of this form (or this step of it), flagged on their boxes; the number. */
+  function verify(root) {
+    if (!root || !root.querySelector) return 0;
+    var pinEl = field(root, 'pincode');
+    if (!pinEl) return 0;
+    var pin = pinEl.value.replace(/\D/g, '');
+    var stateEl = field(root, 'state');
+    var distEl = field(root, 'district');
+    var cityEl = field(root, 'city');
+    var n = 0;
+    var d = distEl && distEl.value ? districtWhy(pin, stateEl ? stateEl.value : '', distEl.value) : '';
+    if (d) { flag(distEl, d); n += 1; }
+    var c = cityEl && cityEl.value.trim() ? cityWhy(pin, cityEl.value) : '';
+    if (c) { flag(cityEl, c); n += 1; }
+    return n;
+  }
 
   /* The states a PIN can be in, in words: "West Bengal", "Punjab or
      Chandigarh". */
@@ -343,6 +429,14 @@
     };
     block.addEventListener('input', function (e) { if (mine(e)) flag(e.target, ''); });
     block.addEventListener('change', function (e) { if (mine(e) && e.target !== stateEl) flag(e.target, ''); });
+    /* the town and the district against the PIN, once chosen or left;
+       heard on the document, after a page's own handler has cleared the
+       box's message, as the PIN's verdict is */
+    doc.addEventListener('change', function (e) {
+      if (!block.contains(e.target)) return;
+      var k = e.target.getAttribute && e.target.getAttribute('data-addr');
+      if (k === 'city' || k === 'district') judge(block);
+    });
     /* A PIN typed in full fills the state, district and town the person has
        not chosen yet. Best effort: India Post may be slow or down, and then
        the person simply chooses them. */
@@ -356,8 +450,9 @@
       if (v.length < 6) { flag(pinEl, ''); return; }
       if (!PIN.test(v)) { flag(pinEl, pinMessage(v, stateEl.value)); return; }
       if (v === asked && verdicts[v]) {
-        if (verdicts[v] !== 'unknown') fill(block, verdicts[v], false);
+        if (verdicts[v] !== 'unknown') { fill(block, verdicts[v], false); offer(block, verdicts[v]); }
         flag(pinEl, pinMessage(v, stateEl.value));
+        judge(block);
         return;
       }
       asked = v;
@@ -377,7 +472,9 @@
         verdicts[v] = place || {};
         if (pinEl.value.replace(/\D/g, '') !== v) return;
         fill(block, place, false);
+        offer(block, place);
         flag(pinEl, pinMessage(v, stateEl.value));
+        judge(block);
       }).catch(function (e) {
         if (e && e.code === 'UNKNOWN_PIN') {
           verdicts[v] = 'unknown';
@@ -427,9 +524,10 @@
       : a.split(/[\s,]+/).filter(Boolean).length < 2 && !/^https?:/i.test(a) ? SAY.addressWords : '');
     mark('pincode', pinMessage(v('pincode').replace(/\D/g, ''), s));
     var R = root.PFA_RULES;
-    mark('city', !c ? SAY.city : (R && R.checkField ? R.checkField('city', c, { required: false }) : '') || '');
+    var p = v('pincode').replace(/\D/g, '');
+    mark('city', !c ? SAY.city : (R && R.checkField ? R.checkField('city', c, { required: false }) : '') || cityWhy(p, c));
     mark('state', !s ? SAY.state : !I.isState(s) ? SAY.state : '');
-    mark('district', !d ? SAY.district : s && !I.pairOk(s, d) ? 'Choose a district in ' + s + '.' : '');
+    mark('district', !d ? SAY.district : s && !I.pairOk(s, d) ? 'Choose a district in ' + s + '.' : districtWhy(p, s, d));
     var m = v('mapLink');
     if (field(block, 'mapLink')) mark('mapLink', m && !LINK.test(m) ? SAY.mapLink : '');
     return first;
@@ -520,6 +618,8 @@
     mount: mount, mountAll: mountAll, check: check, read: read, merge: merge, fill: fill, enhance: enhance,
     /* for a page's own checks: what is wrong with this PIN beside this state, or '' */
     pinProblem: function (pin, state) { return pinMessage(String(pin || '').replace(/\D/g, ''), String(state || '')); },
+    /* and the district and town of a form (or a step) against its PIN, flagged; the number */
+    verify: verify,
     SAY: SAY, _stateOf: stateOf, _districtOf: districtOf
   };
 })(typeof window !== 'undefined' ? window : this);
