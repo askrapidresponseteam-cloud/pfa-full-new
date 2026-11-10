@@ -136,7 +136,10 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
    under the frame (visor-mask.png), and the frame is laid back over it
    (visor-frame.png, the photograph's own frame with a fine dark lip on the
    curve), so the film ends on that clean line and nowhere else. */
-.mp-lens{position:absolute;z-index:2;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;overflow:hidden;isolation:isolate;opacity:0;transition:opacity .5s ease;
+.mp-lens{position:absolute;z-index:2;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;opacity:0;transition:opacity .5s ease}
+/* the glass: the film and its layers, through the film's mask; the frame
+   is its sibling in the same box, so the two land on the same pixels */
+.mp-lens__glass{position:absolute;inset:0;overflow:hidden;isolation:isolate;
   -webkit-mask-image:url("media/picks/visor-mask.png");mask-image:url("media/picks/visor-mask.png");
   -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .mp-room.has-still .mp-lens,.mp-room.is-playing .mp-lens{opacity:1}
@@ -155,8 +158,7 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .mp-lens__shine{display:block;mix-blend-mode:screen}
 /* the frame, laid back over the film and the glass's rim, outside the
    film's mask: the film ends on its drawn edge, and no amber is left at it */
-.mp-frame{position:absolute;z-index:3;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;display:block;pointer-events:none;opacity:0;transition:opacity .5s ease}
-.mp-room.has-still .mp-frame,.mp-room.is-playing .mp-frame{opacity:1}
+.mp-lens__frame{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 .mp-lens iframe{display:block;width:100%;height:100%;border:0;pointer-events:none}
 .mp-lensbtn{position:absolute;z-index:4;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;padding:0;border:0;background:transparent;border-radius:30%;cursor:pointer}
 .mp-lensbtn:focus-visible{outline:2px solid var(--ink);outline-offset:6px}
@@ -544,13 +546,15 @@ if (root.document && root.document.head) apply(read());
            bridge or the corner pads (owner, 10 Nov 2026: "the borders are
            bleeding", "draw perfectly clean boundaries"). -->
       <div class="mp-lens" id="mpLens">
-        <img class="mp-lens__still" alt="" data-lens-still>
-        <div class="mp-lens__film" id="mpFilm"></div>
-        <span class="mp-lens__tone" aria-hidden="true"></span>
-        <span class="mp-lens__grille" aria-hidden="true"></span>
-        <img class="mp-lens__shine" src="media/picks/visor-shine.png" alt="">
+        <div class="mp-lens__glass">
+          <img class="mp-lens__still" alt="" data-lens-still>
+          <div class="mp-lens__film" id="mpFilm"></div>
+          <span class="mp-lens__tone" aria-hidden="true"></span>
+          <span class="mp-lens__grille" aria-hidden="true"></span>
+          <img class="mp-lens__shine" src="media/picks/visor-shine.png" alt="">
+        </div>
+        <img class="mp-lens__frame" src="media/picks/visor-frame.png" alt="">
       </div>
-      <img class="mp-frame" src="media/picks/visor-frame.png" alt="" aria-hidden="true">
       <button class="mp-lensbtn" id="mpLensBtn" type="button" aria-label="Play the trailer of Test Subject V in her glasses"></button>
     </div>
   </figure>

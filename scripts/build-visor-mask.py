@@ -12,6 +12,11 @@ is no longer the mask's; it is the frame's own, as it is in the photograph:
      glass alone is amber: red well above blue, even where the frame's shadow
      makes it nearly black), kept to its one large piece with its holes filled,
      and its outline smoothed so it runs as the frame's inner edge does.
+  1b. The grey pads at the visor's lower outer corners are taken out ("this
+     section looks odd.. either remove that piece or fill that with video in
+     a seamless way"): the glass runs on into each corner, the frame's dark
+     rim is drawn round it, as thick as the bottom rim and carrying on into
+     it, and what was left of each pad's tip is healed into the skin.
   2. Then "draw perfectly clean boundaries and work from there": the outline
      becomes one closed curve, smoothed as a line (strongly along the top and
      round the ends, lightly round the nose bridge and the corner pads) and
@@ -100,7 +105,33 @@ inside &= ((xs_ >= lo[:, None] - 0.25) | ~ends_l) & ((xs_ <= hi[:, None] + 0.25)
 inside = nd.binary_opening(inside, iterations=1)
 lab, n = nd.label(inside)
 inside = lab == (np.argmax(nd.sum(inside, lab, range(1, n + 1))) + 1)
-# 2. the boundary, drawn: one closed curve along the frame's inner edge,
+# 1b. the corner pads taken out (owner, 10 Nov 2026: "this section looks
+#     odd.. either remove that piece or fill that with video in a seamless
+#     way"): each grey pad at the visor's lower outer corners becomes glass,
+#     up to the dark band that runs round it, which stays as the frame's rim
+#     and carries on into the rim along the bottom. Drawn by hand on the
+#     photograph, inside that band, and joined to the glass above it.
+from PIL import ImageDraw as _Draw
+PADS = [
+    # left: where the glass now ends, RIM pixels inside the pad's outer edge,
+    # running on from the glass's own side down round the pad's foot to the
+    # bottom rim; closed through the glass above
+    [(950, 806), (1072, 806), (1072, 887), (1045, 883), (1020, 879), (1000, 876), (980, 872),
+     (964, 866), (953, 857), (945, 845), (940, 831), (938, 818)],
+    # right, the same; both run on from the glass's own bottom edge, so the
+    # line has no step where the pad began
+    [(1520, 800), (1652, 800), (1651, 815), (1649, 828), (1645, 840), (1640, 849), (1630, 857),
+     (1615, 864), (1600, 869), (1580, 874), (1560, 878), (1540, 882), (1520, 885)],
+]
+RIM = 7  # the frame's rim drawn round where each pad was, as thick as the bottom rim
+pads = Image.new('L', (W, H), 0)
+for poly in PADS:
+    _Draw.Draw(pads).polygon(poly, fill=255)
+pads = nd.gaussian_filter((np.asarray(pads) > 0).astype(float), 2.5) >= 0.5   # no corners from the hand-drawn points
+pad_zone = nd.binary_dilation(pads, iterations=RIM)
+inside = nd.binary_fill_holes(inside | pads)
+
+
 #    smoothed as a line (not as pixels) and rendered at eight times the
 #    resolution, so its edge is exact to an eighth of a pixel
 from skimage import measure
@@ -126,7 +157,7 @@ def zone(where):
 
 
 bridge = zone((curve[:, 1] > 1210) & (curve[:, 1] < 1450) & (curve[:, 0] > 685))
-bottom = zone(curve[:, 0] > 790) * (1 - bridge)
+bottom = zone((curve[:, 0] > 790) & (curve[:, 1] > 1075) & (curve[:, 1] < 1505)) * (1 - bridge)
 curve = along(curve, 5) * bridge + along(curve, 10) * bottom + along(curve, 20) * (1 - bridge - bottom)
 x0, y0, x1, y1 = BOX
 
@@ -150,6 +181,8 @@ edge = render(curve)                       # how much of each pixel is glass
 shadowed = nd.binary_fill_holes(nd.binary_closing(((chroma >= 6) & roi) | glass, iterations=2))
 lab, n = nd.label(shadowed)
 shadowed = lab == lab[tuple(np.argwhere(glass)[0])]
+# where the pads were, the curve may run anywhere the drawn rim covers
+shadowed |= nd.binary_dilation(pad_zone, iterations=4)
 # where the smooth curve grazes the frame by a fraction of a pixel, the
 # frame wins: not one pixel of film is ever drawn on it
 edge = np.where(shadowed, edge, 0.0)
@@ -201,6 +234,33 @@ for sigma in (1.5, 3, 6, 12):
 colour = np.where(frame_px, luma, np.nan_to_num(fill, nan=float(np.median(luma[frame_px & cover]))))
 lip = render(curve, width=1.4)
 lip_tone = np.percentile(luma[frame_px & cover], 20)
+# where the pads were: the rim, in the frame's own dark, softened into the
+# skin over a pixel, so the frame runs on round the new corner unbroken
+rim_tone = float(np.median(luma[frame_px & cover & (np.arange(H)[:, None] > 870) & (np.arange(W)[None, :] > 1100) & (np.arange(W)[None, :] < 1500)]))
+# a band RIM pixels wide that follows the drawn curve, so its outer edge is
+# as smooth as the curve, fading out where the pad's place meets the frame
+out_dist = nd.distance_transform_edt(edge < 0.5)
+band = np.clip(RIM + 0.5 - out_dist, 0, 1)
+zone_w = np.clip(nd.gaussian_filter(nd.binary_dilation(pad_zone, iterations=RIM + 3).astype(float), 9) * 1.4 - 0.2, 0, 1)
+rim = band * zone_w * (edge < 1)
+# on the left the frame's side above the pad is mid grey, not black: the rim
+# fades in below it rather than running up it
+yy0, xx0 = np.mgrid[0:H, 0:W]
+rim *= np.where(xx0 < 965, np.clip((yy0 - 822) / 8.0, 0, 1), 1.0)
+# and what is left of each pad's tip past the rim (its outline, a bright
+# point) becomes skin again, filled from the skin around it
+yy_, xx_ = np.mgrid[0:H, 0:W]
+left_over = nd.binary_dilation(pad_zone, iterations=3) & (edge == 0) & ((out_dist > RIM - 0.5) | (rim < 0.98)) & (
+    ((xx_ < 962) & (yy_ > 806) & (yy_ < 860)) | ((xx_ > 1628) & (yy_ > 806) & (yy_ < 856)))
+skin = ~nd.binary_dilation(left_over, iterations=1) & (out_dist > RIM + 1) & ~nd.binary_dilation(pad_zone, iterations=1)
+skin_fill = np.full(luma.shape, np.nan)
+for sigma in (2, 4, 8):
+    num = nd.gaussian_filter(luma * skin, sigma)
+    den = nd.gaussian_filter(skin.astype(float), sigma)
+    skin_fill = np.where(np.isnan(skin_fill) & (den > 0.15), num / np.maximum(den, 1e-6), skin_fill)
+soft = np.clip(nd.gaussian_filter(left_over.astype(float), 1.0) * 1.5, 0, 1) * (1 - rim)
+colour = np.where(np.isnan(skin_fill), colour, colour * (1 - soft) + np.nan_to_num(skin_fill) * soft)
+colour = colour * (1 - rim) + rim_tone * rim
 colour = colour * (1 - lip) + lip_tone * lip
 # opaque over every pixel of glass or warmth outside the curve and a margin
 # round them, then fading out over neutral photograph, where it is the
@@ -235,6 +295,9 @@ v = luma[y0:y1, x0:x1]
 gin = edge[y0:y1, x0:x1] >= 0.5
 p60, p995 = np.percentile(v[gin], [60, 99.5])
 highlights = np.clip((v - p60) / (p995 - p60), 0, 1) ** 1.3
+# none from the pads that were taken out: their bright edges are not the glass's
+pad_soft = np.clip(nd.gaussian_filter(nd.binary_dilation(pad_zone, iterations=4).astype(float), 3)[y0:y1, x0:x1] * 1.5, 0, 1)
+highlights *= 1 - pad_soft
 hh, ww = v.shape
 yy = np.linspace(0, 1, hh)[:, None]
 xx = np.linspace(0, 1, ww)[None, :]

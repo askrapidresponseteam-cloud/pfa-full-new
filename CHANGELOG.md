@@ -1,3 +1,10 @@
+## v1.548
+
+- **The grey corner pads are gone from her visor: the film fills each corner, inside the frame's rim.** Owner, 10 Nov 2026: "this section looks odd.. either remove that piece or fill that with video in a seamless way. removing that part from both sides is easier I suppose".
+  - Both pads at the visor's lower outer corners are taken out. The glass runs on into each corner along a line drawn by hand on the photograph, continuing the glass's own bottom edge with no step, and the film fills it.
+  - Round the new corner, the frame's dark rim is drawn as thick as the bottom rim, following the curve exactly and fading into the photograph's own rim; what was left of each pad's tip is healed into the skin, and the pads' bright edges no longer show as reflections in the glass.
+  - The frame now sits in the same box as the film, beside its mask rather than under it, so the two land on the same pixels. Checked in a browser at 390, 768, 1024, 1440 and 1920 wide, retina too: on the frame, no film and no amber at all.
+
 ## v1.547
 
 - **The film in her visor ends on one clean line, with not a pixel of fringe.** Owner, 10 Nov 2026: "the borders are bleeding. can you fix to perfection", "there cannot be even a pixel of fringe/bleed", "draw perfectly clean boundaries and work from there".

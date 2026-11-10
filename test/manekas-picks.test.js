@@ -110,7 +110,7 @@ test('her photograph in the amber visor, whole, and the visor filled with the fi
   assert.match(html, /\.mp-room\{position:relative;width:100%;aspect-ratio:2576\/2113;/, 'the photograph at its own shape');
   const lens = doc.querySelector('#mpLens.mp-lens');
   for (const part of ['.mp-lens__still', '.mp-lens__film', '.mp-lens__tone', '.mp-lens__grille', '.mp-lens__shine']) assert.ok(lens.querySelector(part), part);
-  assert.match(html, /\.mp-lens\{[^}]*mask-image:url\("media\/picks\/visor-mask\.png"\)/, 'masked to the amber glass');
+  assert.match(html, /\.mp-lens__glass\{[^}]*mask-image:url\("media\/picks\/visor-mask\.png"\)/, 'masked to the glass');
   for (const f of ['visor-mask.png', 'visor-shine.png', 'visor-frame.png', 'portrait-visor.jpg']) assert.ok(fs.existsSync(path.join(ROOT, 'media/picks', f)), f);
   /* the visor box, in percent of the photograph: 906 to 1676 across, 644 to 918 down */
   const pct = (re) => Number(re.exec(html)[1]) / 100;
@@ -123,16 +123,13 @@ test('her photograph in the amber visor, whole, and the visor filled with the fi
     assert.equal(png.readUInt32BE(16), 770, f);
     assert.equal(png.readUInt32BE(20), 274, f);
   }
-  /* the frame laid back over the film, outside the film's mask and on the
-     same box, so the film ends on its drawn edge and no amber is left at it */
-  const frame = lens.nextElementSibling;
-  assert.equal(frame.className, 'mp-frame');
+  /* the frame laid back over the film: in the same box, outside the film's
+     mask, last, so the film ends on its drawn edge and no amber is left at it */
+  const frame = lens.lastElementChild;
+  assert.equal(frame.className, 'mp-lens__frame');
   assert.equal(frame.getAttribute('src'), 'media/picks/visor-frame.png');
-  for (const k of ['left', 'top', 'width', 'height']) {
-    assert.equal(new RegExp(`\\.mp-frame\\{[^}]*${k}:([\\d.]+)%`).exec(html)[1], new RegExp(`\\.mp-lens\\{[^}]*${k}:([\\d.]+)%`).exec(html)[1], k);
-  }
-  assert.match(html, /\.mp-frame\{[^}]*z-index:3;/);
-  assert.match(html, /\.mp-room\.has-still \.mp-frame,\.mp-room\.is-playing \.mp-frame\{opacity:1\}/);
+  assert.ok(lens.querySelector('.mp-lens__glass > .mp-lens__film'), 'the film is under the mask');
+  assert.ok(!frame.closest('.mp-lens__glass'), 'the frame is not');
   assert.match(read('scripts/build-visor-mask.py'), /assert not \(through\[~shadowed\] > 0\)\.any\(\), 'the film shows on the frame'/);
   /* the film covers the visor: 16:9 as wide as the box, centred down it */
   const filmH = pct(/\.mp-lens__film,\.mp-lens__still\{[^}]*height:([\d.]+)%/) * box.h;
