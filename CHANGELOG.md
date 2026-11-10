@@ -1,3 +1,11 @@
+## v1.553
+
+- **Maneka's Picks opens on her photograph, the whole screen.** Owner, 10 Nov 2026, with jjettas.com's Justin Jefferson page: "can you do something so that it opens like a hero. like in the ref attached.. full screen, powerful. both on mobile and web".
+  - Her photograph fills the screen edge to edge, the header over it, cropped to fill and never stretched, with the visor at the same height on every screen. The film in her glasses is exactly as before: checked at seven screen sizes, not one pixel of it on the frame.
+  - Along its foot, over a dark fade: "Maneka's Picks" in large type, and the film in her glasses with Play in her glasses, Next film and Full screen.
+  - On a wide screen two cards stand on the wall either side of her, as in the reference, floating a little and leaning with the pointer: the two books, and the film in her glasses, each opening its section below.
+  - On a phone the foot carries the title and the controls, above the tab bar, clear of the visor even on a small screen.
+
 ## v1.552
 
 - **A People directory in the panel: everyone once, by state and district.** Owner, 10 Nov 2026: "for admin create a people's directory section. state, district, name, address, phone number. ensure no duplicates. category- members, caregivers etc.. whatever applicable."

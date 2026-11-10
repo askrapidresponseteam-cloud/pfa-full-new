@@ -86,7 +86,13 @@ test('the page is the site\'s: its header, title block, faces and footer', () =>
   assert.ok(h1[0].classList.contains('pfa-title'));
   assert.ok(h1[0].previousElementSibling.classList.contains('pfa-kicker'));
   assert.match(html, /<link rel="stylesheet" href="assets\/pfa-theme\.css">/);
-  assert.match(html, /\.mp-hero\{[^}]*padding:calc\(var\(--ann\) \+ var\(--nav\) \+ 72px\)/);
+  /* the page opens on her photograph, the whole screen (owner, 10 Nov 2026:
+     "opens like a hero ... full screen, powerful. both on mobile and web"),
+     above the phone's tab bar; the title along its foot, light on dark */
+  assert.match(html, /\.mp-hero\{position:relative;height:calc\(100vh - var\(--tabbar,0px\)\);height:calc\(100svh - var\(--tabbar,0px\)\);/);
+  assert.ok(doc.querySelector('#top.mp-hero > #mpRoom'), 'the photograph is the hero');
+  assert.ok(doc.querySelector('#top .mp-foot .mp-title h1.pfa-title'), 'the title on it');
+  assert.ok(doc.querySelector('#top .mp-card--books[href="#book"]') && doc.querySelector('#top .mp-card--films[href="#films"]'), 'the cards on the wall');
   assert.ok(doc.querySelector('header.site nav[aria-label="Main navigation"]'));
   assert.ok(doc.querySelector('footer.pfa-footer'));
   assert.doesNotMatch(html, /Kalam|Impact|Arial Black|;base64,/, 'no face but the site\'s, nothing inlined');
@@ -107,7 +113,10 @@ test('her photograph in the amber visor, whole, and the visor filled with the fi
   assert.equal(img.getAttribute('width'), '2576');
   assert.equal(img.getAttribute('height'), '2113');
   for (const gone of ['portrait.webp', 'portrait-glasses.jpg', 'lens-l-mask.png', 'lens-r-mask.png']) assert.ok(!fs.existsSync(path.join(ROOT, 'media/picks', gone)), gone);
-  assert.match(html, /\.mp-room\{position:relative;width:100%;aspect-ratio:2576\/2113;/, 'the photograph at its own shape');
+  /* the photograph at its own shape, covering the screen and never stretched,
+     the visor held 42% of the way down it */
+  assert.match(html, /\.mp-scene\{position:absolute;container-type:size;--sw:max\(100cqw,100cqh \* 2576 \/ 2113\);--sh:max\(100cqh,100cqw \* 2113 \/ 2576\);width:var\(--sw\);height:var\(--sh\);/, 'the photograph at its own shape');
+  assert.match(html, /top:clamp\(100cqh - var\(--sh\),100cqh \* \.42 - var\(--sh\) \* \.3697,0px\)/);
   const lens = doc.querySelector('#mpLens.mp-lens');
   for (const part of ['.mp-lens__still', '.mp-lens__film', '.mp-lens__tone', '.mp-lens__grille', '.mp-lens__shine']) assert.ok(lens.querySelector(part), part);
   assert.match(html, /\.mp-lens__glass\{[^}]*mask-image:url\("media\/picks\/visor-mask\.png"\)/, 'masked to the glass');
@@ -172,7 +181,7 @@ test('the photograph\'s effects, as jjettas.com\'s hero: decorative, and all sti
   assert.match(html, /\.mp-type\{[^}]*mask-image:url\("media\/picks\/portrait-wall\.png"\)/, 'on the wall only, behind her');
   assert.ok(fs.existsSync(path.join(ROOT, 'media/picks/portrait-wall.png')));
   assert.ok(doc.querySelector('.mp-lens__glass .mp-lens__glint'), 'the light inside the glass, under its mask');
-  assert.match(html, /@media \(prefers-reduced-motion:reduce\)\{\n {2}\*\{transition:none!important;animation:none!important\}\n {2}\.mp-scene,\.mp-type__row\{transform:none\}\n {2}\.mp-lens__glint\{display:none\}\n\}/);
+  assert.match(html, /@media \(prefers-reduced-motion:reduce\)\{\n {2}\*\{transition:none!important;animation:none!important\}\n {2}\.mp-scene,\.mp-type__row,\.mp-card\{transform:none\}\n {2}\.mp-lens__glint\{display:none\}\n\}/);
   assert.match(html, /if \(calm \|\| !window\.matchMedia \|\| !window\.matchMedia\('\(hover: hover\)'\)\.matches\) return;/, 'the lean only with a pointer, never when motion is reduced');
   assert.doesNotMatch(html, /setInterval/);
   const controls = [...doc.querySelectorAll('.mp-ctl')].map((b) => b.textContent.trim());
