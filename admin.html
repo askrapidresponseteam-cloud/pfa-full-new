@@ -834,6 +834,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
+      <button class="tab" type="button" data-tab="gifts">Seasonal gifts</button>
       <button class="tab" type="button" data-tab="analytics">Analytics</button>
       <button class="tab" type="button" data-tab="people" data-super>Admins &amp; audit</button>
     </div>
@@ -1014,6 +1015,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     </div>
 
     <div class="pane" data-pane="website" role="region" aria-label="What the public site shows"><div class="loading">Reading the site&#8230;</div></div>
+
+    <div class="pane" data-pane="gifts" role="region" aria-label="Seasonal gifts"></div>
 
     <div class="pane" data-pane="oldmembers" role="region" aria-label="Old site members"><div class="loading">Reading the old list&#8230;</div></div>
     <div class="om-sheet" id="omSheet" hidden role="dialog" aria-modal="true" aria-labelledby="omSheetTitle"><div class="om-box" id="omBox"></div></div>
@@ -1450,6 +1453,7 @@ window.addEventListener('unhandledrejection', function (event) {
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
+    gifts: { title: 'Seasonal gifts', module: 'gifts', needs: 'gifts' },
     analytics:   { title: 'Analytics',     module: 'analytics',   needs: 'analytics' },
     people:      { title: 'Admins & audit', module: 'people',     needs: 'people', panes: ['people', 'audit'] },
     audit:       { title: 'Audit log',     module: 'people',      needs: 'people' },
@@ -1544,6 +1548,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'wall') return window.PFAWall && window.PFAWall.pane();
     if (tab === 'employees') return window.PFAPeople && window.PFAPeople.pane();
     if (tab === 'website') return website();
+    if (tab === 'gifts') return window.PFAGifts && window.PFAGifts.pane();
     if (tab === 'analytics') return window.PFAAnalytics && window.PFAAnalytics.pane();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -3744,16 +3749,11 @@ window.addEventListener('unhandledrejection', function (event) {
   on('#vfGo', 'click', verify);
   on('#vfQ', 'keydown', function (e) { if (e.key === 'Enter') verify(); });
 
-  /* ---- one search for everything ------------------------------------------
-     Owner, 8 Oct 2026: "there needs to be a univeral/global search bar to
-     search anything and everything". One box at the top of every section.
-     The server searches the records (cases and everything said in them,
-     payments, colony cards, emails, the audit log, staff accounts) through
-     a small index, so a search costs a few dozen reads however many records
-     there are (lib/admin-search.js), and answers only with what this account
-     may open. The panel's own sections and the public site's pages and
-     sections are matched here, at once, while the server's answer comes.
-     "/" or Ctrl/Cmd+K jumps to the box from anywhere. */
+  /* ---- one search for everything (owner, 8 Oct 2026) ---------------------
+     One box atop every section. The server searches the records through a
+     small index, a few dozen reads a search (lib/admin-search.js), and
+     answers only with what this account may open; the panel's sections and
+     the site's pages match here at once. "/" or Ctrl/Cmd+K reach it. */
   /* ---- old site members (26 Oct 2026) -------------------------------------
      The old website's membership list, read from /api/admin/old-members and
      shown here only. Nothing on this page reads or writes the current
@@ -6354,6 +6354,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-internship.js"></script>
 <script src="assets/admin-payreport.js"></script>
 <script src="assets/admin-people.js"></script>
+<script src="assets/admin-gifts.js"></script>
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>

@@ -51,6 +51,7 @@ const NAV = [
   'library.html|Resources library',
   'academy.html|Academy',
   'someone.html|Someone, not something',
+  'fireworks.html|Fireworks and animals',          /* 10 Nov 2026 */
   'quiz.html|Test yourself',
   'get-involved.html|Get Involved',
   'get-involved.html#volunteer|Volunteer',          /* the one volunteer application, as in the footer (9 Oct 2026) */
@@ -58,6 +59,7 @@ const NAV = [
   'get-involved.html#caregiver|Colony caregiver', /* leads to applying; the card page itself left the nav, 15 Sep 2026 */
   'campus.html|PFA Campus',                          /* the microsites, 9 Oct 2026 */
   'internship.html|Remote internship',              /* 31 Oct 2026 */
+  'gifts.html|Seasonal gifts',                      /* 10 Nov 2026 */
   'campaign.html|Plan a campaign',
   'legacy.html|Leave a legacy',
   'csr.html|CSR partnerships',
@@ -121,6 +123,8 @@ const EXPECTED = {
   'csr.html':          ['CSR partnerships',          'get-involved.html'],
   'sgacc.html':        ['Sanjay Gandhi Animal Care Centre', 'founder.html'],
   'manekas-picks.html': ['Maneka’s Picks',            'founder.html'],
+  'fireworks.html':    ['Fireworks and animals',     'laws.html'],
+  'gifts.html':        ['Seasonal gifts',            'get-involved.html'],
   'privacy.html':      [null,                        null]
 };
 

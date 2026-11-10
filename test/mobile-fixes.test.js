@@ -46,9 +46,9 @@ test('with a page hidden in the panel, the phone menu still lists everything els
   const rows = [...panel.querySelectorAll('.mnav__list a')].filter(shown).map((a) => a.textContent);
   assert.ok(!rows.includes('Policies and achievements'), 'the hidden page is not offered');
   assert.ok(rows.includes('Units: find help near you') && rows.includes('Contact'));
-  assert.equal(rows.length, 24, 'every other link (Remote internship joined on 31 Oct 2026, Maneka’s Picks on 9 Nov 2026)');
+  assert.equal(rows.length, 26, 'every other link (Remote internship joined on 31 Oct 2026, Maneka’s Picks on 9 Nov 2026, Fireworks and animals and Seasonal gifts on 10 Nov 2026)');
   /* a card left with nothing, and its caption, go */
-  const all = V.plan({ pages: ['campaign', 'legacy', 'csr'] }, 'laws').css;
+  const all = V.plan({ pages: ['gifts', 'campaign', 'legacy', 'csr'] }, 'laws').css;   /* Seasonal gifts joined the card on 10 Nov 2026 */
   const style2 = doc.createElement('style'); style2.textContent = all; doc.head.appendChild(style2);
   const give = [...panel.querySelectorAll('.mnav__sub')].find((p) => p.textContent === 'Give and partner');
   assert.equal(w.getComputedStyle(give).display, 'none', 'the caption over an emptied card');

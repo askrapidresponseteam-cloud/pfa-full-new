@@ -294,6 +294,43 @@
    ]
   },
   {
+   "id": "fireworks",
+   "file": "fireworks.html",
+   "title": "Fireworks and animals",
+   "group": "Learn",
+   "menu": "Fireworks and animals",
+   "modules": [
+    {
+     "id": "top",
+     "label": "A festival of light. Not of fear."
+    },
+    {
+     "id": "loud",
+     "label": "To them, it is louder."
+    },
+    {
+     "id": "who",
+     "label": "Every animal in earshot."
+    },
+    {
+     "id": "safe",
+     "label": "Keep them safe."
+    },
+    {
+     "id": "when",
+     "label": "Not only Diwali."
+    },
+    {
+     "id": "law",
+     "label": "What the law says."
+    },
+    {
+     "id": "instead",
+     "label": "Light it up. Keep it quiet."
+    }
+   ]
+  },
+  {
    "id": "quiz",
    "file": "quiz.html",
    "title": "Who would you underestimate?",
@@ -353,6 +390,31 @@
     {
      "id": "more",
      "label": "Open what you need."
+    }
+   ]
+  },
+  {
+   "id": "gifts",
+   "file": "gifts.html",
+   "title": "Seasonal gifts",
+   "group": "Get Involved",
+   "menu": "Seasonal gifts",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Give a gift. Help an animal."
+    },
+    {
+     "id": "offers",
+     "label": "This season."
+    },
+    {
+     "id": "collections",
+     "label": "The season's gifts."
+    },
+    {
+     "id": "always",
+     "label": "Gifts for any day."
     }
    ]
   },
@@ -1366,6 +1428,17 @@
    "doneRef": "apply",
    "pfDone": "proof",
    "pfDoneRef": "proof"
+  },
+  "gifts": {
+   "gfKicker": "top",
+   "gfTitle": "top",
+   "gfLede": "top",
+   "gfWhen": "top",
+   "gfOffersKicker": "offers",
+   "gfOffers": "offers",
+   "gfColKicker": "collections",
+   "gfColTitle": "collections",
+   "gfCols": "collections"
   },
   "campaign": {
    "done": "plan",

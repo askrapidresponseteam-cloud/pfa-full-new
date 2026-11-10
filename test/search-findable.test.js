@@ -131,7 +131,7 @@ const QUERIES = [
   ['fur trade', ['achievements.html', 'laws.html']], ['leather', ['achievements.html', 'laws.html']],
   ['foie gras', ['achievements.html', 'achievements.html#rec-053']], ['tonga horse', 'laws.html'],
   ['elephant in temple', ['laws.html', 'achievements.html']], ['zoo', ['laws.html', 'achievements.html', 'academy.html']],
-  ['diwali crackers dog', 'academy.html'], ['anti rabies vaccine', 'academy.html'], ['deworming puppies', 'academy.html'],
+  ['diwali crackers dog', ['fireworks.html', 'academy.html']], ['anti rabies vaccine', 'academy.html'], ['deworming puppies', 'academy.html'],
   ['ticks on dog', 'academy.html'], ['mange', 'academy.html'], ['can dogs eat chocolate', 'academy.html'], ['grapes toxic', 'academy.html'],
   ['onion poisoning dog', 'academy.html'], ['dog in lift', 'laws.html'], ['rwa fine for feeding dogs', 'laws.html'],
   ['neighbour complains about barking', 'laws.html'], ['cattle on road', ['laws.html', 'academy.html', 'report.html']],
@@ -214,7 +214,10 @@ const QUERIES = [
   ['manja', ['laws.html', 'achievements.html', 'newsroom.html', 'academy.html']], ['monkey', ['laws.html', 'achievements.html', 'report.html']],
   ['snake charmer', ['laws.html', 'achievements.html']], ['parrot in cage', ['laws.html', 'report.html']],
   ['bird seller', ['laws.html', 'report.html', 'achievements.html']], ['donkeys', ['achievements.html', 'laws.html', 'report.html']],
-  ['cock fight', ['laws.html', 'achievements.html']], ['crackers diwali animals', ['laws.html', 'academy.html', 'newsroom.html']],
+  ['cock fight', ['laws.html', 'achievements.html']], ['crackers diwali animals', ['fireworks.html', 'laws.html', 'academy.html', 'newsroom.html']],
+  /* 10 Nov 2026: the fireworks page and the seasonal gifts page */
+  ['fireworks', 'fireworks.html'], ['dog scared of crackers', 'fireworks.html'], ['cracker timings', 'fireworks.html'], ['firecracker burn', 'academy.html'],
+  ['seasonal gifts', 'gifts.html'], ['diwali gifts', 'gifts.html'], ['christmas gifts', 'gifts.html'],
   /* Documents, stories, honours, designers, roles; typos, Hinglish and half-typed words */
   ['prevention of cruelty act pdf', 'read.html?r=pca-act-1960'], ['1960 act', ['read.html?r=pca-act-1960', 'laws.html']],
   ['handbook for police', ['read.html?r=law-enforcement-handbook', 'read.html?r=delhi-police-handbook']],

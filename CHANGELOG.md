@@ -1,3 +1,12 @@
+## v1.551
+
+- **Two new pages: Fireworks and animals, and Seasonal gifts with seasons set in the panel.** Owner, 10 Nov 2026: "can you build a page related fireworks- indian context. and ensure it aligns with pfa site theme", and "Create a Seasonal Gifts page for Deepawali, Christmas, New Year, and other occasions."
+  - fireworks.html, under Learn and in the footer: how loud a cracker is to an animal (the 125 dB legal limit, Maharashtra's tests), who it hurts, what to do before, on the night and after, the times of year in India, what the law says (no crackers 10 pm to 6 am, the festival hours, the noise limit, Section 11(1)(a) and BNS Section 325), and quieter ways to celebrate. Every figure has its source under a plus.
+  - gifts.html, under Get Involved and in the footer: the season on today, India time, with its headline, offers and collections of shop pieces and gift cards; with none on, the next season and the year-round gifts.
+  - The panel's new Seasonal gifts section (module gifts): seasons by occasion and year, with their dates, draft or published, headline, offers and collections; copy a season to next year; and the page's own Visible or Hidden switch, which takes the page and every link to it off the site.
+  - Offers are words on the page only: the shop takes no codes and charges what lib/shop.js says.
+  - The CCAvenue payment journey is exactly as in v1.549. The iFrame checkout of v1.550 was never deployed and is not in this build.
+
 ## v1.549
 
 - **Her photograph as a 60MP camera takes it: no generated texture, no blemishes, nothing blurred.** Owner, 10 Nov 2026: "the image has this kinda texture which is so gpt ish!. fix", "image cannot be blurred though", "it has to be like shot in 60MP canon mark dslr", "skin cannot have blemishes".

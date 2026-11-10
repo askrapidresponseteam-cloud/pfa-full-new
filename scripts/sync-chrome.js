@@ -86,6 +86,10 @@ const PAGES = {
   'csr.html':          { current: 'csr.html',         group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'sgacc.html':        { current: 'sgacc.html',       group: 'founder.html',     announce: DEFAULT_ANNOUNCE },
   'manekas-picks.html': { current: 'manekas-picks.html', group: 'founder.html', announce: DEFAULT_ANNOUNCE }, /* her films and a book, under The founder (9 Nov 2026) */
+  /* Fireworks and animals (10 Nov 2026), under Learn; Seasonal gifts, under
+     Give and partner, its seasons set in the panel (lib/gift-seasons.js). */
+  'fireworks.html':    { current: 'fireworks.html', group: 'laws.html',       announce: DEFAULT_ANNOUNCE },
+  'gifts.html':        { current: 'gifts.html',     group: 'get-involved.html', announce: 'Every purchase supports PFA\u2019s work for animals' },
   'privacy.html':      { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },
   /* The objection to the draft lab animal rules (22 Oct 2026), opened by the
      bell beside Shop on the home page. */

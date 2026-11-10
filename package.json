@@ -11,6 +11,8 @@
     "audit": "node scripts/audit-site.js",
     "build:search": "node scripts/build-search-index.js && node scripts/build-site-modules.js",
     "build:site-modules": "node scripts/build-site-modules.js",
+    "build:pieces": "node scripts/build-shop-pieces.js",
+    "check:pieces": "node scripts/build-shop-pieces.js --check",
     "check:site-modules": "node scripts/build-site-modules.js --check",
     "build:units": "node scripts/build-unit-pages.js",
     "check:units": "node scripts/build-unit-pages.js --check",

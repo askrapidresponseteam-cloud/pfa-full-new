@@ -346,7 +346,7 @@
      of the shipped index (test/search-supreme.test.js checks). */
   var BEST_BETS = {
     'academy.html#b8': ['sick dog', 'sick street dog', 'dog not eating', 'dog weak', 'dog fever', 'dog sick'],
-    'academy.html#g9': ['diwali', 'firecrackers', 'fireworks', 'burn', 'burns', 'acid'],
+    'academy.html#g9': ['burn', 'burns', 'acid', 'cracker burn', 'firecracker burn'],
     'academy.html#g12': ['injured bird', 'bird fell', 'baby bird', 'injured pigeon', 'injured monkey', 'wild animal injured', 'bird rescue'],
     'academy.html#g3': ['road accident', 'dog hit by car', 'hit by vehicle', 'broken back'],
     'laws.html#a3': ['killing dogs', 'dog killed', 'kill dog', 'dogs killed', 'killing dogs illegal'],
@@ -376,6 +376,9 @@
     'shop.html': ['shop', 'merchandise', 'merch', 't-shirt', 'tshirt', 'tshirts', 'designer t-shirts', 'designer tees', 'buy t-shirt', 'tees', 'tee'],
     'library.html': ['library', 'documents', 'handbooks', 'books', 'resources', 'download pdf', 'reports'],
     'quiz.html': ['quiz', 'test yourself', 'test my knowledge'],
+    /* 10 Nov 2026: the fireworks page, and the seasonal gifts */
+    'fireworks.html': ['diwali', 'deepawali', 'firecrackers', 'fireworks', 'crackers', 'diwali dogs', 'dog scared of crackers', 'dog afraid of fireworks', 'pets diwali', 'firecracker law', 'cracker timings', 'cracker noise limit', 'baraat horse'],
+    'gifts.html': ['seasonal gifts', 'gifts', 'diwali gifts', 'deepawali gifts', 'christmas gifts', 'christmas gift', 'new year gifts', 'festive gifts', 'gift ideas', 'gift shop', 'corporate gifts', 'rakhi gifts'],
     'events.html': ['events', 'event', 'upcoming events', 'events near me'],
     'newsroom.html': ['news', 'newsroom', 'latest news', 'stories', 'press'],
     'wall.html': ['wall', 'the wall', 'videos', 'reels', 'watch']
