@@ -1,3 +1,13 @@
+## v1.563
+
+- **A case's photographs and documents open in the panel's own viewer.** Owner, 11 Nov 2026, of a report's photographs: "not able to view any of these within viewer", then "it has to be enterprise grade viewer within the portal not like a pdf viewed".
+  - Pressing a photograph opened it as a link to its own data in a new tab, which browsers refuse to open, so nothing happened. Now everything sent with a case opens over the panel, in one viewer of its own.
+  - The top bar: the file's name, which of how many, its kind and size, then Download and Close.
+  - A photograph: whole, fitted to the screen, never cut. Zoom in and out from the control bar, with Ctrl or Cmd and the wheel, or with two fingers on a phone, about the point under the pointer; drag to move about it; a double press goes between fitted and actual size.
+  - A PDF: drawn page by page in the viewer itself, by the site's own pdf.js, every page down one column at a reading width, with the page it is on (Page 2 of 3), and the same zoom; no browser PDF reader.
+  - Rotate, for a document photographed on its side; Fit to screen; Previous and Next at the sides, the arrow keys, or a swipe; a strip of every file on the case along the foot, the open one marked.
+  - A PDF sent with a case shows as PDF in the case's row.
+
 ## v1.562
 
 - **The internship certificate: the new design, issued on completion, and online at its own address.** Owner, 11 Nov 2026, with PFA-Certificate.html: "this is the internship certificate btw. also once one completes, this is automatically sent with the person's name. and this should be like one of those coursera certs that can be seen live online in a url", then "font has to be marcellus".

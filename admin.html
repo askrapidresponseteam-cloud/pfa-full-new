@@ -397,6 +397,8 @@ button.pfa-close.pfa-close:focus-visible{outline:none;text-decoration:underline;
 .shots{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px}
 .shots figure{margin:0}
 .shots img{width:132px;height:132px;object-fit:contain;background:var(--stone);border:1px solid var(--line);display:block}
+.shot-open{display:block;padding:0;margin:0;border:0;background:none;cursor:zoom-in}.shot-open:hover img,.shot-open:hover .shot-doc{border-color:var(--ink)}
+.shot-doc{display:grid;place-items:center;width:132px;height:132px;border:1px solid var(--line);background:var(--stone);font-size:12px;font-weight:700;letter-spacing:.14em}
 .shots figcaption{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
 .decide{margin:0 0 16px;padding:0 0 16px;border-bottom:1px solid var(--line)}
 .decide .row2{margin:6px 0 0}
@@ -3051,12 +3053,17 @@ window.addEventListener('unhandledrejection', function (event) {
           previewCard(openCase);
         }
         var fig = document.createElement('figure');
-        var img = document.createElement('img');
-        img.src = 'data:' + (data.contentType || 'image/jpeg') + ';base64,' + b64;
-        img.alt = data.label || 'Photograph sent with this report';
-        var open = document.createElement('a');
-        open.href = img.src; open.target = '_blank'; open.rel = 'noopener'; open.title = 'Open full size';
-        open.appendChild(img);
+        var type = data.contentType || 'image/jpeg';
+        fig.dataset.src = 'data:' + type + ';base64,' + b64;
+        fig.dataset.type = type;
+        fig.dataset.label = data.label || '';
+        /* opened in the panel's own viewer (assets/admin-viewer.js, 11 Nov 2026):
+           a browser will not open a data: address in a tab of its own */
+        var open = document.createElement('button');
+        open.type = 'button'; open.className = 'shot-open'; open.title = 'Open';
+        open.setAttribute('aria-label', 'Open ' + (data.label || 'photograph ' + data.n));
+        if (/pdf/i.test(type)) { var doc = document.createElement('span'); doc.className = 'shot-doc'; doc.textContent = 'PDF'; open.appendChild(doc); }
+        else { var img = document.createElement('img'); img.src = fig.dataset.src; img.alt = data.label || 'Photograph sent with this report'; open.appendChild(img); }
         fig.appendChild(open);
         if (data.label) { var cap = document.createElement('figcaption'); cap.textContent = data.label; fig.appendChild(cap); }
         /* Keep the order the applicant sent them in, whichever answers first. */
@@ -3067,6 +3074,13 @@ window.addEventListener('unhandledrejection', function (event) {
       }).catch(function () { /* one missing photo is not a broken case */ }).then(settle);
     }
   }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('#caseShots .shot-open');
+    if (!b || !window.PFAViewer) return;
+    var figs = Array.prototype.slice.call($('#caseShots').querySelectorAll('figure[data-src]'));
+    window.PFAViewer.open(figs.map(function (f) { return { src: f.dataset.src, type: f.dataset.type, label: f.dataset.label }; }), figs.indexOf(b.closest('figure')));
+  });
 
   /* What a status key is called on this case (8 Oct 2026). The server names
      the current state (statusLabel) and every legal next one (moves, from
@@ -6308,6 +6322,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/birthday-card.js"></script>
 <script src="assets/admin-birthdays.js"></script>
 <script src="assets/admin-site-designs.js"></script>
+<script src="assets/admin-viewer.js"></script>
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>
