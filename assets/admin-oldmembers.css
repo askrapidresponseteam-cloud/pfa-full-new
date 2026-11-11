@@ -1,0 +1,77 @@
+/* The panel's Old site members section, moved out of admin.html on
+   11 Nov 2026 to keep the panel under its 400 KB ceiling. */
+/* ---------- Old site members (26 Oct 2026) ----------
+   The old website's list, on its own, below a "Kept apart" label in the rail.
+   Its people are in no other list, count or search here. */
+.railgroup--apart{margin-top:30px}
+.om-apart{font-size:15px;line-height:1.55;margin:0 0 22px;max-width:74ch}
+.om-apart b{font-weight:700}
+.om-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin:0 0 6px}
+.om-head .n{font-family:var(--display);font-size:44px;line-height:1}
+.om-head .sub{color:var(--muted);font-size:13px}
+.om-tools{margin-top:18px}
+.om-tools input{flex:1 1 260px}
+.om-row{cursor:pointer}
+.om-row:hover td{background:var(--stone,#f4f3f1)}
+.om-row[aria-expanded="true"] td{background:var(--stone,#f4f3f1)}
+.om-row td .aka{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.om-row td .om-ncount[hidden]{display:none}
+.om-row td .bad{color:var(--waiting)}
+.om-row td .note,.om-pair .note{color:var(--muted);font-size:11px}
+.om-more td{background:var(--stone,#f4f3f1);padding:4px 16px 18px}
+.om-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px 26px;font-size:13px;line-height:1.5}
+.om-facts b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;margin:0 0 3px}
+.om-pairs{display:grid;gap:12px}
+.om-pair{border:1px solid var(--line);padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px;line-height:1.5}
+.om-pair .why{grid-column:1 / -1;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.om-pair b{font-family:var(--display);font-weight:400;font-size:16px;display:block}
+.om-load{border:1px solid var(--line);padding:22px;max-width:640px}
+.om-load input[type=file]{display:block;margin:12px 0 14px;font:inherit;font-size:13px}
+.om-src{font-size:13px;line-height:1.7}
+.om-go{background:var(--ink);color:#fff;border:1px solid var(--ink);height:38px;padding:0 18px;font:inherit;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.om-go:hover{background:var(--paper,#fff);color:var(--ink)}
+.om-go[disabled]{opacity:.35;cursor:default;background:var(--ink);color:#fff}
+.om-acts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+/* notes and emails about a person (28 Oct 2026) */
+.om-notes{margin:18px 0 0;padding:18px 20px 16px;max-width:760px;background:var(--paper,#fff);border:1px solid var(--ink);box-shadow:inset 4px 0 0 var(--ink)}
+.om-notes h3{margin:0;font-family:var(--display);font-weight:400;font-size:19px;line-height:1.3}
+.om-notes h4{margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.om-nlist{list-style:none;margin:8px 0 0;padding:0}
+.om-nlist li{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55}
+.om-nlist li:last-child{border-bottom:0}
+.om-nlist .who{color:var(--muted);font-size:12px}
+.om-nlist p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.om-nadd textarea,.om-nadd input[type=text],.om-nadd select{display:block;width:100%;max-width:none;margin:10px 0 0;padding:10px 12px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper,#fff)}
+.om-nadd .tick{display:flex;align-items:center;gap:8px;margin:12px 0 0}
+.om-nsave{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0}
+.om-take{margin-left:8px;height:24px;padding:0 8px;font-size:10px}
+.om-hist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.om-hist li{border:1px solid var(--line);padding:12px 14px;font-size:13px;line-height:1.55}
+.om-hist .who{display:block;color:var(--muted);font-size:12px}
+.om-hist .why{display:block;margin-top:4px}
+.om-sheet{position:fixed;inset:0;z-index:130;background:rgba(10,10,10,.5);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;padding:40px 16px}
+.om-sheet[hidden]{display:none}
+.om-box{background:var(--paper,#fff);width:min(720px,100%);padding:26px 26px 22px;box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
+.om-box h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0 0 4px}
+.om-step{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.om-box label{display:block;font-size:12px;font-weight:600;margin:14px 0 6px}
+.om-box input[type=text],.om-box input[type=search],.om-box textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);padding:10px 11px;font:inherit;font-size:14px;background:var(--paper,#fff)}
+.om-box textarea{min-height:64px;resize:vertical}
+.om-box input:focus,.om-box textarea:focus{border-color:var(--ink);outline:none}
+.om-box .count{font-size:11px;color:var(--muted);margin-top:4px}
+.om-foot{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
+.om-err{color:var(--waiting);font-size:13px;margin:12px 0 0;min-height:1em}
+.om-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.om-card{border:1px solid var(--line);padding:12px;font-size:12px;line-height:1.55}
+.om-card b{font-family:var(--display);font-weight:400;font-size:15px;display:block}
+.om-side{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+.om-diff{width:100%;border-collapse:collapse;font-size:13px}
+.om-diff th,.om-diff td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.om-diff td.old{color:var(--muted);text-decoration:line-through}
+.om-said{border:1px solid var(--line);padding:12px 14px;margin:16px 0 0;font-size:13px;line-height:1.55}
+.om-warn{font-size:13px;margin:12px 0 0}
+.om-picks{max-height:240px;overflow-y:auto;border:1px solid var(--line);margin-top:8px}
+.om-picks button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:9px 11px;font-size:13px;cursor:pointer}
+.om-picks button:hover,.om-picks button[aria-pressed="true"]{background:var(--stone,#f4f3f1)}
+.om-keep label{display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;margin:6px 0}
+@media (max-width:900px){.railgroup--apart{margin-top:0;padding-top:8px}.om-pair{grid-template-columns:1fr}.om-head .n{font-size:36px}}

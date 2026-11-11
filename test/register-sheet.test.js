@@ -204,10 +204,10 @@ test('first run: a CATC tab and a Membership tab, every detail and the full addr
   const s = Object.fromEntries(mem[0].map((h, i) => [h, mem[1][i]]));
   assert.equal(s['Applied on'], '28/10/2026', 'Applied on, not Joined on');
   for (const gone of ['Joined on', 'Status', 'Card number', 'Card stage', 'Card status']) assert.ok(!mem[0].includes(gone), `Membership: ${gone}`);
-  /* the written columns, A to P on Membership, carry an owner's warning too */
+  /* the written columns, A to Q on Membership, carry an owner's warning too */
   const warned = g.tab('Membership').protectedRanges.filter((x) => x.description === SHEET.WARNING);
   assert.deepEqual(warned.map((x) => [x.warningOnly, x.range.startColumnIndex, x.range.endColumnIndex]), [[true, 0, mem[0].indexOf('Courier')], [true, mem[0].indexOf('Sheet check'), mem[0].length]]);
-  assert.equal(mem[0].indexOf('Courier'), 16, 'A to P are the written details; Q, R and S are the yellow columns');
+  assert.equal(mem[0].indexOf('Courier'), 17, 'A to Q are the written details (Date of birth joined on 11 Nov 2026); R, S and T are the yellow columns');
   assert.equal(s['Membership type'], 'Golden membership');
   assert.equal(s['Welcome kit'], 'Card, badge');
   assert.equal(s.Floor, '3rd Floor');

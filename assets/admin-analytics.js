@@ -2,8 +2,8 @@
    how many visited which page..and whatever other analytics that is
    actually useful").
 
-   One screen, read top down: the period; four numbers (visits, page views,
-   pages per visit, what people sent in); visits by day; the pages people
+   One screen, read top down: the period; four numbers (unique visitors,
+   visits, page views, what people sent in); visits by day; the pages people
    open; then, folded under expanders, where visits come from, phone or
    computer, the states, the hours, campaign links, what was sent in, and
    pages where a script failed. Everything is a count: no person is ever
@@ -35,6 +35,10 @@
   document.head.appendChild(style);
 
   function n(v) { return Number(v || 0).toLocaleString('en-IN'); }
+  /* "US" as United States, where the browser can say so */
+  function country(code) {
+    try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code; } catch (_) { return code; }
+  }
   function dayLabel(d) { var t = new Date(d + 'T00:00:00Z'); return isNaN(t) ? d : t.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' }); }
 
   function rows(list, empty) {
@@ -76,14 +80,24 @@
       + '<label>From <input type="date" data-an-from value="' + esc(ST.from) + '"></label><label>to <input type="date" data-an-to value="' + esc(ST.to) + '"></label></div>';
     if (!d) { node.innerHTML = tools + '<div class="loading">Reading the numbers…</div>'; return; }
     var actions = (d.actions || []).reduce(function (s, a) { return s + a.n; }, 0);
+    /* people first, each counted once in the period (owner, 11 Nov 2026) */
     var kpis = '<div class="an-kpis">'
+      + '<div class="an-kpi"><b>' + n(d.people) + '</b><span>Unique visitors' + (d.newPeople ? ', ' + n(d.newPeople) + ' new' : '') + '</span></div>'
       + '<div class="an-kpi"><b>' + n(d.visits) + '</b><span>Visits</span></div>'
-      + '<div class="an-kpi"><b>' + n(d.views) + '</b><span>Pages opened</span></div>'
-      + '<div class="an-kpi"><b>' + (d.perVisit || 0) + '</b><span>Pages per visit</span></div>'
+      + '<div class="an-kpi"><b>' + n(d.views) + '</b><span>Pages opened, ' + (d.perVisit || 0) + ' a visit</span></div>'
       + '<div class="an-kpi"><b>' + (d.actions ? n(actions) : '-') + '</b><span>Forms, payments and orders sent in</span></div>'
       + '</div>';
     var series = d.series || [];
-    var head = '<p class="an-note" style="margin:0 0 12px">' + esc(dayLabel(d.from)) + ' to ' + esc(dayLabel(d.to)) + ', India time.' + (d.started ? '' : ' Counting began with this update, so the first numbers appear once people open pages.') + '</p>';
+    var head = '<p class="an-note" style="margin:0 0 12px">' + esc(dayLabel(d.from)) + ' to ' + esc(dayLabel(d.to)) + ', India time.' + (d.started ? '' : ' Counting began with this update, so the first numbers appear once people open pages.')
+      + (d.started && (!d.peopleFrom || d.peopleFrom > d.from) ? ' Unique visitors are counted from ' + esc(dayLabel(d.peopleFrom || d.to)) + ', when the site began telling a returning person from a new one; before that, only visits.' : '') + '</p>';
+    var states = d.peopleStates || [];
+    var placed = states.reduce(function (s, x) { return s + x.n; }, 0);
+    var abroad = (d.peopleAbroad || []).reduce(function (s, x) { return s + x.n; }, 0);
+    var where = rows(states, 'No visitors placed in a state of India in these days yet.')
+      + (d.peopleIndiaUnplaced ? '<p class="an-note">' + n(d.peopleIndiaUnplaced) + ' more in India, state not known.</p>' : '')
+      + (abroad ? '<p class="an-h">Outside India</p>' + rows((d.peopleAbroad || []).map(function (x) { return { label: country(x.key), n: x.n }; })) : '')
+      + (d.peopleUnknown ? '<p class="an-note">' + n(d.peopleUnknown) + ' could not be placed.</p>' : '')
+      + '<p class="an-note">Each person once, by the state their network address is in. Approximate: a mobile network often places its users where its exchange is, so a visitor can show in a neighbouring state. The address is looked up and not kept. <a href="https://db-ip.com" target="_blank" rel="noopener">IP Geolocation by DB-IP</a>.</p>';
     var sources = (d.sources || []);
     var html = tools + head + kpis
       + '<p class="an-h">Visits by day</p>' + bars(series.map(function (s) { return s.visits; }), series.map(function (s) { return dayLabel(s.day); }), 'visits')
@@ -92,12 +106,12 @@
       + more('The page a visit begins on', '', rows(d.entries))
       + more('All pages', (d.pages || []).length + ' pages', rows(d.pages))
       + more('Phone or computer', '', rows(d.devices))
-      + more('States', (d.regions || [])[0] ? 'most from ' + d.regions[0].label : '', rows(d.regions, 'Shown once the site runs on Vercel, which says the state a visit came from.') + ((d.countries || []).length ? '<p class="an-h">Countries</p>' + rows(d.countries) : ''))
+      + more('Where visitors are, by state', states[0] ? 'most from ' + states[0].label + (placed ? ', ' + n(placed) + ' placed' : '') : '', where)
       + more('Hours of the day', 'India time, when to post', bars(d.hours || [], (d.hours || []).map(function (_, h) { return (h < 10 ? '0' : '') + h + ':00'; }), 'pages opened'))
       + more('Campaign links', (d.campaigns || []).length ? (d.campaigns.length + (d.campaigns.length === 1 ? ' campaign' : ' campaigns')) : '', rows(d.campaigns, 'No links with utm_campaign opened in these days.'))
       + more('What was sent in', d.actions ? n(actions) + ' in these days' : '', d.actions ? rows((d.actions || []).map(function (a) { return { label: a.label, n: a.n }; }), 'Nothing arrived in these days.') + (d.actionsCapped ? '<p class="an-note">The first 5,000 only.</p>' : '') : '<p class="an-note">This account cannot read the submissions, so this part is hidden.</p>')
       + more('Pages where a script failed', d.errors ? n(d.errors) + ' times' : 'none', (d.errors ? rows(d.errorPages) + (d.errorMessages || []).map(function (e) { return '<p class="an-err"><b>' + esc(e.page) + '</b> (' + n(e.n) + '): ' + esc(e.message) + '</p>'; }).join('') : '<p class="an-note">No failed scripts in these days.</p>'))
-      + '<p class="an-note">Counts only: no cookies and nothing about who anyone is. A visit is one browser session; browsers that ask not to be tracked are not counted.</p>';
+      + '<p class="an-note">Counts only: no cookies and nothing about who anyone is. A visit is one browser session. A unique visitor is one browser, counted once in the period by the day of its last visit, which it keeps on the visitor&rsquo;s own device; the same person on another phone or after clearing the browser counts again. Bots, and browsers that ask not to be tracked, are not counted. The footer shows the same count of people, since the start.</p>';
     node.innerHTML = html;
   }
 

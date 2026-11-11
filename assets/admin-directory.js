@@ -33,7 +33,8 @@
     '.dr-addr{min-width:220px;white-space:normal;overflow-wrap:anywhere}',
     '.dr-tel a{color:inherit;text-decoration:none;white-space:nowrap}',
     '.dr-pin{color:var(--muted)}',
-    '@media (max-width:700px){.dr-table thead{display:none}.dr-table,.dr-table tbody,.dr-table tr,.dr-table td{display:block;width:100%}.dr-table tr{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 4px;padding:14px;border-bottom:1px solid var(--line)}.dr-table td{padding:0;border:0;grid-column:1 / -1}.dr-table td:nth-child(3){order:-2;font-size:15px}.dr-table td[data-place]{order:-1;grid-column:auto;color:var(--muted);font-size:12px}.dr-table td:nth-child(1)::after{content:","}.dr-addr{min-width:0}.dr-wrap{overflow:visible}}'
+    '.dr-bday{white-space:nowrap}',
+    '@media (max-width:700px){.dr-table thead{display:none}.dr-table,.dr-table tbody,.dr-table tr,.dr-table td{display:block;width:100%}.dr-table tr{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 4px;padding:14px;border-bottom:1px solid var(--line)}.dr-table td{padding:0;border:0;grid-column:1 / -1}.dr-table td:nth-child(3){order:-2;font-size:15px}.dr-table td[data-place]{order:-1;grid-column:auto;color:var(--muted);font-size:12px}.dr-table td:nth-child(1)::after{content:","}.dr-table td[data-bday]::before{content:"Birthday ";color:var(--muted)}.dr-table td[data-bday=""]{display:none}.dr-addr{min-width:0}.dr-wrap{overflow:visible}}'
   ].join('');
   document.head.appendChild(style);
 
@@ -46,6 +47,11 @@
     if (!ms) return '';
     var d = new Date(Number(ms) + 330 * 60000);
     return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+  }
+  /* 1990-05-12 as 12 May 1990 (the date of birth, where one was given) */
+  function born(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    return m ? (+m[3]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[1] : '';
   }
   function phone(m) { return m ? m.slice(0, 5) + ' ' + m.slice(5) : ''; }
   function label(key) {
@@ -68,7 +74,7 @@
     if (D.district && p.district !== D.district) return false;
     var words = D.q.toLowerCase().split(' ').filter(Boolean);
     if (!words.length) return true;
-    var hay = [p.name, p.mobile, p.otherMobiles.join(' '), p.email, p.address, p.district, p.state, p.pin, p.records.map(function (r) { return r.id; }).join(' ')].join(' ').toLowerCase();
+    var hay = [p.name, p.mobile, p.otherMobiles.join(' '), p.email, p.address, p.district, p.state, p.pin, born(p.dob), p.records.map(function (r) { return r.id; }).join(' ')].join(' ').toLowerCase();
     return words.every(function (w) { return hay.indexOf(w) !== -1; });
   }
 
@@ -106,7 +112,7 @@
     if (!rows.length) {
       out.push('<div class="empty"><b>No one matches</b>Clear a filter or the search to see more.</div>');
     } else {
-      out.push('<div class="wrap dr-wrap"><table class="dr-table"><thead><tr><th>State</th><th>District</th><th>Name</th><th>Address</th><th>Phone</th><th>Category</th></tr></thead><tbody>');
+      out.push('<div class="wrap dr-wrap"><table class="dr-table"><thead><tr><th>State</th><th>District</th><th>Name</th><th>Address</th><th>Phone</th><th>Birthday</th><th>Category</th></tr></thead><tbody>');
       rows.slice(0, D.shown).forEach(function (p) {
         var star = p.placeFromPin ? '<span class="dr-pin" title="Read from the PIN code"> *</span>' : '';
         out.push('<tr>'
@@ -118,6 +124,7 @@
           + '<td class="dr-addr">' + esc(p.address || '-') + '</td>'
           + '<td class="dr-tel">' + (p.mobile ? '<a href="tel:+91' + esc(p.mobile) + '">' + esc(phone(p.mobile)) + '</a>' : '-')
           + (p.otherMobiles.length ? '<span class="detail">Also ' + esc(p.otherMobiles.map(phone).join(', ')) + '</span>' : '') + '</td>'
+          + '<td class="dr-bday" data-bday="' + esc(p.dob || '') + '">' + (p.dob ? esc(born(p.dob)) : '-') + '</td>'
           + '<td><span class="dr-tags">' + p.categories.map(function (c) { return '<span class="flag">' + esc(label(c)) + '</span>'; }).join('') + '</span>'
           + '<span class="detail" title="' + esc(p.records.map(function (r) { return r.id; }).join(', ')) + '">' + p.records.length + (p.records.length === 1 ? ' record' : ' records') + ', last ' + esc(day(p.last)) + '</span></td>'
           + '</tr>');

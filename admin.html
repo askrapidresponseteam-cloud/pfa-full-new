@@ -701,82 +701,8 @@ details.fold[open] > summary{margin-bottom:8px}
 body select:not([multiple]):not([size]){-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:right 20px center;background-size:12px 7px;background-repeat:no-repeat;padding-right:46px;text-overflow:ellipsis;cursor:pointer}
 body select:not([multiple]):not([size]):disabled{cursor:not-allowed;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:baseline}
-/* ---------- Old site members (26 Oct 2026) ----------
-   The old website's list, on its own, below a "Kept apart" label in the rail.
-   Its people are in no other list, count or search here. */
-.railgroup--apart{margin-top:30px}
-.om-apart{font-size:15px;line-height:1.55;margin:0 0 22px;max-width:74ch}
-.om-apart b{font-weight:700}
-.om-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin:0 0 6px}
-.om-head .n{font-family:var(--display);font-size:44px;line-height:1}
-.om-head .sub{color:var(--muted);font-size:13px}
-.om-tools{margin-top:18px}
-.om-tools input{flex:1 1 260px}
-.om-row{cursor:pointer}
-.om-row:hover td{background:var(--stone,#f4f3f1)}
-.om-row[aria-expanded="true"] td{background:var(--stone,#f4f3f1)}
-.om-row td .aka{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-.om-row td .om-ncount[hidden]{display:none}
-.om-row td .bad{color:var(--waiting)}
-.om-row td .note,.om-pair .note{color:var(--muted);font-size:11px}
-.om-more td{background:var(--stone,#f4f3f1);padding:4px 16px 18px}
-.om-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px 26px;font-size:13px;line-height:1.5}
-.om-facts b{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;margin:0 0 3px}
-.om-pairs{display:grid;gap:12px}
-.om-pair{border:1px solid var(--line);padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px;line-height:1.5}
-.om-pair .why{grid-column:1 / -1;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.om-pair b{font-family:var(--display);font-weight:400;font-size:16px;display:block}
-.om-load{border:1px solid var(--line);padding:22px;max-width:640px}
-.om-load input[type=file]{display:block;margin:12px 0 14px;font:inherit;font-size:13px}
-.om-src{font-size:13px;line-height:1.7}
-.om-go{background:var(--ink);color:#fff;border:1px solid var(--ink);height:38px;padding:0 18px;font:inherit;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
-.om-go:hover{background:var(--paper,#fff);color:var(--ink)}
-.om-go[disabled]{opacity:.35;cursor:default;background:var(--ink);color:#fff}
-.om-acts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
-/* notes and emails about a person (28 Oct 2026) */
-.om-notes{margin:18px 0 0;padding:18px 20px 16px;max-width:760px;background:var(--paper,#fff);border:1px solid var(--ink);box-shadow:inset 4px 0 0 var(--ink)}
-.om-notes h3{margin:0;font-family:var(--display);font-weight:400;font-size:19px;line-height:1.3}
-.om-notes h4{margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400}
-.om-nlist{list-style:none;margin:8px 0 0;padding:0}
-.om-nlist li{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55}
-.om-nlist li:last-child{border-bottom:0}
-.om-nlist .who{color:var(--muted);font-size:12px}
-.om-nlist p{margin:4px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
-.om-nadd textarea,.om-nadd input[type=text],.om-nadd select{display:block;width:100%;max-width:none;margin:10px 0 0;padding:10px 12px;border:1px solid var(--line);font:inherit;font-size:13px;background:var(--paper,#fff)}
-.om-nadd .tick{display:flex;align-items:center;gap:8px;margin:12px 0 0}
-.om-nsave{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0}
-.om-take{margin-left:8px;height:24px;padding:0 8px;font-size:10px}
-.om-hist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
-.om-hist li{border:1px solid var(--line);padding:12px 14px;font-size:13px;line-height:1.55}
-.om-hist .who{display:block;color:var(--muted);font-size:12px}
-.om-hist .why{display:block;margin-top:4px}
-.om-sheet{position:fixed;inset:0;z-index:130;background:rgba(10,10,10,.5);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;overscroll-behavior:contain;padding:40px 16px}
-.om-sheet[hidden]{display:none}
-.om-box{background:var(--paper,#fff);width:min(720px,100%);padding:26px 26px 22px;box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
-.om-box h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0 0 4px}
-.om-step{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
-.om-box label{display:block;font-size:12px;font-weight:600;margin:14px 0 6px}
-.om-box input[type=text],.om-box input[type=search],.om-box textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);padding:10px 11px;font:inherit;font-size:14px;background:var(--paper,#fff)}
-.om-box textarea{min-height:64px;resize:vertical}
-.om-box input:focus,.om-box textarea:focus{border-color:var(--ink);outline:none}
-.om-box .count{font-size:11px;color:var(--muted);margin-top:4px}
-.om-foot{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
-.om-err{color:var(--waiting);font-size:13px;margin:12px 0 0;min-height:1em}
-.om-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.om-card{border:1px solid var(--line);padding:12px;font-size:12px;line-height:1.55}
-.om-card b{font-family:var(--display);font-weight:400;font-size:15px;display:block}
-.om-side{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
-.om-diff{width:100%;border-collapse:collapse;font-size:13px}
-.om-diff th,.om-diff td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
-.om-diff td.old{color:var(--muted);text-decoration:line-through}
-.om-said{border:1px solid var(--line);padding:12px 14px;margin:16px 0 0;font-size:13px;line-height:1.55}
-.om-warn{font-size:13px;margin:12px 0 0}
-.om-picks{max-height:240px;overflow-y:auto;border:1px solid var(--line);margin-top:8px}
-.om-picks button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:9px 11px;font-size:13px;cursor:pointer}
-.om-picks button:hover,.om-picks button[aria-pressed="true"]{background:var(--stone,#f4f3f1)}
-.om-keep label{display:flex;align-items:center;gap:8px;font-weight:400;font-size:13px;margin:6px 0}
-@media (max-width:900px){.railgroup--apart{margin-top:0;padding-top:8px}.om-pair{grid-template-columns:1fr}.om-head .n{font-size:36px}}
 </style>
+<link rel="stylesheet" href="assets/admin-oldmembers.css">
 </head>
 <body>
 <script>document.addEventListener('contextmenu',function(e){e.preventDefault();},true);</script>
@@ -832,6 +758,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="internship">Internship<span class="pip" id="pipIntern" hidden>0</span></button>
       <button class="tab" type="button" data-tab="employees">Job applicants</button>
       <button class="tab" type="button" data-tab="directory">People directory</button>
+      <button class="tab" type="button" data-tab="birthdays">Birthdays<span class="pip" id="pipBirthdays" hidden>0</span></button>
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
       <button class="tab" type="button" data-tab="website">Website</button>
@@ -872,6 +799,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="ralert" id="replyAlert" role="alert" hidden><p id="replyAlertText"></p><button class="ghost" type="button" id="replyAlertCheck">Check now</button></div>
     <!-- a member sent their photograph: on every page (owner, 29 Oct 2026) -->
     <div class="pnote" id="photoNote" role="status" aria-live="polite" hidden><p id="photoNoteText"></p><button class="press" type="button" id="photoNoteGo">Review now</button></div>
+    <!-- a birthday today: on every page until Birthdays is opened that day (11 Nov 2026) -->
+    <div class="pnote" id="bdayNote" role="status" aria-live="polite" hidden><p id="bdayNoteText"></p><button class="press" type="button" id="bdayNoteGo">Open birthdays</button></div>
 
     <div class="pane" data-pane="overview" id="paneOverview"><div class="loading">Reading the registers&#8230;</div></div>
 
@@ -1019,6 +948,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
 
     <div class="pane" data-pane="gifts" role="region" aria-label="Seasonal gifts"></div>
     <div class="pane" data-pane="directory" role="region" aria-label="People directory"></div>
+    <!-- today's birthdays, the next 30 days and the card (11 Nov 2026): assets/admin-birthdays.js -->
+    <div class="pane" data-pane="birthdays" role="region" aria-label="Birthdays"></div>
 
     <div class="pane" data-pane="oldmembers" role="region" aria-label="Old site members"><div class="loading">Reading the old list&#8230;</div></div>
     <div class="om-sheet" id="omSheet" hidden role="dialog" aria-modal="true" aria-labelledby="omSheetTitle"><div class="om-box" id="omBox"></div></div>
@@ -1457,6 +1388,7 @@ window.addEventListener('unhandledrejection', function (event) {
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
     gifts: { title: 'Seasonal gifts', module: 'gifts', needs: 'gifts' },
     directory: { title: 'People directory', module: 'directory', needs: 'directory' },
+    birthdays: { title: 'Birthdays', module: 'directory', needs: 'directory' },
     analytics:   { title: 'Analytics',     module: 'analytics',   needs: 'analytics' },
     people:      { title: 'Admins & audit', module: 'people',     needs: 'people', panes: ['people', 'audit'] },
     audit:       { title: 'Audit log',     module: 'people',      needs: 'people' },
@@ -1553,6 +1485,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'website') return website();
     if (tab === 'gifts') return window.PFAGifts && window.PFAGifts.pane();
     if (tab === 'directory') return window.PFADirectory && window.PFADirectory.pane();
+    if (tab === 'birthdays') return window.PFABirthdays && window.PFABirthdays.pane();
     if (tab === 'analytics') return window.PFAAnalytics && window.PFAAnalytics.pane();
     if (tab === 'people') return people();
     if (tab === 'audit') return auditLog(true);
@@ -4647,7 +4580,19 @@ window.addEventListener('unhandledrejection', function (event) {
     show('membership');
     if (!fresh) membershipPane();
   });
+  /* birthdays today: the count on the rail and the notice (assets/admin-birthdays.js) */
+  var bdayTimer = null;
+  function birthdayWatch() {
+    if (!can('directory') || !window.PFABirthdays) return;
+    window.PFABirthdays.watch();
+    if (!bdayTimer) bdayTimer = setInterval(function () { if (!$('#app').hidden) window.PFABirthdays.watch(); }, 3600000);
+  }
+  on('#bdayNoteGo', 'click', function () {
+    $('#bdayNote').hidden = true;
+    show('birthdays');
+  });
   function replyWatch() {
+    birthdayWatch();
     photoWatch();
     if (!photoTimer && can('membership')) photoTimer = setInterval(photoWatch, 60000);
     if (!can('submissions')) return;
@@ -6353,6 +6298,8 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-people.js"></script>
 <script src="assets/admin-gifts.js"></script>
 <script src="assets/admin-directory.js"></script>
+<script src="assets/birthday-card.js"></script>
+<script src="assets/admin-birthdays.js"></script>
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>

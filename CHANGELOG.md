@@ -1,3 +1,22 @@
+## v1.558
+
+- **Donors and members can give a date of birth, and the People directory has a Birthday column.** Owner, 11 Nov 2026: "add a date-of-birth field for each donor or member ... Keep it optional and label it Date of birth. Save it to their individual profile", "admin section should also have birthday column for each people".
+  - On the donation form and the membership form, after the email: "Date of birth (optional)". Nothing on either form says what it is for.
+  - Checked as it is typed and again on the server: a real date, not one to come, not before 1900, or empty. It stays with the payment record and is never sent to CCAvenue.
+  - Filed on the donor's or member's record (Date of birth, 1990-05-12), with the month and day kept on their own so everyone born on a day can be found. Interns' dates of birth already were.
+  - The People directory shows each person's date of birth in a Birthday column, the latest one given, and has it in the Excel download. The Membership register's export and the Google Sheet's Membership tab have a Date of birth column after Email.
+  - The check before paying reads a date as 12 May 1990.
+- **Birthdays in the panel: who has one today, the next 30 days, and the card for each.** Owner, 11 Nov 2026, with PFA-Birthday-Template.html: "ensure that there is no abnormal amount of gap anywhere ... have this in the admin panel. and also have a section for birthday's today", "let the font in the card also be marcellus", "admin should have birthday reminder stuff".
+  - A Birthdays section beside the People directory, for whoever has the directory: today's birthdays with the age turned, how PFA knows them, their phone and email, and for each Download card, See card and Copy wish. The next 30 days fold under Coming up.
+  - The reminder: the count on the rail, and a notice on every page of the panel until Birthdays has been opened that day.
+  - The card is the template's dahlias and words, now all in Marcellus, laid out together with one rhythm whatever the name, in the middle of the paper and inside its outline. A long name wraps onto up to three lines; one that cannot fit legibly, or over 160 letters, is refused with a reason. Downloads as a 1122 by 1402 PNG.
+- **The footer counter and the panel now count the same people, each once, and the panel says which state they are in.** Owner, 11 Nov 2026: "look at the count. why is there discrepancy ... same person opened cannot count as unique", choosing Unique visitors for the footer.
+  - The footer had counted every browser session since before the panel's count began, bots and all, so a person coming back counted again (8158 against 3,264 visits). It now shows unique visitors, kept by the same count as the panel, from this release on.
+  - A browser keeps the day of its last visit on its own device and sends it with the next one, so in any period the panel counts each person once: Unique visitors, and how many are new, beside Visits and Pages opened.
+  - Where visitors are, by state: from the network address, looked up in DB-IP's free database (bundled, attributed in the panel) and not kept. Approximate, and said so. Visitors outside India by country.
+  - The privacy page says both, plainly.
+- **The panel's Old site members styles moved to assets/admin-oldmembers.css,** keeping the panel under its 400 KB ceiling.
+
 ## v1.557
 
 - **Member and caregiver numbers use PFA's state code directory, in the panel and the Google Sheet.** Owner, 11 Nov 2026, with PFA_State_Codes.xlsx: "I want the state codes to be as given in the xlsx sheet", "for the ones that migrated- do mention was PB earlier", "let state come before member number column".

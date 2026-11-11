@@ -517,3 +517,25 @@ test('the amount in words, the Indian way', () => {
   for (const f of ['lib/donation-receipt.js', 'lib/routes/payment/receipt.js']) assert.ok(!/[–—]/.test(fs.readFileSync(path.join(__dirname, '..', f), 'utf8')), `${f}: no dashes`);
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'api', 'index.js'), 'utf8'), /'payment\/receipt': \(\) => require\('\.\.\/lib\/routes\/payment\/receipt\.js'\)/);
 });
+
+/* Date of birth (owner, 11 Nov 2026: optional, "Date of birth", saved to
+   the person's profile). Carried on the transaction, filed on the record
+   with the month and day on their own, and never sent to CCAvenue. */
+test('a date of birth given on the donation form is filed on the record, and CCAvenue never sees it', async () => {
+  const sentOut = await start(Object.assign({}, DONOR, { dob: '1990-05-12' }));
+  assert.ok(!Object.values(sentOut).some((v) => /1990/.test(String(v))), 'not in anything sent to the bank');
+  assert.equal(transaction(sentOut.order_id).metadata.dob, '1990-05-12');
+  await callback(bankSays(sentOut));
+  const rec = [...db.store.entries()].find(([k, v]) => k.startsWith('submissions/') && v.kind === 'PFA-DON')[1];
+  assert.equal(rec.fields.dob, '1990-05-12');
+  assert.equal(rec.birthday, '05-12');
+});
+
+test('left empty, nothing is filed; a date that is not real is refused with its own message', async () => {
+  const sentOut = await start();
+  assert.equal(transaction(sentOut.order_id).metadata.dob, undefined);
+  const rec = recorder();
+  await create(request(Object.assign({}, DONOR, { dob: '2099-01-01', client_ref: 'dob-future' })), rec.response);
+  assert.equal(rec.response.statusCode, 400);
+  assert.match(rec.response.html, /Enter a real date of birth, or leave it empty\./);
+});

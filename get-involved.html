@@ -426,6 +426,11 @@ body.in-flow .pfa-footer,body.in-flow .announce{display:none}
 .formstatus[data-state="bad"]{color:#b3261e}
 .formstatus[data-state="good"]{color:#1a7f4b}
 .field .opt{color:var(--muted);font-weight:400}
+/* the date of birth (11 Nov 2026): as tall as the boxes beside it even empty,
+   where a phone's date box would otherwise shrink */
+.field input[type="date"]{box-sizing:border-box;line-height:inherit;height:calc(30px + 1lh);min-height:calc(30px + 1em);text-align:left}
+.field input[type="date"]::-webkit-calendar-picker-indicator{margin:0;padding:0}
+.field input[type="date"]::-webkit-date-and-time-value{text-align:left}
 .field{display:grid;gap:8px;align-content:start}
 .field label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
 .field input,.field textarea{width:100%;border:1px solid var(--line);background:#fff;padding:14px;font:inherit;font-size:14px;outline:none;border-radius:0;resize:vertical;-webkit-appearance:none}
@@ -743,7 +748,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=c94b69f654"></script>
+<script src="assets/chrome.js?v=8d5e29d85f"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -886,6 +891,7 @@ if (root.document && root.document.head) apply(read());
             <!-- a second number for the courier (owner, 2 Nov 2026: "phone number etc to send the card without failure of delivery") -->
             <div class="field"><label for="memAltMobile">Another number the courier can call <span class="opt">(optional)</span></label><input id="memAltMobile" name="altMobile" type="tel" inputmode="numeric" maxlength="14" autocomplete="tel"><span class="hint">A family member's, in case yours is busy.</span><span class="error">A 10-digit Indian mobile number, or leave it empty.</span></div>
             <div class="field"><label for="memEmail">Email</label><input id="memEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email for the welcome letter.</span></div>
+            <div class="field"><label for="memDob">Date of birth <span class="opt">(optional)</span></label><input id="memDob" name="dob" type="date" autocomplete="bday" min="1900-01-01"><span class="error">Enter a real date of birth, or leave it empty.</span></div>
             <!-- No PAN, Aadhaar or photo before paying, at any tier (owner,
                  10 Nov 2026). The welcome email links to tax-receipt.html. -->
           </div>
@@ -1435,6 +1441,8 @@ if (root.document && root.document.head) apply(read());
     }
     form.addEventListener('change', function(e){ if (e.target.name === 'tier') paintAmount(); });
     paintAmount();
+    /* the date of birth: no day to come is offered */
+    (function(){ var el = document.getElementById('memDob'); if (!el) return; var n = new Date(); el.max = n.getFullYear() + '-' + ('0' + (n.getMonth() + 1)).slice(-2) + '-' + ('0' + n.getDate()).slice(-2); })();
     var stateSel = document.getElementById('memState'), districtSel = document.getElementById('memDistrict');
     if (stateSel && districtSel && window.PFA_INDIA) {
       (window.PFA_INDIA.STATES || []).forEach(function(st){ var o = document.createElement('option'); o.value = st; o.textContent = st; stateSel.appendChild(o); });
@@ -1457,6 +1465,13 @@ if (root.document && root.document.head) apply(read());
       /* the courier's second number: optional, but a real one if given */
       var alt = form.querySelector('[name="altMobile"]');
       if (alt && alt.value.trim() && !/^[6-9]\d{9}$/.test(alt.value.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, ''))) bad.push(alt);
+      /* the date of birth: optional, a real day that has come (lib/payment.js dobField) */
+      var dob = form.querySelector('[name="dob"]');
+      if (dob) {
+        var dv = dob.value || '', dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dv), now = new Date();
+        var today = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+        if ((dob.validity && dob.validity.badInput) || (dv && (!dm || +dm[1] < 1900 || dv > today))) bad.push(dob);
+      }
       bad.forEach(function(el){ var f = el.closest('.field'); if (f) f.classList.add('is-bad'); });
       /* the PIN beside the state chosen (assets/address.js) */
       var pinEl = form.querySelector('[name="pincode"]'), stEl = form.querySelector('[name="state"]');

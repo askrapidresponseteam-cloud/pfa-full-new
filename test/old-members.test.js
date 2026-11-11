@@ -585,7 +585,9 @@ test('the panel: a Notes and emails section in each person, with the email optio
   assert.match(html, /'<div class="om-notes" data-omnotes="' \+ esc\(m\.id\) \+ '"><h3>Add a note<\/h3>'\n {6}\+ '<div class="om-nadd">'/);
   assert.doesNotMatch(html, /<details class="fold om-nadd">/);
   assert.match(html, /<h4>Notes and emails<\/h4>/);
-  assert.match(html, /\.om-notes\{[^}]*border:1px solid var\(--ink\);box-shadow:inset 4px 0 0 var\(--ink\)\}/);
+  /* the section's styles left admin.html for their own file on 11 Nov 2026 (page weight) */
+  assert.match(html, /<link rel="stylesheet" href="assets\/admin-oldmembers\.css">/);
+  assert.match(fs.readFileSync(path.join(ROOT, 'assets/admin-oldmembers.css'), 'utf8'), /\.om-notes\{[^}]*border:1px solid var\(--ink\);box-shadow:inset 4px 0 0 var\(--ink\)\}/);
   assert.match(html, /<input type="checkbox" id="omNoteMail"> Also email this to them/);
   assert.match(html, /<div id="omNoteMailBox" hidden>/);
   assert.match(html, /It goes from info@ with your name at the end\. Their reply comes back here and to your email\./);

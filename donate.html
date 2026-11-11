@@ -425,6 +425,11 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .form{gap:20px}.field{align-content:start}
 .field input,.field select{min-height:52px;padding:14px 16px;background:#fcfbf8;border-color:#d8d5ce;transition:background .2s,border-color .2s,box-shadow .2s}
 .field input:focus,.field select:focus{background:#fff;border-color:var(--ink,#111)}
+/* the date of birth (11 Nov 2026): optional, and as tall as the boxes beside
+   it even empty, where a phone's date box would otherwise shrink */
+.field .opt{color:var(--muted);font-weight:400}
+.field input[type="date"]{height:52px;min-height:52px;line-height:1.2;text-align:left}
+.field input[type="date"]::-webkit-date-and-time-value{text-align:left}
 .give :focus-visible{outline:2px solid #995d3b;outline-offset:4px}
 /* a box inside a box (owner, 1 Nov 2026: "border within the box is fucked
    up"): a field shows it has focus by its own edge going dark, never by a
@@ -711,7 +716,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=c94b69f654"></script>
+<script src="assets/chrome.js?v=8d5e29d85f"></script>
 <script src="assets/india-districts.js"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
@@ -835,6 +840,7 @@ if (root.document && root.document.head) apply(read());
             <div class="field"><label for="gName">Full name</label><input id="gName" name="name" type="text" autocomplete="name" required><span class="error">Enter your full name using letters only.</span></div>
             <div class="field"><label for="gMobile">Mobile number</label><input id="gMobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" required><span class="error">Enter a 10-digit Indian mobile number.</span><span class="hint">Used to trace the payment if anything goes wrong.</span></div>
             <div class="field"><label for="gEmail">Email</label><input id="gEmail" name="email" type="email" autocomplete="email" required><span class="error">Add a valid email for the receipt.</span></div>
+            <div class="field"><label for="gDob">Date of birth <span class="opt">(optional)</span></label><input id="gDob" name="dob" type="date" autocomplete="bday" min="1900-01-01"><span class="error">Enter a real date of birth, or leave it empty.</span></div>
             <p class="form-section">Receipt address</p><div class="field"><label for="gAddress">Address</label><input id="gAddress" name="address" type="text" autocomplete="street-address" required><span class="error">Add the address your 80G receipt should carry.</span></div>
             <!-- PIN, city and state go on to CCAvenue as billing_zip,
                  billing_city and billing_state, so its page arrives filled in
@@ -1272,6 +1278,19 @@ if (root.document && root.document.head) apply(read());
       (window.PFA_INDIA.STATES || []).forEach(function(name){ var o = document.createElement('option'); o.value = name; o.textContent = name; st.appendChild(o); });
     })();
     function bad(el, on){ el.closest('.field').classList.toggle('is-bad', on); return on; }
+    /* empty is fine; a date the box could not read, one to come or before 1900 is not */
+    function dobOk(el){
+      if (el.validity && el.validity.badInput) return false;
+      var v = el.value || '';
+      if (!v) return true;
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+      if (!m || +m[1] < 1900) return false;
+      var now = new Date();
+      var today = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+      return v <= today;
+    }
+    /* no day to come is offered */
+    (function(){ var el = $('#gDob'); if (!el) return; var n = new Date(); el.max = n.getFullYear() + '-' + ('0' + (n.getMonth() + 1)).slice(-2) + '-' + ('0' + n.getDate()).slice(-2); })();
     $('#giveForm').addEventListener('submit', function(e){
       var n = $('#gName'), mob = $('#gMobile'), m = $('#gEmail'), ad = $('#gAddress'), errs = 0;
       var city = $('#gCity'), pin = $('#gPin'), st = $('#gState');
@@ -1280,6 +1299,9 @@ if (root.document && root.document.head) apply(read());
          starting 6-9. Catching it here saves a round trip to an error page. */
       errs += bad(mob, !/^[6-9]\d{9}$/.test(mob.value.replace(/\D/g, ''))) ? 1 : 0;
       errs += bad(m, !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m.value)) ? 1 : 0;
+      /* the date of birth: optional, a real day that has come (lib/payment.js dobField) */
+      var dob = $('#gDob');
+      if (dob) errs += bad(dob, !dobOk(dob)) ? 1 : 0;
       errs += bad(ad, ad.value.trim().length < 6) ? 1 : 0;
       /* the server's rules (lib/payment.js): a real city, a 6-digit PIN not
          starting with 0, a state from the list */
@@ -1317,7 +1339,7 @@ if (root.document && root.document.head) apply(read());
       var details = [amt, (this.querySelector('[name="currency"]') || {}).value || 'inr',
         n.value.trim(), mob.value.replace(/\D/g, ''), m.value.trim().toLowerCase(), ad.value.trim(),
         city.value.trim(), pin.value.replace(/\D/g, ''), st.value,
-        cause ? cause.value : '']
+        cause ? cause.value : '', $('#gDob') ? $('#gDob').value : '']
         .concat(gift ? [$('#giftTo').value.trim(), $('#giftHouse').value.trim(), $('#giftAddress').value.trim(), $('#giftLandmark').value.trim(), $('#giftPin').value.replace(/\D/g, ''),
           $('#giftEmail').value.trim().toLowerCase()] : []);
       $('#gRef').value = visitRef(gift ? 'gift' : 'donate', details.join('|'));

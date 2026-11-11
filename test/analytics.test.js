@@ -18,7 +18,7 @@ const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/6
 
 test('a page view is read into page, visit, source, device, place and hour', () => {
   const h = A.readHit({ p: '/laws.html', n: 1, r: 'www.google.co.in', w: 390 }, { 'user-agent': UA, 'x-vercel-ip-country': 'IN', 'x-vercel-ip-country-region': 'KA' }, NOW);
-  assert.deepEqual(h, { day: '2026-11-03', hour: 12, page: 'laws', visit: true, source: 'Google', campaign: '', device: 'Phone', country: 'IN', region: 'KA', error: '' });
+  assert.deepEqual(h, { day: '2026-11-03', hour: 12, page: 'laws', visit: true, previous: 'new', source: 'Google', campaign: '', device: 'Phone', country: 'IN', region: 'KA', error: '' });
   assert.equal(A.pageKey('/'), 'index');
   assert.equal(A.pageKey('/units/agra'), 'units~agra');
   assert.equal(A.pageKey('/no-such-page'), 'other', 'an invented address adds no field');

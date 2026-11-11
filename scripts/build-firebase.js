@@ -78,7 +78,7 @@ const PANEL_ASSETS = [
      the page-weight ceiling */
   'assets/admin-registers.js',
   /* emailing an internship certificate (2 Nov 2026) */
-  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-taxid.js',
+  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-taxid.js',
   'fonts/cinzel-latin-500.woff2',
   'fonts/cinzel-latin-600.woff2',
   'fonts/dm-sans-latin-400.woff2',
@@ -90,7 +90,13 @@ const PANEL_ASSETS = [
      Cinzel and Marcellus above. */
   'assets/certificate.js',
   'fonts/eb-garamond-latin-500.woff2',
-  'assets/certificates/internship.webp'
+  'assets/certificates/internship.webp',
+  /* The birthday card the panel draws (11 Nov 2026): its dahlias and its
+     PFA mark; its Marcellus is above. */
+  'media/birthday/card-flowers.jpg',
+  'media/birthday/card-logo.png',
+  /* the Old site members section's styles, out of admin.html (11 Nov 2026) */
+  'assets/admin-oldmembers.css'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */

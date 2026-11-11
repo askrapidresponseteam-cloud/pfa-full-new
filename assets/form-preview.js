@@ -185,6 +185,9 @@
         : field.value;
       value = String(value == null ? '' : value).trim();
       if (!value) return;
+      /* a date reads as a date: 12 May 1990, not 1990-05-12 */
+      var ymd = type === 'date' && /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+      if (ymd) value = (+ymd[3]) + ' ' + ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][+ymd[2] - 1] + ' ' + ymd[1];
       if (tag !== 'textarea') value = value.replace(/\s+/g, ' ');
       rows.push({ label: labelFor(field, opts.labels), value: value, long: tag === 'textarea' });
     });

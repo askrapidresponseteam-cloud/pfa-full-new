@@ -851,9 +851,9 @@
 })();
 
 /* ---------- visit tally ------------------------------------------------
-   A real number from /api/visits. One visit per browser session, not per page
-   view, so reading six pages counts once: that is what "visits" means and it is
-   what keeps the write count inside Firestore's free allowance.
+   A real number from /api/visits: the people who have visited, each once
+   (owner, 11 Nov 2026), the same count as the panel's Analytics. It is kept
+   by the page count below, not added to here.
 
    Nothing is shown until the server answers. If it never does, the block stays
    hidden rather than displaying a zero or a number we made up. */
@@ -870,7 +870,6 @@
   var odo = document.getElementById('pfaTallyOdo');
   if (!wrap || !odo || !window.fetch) return;
 
-  var KEY = 'pfa_visit_counted';
   var shown = null;
 
   /* Plain digits, no thousands comma (owner, 24 Oct 2026: "visit counter
@@ -930,14 +929,17 @@
     shown = total;
   }
 
-  var counted;
-  try { counted = window.sessionStorage.getItem(KEY) === '1'; } catch (e) { counted = false; }
-
-  fetch('/api/visits', { method: counted ? 'GET' : 'POST', headers: { Accept: 'application/json' } })
+  /* The number of people (owner, 11 Nov 2026), kept by the page count
+     below: read once this page has been counted, so a first visit sees
+     itself in it. The count is never waited on for long. */
+  var counting = window.PFA_COUNTED || Promise.resolve();
+  var waited = new Promise(function (resolve) { setTimeout(resolve, 2500); });
+  Promise.race([counting, waited]).then(function () {
+    return fetch('/api/visits', { method: 'GET', headers: { Accept: 'application/json' }, cache: 'no-store' });
+  })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (p) {
       if (!p || typeof p.total !== 'number') return;
-      try { window.sessionStorage.setItem(KEY, '1'); } catch (e) {}
       show(p.total);
     })
     .catch(function () { /* stay hidden */ });
@@ -959,16 +961,27 @@
   if (!window.fetch || !/^https?:$/.test(location.protocol)) return;
   function send(body) {
     try {
-      fetch('/api/analytics', { method: 'POST', keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).catch(function () {});
-    } catch (_) {}
+      return fetch('/api/analytics', { method: 'POST', keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).catch(function () {});
+    } catch (_) { return null; }
   }
   var first = false;
   try { first = window.sessionStorage.getItem('pfa_an_s') !== '1'; window.sessionStorage.setItem('pfa_an_s', '1'); } catch (_) { first = false; }
+  /* People, each once (owner, 11 Nov 2026): the day of this browser's last
+     visit, kept on this device only and sent on a visit's first page, so
+     the panel can tell a person coming back from a new one. No identifier:
+     a date that thousands of browsers share. */
+  var last = '';
+  if (first) {
+    var today = new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
+    try { last = window.localStorage.getItem('pfa_last_visit') || ''; window.localStorage.setItem('pfa_last_visit', today); } catch (_) { last = ''; }
+  }
   var ref = '';
   try { var r = document.referrer ? new URL(document.referrer) : null; if (r && r.host !== location.host) ref = r.host; } catch (_) {}
   var q = {};
   try { var sp = new URLSearchParams(location.search); q.us = sp.get('utm_source') || ''; q.uc = sp.get('utm_campaign') || ''; } catch (_) {}
-  send({ p: location.pathname, n: first ? 1 : 0, r: ref, us: q.us, uc: q.uc, w: window.innerWidth || 0 });
+  var sent = send(first ? { p: location.pathname, n: 1, lv: last, r: ref, us: q.us, uc: q.uc, w: window.innerWidth || 0 } : { p: location.pathname, n: 0, r: ref, us: q.us, uc: q.uc, w: window.innerWidth || 0 });
+  /* the footer reads the number of people once this visit is in it */
+  if (sent && first) window.PFA_COUNTED = sent;
   var errors = 0;
   window.addEventListener('error', function (e) {
     if (errors >= 3 || !e || !e.message || /^Script error\.?$|ResizeObserver loop/i.test(e.message)) return;

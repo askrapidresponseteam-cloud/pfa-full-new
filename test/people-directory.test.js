@@ -149,7 +149,7 @@ test('the route: its own module, the people and their counts, and a logged downl
   assert.equal(csv.headers['content-type'], 'text/csv; charset=utf-8');
   assert.match(csv.headers['content-disposition'], /attachment; filename="PFA-people-directory-\d{4}-\d{2}-\d{2}\.csv"/);
   const lines = csv.raw.replace(/^\ufeff/, '').trim().split('\r\n');
-  assert.equal(lines[0], 'State,District,Name,Address,PIN code,Phone number,Other phones,Email,Category,Records', 'in the owner\'s order');
+  assert.equal(lines[0], 'State,District,Name,Address,PIN code,Phone number,Other phones,Email,Date of birth,Category,Records', 'in the owner\'s order, with the date of birth (11 Nov 2026)');
   assert.equal(lines.length, 2, 'only what was filtered');
   assert.match(lines[1], /^Karnataka,Udupi,Asha Rao,/);
   assert.match(lines[1], /"Member, Volunteer"/);
@@ -173,7 +173,7 @@ test('wired into the panel, the API and the bundle', () => {
   assert.match(admin, /<script src="assets\/admin-directory\.js"><\/script>/);
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-directory\.js'/);
   const js = read('assets/admin-directory.js');
-  assert.match(js, /<th>State<\/th><th>District<\/th><th>Name<\/th><th>Address<\/th><th>Phone<\/th><th>Category<\/th>/, 'the owner\'s order');
+  assert.match(js, /<th>State<\/th><th>District<\/th><th>Name<\/th><th>Address<\/th><th>Phone<\/th><th>Birthday<\/th><th>Category<\/th>/, 'the owner\'s order');
   assert.doesNotMatch(js + read('lib/people-directory.js') + read('lib/routes/admin/directory.js'), /[–—]/);
   assert.doesNotMatch(read('lib/people-directory.js'), /oldMembers|old-members/, 'the old website\'s members stay apart');
 });
