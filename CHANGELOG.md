@@ -1,3 +1,42 @@
+## v1.557
+
+- **Member and caregiver numbers use PFA's state code directory, in the panel and the Google Sheet.** Owner, 11 Nov 2026, with PFA_State_Codes.xlsx: "I want the state codes to be as given in the xlsx sheet", "for the ones that migrated- do mention was PB earlier", "let state come before member number column".
+  - All 36 codes as in the directory: KNT, PNB, MST, RAJ, CHT, J&K and JK for Jharkhand, and the rest. New numbers carry them from now on.
+  - Numbers already given keep their digits and take the new code: PB 1378 becomes PNB 1378, KA 2036 becomes KNT 2036. Each says what it was: "PNB 1378 (was PB 1378)" in the Google Sheet, "Was PB 1378" in the panel, an Earlier number column in the export, a line in its history. The member card, the caregiver card and the card check change with it.
+  - Done once, by itself, on the first run after deploying, before the sheet is written. No count moves: each state counts on from where it was, so no number can be given twice across the change.
+  - The Membership tab of the sheet now has State just before Member number.
+  - The panel's two registers have a State codes expander: every state and union territory, its code, its earlier code, and who shares its count.
+  - Panel search finds a member or caregiver by the new number or the old one, typed either way (PNB 1378, pb1378, PB 1378).
+
+## v1.556
+
+- **Behaviour, A to Z: 75 topics on why dogs and cats do what they do, and what helps.** Owner, 11 Nov 2026, with Pike and Horwitz's behaviour textbook: "can you take all of it", "everything to be covered but copyright proof".
+  - A new page, behaviour.html, under Learn in the header and the footer. Eleven sections: bringing an animal home, the two rules under everything (illness first, reward training), puppies and kittens, aggression, fear and being alone, toilet problems, everyday problem behaviour, repetitive habits and old age.
+  - Each topic is a + expander: a plain lead, then what is known, what helps, a warning where one is needed, and the textbook's pages to check. The facts are in our own words; no text, table or figure is copied, and no medicine is named.
+  - A find box and Dogs or Cats filters; a link to one topic opens it. Topics link to the Academy lessons and the fireworks page where they meet, and Academy Module 12 links back.
+  - Site search finds it for dog behaviour, separation anxiety, litter box problems and scratching.
+- **The Pet Parent Series: a closed preview that plays short films in order, like one long film.** Owner, 11 Nov 2026: "it has to play like a movie in the right sequence".
+  - series.html plays the episodes in assets/series.json through the site's theatre, chapter by chapter, autoplaying to the next. It remembers where each one was stopped, marks those watched to the end, and offers Continue, Start over and a watched count.
+  - Reached by its address only: no menu, page or search result links to it, it is out of the sitemap, and it asks search engines not to index it. The panel's Website list can hide it like any page.
+  - The episodes are placeholders, the films the Academy already shows. To change the series, edit assets/series.json: a title and a YouTube id, Vimeo id or video file address for each episode.
+- **The theatre's top bar keeps Frame clear of the player's name on a laptop and wraps on a narrow window.**
+- **The Academy's diagram styles moved to assets/academy-figures.css,** keeping the page under its 400 KB ceiling.
+
+## v1.555
+
+- **The Academy grows to fourteen modules from four textbooks, every fact cited to its page.** Owner, 10 Nov 2026: "can you enrich the info on the website/academy based on this. 100% stick to facts, and always give verifiable citations", and "have images so as to make the university/academy content interesting".
+  - Module 11, One Health (Fox, CRC Press 2025, and the studies it cites): what One Health is; India's 20 million dog bites and 20,000 rabies deaths a year and what a 2020 model found about birth control and vaccination coverage; quality-of-life scoring; disease passing from people to animals; cruelty as a warning of violence.
+  - Module 12, Reading and handling animals (Herron, Wiley 2024): the eleven steps from yawning to the bite, approaching a dog or cat, holding without making it worse, cattle and the flight zone, puppies' first weeks, and old age.
+  - Module 13, Birds, reptiles and wildlife (Girling, Wiley 2025): holding a bird that has no diaphragm, a bird in trouble, reptiles and hygiene, and what a wild animal needs before release.
+  - Module 14, How the body works (Aspinall and Cappello, CABI 2024): the daily water budget, parvovirus, why cats need meat, the rumen, and how birds and reptiles breathe.
+  - Twenty new lessons, 96 in all. Each ends with "Where to check" and the book's page numbers; the sources list links every book and paper. Opinions in the books are left out; only facts are taught.
+  - Nine diagrams drawn for the page (the One Health circles, the vaccination coverage bars, the quality-of-life scale, the bite ladder, the side-on approach, cattle from above, a puppy's weeks, release distances, the water budget), and a photograph for each new module.
+  - Lesson 2.1's vulture fact now also cites Fox (2025), p. 48. Three new search entries lead to the new modules.
+- **The fireworks page offers the full guide, A Quieter Celebration, to read or download.** Owner, 10 Nov 2026: "update the font of the pdf to match website font and have this pdf - view + download like in library module within the fireworks page".
+  - The twelve pages are reset in the website's type: headings and big figures in Marcellus, text in a Helvetica-shaped sans. Every word, colour, picture and source link is as it was; the photographs are re-encoded, so the file is 1.6 MB instead of 23 MB.
+  - A new band at the foot of the page shows it as the Library shows a document: its cover, Read now in the PFA reader, and Download.
+  - It is in the reader's catalogue but on none of the Library's shelves (data/library.json: "own": true, "listed": false). The reader offers Google's viewer only for documents that have one.
+
 ## v1.554
 
 - **Maneka's Picks opens on her, whole, under the header, the cards on the wall taking turns.** Owner, 10 Nov 2026, with jjettas.com's Justin Jefferson page: "opens like a hero ... full screen, powerful. both on mobile and web", then "her head is getting chopped. can you do it in a way where the header of the page is intact. her photo is adjusted so nothing gets clipped. and the books appear in turns, and the films too. the thumbnails should take turns".

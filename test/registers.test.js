@@ -117,13 +117,13 @@ test('export: a CSV Excel and Sheets open as they are, each address part in its 
   const csv = String(r.raw);
   assert.ok(csv.startsWith('\ufeff'), 'Excel reads it as UTF-8');
   const head = csv.slice(1).split('\r\n')[0];
-  assert.equal(head, 'Name,Phone number,Other phone,Email,Address,"House, street and area",City,District,State,PIN code,Membership type,Amount,Date,Member number,Membership reference,Card number,Courier,Tracking number,Status,Last email');
+  assert.equal(head, 'Name,Phone number,Other phone,Email,Address,"House, street and area",City,District,State,PIN code,Membership type,Amount,Date,Member number,Membership reference,Card number,Courier,Tracking number,Status,Last email,Earlier number');
   assert.ok(csv.includes('"Flat 22/CL, Sanjeeva Town Duplex Estate, Thakdari Main Road, Newtown, Near Aquatica Water Park\nKolkata, North 24 Parganas\nWest Bengal - 700156"'), 'the label, as one cell with its lines');
   assert.ok(csv.includes(',Kolkata,North 24 Parganas,West Bengal,700156,'), 'and the parts, a column each');
   assert.deepEqual(logged.map((x) => [x.action, x.subject, x.detail]), [['register-exported', 'membership', '2 rows']]);
   const cg = await call(db, { kind: 'caregiver', format: 'csv' });
   assert.equal(cg.headers['content-disposition'], 'attachment; filename="PFA-colony-cards-2026-11-02.csv"');
-  assert.match(String(cg.raw).split('\r\n')[0], /^\ufeffName,Caregiver number,Phone number,Other phone,Email,Address,"House, street and area",City,District,State,PIN code,Application number,Applied on,Card number,Issued on,Courier,Tracking number,Status,Last email$/);
+  assert.match(String(cg.raw).split('\r\n')[0], /^\ufeffName,Caregiver number,Earlier number,Phone number,Other phone,Email,Address,"House, street and area",City,District,State,PIN code,Application number,Applied on,Card number,Issued on,Courier,Tracking number,Status,Last email$/);
   assert.ok(!/[–—]/.test(csv + cg.raw), 'no long dashes');
 });
 

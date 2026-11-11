@@ -810,8 +810,9 @@
       box.setAttribute('role', 'status');
       box.innerHTML = '<span>This book is taking long to appear on this device.</span>' +
         '<a class="rd-pill" href="' + esc(item.read || item.file) + '" target="_blank" rel="noopener">Open the PDF</a>' +
-        '<button type="button" class="rd-pill" data-drive>Google\u2019s viewer</button>';
-      box.querySelector('[data-drive]').addEventListener('click', function () { box.parentNode.removeChild(box); openDrive(); });
+        /* PFA's own documents (the fireworks guide) have no Drive original */
+        (item.drive ? '<button type="button" class="rd-pill" data-drive>Google\u2019s viewer</button>' : '');
+      if (item.drive) box.querySelector('[data-drive]').addEventListener('click', function () { box.parentNode.removeChild(box); openDrive(); });
       body.appendChild(box);
       showChrome(true);
     }, 20000);
@@ -875,7 +876,8 @@
       log('could not open: ' + ((error && error.message) || error));
       loading(false);
       book.innerHTML = '';
-      openDrive('This document could not be drawn here, so it is shown in Google Drive\u2019s viewer.');
+      if (item.drive) openDrive('This document could not be drawn here, so it is shown in Google Drive\u2019s viewer.');
+      else window.location.replace(item.file);
     });
   }
 

@@ -47,9 +47,12 @@
 .th-top.away > *{pointer-events:none}
 .th-top > *{pointer-events:auto}
 .th-top .l{display:flex;gap:clamp(20px,3vw,64px);align-items:center;color:rgba(255,255,255,.85)}
-.th-top .mark{font-family:var(--display);font-size:clamp(20px,2.2vw,30px);letter-spacing:.04em;line-height:1;text-align:center}
+.th-top .mark{font-family:var(--display);font-size:clamp(20px,2.2vw,30px);letter-spacing:.04em;line-height:1;text-align:center;padding:0 24px}
 .th-top .r{display:flex;justify-content:flex-end;align-items:center;gap:clamp(20px,2.4vw,40px)}
-.th-top .sound{margin-left:clamp(20px,3vw,64px)}
+/* 11 Nov 2026: at a laptop's width the Frame control ran into the name in
+   the middle (Fill touched Lecture Theatre on the Academy); less room before
+   each control, and a margin round the name, keep them apart. */
+.th-top .sound{margin-left:clamp(0px,1.6vw,40px)}
 .th-top .sound b{font-weight:400;opacity:.35;margin-left:8px}
 .th-top .sound b.on{opacity:1;border-bottom:1px solid currentColor;padding-bottom:1px}
 .th-top .close{flex:0 0 auto}
@@ -135,7 +138,9 @@
   .th-top{grid-template-columns:1fr auto}
   .th-top .mark{grid-column:1;grid-row:1;justify-self:start}
   .th-top .r{grid-column:2;grid-row:1}
-  .th-top .l{grid-column:1 / -1;grid-row:2;margin-top:10px;font-size:11px}
+  .th-top .l{grid-column:1 / -1;grid-row:2;margin-top:10px;font-size:11px;flex-wrap:wrap;gap:10px 18px}
+  .th-top .sound{margin-left:0}
+  .th-top .mark{padding:0}
   .th-state{right:16px;top:auto;bottom:56px}
   .th-caption{left:var(--th-pad);right:auto;flex-direction:column;gap:2px;white-space:normal}
   .th-note{left:auto;right:var(--th-pad)}

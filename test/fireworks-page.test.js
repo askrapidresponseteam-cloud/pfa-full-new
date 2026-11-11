@@ -65,3 +65,28 @@ test('no long dashes, anywhere on the two new pages', () => {
     assert.doesNotMatch(read(f), /[–—]/, f);
   }
 });
+
+/* v1.555: the full guide, "A Quieter Celebration", read and downloaded as
+   the Library offers its documents (owner, 10 Nov 2026: "have this pdf -
+   view + download like in library module within the fireworks page"),
+   set in the site's own type, and kept off the Library's shelves. */
+test('the fireworks page offers the guide to read and to download', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const R = path.join(__dirname, '..');
+  const page = fs.readFileSync(path.join(R, 'fireworks.html'), 'utf8');
+  assert.match(page, /<section class="band split" id="guide">/);
+  assert.match(page, /<link rel="stylesheet" href="assets\/library\.css">/);
+  assert.match(page, /class="book__read" href="read\.html\?r=a-quieter-celebration">Read now</);
+  assert.match(page, /class="book__dl" href="media\/library\/a-quieter-celebration\.pdf" download="A Quieter Celebration\.pdf"/);
+  assert.ok(fs.existsSync(path.join(R, 'media/library/a-quieter-celebration.pdf')));
+  assert.ok(fs.existsSync(path.join(R, 'media/library/covers/a-quieter-celebration.webp')));
+  const lib = JSON.parse(fs.readFileSync(path.join(R, 'data/library.json'), 'utf8'));
+  const it = lib.items.find((x) => x.slug === 'a-quieter-celebration');
+  assert.ok(it && it.own === true && it.listed === false, 'in the catalogue, off the shelves');
+  assert.ok(!fs.readFileSync(path.join(R, 'library.html'), 'utf8').includes('a-quieter-celebration'), 'not on a shelf');
+  assert.ok(fs.readFileSync(path.join(R, 'assets/library-data.js'), 'utf8').includes('"slug": "a-quieter-celebration"'), 'the reader can open it');
+  const pdf = fs.readFileSync(path.join(R, 'media/library/a-quieter-celebration.pdf'), 'latin1');
+  assert.match(pdf, /Marcellus/, 'set in the site\'s display face');
+  assert.ok(pdf.length < 4 * 1024 * 1024, 'small enough to download on a phone');
+});

@@ -158,13 +158,13 @@ test('one emergency door, not two', () => {
 
 test('a module holds its lessons until asked', () => {
   const p = page();
-  assert.equal(p.d.querySelectorAll('.part__lessons').length, 10);
-  assert.equal(p.d.querySelectorAll('.part__lessons[hidden]').length, 10,
+  assert.equal(p.d.querySelectorAll('.part__lessons').length, 14);
+  assert.equal(p.d.querySelectorAll('.part__lessons[hidden]').length, 14,
     'seventy lessons open at once is what made this page overwhelming');
-  assert.equal(p.d.querySelectorAll('.part__more').length, 10);
+  assert.equal(p.d.querySelectorAll('.part__more').length, 14);
 
   p.$('.part__more').dispatchEvent(new p.w.MouseEvent('click', { bubbles: true }));
-  assert.equal(p.d.querySelectorAll('.part__lessons[hidden]').length, 9, 'one opens, the rest stay shut');
+  assert.equal(p.d.querySelectorAll('.part__lessons[hidden]').length, 13, 'one opens, the rest stay shut');
 });
 
 test('everything that already revealed lessons still does', () => {
@@ -183,7 +183,7 @@ test('a deep link opens the module it lands in', () => {
     url: 'https://pfa.test/academy.html#g6'
   });
   OPEN.push(dom);
-  assert.equal(dom.window.document.querySelectorAll('.part__lessons[hidden]').length, 9,
+  assert.equal(dom.window.document.querySelectorAll('.part__lessons[hidden]').length, 13,
     'the module holding the heatstroke lesson must be open on arrival');
 });
 

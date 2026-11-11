@@ -38,19 +38,19 @@ test('the page says what it is before it teaches anything', () => {
   assert.ok(markup.indexOf('<div class="note">') > heroEnd, 'the note must follow the hero, not sit inside it');
 });
 
-test('ten modules, each a lettered part the filter bar can reach', () => {
-  const parts = [...markup.matchAll(/<section class="part" id="part-([a-j])" data-part="([A-J])">/g)];
-  assert.equal(parts.length, 10);
+test('fourteen modules, each a lettered part the filter bar can reach', () => {
+  const parts = [...markup.matchAll(/<section class="part" id="part-([a-n])" data-part="([A-N])">/g)];
+  assert.equal(parts.length, 14);
   parts.forEach(([, id, letter]) => assert.equal(letter, id.toUpperCase(), `part-${id} carries data-part ${letter}`));
   for (const [, , letter] of parts) {
     assert.match(markup, new RegExp(`data-filter="${letter}"`), `no filter chip for ${letter}`);
   }
-  const cards = [...markup.matchAll(/class="mod" href="#part-([a-j])"/g)].map((m) => m[1]);
+  const cards = [...markup.matchAll(/class="mod" href="#part-([a-n])"/g)].map((m) => m[1]);
   assert.deepEqual(cards, parts.map((m) => m[1]), 'the syllabus cards and the modules disagree');
 });
 
 test('every lesson names its sources, and every source chip is one of them', () => {
-  const lessons = [...markup.matchAll(/<details class="qa" id="([a-j]\d+)" data-part="([A-J])" data-cites="([^"]*)">([\s\S]*?)<\/details>/g)];
+  const lessons = [...markup.matchAll(/<details class="qa" id="([a-n]\d+)" data-part="([A-N])" data-cites="([^"]*)">([\s\S]*?)<\/details>/g)];
   assert.ok(lessons.length >= 70, `only ${lessons.length} lessons`);
   const bad = [];
   for (const [, id, part, cites, body] of lessons) {
@@ -77,7 +77,7 @@ test('each self-check question has one right answer and an explanation', () => {
     if (!/<p class="qz__exp" hidden>/.test(q)) bad.push(`question ${i + 1}: no explanation`);
   });
   assert.deepEqual(bad, []);
-  assert.equal((markup.match(/<div class="quiz" data-quiz="[A-J]">/g) || []).length, 10, 'one self-check per module');
+  assert.equal((markup.match(/<div class="quiz" data-quiz="[A-N]">/g) || []).length, 14, 'one self-check per module');
 });
 
 test('the checker does arithmetic and knows no medicine', () => {
@@ -94,4 +94,39 @@ test('the four banned NSAIDs and the colistin ban are stated with their years', 
   assert.match(markup, /31 July 2023/);
   assert.match(markup, /19 July 2019/);
   assert.match(markup, /January 2025/);
+});
+
+/* v1.555: four modules from four textbooks (owner, 10 Nov 2026: "enrich the
+   info on the website/academy based on this. 100% stick to facts, and always
+   give verifiable citations", and "have images so as to make the
+   university/academy content interesting"). Each new lesson names the book or
+   paper as a chip, gives the page to check, and the sources list links every
+   one; the pictures are diagrams drawn for the page, not copied figures. */
+test('Modules 11 to 14: every lesson says where to check it, and the sources link the books', () => {
+  const doc = new (require('jsdom').JSDOM)(html).window.document;
+  const want = { K: 5, L: 6, M: 4, N: 5 };
+  for (const [letter, n] of Object.entries(want)) {
+    const part = doc.getElementById(`part-${letter.toLowerCase()}`);
+    assert.ok(part, `part ${letter}`);
+    const lessons = part.querySelectorAll('details.qa');
+    assert.equal(lessons.length, n, `module ${letter} lessons`);
+    for (const l of lessons) {
+      const pg = l.querySelector('.pg');
+      assert.ok(pg && /Where to check\./.test(pg.textContent) && /pp?\. \d|\d{4}/.test(pg.textContent), `${l.id}: no page reference`);
+    }
+    assert.ok(part.querySelector('figure.academy-photo img[alt]'), `module ${letter} has its photograph`);
+  }
+  const figs = doc.querySelectorAll('.qas figure.fig svg[role="img"][aria-label]');
+  assert.ok(figs.length >= 9, `only ${figs.length} diagrams`);
+  for (const f of doc.querySelectorAll('figure.fig')) assert.ok(f.querySelector('figcaption').textContent.trim().length > 20, 'a diagram without a caption');
+  const srcs = doc.querySelector('.srcs').textContent;
+  for (const book of ['One Health: Veterinary, Ethical, and Environmental Perspectives', 'Introduction to Animal Behavior and Veterinary Behavioral Medicine', 'Veterinary Nursing of Exotic Pets and Wildlife', 'Introduction to Animal and Veterinary Anatomy and Physiology']) {
+    assert.ok(srcs.includes(book), `${book} is not in the sources`);
+  }
+  for (const doi of ['10.1201/9781003569787', '10.1038/s41598-020-75828-6', '10.1079/9781800624061.0000']) {
+    assert.ok(html.includes(`https://doi.org/${doi}`), `no link to ${doi}`);
+  }
+  assert.match(html, /96 lessons · Every claim cited/);
+  assert.match(html, /var part = \/\^part-\(\[a-n\]\)\$\/\.exec\(id\);/, 'a link to #part-k to #part-n must open its module');
+  assert.doesNotMatch(markup, /[–—]/, 'no long dashes');
 });

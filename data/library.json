@@ -170,6 +170,15 @@
       "pdf": "resources/Hidden Costs of Piggery Operations in India.pdf",
       "kind": "Research",
       "blurb": "How India's unregulated piggery sector threatens public health: the waste piggery units discard, its impact, and what should change."
+    },
+    {
+      "slug": "a-quieter-celebration",
+      "title": "A Quieter Celebration: Fireworks and the Animal Cost",
+      "shelf": "research",
+      "own": true,
+      "listed": false,
+      "kind": "PFA guide",
+      "blurb": "Twelve pages on what fireworks do to animals: hearing, lasting fear, birds, smoke and water, injuries, and the care that helps, each figure with its source."
     }
   ]
 }

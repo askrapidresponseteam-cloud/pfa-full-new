@@ -216,6 +216,8 @@ const QUERIES = [
   ['bird seller', ['laws.html', 'report.html', 'achievements.html']], ['donkeys', ['achievements.html', 'laws.html', 'report.html']],
   ['cock fight', ['laws.html', 'achievements.html']], ['crackers diwali animals', ['fireworks.html', 'laws.html', 'academy.html', 'newsroom.html']],
   /* 10 Nov 2026: the fireworks page and the seasonal gifts page */
+  /* 11 Nov 2026: Behaviour, A to Z */
+  ['dog behaviour', 'behaviour.html'], ['litter box problems', ['behaviour.html', 'academy.html']], ['separation anxiety dog', 'behaviour.html'], ['cat scratching furniture', 'behaviour.html'],
   ['fireworks', 'fireworks.html'], ['dog scared of crackers', 'fireworks.html'], ['cracker timings', 'fireworks.html'], ['firecracker burn', 'academy.html'],
   ['seasonal gifts', 'gifts.html'], ['diwali gifts', 'gifts.html'], ['christmas gifts', 'gifts.html'],
   /* Documents, stories, honours, designers, roles; typos, Hinglish and half-typed words */

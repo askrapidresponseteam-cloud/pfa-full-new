@@ -22,9 +22,10 @@ const SITE = 'https://peopleforanimalsindia.org';
    newsroom story that does not exist yet. Indexing it would surface it in site
    search before that story is written. Delete it from this list on the day the
    story goes up. */
-/* read.html is the library's reader: one page for every document, chosen by ?r=, so it is never a result on its own.
+/* series.html is The Pet Parent Series, a closed preview reached only by its address (11 Nov 2026).
+   read.html is the library's reader: one page for every document, chosen by ?r=, so it is never a result on its own.
    Each document the library lists is, at read.html?r=<document> (25 Oct 2026), from the library's own links. */
-const EXCLUDE = new Set(['admin.html', '404.html', 'search.html', 'patron-card-preview.html', 'caregiver-card.html', 'animal.html', 'winner.html', 'submission-collage.html', 'member-photo.html', 'tax-receipt.html', 'intern.html', 'read.html']);
+const EXCLUDE = new Set(['admin.html', '404.html', 'search.html', 'patron-card-preview.html', 'caregiver-card.html', 'animal.html', 'winner.html', 'submission-collage.html', 'member-photo.html', 'tax-receipt.html', 'intern.html', 'series.html', 'read.html']);
 
 /* Not the same idea as EXCLUDE. search.html is public, it just is not a
    destination worth indexing. These must never reach a visitor

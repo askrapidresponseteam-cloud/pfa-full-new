@@ -192,7 +192,7 @@
     },
     {
      "id": "syllabus",
-     "label": "Ten modules, in the order a rescuer meets them."
+     "label": "Fourteen modules: ten in the order a rescuer meets them, then four that go deeper."
     },
     {
      "id": "part-a",
@@ -235,6 +235,22 @@
      "label": "Do's and Don'ts"
     },
     {
+     "id": "part-k",
+     "label": "One Health"
+    },
+    {
+     "id": "part-l",
+     "label": "Reading and handling animals"
+    },
+    {
+     "id": "part-m",
+     "label": "Birds, reptiles and wildlife"
+    },
+    {
+     "id": "part-n",
+     "label": "How the body works"
+    },
+    {
      "id": "spark",
      "label": "Spark"
     },
@@ -245,6 +261,67 @@
     {
      "id": "sources",
      "label": "Every lesson rests on one of these."
+    }
+   ]
+  },
+  {
+   "id": "behaviour",
+   "file": "behaviour.html",
+   "title": "Behaviour, A to Z",
+   "group": "Learn",
+   "menu": "Behaviour, A to Z",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Behaviour, A to Z."
+    },
+    {
+     "id": "start",
+     "label": "A new animal at home"
+    },
+    {
+     "id": "basics",
+     "label": "Two rules under everything"
+    },
+    {
+     "id": "young",
+     "label": "Puppies and kittens"
+    },
+    {
+     "id": "aggr-dog",
+     "label": "Dogs: aggression"
+    },
+    {
+     "id": "aggr-cat",
+     "label": "Cats: aggression"
+    },
+    {
+     "id": "fear-dog",
+     "label": "Dogs: fear, anxiety and being alone"
+    },
+    {
+     "id": "fear-cat",
+     "label": "Cats: fear, anxiety and being alone"
+    },
+    {
+     "id": "soil",
+     "label": "Toilet problems and marking"
+    },
+    {
+     "id": "nuisance-dog",
+     "label": "Dogs: everyday problem behaviour"
+    },
+    {
+     "id": "nuisance-cat",
+     "label": "Cats: everyday problem behaviour"
+    },
+    {
+     "id": "repeat",
+     "label": "Repetitive habits, eating odd things, and old age"
+    },
+    {
+     "id": "sources",
+     "label": "Where this comes from."
     }
    ]
   },
@@ -327,6 +404,10 @@
     {
      "id": "instead",
      "label": "Light it up. Keep it quiet."
+    },
+    {
+     "id": "guide",
+     "label": "A Quieter Celebration."
     }
    ]
   },
@@ -340,6 +421,23 @@
     {
      "id": "the-quiz",
      "label": "Test yourself."
+    }
+   ]
+  },
+  {
+   "id": "series",
+   "file": "series.html",
+   "title": "The Pet Parent Series",
+   "group": "Learn",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "The Pet Parent Series."
+    },
+    {
+     "id": "episodes",
+     "label": "Episodes"
     }
    ]
   },
@@ -1407,11 +1505,116 @@
    "j2": "part-j",
    "j3": "part-j",
    "j4": "part-j",
+   "k1": "part-k",
+   "k2": "part-k",
+   "k3": "part-k",
+   "k4": "part-k",
+   "k5": "part-k",
+   "l1": "part-l",
+   "l2": "part-l",
+   "l3": "part-l",
+   "l4": "part-l",
+   "l5": "part-l",
+   "l6": "part-l",
+   "m1": "part-m",
+   "m2": "part-m",
+   "m3": "part-m",
+   "m4": "part-m",
+   "n1": "part-n",
+   "n2": "part-n",
+   "n3": "part-n",
+   "n4": "part-n",
+   "n5": "part-n",
    "sparkQ": "spark",
    "sparkA": "spark"
   },
+  "behaviour": {
+   "bzCount": "top",
+   "bringing-home": "start",
+   "crate": "start",
+   "dog-enrichment": "start",
+   "cat-enrichment": "start",
+   "pain-first": "basics",
+   "reward-training": "basics",
+   "puppy-start": "young",
+   "house-training": "young",
+   "kitten-start": "young",
+   "litter-box": "young",
+   "fear-aggression-dog": "aggr-dog",
+   "guarding-dog": "aggr-dog",
+   "family-aggression-dog": "aggr-dog",
+   "stranger-aggression-dog": "aggr-dog",
+   "territorial-dog": "aggr-dog",
+   "dog-dog-home": "aggr-dog",
+   "dog-dog-street": "aggr-dog",
+   "redirected-dog": "aggr-dog",
+   "frustration-dog": "aggr-dog",
+   "vet-aggression-dog": "aggr-dog",
+   "idiopathic-dog": "aggr-dog",
+   "fear-aggression-cat": "aggr-cat",
+   "cats-fight-home": "aggr-cat",
+   "petting-aggression-cat": "aggr-cat",
+   "play-aggression-cat": "aggr-cat",
+   "redirected-cat": "aggr-cat",
+   "territorial-cat": "aggr-cat",
+   "bold-aggression-cat": "aggr-cat",
+   "vet-aggression-cat": "aggr-cat",
+   "new-dog-anxiety": "fear-dog",
+   "fear-people-dog": "fear-dog",
+   "fear-places-dog": "fear-dog",
+   "anxiety-dog": "fear-dog",
+   "noise-dog": "fear-dog",
+   "separation-dog": "fear-dog",
+   "new-cat-anxiety": "fear-cat",
+   "fear-cat-general": "fear-cat",
+   "anxiety-cat": "fear-cat",
+   "noise-cat": "fear-cat",
+   "separation-cat": "fear-cat",
+   "soiling-dog": "soil",
+   "marking-dog": "soil",
+   "soiling-cat": "soil",
+   "spraying-cat": "soil",
+   "attention-dog": "nuisance-dog",
+   "begging-dog": "nuisance-dog",
+   "chewing-dog": "nuisance-dog",
+   "stealing-dog": "nuisance-dog",
+   "eating-poop": "nuisance-dog",
+   "digging-dog": "nuisance-dog",
+   "jumping-dog": "nuisance-dog",
+   "mounting-dog": "nuisance-dog",
+   "mouthing-dog": "nuisance-dog",
+   "night-dog": "nuisance-dog",
+   "predatory-dog": "nuisance-dog",
+   "roaming-dog": "nuisance-dog",
+   "travel-dog": "nuisance-dog",
+   "leash-dog": "nuisance-dog",
+   "barking-dog": "nuisance-dog",
+   "scratching-cat": "nuisance-cat",
+   "climbing-cat": "nuisance-cat",
+   "night-cat": "nuisance-cat",
+   "attention-cat": "nuisance-cat",
+   "chewing-stealing-cat": "nuisance-cat",
+   "hunting-cat": "nuisance-cat",
+   "roaming-cat": "nuisance-cat",
+   "travel-cat": "nuisance-cat",
+   "crying-cat": "nuisance-cat",
+   "repetitive-dog": "repeat",
+   "licking-dog": "repeat",
+   "pica": "repeat",
+   "overgrooming-cat": "repeat",
+   "old-dog": "repeat",
+   "old-cat": "repeat",
+   "mourning": "repeat"
+  },
   "quiz": {
    "qz": "the-quiz"
+  },
+  "series": {
+   "psTitle": "top",
+   "psLede": "top",
+   "psMeter": "top",
+   "psCount": "top",
+   "psList": "episodes"
   },
   "campus": {
    "facultyField": "start",

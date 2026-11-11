@@ -323,6 +323,26 @@ window.PFA_LIBRARY = {
    "cover": "media/library/covers/hidden-costs-piggery.webp",
    "coverW": 520,
    "coverH": 735
+  },
+  {
+   "slug": "a-quieter-celebration",
+   "title": "A Quieter Celebration: Fireworks and the Animal Cost",
+   "shelf": "research",
+   "kind": "PFA guide",
+   "blurb": "Twelve pages on what fireworks do to animals: hearing, lasting fear, birds, smoke and water, injuries, and the care that helps, each figure with its source.",
+   "listed": false,
+   "file": "media/library/a-quieter-celebration.pdf",
+   "read": "resources/read/a-quieter-celebration.pdf",
+   "name": "a-quieter-celebration.pdf",
+   "bytes": 1645866,
+   "pages": 12,
+   "lang": "en",
+   "index": "media/library/a-quieter-celebration.json",
+   "words": 2376,
+   "minutes": 10,
+   "cover": "media/library/covers/a-quieter-celebration.webp",
+   "coverW": 520,
+   "coverH": 715
   }
  ]
 };

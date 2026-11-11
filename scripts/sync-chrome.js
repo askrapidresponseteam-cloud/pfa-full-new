@@ -89,6 +89,8 @@ const PAGES = {
   /* Fireworks and animals (10 Nov 2026), under Learn; Seasonal gifts, under
      Give and partner, its seasons set in the panel (lib/gift-seasons.js). */
   'fireworks.html':    { current: 'fireworks.html', group: 'laws.html',       announce: DEFAULT_ANNOUNCE },
+  'behaviour.html':    { current: 'behaviour.html', group: 'laws.html',       announce: DEFAULT_ANNOUNCE },
+  'series.html':       { current: null,             group: 'laws.html',       announce: DEFAULT_ANNOUNCE }, /* The Pet Parent Series, a closed preview: in no menu (11 Nov 2026) */
   'gifts.html':        { current: 'gifts.html',     group: 'get-involved.html', announce: 'Every purchase supports PFA\u2019s work for animals' },
   'privacy.html':      { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },
   /* The objection to the draft lab animal rules (22 Oct 2026), opened by the

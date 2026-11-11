@@ -52,7 +52,7 @@ test('every state on the forms has a series; AP and TG, UP and UK, MP and CG eac
   assert.equal(series('Andhra Pradesh'), series('Telangana'));
   assert.equal(series('Uttar Pradesh'), series('Uttarakhand'));
   assert.notEqual(series('Tamil Nadu'), series('Puducherry'));
-  assert.deepEqual([NUM.placeOf('Madhya Pradesh').code, NUM.placeOf('Chhattisgarh').code], ['MP', 'CG'], 'each number carries its own state');
+  assert.deepEqual([NUM.placeOf('Madhya Pradesh').code, NUM.placeOf('Chhattisgarh').code], ['MP', 'CHT'], 'each number carries its own state');
   const codes = INDIA.STATES.map((s) => NUM.placeOf(s).code);
   assert.equal(new Set(codes).size, codes.length, 'no two states share a code');
 });
@@ -60,7 +60,7 @@ test('every state on the forms has a series; AP and TG, UP and UK, MP and CG eac
 test('old numbers are read from their own prefix, or from the list they are on', () => {
   assert.deepEqual(NUM.readOld('TG 1132', 'AP TG'), { series: 'AP-TG', n: 1132, code: 'TG', label: 'TG 1132' });
   assert.deepEqual(NUM.readOld('4788', 'TN'), { series: 'TN', n: 4788, code: 'TN', label: 'TN 4788' });
-  assert.deepEqual(NUM.readOld('PUD 001', 'Master list'), { series: 'PUD', n: 1, code: 'PUD', label: 'PUD 1' });
+  assert.deepEqual(NUM.readOld('PUD 001', 'Master list'), { series: 'PUD', n: 1, code: 'PDY', label: 'PDY 1' });
   assert.equal(NUM.readOld('UK 1484', 'UP UK').series, NUM.readOld('UP 1462', 'UP UK').series, 'one count for UP and UK');
   assert.equal(NUM.readOld('3068', 'HRY').series, 'HRY');
   assert.equal(NUM.readOld('ts-0045', 'x').label, 'TG 45');
@@ -79,11 +79,11 @@ test('MP and CG take turns from one count, past the old numbers; each state coun
   const ka = await member('Karnataka', '560001');
   const r = await CASE.numberWaitingMembers(db, { readOld: oldList() });
   assert.equal(r.numbered.length, 7);
-  assert.deepEqual([mp1, cg1, mp2].map(numberOf), ['MP 1501', 'CG 1502', 'MP 1503'], 'one running count, each with its own code');
+  assert.deepEqual([mp1, cg1, mp2].map(numberOf), ['MP 1501', 'CHT 1502', 'MP 1503'], 'one running count, each with its own code');
   assert.equal(numberOf(tn), 'TN 4789', 'past the highest old TN number');
   assert.equal(numberOf(tg), 'TG 1133');
   assert.equal(numberOf(uk), 'UK 1485', 'UP and UK share the count past UK 1484');
-  assert.equal(numberOf(ka), `KA ${NUM.startOf('KA')}`, 'a state with no old numbers starts at its own four-digit point, never 1');
+  assert.equal(numberOf(ka), `KNT ${NUM.startOf('KA')}`, 'a state with no old numbers starts at its own four-digit point, never 1');
   /* every number is in the register once; old ones first */
   const dump = db.dump();
   const register = Object.keys(dump).filter((k) => k.startsWith('member_numbers/'));
@@ -104,7 +104,7 @@ test('what the old lists leave for PFA: no state, one number held by two people'
   assert.match(st.oldReport.unplaced[0].why, /"77" \(Master list\)/);
   assert.deepEqual(st.oldReport.sharedByTwo, [{ label: 'HRY 3068', people: 2 }]);
   assert.equal(st.series.find((s) => s.series === 'MP-CG').next, 1501);
-  assert.deepEqual(st.series.find((s) => s.series === 'MP-CG').states.map((s) => s.code), ['CG', 'MP']);
+  assert.deepEqual(st.series.find((s) => s.series === 'MP-CG').states.map((s) => s.code), ['CHT', 'MP']);
 });
 
 test('a membership is never left unnumbered for a blank state: the PIN gives it; a PIN not in the state chosen keeps the chosen state, with a note; only a record with no place at all is held', async () => {
@@ -114,10 +114,10 @@ test('a membership is never left unnumbered for a blank state: the PIN gives it;
   const nothing = await member('', '');
   const r = await CASE.numberWaitingMembers(db, { readOld: oldList() });
   const ka = NUM.startOf('KA');
-  assert.deepEqual(r.numbered.map((x) => x.number), [`KA ${ka}`, `KA ${ka + 1}`]);
-  assert.equal(numberOf(wrongPin), `KA ${ka}`, 'numbered in the state the member chose from the list');
+  assert.deepEqual(r.numbered.map((x) => x.number), [`KNT ${ka}`, `KNT ${ka + 1}`]);
+  assert.equal(numberOf(wrongPin), `KNT ${ka}`, 'numbered in the state the member chose from the list');
   assert.match(db.dump()[`submissions/${wrongPin}`].memberNo.note, /PIN code 400001 is not in Karnataka: numbered in Karnataka/);
-  assert.equal(numberOf(noState), `KA ${ka + 1}`, 'the state read from PIN code 560001');
+  assert.equal(numberOf(noState), `KNT ${ka + 1}`, 'the state read from PIN code 560001');
   assert.equal(db.dump()[`submissions/${noState}`].memberNo.stateFrom, 'pin');
   assert.equal(db.dump()[`submissions/${noState}`].fields.state, 'Karnataka', 'and written on the membership, so every list shows it');
   assert.equal(db.dump()[`submissions/${noState}`].fields.pin, '560001', 'the rest of the form untouched');
@@ -126,7 +126,7 @@ test('a membership is never left unnumbered for a blank state: the PIN gives it;
   /* put right: numbered on the next run, and the hold cleared */
   await db.collection('submissions').doc(nothing).set({ fields: { state: 'Maharashtra', pin: '400001' } }, { merge: true });
   const again = await CASE.numberWaitingMembers(db, { readOld: oldList() });
-  assert.deepEqual(again.numbered.map((x) => x.number), [`MH ${NUM.startOf('MH')}`]);
+  assert.deepEqual(again.numbered.map((x) => x.number), [`MST ${NUM.startOf('MH')}`]);
   assert.equal(db.dump()[`submissions/${nothing}`].memberNumberHold, null);
 });
 
@@ -153,7 +153,7 @@ test('many joining in the same moment: every one a different number; asking agai
   const ns = got.map((g) => g.number.n).sort((a, b) => a - b);
   assert.equal(new Set(ns).size, 15, 'fifteen different numbers in the shared series');
   assert.deepEqual(ns, Array.from({ length: 15 }, (_, i) => 1501 + i), 'no gaps, none reused');
-  labels.forEach((l, i) => assert.ok(l.startsWith(i % 2 ? 'CG ' : 'MP '), l));
+  labels.forEach((l, i) => assert.ok(l.startsWith(i % 2 ? 'CHT ' : 'MP '), l));
   const again = await Promise.all(ids.map((id) => CASE.giveMemberNumber(db, id, { readOld: oldList() })));
   assert.deepEqual(again.map((g) => g.number.label), labels);
   assert.ok(again.every((g) => g.already));
@@ -194,7 +194,7 @@ test('the old list changed later: new old numbers are held at once; one a new me
 test('with no old list imported, numbers still start at four digits and nothing breaks', async () => {
   const a = await member('Goa', '403001');
   const r = await CASE.giveMemberNumber(db, a, { nowMs: NOV });
-  assert.equal(r.number.label, `GA ${NUM.startOf('GA')}`);
+  assert.equal(r.number.label, `GOA ${NUM.startOf('GA')}`);
   assert.equal((await NUM.status(db)).oldVersion, 'none');
 });
 
@@ -215,7 +215,7 @@ test('members held for their state never keep the others waiting; a failure is s
   for (let i = 0; i < 30; i += 1) await member('', '', NOV - 100000 + i);
   const ready = await member('Karnataka', '576102');
   const r = await CASE.numberWaitingMembers(db, { readOld: oldList(), limit: 25 });
-  assert.equal(numberOf(ready), `KA ${NUM.startOf('KA')}`, 'numbered, though thirty held members joined before');
+  assert.equal(numberOf(ready), `KNT ${NUM.startOf('KA')}`, 'numbered, though thirty held members joined before');
   assert.equal(r.numbered.length, 1);
   assert.equal(r.held.length, 25);
   /* a number that cannot be given just now: the reason is on the record for the panel */
@@ -274,9 +274,9 @@ test('four digits, never a fresh start: each series from its own fixed point; a 
   await db.collection('counters').doc('memberNumbers').set({ last: { KA: 1 } });
   await db.collection('submissions').doc(ka).set({ memberNo: { label: 'KA 1', code: 'KA', n: 1, series: 'KA', state: 'Karnataka' } }, { merge: true });
   const r = await CASE.numberWaitingMembers(db, { readOld: oldList() });
-  assert.deepEqual(r.numbered, [{ reference: ka, number: `KA ${NUM.startOf('KA')}` }]);
+  assert.deepEqual(r.numbered, [{ reference: ka, number: `KNT ${NUM.startOf('KA')}` }]);
   const rec = db.dump()[`submissions/${ka}`];
-  assert.equal(rec.memberNo.label, `KA ${NUM.startOf('KA')}`);
+  assert.equal(rec.memberNo.label, `KNT ${NUM.startOf('KA')}`);
   assert.deepEqual(rec.memberNoBefore, ['KA 1']);
   assert.ok(rec.history.some((h) => h.event === 'member-renumbered' && h.was === 'KA 1'));
   assert.equal(db.dump()['member_numbers/KA-1'].retired, true, 'the short number stays taken, never given again');
@@ -307,8 +307,8 @@ test('colony caregivers: their own four-digit state numbers, for every caregiver
   const tn = NUM.startOf('TN', 'caregivers');
   const wb = NUM.startOf('WB', 'caregivers');
   const dl = NUM.placeOf('Delhi').code;
-  assert.deepEqual(r.numbered.map((x) => x.number), [`TN ${tn}`, `TN ${tn + 1}`, `WB ${wb}`, `${dl} ${NUM.startOf(dl, 'caregivers')}`, `MH ${NUM.startOf('MH', 'caregivers')}`], 'every caregiver, card or not, in their own state count; no state on the form is no bar');
-  assert.equal(db.dump()['submissions/PFA-CG-2026-00016'].caregiverNo.label, `MH ${NUM.startOf('MH', 'caregivers')}`, 'the state read from the PIN in the address');
+  assert.deepEqual(r.numbered.map((x) => x.number), [`TN ${tn}`, `TN ${tn + 1}`, `WB ${wb}`, `${dl} ${NUM.startOf(dl, 'caregivers')}`, `MST ${NUM.startOf('MH', 'caregivers')}`], 'every caregiver, card or not, in their own state count; no state on the form is no bar');
+  assert.equal(db.dump()['submissions/PFA-CG-2026-00016'].caregiverNo.label, `MST ${NUM.startOf('MH', 'caregivers')}`, 'the state read from the PIN in the address');
   assert.equal(db.dump()['submissions/PFA-CG-2026-00016'].fields.state, 'Maharashtra');
   assert.equal(db.dump()['submissions/PFA-CG-2026-00016'].fields.address, 'Bhagoji Keer Marg, Mahim West Mumbai 400016');
   assert.equal(db.dump()['caretakerCards/PFA-CCT-9Y2M8QRT'].state, 'Delhi', 'the state found prints on the card too');
@@ -362,5 +362,5 @@ test('caregiver numbers never clash: ten applications numbered at the same momen
     const mine = results.filter((x, i) => ids.concat(ids)[i] === id).map((x) => x.number.label);
     assert.equal(new Set(mine).size, 1, `${id} was given two numbers: ${mine.join(', ')}`);
   }
-  for (const l of labels) assert.match(l, /^KA \d{4}$/);
+  for (const l of labels) assert.match(l, /^KNT \d{4}$/);
 });

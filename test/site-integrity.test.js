@@ -119,7 +119,9 @@ test('the index the browser downloads carries nothing behind a sign-in', () => {
      result on its own, but each document the library lists is, at its own
      address, read.html?r=<the document>. Nothing else of read.html, and no
      document the library does not list. */
-  const listed = new Set([...fs.readFileSync(path.join(ROOT, 'library.html'), 'utf8').matchAll(/href="(read\.html\?r=[^"#]+)"/g)].map((m) => m[1]));
+  /* v1.555: and the fireworks guide, which the fireworks page offers in the
+     same reader without putting it on a library shelf. */
+  const listed = new Set(['library.html', 'fireworks.html'].flatMap((f) => [...fs.readFileSync(path.join(ROOT, f), 'utf8').matchAll(/href="(read\.html\?r=[^"#]+)"/g)].map((m) => m[1])));
   const excluded = rows.filter((r) => shared.EXCLUDE.has(String(r.u).split('#')[0].split('?')[0]) && !listed.has(r.u));
   assert.deepEqual(excluded.map((r) => r.u), [], 'these pages are excluded from search and were indexed anyway');
   assert.ok(rows.some((r) => r.u === 'read.html?r=pca-act-1960'), 'a library document is found at its own address');

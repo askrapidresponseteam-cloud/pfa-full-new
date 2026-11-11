@@ -57,8 +57,16 @@ const STACK_END = '<!-- library-stack:end -->';
 const CHIPS_START = '<!-- library-chips:start. Written by scripts/build-library.js. -->';
 const CHIPS_END = '<!-- library-chips:end -->';
 
+/* A document PFA publishes itself for another page, such as the fireworks
+   guide on fireworks.html (owner, 10 Nov 2026: "have this pdf - view +
+   download like in library module within the fireworks page"), has
+   "listed": false: it opens in the same reader and downloads the same way,
+   but stands on no shelf here. "own": true marks a document PFA made, kept
+   at media/library/<slug>.pdf, with no Google Drive original. */
+const shelved = (data) => data.items.filter((it) => it.listed !== false);
+
 function chipsMarkup(data) {
-  const n = data.items.length;
+  const n = shelved(data).length;
   return [
     '      <button class="chip" type="button" data-shelf="all" aria-pressed="true">All</button>',
     ...data.shelves.map((s) => `      <button class="chip" type="button" data-shelf="${esc(s.id)}" aria-pressed="false">${esc(s.short || s.name)}</button>`),
@@ -97,7 +105,12 @@ function validate(data) {
     for (const k of ['title', 'kind', 'blurb']) if (!text(it[k])) problems.push(`${at}.${k} is missing`);
     if (text(it.blurb) && it.blurb.length > 180) problems.push(`${at}.blurb is ${it.blurb.length} characters; keep it under 180 so the card stays a card`);
     if (!shelves.has(it.shelf)) problems.push(`${at}.shelf "${it.shelf}" is not one of the shelves`);
-    if (!text(it.drive) || !DRIVE_ID.test(it.drive)) problems.push(`${at}.drive must be the Google Drive file id from the supplied link`);
+    if (it.listed !== undefined && it.listed !== false) problems.push(`${at}.listed is only ever false, for a document kept off the shelves`);
+    if (it.own !== undefined && it.own !== true) problems.push(`${at}.own is only ever true, for a document PFA made`);
+    if (it.own === true) {
+      if (it.drive !== undefined) problems.push(`${at} is PFA's own and has no Google Drive original`);
+      if (!fs.existsSync(path.join(PDF_DIR, `${it.slug}.pdf`))) problems.push(`${at} is PFA's own: media/library/${it.slug}.pdf is not on disk`);
+    } else if (!text(it.drive) || !DRIVE_ID.test(it.drive)) problems.push(`${at}.drive must be the Google Drive file id from the supplied link`);
     else if (drives.has(it.drive)) problems.push(`${at}.drive is the same file as another entry`);
     else drives.add(it.drive);
     if (it.language !== undefined && (!text(it.language) || it.language === 'English')) problems.push(`${at}.language is for a document not in English, such as "Hindi"`);
@@ -222,7 +235,7 @@ function jsonLd(data) {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'The PFA Library',
-    itemListElement: data.items.map((item, i) => ({
+    itemListElement: shelved(data).map((item, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       item: {
@@ -240,7 +253,7 @@ function jsonLd(data) {
 function shelvesMarkup(data, metas) {
   const out = [];
   data.shelves.forEach((shelf) => {
-    const items = data.items.filter((it) => it.shelf === shelf.id);
+    const items = shelved(data).filter((it) => it.shelf === shelf.id);
     if (!items.length) return;
     out.push(
       `<section class="band lib-shelf" id="shelf-${esc(shelf.id)}" data-shelf="${esc(shelf.id)}" aria-labelledby="shelf-${esc(shelf.id)}-h">`,
@@ -264,7 +277,7 @@ function shelvesMarkup(data, metas) {
    technology and from the tab order. */
 function stackMarkup(data, metas) {
   const shelf = data.shelves[0];
-  const items = data.items.filter((it) => it.shelf === shelf.id && metas[it.slug] && metas[it.slug].cover).slice(0, 5);
+  const items = shelved(data).filter((it) => it.shelf === shelf.id && metas[it.slug] && metas[it.slug].cover).slice(0, 5);
   if (items.length < 3) return '';
   return [
     '<div class="lib-stack" aria-hidden="true">',
@@ -289,7 +302,9 @@ function clientData(data, metas) {
   const shelves = data.shelves.map((s) => ({ id: s.id, name: s.name, short: s.short }));
   const items = data.items.map((it) => {
     const m = metas[it.slug] || {};
-    const row = { slug: it.slug, title: it.title, shelf: it.shelf, kind: it.kind, blurb: it.blurb, drive: it.drive };
+    const row = { slug: it.slug, title: it.title, shelf: it.shelf, kind: it.kind, blurb: it.blurb };
+    if (it.drive) row.drive = it.drive;
+    if (it.listed === false) row.listed = false;
     if (it.language) row.language = it.language;
     for (const k of ['file', 'read', 'name', 'bytes', 'pages', 'lang', 'index', 'words', 'minutes', 'cover', 'coverW', 'coverH']) if (m[k] !== undefined) row[k] = m[k];
     return row;
@@ -393,7 +408,7 @@ async function fetchAndExtract(data, { fetchMissing, force, only }) {
     const fetched = path.join(PDF_DIR, `${item.slug}.pdf`);
     try {
       /* only what PFA has not put in resources/ is fetched */
-      if (fetchMissing && !item.pdf && (force || !fs.existsSync(fetched))) {
+      if (fetchMissing && !item.pdf && !item.own && (force || !fs.existsSync(fetched))) {
         process.stdout.write(`  ${item.slug}: downloading from Google Drive... `);
         const buf = await fetchPdf(item);
         fs.writeFileSync(fetched, buf);
@@ -456,7 +471,7 @@ async function main() {
     if (html !== page) stale.push('library.html');
     if (client !== current) stale.push('assets/library-data.js');
     if (stale.length) { console.error(`${stale.join(' and ')} out of date with data/library.json. Run: node scripts/build-library.js`); process.exit(1); }
-    console.log(`library.html carries all ${data.items.length} documents.`);
+    console.log(`library.html carries all ${shelved(data).length} shelved documents; the catalogue all ${data.items.length}.`);
     return;
   }
   if (html !== page) fs.writeFileSync(PAGE, html);

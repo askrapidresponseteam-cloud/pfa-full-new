@@ -280,7 +280,9 @@ test('no page with a data entry box was left out', () => {
      a word in the document); nothing typed there leaves the browser. */
   const skip = new Set(['admin.html', 'search.html', 'quiz.html', 'laws.html',
     'academy.html', 'units.html', 'shop.html', 'submission-collage.html',
-    'library.html', 'read.html']);
+    'library.html', 'read.html',
+    /* behaviour.html's find box filters the topics on the page (11 Nov 2026) */
+    'behaviour.html']);
   const missed = [];
   for (const file of fs.readdirSync(ROOT).filter((f) => f.endsWith('.html'))) {
     if (skip.has(file) || WIRED.includes(file)) continue;

@@ -1,0 +1,21 @@
+{
+  "about": "The Pet Parent Series (series.html), a closed preview. The episodes play in the order written here, chapter by chapter, one after another. To change the series, edit this file only: each episode needs a title and one of yt (a YouTube video id), vimeo (a Vimeo video id) or src (the address of a video file). by, mins, poster and start (seconds to skip at the beginning) are optional. Use only videos PFA made or has the right to show. The episodes below are placeholders, the films the Academy already shows.",
+  "title": "The Pet Parent Series",
+  "lede": "Short films, played in order like one long film. Start at the beginning, stop when you like, and the series remembers where you were.",
+  "chapters": [
+    {
+      "title": "Meet the animals",
+      "episodes": [
+        { "title": "All the dogs, explained", "by": "MinuteEarth", "yt": "tuRl8moQbXU", "poster": "media/academy-films/tuRl8moQbXU.jpg" },
+        { "title": "All the cats, explained", "by": "MinuteEarth", "yt": "UWagM1FBB4c", "poster": "media/academy-films/UWagM1FBB4c.jpg", "start": 25 }
+      ]
+    },
+    {
+      "title": "How animal bodies work",
+      "episodes": [
+        { "title": "Why don't snakes poison themselves?", "by": "MinuteEarth", "yt": "EzoqvBZe_gI", "poster": "media/academy-films/EzoqvBZe_gI.jpg" },
+        { "title": "Are you a mosquito magnet?", "by": "MinuteEarth", "yt": "bvKKHRCCkfI", "poster": "media/academy-films/bvKKHRCCkfI.jpg" }
+      ]
+    }
+  ]
+}

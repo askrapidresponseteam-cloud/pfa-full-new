@@ -1,0 +1,24 @@
+/* The Academy's diagrams (Modules 11 to 14, v1.555) and the "Where to check"
+   lines under each new lesson. Kept out of academy.html, which sits near the
+   page-weight ceiling (test/page-weight.test.js). */
+.fig{margin:22px 0 8px}
+.fig svg{display:block;width:100%;max-width:440px;height:auto;margin:0}
+.fig figcaption{margin-top:10px;font-size:13px;line-height:1.55;color:var(--muted);max-width:62ch}
+.fig text{font-family:var(--body);fill:#111}
+.fig .f-lab{font-size:15px;font-weight:700}.fig .f-key{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.fig .f-sm{font-size:13px}.fig .f-xs{font-size:12.5px}.fig .f-num{font-size:14px;font-weight:700}.fig .f-st{font-size:13px}
+.fig .f-inv{fill:#fff}.fig .f-c-care{fill:#b3261e}.fig .f-c-go{fill:#146b3a}
+.fig .f-a{fill:rgba(20,107,58,.10);stroke:#146b3a;stroke-width:1.5}.fig .f-b{fill:rgba(255,59,24,.08);stroke:#ff3b18;stroke-width:1.5}.fig .f-c{fill:rgba(17,17,17,.05);stroke:#111;stroke-width:1.5}
+.fig .f-track{fill:#f1efec}.fig .f-go{fill:#146b3a}.fig .f-care{fill:#b3261e}.fig .f-ink{fill:#111}.fig .f-you{fill:#111}
+.fig .f-rule{stroke:#8a8a8a;stroke-width:1.2;fill:none}.fig .f-tick{stroke:#8a8a8a;stroke-width:8;stroke-dasharray:1.2 17.8;fill:none}.fig .f-mark{stroke:#111;stroke-width:1}
+.fig .f-st-y{fill:#f6e4a6}.fig .f-st-o{fill:#f0b878}.fig .f-st-r{fill:#b3261e}
+.fig .f-body{fill:#ece8e2;stroke:#111;stroke-width:1.5}
+.fig .f-bad,.fig .f-bad-h{fill:none;stroke:#b3261e;stroke-width:2.5}.fig .f-bad{stroke-dasharray:6 5}
+.fig .f-good,.fig .f-good-h{fill:none;stroke:#146b3a;stroke-width:2.5}
+.fig .f-zone1{fill:rgba(179,38,30,.07);stroke:#b3261e;stroke-dasharray:5 4}.fig .f-zone2{fill:rgba(20,107,58,.05);stroke:#146b3a;stroke-dasharray:5 4}
+.fig .f-blind{fill:#111}.fig .f-pob{stroke:#111;stroke-width:1.5;stroke-dasharray:2 3}
+.fig .f-stop{stop-color:#146b3a}.fig .f-stop0{stop-color:#146b3a;stop-opacity:0}
+.fig .f-a2{fill:#cfe3d6}.fig .f-b2{fill:#e4ede7}.fig .f-hatch{fill:#f1f5f2;stroke:#cfe3d6;stroke-dasharray:3 3}.fig .f-c2{fill:#efece7}
+.pg{margin-top:14px;font-size:13px;line-height:1.55;color:var(--muted)}.pg b{color:var(--ink)}
+.part__sub a.u{border-bottom:1px solid rgba(17,17,17,.35)}
+.part__sub a.u:hover{border-bottom-color:currentColor}

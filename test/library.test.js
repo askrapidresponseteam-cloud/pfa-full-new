@@ -70,10 +70,13 @@ const SUPPLIED = {
 test('the shelves hold exactly the supplied documents, as supplied, and nothing else', () => {
   assert.deepEqual(DATA.shelves.map((s) => s.id), Object.keys(SUPPLIED));
   for (const shelf of Object.keys(SUPPLIED)) {
-    const got = DATA.items.filter((it) => it.shelf === shelf).map((it) => [it.title, it.drive]);
+    const got = DATA.items.filter((it) => it.shelf === shelf && it.listed !== false).map((it) => [it.title, it.drive]);
     assert.deepEqual(got, SUPPLIED[shelf], `shelf ${shelf}`);
   }
-  assert.equal(DATA.items.length, 16);
+  /* plus PFA's own fireworks guide, which is in the catalogue for the
+     reader but on no shelf (v1.555) */
+  assert.equal(DATA.items.filter((it) => it.listed !== false).length, 16);
+  assert.deepEqual(DATA.items.filter((it) => it.listed === false).map((it) => it.slug), ['a-quieter-celebration']);
 });
 
 test('data/library.json passes its own validation', whenResources, () => {
@@ -98,7 +101,9 @@ test('library.html and the reader catalogue are in step with the data (run node 
 
 test('every document has a card that opens the reader and offers the original', whenResources, () => {
   const page = read('library.html');
-  for (const it of DATA.items) {
+  /* every shelved document; the fireworks guide (listed: false) has its card
+     on fireworks.html instead, tested in fireworks-page.test.js */
+  for (const it of DATA.items.filter((x) => x.listed !== false)) {
     const card = page.slice(page.indexOf(`data-slug="${it.slug}"`));
     assert.match(card, new RegExp(`href="read\\.html\\?r=${it.slug}"`), `${it.slug} has no Read link`);
     const meta = B.metaFor(it);
@@ -140,7 +145,7 @@ test('every index is current with its PDF and with the extractor (run node scrip
 
 test('every PDF on the shelves shows its own first page as its cover', () => {
   const page = read('library.html');
-  for (const it of DATA.items) {
+  for (const it of DATA.items.filter((x) => x.listed !== false)) {
     if (!B.pdfPath(it)) continue;
     const meta = B.metaFor(it);
     assert.equal(meta.cover, `media/library/covers/${it.slug}.webp`, `${it.slug} has no cover`);
@@ -360,7 +365,7 @@ test('the filter chips and the count are written from the data, one chip a shelf
   const page = read('library.html');
   const chips = [...page.matchAll(/<button class="chip" type="button" data-shelf="([a-z-]+)"/g)].map((m) => m[1]);
   assert.deepEqual(chips, ['all'].concat(DATA.shelves.map((s) => s.id)));
-  assert.match(page, new RegExp(`id="libCount"[^>]*>${DATA.items.length} documents<`));
+  assert.match(page, new RegExp(`id="libCount"[^>]*>${DATA.items.filter((it) => it.listed !== false).length} documents<`));
 });
 
 test('a deploy deletes the withdrawn files it copies in from the live tree, and only under resources/', () => {

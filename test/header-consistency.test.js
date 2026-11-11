@@ -50,6 +50,7 @@ const NAV = [
   'laws.html|What the law says',
   'library.html|Resources library',
   'academy.html|Academy',
+  'behaviour.html|Behaviour, A to Z',               /* 11 Nov 2026 */
   'someone.html|Someone, not something',
   'fireworks.html|Fireworks and animals',          /* 10 Nov 2026 */
   'quiz.html|Test yourself',
@@ -124,6 +125,8 @@ const EXPECTED = {
   'sgacc.html':        ['Sanjay Gandhi Animal Care Centre', 'founder.html'],
   'manekas-picks.html': ['Maneka’s Picks',            'founder.html'],
   'fireworks.html':    ['Fireworks and animals',     'laws.html'],
+  'behaviour.html':    ['Behaviour, A to Z',         'laws.html'],
+  'series.html':       [null,                        'laws.html'], /* closed preview, in no menu */
   'gifts.html':        ['Seasonal gifts',            'get-involved.html'],
   'privacy.html':      [null,                        null]
 };

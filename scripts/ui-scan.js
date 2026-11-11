@@ -304,9 +304,10 @@ async function run() {
           if (/\/api\/admin\/registers\?/.test(u) && !/format=/.test(u)) {
             const line = (id, more) => Object.assign({ id, name: 'Dr Gurmeet Mangat', mobile: '9820504779', email: 'gurmeet@example.com', lines: ['Bhagoji Keer Marg, Mahim West', 'Mumbai', 'Maharashtra - 400016'], district: 'Mumbai', state: 'Maharashtra', appliedOn: '22/10/2026', paidOn: '22/10/2026', type: 'Annual member', amount: 'INR 500.00', cardId: 'PFA-CCT-4K2M8QRT' }, more);
             return r.fulfill({ json: { ok: true, rows: [
-              line('PFA-CG-2026-00001', { caregiverNo: 'MH 2399', memberNo: 'MH 2399', numberNote: 'PIN code 400016 is not in Tamil Nadu: numbered in Tamil Nadu, as the form says; check the address.' }),
+              line('PFA-CG-2026-00001', { caregiverNo: 'MST 2399', caregiverNoWas: 'MH 2399', memberNo: 'MST 2399', memberNoWas: 'MH 2399', numberNote: 'PIN code 400016 is not in Tamil Nadu: numbered in Tamil Nadu, as the form says; check the address.' }),
               line('PFA-CG-2026-00002', { numberHold: 'No state, PIN code or place in India on the application: put the state right, then it is numbered.', ship: 'shipped', courier: 'India Post', tracking: 'EE123456789IN', done: true, emailed: '23/10/2026' })
-            ] } });
+            /* and the state code directory under them (11 Nov 2026) */
+            ], codes: require('../lib/member-numbers').directory() } });
           }
           return r.fulfill({ json: { ok: true, rows: [], items: [], queues: {}, applications: [], orders: [], interns: [], batches: [], recipients: [], reports: [] } });
         });

@@ -28,7 +28,7 @@
       cols: [
         ['Name', function (r) { return [[r.name]]; }, 'rg-name'],
         /* the caregiver's state number (3 Nov 2026), given as the application is filed (4 Nov 2026) */
-        ['Caregiver number', function (r) { return [r.caregiverNo ? [r.caregiverNo] : ['Not yet', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null, r.numberNote ? [r.numberNote, 'sub'] : null]; }, 'rg-nw'],
+        ['Caregiver number', function (r) { return [r.caregiverNo ? [r.caregiverNo] : ['Not yet', 'sub'], r.caregiverNoWas ? ['Was ' + r.caregiverNoWas, 'sub'] : null, r.numberHold ? [r.numberHold, 'sub'] : null, r.numberNote ? [r.numberNote, 'sub'] : null]; }, 'rg-nw'],
         ['Phone number', function (r) { return [[r.mobile], r.altMobile ? [r.altMobile, 'other'] : null]; }, 'rg-nw'],
         ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
         ['Application', function (r) { return [[r.id], r.cardId ? [r.cardId, 'card'] : null, r.appliedOn ? [r.appliedOn, 'sub'] : null]; }, 'rg-nw'],
@@ -40,7 +40,7 @@
       cols: [
         ['Name / number / email', function (r) { return [[r.name], [r.mobile], r.altMobile ? [r.altMobile, 'other'] : null, [r.email]]; }, 'rg-name'],
         /* the state member number (lib/member-numbers.js); the reference under it */
-        ['Member number', function (r) { return [r.memberNo ? [r.memberNo] : ['Not yet', 'sub'], r.numberHold ? [r.numberHold, 'sub'] : null, r.numberNote ? [r.numberNote, 'sub'] : null, [r.id, 'sub']]; }, 'rg-nw'],
+        ['Member number', function (r) { return [r.memberNo ? [r.memberNo] : ['Not yet', 'sub'], r.memberNoWas ? ['Was ' + r.memberNoWas, 'sub'] : null, r.numberHold ? [r.numberHold, 'sub'] : null, r.numberNote ? [r.numberNote, 'sub'] : null, [r.id, 'sub']]; }, 'rg-nw'],
         ['Address', function (r) { return [[r.lines.join('\n')]]; }, 'rg-addr'],
         ['Membership type', function (r) { return [[r.type], r.amount ? [r.amount, 'sub'] : null, r.cardId ? [r.cardId, 'card'] : null]; }],
         ['Date', function (r) { return [[r.paidOn]]; }, 'rg-nw']
@@ -57,6 +57,7 @@
     return api('/api/admin/registers?kind=' + kind).then(function (d) {
       regState[kind].rows = d.rows || [];
       regState[kind].numbers = d.numbers || null;
+      regState[kind].codes = d.codes || [];
       regState[kind].numbering = d.numbering || null;
       regState[kind].sheet = d.sheet || null;
       regState[kind].picked = {};
@@ -71,7 +72,7 @@
       if (st.show === 'todo' && r.done) return false;
       if (st.show === 'done' && !r.done) return false;
       if (!q) return true;
-      return [r.name, r.mobile, r.altMobile, r.email, r.id, r.memberNo, r.caregiverNo, r.cardId, r.lines.join(' '), r.district, r.state, r.type, r.courier, r.tracking].join(' ').toLowerCase().indexOf(q) !== -1;
+      return [r.name, r.mobile, r.altMobile, r.email, r.id, r.memberNo, r.memberNoWas, r.caregiverNo, r.caregiverNoWas, r.cardId, r.lines.join(' '), r.district, r.state, r.type, r.courier, r.tracking].join(' ').toLowerCase().indexOf(q) !== -1;
     });
   }
 
@@ -94,6 +95,7 @@
       + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
       + '<div data-rg-sheet>' + sheetHtml(kind, st.sheet) + '</div>'
       + (kind === 'membership' ? numbersHtml(st) : caregiverNews(st))
+      + codesHtml(st)
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
       + '<div class="wrap"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + spec.cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th>Shipping</th></tr></thead><tbody data-rg-body></tbody></table></div>';
     paintRegisterRows(kind);
@@ -178,6 +180,20 @@
       + (done.error ? '<p class="rg-hint rg-bad">' + esc(done.error) + '</p>' : '')
       + (held.length ? '<p class="rg-hint rg-bad">' + esc(held.length + (held.length === 1 ? ' caregiver' : ' caregivers') + ' with no number yet: ' + held.map(function (r) { return r.name + ' (' + (r.numberHold || 'not numbered: open this page again') + ')'; }).join('; ')) + '</p>' : '');
   }
+  /* PFA's state code directory (owner, 11 Nov 2026: "state wise code
+     directory- add this to admin panel"): every number starts with its
+     state's code. A number given before that day under the old code keeps
+     its digits and says what it was. */
+  function codesHtml(st) {
+    var c = st.codes || [];
+    if (!c.length) return '';
+    var moved = c.filter(function (x) { return x.before; });
+    return '<details class="rg-nums rg-codes"><summary>State codes: ' + c.length + ' states and union territories</summary>'
+      + '<p class="rg-hint">Every member and caregiver number starts with its state&rsquo;s code, from this directory. Numbers given before 11 Nov 2026 under an older code (' + esc(moved.slice(0, 4).map(function (x) { return x.before + ' for ' + x.state; }).join(', ')) + ' and others) keep their digits, take the new code, and say what they were: PNB 1378 (was PB 1378).</p>'
+      + '<div class="wrap"><table><thead><tr><th>State or union territory</th><th>Code</th><th>Earlier code</th><th>Shares a count with</th></tr></thead><tbody>'
+      + c.map(function (x) { return '<tr><td>' + esc(x.state) + '</td><td class="rg-nw"><b>' + esc(x.code) + '</b></td><td class="rg-nw">' + esc(x.before) + '</td><td>' + esc((x.shares || []).join(', ')) + '</td></tr>'; }).join('')
+      + '</tbody></table></div></details>';
+  }
   function numbersHtml(st) {
     var n = st.numbers;
     if (!n) return '';
@@ -193,10 +209,10 @@
       + (done.error || n.error || failed.length ? '<p class="rg-hint rg-bad">' + esc(done.error || n.error || (failed.length + (failed.length === 1 ? ' member' : ' members') + ' could not be numbered: ' + failed[0].numberHold)) + '</p>' : '');
     return news + '<details class="rg-nums"' + (held.length ? ' open' : '') + '><summary>Member numbers: ' + used.length + ' series in use'
       + (held.length ? ' · ' + held.length + ' not numbered yet' : '') + (check ? ' · ' + check + ' old numbers to check' : '') + '</summary>'
-      + '<p class="rg-hint">A member number is the state code and a number, given once from the state on the membership, the moment the payment succeeds. AP and TG, UP and UK, and MP and CG each share one count. No number is ever given twice: every old number from the old site lists is held first, and each count starts past the highest old number in it. Every new number has four digits: a state with no old numbers starts at its own point above 1200, never at 1, and a short number given before this rule was replaced once.</p>'
+      + '<p class="rg-hint">A member number is the state code and a number, given once from the state on the membership, the moment the payment succeeds. AP and TG, UP and UK, and MP and CHT each share one count. The codes are PFA&rsquo;s state code directory, below. No number is ever given twice: every old number from the old site lists is held first, and each count starts past the highest old number in it. Every new number has four digits: a state with no old numbers starts at its own point above 1200, never at 1, and a short number given before this rule was replaced once.</p>'
       + (held.length ? '<p class="rg-hint"><b>Not numbered yet</b></p><ul class="rg-list">' + held.map(function (r) { return line(r.name + ' (' + r.id + '): ' + (r.numberHold || 'not numbered: open this page again')); }).join('') + '</ul>' : '')
       + '<div class="wrap"><table><thead><tr><th>Series</th><th>States</th><th>Last given</th><th>Next</th></tr></thead><tbody>'
-      + (n.series || []).map(function (x) { return '<tr><td>' + esc(x.series) + '</td><td>' + esc(x.states.map(function (s) { return s.code + ' ' + s.state; }).join(', ')) + '</td><td>' + (x.last || '') + '</td><td>' + esc(x.states[0].code + ' ' + x.next) + (x.states.length > 1 ? ' (or ' + esc(x.states.slice(1).map(function (s) { return s.code; }).join(', ')) + ')' : '') + '</td></tr>'; }).join('')
+      + (n.series || []).map(function (x) { return '<tr><td>' + esc(x.name || x.series) + '</td><td>' + esc(x.states.map(function (s) { return s.code + ' ' + s.state; }).join(', ')) + '</td><td>' + (x.last || '') + '</td><td>' + esc(x.states[0].code + ' ' + x.next) + (x.states.length > 1 ? ' (or ' + esc(x.states.slice(1).map(function (s) { return s.code; }).join(', ')) + ')' : '') + '</td></tr>'; }).join('')
       + '</tbody></table></div>'
       + (rep.unplacedCount ? '<p class="rg-hint"><b>Old numbers with no state (' + rep.unplacedCount + ')</b>: held nowhere, so give each a state code on the old site members page.</p><ul class="rg-list">' + (rep.unplaced || []).map(function (x) { return line(x.why); }).join('') + '</ul>' : '')
       + (rep.sharedByTwoCount ? '<p class="rg-hint"><b>Old numbers held by two different people (' + rep.sharedByTwoCount + ')</b>: never given again; decide whose it is on the old site members page.</p><ul class="rg-list">' + (rep.sharedByTwo || []).map(function (x) { return line(x.label + ': ' + x.people + ' people'); }).join('') + '</ul>' : '')
