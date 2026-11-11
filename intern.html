@@ -162,6 +162,7 @@ input,button,textarea,select{font-family:inherit;font-size:inherit;color:inherit
 .tile__h{margin:0;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .tile__big{margin:0;font-family:var(--display);font-size:clamp(30px,4vw,44px);line-height:1}
 .tile__p{margin:0;font-size:14px;line-height:1.55;color:rgba(17,17,17,.78)}
+#dbWeekDue a,.tile__p a{color:inherit;text-decoration:underline;text-underline-offset:3px}
 .bar{height:8px;background:var(--soft);overflow:hidden}
 .bar>i{display:block;height:100%;background:var(--ink);width:0;transition:width .5s}
 
@@ -997,7 +998,7 @@ if (root.document && root.document.head) apply(read());
     } else if (b.week > n) {
       $('#dbWeekH').textContent = 'The internship';
       $('#dbWeekT').textContent = 'Ended';
-      $('#dbWeekDue').textContent = data.progress.complete ? 'Every task is accepted. PFA issues your certificate.' : 'Anything still open can be sent; PFA reviews it before the certificate.';
+      $('#dbWeekDue').innerHTML = data.intern.certificateNumber ? 'Every task is accepted. <a href="certificate.html?n=' + encodeURIComponent(data.intern.certificateNumber) + '">See your certificate</a>' : data.progress.complete ? 'Every task is accepted. Your certificate is on its way to your email.' : 'Anything still open can be sent; PFA reviews it before the certificate.';
     } else {
       $('#dbWeekH').textContent = 'Week ' + b.week + ' of ' + n;
       $('#dbWeekT').textContent = cur.title;
@@ -1049,7 +1050,7 @@ if (root.document && root.document.head) apply(read());
     var list = tasksFor(week);
     var chosen = data.intern.electives || [];
     var html = list.map(taskCard).join('');
-    if (!list.length && week === b.weeks.length) html = '<div class="tile"><p class="tile__p">' + (data.progress.complete ? 'Every task is accepted. PFA checks the last proofs and issues your certificate.' : 'Nothing is open for this week.') + '</p></div>';
+    if (!list.length && week === b.weeks.length) html = '<div class="tile"><p class="tile__p">' + (data.intern.certificateNumber ? 'Every task is accepted. <a href="certificate.html?n=' + encodeURIComponent(data.intern.certificateNumber) + '">See your certificate</a>' : data.progress.complete ? 'Every task is accepted. Your certificate is on its way to your email.' : 'Nothing is open for this week.') + '</p></div>';
     if (b.tasks.some(function (t) { return t.kind === 'elective' && (t.week === week || t.dueWeek === week); }) && chosen.length < b.electivesRequired) {
       html += '<div class="tile"><p class="tile__p">Choose your ' + b.electivesRequired + ' electives below to see them here.</p></div>';
     }

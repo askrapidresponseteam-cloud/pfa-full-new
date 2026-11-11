@@ -9,6 +9,13 @@
 .deck__head h1,.deck__head h2{font-size:clamp(30px,3.6vw,50px);margin:0}
 .deck__stage{position:relative;flex:1;min-height:calc(var(--ch) + 80px);margin-top:14px;transition:height .55s cubic-bezier(.2,.7,.2,1)}
 .deck__cards{position:absolute;inset:0}
+/* Every card at once: the stage takes the height deck.js gives it, so the
+   cards sit under the title and over the view switch, never across either
+   (owner, 11 Nov 2026: "the cards are above the text..fix"). Held to flex:1
+   the stage kept the height of one card's view, and the rows deck.js laid
+   out from its centre ran up over the title and down past the switch. */
+.deck.is-grid .deck__stage{flex:none}
+.deck.is-grid .deck__cards{inset:0}
 .card{position:absolute;left:50%;top:50%;width:var(--cw);height:var(--ch);margin:calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);background:#fff;color:var(--ink);padding:20px;border:0;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:14px;box-shadow:0 22px 56px rgba(0,0,0,.55);transform:translate3d(var(--x,0px),var(--y,0px),0) rotate(var(--r,0deg)) scale(var(--s,1));transition:transform .55s cubic-bezier(.2,.7,.2,1),opacity .35s ease}
 .card:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .card[data-off]{opacity:0;pointer-events:none}
@@ -48,7 +55,10 @@
 .deck__foot a{text-decoration:underline;text-underline-offset:3px}
 .deck__panel-art{width:min(100%,300px);aspect-ratio:1;justify-self:center}
 @media (max-width:860px){.deck__panel-in{grid-template-columns:1fr}.deck__panel-art{display:none}.deck__links{grid-template-columns:1fr}}
-@media (max-width:720px){.deck{--cw:250px;--ch:340px;--gw:140px;--gap:12px;padding-bottom:22px}.deck__ctl{position:static;transform:none;display:inline-block;margin:6px 14px}.deck__stage{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:6px}.deck__cards{bottom:60px}}
+@media (max-width:720px){.deck{--cw:250px;--ch:340px;--gw:140px;--gap:12px;padding-bottom:22px}.deck__ctl{position:static;transform:none;display:inline-block;margin:6px 14px}.deck__stage{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-end;align-content:flex-end;padding-bottom:6px}.deck__cards{bottom:60px}}
+/* On a phone Next card and Show me share one row under the cards, in the
+   60px the cards leave them: stacked, Next card sat up behind the cards
+   and could not be pressed (11 Nov 2026). */
 /* An open card is a window over the page, between the header and the tab
    bar, never taller than the screen: it opens whole, with no scroll inside
    it or on the page (owner, 1 Nov 2026: "all the cards should open without

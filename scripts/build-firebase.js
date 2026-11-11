@@ -90,7 +90,7 @@ const PANEL_ASSETS = [
      Cinzel and Marcellus above. */
   'assets/certificate.js',
   'fonts/eb-garamond-latin-500.woff2',
-  'assets/certificates/internship.webp',
+  'assets/certificates/completion.webp',
   /* The birthday card the panel draws (11 Nov 2026): its dahlias and its
      PFA mark; its Marcellus is above. */
   'media/birthday/card-flowers.jpg',

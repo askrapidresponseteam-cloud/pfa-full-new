@@ -89,6 +89,9 @@
           }
           if (best >= 110) { gw = best; cols = bestCols; }
         }
+        /* never wider than the stage: on a narrow screen the cards shrink to
+           fit their columns rather than run off its edges */
+        gw = Math.min(gw, (W - gap * (cols - 1)) / cols);
         var s = gw / cw, gh = ch * s;
         var rows = Math.ceil(cards.length / cols);
         var H = rows * gh + (rows - 1) * gap + 40;

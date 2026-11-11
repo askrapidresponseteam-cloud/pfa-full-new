@@ -1,3 +1,21 @@
+## v1.562
+
+- **The internship certificate: the new design, issued on completion, and online at its own address.** Owner, 11 Nov 2026, with PFA-Certificate.html: "this is the internship certificate btw. also once one completes, this is automatically sent with the person's name. and this should be like one of those coursera certs that can be seen live online in a url", then "font has to be marcellus".
+  - The design: Certificate of Completion, the PFA logo, the holographic seal and the founder's signature, as drawn, in Marcellus throughout. On it, where the design puts them: the intern's name, the date of completion and the certificate ID. The course line reads "for successfully completing the Remote Internship"; the subtitle reads People For Animals, Remote Internship. The two short lines either side of the star are left out (no dash-shaped mark anywhere). The same design everywhere: the panel's preview and PDF, the emailed PDF, the sample on the internship page.
+  - Issued by itself: when an intern's last task is accepted, by PFA in the panel or by passing the law quiz, the certificate is issued once, with the name they gave, from the day their internship began to the day it was completed, and a number at random (PFA-INT-...). It is kept beside the ones PFA issues by hand, marked as issued automatically, in the audit log, and never issued twice, however many reviews land at once.
+  - Emailed at once: Your certificate., the dates, the number, and See your certificate, the link to it online.
+  - Online, like a course certificate: peopleforanimalsindia.org/certificate?n=PFA-INT-XXXXXXXX. The person's name, Verified (People for Animals issued this certificate to them on the day), the certificate itself, drawn from PFA's own record, and Download PDF (A4, the certificate edge to edge), Copy link and Add to LinkedIn. About this certificate folds under its +. A withdrawn certificate says so and is not shown; a number PFA never gave says that. Kept out of search engines and the site's search.
+  - Also: the check page (verify-certificate) links a genuine certificate to it; the panel's list has Online beside each one; the intern's dashboard says See your certificate once it is issued; the email PFA sends from the panel carries the PDF and the link.
+  - scripts/build-certificate-art.js makes the artwork again from the design (kept, unpublished, in scripts/source).
+
+## v1.561
+
+- **The Academy's cards no longer run over its title.** Owner, 11 Nov 2026, with a screenshot of every card laid across "Animal first aid.": "the cards are above the text..fix".
+  - With every card shown at once, the cards sit under the title and above the view switch, at every width. The deck gives its stage the height of all the rows; the stage now takes that height, where before it kept the height of the one-card view and the rows spread up over the title and down past the switch.
+  - On a phone the grid fits the screen: the cards shrink to their two columns instead of running off both edges.
+  - One card at a time on a phone, Next card and Show me now sit side by side under the cards. Before, Next card sat behind the cards and could not be pressed.
+  - Checked in a browser at 1440, 1024, 820, 390 and 360 wide, in both views: every card inside its space, under the title, above the switch, inside the screen, and none on top of another.
+
 ## v1.560
 
 - **Maneka's Picks has two openings, and the panel chooses which the site shows.** Owner, 11 Nov 2026, with the v1.558 page attached: "update maneka's picks page UI to be this", then "have 2 options in the admin for manekas picks page. 1 and 2. which can be switched on the admin panel".

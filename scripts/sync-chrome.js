@@ -62,6 +62,7 @@ const PAGES = {
   'ask.html':          { current: 'ask.html',         group: 'founder.html',     announce: DEFAULT_ANNOUNCE },
   'track.html':        { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },
   'verify-certificate.html': { current: null,       group: null,               announce: DEFAULT_ANNOUNCE },
+  'certificate.html':    { current: null,             group: null,                              announce: DEFAULT_ANNOUNCE }, /* one certificate online, reached from its own link (11 Nov 2026) */
   'caregiver-card.html': { current: null,             group: 'get-involved.html',               announce: DEFAULT_ANNOUNCE }, /* the card page is about the card; the nav's tribe entry leads to applying (15 Sep 2026) */
   'member-photo.html':   { current: null,             group: 'get-involved.html',               announce: DEFAULT_ANNOUNCE }, /* reached only from the photo link a member is emailed (26 Oct 2026) */
   'tax-receipt.html':    { current: null,             group: null,                              announce: DEFAULT_ANNOUNCE }, /* reached only from the 80G link in a receipt email (10 Nov 2026) */

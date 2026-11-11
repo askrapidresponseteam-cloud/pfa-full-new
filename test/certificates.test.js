@@ -107,8 +107,12 @@ test('wired: a module of its own, a route, closed to the browser, shipped with t
   assert.match(read('api/index.js'), /'admin\/certificates': \(\) => require\('\.\.\/lib\/routes\/admin\/certificates\.js'\)/);
   assert.match(read('firestore.rules'), /match \/certificates\/\{id\}\s+\{ allow read, write: if false; \}/);
   const build = read('scripts/build-firebase.js');
-  assert.ok(build.includes("'assets/certificate.js'") && build.includes("'assets/certificates/internship.webp'"));
-  assert.ok(fs.statSync(path.join(ROOT, 'assets', 'certificates', 'internship.webp')).size > 100000, 'the artwork is there');
+  assert.ok(build.includes("'assets/certificate.js'") && build.includes("'assets/certificates/completion.webp'"));
+  /* the owner's design (11 Nov 2026), at twice its 1120 x 792 */
+  const art = fs.readFileSync(path.join(ROOT, 'assets', 'certificates', 'completion.webp'));
+  assert.ok(art.length > 50000, 'the artwork is there');
+  assert.equal(art.subarray(0, 4).toString(), 'RIFF');
+  assert.ok(!fs.existsSync(path.join(ROOT, 'assets', 'certificates', 'internship.webp')), 'the old design is gone');
 });
 
 test('the panel: a Certificates section that draws, issues, downloads and withdraws', () => {

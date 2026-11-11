@@ -134,6 +134,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .tcard__kind{margin:0;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);line-height:1.5}
 .tcard__ref{margin:6px 0 0;font-family:var(--display);font-size:26px;line-height:1.2}
 .tcard__next{margin:14px 0 0;font-size:14px;line-height:1.6;color:var(--muted)}
+.tcard__next a{display:inline-block;margin-left:6px;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .tline{margin:24px 0 0;display:grid;gap:0;border-top:1px solid var(--line)}
 .tline li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;padding:13px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5}
 .tline li span:first-child{color:var(--muted)}
@@ -705,7 +706,7 @@ if (root.document && root.document.head) apply(read());
       + '<dt>For</dt><dd>' + esc(d.kind) + ', from ' + esc(long(d.startDate)) + ' to ' + esc(long(d.endDate)) + '</dd>'
       + '<dt>Issued on</dt><dd>' + esc(long(d.issuedOn)) + '</dd>'
       + (d.withdrawn ? '<dt>Withdrawn on</dt><dd>' + esc(long(d.withdrawnOn)) + '</dd>' : '');
-    $('#cNext').textContent = d.genuine ? 'The name and the dates should match the certificate exactly.' : 'This certificate is no longer valid.';
+    $('#cNext').innerHTML = d.genuine ? 'The name and the dates should match the certificate exactly. <a href="certificate.html?n=' + encodeURIComponent(d.number) + '">See the certificate</a>' : 'This certificate is no longer valid.';
   }
   function check(raw){
     var n = String(raw || '').replace(/\s+/g, '').toUpperCase();

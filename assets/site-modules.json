@@ -977,6 +977,23 @@
    ]
   },
   {
+   "id": "certificate",
+   "file": "certificate.html",
+   "title": "Certificate",
+   "group": "Not in the menus",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Internship certificate."
+    },
+    {
+     "id": "certificate",
+     "label": "Certificate"
+    }
+   ]
+  },
+  {
    "id": "verify-certificate",
    "file": "verify-certificate.html",
    "title": "Check a certificate",
@@ -1878,6 +1895,15 @@
    "trDoneLead": "card",
    "trIdKind": "card",
    "trIdShown": "card"
+  },
+  "certificate": {
+   "cvTitle": "top",
+   "cvLine": "top",
+   "cvActs": "top",
+   "cvCert": "certificate",
+   "cvMore": "certificate",
+   "cvFacts": "certificate",
+   "cvOther": "certificate"
   },
   "verify-certificate": {
    "cSay": "check",

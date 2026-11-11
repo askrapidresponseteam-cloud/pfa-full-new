@@ -1,15 +1,20 @@
 /* People for Animals - the internship certificate, drawn in the browser.
    ------------------------------------------------------------------------
-   Owner, 31 Oct 2026: "this certificate should be admin generatable".
+   Owner, 31 Oct 2026: "this certificate should be admin generatable"; the
+   design since 11 Nov 2026 is the owner's PFA-Certificate.html ("this is
+   the internship certificate btw", "font has to be marcellus").
 
-   The artwork is the owner's own design with its blanks taken out
-   (assets/certificates/internship.webp, 1672 x 941). On it this draws, in
-   the places the design left for them:
-     the intern's name        Cinzel, in the design's blue, sized to fit
-     from <start> to <end>    the internship's dates, in EB Garamond
-     Certificate No. <no.>    the number the server gave it (PFA-INT-...)
-     Issued on <date>
+   The artwork is that design with its three blanks taken out
+   (assets/certificates/completion.webp, 2240 x 1584, the design drawn at
+   twice its 1120 x 792, which is A4 landscape exactly), made by
+   scripts/build-certificate-art.js. On it this draws, where the design put
+   them, all in Marcellus:
+     the intern's name        43px, the design's ink, sized down to fit
+     Date of completion       the internship's last day
+     Certificate ID           the number the server gave it (PFA-INT-...)
    Nothing else is written; the words already in the design stay as drawn.
+   The places are the design's own, read from it in a browser (the
+   baselines below), so the drawn certificate and the design match.
 
    PFACertificate.draw(canvas, data, scale)   onto a canvas, at 1x or more
    PFACertificate.png(data)  -> Promise<Blob>  at 2x, 3344 x 1882
@@ -23,16 +28,22 @@
 (function (root) {
   'use strict';
 
-  var W = 1672;
-  var H = 941;
-  var ART = 'assets/certificates/internship.webp';
-  var BLUE = '#09429c';
-  var INK = '#14120f';
+  var W = 1120;
+  var H = 792;
+  /* the page that loads this may sit anywhere on the site, so the files are
+     asked for from the site's root */
+  var ROOT = (function () {
+    try { var s = root.document && root.document.currentScript; if (s && s.src) return s.src.replace(/assets\/certificate\.js(\?.*)?$/, ''); } catch (e) {}
+    return '';
+  }());
+  var ART = ROOT + 'assets/certificates/completion.webp';
+  var INK = '#242620';
   var FONTS = [
-    ['Cinzel', 'fonts/cinzel-latin-600.woff2', '600'],
-    ['EB Garamond', 'fonts/eb-garamond-latin-500.woff2', '500'],
-    ['Marcellus', 'fonts/marcellus-latin.woff2', '400']
+    ['Marcellus', ROOT + 'fonts/marcellus-latin.woff2', '400']
   ];
+  var FACE = '"Marcellus", Georgia, serif';
+  /* where the design writes them: x, and the baseline, in the design's own pixels */
+  var AT = { name: { x: 560, y: 420.16, max: 900 }, date: { x: 66, y: 649.7 }, number: { x: 66, y: 697.7 } };
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   var ready = null;
@@ -64,7 +75,7 @@
   function fit(ctx, text, font, size, maxWidth) {
     var s = size;
     ctx.font = font.replace('{s}', s);
-    while (s > 18 && ctx.measureText(text).width > maxWidth) {
+    while (s > 22 && ctx.measureText(text).width > maxWidth) {
       s -= 1;
       ctx.font = font.replace('{s}', s);
     }
@@ -100,32 +111,21 @@
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     if (art) ctx.drawImage(art, 0, 0, W, H);
-    else { ctx.fillStyle = '#f2ebdc'; ctx.fillRect(0, 0, W, H); }
+    else { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H); }
     ctx.textBaseline = 'alphabetic';
 
-    /* the name, in capitals, as large as the space between the lines allows */
-    var name = String(d.name || '').replace(/\s+/g, ' ').trim().toUpperCase() || 'INTERN NAME';
-    ctx.fillStyle = d.name ? BLUE : 'rgba(9,66,156,.35)';
-    var size = fit(ctx, name, '600 {s}px Cinzel, "Marcellus", Georgia, serif', 68, 760);
-    ctx.font = '600 ' + size + 'px Cinzel, "Marcellus", Georgia, serif';
-    spaced(ctx, name, W / 2, 528, Math.max(1, size * 0.03), 'center');
+    /* the name, as the design sets it, made smaller only if it would not fit */
+    var name = String(d.name || '').replace(/\s+/g, ' ').trim() || 'Your Name';
+    ctx.fillStyle = d.name ? INK : 'rgba(36,38,32,.32)';
+    var size = fit(ctx, name, '400 {s}px ' + FACE, 43, AT.name.max);
+    ctx.font = '400 ' + size + 'px ' + FACE;
+    spaced(ctx, name, AT.name.x, AT.name.y, -0.8 * size / 43, 'center');
 
-    /* from ... to ... */
-    var from = longDate(d.startDate);
-    var to = longDate(d.endDate);
+    /* the foot, on the left: the day it was completed, and its number */
     ctx.fillStyle = INK;
-    var dates = from && to ? 'from ' + from + ' to ' + to : 'from  .  .  .  to  .  .  .';
-    /* EB Garamond for anything with figures, the book face of the design's
-       own lines: Marcellus and Cinzel both draw a 1 that reads as a capital I */
-    var dsize = fit(ctx, dates, '500 {s}px "EB Garamond", Georgia, serif', 29, 720);
-    ctx.font = '500 ' + dsize + 'px "EB Garamond", Georgia, serif';
-    spaced(ctx, dates, W / 2, 690, 0.8, 'center');
-
-    /* the foot: the number on the left, the date on the right */
-    ctx.font = '500 19px "EB Garamond", Georgia, serif';
-    spaced(ctx, 'Certificate No. ' + (d.number || 'given when issued'), 426, 872, 0.5, 'left');
-    var issued = longDate(d.issuedOn);
-    spaced(ctx, 'Issued on ' + (issued || '. . .'), 1246, 872, 0.5, 'right');
+    ctx.font = '400 12px ' + FACE;
+    spaced(ctx, longDate(d.endDate) || '. . .', AT.date.x, AT.date.y, 0.6, 'left');
+    spaced(ctx, d.number || 'Given when issued', AT.number.x, AT.number.y, 0.6, 'left');
 
     /* The public page's preview (internship.html) is marked SAMPLE across
        its face, so a picture of it is never mistaken for one PFA issued. */
@@ -133,19 +133,21 @@
       /* a red rubber stamp over the lines below the name: it reads as a
          stamp at a glance, and cannot be cropped away without the words */
       ctx.save();
-      ctx.translate(W / 2, 706);
+      ctx.translate(W / 2, 498);
       ctx.rotate(-0.1);
-      ctx.font = '600 76px Cinzel, Georgia, serif';
-      if ('letterSpacing' in ctx) ctx.letterSpacing = '14px';
-      var tw = ctx.measureText('SAMPLE').width;
+      ctx.font = '400 58px ' + FACE;
+      /* its width with the spacing between the letters, measured without
+         it, since not every canvas counts letter spacing when it measures */
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+      var gap = 12;
+      var tw = ctx.measureText('SAMPLE').width + gap * 5;
       ctx.strokeStyle = 'rgba(190,30,30,.62)';
-      ctx.lineWidth = 5;
-      ctx.strokeRect(-tw / 2 - 30, -62, tw + 46, 96);
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(-tw / 2 - 20, -52, tw + 26, 76);
+      ctx.lineWidth = 4;
+      ctx.strokeRect(-tw / 2 - 26, -50, tw + 52, 74);
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(-tw / 2 - 18, -42, tw + 36, 58);
       ctx.fillStyle = 'rgba(190,30,30,.62)';
-      ctx.textAlign = 'center';
-      ctx.fillText('SAMPLE', 7, 14);
+      spaced(ctx, 'SAMPLE', 0, 9, gap, 'center');
       ctx.restore();
     }
     return canvas;
@@ -163,8 +165,9 @@
     });
   }
 
-  /* One A4 landscape page (297 x 210 mm) with the certificate centred on it,
-     drawn at 2x and embedded as a high-quality JPEG. */
+  /* One A4 landscape page (297 x 210 mm), the certificate filling it (the
+     design is A4's own shape), drawn at 2x and embedded as a high-quality
+     JPEG. */
   /* opts: { scale, quality } - the emailed copy is drawn at 1.5x and 0.82,
      about 600 KB (assets/admin-certificates.js); the download keeps 2x */
   function pdf(data, opts) {
@@ -176,7 +179,7 @@
       for (var i = 0; i < jpeg.length; i += 1) bytes[i] = jpeg.charCodeAt(i);
       var pw = 841.89;
       var ph = 595.28;
-      var margin = 24;
+      var margin = 0;
       var w = pw - margin * 2;
       var h = w * H / W;
       if (h > ph - margin * 2) { h = ph - margin * 2; w = h * W / H; }

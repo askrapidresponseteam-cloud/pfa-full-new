@@ -25,7 +25,7 @@ root.querySelectorAll('.lane-card').forEach(b=>b.addEventListener('click',()=>{o
 
 /* The sample certificate (2 Nov 2026: "where is that cool certificate on the
    internship page? the sample preview one"): under step 04 when asked for,
-   drawn in its blue by assets/certificate.js, marked SAMPLE, dated as if
+   drawn by assets/certificate.js (the certificate PFA issues, 11 Nov 2026), marked SAMPLE, dated as if
    the reader began today, with their name on it as they type. */
 (function () {
   'use strict';
@@ -40,7 +40,7 @@ root.querySelectorAll('.lane-card').forEach(b=>b.addEventListener('click',()=>{o
   var start = new Date();
   var end = new Date(start.getTime() + 55 * 864e5);
   var paint = function () {
-    C.draw(canvas, { name: (input.value || '').trim(), startDate: iso(start), endDate: iso(end), issuedOn: iso(end), sample: true }, 1);
+    C.draw(canvas, { name: (input.value || '').trim(), startDate: iso(start), endDate: iso(end), issuedOn: iso(end), sample: true }, 2);
   };
   var drawn = false;
   input.addEventListener('input', paint);

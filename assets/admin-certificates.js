@@ -11,7 +11,10 @@
    changes). Send draws the certificate as an A4 PDF in this browser
    (assets/certificate.js, a size that keeps it under the server's limit)
    and sends it with the preview's token; the server refuses if anything
-   changed since the preview (lib/routes/admin/certificates.js). Kept out of
+   changed since the preview (lib/routes/admin/certificates.js). The email
+   also links to the certificate online (certificate.html, 11 Nov 2026), and
+   one issued by itself when an intern completes is emailed with that link
+   alone (lib/intern-certificate.js). Kept out of
    admin.html so that page stays under the page-weight ceiling; it uses the
    panel's helpers on window.PFAAdmin.
    ------------------------------------------------------------------------ */
@@ -37,7 +40,7 @@
     dlg.innerHTML = '<div class="rgm-head"><h3>Check the email before it goes</h3>'
       + '<p class="rgm-sub">' + esc(cert.number) + ' · ' + esc(cert.name) + ', ' + esc(long(cert.startDate)) + ' to ' + esc(long(cert.endDate)) + '. The certificate goes as an A4 PDF, and the email links to the public check.</p></div>'
       + '<div class="rgm-cards">'
-      + '<article class="rgm-card"><p class="rgm-to"><b>The certificate, attached</b><span>PFA-internship-certificate-' + esc(cert.number) + '.pdf</span></p><canvas class="ctm-cert" width="1672" height="941" aria-label="The certificate as it will be attached"></canvas></article>'
+      + '<article class="rgm-card"><p class="rgm-to"><b>The certificate, attached</b><span>PFA-internship-certificate-' + esc(cert.number) + '.pdf</span></p><canvas class="ctm-cert" width="1120" height="792" aria-label="The certificate as it will be attached"></canvas></article>'
       + '<article class="rgm-card"><p class="rgm-to"><label for="ctmTo"><b>To</b></label><input id="ctmTo" class="ctm-to" type="email" maxlength="254" autocomplete="off" value="' + esc(state.to) + '" placeholder="Their email"></p><p class="rgm-subj" data-ctm-subj></p><iframe class="rgm-frame" sandbox="" title="The email" data-ctm-frame></iframe><p class="rgm-why" data-ctm-why hidden></p></article>'
       + '</div>'
       + '<div class="rgm-foot"><p class="rg-say" data-ctm-say role="status" aria-live="polite"></p><button class="ghost" type="button" data-ctm="cancel">Cancel</button><button class="press" type="button" data-ctm="send" disabled>Send the certificate</button></div>';
@@ -45,8 +48,8 @@
     var canvas = dlg.querySelector('.ctm-cert');
     if (C && canvas) {
       var data = { name: cert.name, startDate: cert.startDate, endDate: cert.endDate, issuedOn: cert.issuedOn, number: cert.number };
-      C.draw(canvas, data, 1);
-      C.load().then(function () { C.draw(canvas, data, 1); }, function () {});
+      C.draw(canvas, data, 2);
+      C.load().then(function () { C.draw(canvas, data, 2); }, function () {});
     }
     if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
     preview();

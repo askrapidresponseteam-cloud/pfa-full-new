@@ -171,10 +171,10 @@ test('the photographs are on the site, as files, each with words for a screen re
   assert.match(html, /#v-reader \.v-readimg img\{position:static;width:100%;height:auto;object-fit:contain;/);
 });
 
-test('the certificate, as the portal issues it: in its blue, marked SAMPLE when a sample', () => {
+test('the certificate, as the portal issues it: the owner\'s design (11 Nov 2026), marked SAMPLE when a sample', () => {
   const js = read('assets/certificate.js');
   assert.match(js, /if \(d\.sample\) \{/);
-  assert.match(js, /ctx\.fillText\('SAMPLE'/);
+  assert.match(js, /spaced\(ctx, 'SAMPLE', 0, 9, gap, 'center'\);/);
 });
 
 test('the application: four steps, the address, a parent for 16 and 17, filed as PFA-VI', () => {
@@ -230,7 +230,7 @@ test('the sample certificate: under step 04, opened when asked, drawn SAMPLE wit
   assert.equal(peek.getAttribute('aria-expanded'), 'false');
   const box = doc.querySelector('#internship-process #cert-sample');
   assert.ok(box && box.hasAttribute('hidden'), 'hidden until asked for');
-  assert.ok(box.querySelector('canvas.vi-cert__canvas[width="1672"][height="941"]'));
+  assert.ok(box.querySelector('canvas.vi-cert__canvas[width="1120"][height="792"]'), 'the certificate PFA issues, at its own shape (11 Nov 2026)');
   assert.ok(box.querySelector('label.cert-try input.vi-try[maxlength="48"]'));
   assert.match(box.querySelector('figcaption').textContent, /^A sample, as it would read if you began today\./);
   const scripts = [...doc.querySelectorAll('script[src]')].map((s) => s.getAttribute('src'));

@@ -83,7 +83,7 @@ test('the email is previewed, then sent exactly as previewed, with the PDF and t
   assert.equal(sent.length, 0, 'a preview sends nothing');
   assert.equal(pre.json.to, 'asha@example.com');
   assert.equal(pre.json.subject, `Your PFA internship certificate - ${c.number}`);
-  for (const bit of ['Your certificate.', 'from 2 November 2026 to 27 December 2026', c.number, 'Check it is genuine', `https://peopleforanimalsindia.org/verify-certificate?n=${c.number}`]) assert.ok(pre.json.html.includes(bit), bit);
+  for (const bit of ['Your certificate.', 'from 2 November 2026 to 27 December 2026', c.number, 'attached as a PDF, and it is online', 'See your certificate', `https://peopleforanimalsindia.org/certificate?n=${c.number}`]) assert.ok(pre.json.html.includes(bit), bit);
   /* without the preview's token, or with a different address than previewed */
   assert.equal((await admin({ action: 'email', number: c.number, token: 'made-up', pdf: PDF.toString('base64') })).status, 409);
   assert.equal((await admin({ action: 'email', number: c.number, email: 'other@example.com', token: pre.json.token, pdf: PDF.toString('base64') })).status, 409);
@@ -100,7 +100,7 @@ test('the email is previewed, then sent exactly as previewed, with the PDF and t
   assert.equal(m.attachments[0].filename, `PFA-internship-certificate-${c.number}.pdf`);
   assert.equal(m.attachments[0].contentType, 'application/pdf');
   assert.ok(m.attachments[0].content.equals(PDF), 'the PDF exactly as the panel made it');
-  assert.match(m.text, new RegExp(`Anyone can check it is genuine: https://peopleforanimalsindia\\.org/verify-certificate\\?n=${c.number}`));
+  assert.match(m.text, new RegExp(`See it, download it and share it: https://peopleforanimalsindia\\.org/certificate\\?n=${c.number}`));
   const kept = db.dump()[`certificates/${c.number}`];
   assert.equal(kept.pdf.size, PDF.length, 'the PDF is kept with the certificate');
   assert.deepEqual(kept.sends.map((x) => [x.to, x.state, x.by]), [['asha@example.com', 'sent', 'office@pfa.test']]);
