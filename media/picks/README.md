@@ -1,5 +1,13 @@
 # Maneka's Picks
 
+- `portrait.jpg`: her photograph in sunglasses, 2770 by 2272, shown whole at
+  the top of manekas-picks.html beside the title (owner, 11 Nov 2026). Made by
+  `python3 scripts/retouch-portrait-sunglasses.py` from the original
+  (scripts/source/portrait-sunglasses-original.png, not published): the
+  generated line texture on skin and lips taken out, blemishes and freckles
+  healed, the eyes left as they were, then the whole picture at twice its size
+  with fine pores and an even sensor grain.
+- The files below are from the earlier visor opening and are no longer shown.
 - `portrait-visor.jpg`: her photograph in an amber visor, 2576 by 2113,
   shown whole on manekas-picks.html. The trailer plays in the visor. Made by
   `python3 scripts/retouch-portrait.py` from the original

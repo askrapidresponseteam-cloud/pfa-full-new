@@ -74,12 +74,11 @@
    for what names something, Helvetica for what is read, square buttons, a
    hairline over each band, white ground.
 
-   Her photograph in dark glasses, and a trailer that plays in them when
-   asked ("render within the specs perfectly", then of this photograph:
-   "nothing to get clipped"): each lens holds the whole film at 16:9,
-   placed by percent of the photograph so it stays in the glass at every
-   width. Full screen is the theatre, the one player every film on the
-   site uses. */
+   The page opens quietly (owner, 11 Nov 2026: "any toned down version.
+   maneka madam is a well known public figure", choosing a quiet portrait):
+   the title and one line on the left, her photograph whole on the right,
+   nothing moving and nothing playing over her. Every film plays in the
+   theatre, the one player every film on the   site uses. */
 :root{
   --paper:#fff;
   --ink:#111;
@@ -119,129 +118,25 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .btn--light:hover{background:var(--ink);color:#fff}
 .btn svg{width:12px;height:12px;flex:none}
 
-/* ---------- the hero: her photograph, the whole screen ----------
-   Owner, 10 Nov 2026, with jjettas.com's Justin Jefferson page: "when this
-   page opens ... can you do something so that it opens like a hero. like in
-   the ref attached.. full screen, powerful. both on mobile and web". The
-   page opens on her photograph, edge to edge and the height of the screen,
-   the header over it. Her photograph keeps its own shape and is cropped to
-   fill (it is scaled, never stretched), with the visor held at the same
-   height on every screen, so the film in it lands where it always did: the
-   visor's layers sit in percent of the photograph, inside it. On a wide
-   screen two cards stand on the wall either side of her, as the
-   reference's do (the books, and the film in her glasses), and the title
-   and the controls run along the foot over a dark fade; on a phone or
-   tablet the foot carries it all. */
-.mp-hero{position:relative;height:calc(100vh - var(--tabbar,0px));height:calc(100svh - var(--tabbar,0px));min-height:560px;padding:0;background:#e6e6e6;overflow:hidden;isolation:isolate;scroll-margin-top:0}
-.mp-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:52%;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(10,10,10,0) 0%,rgba(10,10,10,.32) 38%,rgba(10,10,10,.82) 100%)}
+/* ---------- the opening: the title, and her photograph ----------
+   Owner, 11 Nov 2026: "any toned down version. maneka madam is a well
+   known public figure", choosing a quiet portrait. The site's own title
+   block on the left, with its one line and two buttons; her photograph on
+   the right, whole and at its own shape (never cut, masked or stretched),
+   under the header, with her name under it. No film over her, no moving
+   type, no floating cards, nothing that leans to the pointer. On a phone
+   the title comes first and the photograph under it, the width of the
+   screen. The photograph is an official one of hers once
+   media/picks/portrait.jpg is on this site (any shape; it is shown whole),
+   and until then the one the page has carried. */
+.mp-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,88px);align-items:center;padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) 64px}
+.mp-hero__text{min-width:0;max-width:600px}
+.mp-hero__role{max-width:44ch;font-size:16px;line-height:1.65;color:rgba(17,17,17,.75)}
 .mp-acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
-.mp-foot{position:absolute;z-index:7;left:var(--gutter);right:var(--gutter);bottom:clamp(28px,5.5vh,64px);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px clamp(28px,4vw,72px);align-items:end;color:#fff}
-.mp-title .eyebrow.pfa-kicker{color:rgba(255,255,255,.72)}
-main .mp-title h1.pfa-title.pfa-title{color:#fff;font-size:clamp(46px,7.2vw,124px);line-height:.92;max-width:none;white-space:nowrap}
-.mp-title .mp-hero__role{margin:18px 0 0;max-width:52ch;font-size:15px;line-height:1.6;color:rgba(255,255,255,.82)}
-/* the film in her glasses, and its controls, at the foot, light on dark */
-.mp-cap{display:grid;justify-items:end;gap:12px;min-width:0}
-.mp-cap__now{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:4px 12px;min-width:0;text-align:right}
-.mp-cap__now .eyebrow{color:rgba(255,255,255,.7)}
-.mp-cap__now b{font-family:var(--display);font-weight:400;font-size:clamp(18px,1.7vw,26px);line-height:1.15;text-transform:uppercase;letter-spacing:.01em;overflow-wrap:anywhere;color:#fff}
-.mp-ctls{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
-.mp-ctl{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border:1px solid rgba(255,255,255,.85);background:rgba(10,10,10,.62);color:#fff;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.mp-ctl:hover,.mp-ctl--go{background:#fff;color:var(--ink);border-color:#fff}
-.mp-ctl--go:hover{background:rgba(10,10,10,.62);color:#fff}
-.mp-ctl svg{width:11px;height:11px;flex:none}
-/* the cards on the wall: the books on her left, the films on her right,
-   each floating a little and leaning further than she does */
-.mp-card{position:absolute;z-index:7;top:calc(var(--ann) + var(--nav) + clamp(28px,9vh,120px));width:clamp(150px,13vw,210px);display:grid;gap:12px;color:var(--ink);text-decoration:none;
-  transform:translate3d(calc(var(--mx) * 14px),calc(var(--my) * 9px),0);transition:transform 1.1s cubic-bezier(.22,1,.36,1)}
-.mp-card--books{left:var(--gutter)}
-.mp-card--films{right:var(--gutter)}
-.mp-card__pic{position:relative;display:block;overflow:hidden;background:var(--ink);color:#fff;border:3px solid #fff;box-shadow:0 22px 44px -22px rgba(0,0,0,.6),0 2px 0 rgba(0,0,0,.06);animation:mp-float 7s ease-in-out infinite alternate}
-.mp-card--films .mp-card__pic{aspect-ratio:16/9;animation-delay:-3.5s}
-.mp-card--books .mp-card__pic{aspect-ratio:2/3;max-height:min(30vh,300px);width:auto}
-.mp-card__pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease}
-.mp-card__pic img.is-on{opacity:1}
-.mp-card__pic>span{position:absolute;left:12px;right:12px;bottom:10px;font:400 clamp(16px,1.4vw,22px)/1.05 var(--display);text-transform:uppercase;letter-spacing:.02em}
-.mp-card__pic.has-img>span{display:none}
-.mp-card__line{display:block;transition:opacity .5s ease}
-.mp-card__line.is-out{opacity:0}
-.mp-card p{margin:0;font-size:13px;line-height:1.5;color:rgba(17,17,17,.8)}
-.mp-card p b{display:block;margin-bottom:2px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
-.mp-card:hover .mp-card__pic{box-shadow:0 26px 50px -20px rgba(0,0,0,.7),0 2px 0 rgba(0,0,0,.06)}
-@keyframes mp-float{from{transform:translate3d(0,0,0) rotate(-1.2deg)}to{transform:translate3d(0,-10px,0) rotate(.8deg)}}
-
-/* ---------- her photograph, and the trailer in her glasses ---------- */
-/* Under the header, never behind it (owner, 10 Nov 2026: "her head is
-   getting chopped. can you do it in a way where the header of the page is
-   intact. her photo is adjusted so nothing gets clipped"). The room is her
-   wall, the width of the screen: the photograph's own wall is cut away
-   (media/picks/portrait-cut.png, scripts/build-portrait-cut.py), so she
-   stands on this one, and her name drifts across it behind her. */
-.mp-room{position:absolute;left:0;right:0;top:calc(var(--ann,0px) + var(--nav,81px));bottom:0;overflow:hidden;isolation:isolate;container-type:size;--mx:0;--my:0;
-  background:radial-gradient(ellipse 62% 78% at 50% 34%,#eeeeee 0%,#e7e7e7 55%,#dcdcdc 100%)}
-.mp-room::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;mix-blend-mode:soft-light;
-  background:radial-gradient(ellipse 40% 55% at calc(50% + var(--mx) * 6%) calc(30% + var(--my) * 4%),rgba(255,255,255,.55),rgba(255,255,255,0) 70%)}
-/* As jjettas.com's hero (owner, 10 Nov 2026: "have some effects as in
-   https://jjettas.com/ so that it looks really amazing"): her name drifts
-   across the wall behind her in two rows of giant type, one each way, as
-   theirs does; the picture leans a little toward the pointer, the type
-   further than she does, so she stands in front of it; a light runs across
-   the visor now and then; a soft studio light over all; and the picture
-   settles in as it opens. All of it still when motion is reduced. */
-/* Her photograph at its own shape (2576 by 2113), never stretched: the
-   height of the room under a little air above her head, so all of her is
-   in it, head to shoulders; on a phone no wider than 1.7 screens, so her
-   face fills it and only the wall at the photograph's sides, and the tips
-   of her shoulders, run off. Centred across; her head at the top. */
-.mp-scene{position:absolute;container-type:size;--pad:clamp(10px,3cqh,32px);--sh:min(100cqh - var(--pad),100cqw * 1.7 * 2113 / 2576);--sw:calc(var(--sh) * 2576 / 2113);width:var(--sw);height:var(--sh);left:calc(50% - var(--sw) / 2);top:var(--pad);transform:translate3d(calc(var(--mx) * -6px),calc(var(--my) * -4px),0) scale(1.03);transition:transform .9s cubic-bezier(.22,1,.36,1);animation:mp-in 1.6s cubic-bezier(.22,1,.36,1) both}
-@keyframes mp-in{from{opacity:0;transform:scale(1.08)}to{opacity:1;transform:translate3d(0,0,0) scale(1.03)}}
-/* her name across the whole wall, behind her (she is in front of it: the
-   photograph above it is her alone) */
-.mp-type{position:absolute;inset:0;z-index:0;pointer-events:none;display:flex;flex-direction:column;justify-content:center;gap:1cqh;overflow:hidden;mix-blend-mode:multiply}
-.mp-type__row{display:flex;overflow:hidden;transform:translate3d(calc(var(--mx) * 22px),calc(var(--my) * 10px),0);transition:transform 1.2s cubic-bezier(.22,1,.36,1)}
-.mp-type__track{display:flex;flex:none;gap:5cqw;padding-right:5cqw;animation:mp-drift 90s linear infinite;will-change:transform}
-.mp-type__row--back .mp-type__track{animation-direction:reverse}
-.mp-type__track span{font-family:var(--display);font-weight:400;font-size:max(20cqw,26cqh);line-height:.86;letter-spacing:.01em;text-transform:uppercase;white-space:nowrap;color:rgba(17,17,17,.075);filter:blur(1px)}
-@keyframes mp-drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
-.mp-scene{z-index:1}
-/* her, cut from the photograph's wall, fading out at her shoulders */
-.mp-photo{position:absolute;inset:0;width:100%;height:100%;display:block;
-  -webkit-mask-image:url("media/picks/portrait-cut.png"),linear-gradient(#000 82%,rgba(0,0,0,0));mask-image:url("media/picks/portrait-cut.png"),linear-gradient(#000 82%,rgba(0,0,0,0));
-  -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-composite:source-in;mask-composite:intersect}
-/* The visor's box, on the photograph (2576 by 2113): 906 to 1676 across,
-   644 to 918 down (scripts/build-visor-mask.py). The boundary is drawn: one
-   smooth curve along the frame's inner edge. The film runs a few pixels
-   under the frame (visor-mask.png), and the frame is laid back over it
-   (visor-frame.png, the photograph's own frame with a fine dark lip on the
-   curve), so the film ends on that clean line and nowhere else. */
-.mp-lens{position:absolute;z-index:3;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;opacity:0;transition:opacity .5s ease}
-/* the glass: the film and its layers, through the film's mask; the frame
-   is its sibling in the same box, so the two land on the same pixels */
-.mp-lens__glass{position:absolute;inset:0;overflow:hidden;isolation:isolate;
-  -webkit-mask-image:url("media/picks/visor-mask.png");mask-image:url("media/picks/visor-mask.png");
-  -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
-.mp-room.has-still .mp-lens,.mp-room.is-playing .mp-lens{opacity:1}
-/* the film fills the visor, as the video does in a jjettas lens: 16:9 as
-   wide as the visor and centred (the visor is 3.13 wide for 1), graded to
-   the amber glass */
-.mp-lens__film,.mp-lens__still{position:absolute;left:0;top:-29.04%;width:100%;height:158.07%;border:0;filter:sepia(.42) saturate(1.3) hue-rotate(-6deg) contrast(1.06) brightness(.94)}
-.mp-lens__still{display:block;object-fit:cover;opacity:0;transition:opacity .5s ease}
-.mp-lens__still.is-in{opacity:1}
-.mp-room.is-playing .mp-lens__still{opacity:0}
-/* over the film: the amber of the glass and a soft shade toward its rim, a
-   fine grille, then the visor's own reflections, all inside the mask */
-.mp-lens__tone,.mp-lens__grille,.mp-lens__shine{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.mp-lens__tone{background:radial-gradient(ellipse 60% 85% at 50% 42%,rgba(40,20,0,0) 55%,rgba(40,20,0,.38) 100%),rgba(255,166,48,.16);mix-blend-mode:multiply}
-.mp-lens__grille{background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,rgba(0,0,0,0) 1px 3px);mix-blend-mode:multiply;opacity:.45}
-.mp-lens__shine{display:block;mix-blend-mode:screen}
-/* a light run across the glass every few seconds */
-.mp-lens__glint{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;background:linear-gradient(105deg,rgba(255,255,255,0) 42%,rgba(255,244,225,.42) 50%,rgba(255,255,255,0) 58%) no-repeat;background-size:260% 100%;background-position:160% 0;animation:mp-glint 7s cubic-bezier(.45,0,.2,1) 2.4s infinite}
-@keyframes mp-glint{0%{background-position:160% 0}28%,100%{background-position:-60% 0}}
-/* the frame, laid back over the film and the glass's rim, outside the
-   film's mask: the film ends on its drawn edge, and no amber is left at it */
-.mp-lens__frame{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
-.mp-lens iframe{display:block;width:100%;height:100%;border:0;pointer-events:none}
-.mp-lensbtn{position:absolute;z-index:4;left:35.1708%;top:30.4780%;width:29.8913%;height:12.9673%;padding:0;border:0;background:transparent;border-radius:30%;cursor:pointer}
-.mp-lensbtn:focus-visible{outline:2px solid var(--ink);outline-offset:6px}
+.mp-portrait{margin:0;justify-self:end;width:100%;max-width:620px;min-width:0}
+.mp-portrait img{display:block;width:100%;height:auto;background:var(--room)}
+.mp-portrait figcaption{margin:14px 0 0;font-size:13px;line-height:1.5;color:rgba(17,17,17,.7)}
+.mp-portrait figcaption b{display:block;margin-bottom:2px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
 
 /* ---------- bands ---------- */
 .band{padding:var(--band) var(--gutter)}
@@ -281,31 +176,14 @@ main .mp-title h1.pfa-title.pfa-title{color:#fff;font-size:clamp(46px,7.2vw,124p
 .mp-bk h3{margin:12px 0 0;font-size:clamp(28px,3vw,44px)}
 .mp-bk p{margin:14px 0 0;max-width:44ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.75)}
 
-@media (max-width:1100px){
-  .mp-card{display:none}
-  .mp-foot{grid-template-columns:minmax(0,1fr);left:16px;right:16px;bottom:clamp(18px,3.5vh,32px);gap:18px}
-  .mp-hero::after{height:62%;background:linear-gradient(180deg,rgba(10,10,10,0) 0%,rgba(10,10,10,.45) 34%,rgba(10,10,10,.88) 100%)}
-  .mp-cap{justify-items:start}
-  .mp-cap__now{justify-content:flex-start;text-align:left}
-  .mp-ctls{justify-content:flex-start}
-}
-/* a wide screen that is not tall: the cards smaller and higher, clear of the title */
-@media (min-width:1101px) and (max-height:860px){
-  .mp-card{top:calc(var(--ann) + var(--nav) + 20px);width:clamp(140px,11vw,180px)}
-  .mp-card--books .mp-card__pic{max-height:22vh}
-}
 @media (max-width:900px){
+  .mp-hero{grid-template-columns:minmax(0,1fr);gap:32px;align-items:start}
+  .mp-portrait{justify-self:stretch;max-width:none}
   .mp-grid{grid-template-columns:minmax(0,1fr);gap:48px}
   .mp-film .mp-acts{margin-top:0}
 }
 @media (max-width:720px){
-  main .mp-title h1.pfa-title.pfa-title{white-space:normal;font-size:clamp(40px,12vw,60px)}
-  .mp-title .mp-hero__role{display:none}
-  .mp-title .eyebrow.pfa-kicker{margin-bottom:10px}
-  .mp-foot{gap:14px}
-  .mp-cap{justify-items:stretch;width:100%}
-  .mp-ctls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-  .mp-ctl--go{grid-column:1 / -1}
+  .mp-hero{padding:calc(var(--ann) + var(--nav) + 36px) 16px 48px}
   .band{padding-left:16px;padding-right:16px}
   .mp-bk{grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:18px}
   .mp-bk__cover{padding:14px 12px}
@@ -314,8 +192,6 @@ main .mp-title h1.pfa-title.pfa-title{color:#fff;font-size:clamp(46px,7.2vw,124p
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
-  .mp-scene,.mp-type__row,.mp-card{transform:none}
-  .mp-lens__glint{display:none}
 }
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
@@ -584,79 +460,23 @@ if (root.document && root.document.head) apply(read());
 <script src="assets/chrome.js?v=8d5e29d85f"></script>
 
 <main>
-  <!-- The hero (owner, 10 Nov 2026: "full screen, powerful. both on mobile
-       and web", with jjettas.com's Justin Jefferson page). Her photograph
-       fills the screen; the title and the film in her glasses run along its
-       foot; on a wide screen a card for the books and one for the films
-       stand on the wall either side of her. The visor and the film in it
-       are exactly as before (owner: "can you play the video in this. render
-       perfectly. nothing to get clipped pls"; "not even 1 pixel should flow
-       out"): their places are in percent of the photograph, inside it. -->
+  <!-- The opening (owner, 11 Nov 2026: "any toned down version. maneka
+       madam is a well known public figure"): the title, one line and two
+       buttons; her photograph whole beside them, nothing over it. -->
   <section class="mp-hero" id="top">
-    <div class="mp-room" id="mpRoom">
-     <!-- her name, drifting across the wall behind her -->
-     <div class="mp-type" aria-hidden="true">
-       <div class="mp-type__row"><div class="mp-type__track"><span>Maneka’s</span><span>Maneka’s</span><span>Maneka’s</span><span>Maneka’s</span></div></div>
-       <div class="mp-type__row mp-type__row--back"><div class="mp-type__track"><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span></div></div>
-     </div>
-     <div class="mp-scene">
-      <img class="mp-photo" src="media/picks/portrait-visor.jpg" width="2576" height="2113" alt="Smt. Maneka Sanjay Gandhi in amber glasses, a black and white photograph" decoding="async">
-      <!-- The visor, as jjettas.com does its lens (owner, 10 Nov 2026: "how is
-           it being done in this. you need to do the same ... implement
-           ditto", then "not even 1 pixel should flow out", then this
-           photograph: "ur choice. goal is to play the video perfectly").
-           There a WebGL shader fills the lens with a looping video through a
-           mask of the lens's shape, grades it, lays a fine grille over it and
-           the lens's own reflections on top. A YouTube trailer cannot be a
-           WebGL texture, so the browser composites the same layers. The
-           boundary is drawn as one smooth curve along the frame's inner edge
-           (scripts/build-visor-mask.py); the film runs under the frame and
-           the frame is laid back over it (visor-frame.png), so the film ends
-           on that line, and not one pixel of it reaches the frame, the nose
-           bridge or the corner pads (owner, 10 Nov 2026: "the borders are
-           bleeding", "draw perfectly clean boundaries"). -->
-      <div class="mp-lens" id="mpLens">
-        <div class="mp-lens__glass">
-          <img class="mp-lens__still" alt="" data-lens-still>
-          <div class="mp-lens__film" id="mpFilm"></div>
-          <span class="mp-lens__tone" aria-hidden="true"></span>
-          <span class="mp-lens__grille" aria-hidden="true"></span>
-          <img class="mp-lens__shine" src="media/picks/visor-shine.png" alt="">
-          <span class="mp-lens__glint" aria-hidden="true"></span>
-        </div>
-        <img class="mp-lens__frame" src="media/picks/visor-frame.png" alt="">
-      </div>
-      <button class="mp-lensbtn" id="mpLensBtn" type="button" aria-label="Play the trailer of Test Subject V in her glasses"></button>
-     </div>
-    </div>
-    <!-- the cards on the wall take turns (owner, 10 Nov 2026: "the books
-         appear in turns, and the films too. the thumbnails should take
-         turns"): each picture in turn, with its own line -->
-    <a class="mp-card mp-card--books" href="#book" data-turns>
-      <span class="mp-card__pic"><img alt="" data-turn="media/picks/animals-raghu-rai-cover.jpg" data-line="Animals, by Raghu Rai, text by Maneka Gandhi"><img alt="" data-turn="media/picks/orange-dogs-cover.jpg" data-line="Orange Dogs, by Deepak Virwani"><span aria-hidden="true">Two books</span></span>
-      <p><b>Two books</b><span class="mp-card__line" data-turn-line>Animals, by Raghu Rai, and Orange Dogs, by Deepak Virwani</span></p>
-    </a>
-    <a class="mp-card mp-card--films" href="#films" data-turns>
-      <span class="mp-card__pic"><img alt="" data-turn="media/picks-films/jvTxVAMrgGA.jpg" data-line="Test Subject V"><img alt="" data-turn="media/picks-films/Y4ftPP5XnAk.jpg" data-line="Oslo: A Tail of Promise"><img alt="" data-turn="media/picks-films/Hkv1-F5-EaI.jpg" data-line="Ohh My Dog"><span aria-hidden="true">Three films</span></span>
-      <p><b>Three films</b><span class="mp-card__line" data-turn-line>Test Subject V, Oslo: A Tail of Promise and Ohh My Dog</span></p>
-    </a>
-    <div class="mp-foot">
-      <div class="mp-title">
-        <p class="eyebrow pfa-kicker">Chosen by the founder</p>
-        <h1 class="pfa-title display">Maneka’s Picks</h1>
-        <p class="mp-hero__role">Three films and two books about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi.</p>
-      </div>
-      <div class="mp-cap" id="specs">
-        <span class="mp-cap__now"><span class="eyebrow">In her glasses</span> <b id="mpNow" aria-live="polite">Test Subject V</b></span>
-        <span class="mp-ctls">
-          <button class="mp-ctl mp-ctl--go" id="mpPlay" type="button"><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7-12 7z" fill="currentColor"/></svg>Play in her glasses</button>
-          <button class="mp-ctl" id="mpSound" type="button" aria-pressed="true" hidden>Sound: On</button>
-          <button class="mp-ctl" id="mpNext" type="button">Next film</button>
-          <button class="mp-ctl" id="mpFull" type="button">Full screen</button>
-          <button class="mp-ctl" id="mpStop" type="button" hidden>Stop</button>
-        </span>
+    <div class="mp-hero__text">
+      <p class="eyebrow pfa-kicker">Chosen by the founder</p>
+      <h1 class="pfa-title display">Maneka’s Picks</h1>
+      <p class="mp-hero__role">Three films and two books about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi.</p>
+      <div class="mp-acts">
+        <a class="btn" href="#films">See the films</a>
+        <a class="btn btn--light" href="#book">See the books</a>
       </div>
     </div>
+    <figure class="mp-portrait">
+      <img id="mpPortrait" src="media/picks/portrait.jpg" width="2770" height="2272" alt="Smt. Maneka Sanjay Gandhi, a black and white photograph" decoding="async">
+      <figcaption><b>Smt. Maneka Sanjay Gandhi</b>Founder, People for Animals</figcaption>
+    </figure>
   </section>
 
   <section class="band" id="films">
@@ -837,7 +657,7 @@ if (root.document && root.document.head) apply(read());
 
 <script src="assets/theatre.js"></script>
 <script>
-/* ---------- the films, and her glasses ----------
+/* ---------- the films ----------
    Each trailer is the film's own, checked on 9 Nov 2026 against YouTube's
    record of who published it:
      Test Subject V           JioHotstar, "Official Trailer"
@@ -856,7 +676,6 @@ if (root.document && root.document.head) apply(read());
     { wall:'long', title:'Oslo: A Tail of Promise', credit:'Protecterra Ecological Foundation', yt:'Y4ftPP5XnAk', poster:'media/picks-films/Y4ftPP5XnAk.jpg' },
     { wall:'long', title:'Ohh My Dog', credit:'Babulal Biscope', yt:'Hkv1-F5-EaI', poster:'media/picks-films/Hkv1-F5-EaI.jpg' }
   ];
-  var $ = function (id) { return document.getElementById(id); };
 
   var PT = window.PFA_THEATRE || {};
   var T = PT.mount ? PT.mount({
@@ -866,56 +685,11 @@ if (root.document && root.document.head) apply(read());
     credit: 'People for Animals · Maneka’s Picks',
     foot: [{ href: '#films', text: 'Films' }, { href: '#book', text: 'The book' }]
   }) : null;
-  var lensOf = (window.PFA_THEATRE && window.PFA_THEATRE.lens) || PT.lens;
 
   /* the tiles' stills, laid in only once a file is really here */
   [].forEach.call(document.querySelectorAll('.mp-shot img[data-still]'), function (img) {
     img.addEventListener('error', function () { img.remove(); });
     img.src = img.getAttribute('data-still');
-  });
-  /* The cards on the wall take turns: each picture that has arrived, one
-     after another, every five seconds, its line with it; the films' card a
-     beat after the books'. Still while the pointer or focus is on a card,
-     while the page is not in view, and when motion is reduced (the first
-     picture, then, and no turning). One timeout at a time, never an
-     interval. */
-  [].forEach.call(document.querySelectorAll('[data-turns]'), function (card, n) {
-    var pics = [].slice.call(card.querySelectorAll('img[data-turn]'));
-    var line = card.querySelector('[data-turn-line]');
-    var box = pics.length ? pics[0].parentNode : null;
-    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var on = -1, held = false, timer = 0;
-    function ready(){ return pics.filter(function (p) { return p.getAttribute('data-ok') === '1'; }); }
-    function show(p){
-      pics.forEach(function (q) { q.classList.toggle('is-on', q === p); });
-      on = pics.indexOf(p);
-      box.classList.add('has-img');
-      if (line.textContent === p.getAttribute('data-line')) return;
-      line.classList.add('is-out');
-      setTimeout(function () { line.textContent = p.getAttribute('data-line'); line.classList.remove('is-out'); }, calm ? 0 : 450);
-    }
-    function turn(){
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        var ok = ready();
-        if (!held && !document.hidden && ok.length > 1) {
-          var at = ok.indexOf(pics[on]);
-          show(ok[(at + 1) % ok.length]);
-        }
-        turn();
-      }, 5000);
-    }
-    pics.forEach(function (p) {
-      p.addEventListener('load', function () {
-        p.setAttribute('data-ok', '1');
-        if (on < 0) show(p);
-      });
-      p.addEventListener('error', function () { p.remove(); pics = pics.filter(function (q) { return q !== p; }); });
-      p.src = p.getAttribute('data-turn');
-    });
-    ['mouseenter', 'focusin'].forEach(function (e) { card.addEventListener(e, function () { held = true; }); });
-    ['mouseleave', 'focusout'].forEach(function (e) { card.addEventListener(e, function () { held = false; }); });
-    if (!calm) setTimeout(turn, n * 2500);
   });
   /* each book's own cover, shown only once it has really arrived */
   [].forEach.call(document.querySelectorAll('.mp-bk__cover img[data-still]'), function (img) {
@@ -925,92 +699,9 @@ if (root.document && root.document.head) apply(read());
     img.src = img.getAttribute('data-still');
   });
 
-  var room = $('mpRoom'), hosts = [$('mpFilm')], hit = $('mpLensBtn');
-  var stills = [].slice.call(document.querySelectorAll('[data-lens-still]'));
-  var now = $('mpNow'), play = $('mpPlay'), sound = $('mpSound'), next = $('mpNext'), full = $('mpFull'), stop = $('mpStop');
-  if (!room) return;
-  var cur = 0, lens = null;
-
-  /* the picture leans a little toward the pointer, the type behind her
-     further, as jjettas.com's hero does; still when motion is reduced */
-  (function lean(){
-    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (calm || !window.matchMedia || !window.matchMedia('(hover: hover)').matches) return;
-    var raf = 0, tx = 0, ty = 0;
-    window.addEventListener('pointermove', function (e) {
-      var r = room.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > innerHeight) return;
-      tx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2)));
-      ty = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2)));
-      if (raf) return;
-      raf = requestAnimationFrame(function () { raf = 0; room.style.setProperty('--mx', tx.toFixed(3)); room.style.setProperty('--my', ty.toFixed(3)); });
-    }, { passive: true });
-  }());
-
-  /* at rest the visor carries the film's still, graded like the film,
-     once the still is on this site (npm run media:films) */
-  function still(){
-    var url = FILMS[cur].poster, probe = new Image();
-    stills.forEach(function (img) { img.classList.remove('is-in'); });
-    probe.onload = function () {
-      if (FILMS[cur].poster !== url) return;
-      stills.forEach(function (img) { img.src = url; img.classList.add('is-in'); });
-      room.classList.add('has-still');
-    };
-    probe.onerror = function () { room.classList.remove('has-still'); };
-    probe.src = url;
-  }
-  function name(){
-    var f = FILMS[cur];
-    now.textContent = f.title;
-    hit.setAttribute('aria-label', (lens ? 'Stop the trailer of ' : 'Play the trailer of ') + f.title + ' in her glasses');
-  }
-  function paint(){
-    var on = !!lens;
-    room.classList.toggle('is-playing', on);
-    play.hidden = on; stop.hidden = !on; sound.hidden = !on;
-    if (on) {
-      var loud = !lens.muted();
-      sound.textContent = loud ? 'Sound: On' : 'Sound: Off';
-      sound.setAttribute('aria-pressed', loud ? 'true' : 'false');
-    }
-    name();
-  }
-  /* the film fills the visor, with its sound (assets/theatre.js, lens) */
-  function playIn(i){
-    if (!lensOf) { if (T) T.open(i, 'long'); return; }
-    if (lens) lens.stop();
-    cur = i;
-    still();
-    lens = lensOf(hosts, FILMS[cur]);
-    paint();
-    seeIt();
-  }
-  /* the lenses in view when the film starts, with the controls above them */
-  function seeIt(){
-    var r = $('mpLens').getBoundingClientRect(), bar = $('top');
-    if (r.bottom > window.innerHeight - 16 || r.top < 0) {
-      var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      bar.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
-    }
-  }
-  function halt(){ if (lens) { lens.stop(); lens = null; } paint(); }
-
-  play.addEventListener('click', function () { playIn(cur); });
-  hit.addEventListener('click', function () { if (lens) halt(); else playIn(cur); });
-  stop.addEventListener('click', halt);
-  sound.addEventListener('click', function () { if (lens) { lens.sound(lens.muted()); paint(); } });
-  next.addEventListener('click', function () {
-    var i = (cur + 1) % FILMS.length;
-    if (lens) playIn(i); else { cur = i; name(); still(); }
-  });
-  full.addEventListener('click', function () { var i = cur; halt(); if (T) T.open(i, 'long'); });
-
   [].forEach.call(document.querySelectorAll('[data-film]'), function (b) {
-    b.addEventListener('click', function () { halt(); if (T) T.open(+b.getAttribute('data-film'), 'long'); });
+    b.addEventListener('click', function () { if (T) T.open(+b.getAttribute('data-film'), 'long'); });
   });
-  name();
-  still();
 }());
 </script>
 </body>

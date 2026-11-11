@@ -1,3 +1,11 @@
+## v1.559
+
+- **Maneka's Picks opens quietly.** Owner, 11 Nov 2026: "any toned down version. maneka madam is a well known public figure", choosing a quiet portrait.
+  - The opening is now the site's own title block on the left (Chosen by the founder, Maneka's Picks, its one line, and See the films and See the books) and her photograph on the right, whole and at its own shape, under the header, with her name and "Founder, People for Animals" under it.
+  - Nothing plays over her and nothing moves: the film in her glasses, the giant drifting type, the floating cards, the lean to the pointer and the dark fade are gone. Every trailer plays in the theatre from its tile, as before; the films and books below are unchanged.
+  - On a phone the title comes first and the photograph under it, the width of the screen.
+  - The photograph is the new one in sunglasses (owner, 11 Nov 2026: "there cannot be any ai texture on the photo. and it should look like shot from a 100mp dslr"): the generated line texture on her skin and lips is taken out by an edge-keeping smoothing that leaves every edge, the eyes, the glasses, the hair, the earrings and the sari exactly as they were; blemishes and freckles are healed; then the whole picture at twice its size (2770 by 2272), scaled and never stretched, with fine pores on her skin and one even sensor grain. scripts/retouch-portrait-sunglasses.py makes it again from the original, which is kept out of the site.
+
 ## v1.558
 
 - **Donors and members can give a date of birth, and the People directory has a Birthday column.** Owner, 11 Nov 2026: "add a date-of-birth field for each donor or member ... Keep it optional and label it Date of birth. Save it to their individual profile", "admin section should also have birthday column for each people".
