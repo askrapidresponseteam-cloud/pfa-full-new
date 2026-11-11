@@ -2693,6 +2693,8 @@ window.addEventListener('unhandledrejection', function (event) {
       }).join(' ') + '</p>' : '')
       + (count ? '<div class="row2"><button class="ghost" type="button" id="siteAll">Show everything again</button></div>' : '')
       + '</div>');
+    /* page designs, Option 1 or 2 (11 Nov 2026): assets/admin-site-designs.js */
+    if (window.PFADesigns) out.push(window.PFADesigns.panel(site));
 
     (site.groups || []).forEach(function (group) {
       var pages = (site.pages || []).filter(function (p) { return p.group === group; });
@@ -3481,6 +3483,11 @@ window.addEventListener('unhandledrejection', function (event) {
     var refile = event.target.closest('[data-refile]');
     if (refile) { if (!refile.disabled) refilePhoto(refile); return; }
 
+    var design = event.target.closest('[data-design]');
+    if (design) {
+      if (design.getAttribute('aria-pressed') !== 'true' && !design.disabled && window.PFADesigns) window.PFADesigns.press(design, site, paintSite);
+      return;
+    }
     var vis = event.target.closest('[data-vis]');
     if (vis) {
       if (vis.getAttribute('aria-pressed') !== 'true' && !vis.disabled) setVisible(vis);
@@ -6300,6 +6307,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-directory.js"></script>
 <script src="assets/birthday-card.js"></script>
 <script src="assets/admin-birthdays.js"></script>
+<script src="assets/admin-site-designs.js"></script>
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>

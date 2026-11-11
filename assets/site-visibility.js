@@ -17,10 +17,14 @@
    same file and check the very CSS the pages get.
 
    The state, as the API sends it and as it is kept:
-     { version, pages: ['units'], modules: ['laws#part-a'] }
+     { version, pages: ['units'], modules: ['laws#part-a'],
+       choices: { 'manekas-picks#opening': '1' } }
      a page id     the file name without .html
      a module id   the page id, '#', and the id of a section on that page
                    (or the value of a data-module attribute on it)
+     a choice      a page design the panel switches between (owner, 11 Nov
+                   2026): on its own page it is written onto <html> as
+                   data-choice-<name>="<option>", and the page's CSS follows
 
    Anything malformed is dropped before it is used, so a value from storage or
    from the network can never write its own CSS.
@@ -43,7 +47,10 @@
   var GONE_ID = 'pfa-gone';
   var PAGE = /^[a-z0-9][a-z0-9-]*$/;
   var PART = /^[A-Za-z][A-Za-z0-9_-]*$/;
-  var applied = { version: 0, pages: [], modules: [] };
+  var NAME = /^[a-z][a-z0-9-]{0,31}$/;
+  var OPTION = /^[a-z0-9]{1,16}$/;
+  var applied = { version: 0, pages: [], modules: [], choices: {} };
+  var marked = [];
   var title = null;
 
   function pagesOf(state) {
@@ -57,8 +64,28 @@
       return at > 0 && PAGE.test(m.slice(0, at)) && PART.test(m.slice(at + 1)) && LOCKED[m.slice(0, at)] !== 2;
     });
   }
+  function choicesOf(state) {
+    var c = state && state.choices && typeof state.choices === 'object' ? state.choices : {};
+    var out = {};
+    Object.keys(c).forEach(function (k) {
+      var at = k.indexOf('#');
+      if (at > 0 && PAGE.test(k.slice(0, at)) && NAME.test(k.slice(at + 1)) && typeof c[k] === 'string' && OPTION.test(c[k])) out[k] = c[k];
+    });
+    return out;
+  }
   function clean(state) {
-    return { version: Number(state && state.version) || 0, pages: pagesOf(state), modules: modulesOf(state) };
+    return { version: Number(state && state.version) || 0, pages: pagesOf(state), modules: modulesOf(state), choices: choicesOf(state) };
+  }
+
+  /* This page's choices, as the attributes written onto <html>. */
+  function choicesFor(state, page) {
+    var c = clean(state).choices;
+    var out = {};
+    Object.keys(c).forEach(function (k) {
+      var at = k.indexOf('#');
+      if (k.slice(0, at) === String(page || 'index')) out['data-choice-' + k.slice(at + 1)] = c[k];
+    });
+    return out;
   }
 
   /* 'laws.html', '/laws', '/laws.html?q=x#a1', 'https://site/laws' -> 'laws'.
@@ -173,7 +200,15 @@
     var d = root.document;
     if (!d || !d.head) return null;
     applied = clean(state);
-    var p = plan(applied, pageOf(root.location && root.location.pathname));
+    var here = pageOf(root.location && root.location.pathname);
+    var p = plan(applied, here);
+    var html = d.documentElement;
+    var attrs = choicesFor(applied, here);
+    if (html) {
+      marked.forEach(function (a) { if (!(a in attrs)) html.removeAttribute(a); });
+      marked = Object.keys(attrs);
+      marked.forEach(function (a) { html.setAttribute(a, attrs[a]); });
+    }
     var tag = d.getElementById(CSS_ID);
     if (!tag && p.css) {
       tag = d.createElement('style');
@@ -217,7 +252,7 @@
 
   root.PFA_VISIBILITY = {
     KEY: KEY, LOCKED: LOCKED, NOTICE: NOTICE,
-    clean: clean, pageOf: pageOf, plan: plan, blocked: blocked,
+    clean: clean, pageOf: pageOf, plan: plan, blocked: blocked, choicesFor: choicesFor,
     read: read, save: save, apply: apply,
     state: function () { return applied; }
   };

@@ -9,7 +9,9 @@
    publisher was read from YouTube), each film links to the service it
    streams on, the book links to Amazon, the page is reached from About and
    from the founder's films, every trailer is played by the theatre, never by
-   the page, and the page opens quietly on her photograph (11 Nov 2026). */
+   the page, and the page opens as the panel chooses: Option 1, her
+   photograph the whole screen with the film in her visor (10 Nov 2026), or
+   Option 2, a quiet portrait beside the title (11 Nov 2026). */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -99,11 +101,48 @@ test('it is reached from About, the footer and the founder\'s films', () => {
   assert.deepEqual(PAGES['manekas-picks.html'], { current: 'manekas-picks.html', group: 'founder.html', announce: 'Every drive, camp and open day is free to attend' });
 });
 
-test('the page opens quietly: the title, and her photograph whole beside it (owner, 11 Nov 2026)', () => {
+/* The opening is Option 1 or Option 2, as the panel chooses (owner, 11 Nov
+   2026: "have 2 options in the admin for manekas picks page. 1 and 2. which
+   can be switched on the admin panel"). Option 1's rules answer only to
+   html[data-choice-opening="1"], Option 2's to everything else; css1 is
+   Option 1's rules as they read in v1.558, the prefix taken off. */
+const P1 = 'html[data-choice-opening="1"] ';
+const P2 = 'html:not([data-choice-opening="1"]) ';
+const css1 = html.split(P1).join('');
+
+test('the opening is Option 1 or Option 2, as the panel chooses; Option 2 until Option 1 is chosen', () => {
+  const V = require('../lib/site-visibility.js');
+  assert.equal(V.CHOICES['manekas-picks#opening'].page, 'manekas-picks');
+  assert.equal(V.CHOICES['manekas-picks#opening'].name, 'opening', 'read by the page as data-choice-opening');
+  assert.equal(V.CHOICES['manekas-picks#opening'].fallback, '2');
+  /* every hero rule belongs to one option: none of the hero's own parts is styled for both */
+  const heroRules = html.match(/^[^\n{}]*\.mp-(?:hero|room|scene|lens|card|foot|cap|ctl|type|photo|portrait|title)[^\n{}]*\{/gm) || [];
+  for (const r of heroRules) assert.ok(r.includes(P1.trim()) || r.includes(P2.trim()) || /^\s*\.mp-wait \.mp-hero/.test(r), r);
+  assert.ok(html.includes(P2 + '.mp-room,' + P2 + '.mp-card,' + P2 + '.mp-cap{display:none}'), 'Option 2 shows none of Option 1');
+  /* one hero, one title, one id="top" */
+  assert.equal(doc.querySelectorAll('main h1').length, 1);
+  assert.equal(doc.querySelectorAll('#top').length, 1);
+  /* each option's photograph loads only when it is on view */
+  for (const img of doc.querySelectorAll('#top img.mp-photo, #top img#mpPortrait')) assert.equal(img.getAttribute('loading'), 'lazy', img.getAttribute('src'));
+  /* Option 1's script starts only with Option 1, and again if the panel switches to it */
+  assert.match(html, /function isOne\(\) \{ return html\.getAttribute\('data-choice-opening'\) === '1'; \}/);
+  assert.match(html, /function follow\(\) \{\n {4}if \(isOne\(\) && !one\) one = startOne\(\);\n {4}else if \(!isOne\(\) && one\) one\.halt\(\);\n {2}\}\n {2}follow\(\);\n {2}window\.addEventListener\('pfa:visibility', follow\);/);
+  /* a first visit waits for the answer, at most a second and a half, rather than showing one and swapping it */
+  assert.match(html, /if \(seen && seen\.choices && seen\.choices\['manekas-picks#opening'\]\) return;/);
+  assert.match(html, /setTimeout\(done, 1500\);/);
+  assert.match(html, /\.mp-wait \.mp-hero\{visibility:hidden\}/);
+  /* the panel's card, in its own file and in the Firebase bundle */
+  assert.match(read('admin.html'), /<script src="assets\/admin-site-designs\.js"><\/script>/);
+  assert.match(read('scripts/build-firebase.js'), /'assets\/admin-site-designs\.js'/);
+  assert.match(read('assets/admin-site-designs.js'), /body: \{ kind: 'choice', id: id, value: value \}/);
+  assert.doesNotMatch(read('assets/admin-site-designs.js'), /[\u2013\u2014]/, 'no long dash');
+});
+
+test('Option 2 opens quietly: the title, and her photograph whole beside it (owner, 11 Nov 2026)', () => {
   /* "any toned down version. maneka madam is a well known public figure", choosing a quiet portrait */
   const hero = doc.querySelector('main > section#top.mp-hero');
   assert.ok(hero, 'the opening');
-  assert.ok(hero.querySelector('.mp-hero__text > h1.pfa-title + p.mp-hero__role + .mp-acts'), 'the site\'s title block, its line and its buttons');
+  assert.ok(hero.querySelector('.mp-foot > .mp-title > h1.pfa-title + p.mp-hero__role + .mp-acts.mp-acts--quiet'), 'the site\'s title block, its line and its buttons');
   assert.deepEqual([...hero.querySelectorAll('.mp-acts a.btn')].map((a) => [a.textContent.trim(), a.getAttribute('href')]),
     [['See the films', '#films'], ['See the books', '#book']]);
   /* her photograph whole, at its own shape, under the header: never cut, masked or stretched */
@@ -120,19 +159,123 @@ test('the page opens quietly: the title, and her photograph whole beside it (own
   assert.ok(fs.existsSync(path.join(ROOT, 'scripts/source/portrait-sunglasses-original.png')), 'the original, to make it again from');
   assert.match(read('scripts/retouch-portrait-sunglasses.py'), /OUT = ROOT \/ 'media' \/ 'picks' \/ 'portrait\.jpg'/);
   assert.match(read('scripts/retouch-portrait-sunglasses.py'), /resize\(\(W \* 2, H \* 2\), Image\.LANCZOS\)/, 'scaled whole, never stretched');
-  assert.match(html, /\.mp-portrait img\{display:block;width:100%;height:auto;/, 'scaled, never stretched or cut');
+  assert.ok(html.includes(P2 + '.mp-portrait img{display:block;width:100%;height:auto;'), 'scaled, never stretched or cut');
   assert.equal(hero.querySelector('figcaption b').textContent, 'Smt. Maneka Sanjay Gandhi');
-  assert.match(html, /\.mp-hero\{[^}]*padding:calc\(var\(--ann\) \+ var\(--nav\) \+ 72px\) var\(--gutter\) 64px\}/, 'under the header, as every page opens');
-  /* nothing over her, nothing moving */
-  assert.doesNotMatch(html, /mp-lens|mp-room|mp-type|mp-card|mp-scene|mask-image|portrait-cut|visor-mask|in her glasses|pointermove|mp-float|mp-drift/i);
-  assert.doesNotMatch(html, /@keyframes/);
+  assert.ok(html.includes(P2 + '.mp-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,88px);align-items:center;padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) 64px}'), 'under the header, as every page opens');
+  /* nothing over her, nothing moving: no Option 2 rule moves anything */
+  const css2 = html.split('\n').filter((l) => l.includes(P2)).join('\n');
+  assert.doesNotMatch(css2, /animation|(?<!-)transform|mask-image|@keyframes/);
+});
+
+test('Option 1: the page opens on her photograph, the whole screen, the title along its foot (owner, 10 Nov 2026)', () => {
+  /* "opens like a hero ... full screen, powerful. both on mobile and web", above the phone's tab bar, light on dark */
+  assert.match(css1, /\.mp-hero\{position:relative;height:calc\(100vh - var\(--tabbar,0px\)\);height:calc\(100svh - var\(--tabbar,0px\)\);/);
+  assert.ok(doc.querySelector('#top.mp-hero > #mpRoom'), 'the photograph is the hero');
+  assert.ok(doc.querySelector('#top .mp-foot .mp-title h1.pfa-title'), 'the title on it');
+  assert.ok(doc.querySelector('#top .mp-card--books[href="#book"]') && doc.querySelector('#top .mp-card--films[href="#films"]'), 'the cards on the wall');
+  assert.match(css1, /\.mp-title \.mp-hero__role\{margin:26px 0 0;/, 'the line under the title where v1.558 had it');
+  assert.match(html, /html\[data-choice-opening="1"\] \.mp-portrait,html\[data-choice-opening="1"\] \.mp-acts--quiet\{display:none\}/, 'nothing of Option 2 with it');
+});
+
+test('Option 1: her photograph in the amber visor, whole, and the visor filled with the film as jjettas.com does it (owner, 10 Nov 2026)', () => {
+  /* "implement ditto", "not even 1 pixel should flow out", "goal is to play the video perfectly" */
+  const img = doc.querySelector('#mpRoom img.mp-photo');
+  assert.equal(img.getAttribute('src'), 'media/picks/portrait-visor.jpg');
+  assert.equal(img.getAttribute('width'), '2576');
+  assert.equal(img.getAttribute('height'), '2113');
+  for (const gone of ['portrait.webp', 'portrait-glasses.jpg', 'lens-l-mask.png', 'lens-r-mask.png']) assert.ok(!fs.existsSync(path.join(ROOT, 'media/picks', gone)), gone);
+  /* under the header, never behind it, and her whole photograph in it, at
+     its own shape, from the top of her head (owner, 10 Nov 2026: "her head
+     is getting chopped ... the header of the page is intact ... nothing gets
+     clipped") */
+  assert.match(css1, /\.mp-room\{position:absolute;left:0;right:0;top:calc\(var\(--ann,0px\) \+ var\(--nav,81px\)\);bottom:0;/, 'the hero starts under the header');
+  assert.match(css1, /\.mp-scene\{position:absolute;container-type:size;--pad:clamp\(10px,3cqh,32px\);--sh:min\(100cqh - var\(--pad\),100cqw \* 1\.7 \* 2113 \/ 2576\);--sw:calc\(var\(--sh\) \* 2576 \/ 2113\);width:var\(--sw\);height:var\(--sh\);left:calc\(50% - var\(--sw\) \/ 2\);top:var\(--pad\);/, 'the photograph at its own shape, her head at the top, never cut by the header');
+  /* she is cut from the photograph's wall and stands on the page's own */
+  assert.match(css1, /\.mp-photo\{[^}]*mask-image:url\("media\/picks\/portrait-cut\.png"\)/);
+  const cut = fs.readFileSync(path.join(ROOT, 'media/picks/portrait-cut.png'));
+  assert.deepEqual([cut.readUInt32BE(16), cut.readUInt32BE(20)], [1288, 1056], 'the cut, at half the photograph\'s size');
+  assert.match(read('scripts/build-portrait-cut.py'), /assert alpha\[cy - 40:cy \+ 40, cx - 120:cx \+ 120\]\.min\(\) == 1, 'her face and the visor are whole'/);
+  const lens = doc.querySelector('#mpLens.mp-lens');
+  for (const part of ['.mp-lens__still', '.mp-lens__film', '.mp-lens__tone', '.mp-lens__grille', '.mp-lens__shine']) assert.ok(lens.querySelector(part), part);
+  assert.match(css1, /\.mp-lens__glass\{[^}]*mask-image:url\("media\/picks\/visor-mask\.png"\)/, 'masked to the glass');
+  for (const f of ['visor-mask.png', 'visor-shine.png', 'visor-frame.png', 'portrait-visor.jpg']) assert.ok(fs.existsSync(path.join(ROOT, 'media/picks', f)), f);
+  /* the photograph without the generated texture, made from the original kept out of the site (10 Nov 2026) */
+  const crypto = require('crypto');
+  const hash = (f) => crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, f))).digest('hex');
+  assert.ok(fs.existsSync(path.join(ROOT, 'scripts/source/portrait-visor-original.jpg')), 'the original, to make it again from');
+  assert.notEqual(hash('media/picks/portrait-visor.jpg'), hash('scripts/source/portrait-visor-original.jpg'), 'the page shows the retouched photograph');
+  assert.match(read('scripts/retouch-portrait.py'), /freckles/);
+  /* the visor box, in percent of the photograph: 906 to 1676 across, 644 to 918 down */
+  const pct = (re) => Number(re.exec(css1)[1]) / 100;
+  const W = 2576, H = 2113;
+  const box = { l: pct(/\.mp-lens\{[^}]*left:([\d.]+)%/) * W, t: pct(/\.mp-lens\{[^}]*top:([\d.]+)%/) * H, w: pct(/\.mp-lens\{[^}]*width:([\d.]+)%/) * W, h: pct(/\.mp-lens\{[^}]*height:([\d.]+)%/) * H };
+  assert.ok(Math.abs(box.l - 906) < 0.5 && Math.abs(box.t - 644) < 0.5 && Math.abs(box.w - 770) < 0.5 && Math.abs(box.h - 274) < 0.5, JSON.stringify(box));
+  /* the mask is exactly the box's size, so it lands on the glass it was read from */
+  for (const f of ['visor-mask.png', 'visor-frame.png', 'visor-shine.png']) {
+    const png = fs.readFileSync(path.join(ROOT, 'media/picks', f));
+    assert.equal(png.readUInt32BE(16), 770, f);
+    assert.equal(png.readUInt32BE(20), 274, f);
+  }
+  /* the frame laid back over the film: in the same box, outside the film's
+     mask, last, so the film ends on its drawn edge and no amber is left at it */
+  const frame = lens.lastElementChild;
+  assert.equal(frame.className, 'mp-lens__frame');
+  assert.equal(frame.getAttribute('src'), 'media/picks/visor-frame.png');
+  assert.ok(lens.querySelector('.mp-lens__glass > .mp-lens__film'), 'the film is under the mask');
+  assert.ok(!frame.closest('.mp-lens__glass'), 'the frame is not');
+  assert.match(read('scripts/build-visor-mask.py'), /assert not \(through\[~shadowed\] > 0\)\.any\(\), 'the film shows on the frame'/);
+  /* the film covers the visor: 16:9 as wide as the box, centred down it */
+  const filmH = pct(/\.mp-lens__film,\.mp-lens__still\{[^}]*height:([\d.]+)%/) * box.h;
+  const filmTop = -pct(/\.mp-lens__film,\.mp-lens__still\{[^}]*top:-([\d.]+)%/) * box.h;
+  assert.ok(Math.abs(box.w / filmH - 16 / 9) < 0.01, `16:9, not ${box.w / filmH}`);
+  assert.ok(Math.abs(filmTop + (filmH - box.h) / 2) < 0.5, 'centred');
+  assert.match(css1, /\.mp-lens__shine\{display:block;mix-blend-mode:screen\}/, 'the visor\'s reflections over the film');
+  assert.match(css1, /\.mp-lens__grille\{background:repeating-linear-gradient/);
+});
+
+test('Option 1: the trailer in the visor is the theatre\'s, built only when Play is pressed', () => {
+  const js = read('assets/theatre.js');
+  assert.match(js, /function lens\(host, film, opts\)\{/);
+  assert.match(js, /var hosts = \[\]\.concat\(host\)\.filter\(Boolean\);/);
+  assert.match(js, /'\?autoplay=1&mute=' \+ \(n \|\| muted \? 1 : 0\)/, 'the first lens has the sound, the other follows muted');
+  assert.match(js, /tell\(frames\[k\], 'seekTo', \[at\[0\] \+ 0\.1, true\]\)/, 'and is kept to its moment');
+  assert.match(js, /window\.PFA_THEATRE\.lens = lens;\n\}\(\)\);\s*$/, 'still there after a page mounts its theatre');
+  assert.match(js, /window\.PFA_THEATRE\.mount = mount;\n {4}window\.PFA_THEATRE\.lens = lens;/);
+  assert.match(js, /var muted = !!opts\.muted \|\| ios;/, 'an iPhone starts it muted, as the theatre does');
+  assert.match(html, /hosts = \[\$\('mpFilm'\)\]/);
+  assert.match(html, /lens = lensOf\(hosts, FILMS\[cur\]\);/);
+});
+
+test('Option 1: the photograph\'s effects, as jjettas.com\'s hero: decorative, and all still when motion is reduced (10 Nov 2026)', () => {
+  /* the type behind her drifts, a light runs across the visor, the picture leans to the pointer */
+  assert.ok(doc.querySelector('#mpRoom > .mp-type[aria-hidden="true"] .mp-type__row--back .mp-type__track'), 'across the whole wall');
+  assert.ok(doc.querySelector('#mpRoom > .mp-type + .mp-scene'), 'behind her: she is in front of it');
+  assert.ok(fs.existsSync(path.join(ROOT, 'media/picks/portrait-wall.png')), 'the wall, which her cut is made from');
+  /* the cards on the wall take turns (owner, 10 Nov 2026: "the books appear in
+     turns, and the films too. the thumbnails should take turns") */
+  assert.equal(doc.querySelectorAll('.mp-card--books img[data-turn]').length, 2, 'both books');
+  assert.equal(doc.querySelectorAll('.mp-card--films img[data-turn]').length, 3, 'all three films');
+  assert.deepEqual([...doc.querySelectorAll('.mp-card--films img[data-turn]')].map((i) => i.getAttribute('data-turn')), FILMS.map((f) => `media/picks-films/${f.yt}.jpg`));
+  assert.match(html, /timer = setTimeout\(function \(\) \{[\s\S]{0,200}if \(!held && !document\.hidden && isOne\(\) && ok\.length > 1\)/, 'one picture after another, held while looked at, and only while Option 1 is on view');
+  assert.match(html, /if \(!calm\) setTimeout\(turn, n \* 2500\);/, 'and not at all when motion is reduced');
+  assert.ok(doc.querySelector('.mp-lens__glass .mp-lens__glint'), 'the light inside the glass, under its mask');
+  assert.match(css1, /@media \(prefers-reduced-motion:reduce\)\{\n {2}\.mp-scene,\.mp-type__row,\.mp-card\{transform:none\}\n {2}\.mp-lens__glint\{display:none\}\n\}/);
+  assert.match(html, /@media \(prefers-reduced-motion:reduce\)\{\n {2}\*\{transition:none!important;animation:none!important\}\n\}/);
+  assert.match(html, /if \(calm \|\| !window\.matchMedia \|\| !window\.matchMedia\('\(hover: hover\)'\)\.matches\) return;/, 'the lean only with a pointer, never when motion is reduced');
   assert.doesNotMatch(html, /setInterval/);
-  assert.equal(doc.querySelectorAll('.mp-ctl').length, 0, 'no player controls on the opening');
+  const controls = [...doc.querySelectorAll('.mp-ctl')].map((b) => b.textContent.trim());
+  assert.deepEqual(controls, ['Play in her glasses', 'Sound: On', 'Next film', 'Full screen', 'Stop']);
+});
+
+test('Option 1: at rest the visor carries the film\'s still the same way, once it is on this site', () => {
+  assert.equal(doc.querySelectorAll('[data-lens-still]').length, 1);
+  assert.match(css1, /\.mp-room\.has-still \.mp-lens,\.mp-room\.is-playing \.mp-lens\{opacity:1\}/, 'until then the photograph\'s own glass is seen');
+  assert.match(html, /probe\.onload = function \(\) \{\n\s*if \(FILMS\[cur\]\.poster !== url\) return;/);
 });
 
 test('every trailer plays in the theatre, opened from its tile', () => {
   assert.equal(doc.querySelectorAll('[data-film]').length, 3);
-  assert.match(html, /b\.addEventListener\('click', function \(\) \{ if \(T\) T\.open\(\+b\.getAttribute\('data-film'\), 'long'\); \}\);/);
+  assert.match(html, /b\.addEventListener\('click', function \(\) \{ if \(one\) one\.halt\(\); if \(T\) T\.open\(\+b\.getAttribute\('data-film'\), 'long'\); \}\);/, 'stopping a film in the visor first');
 });
 
 test('npm run media:films fetches its stills', () => {

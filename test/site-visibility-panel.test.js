@@ -74,7 +74,7 @@ test('the Website section draws from an answer the route really gives', () => {
     site: null, SHOWN: { visible: 'Visible', hidden: 'Hidden' },
     $: (sel) => (sel === '[data-pane="website"]' ? pane : (nodes[sel] = nodes[sel] || { textContent: '' })),
     esc: (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
-    when: (v) => (v ? 'today' : '-'), on: () => {}, showEverything: () => {}, say: (node, text) => { node.textContent = text; }, String, Boolean, Object
+    when: (v) => (v ? 'today' : '-'), on: () => {}, showEverything: () => {}, say: (node, text) => { node.textContent = text; }, String, Boolean, Object, window: {}
   };
   vm.createContext(ctx);
   vm.runInContext(grab('siteMark') + grab('siteToggle') + grab('siteLast') + grab('paintSite'), ctx);

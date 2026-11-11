@@ -78,7 +78,7 @@ const PANEL_ASSETS = [
      the page-weight ceiling */
   'assets/admin-registers.js',
   /* emailing an internship certificate (2 Nov 2026) */
-  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-taxid.js',
+  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-site-designs.js', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-taxid.js',
   'fonts/cinzel-latin-500.woff2',
   'fonts/cinzel-latin-600.woff2',
   'fonts/dm-sans-latin-400.woff2',

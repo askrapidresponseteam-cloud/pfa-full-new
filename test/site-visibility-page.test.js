@@ -225,7 +225,7 @@ test('chrome.js asks for the current state, keeps it, applies it, and points a m
   const settle = () => new Promise((r) => setTimeout(r, 20));
   await settle();
   assert.ok(asked.includes('/api/site-visibility'));
-  assert.deepEqual(JSON.parse(w.localStorage.getItem(V.KEY)), { version: 5, pages: ['units'], modules: ['laws#part-b'] }, 'kept for the next page');
+  assert.deepEqual(JSON.parse(w.localStorage.getItem(V.KEY)), { version: 5, pages: ['units'], modules: ['laws#part-b'], choices: {} }, 'kept for the next page');
   assert.match(w.document.getElementById('pfa-vis-css').textContent, /\[id="part-b"\]/, 'and applied to this one');
   assert.equal(told, 1, 'search is told');
   const ourWork = w.document.querySelector('header.site .navitem > a[data-nav="units.html"]');
@@ -302,4 +302,20 @@ test('search leaves out a hidden section and every result inside it, and only th
   assert.ok(pages(S.search('volunteer').rows).includes('get-involved.html#volunteer'), 'the journey beside it stays');
   const cattle = pages(S.search('cattle transport', { limit: 50 }).rows);
   assert.ok(cattle.some((u) => /^laws\.html#b\d+$/.test(u)), 'the Cattle part of the same page stays');
+});
+
+/* ---- page designs (owner, 11 Nov 2026) ------------------------------------ */
+
+test('a page design is written onto <html> on its own page only, and taken off again', () => {
+  const dom = pageDom('manekas-picks.html', { version: 2, pages: [], modules: [], choices: { 'manekas-picks#opening': '1' } });
+  const html = dom.window.document.documentElement;
+  assert.equal(html.getAttribute('data-choice-opening'), '1', 'before the page paints');
+  dom.window.PFA_VISIBILITY.apply({ version: 3, pages: [], modules: [], choices: { 'manekas-picks#opening': '2' } });
+  assert.equal(html.getAttribute('data-choice-opening'), '2', 'and follows the next answer');
+  dom.window.PFA_VISIBILITY.apply({ version: 4, pages: [], modules: [] });
+  assert.equal(html.hasAttribute('data-choice-opening'), false, 'gone when the answer no longer says');
+  const other = pageDom('laws.html', { version: 2, pages: [], modules: [], choices: { 'manekas-picks#opening': '1' } });
+  assert.equal(other.window.document.documentElement.hasAttribute('data-choice-opening'), false, 'not on another page');
+  /* nothing odd from storage or the network reaches an attribute */
+  assert.deepEqual(V.clean({ choices: { 'manekas-picks#opening': '1"><x', 'a#B C': '1', 'manekas-picks#opening2': 'x'.repeat(20) } }).choices, {});
 });

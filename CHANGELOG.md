@@ -1,3 +1,12 @@
+## v1.560
+
+- **Maneka's Picks has two openings, and the panel chooses which the site shows.** Owner, 11 Nov 2026, with the v1.558 page attached: "update maneka's picks page UI to be this", then "have 2 options in the admin for manekas picks page. 1 and 2. which can be switched on the admin panel".
+  - Option 1 is the page exactly as in v1.558: her photograph in the amber visor the whole screen, the trailer playing in the visor, her name drifting behind her, the books and films on cards either side, and the title with Play in her glasses, Next film and Full screen along the foot. Checked against v1.558 in a browser at 390, 1280 and 1920 wide: the same, pixel for pixel, but for whichever book or film card happens to be showing.
+  - Option 2 is the quiet portrait of v1.559, unchanged.
+  - In the panel, Website now opens with Page designs: Maneka's Picks, how the page opens, with Option 1 and Option 2 as one control like Visible and Hidden, which option is on the site now, who chose it and when, and Open the page. What each option is folds under its +. A press saves at once and is live within about ten seconds; it is in the audit log like any other Website change ("Option 2 to Option 1").
+  - Option 2 is shown until Option 1 is chosen. The choice is kept with the site's show and hide setting and reaches every visitor the same way, written onto the page before it paints, so a returning visitor never sees the other option first. A first visit waits for the answer, at most a second and a half, rather than showing one option and swapping it for the other; if the answer cannot be had, it shows Option 2.
+  - Each option's photographs and pictures load only while it is on view, and Option 1's moving parts run only then; switching while the page is open stops a film playing in the visor.
+
 ## v1.559
 
 - **Maneka's Picks opens quietly.** Owner, 11 Nov 2026: "any toned down version. maneka madam is a well known public figure", choosing a quiet portrait.

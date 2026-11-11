@@ -7,7 +7,7 @@
   generated line texture on skin and lips taken out, blemishes and freckles
   healed, the eyes left as they were, then the whole picture at twice its size
   with fine pores and an even sensor grain.
-- The files below are from the earlier visor opening and are no longer shown.
+- The page opens as the panel chooses (Website, Page designs): `portrait.jpg` is Option 2's photograph; the files below are Option 1's, the visor opening.
 - `portrait-visor.jpg`: her photograph in an amber visor, 2576 by 2113,
   shown whole on manekas-picks.html. The trailer plays in the visor. Made by
   `python3 scripts/retouch-portrait.py` from the original

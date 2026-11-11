@@ -151,7 +151,7 @@ test('hiding a page and a section, then showing them again', async () => {
   assert.equal(stored().version, 2);
 
   const pub = await call(visibility);
-  assert.deepEqual(pub.json, { version: 2, pages: ['units'], modules: ['laws#part-a'] }, 'the public site is told at once');
+  assert.deepEqual(pub.json, { version: 2, pages: ['units'], modules: ['laws#part-a'], choices: { 'manekas-picks#opening': '2' } }, 'the public site is told at once');
 
   res = await change({ kind: 'page', id: 'units', visible: true });
   assert.deepEqual(res.json.state.hidden.pages, {}, 'shown again: gone from the list, not stored as false');
@@ -282,7 +282,7 @@ test('a hand edit in the database cannot hide a locked page or slip anything odd
     version: 7
   });
   const pub = await call(visibility);
-  assert.deepEqual(pub.json, { version: 7, pages: ['laws'], modules: ['index#founder', 'laws#part-a'] });
+  assert.deepEqual(pub.json, { version: 7, pages: ['laws'], modules: ['index#founder', 'laws#part-a'], choices: { 'manekas-picks#opening': '2' } });
 });
 
 /* ---- the public answer --------------------------------------------------- */
@@ -291,8 +291,8 @@ test('the public route: the shape, the cache header, HEAD, and nothing about who
   await change({ kind: 'page', id: 'events', visible: false });
   const res = await call(visibility);
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(Object.keys(res.json).sort(), ['modules', 'pages', 'version']);
-  assert.deepEqual(res.json, { version: 1, pages: ['events'], modules: [] });
+  assert.deepEqual(Object.keys(res.json).sort(), ['choices', 'modules', 'pages', 'version']);
+  assert.deepEqual(res.json, { version: 1, pages: ['events'], modules: [], choices: { 'manekas-picks#opening': '2' } });
   assert.equal(res.headers['cache-control'], 'public, max-age=0, s-maxage=10, stale-while-revalidate=30');
   assert.match(res.headers['content-type'], /application\/json/);
   assert.ok(!/priya|marks|updatedBy/.test(res.raw), 'the public answer names nobody');
@@ -329,7 +329,7 @@ test('it fails open: if the setting cannot be read, nothing is hidden and the ed
   try {
     const res = await call(visibility);
     assert.equal(res.statusCode, 200);
-    assert.deepEqual(res.json, { version: 0, pages: [], modules: [], unavailable: true });
+    assert.deepEqual(res.json, { version: 0, pages: [], modules: [], choices: { 'manekas-picks#opening': '2' }, unavailable: true });
     assert.equal(res.headers['cache-control'], 'public, max-age=0, s-maxage=2');
     /* a read that hangs is given up on, not waited for */
     const hung = await V.publicState({ getDb: () => ({ collection: () => ({ doc: () => ({ get: () => new Promise(() => {}) }) }) }), timeoutMs: 30 });
@@ -337,7 +337,7 @@ test('it fails open: if the setting cannot be read, nothing is hidden and the ed
     /* and the failure is not remembered: the next ask reads again */
     firebase._setDbForTests(db);
     await db.collection('siteSettings').doc('visibility').set({ hidden: { pages: { quiz: true }, modules: {} }, version: 2 });
-    assert.deepEqual((await call(visibility)).json, { version: 2, pages: ['quiz'], modules: [] });
+    assert.deepEqual((await call(visibility)).json, { version: 2, pages: ['quiz'], modules: [], choices: { 'manekas-picks#opening': '2' } });
   } finally {
     console.warn = warn;
   }
@@ -362,4 +362,57 @@ test('both routes are mounted, and the rules keep browsers out of the setting', 
   assert.match(index, /'site-visibility': \(\) => require\('\.\.\/lib\/routes\/site-visibility\.js'\)/);
   const rules = fs.readFileSync(path.join(ROOT, 'firestore.rules'), 'utf8');
   assert.match(rules, /match \/siteSettings\/\{id\}\s*\{ allow read, write: if false; \}/);
+});
+
+/* ---- page designs: Option 1 or Option 2 (owner, 11 Nov 2026) -------------- */
+
+test('a page design is chosen in the panel, logged, and told to the public site', async () => {
+  /* "have 2 options in the admin for manekas picks page. 1 and 2. which can be switched on the admin panel" */
+  assert.deepEqual(Object.keys(V.CHOICES), ['manekas-picks#opening']);
+  assert.deepEqual(V.CHOICES['manekas-picks#opening'].options.map((o) => o.label), ['Option 1', 'Option 2']);
+  assert.equal(V.CHOICES['manekas-picks#opening'].fallback, '2', 'the quiet portrait until Option 1 is chosen');
+
+  const listing = await call(site, { token: 'test-admin' });
+  assert.equal(listing.statusCode, 200, listing.raw);
+  assert.deepEqual(listing.json.choices.map((c) => [c.id, c.page, c.fallback, c.options.map((o) => o.value)]), [['manekas-picks#opening', 'manekas-picks', '2', ['1', '2']]]);
+  assert.deepEqual(listing.json.state.choices, { 'manekas-picks#opening': '2' });
+
+  let res = await change({ kind: 'choice', id: 'manekas-picks#opening', value: '1' });
+  assert.equal(res.statusCode, 200, res.raw);
+  assert.equal(res.json.changed, 1);
+  assert.deepEqual(res.json.state.choices, { 'manekas-picks#opening': '1' });
+  assert.deepEqual(res.json.state.marks['choice:manekas-picks#opening'].value, '1');
+  assert.equal(res.json.state.marks['choice:manekas-picks#opening'].by, 'priya@pfa.test');
+  assert.deepEqual(stored().choices, { 'manekas-picks#opening': '1' });
+  assert.deepEqual((await call(visibility)).json.choices, { 'manekas-picks#opening': '1' }, 'the public site is told at once');
+  const row = auditRows()[0];
+  assert.equal(row.action, 'site-design');
+  assert.equal(row.subject, 'manekas-picks#opening');
+  assert.equal(row.detail, 'Maneka’s Picks: how the page opens: Option 2 to Option 1');
+
+  /* choosing what is already chosen changes nothing */
+  res = await change({ kind: 'choice', id: 'manekas-picks#opening', value: '1' });
+  assert.equal(res.json.changed, 0);
+  assert.equal(auditRows().length, 1);
+
+  res = await change({ kind: 'choice', id: 'manekas-picks#opening', value: '2' });
+  assert.deepEqual((await call(visibility)).json.choices, { 'manekas-picks#opening': '2' });
+  assert.equal(stored().version, 2);
+});
+
+test('a page design that is not there, or an option it does not have, is refused and nothing is written', async () => {
+  for (const [body, code] of [
+    [{ kind: 'choice', id: 'manekas-picks#opening', value: '3' }, 'BAD_OPTION'],
+    [{ kind: 'choice', id: 'manekas-picks#opening' }, 'BAD_OPTION'],
+    [{ kind: 'choice', id: 'index#hero', value: '1' }, 'UNKNOWN'],
+    [{ kind: 'choice', id: '__proto__', value: '1' }, 'UNKNOWN']
+  ]) {
+    const res = await change(body);
+    assert.equal(res.statusCode, 400, JSON.stringify(body));
+    assert.equal(res.json.code, code);
+  }
+  assert.equal(stored(), undefined);
+  /* a hand edit in the database cannot slip an option the page does not have into the public answer */
+  await db.collection('siteSettings').doc('visibility').set({ choices: { 'manekas-picks#opening': '9', 'x#y': '1' }, version: 3 });
+  assert.deepEqual((await call(visibility)).json.choices, { 'manekas-picks#opening': '2' });
 });
