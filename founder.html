@@ -249,6 +249,11 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
   padding:16px var(--gutter-lg) 0;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .plate figcaption small{font-size:10px;font-weight:400;letter-spacing:.06em;text-transform:none;color:var(--muted)}
 .plate{padding-bottom:clamp(40px,4vw,64px);background:#fff}
+/* the wide plate (11 Nov 2026: "edge to edge (left to right of the screen)"):
+   the photograph the full width of the screen at its own shape, so it is
+   whole at every width, its height following from the width */
+.plate.plate--wide .frame{aspect-ratio:1660/948;width:100%;max-height:none;margin-inline:0}
+.plate.plate--wide .frame img{object-position:50% 50%}
 
 /* one hairline grid: gap shows the background through, so it reflows cleanly */
 .figs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
@@ -857,13 +862,16 @@ if (root.document && root.document.head) apply(read());
     </div>
   </section>
 
-  <figure class="plate">
+  <!-- Her photograph with the cows, the width of the screen, whole (owner,
+       11 Nov 2026: "instead of this. can you have the cow one. edge to edge
+       (left to right of the screen)"). -->
+  <figure class="plate plate--wide">
     <div class="frame" data-label="Smt. Maneka Sanjay Gandhi">
-      <img src="img/founder-portrait-1536.jpg"
-           srcset="img/founder-portrait-960.jpg 960w, img/founder-portrait-1536.jpg 1536w"
+      <img src="img/founder-cows-1660.jpg"
+           srcset="img/founder-cows-960.jpg 960w, img/founder-cows-1660.jpg 1660w"
            sizes="100vw"
-           width="1536" height="1024"
-           alt="Smt. Maneka Sanjay Gandhi at her desk, a dog beside her chair"
+           width="1660" height="948"
+           alt="Smt. Maneka Sanjay Gandhi among cows, her hand on one"
            onerror="if(this.dataset.altSrc&&this.src!==this.dataset.altSrc){this.src=this.dataset.altSrc}else{this.closest('.frame').classList.add('is-empty');this.remove()}">
     </div>
     <figcaption>Smt. Maneka Sanjay Gandhi <small>Founder and chairperson, People for Animals</small></figcaption>

@@ -1,3 +1,9 @@
+## v1.564
+
+- **The founder page opens on her photograph with the cows, edge to edge.** Owner, 11 Nov 2026, of the photograph at her desk: "instead of this. can you have the cow one. edge to edge (left to right of the screen)".
+  - The photograph runs the full width of the screen, left to right, at its own shape, so it is whole at every width: nothing of her, the cows or the wall is cut. Its caption is as before, and it warms into colour as it comes into view, as before.
+  - Served at 960 and 1660 pixels wide, the browser taking the one the screen needs.
+
 ## v1.563
 
 - **A case's photographs and documents open in the panel's own viewer.** Owner, 11 Nov 2026, of a report's photographs: "not able to view any of these within viewer", then "it has to be enterprise grade viewer within the portal not like a pdf viewed".
