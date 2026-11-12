@@ -750,7 +750,7 @@ if (root.document && root.document.head) apply(read());
     pdf.disabled = true;
     var was = pdf.textContent;
     pdf.textContent = 'Making the PDF...';
-    placed.then(function(){ return C.pdf(record, { scale: 2, quality: 0.92 }); }).then(function(blob){ C.save(blob, C.fileStem(record) + '.pdf'); })
+    placed.then(function(){ return C.pdf(record); }).then(function(blob){ C.save(blob, C.fileStem(record) + '.pdf'); })
       .catch(function(){ window.print(); })
       .then(function(){ pdf.disabled = false; pdf.textContent = was; });
   });

@@ -93,6 +93,8 @@ const PANEL_ASSETS = [
   'assets/certificate.js',
   'fonts/eb-garamond-latin-500.woff2',
   'assets/certificates/completion.webp', 'assets/certificates/signature.png',
+  /* the print masters the PDF is drawn on (12 Nov 2026) */
+  'assets/certificates/completion-print.png', 'assets/certificates/signature-print.png',
   /* The birthday card the panel draws (11 Nov 2026): its dahlias and its
      PFA mark; its Marcellus is above. */
   'media/birthday/card-flowers.jpg',

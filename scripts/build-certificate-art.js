@@ -43,6 +43,15 @@ const OUT = path.join(ROOT, 'assets', 'certificates', 'completion.webp');
    a bit more to the right. or can you for now give me manual control to
    finalise the position"); assets/certificate.js draws it where SIG says */
 const SIG_OUT = path.join(ROOT, 'assets', 'certificates', 'signature.png');
+/* The print masters (owner, 12 Nov 2026: "the cert sent as an attachment over
+   email is of low res. can you make it super high/highest quality"): the same
+   art and signature at six times the design's size, 6720 x 4752, about 575
+   dots per inch on A4, lossless. assets/certificate.js draws the PDF and the
+   downloaded picture on these, so the certificate prints sharp; the screen
+   keeps the light 2x files above. */
+const PRINT_SCALE = 6;
+const PRINT_OUT = path.join(ROOT, 'assets', 'certificates', 'completion-print.png');
+const SIG_PRINT_OUT = path.join(ROOT, 'assets', 'certificates', 'signature-print.png');
 
 function design(blank) {
   let s = fs.readFileSync(SRC, 'utf8');
@@ -118,6 +127,22 @@ async function main() {
   console.log('wrote', path.relative(ROOT, OUT));
   console.log('the blanks, in the design\'s pixels:', JSON.stringify(at));
   console.log('wrote', path.relative(ROOT, SIG_OUT), 'the signature, where the design puts it:', JSON.stringify(sigBox));
+  await printMasters(chromium, page, sigPage);
+}
+
+/* the same two pages again, at the print scale, kept lossless */
+async function printMasters(chromium, page, sigPage) {
+  const browser = await chromium.launch(process.env.CHROME ? { executablePath: process.env.CHROME } : {});
+  const art = await browser.newPage({ viewport: { width: 1200, height: 900 }, deviceScaleFactor: PRINT_SCALE });
+  await art.goto('file://' + page);
+  await art.evaluate(() => document.fonts.ready);
+  await (await art.$('.certificate')).screenshot({ path: PRINT_OUT });
+  const sig = await browser.newPage({ viewport: { width: 1200, height: 900 }, deviceScaleFactor: PRINT_SCALE });
+  await sig.goto('file://' + sigPage);
+  await sig.evaluate(() => document.fonts.ready);
+  await (await sig.$('.signature svg')).screenshot({ path: SIG_PRINT_OUT, omitBackground: true });
+  await browser.close();
+  console.log('wrote', path.relative(ROOT, PRINT_OUT), 'and', path.relative(ROOT, SIG_PRINT_OUT), `at ${PRINT_SCALE}x, lossless`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

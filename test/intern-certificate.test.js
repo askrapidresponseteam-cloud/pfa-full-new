@@ -152,6 +152,6 @@ test('the design is the owner\'s, in Marcellus, its fields where the design puts
   assert.match(js, /var FONTS = \[\n {4}\['Marcellus', ROOT \+ 'fonts\/marcellus-latin\.woff2', '400'\]\n {2}\];/, 'Marcellus only (owner: "font has to be marcellus")');
   assert.doesNotMatch(js, /Cinzel|Garamond/);
   assert.match(js, /var AT = \{ name: \{ x: 560, y: 420\.16, max: 900 \}, date: \{ x: 66, y: 649\.7 \}, number: \{ x: 66, y: 697\.7 \} \};/);
-  assert.match(js, /var margin = 0;/, 'the PDF is the certificate, edge to edge');
+  assert.match(js, /var w = pw;\n {6}var h = w \* H \/ W;/, 'the PDF is the certificate, edge to edge');
   assert.match(read('scripts/build-certificate-art.js'), /\.rule:before,\.rule:after/, 'the art is made from the design, its dash-shaped rules taken out');
 });

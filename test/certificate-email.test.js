@@ -150,7 +150,7 @@ test('wired: the route, the page, the panel and the Firebase panel', () => {
   assert.match(panel, /<script src="assets\/admin-certificates\.js"><\/script>/);
   const js = read('assets/admin-certificates.js');
   assert.match(js, /action: 'preview', number: state\.cert\.number, email: to/);
-  assert.match(js, /C\.pdf\(\{[^}]+\}, \{ scale: 1\.5, quality: 0\.82 \}\)/);
+  assert.match(js, /C\.pdf\(\{[^}]+\}\)\.then\(base64\)/, 'at print quality, the default');
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-certificates\.js'/);
 });
 
@@ -181,5 +181,49 @@ test('certificate links are always the public site, never the panel\'s Firebase 
     assert.ok(r, src);
     assert.match(r.destination, /^https:\/\/peopleforanimalsindia\.org\/(verify-)?certificate$/);
     assert.equal(r.type, 301);
+  }
+});
+
+test('the emailed PDF is print quality: a 2 MB certificate goes, attached exactly; past 10 MB, or with nowhere to keep it, it does not (owner, 12 Nov 2026: "can you make it super high/highest quality")', async () => {
+  /* a working Storage bucket */
+  const files = new Map();
+  const bucket = { file: (p) => ({ async save(b) { files.set(p, Buffer.from(b)); }, async download() { return [files.get(p)]; } }) };
+  fileStore._setBucket(() => ({ bucket, name: 'pfa-test-bucket' }));
+  const big = Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(2 * 1024 * 1024, 0x20), Buffer.from('\n%%EOF\n')]);
+  let c = await issued();
+  let pre = await admin({ action: 'preview', number: c.number });
+  const go = await admin({ action: 'email', number: c.number, token: pre.json.token, pdf: big.toString('base64') });
+  assert.equal(go.status, 200, JSON.stringify(go.json));
+  assert.equal(sent.length, 1);
+  assert.ok(sent[0].attachments[0].content.equals(big), 'the 2 MB PDF, exactly as the panel made it');
+  assert.equal(files.get(`certificates/${c.number}.pdf`).length, big.length, 'kept in Storage, not in the record');
+  assert.equal(db.dump()[`certificates/${c.number}`].pdf.bytes, undefined);
+  /* past the ceiling */
+  const huge = Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(10 * 1024 * 1024 + 10, 0x20)]);
+  assert.equal((await admin({ action: 'email', number: c.number, token: pre.json.token, pdf: huge.toString('base64') })).status, 413);
+  /* Storage not there: a print-quality PDF cannot sit in a record, so nothing is sent and it says why */
+  fileStore._setBucket(async () => null);
+  sent = [];
+  c = await issued({ name: 'Ravi Kumar', email: 'ravi@example.com' });
+  pre = await admin({ action: 'preview', number: c.number });
+  const held = await admin({ action: 'email', number: c.number, token: pre.json.token, pdf: big.toString('base64') });
+  assert.equal(held.status, 503);
+  assert.match(held.json.message, /could not be stored just now/);
+  assert.equal(sent.length, 0);
+});
+
+test('the PDF is drawn on the 6x print masters and carried losslessly', () => {
+  const js = read('assets/certificate.js');
+  assert.match(js, /var ART_PRINT = ROOT \+ 'assets\/certificates\/completion-print\.png';/);
+  assert.match(js, /var SIG_PRINT = ROOT \+ 'assets\/certificates\/signature-print\.png';/);
+  assert.match(js, /var PRINT_SCALE = 6;/);
+  assert.match(js, /new root\.CompressionStream\('deflate'\)/, 'lossless');
+  assert.match(js, /\/Filter \/' \+ image\.filter/);
+  assert.doesNotMatch(read('assets/admin-certificates.js'), /quality: 0\.\d+/, 'the emailed copy is not made smaller or lossy');
+  assert.match(read('certificate.html'), /C\.pdf\(record\)/);
+  for (const [f, w, h] of [['completion-print.png', 6720, 4752], ['signature-print.png', 1512, 438]]) {
+    const png = fs.readFileSync(path.join(__dirname, '..', 'assets', 'certificates', f));
+    assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [w, h], f);
+    assert.match(read('scripts/build-firebase.js'), new RegExp(`'assets/certificates/${f.replace('.', '\\.')}'`), `${f} goes with the panel`);
   }
 });

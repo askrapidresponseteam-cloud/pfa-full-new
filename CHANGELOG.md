@@ -1,3 +1,13 @@
+## v1.568
+
+- **The emailed certificate is print quality.** Owner, 12 Nov 2026: "the cert sent as an attachment over email is of low res. can you make it super high/highest quality".
+  - It was a picture 1680 pixels wide, about 144 dots per inch on A4, saved as a JPEG at 82% to keep it small. Now the certificate is drawn at 6720 by 4752, about 575 dots per inch, and the PDF carries it losslessly: no JPEG anywhere, so every letter, line and the seal print as sharp as the design. About 1.6 MB, made in about a second.
+  - The artwork and signature it is drawn on are new print masters at that size, made from the design itself (assets/certificates/completion-print.png and signature-print.png). The screen keeps its light versions, so nothing on screen changes.
+  - The same quality for the PDF and the picture downloaded in the panel and from the certificate online. On a phone, whose browser cannot make a picture that large, the download is 4480 by 3168, about 380 dots per inch, still lossless.
+  - The PDF's title now names the intern and the certificate number.
+  - If the file store could not take the PDF just then, the panel says so and nothing is sent, rather than a certificate going out that could not be kept.
+- **The last links built from the panel's own address now use the public site.** The monthly finance and cruelty reports, the card link in a caregiver's shipping email, and the links in a submission's emails all link to peopleforanimalsindia.org.
+
 ## v1.567
 
 - **Certificates, and every email to the public, link to peopleforanimalsindia.org, never the admin site.** Owner, 12 Nov 2026, of a certificate link on pfa-new-website.web.app: "we cant expose the firebase admin site url to people. how to issue certificates?"

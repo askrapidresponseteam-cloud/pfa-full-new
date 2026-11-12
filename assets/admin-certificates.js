@@ -9,7 +9,7 @@
    the certificate as it will be attached, and the email exactly as it will
    go, with the address it goes to (changeable, and looked at again when it
    changes). Send draws the certificate as an A4 PDF in this browser
-   (assets/certificate.js, a size that keeps it under the server's limit)
+   (assets/certificate.js, at print quality: 6x, lossless, 12 Nov 2026)
    and sends it with the preview's token; the server refuses if anything
    changed since the preview (lib/routes/admin/certificates.js). The email
    also links to the certificate online (certificate.html, 11 Nov 2026), and
@@ -107,7 +107,7 @@
     b.disabled = true;
     say(said, 'Making the PDF and sending...', '');
     var cert = state.cert;
-    C.pdf({ name: cert.name, startDate: cert.startDate, endDate: cert.endDate, issuedOn: cert.issuedOn, number: cert.number }, { scale: 1.5, quality: 0.82 }).then(base64).then(function (pdf) {
+    C.pdf({ name: cert.name, startDate: cert.startDate, endDate: cert.endDate, issuedOn: cert.issuedOn, number: cert.number }).then(base64).then(function (pdf) {
       return api('/api/admin/certificates', { method: 'POST', body: { action: 'email', number: cert.number, email: state.to, token: state.token, pdf: pdf } });
     }).then(function (r) {
       close();
