@@ -97,6 +97,26 @@
         "source": "/dispatch",
         "destination": "/newsroom.html",
         "type": 301
+      },
+      {
+        "source": "/certificate",
+        "destination": "https://peopleforanimalsindia.org/certificate",
+        "type": 301
+      },
+      {
+        "source": "/certificate.html",
+        "destination": "https://peopleforanimalsindia.org/certificate",
+        "type": 301
+      },
+      {
+        "source": "/verify-certificate",
+        "destination": "https://peopleforanimalsindia.org/verify-certificate",
+        "type": 301
+      },
+      {
+        "source": "/verify-certificate.html",
+        "destination": "https://peopleforanimalsindia.org/verify-certificate",
+        "type": 301
       }
     ],
     "rewrites": [

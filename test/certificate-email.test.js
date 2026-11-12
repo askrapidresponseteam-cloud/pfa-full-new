@@ -153,3 +153,33 @@ test('wired: the route, the page, the panel and the Firebase panel', () => {
   assert.match(js, /C\.pdf\(\{[^}]+\}, \{ scale: 1\.5, quality: 0\.82 \}\)/);
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-certificates\.js'/);
 });
+
+test('certificate links are always the public site, never the panel\'s Firebase address (owner, 12 Nov 2026: "we cant expose the firebase admin site url to people")', async () => {
+  /* on Firebase, PUBLIC_SITE_URL is the panel's own address (functions/index.js) */
+  process.env.PUBLIC_SITE_URL = 'https://pfa-new-website.web.app';
+  let c = await issued();
+  assert.equal(c.certificateUrl, `https://peopleforanimalsindia.org/certificate?n=${c.number}`);
+  assert.equal(c.verifyUrl, `https://peopleforanimalsindia.org/verify-certificate?n=${c.number}`);
+  const pre = await admin({ action: 'preview', number: c.number, email: 'asha@example.com' });
+  assert.equal(pre.status, 200, JSON.stringify(pre.json));
+  assert.doesNotMatch(pre.json.html, /web\.app|firebaseapp/, 'nothing of Firebase in the email');
+  assert.match(pre.json.html, /https:\/\/peopleforanimalsindia\.org\/certificate\?n=/);
+  /* even named as the public site by mistake, a Firebase host is refused */
+  for (const bad of ['https://pfa-new-website.web.app', 'https://pfa-new-website.firebaseapp.com/', 'not a url']) {
+    process.env.PFA_PUBLIC_SITE_URL = bad;
+    assert.equal(require('../lib/intern-certificate').siteUrl(), 'https://peopleforanimalsindia.org', bad);
+  }
+  process.env.PFA_PUBLIC_SITE_URL = 'https://www.peopleforanimalsindia.org/';
+  assert.equal(require('../lib/intern-certificate').siteUrl(), 'https://www.peopleforanimalsindia.org');
+  c = (await admin()).json;
+  assert.ok(JSON.stringify(c).indexOf('web.app') === -1, 'nor in the panel\'s list');
+  /* links already sent with the Firebase address go on to the public site */
+  const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'firebase.json'), 'utf8'));
+  const host = Array.isArray(cfg.hosting) ? cfg.hosting[0] : cfg.hosting;
+  for (const src of ['/certificate', '/certificate.html', '/verify-certificate', '/verify-certificate.html']) {
+    const r = host.redirects.find((x) => x.source === src);
+    assert.ok(r, src);
+    assert.match(r.destination, /^https:\/\/peopleforanimalsindia\.org\/(verify-)?certificate$/);
+    assert.equal(r.type, 301);
+  }
+});

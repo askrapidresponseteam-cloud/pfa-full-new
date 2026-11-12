@@ -1,3 +1,11 @@
+## v1.567
+
+- **Certificates, and every email to the public, link to peopleforanimalsindia.org, never the admin site.** Owner, 12 Nov 2026, of a certificate link on pfa-new-website.web.app: "we cant expose the firebase admin site url to people. how to issue certificates?"
+  - The panel runs on Firebase, whose own address was used for links built there. A certificate emailed from the panel, or issued by itself when an intern completed, linked to the certificate and its check on the panel's address. Both now always link to peopleforanimalsindia.org/certificate and /verify-certificate, which is where those pages are served.
+  - The same was true of other emails sent from the panel: the tracking link on a case, the links in card and shipping letters, the reply to someone who wrote to PFA, and the logo and site links in the monthly reports. All now use the public site.
+  - A Firebase address is never used for a public link, even if one is set by mistake. Links meant for PFA's own staff (the panel link in the inbox copy, an admin invite) still go to the panel.
+  - A certificate link already sent with the Firebase address now forwards to the same certificate on peopleforanimalsindia.org.
+
 ## v1.566
 
 - **Internship: Remind and More time in the panel.** Owner, 12 Nov 2026: "there should be option to send reminder. we need option to extend timeline", and for the extensions "need all kinds of features. enterprise grade".

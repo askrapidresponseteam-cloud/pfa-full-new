@@ -83,7 +83,8 @@ function caseRoute() {
   });
 }
 const cards = () => require('../lib/routes/admin/cards.js');
-const NOT_A_CARD = /PFA-CCT-|caregiver-card\.html|download|\.png|\.pdf/i;
+/* no card in any form; the PFA logo every letter carries (img/mail/logo-mark.png) is not one */
+const NOT_A_CARD = /PFA-CCT-|caregiver-card\.html|download|(?<!\/img\/mail\/logo-mark)\.png|\.pdf/i;
 
 async function issue(n, fields) {
   await db.collection('submissions').doc(`PFA-CG-2026-0000${n}`).set(APP(n, fields));
