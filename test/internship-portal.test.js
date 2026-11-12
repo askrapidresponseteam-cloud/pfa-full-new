@@ -435,6 +435,13 @@ async function approved(name, email, mobile, dob) {
   return { b, internId: issued.json.internId, code: issued.json.referralCode, email, mobile, dob: dob || DOB };
 }
 const onboarded = (name, email, mobile) => approved(name, email, mobile);
+/* signed in afresh, after the clock has moved past a session's week */
+async function again(x) {
+  x.b = browser();
+  const r = await x.b.go('session', 'POST', { email: x.email, mobile: x.mobile, dob: x.dob });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  return x;
+}
 
 /* an intern as before 5 Nov 2026: an Intern ID and a ten digit key, from an
    emailed link (PFA's New key still makes one) */
@@ -725,4 +732,185 @@ test('wired: routes, rules, the worker, the panel and the page', () => {
   const own = page.slice(page.indexOf("The intern's side of the internship portal"));
   assert.doesNotMatch(own, /localStorage|sessionStorage|document\.cookie/, 'the key and session are never stored by the page');
   assert.match(read('internship.html'), /href="intern\.html"/);
+});
+
+/* ---- more time, and reminders by hand (owner, 12 Nov 2026: "there should be
+   option to send reminder. we need option to extend timeline", "need all
+   kinds of features. enterprise grade") ---------------------------------- */
+
+test('more time: the batch, one intern, one task; every date follows, the intern is told, and each is taken back', async () => {
+  const id = await batch();
+  const a = await onboarded('Asha Rao', 'asha@example.com', '9000000001');
+  const z = await onboarded('Zoya Khan', 'zoya@example.com', '9000000002');
+  NOW = at('2026-11-20T06:00:00.000Z'); /* week 2 */
+  await again(a); await again(z); /* a session lasts a week */
+  /* the batch, 7 days from week 2: a preview changes nothing */
+  let r = await admin('POST', { body: { action: 'extend-batch', batchId: id, fromWeek: 2, days: 7, reason: 'Diwali week', note: 'Take the festival week off.', notify: true, preview: true } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(r.json.preview, true);
+  assert.deepEqual(r.json.rows[0], { label: 'Week 2', value: 'due Sun 29 Nov, 11:59 pm (was Sun 22 Nov)' });
+  assert.equal(r.json.endsOn, '2027-01-10');
+  assert.equal((await S.getBatch(db, id)).extensions, undefined, 'nothing kept by a preview');
+  assert.equal(sent.length, 0);
+  /* a reason is needed, and days within reach */
+  assert.equal((await admin('POST', { body: { action: 'extend-batch', batchId: id, fromWeek: 2, days: 7, reason: '' } })).status, 400);
+  assert.equal((await admin('POST', { body: { action: 'extend-batch', batchId: id, fromWeek: 2, days: 90, reason: 'Too long' } })).status, 400);
+  assert.equal((await admin('POST', { body: { action: 'extend-batch', batchId: id, fromWeek: 9, days: 7, reason: 'No such week' } })).status, 400);
+  r = await admin('POST', { body: { action: 'extend-batch', batchId: id, fromWeek: 2, days: 7, reason: 'Diwali week', note: 'Take the festival week off.', notify: true } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(r.json.endsOn, '2027-01-10');
+  assert.deepEqual(sent.map((m) => m.to).sort(), ['asha@example.com', 'zoya@example.com'], 'every active intern told');
+  assert.match(sent[0].text, /PFA has given your batch 7 more days, from week 2\./);
+  assert.match(sent[0].text, /From PFA: Take the festival week off\./);
+  assert.match(sent[0].text, /Week 2: due Sun 29 Nov, 11:59 pm \(was Sun 22 Nov\)/);
+  assert.doesNotMatch(sent[0].text, /Diwali week/, 'the reason is PFA\'s own, not in the email');
+  assert.ok(audits.some((x) => x.action === 'intern-batch-extended' && /7 days from week 2, now ends 2027-01-10: Diwali week/.test(x.detail)));
+  const batchExt = (await S.getBatch(db, id)).extensions[0];
+  /* the intern's own dashboard has the new dates, and the week stays week 2 */
+  let me = await a.b.go('me', 'GET');
+  assert.equal(me.json.batch.weeks[1].dueLabel, 'Sun 29 Nov, 11:59 pm');
+  assert.equal(me.json.batch.weeks[0].dueLabel, 'Sun 15 Nov, 11:59 pm', 'weeks before the extension do not move');
+  NOW = at('2026-11-25T06:00:00.000Z');
+  me = await a.b.go('me', 'GET');
+  assert.equal(me.json.batch.week, 2, 'still week 2 after its old due date');
+  /* one intern, 5 more days from week 4, on top of the batch */
+  sent = [];
+  r = await admin('POST', { body: { action: 'extend-intern', internId: z.internId, fromWeek: 4, days: 5, reason: 'Exams', notify: true } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(r.json.endsOn, '2027-01-15');
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].to, 'zoya@example.com');
+  const zDash = await z.b.go('me', 'GET');
+  assert.equal(zDash.json.batch.weeks[3].dueLabel, 'Fri 18 Dec, 11:59 pm', 'week 4: Sun 6 Dec, +7 batch, +5 her own');
+  assert.equal((await a.b.go('me', 'GET')).json.batch.weeks[3].dueLabel, 'Sun 13 Dec, 11:59 pm', 'Asha has only the batch\'s');
+  /* one task for Asha: the map, due on a day of PFA's choosing */
+  sent = [];
+  assert.equal((await admin('POST', { body: { action: 'move-task', internId: a.internId, taskKey: 'map', until: '2026-11-01', reason: 'In the past' } })).status, 400);
+  r = await admin('POST', { body: { action: 'move-task', internId: a.internId, taskKey: 'map', until: '2026-12-02', reason: 'Was unwell', notify: true } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.deepEqual([r.json.task, r.json.until, r.json.was], ['map', '2026-12-02', '2026-11-29']);
+  assert.match(sent[0].text, /Map your district: due Wed 2 Dec, 11:59 pm \(was Sun 29 Nov\)/);
+  me = await a.b.go('me', 'GET');
+  assert.equal(me.json.batch.tasks.find((t) => t.key === 'map').dueLabel, 'Wed 2 Dec, 11:59 pm');
+  assert.equal(me.json.batch.tasks.find((t) => t.key === 'map').moved, true);
+  /* the panel shows each intern's calendar */
+  const view = await admin('GET', { query: { batch: id } });
+  const asha = view.json.interns.find((x) => x.internId === a.internId);
+  const zoya = view.json.interns.find((x) => x.internId === z.internId);
+  assert.equal(zoya.endsOn, '2027-01-15');
+  assert.equal(zoya.extensions[0].days, 5);
+  assert.equal(asha.moved[0].taskKey, 'map');
+  assert.equal(view.json.batch.extensions[0].reason, 'Diwali week');
+  /* taken back: each one counts for nothing from now, and stays in the list */
+  assert.equal((await admin('POST', { body: { action: 'undo-time', scope: 'batch', batchId: id, id: batchExt.id, reason: '' } })).status, 400, 'a reason to take it back too');
+  r = await admin('POST', { body: { action: 'undo-time', scope: 'batch', batchId: id, id: batchExt.id, reason: 'Given by mistake' } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal((await admin('POST', { body: { action: 'undo-time', scope: 'batch', batchId: id, id: batchExt.id, reason: 'Again' } })).status, 404, 'once');
+  r = await admin('POST', { body: { action: 'undo-time', scope: 'task', internId: a.internId, taskKey: 'map', reason: 'Back to the plan' } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  me = await a.b.go('me', 'GET');
+  assert.equal(me.json.batch.weeks[1].dueLabel, 'Sun 22 Nov, 11:59 pm');
+  assert.equal(me.json.batch.tasks.find((t) => t.key === 'map').dueLabel, 'Sun 22 Nov, 11:59 pm');
+  const kept = (await S.getBatch(db, id)).extensions[0];
+  assert.deepEqual([kept.undone, kept.undoneWhy, kept.undoneBy], [true, 'Given by mistake', 'priya@pfa.test']);
+  assert.ok(audits.filter((x) => x.action === 'intern-time-undone').length === 2);
+});
+
+test('the Sunday reminder follows each intern\'s own calendar: an extended intern is reminded on their new last day, not the old', async () => {
+  const id = await batch();
+  const a = await onboarded('Asha Rao', 'asha@example.com', '9000000001');
+  await onboarded('Zoya Khan', 'zoya@example.com', '9000000002');
+  NOW = at('2026-11-12T06:00:00.000Z');
+  assert.equal((await admin('POST', { body: { action: 'extend-intern', internId: a.internId, fromWeek: 1, days: 3, reason: 'Joined late' } })).status, 200);
+  sent = [];
+  await R.run({ db, nowMs: at('2026-11-15T03:30:00.000Z') });
+  assert.deepEqual(sent.map((m) => m.to), ['zoya@example.com'], 'Sunday: only Zoya\'s week ends');
+  sent = [];
+  await R.run({ db, nowMs: at('2026-11-18T03:30:00.000Z') });
+  assert.deepEqual(sent.map((m) => m.to), ['asha@example.com'], 'Wednesday 18 Nov: Asha\'s week 1 ends');
+  assert.match(sent[0].text, /Wed 18 Nov, 11:59 pm/);
+  await R.run({ db, nowMs: at('2026-11-18T09:30:00.000Z') });
+  assert.equal(sent.length, 1, 'once that day');
+  const logs = await R.logs(db, id);
+  assert.ok(logs.some((l) => l.day === '2026-11-18' && l.sent === 1));
+});
+
+test('reminders by hand: one intern, everyone behind, and applications missing a detail; each seen first, held back if just sent', async () => {
+  const id = await batch();
+  const a = await onboarded('Asha Rao', 'asha@example.com', '9000000001');
+  const z = await onboarded('Zoya Khan', 'zoya@example.com', '9000000002');
+  NOW = at('2026-11-20T06:00:00.000Z'); /* week 2: the law is overdue for both */
+  await db.collection('intern_work').doc(S.workId(a.internId, 'law')).set({ internId: a.internId, batchId: id, taskKey: 'law', state: 'accepted', score: 8, history: [] });
+  /* one intern: the preview is the email, word for word */
+  let r = await admin('POST', { body: { action: 'remind', internId: z.internId, note: 'Do write if you are stuck.', preview: true } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(r.json.to, 'zoya@example.com');
+  assert.equal(r.json.subject, 'PFA internship: 2 still open');
+  assert.match(r.json.html, /Learn the law/);
+  assert.match(r.json.html, /Do write if you are stuck\./);
+  assert.equal(sent.length, 0);
+  assert.equal((await admin('POST', { body: { action: 'remind', internId: z.internId, note: 'Do write if you are stuck.', token: 'made-up' } })).status, 409, 'nothing goes that was not seen');
+  r = await admin('POST', { body: { action: 'remind', internId: z.internId, note: 'Do write if you are stuck.', token: r.json.token } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(sent.length, 1);
+  assert.match(sent[0].text, /Learn the law \(30-question quiz\) \(Overdue, due Sun 15 Nov, 11:59 pm\)/);
+  assert.match(sent[0].text, /Map your district \(1 district\) \(Due Sun 22 Nov, due Sun 22 Nov, 11:59 pm\)/);
+  assert.ok(audits.some((x) => x.action === 'intern-reminded' && x.subject === z.internId));
+  /* again within 12 hours: held back, and says when, unless sent anyway */
+  let pre = await admin('POST', { body: { action: 'remind', internId: z.internId, preview: true } });
+  assert.equal(pre.json.held, true);
+  assert.equal(pre.json.last.by, 'priya@pfa.test');
+  assert.equal((await admin('POST', { body: { action: 'remind', internId: z.internId, token: pre.json.token } })).status, 409);
+  assert.equal((await admin('POST', { body: { action: 'remind', internId: z.internId, token: pre.json.token, force: true } })).status, 200);
+  /* everyone behind: Asha has the map open, Zoya was just reminded */
+  sent = [];
+  pre = await admin('POST', { body: { action: 'remind-behind', batchId: id, preview: true } });
+  assert.equal(pre.status, 200, JSON.stringify(pre.json));
+  assert.deepEqual(pre.json.interns.map((x) => [x.name, x.items, Boolean(x.skip)]).sort(), [['Asha Rao', 1, false], ['Zoya Khan', 2, true]]);
+  r = await admin('POST', { body: { action: 'remind-behind', batchId: id, token: pre.json.token } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.deepEqual([r.json.sent, r.json.held], [1, 1]);
+  assert.deepEqual(sent.map((m) => m.to), ['asha@example.com']);
+  const hand = (await R.logs(db, id)).filter((l) => l.kind === 'hand');
+  assert.ok(hand.length >= 2, 'the hand reminders are in the batch\'s log');
+  /* applications missing a detail: asked again, each once a day */
+  application('PFA-VI-2026-00031', 'Ravi Kumar', 'ravi@example.com', '9000000031', '');
+  application('PFA-VI-2026-00032', 'Mira Shah', '', '9000000032', '2003-03-03');
+  sent = [];
+  pre = await admin('POST', { body: { action: 'ask-missing', preview: true } });
+  assert.equal(pre.status, 200, JSON.stringify(pre.json));
+  assert.deepEqual(pre.json.applications.map((x) => [x.reference, x.skip]).sort(), [['PFA-VI-2026-00031', ''], ['PFA-VI-2026-00032', 'no email address to write to']]);
+  r = await admin('POST', { body: { action: 'ask-missing', token: pre.json.token } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.deepEqual([r.json.asked, r.json.skipped], [1, 1]);
+  assert.deepEqual(sent.map((m) => m.to), ['ravi@example.com']);
+  const again = await admin('POST', { body: { action: 'ask-missing', preview: true } });
+  assert.equal(again.json.applications.find((x) => x.reference === 'PFA-VI-2026-00031').skip, 'already asked today');
+  const apps = await admin('GET', { query: { applications: '1' } });
+  assert.equal(apps.json.applications.find((x) => x.reference === 'PFA-VI-2026-00031').asks, 1);
+});
+
+test('more time is previewed before a reason is typed, with the email; saving still needs the reason; the panel has the controls', async () => {
+  const id = await batch();
+  const a = await onboarded('Asha Rao', 'asha@example.com', '9000000001');
+  NOW = at('2026-11-12T06:00:00.000Z');
+  for (const body of [{ action: 'extend-batch', batchId: id, fromWeek: 1, days: 3 }, { action: 'extend-intern', internId: a.internId, fromWeek: 1, days: 3 }, { action: 'move-task', internId: a.internId, taskKey: 'map', until: '2026-11-27' }]) {
+    const pre = await admin('POST', { body: Object.assign({ preview: true, note: 'A line.' }, body) });
+    assert.equal(pre.status, 200, JSON.stringify(pre.json));
+    assert.ok(pre.json.rows.length >= 1);
+    assert.match(pre.json.email.subject, /more time/);
+    assert.match(pre.json.email.html, /A line\./);
+    assert.equal((await admin('POST', { body })).status, 400, `${body.action} needs a reason to save`);
+  }
+  assert.equal(sent.length, 0);
+  const js = read('assets/admin-intern-time.js');
+  assert.doesNotMatch(js, /[\u2013\u2014]/, 'no long dash');
+  for (const a2 of ['remind', 'remind-behind', 'ask-missing', 'extend-batch', 'extend-intern', 'move-task', 'undo-time']) assert.match(js, new RegExp(`action: '${a2}'`), a2);
+  const html = read('admin.html');
+  assert.match(html, /<script src="assets\/admin-intern-time\.js"><\/script>/);
+  assert.match(html, /\(T \? T\.acts\(r\) : ''\)/);
+  assert.match(html, /\(T && rows\.length \? T\.bar\(v\) : ''\)/);
+  assert.match(html, /window\.PFAInternTime\.askAll\(ip\.apps\)/);
+  assert.ok(fs.statSync(path.join(ROOT, 'admin.html')).size < 409600, 'the panel stays under its ceiling');
+  assert.match(read('scripts/build-firebase.js'), /'assets\/admin-intern-time\.js'/);
 });

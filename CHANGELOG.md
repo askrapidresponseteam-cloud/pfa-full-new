@@ -1,3 +1,14 @@
+## v1.566
+
+- **Internship: Remind and More time in the panel.** Owner, 12 Nov 2026: "there should be option to send reminder. we need option to extend timeline", and for the extensions "need all kinds of features. enterprise grade".
+  - Remind, on each intern's row: the email as it will go, word for word, listing what is still open with each due date, with an optional line from PFA at the top. Someone reminded in the last 12 hours is held back, with who sent it and when; Send anyway is there if it is needed. The row shows when they were last reminded.
+  - Remind everyone behind, above the interns: the list first, each intern with what is open for them, and anyone held back marked with why. One email each, with their own dates.
+  - In Approve applications: Ask all missing a detail, with the list first, how many times each was asked and when. Anyone asked today, or with no email address, is skipped.
+  - More time, on each intern's row: their whole internship from a week, by 3, 7, 14, 21 or any number of days up to 56; or one task to a new date. The dates that move are shown, old and new, before anything is kept, with the email the intern will get. A reason is needed to save; it goes in the audit log and is never emailed. Emailing the intern is a tick, on by default.
+  - More time for the batch, above the interns: the same, for every intern in it, each emailed their own new dates. An intern's own extension adds on top of the batch's.
+  - Every change is listed with who made it, when and why, and can be taken back, with a reason. A change taken back stays in the list, struck through, with who took it back and why.
+  - The whole site follows the new dates: the intern's dashboard, the late marks on proof and quiz, the Sunday reminder (now sent on each intern's own last day of the week), the end of the internship and the panel. Hand reminders show in the reminder log as By hand.
+
 ## v1.565
 
 - **The certificate's signature: the new design, and Signature position in the panel.** Owner, 12 Nov 2026, with the certificate's design saved again with its own position controls: "fix the bugs. and update this certificate with controls".

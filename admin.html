@@ -4980,7 +4980,8 @@ window.addEventListener('unhandledrejection', function (event) {
   function ipBatchView(v) {
     var b = v.batch;
     var rows = v.interns || [];
-    var out = '<p class="note">Week ' + (b.week < 1 ? '0 (starts ' + esc(b.startDate) + ')' : b.week > b.weeks.length ? (b.weeks.length + ', ended') : b.week + ' of ' + b.weeks.length) + ' · ' + b.tasks.filter(function (t) { return t.kind === 'core'; }).length + ' core tasks and ' + b.electivesRequired + ' electives · ends ' + esc(b.endsOn) + '</p>';
+    var T = window.PFAInternTime; /* Remind and More time (assets/admin-intern-time.js, 12 Nov 2026) */
+    var out = '<p class="note">Week ' + (b.week < 1 ? '0 (starts ' + esc(b.startDate) + ')' : b.week > b.weeks.length ? (b.weeks.length + ', ended') : b.week + ' of ' + b.weeks.length) + ' · ' + b.tasks.filter(function (t) { return t.kind === 'core'; }).length + ' core tasks and ' + b.electivesRequired + ' electives · ends ' + esc(b.endsOn) + '</p>' + (T && rows.length ? T.bar(v) : '');
     if (!rows.length) return out + '<p class="note">No interns in this batch yet.</p>';
     out += '<div class="wrap"><table class="ip-t"><thead><tr><th>Intern</th><th class="num">Done</th><th>Tasks</th><th class="num">RRT</th><th>Status</th><th aria-label="Actions"></th></tr></thead><tbody>';
     out += rows.map(function (r) {
@@ -4992,20 +4993,20 @@ window.addEventListener('unhandledrejection', function (event) {
         + '<td class="num">' + p.percent + '%<br><span class="note">' + p.accepted + '/' + p.need + (p.average != null ? ' · ' + p.average : '') + '</span></td>'
         + '<td><span class="ip-dots">' + dots + '</span>' + (p.waiting ? '<br><span class="note">' + p.waiting + ' waiting</span>' : '') + '</td>'
         + '<td class="num">' + r.referral.registrations + (target ? '/' + target : '') + '<br><span class="note">' + r.referral.clicks + ' clicks · ' + r.referral.firstOpens + ' opens</span></td>'
-        + '<td>' + esc(r.status === 'invited' ? 'Link sent, no key yet' : r.status === 'active' ? 'Active' : r.status === 'revoked' ? 'Withdrawn' : r.status) + (r.lastSignInAt ? '<br><span class="note">in ' + esc(when(r.lastSignInAt)) + '</span>' : '') + (r.lockedUntil && Date.parse(r.lockedUntil) > Date.now() ? '<br><span class="note">locked after wrong tries</span>' : '') + '</td>'
-        + '<td>' + (r.status !== 'revoked' ? '<button class="linky" type="button" data-ip="revoke">Withdraw</button>' : '')
+        + '<td>' + esc(r.status === 'invited' ? 'Link sent, no key yet' : r.status === 'active' ? 'Active' : r.status === 'revoked' ? 'Withdrawn' : r.status) + (r.lastSignInAt ? '<br><span class="note">in ' + esc(when(r.lastSignInAt)) + '</span>' : '') + (r.lockedUntil && Date.parse(r.lockedUntil) > Date.now() ? '<br><span class="note">locked after wrong tries</span>' : '') + (T ? T.badge(r) : '') + '</td>'
+        + '<td>' + (T ? T.acts(r) : '') + (r.status !== 'revoked' ? '<button class="linky" type="button" data-ip="revoke">Withdraw</button>' : '')
         + (act && ip.doing === 'revoke' ? '<div class="ct-why"><input id="ipWhy" maxlength="200" placeholder="Why access is withdrawn"><button class="ghost" type="button" data-ip="revoke-yes">Withdraw access</button></div>' : '')
         + '</td></tr>';
     }).join('');
     out += '</tbody></table></div>';
     var rem = v.reminders || [];
-    if (rem.length) out += '<details class="fold"><summary>Reminder log</summary><ul class="ip-links">' + rem.map(function (x) { return '<li>Week ' + x.week + ', ' + esc(when(x.at)) + ': ' + x.sent + ' sent, ' + x.queued + ' queued, ' + x.failed + ' failed, ' + x.nothingOpen + ' with nothing open</li>'; }).join('') + '</ul></details>';
+    if (rem.length) out += '<details class="fold"><summary>Reminder log</summary><ul class="ip-links">' + rem.map(function (x) { return '<li>' + (x.kind === 'hand' ? 'By hand' + (x.by ? ' (' + esc(x.by) + ')' : '') : 'Week ' + x.week) + ', ' + esc(when(x.at)) + ': ' + x.sent + ' sent, ' + x.queued + ' queued, ' + x.failed + ' failed, ' + x.nothingOpen + ' with nothing open</li>'; }).join('') + '</ul></details>';
     return out;
   }
   function ipIssue() {
     var out = '';
     if (ip.issued) out += '<div class="ct-issued"><p><b>' + esc(ip.issued.internId) + '</b> approved. The start email was ' + esc(ip.issued.mailed === 'sent' ? 'sent' : ip.issued.mailed === 'queued' ? 'queued' : 'not sent') + '.</p></div>';
-    out += '<p class="note">Approve emails them that the internship has started; they sign in with the email, mobile and date of birth they applied with. Missing one? Ask for it: they send the form again and it joins the same application.</p>';
+    out += '<p class="note">Approve emails them that the internship has started; they sign in with the email, mobile and date of birth they applied with. Missing one? Ask for it: they send the form again and it joins the same application.</p>' + (window.PFAInternTime ? window.PFAInternTime.askAll(ip.apps) : '');
     if (!ip.apps.length) out += '<p class="note">No application is waiting.</p>';
     else out += '<div class="wrap"><table><thead><tr><th>Application</th><th>Applicant</th><th aria-label="Actions"></th></tr></thead><tbody>' + ip.apps.map(function (a) {
       return '<tr data-app="' + esc(a.reference) + '"><td><button class="linky" type="button" data-open-case="' + esc(a.reference) + '">' + esc(a.reference) + '</button><br><span class="note">' + esc(dayOf(a.createdAt)) + '</span></td><td>' + esc(a.name) + '<br><span class="note">' + esc(a.email) + (a.city ? ' · ' + esc(a.city) : '') + '</span></td><td>' + (a.missing.length ? '<span class="note">No ' + esc(a.missing.join(', ')) + (a.askedAt ? '. Asked ' + esc(dayOf(a.askedAt)) : '') + '</span> <button class="ghost" type="button" data-ip="ask-app">Ask for it</button>' : '<button class="press" type="button" data-ip="issue-app">Approve</button>') + '</td></tr>';
@@ -6328,6 +6329,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-site-designs.js"></script>
 <script src="assets/admin-viewer.js"></script>
 <script src="assets/admin-cert-layout.js"></script>
+<script src="assets/admin-intern-time.js"></script>
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>

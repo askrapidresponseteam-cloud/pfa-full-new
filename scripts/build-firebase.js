@@ -78,7 +78,7 @@ const PANEL_ASSETS = [
      the page-weight ceiling */
   'assets/admin-registers.js',
   /* emailing an internship certificate (2 Nov 2026) */
-  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-site-designs.js', 'assets/admin-viewer.js', 'assets/admin-cert-layout.js',
+  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-site-designs.js', 'assets/admin-viewer.js', 'assets/admin-cert-layout.js', 'assets/admin-intern-time.js',
   /* the viewer draws a PDF sent with a case with the site's own pdf.js (11 Nov 2026) */
   'assets/vendor/pdfjs/pdf.min.js', 'assets/vendor/pdfjs/pdf.worker.min.js', 'assets/vendor/pdfjs/wasm/jbig2.wasm', 'assets/vendor/pdfjs/wasm/openjpeg.wasm', 'assets/vendor/pdfjs/wasm/qcms_bg.wasm', 'assets/vendor/pdfjs/LICENSE', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-taxid.js',
   'fonts/cinzel-latin-500.woff2',
