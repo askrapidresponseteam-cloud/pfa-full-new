@@ -121,21 +121,28 @@ test('a number given after the change is in the new code from the start; asking 
   assert.equal(db.dump()['member_numbers/PB-1386'].label, 'PNB 1386');
 });
 
-test('the Google Sheet: State just before the number, and a relabelled number says what it was', () => {
+test('the Google Sheet: State just before the number; the number as it is, and the one it was in the last column', () => {
+  /* owner, 12 Nov 2026: "things like (was KA 2038) should be the last column in the sheet" */
   const L = SHEET._test.layoutOf('membership');
   const h = L.headers;
   assert.equal(h.indexOf('State') + 1, h.indexOf('Member number'), 'State comes just before Member number');
   assert.equal(h.filter((x) => x === 'State').length, 1);
+  assert.equal(h[h.length - 1], 'Earlier number', 'the number it was, the last column');
   assert.deepEqual(L.edit.map((i) => h[i]), ['Courier', 'Tracking number', 'Shipped on'], 'the typed columns are still found by name');
   const row = { id: 'PFA-MEM-2026-00004', memberNo: 'PNB 1378', memberNoWas: 'PB 1378', state: 'Punjab', lines: [] };
   const out = SHEET._test.valuesOf('membership', [row, { id: 'PFA-MEM-2026-00005', memberNo: 'TN 4841', memberNoWas: '', state: 'Tamil Nadu', lines: [] }], {});
   const col = h.indexOf('Member number');
-  assert.equal(out[1][col], 'PNB 1378 (was PB 1378)');
+  assert.equal(out[1][col], 'PNB 1378', 'just the number');
+  assert.equal(out[1][h.length - 1], 'PB 1378');
   assert.equal(out[1][col - 1], 'Punjab');
-  assert.equal(out[2][col], 'TN 4841', 'unchanged numbers are just the number');
+  assert.equal(out[2][col], 'TN 4841');
+  assert.equal(out[2][h.length - 1], '', 'nothing for a number that never changed');
   const cg = SHEET._test.layoutOf('caregiver');
+  assert.equal(cg.headers[cg.headers.length - 1], 'Earlier number');
   const cgOut = SHEET._test.valuesOf('caregiver', [{ id: 'PFA-CG-2026-00016', caregiverNo: 'MST 2399', caregiverNoWas: 'MH 2399', lines: [] }], {});
-  assert.equal(cgOut[1][cg.headers.indexOf('Caregiver number')], 'MST 2399 (was MH 2399)');
+  assert.equal(cgOut[1][cg.headers.indexOf('Caregiver number')], 'MST 2399');
+  assert.equal(cgOut[1][cg.headers.length - 1], 'MH 2399');
+  assert.doesNotMatch(read('lib/register-sheet.js'), /\(was \$\{/, 'no "(was ...)" anywhere in a cell');
 });
 
 test('wired: before every sheet run, as numbers are caught up, and in the panel', () => {

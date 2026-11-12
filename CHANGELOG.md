@@ -1,3 +1,13 @@
+## v1.565
+
+- **The certificate's signature: the new design, and Signature position in the panel.** Owner, 12 Nov 2026, with the certificate's design saved again with its own position controls: "fix the bugs. and update this certificate with controls".
+  - The design as sent: the founder's signature in navy ink, 26 pixels to the right of where it first sat. The course line still reads "for successfully completing the Remote Internship".
+  - The signature is now its own picture on the certificate, so it can be placed. In the panel, Internship certificates, under the + Signature position: Left / right and Up / down, each a slider with its number, in the certificate's own pixels and ranges (100 either way across, 50 up or down). The preview follows as they move. Save for every certificate keeps it for the whole site, in the audit log; Reset goes back to the design's place. Every certificate drawn from then on has the signature there: the panel's preview, the PDF downloaded or emailed from the panel, the certificate online and the sample on the internship page.
+  - Two faults in the first, unfinished version of this (left in the working copy, never shipped) are fixed: the signature was drawn between the artwork and its fallback, so a signature that failed to load would have painted the certificate white over its artwork; and a signature that did not arrive left a certificate without one. Now the paper, the art and the signature are drawn in that order, and a certificate is never drawn without its signature.
+  - The design as sent wrote "&" in the course name as "&amp;", which the build missed, putting the old course name on the art. It now matches either, and stops if any of its wording changes ever misses.
+- **The Google Sheet: the earlier number in the last column.** Owner, 12 Nov 2026: "things like (was KA 2038) should be the last column in the sheet".
+  - Member number and Caregiver number now read just the number, KNT 2038. The number it was before the state codes changed, KA 2038, is in Earlier number, the last column of the Membership and CATC tabs. It is kept because a card printed before the change carries it. Courier, tracking and shipped-on entries typed in the sheet are found by their column names, so they are untouched.
+
 ## v1.564
 
 - **The founder page opens on her photograph with the cows, edge to edge.** Owner, 11 Nov 2026, of the photograph at her desk: "instead of this. can you have the cow one. edge to edge (left to right of the screen)".

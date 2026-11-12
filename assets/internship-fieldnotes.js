@@ -50,7 +50,13 @@ root.querySelectorAll('.lane-card').forEach(b=>b.addEventListener('click',()=>{o
     peek.setAttribute('aria-expanded', String(open));
     peek.textContent = open ? 'Hide the sample' : 'See a sample certificate';
     if (!open) return;
-    if (!drawn) { drawn = true; paint(); C.load().then(paint, paint); }
+    if (!drawn) {
+      drawn = true;
+      paint();
+      /* the signature where PFA set it in the panel (12 Nov 2026) */
+      var placed = window.fetch ? fetch('/api/certificate-layout', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (l) { if (l && C.setLayout) C.setLayout(l); }, function () {}) : Promise.resolve();
+      Promise.all([C.load(), placed]).then(paint, paint);
+    }
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     box.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
   });

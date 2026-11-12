@@ -4896,7 +4896,8 @@ window.addEventListener('unhandledrejection', function (event) {
   function ctDraw() {
     var canvas = $('#ctCanvas');
     if (!canvas || !window.PFACertificate) return;
-    window.PFACertificate.draw(canvas, ctData(), 2);
+    canvas._ctData = ctData();
+    window.PFACertificate.draw(canvas, canvas._ctData, 2);
   }
   /* ---- the internship portal (1 Nov 2026) --------------------------------
      lib/routes/admin/internship.js. One screen, folded under +: applications
@@ -5110,6 +5111,7 @@ window.addEventListener('unhandledrejection', function (event) {
     return api('/api/admin/certificates').then(function (d) {
       ct.rows = d.certificates || [];
       ct.today = d.today || '';
+      ct.layout = d.layout || null;
       ctRender(said);
     }).catch(function (e) { fail(node, e); });
   }
@@ -5132,6 +5134,8 @@ window.addEventListener('unhandledrejection', function (event) {
           + '<div class="ct-acts">' + (c.revoked ? '' : '<button class="press" type="button" data-ct-mail="' + esc(c.number) + '">Email it</button><button class="ghost" type="button" data-ct="pdf">Download PDF</button><button class="ghost" type="button" data-ct="png">Download PNG</button>')
           + '<button class="ghost" type="button" data-ct="new">Make another</button></div></div>'
         : '<div class="ct-acts"><button class="press" type="button" data-ct="issue">Issue certificate</button><p class="say" data-ct-say role="status" aria-live="polite"></p></div>')
+      /* where the signature sits, for every certificate (assets/admin-cert-layout.js, 12 Nov 2026) */
+      + (window.PFACertLayout ? window.PFACertLayout.panel(ct.layout) : '')
       + '<figure class="ct-preview"><canvas id="ctCanvas" width="1120" height="792" aria-label="The certificate as it will print"></canvas>'
       + '<figcaption>' + (c ? 'Downloads as an A4 landscape PDF, or a PNG of 3344 by 1882 pixels.' : 'Drawn as you type. The certificate number is given when you issue it, and is kept so the certificate can be checked.') + '</figcaption></figure>'
       + ctList()
@@ -6323,6 +6327,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-birthdays.js"></script>
 <script src="assets/admin-site-designs.js"></script>
 <script src="assets/admin-viewer.js"></script>
+<script src="assets/admin-cert-layout.js"></script>
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>

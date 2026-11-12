@@ -44,10 +44,31 @@
   var FACE = '"Marcellus", Georgia, serif';
   /* where the design writes them: x, and the baseline, in the design's own pixels */
   var AT = { name: { x: 560, y: 420.16, max: 900 }, date: { x: 66, y: 649.7 }, number: { x: 66, y: 697.7 } };
+  /* The signature, drawn on its own (owner, 12 Nov 2026: "signature a bit
+     more to the right", then with the design's own controls: "update this
+     certificate with controls"): where the design first puts it (x, y, w, h,
+     read by scripts/build-certificate-art.js), and how far it is moved from
+     there, in the design's pixels. The move is the panel's Signature
+     position, kept for the whole site (lib/certificate-layout.js) and set
+     here by setLayout before a certificate is drawn; until it is, the
+     design's own: 26 to the right. Within the design's own ranges: 100
+     either way across, 50 up or down. */
+  var SIG_ART = ROOT + 'assets/certificates/signature.png';
+  var SIG = { x: 798, y: 653, w: 252, h: 73, dx: 26, dy: 0 };
+  var SIG_RANGE = { x: 100, y: 50 };
+  var SIG_DEFAULT = { x: 26, y: 0 };
+  function setLayout(l) {
+    var c = function (v, max, d) { var n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(-max, Math.min(max, n)) : d; };
+    SIG.dx = c(l && l.x, SIG_RANGE.x, SIG_DEFAULT.x);
+    SIG.dy = c(l && l.y, SIG_RANGE.y, SIG_DEFAULT.y);
+    return layout();
+  }
+  function layout() { return { x: SIG.dx, y: SIG.dy }; }
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   var ready = null;
   var art = null;
+  var sig = null;
   function load() {
     if (ready) return ready;
     var fonts = FONTS.map(function (f) {
@@ -61,7 +82,15 @@
       image.onerror = function () { reject(new Error('The certificate artwork could not be loaded.')); };
       image.src = ART;
     });
-    ready = Promise.all(fonts.concat([picture])).catch(function (error) { ready = null; throw error; });
+    /* the signature is part of the certificate: one that did not arrive is
+       an error, as the artwork is, never a certificate without it */
+    var signature = new Promise(function (resolve, reject) {
+      var image = new Image();
+      image.onload = function () { sig = image; resolve(); };
+      image.onerror = function () { reject(new Error('The certificate signature could not be loaded.')); };
+      image.src = SIG_ART;
+    });
+    ready = Promise.all(fonts.concat([picture, signature])).catch(function (error) { ready = null; throw error; });
     return ready;
   }
 
@@ -110,8 +139,10 @@
     ctx.setTransform(k, 0, 0, k, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
+    /* the paper first, then the art on it, then the signature on the art */
     if (art) ctx.drawImage(art, 0, 0, W, H);
     else { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H); }
+    if (sig) ctx.drawImage(sig, SIG.x + SIG.dx, SIG.y + SIG.dy, SIG.w, SIG.h);
     ctx.textBaseline = 'alphabetic';
 
     /* the name, as the design sets it, made smaller only if it would not fit */
@@ -232,5 +263,5 @@
     return 'pfa-internship-certificate-' + slug + (data && data.number ? '-' + data.number : '');
   }
 
-  root.PFACertificate = { W: W, H: H, load: load, draw: draw, png: png, pdf: pdf, save: save, fileStem: fileStem, longDate: longDate };
+  root.PFACertificate = { W: W, H: H, SIG: SIG, SIG_RANGE: SIG_RANGE, SIG_DEFAULT: SIG_DEFAULT, setLayout: setLayout, layout: layout, load: load, draw: draw, png: png, pdf: pdf, save: save, fileStem: fileStem, longDate: longDate };
 })(typeof window !== 'undefined' ? window : this);

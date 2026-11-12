@@ -706,6 +706,9 @@ if (root.document && root.document.head) apply(read());
   if (!NUMBER.test(n)) { lost(n ? 'That is not a PFA certificate number. They look like PFA-INT-XXXXXXXX: eight letters and digits after PFA-INT-.' : 'Open the link from the certificate email, or check a certificate by its number.'); return; }
 
   var record = null;
+  /* where the signature sits, as PFA set it in the panel (12 Nov 2026) */
+  var placed = (window.fetch ? fetch('/api/certificate-layout', { headers: { Accept: 'application/json' } }).then(function(r){ return r.ok ? r.json() : null; }) : Promise.resolve(null))
+    .then(function(l){ if (l && C && C.setLayout) C.setLayout(l); }, function(){ /* the design's own place */ });
   /* the address to share: always the clean one, whatever was typed */
   var here = window.location.origin + window.location.pathname.replace(/\.html$/, '') + '?n=' + encodeURIComponent(n);
 
@@ -735,7 +738,7 @@ if (root.document && root.document.head) apply(read());
     if (C) {
       paint();
       $('#cvCert').hidden = false;
-      C.load().then(paint, function(){ /* the fallback face draws instead */ });
+      Promise.all([C.load(), placed]).then(paint, function(){ placed.then(paint); });
     }
     $('#cvActs').hidden = false;
     $('#cvMore').hidden = false;
@@ -747,7 +750,7 @@ if (root.document && root.document.head) apply(read());
     pdf.disabled = true;
     var was = pdf.textContent;
     pdf.textContent = 'Making the PDF...';
-    C.pdf(record, { scale: 2, quality: 0.92 }).then(function(blob){ C.save(blob, C.fileStem(record) + '.pdf'); })
+    placed.then(function(){ return C.pdf(record, { scale: 2, quality: 0.92 }); }).then(function(blob){ C.save(blob, C.fileStem(record) + '.pdf'); })
       .catch(function(){ window.print(); })
       .then(function(){ pdf.disabled = false; pdf.textContent = was; });
   });

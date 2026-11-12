@@ -19,7 +19,13 @@
                     Programme" becomes "Remote Internship"
      the rule       the two short lines either side of the star, taken out
                     (site rule: no dash-shaped mark anywhere)
-     the paper      pure white, where the design had a warm off-white
+     the paper      pure white (the design's own since 12 Nov 2026)
+     the signature  taken out of the art and kept on its own
+                    (assets/certificates/signature.png), in the design's navy
+                    ink, so it can be placed: assets/certificate.js draws it
+                    where the design puts it, moved by the panel's Signature
+                    position (owner, 12 Nov 2026: "update this certificate
+                    with controls")
    It prints where each blank sits, so assets/certificate.js can be checked
    against the design. */
 
@@ -33,6 +39,10 @@ const os = require('node:os');
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'scripts', 'source', 'PFA-Certificate.html');
 const OUT = path.join(ROOT, 'assets', 'certificates', 'completion.webp');
+/* the signature on its own, so it can be placed (owner, 12 Nov 2026: "signature
+   a bit more to the right. or can you for now give me manual control to
+   finalise the position"); assets/certificate.js draws it where SIG says */
+const SIG_OUT = path.join(ROOT, 'assets', 'certificates', 'signature.png');
 
 function design(blank) {
   let s = fs.readFileSync(SRC, 'utf8');
@@ -41,11 +51,25 @@ function design(blank) {
   s = s.replace('<style>', `<style>@font-face{font-family:"Marcellus";src:url("${font('marcellus-latin.woff2')}") format("woff2");font-display:block}`);
   s = s.replace('People For Animals • Learning Programme', 'People For Animals • Remote Internship');
   s = s.replace('for successfully completing the online class', 'for successfully completing the');
-  s = s.replace('>Animal Welfare & Compassionate Action<', '>Remote Internship<');
+  s = s.replace(/>Animal Welfare (?:&|&amp;) Compassionate Action</, '>Remote Internship<');
+  /* every change above must have found its words: a design saved again
+     elsewhere may write them differently (the 12 Nov 2026 copy wrote & as
+     &amp;), and a change that misses would put the wrong course on every
+     certificate */
+  for (const [gone, why] of [['online class', 'the course line'], ['Learning Programme', 'the subtitle'], ['Compassionate Action', 'the course name']]) {
+    if (s.includes(gone)) throw new Error(`build-certificate-art: ${why} still reads "${gone}"; the design's wording has changed`);
+  }
   s = s.replace('.rule:before,.rule:after{content:"";width:65px;height:1px;background:#c9b990}', '');
   /* the paper pure white (owner, 11 Nov 2026: "color of the cert to be pure white pls") */
   s = s.replace('.certificate{width:1120px;height:792px;margin:auto;background:#fbfaf6;', '.certificate{width:1120px;height:792px;margin:auto;background:#ffffff;');
   if (blank) s = s.replace('>Recipient Name<', '><').replace('>DD Month YYYY<', '><').replace('>PFA-YYYY-000001<', '><');
+  /* the signature where the design first puts it, unmoved: how far it is
+     moved is the panel's setting (assets/certificate.js, SIG), not the art's */
+  s = s.replace(/<article style="[^"]*" class="certificate"/, '<article style="--signature-x: 0px; --signature-y: 0px;" class="certificate"');
+  /* the art without the signature; the signature drawn on it in its place */
+  /* (the image itself taken out: hidden, its ink filter would still paint
+     a solid block, since it reads ink from what is not there) */
+  if (blank) s = s.replace('</style>', '.signature svg image{display:none}</style>');
   return s;
 }
 
@@ -72,6 +96,19 @@ async function main() {
     }
     return out;
   });
+  /* the signature alone, on nothing, at the same 2x */
+  const sig = await browser.newPage({ viewport: { width: 1200, height: 900 }, deviceScaleFactor: 2 });
+  const sigPage = path.join(dir, 'signature.html');
+  fs.writeFileSync(sigPage, design(true).replace('.signature svg image{display:none}', '').replace('</style>', 'html,body,.stage,.certificate{background:transparent!important;box-shadow:none!important}.certificate:before,.certificate:after{display:none!important}.certificate *{visibility:hidden}.signature svg,.signature svg *{visibility:visible}</style>'));
+  await sig.goto('file://' + sigPage);
+  await sig.evaluate(() => document.fonts.ready);
+  const svg = await sig.$('.signature svg');
+  await svg.screenshot({ path: SIG_OUT, omitBackground: true });
+  const sigBox = await sig.evaluate(() => {
+    const c = document.querySelector('.certificate').getBoundingClientRect();
+    const r = document.querySelector('.signature svg').getBoundingClientRect();
+    return { x: +(r.left - c.left).toFixed(2), y: +(r.top - c.top).toFixed(2), w: +r.width.toFixed(2), h: +r.height.toFixed(2) };
+  });
   await browser.close();
   const sharp = (() => { try { return require('sharp'); } catch (_) { return null; } })();
   if (sharp) await sharp(png).webp({ quality: 92 }).toFile(OUT);
@@ -80,6 +117,7 @@ async function main() {
   }
   console.log('wrote', path.relative(ROOT, OUT));
   console.log('the blanks, in the design\'s pixels:', JSON.stringify(at));
+  console.log('wrote', path.relative(ROOT, SIG_OUT), 'the signature, where the design puts it:', JSON.stringify(sigBox));
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
