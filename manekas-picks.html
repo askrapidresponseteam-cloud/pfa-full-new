@@ -351,31 +351,46 @@ html:not([data-choice-opening="1"]) .mp-room,html:not([data-choice-opening="1"])
 .mp-film p{margin:12px 0 0;font-size:15px;line-height:1.65;color:rgba(17,17,17,.75)}
 .mp-film .mp-acts{margin-top:auto;padding-top:22px}
 
-/* ---------- the book ---------- */
-.mp-bks{display:grid;gap:0;max-width:760px}
-.mp-bk{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:clamp(22px,3vw,48px);align-items:start}
-.mp-bk + .mp-bk{margin-top:clamp(32px,4vw,52px);padding-top:clamp(32px,4vw,52px);border-top:1px solid var(--line)}
-.mp-bk__cover{display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:3/4;padding:20px 18px;background:var(--ink);color:#fff}
-.mp-bk__cover span{font:400 clamp(24px,2.4vw,32px)/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
-.mp-bk__cover small{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+/* ---------- the books ----------
+   Side by side, three across, each cover beside its title, author, one line
+   and its button, so the whole shelf sits in one screen (owner, 13 Nov 2026:
+   "let books also be arranged like this .. avoiding unless scroll"). One
+   under another, still cover beside text, where three would not fit. */
+.mp-bks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(28px,3vw,56px);max-width:var(--max)}
+.mp-bk{display:grid;grid-template-columns:clamp(96px,8.5vw,168px) minmax(0,1fr);gap:clamp(16px,1.5vw,28px);align-items:start;min-width:0}
+.mp-bk__cover{display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:3/4;padding:14px 12px;background:var(--ink);color:#fff}
+.mp-bk__cover span{font:400 clamp(16px,1.4vw,22px)/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.mp-bk__cover small{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 /* the real cover, whole and at its own shape, once its file is here
    (fetched by npm run media:films); until then the lettered block */
 .mp-bk__cover img{display:none}
 .mp-bk__cover.has-cover{display:block;aspect-ratio:auto;padding:0;background:none}
 .mp-bk__cover.has-cover img{display:block;width:100%;height:auto;box-shadow:0 1px 0 rgba(17,17,17,.06),0 14px 30px -12px rgba(17,17,17,.35)}
 .mp-bk__cover.has-cover span,.mp-bk__cover.has-cover small{display:none}
-.mp-bk h3{margin:12px 0 0;font-size:clamp(28px,3vw,44px)}
-.mp-bk p{margin:14px 0 0;max-width:44ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.75)}
+.mp-bk h3{margin:0;font-size:clamp(22px,1.9vw,32px);line-height:1.08;overflow-wrap:anywhere}
+.mp-bk .eyebrow{margin:12px 0 0;line-height:1.5}
+.mp-bk p:not(.eyebrow){margin:12px 0 0;max-width:40ch;font-size:15px;line-height:1.6;color:rgba(17,17,17,.75)}
+.mp-bk .mp-acts{margin-top:20px}
+.mp-bk .btn{min-height:44px;padding:0 18px;white-space:nowrap}
+/* three across, the buttons share one line whatever each blurb's length */
+@media (min-width:1101px){
+  .mp-bk{align-items:stretch}
+  .mp-bk > div:last-child{display:flex;flex-direction:column;min-width:0}
+  .mp-bk .mp-acts{margin-top:auto;padding-top:20px}
+  .mp-bk__cover{align-self:start}
+}
 
+@media (max-width:1100px){
+  .mp-bks{grid-template-columns:minmax(0,1fr);gap:32px;max-width:640px}
+  .mp-bk{grid-template-columns:120px minmax(0,1fr)}
+}
 @media (max-width:900px){
   .mp-grid{grid-template-columns:minmax(0,1fr);gap:48px}
   .mp-film .mp-acts{margin-top:0}
 }
 @media (max-width:720px){
   .band{padding-left:16px;padding-right:16px}
-  .mp-bk{grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:18px}
-  .mp-bk__cover{padding:14px 12px}
-  .mp-bk__cover span{font-size:20px}
+  .mp-bk{grid-template-columns:96px minmax(0,1fr);gap:16px}
   .mp-acts .btn{flex:1 1 auto}
 }
 @media (prefers-reduced-motion:reduce){
@@ -383,6 +398,7 @@ html:not([data-choice-opening="1"]) .mp-room,html:not([data-choice-opening="1"])
 }
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
+  .mp-bk__cover small{font-size:10px}
   
 }
 /* ---- end phone pass ---- */
@@ -802,7 +818,7 @@ if (root.document && root.document.head) apply(read());
     </ol>
   </section>
 
-  <section class="band m-twin" id="book">
+  <section class="band" id="book">
     <div class="band__head">
       <p class="eyebrow">Books</p>
       <h2 class="display">Three to read.</h2>
@@ -816,9 +832,9 @@ if (root.document && root.document.head) apply(read());
       <article class="mp-bk">
         <div class="mp-bk__cover"><img alt="The cover of Animals by Raghu Rai and Maneka Gandhi" data-still="media/picks/animals-raghu-rai-cover.jpg"><span aria-hidden="true">Animals</span><small aria-hidden="true">Raghu Rai</small></div>
         <div>
-          <p class="eyebrow">Raghu Rai and Maneka Gandhi &middot; HarperCollins India</p>
           <h3 class="display">Animals</h3>
-          <p>More than two hundred of Raghu Rai&rsquo;s photographs of animals, taken across India over five decades, with an introduction by Maneka Gandhi.</p>
+          <p class="eyebrow">Raghu Rai and Maneka Gandhi</p>
+          <p>Over two hundred photographs, five decades, and the animals with whom we share India.</p>
           <div class="mp-acts">
             <a class="btn" href="https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1" target="_blank" rel="noopener noreferrer">Buy on Amazon <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
           </div>
@@ -827,9 +843,9 @@ if (root.document && root.document.head) apply(read());
       <article class="mp-bk">
         <div class="mp-bk__cover"><img alt="The cover of Orange Dogs by Deepak Virwani" data-still="media/picks/orange-dogs-cover.jpg"><span aria-hidden="true">Orange Dogs</span><small aria-hidden="true">Deepak Virwani</small></div>
         <div>
-          <p class="eyebrow">Deepak Virwani</p>
           <h3 class="display">Orange Dogs</h3>
-          <p>A tender, funny story of two dogs, Zuzu and Dabbu, and the two people whose home they make their own: about the love that finds its way into ordinary homes, and what stays after it goes.</p>
+          <p class="eyebrow">Deepak Virwani</p>
+          <p>Zuzu, Dabbu, and the two people whose home they make their own. A story about the love that finds us.</p>
           <div class="mp-acts">
             <a class="btn" href="https://www.amazon.in/dp/9334516496" target="_blank" rel="noopener noreferrer">Buy on Amazon <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
           </div>
@@ -838,9 +854,9 @@ if (root.document && root.document.head) apply(read());
       <article class="mp-bk">
         <div class="mp-bk__cover"><img alt="The cover of Tender Paws by Balvant Singh" data-still="media/picks/tender-paws-cover.jpg"><span aria-hidden="true">Tender Paws</span><small aria-hidden="true">Balvant Singh</small></div>
         <div>
-          <p class="eyebrow">Balvant Singh &middot; Supported by SPCA Fiji</p>
           <h3 class="display">Tender Paws</h3>
-          <p>Moti, a young puppy on a farm in rural Fiji in the 1960s, tells his own story: of loyalty, of love, and of how the animals around us are treated. For readers aged 10 to 18.</p>
+          <p class="eyebrow">Balvant Singh</p>
+          <p>A puppy tells his own story of loyalty, love and life on a farm in 1960s Fiji.</p>
           <div class="mp-acts">
             <a class="btn" href="https://tenderpaws.nz/" target="_blank" rel="noopener noreferrer">Get the book <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1h8v8M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
           </div>

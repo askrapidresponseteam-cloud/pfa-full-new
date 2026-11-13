@@ -1,3 +1,10 @@
+## v1.570
+
+- **Maneka's Picks: the three books side by side, in one screen.** Owner, 13 Nov 2026: "let books also be arranged like this .. avoiding unless scroll", with a picture of three books in a row.
+  - The books take the full width, three across like the films above them, each cover beside its title, author, one line and its button. The buttons share one line.
+  - Each book's line is now short: Animals, "Over two hundred photographs, five decades, and the animals with whom we share India."; Orange Dogs, "Zuzu, Dabbu, and the two people whose home they make their own. A story about the love that finds us."; Tender Paws, "A puppy tells his own story of loyalty, love and life on a farm in 1960s Fiji."
+  - Where three do not fit (below 1100 pixels wide, tablets and phones), the books go one under another, each cover still beside its text.
+
 ## v1.569
 
 - **A third book on Maneka's Picks: Tender Paws, by Balvant Singh.** Owner, 13 Nov 2026: "need to add this book to maneka's picks page", with tenderpaws.nz and the cover.

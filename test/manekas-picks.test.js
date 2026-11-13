@@ -86,7 +86,11 @@ test('each book shows its real cover, whole, from this site (owner, 10 Nov 2026)
   for (const b of BOOKS.filter((x) => !x.kept)) assert.match(b.image, /^https:\/\/m\.media-amazon\.com\/images\/I\/[A-Za-z0-9+-]+\.jpg$/, `${b.title}: the original cover, not a thumbnail`);
   assert.equal(coverFromAmazon('"hiRes":"https://m.media-amazon.com/images/I/81abc._SL1500_.jpg"'), 'https://m.media-amazon.com/images/I/81abc.jpg');
   assert.equal(coverFromAmazon('<html>a check page</html>'), null);
-  assert.match(doc.querySelector('#book .mp-bk p:not(.eyebrow)').textContent, /introduction by Maneka Gandhi/);
+  assert.match(doc.querySelector('#book .mp-bk p:not(.eyebrow)').textContent, /Over two hundred photographs/);
+  /* three across, like the films, so the shelf sits in one screen (owner, 13 Nov 2026) */
+  assert.ok(!doc.querySelector('#book').classList.contains('m-twin'), 'the books take the full width, not the right half');
+  assert.match(html, /\.mp-bks\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  for (const b of doc.querySelectorAll('#book .mp-bk')) assert.equal(b.querySelector('h3').nextElementSibling.className, 'eyebrow', 'title, then author');
 });
 
 test('the page is the site\'s: its header, title block, faces and footer', () => {
