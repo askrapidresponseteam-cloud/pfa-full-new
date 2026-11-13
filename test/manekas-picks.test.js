@@ -54,29 +54,36 @@ test('each film links to the service it streams on, and the book to Amazon', () 
     const play = li.querySelector('button.mp-shot');
     assert.equal(play.getAttribute('data-film'), String(i), 'a tile is a button that opens the theatre');
   });
-  /* two books (owner, 10 Nov 2026: "add orange dogs - book"), each with Buy on Amazon */
+  /* three books (owner, 10 Nov 2026: "add orange dogs - book"; 13 Nov 2026:
+     Tender Paws), the two on Amazon with Buy on Amazon, Tender Paws from its own site */
   const books = [...doc.querySelectorAll('#book .mp-bk')];
-  assert.deepEqual(books.map((b) => b.querySelector('h3').textContent), ['Animals', 'Orange Dogs']);
+  assert.deepEqual(books.map((b) => b.querySelector('h3').textContent), ['Animals', 'Orange Dogs', 'Tender Paws']);
   assert.deepEqual(books.map((b) => b.querySelector('a.btn').getAttribute('href')),
-    ['https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1', 'https://www.amazon.in/dp/9334516496']);
+    ['https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1', 'https://www.amazon.in/dp/9334516496', 'https://tenderpaws.nz/']);
+  assert.deepEqual(books.map((b) => b.querySelector('a.btn').textContent.trim()), ['Buy on Amazon', 'Buy on Amazon', 'Get the book']);
   for (const b of books) {
     const buy = b.querySelector('a.btn');
-    assert.equal(buy.textContent.trim(), 'Buy on Amazon');
     assert.equal(buy.getAttribute('target'), '_blank');
     assert.equal(buy.getAttribute('rel'), 'noopener noreferrer');
   }
   assert.match(books[1].querySelector('.eyebrow').textContent, /Deepak Virwani/);
+  assert.match(books[2].querySelector('.eyebrow').textContent, /Balvant Singh/);
+  assert.equal(doc.querySelector('#book h2').textContent, 'Three to read.');
+  assert.doesNotMatch(html, /two books/i, 'every count on the page says three');
+  const turns = [...doc.querySelectorAll('.mp-card--books img[data-turn]')].map((i) => i.getAttribute('data-turn'));
+  assert.deepEqual(turns, ['media/picks/animals-raghu-rai-cover.jpg', 'media/picks/orange-dogs-cover.jpg', 'media/picks/tender-paws-cover.jpg'], 'the card on the wall turns through all three');
 });
 
 test('each book shows its real cover, whole, from this site (owner, 10 Nov 2026)', () => {
   const imgs = [...doc.querySelectorAll('#book .mp-bk__cover img')];
-  assert.deepEqual(imgs.map((i) => i.getAttribute('data-still')), ['media/picks/animals-raghu-rai-cover.jpg', 'media/picks/orange-dogs-cover.jpg']);
-  assert.deepEqual(imgs.map((i) => i.getAttribute('alt')), ['The cover of Animals by Raghu Rai and Maneka Gandhi', 'The cover of Orange Dogs by Deepak Virwani']);
+  assert.deepEqual(imgs.map((i) => i.getAttribute('data-still')), ['media/picks/animals-raghu-rai-cover.jpg', 'media/picks/orange-dogs-cover.jpg', 'media/picks/tender-paws-cover.jpg']);
+  assert.deepEqual(imgs.map((i) => i.getAttribute('alt')), ['The cover of Animals by Raghu Rai and Maneka Gandhi', 'The cover of Orange Dogs by Deepak Virwani', 'The cover of Tender Paws by Balvant Singh']);
   assert.match(html, /\.mp-bk__cover\.has-cover img\{display:block;width:100%;height:auto;/, 'at its own shape: never cut or stretched');
   assert.match(html, /img\.addEventListener\('load', function \(\) \{ box\.classList\.add\('has-cover'\); \}\);/, 'shown only once it has arrived');
   const { BOOKS, coverFromAmazon } = require('../scripts/fetch-founder-films.js');
   assert.deepEqual(BOOKS.map((b) => path.relative(ROOT, b.out)), imgs.map((i) => path.join(...i.getAttribute('data-still').split('/'))), 'npm run media:films fetches the very files the page asks for');
-  for (const b of BOOKS) assert.match(b.image, /^https:\/\/m\.media-amazon\.com\/images\/I\/[A-Za-z0-9+-]+\.jpg$/, `${b.title}: the original cover, not a thumbnail`);
+  for (const b of BOOKS.filter((x) => x.kept)) assert.ok(fs.statSync(b.out).size > 20000, `${b.title}: the cover kept in the repository is really here`);
+  for (const b of BOOKS.filter((x) => !x.kept)) assert.match(b.image, /^https:\/\/m\.media-amazon\.com\/images\/I\/[A-Za-z0-9+-]+\.jpg$/, `${b.title}: the original cover, not a thumbnail`);
   assert.equal(coverFromAmazon('"hiRes":"https://m.media-amazon.com/images/I/81abc._SL1500_.jpg"'), 'https://m.media-amazon.com/images/I/81abc.jpg');
   assert.equal(coverFromAmazon('<html>a check page</html>'), null);
   assert.match(doc.querySelector('#book .mp-bk p:not(.eyebrow)').textContent, /introduction by Maneka Gandhi/);
@@ -253,7 +260,7 @@ test('Option 1: the photograph\'s effects, as jjettas.com\'s hero: decorative, a
   assert.ok(fs.existsSync(path.join(ROOT, 'media/picks/portrait-wall.png')), 'the wall, which her cut is made from');
   /* the cards on the wall take turns (owner, 10 Nov 2026: "the books appear in
      turns, and the films too. the thumbnails should take turns") */
-  assert.equal(doc.querySelectorAll('.mp-card--books img[data-turn]').length, 2, 'both books');
+  assert.equal(doc.querySelectorAll('.mp-card--books img[data-turn]').length, 3, 'all three books');
   assert.equal(doc.querySelectorAll('.mp-card--films img[data-turn]').length, 3, 'all three films');
   assert.deepEqual([...doc.querySelectorAll('.mp-card--films img[data-turn]')].map((i) => i.getAttribute('data-turn')), FILMS.map((f) => `media/picks-films/${f.yt}.jpg`));
   assert.match(html, /timer = setTimeout\(function \(\) \{[\s\S]{0,200}if \(!held && !document\.hidden && isOne\(\) && ok\.length > 1\)/, 'one picture after another, held while looked at, and only while Option 1 is on view');

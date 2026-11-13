@@ -1,3 +1,12 @@
+## v1.569
+
+- **A third book on Maneka's Picks: Tender Paws, by Balvant Singh.** Owner, 13 Nov 2026: "need to add this book to maneka's picks page", with tenderpaws.nz and the cover.
+  - Under Books, now "Three to read.": Tender Paws follows Animals and Orange Dogs. A puppy named Moti tells his own story of a farm in rural Fiji in the 1960s, for readers aged 10 to 18; supported by SPCA Fiji.
+  - Its button, Get the book, opens tenderpaws.nz in a new tab, since the book is sold from its own site and not on Amazon.
+  - Its cover is the one the owner sent, shown whole at its own shape and kept in the repository (media/picks/tender-paws-cover.jpg); npm run media:films leaves it alone.
+  - The books' card on the wall (Option 1) now turns through all three covers.
+  - The page's line, its description and the panel's section name now say three books.
+
 ## v1.568
 
 - **The emailed certificate is print quality.** Owner, 12 Nov 2026: "the cert sent as an attachment over email is of low res. can you make it super high/highest quality".

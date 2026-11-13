@@ -205,7 +205,12 @@ const BOOKS = [
   { title: 'Animals', out: path.join(ROOT, 'media', 'picks', 'animals-raghu-rai-cover.jpg'),
     image: 'https://m.media-amazon.com/images/I/61dsNajr5FL.jpg', link: 'https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1' },
   { title: 'Orange Dogs', out: path.join(ROOT, 'media', 'picks', 'orange-dogs-cover.jpg'),
-    image: 'https://m.media-amazon.com/images/I/61kNcVt0D5L.jpg', link: 'https://www.amazon.in/dp/9334516496' }
+    image: 'https://m.media-amazon.com/images/I/61kNcVt0D5L.jpg', link: 'https://www.amazon.in/dp/9334516496' },
+  /* Tender Paws (owner, 13 Nov 2026: "need to add this book to maneka's
+     picks page"). Not on Amazon; sold from its own site, tenderpaws.nz. Its
+     cover is the one the owner sent, kept in the repository, so there is
+     nothing to fetch. */
+  { title: 'Tender Paws', out: path.join(ROOT, 'media', 'picks', 'tender-paws-cover.jpg'), kept: true }
 ];
 const BOOK = BOOKS[0];
 const BROWSER = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
@@ -235,6 +240,7 @@ async function grabImage(url) {
 }
 
 async function bookCover(book) {
+  if (book.kept) { console.log(`\n  ${book.title}: cover kept in the repository${fs.existsSync(book.out) ? '' : ', but missing: save it at ' + path.relative(ROOT, book.out)}.`); return; }
   if (fs.existsSync(book.out) && !FORCE) { console.log(`\n  ${book.title}: cover already here.`); return; }
   let buf = await grabImage(book.image);
   let from = book.image;

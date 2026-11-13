@@ -27,3 +27,7 @@
   the addresses in `BOOKS` in scripts/fetch-founder-films.js. If Amazon does
   not answer, save each cover from its Amazon page under its name by hand.
   Until a cover is here its book shows a lettered cover.
+- `tender-paws-cover.jpg`: the cover of Tender Paws (Balvant Singh), 731 by
+  1024, the file the owner sent on 13 Nov 2026. The book is sold from its own
+  site, tenderpaws.nz, not Amazon, so this cover is kept in the repository and
+  `npm run media:films` leaves it alone.
