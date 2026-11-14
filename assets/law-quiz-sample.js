@@ -229,7 +229,7 @@
     this.box.innerHTML = '<div class="lqs__top"><span>Practice</span><span>Not counted</span></div><div class="lqs__bar"><i style="width:0"></i></div>'
       + '<h3 class="lqs__h">Seven questions, as the quiz asks them</h3>'
       + '<p class="lqs__p">One question at a time, five choices, one best answer: easy, medium and hard, mixed, as in the real quiz. Here you see the answer after each one, and at the end why every choice is right or wrong. None of these seven is in the real quiz.</p>'
-      + '<p class="lqs__p">The real quiz: 30 questions on ten common incidents, from a dog bite to the police refusing a complaint; 60 minutes, two a question; pass with 60 percent; three attempts.</p>'
+      + '<p class="lqs__p">The real quiz: 25 questions on ten common incidents, from a dog bite to the police refusing a complaint; 50 minutes, two a question; pass with 60 percent; three attempts.</p>'
       + '<div class="lqs__acts"><button class="lqs__btn" type="button" data-lqs="go">Start the practice</button></div>';
   };
   Practice.prototype.show = function () {
@@ -281,7 +281,7 @@
     this.box.innerHTML = '<div class="lqs__top"><span>Practice, done</span><span>Not counted</span></div><div class="lqs__bar"><i style="width:100%"></i></div>'
       + '<p class="lqs__score">' + right + ' of ' + QUESTIONS.length + '</p>'
       + '<p class="lqs__p">' + marks + ' of ' + max + ' marks, ' + pct + ' percent. ' + (pct >= 60 ? 'That would pass: the real quiz asks for 60 percent.' : 'The real quiz asks for 60 percent: read the four laws once more before you start it.') + '</p>'
-      + '<ul class="lqs__list"><li>The real quiz has 30 questions: three on each of ten incidents, one easy, one medium, one hard, all mixed.</li><li>60 minutes from the moment you start, even if you close the page.</li><li>A confirmed answer is final, and the answers open only once you pass or have used your three attempts.</li></ul>'
+      + '<ul class="lqs__list"><li>The real quiz has 25 questions: two or three on each of ten incidents, easy, medium and hard, all mixed.</li><li>50 minutes from the moment you start, even if you close the page.</li><li>A confirmed answer is final, and the answers open only once you pass or have used your three attempts.</li></ul>'
       + '<p class="lqs__sub">Every question, and why each choice is right or wrong</p>'
       + '<div class="lqs__rev">' + this.order.map(function (qi, i) {
         var q = QUESTIONS[qi]; var perm = self.perm[i]; var mine = self.picks[i];

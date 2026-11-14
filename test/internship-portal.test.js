@@ -143,7 +143,7 @@ test('the default plan is the eight weeks on the internship page: all eight task
   assert.equal(b.weeks.length, 8);
   assert.deepEqual(b.weeks.slice(0, 3).map((w) => w.title), ['Learn the law', 'Map your district', 'Bring people onto the RRT']);
   assert.deepEqual(b.tasks.map((t) => [t.key, t.kind, t.week, t.goal]), [
-    ['law', 'core', 1, '30-question quiz'], ['map', 'core', 2, '1 district'], ['rrt', 'core', 3, '50 people'], ['films', 'core', 4, '2 films'],
+    ['law', 'core', 1, '25-question quiz'], ['map', 'core', 2, '1 district'], ['rrt', 'core', 3, '50 people'], ['films', 'core', 4, '2 films'],
     ['shelter', 'core', 5, '20 hours'], ['rti', 'core', 6, '1 RTI'], ['cinekind', 'core', 7, '1 nomination'], ['story', 'core', 8, '1 story']
   ]);
   assert.deepEqual(b.tasks.map((t) => t.title), ['Learn the law', 'Map your district', 'Bring 50 people onto the RRT', 'Two films for The Wall', 'Shelter work', 'An RTI to the municipality', 'One CineKind nomination', 'Your own story with animals'],
@@ -184,7 +184,7 @@ test('approving: the intern is made, active at once, emailed that the internship
   const early = await browser('198.51.100.9').go('session', 'POST', { email: 'arjun@example.com', mobile: '9876543210', dob: DOB });
   assert.equal(early.status, 401);
   assert.equal(early.json.message, S.NO_MATCH_SAY);
-  assert.match(early.json.message, /once PFA emails you that your internship has started/);
+  assert.match(early.json.message, /Not applied yet\? Apply on the internship page: it starts at once/);
 
   assert.equal((await admin('POST', { body: { action: 'issue', batchId: id, name: 'arjun nair', email: 'arjun@example.com', mobile: '9876543210' } })).status, 400, 'no date of birth, no approval');
   const issued = await admin('POST', { body: { action: 'issue', batchId: id, name: 'arjun nair', email: 'Arjun@Example.com', mobile: '+91 98765 43210', dob: DOB, applicationRef: 'PFA-VI-2026-00001' } });
@@ -205,7 +205,7 @@ test('approving: the intern is made, active at once, emailed that the internship
   assert.equal(sent.length, 1);
   assert.equal(sent[0].to, 'arjun@example.com');
   assert.equal(sent[0].subject, 'Your PFA internship has started');
-  assert.match(sent[0].text, /Sign in with this email address, your mobile number \(ending 3210\) and your date of birth/);
+  assert.match(sent[0].text, /signing in with this email address, your mobile number \(ending 3210\) and your date of birth/);
   assert.match(sent[0].text, /intern\.html/);
   assert.doesNotMatch(sent[0].text + sent[0].html, /onboard=|access key|2004|14\/05|9876543210/);
 
@@ -265,26 +265,31 @@ test('a detail sign-in needs is missing: PFA asks for it, the form sent again jo
   assert.equal((await admin('GET', { query: { applications: '1' } })).json.applications[0].askedAt, rec.detailsAskedAt);
 
   /* they send the form again, same email in other capitals: no new number */
-  const before = Object.keys(db.dump()).filter((k) => k.startsWith('submissions/')).length;
+  const apps0 = () => Object.keys(db.dump()).filter((k) => /^submissions\/[^/]+$/.test(k)).length;
+  const before = apps0();
   const again = await sendForm({ name: 'Meera Das', email: 'Meera@Example.com', mobile: '98765 00000', dob: '2003-01-31' }, 'meera-1');
   assert.equal(again.status, 200, JSON.stringify(again.json));
   assert.equal(again.json.reference, 'PFA-VI-2026-00002', 'answered with the application it joined');
   const twice = await sendForm({ name: 'Meera Das', email: 'meera@example.com', mobile: '9876500000', dob: '2003-01-31' }, 'meera-1');
   assert.equal(twice.json.reference, 'PFA-VI-2026-00002', 'a double press is one sending');
-  assert.equal(Object.keys(db.dump()).filter((k) => k.startsWith('submissions/')).length, before, 'no second application');
+  assert.equal(apps0(), before, 'no second application');
   const merged = (await db.collection('submissions').doc('PFA-VI-2026-00002').get()).data();
   assert.equal(merged.resent.length, 1);
   assert.deepEqual(merged.fields, { name: 'Meera Das', email: 'meera@example.com', mobile: '9876500000', city: 'Udupi', age: '22' }, 'what they wrote first is never written over');
-  assert.match(merged.history[merged.history.length - 1].note, /added to this application, not filed as a new one\. It now has all three details they sign in with/);
-  assert.ok(sent.some((m) => m.to === 'meera@example.com' && /PFA-VI-2026-00002/.test(m.subject)), 'they are told it arrived, under the same number');
+  assert.ok(merged.history.some((h) => /added to this application, not filed as a new one\. It now has all three details they sign in with/.test(h.note || '')));
+  /* with all three it starts on its own (14 Nov 2026): the start email is their answer, under the same number's application */
+  assert.equal(again.json.started, true);
+  assert.equal(merged.status, 'approved');
+  assert.deepEqual([merged.history[merged.history.length - 1].status, merged.history[merged.history.length - 1].by, merged.handledBy], ['approved', 'automatic', 'automatic']);
+  const notes = Object.entries(db.dump()).filter(([k]) => k.startsWith('submissions/PFA-VI-2026-00002/messages/')).map(([, v]) => v.text);
+  assert.ok(notes.some((t) => /^Started on its own as PFA-IN-/.test(t)), 'the note says how it was started');
+  assert.ok(sent.some((m) => m.to === 'meera@example.com' && m.subject === 'Your PFA internship has started'), 'the start link went to them');
   const one = (await admin('GET', { query: { application: 'PFA-VI-2026-00002' } })).json.application;
-  assert.deepEqual([one.dob, one.missing, one.sentTimes, one.resent.length, one.intern], ['2003-01-31', [], 2, 1, null]);
-
-  /* now Approve, and the three let them in */
-  const ok = await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00002' } });
-  assert.equal(ok.status, 200, JSON.stringify(ok.json));
+  assert.deepEqual([one.dob, one.missing, one.sentTimes, one.resent.length], ['2003-01-31', [], 2, 1]);
+  assert.ok(one.intern && one.intern.internId, 'an intern already');
+  /* no Approve needed; the three let them in */
+  assert.equal((await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00002' } })).status, 409, 'already started');
   assert.equal((await browser().go('session', 'POST', { email: 'meera@example.com', mobile: '9876500000', dob: '2003-01-31' })).status, 200);
-  assert.equal((await admin('GET', { query: { application: 'PFA-VI-2026-00002' } })).json.application.intern.internId, ok.json.internId);
   /* a different email is a different person: a new application */
   const other = await sendForm({ name: 'Meera D', email: 'meera.d@example.com', mobile: '9876500001', dob: '2003-01-31' });
   assert.notEqual(other.json.reference, 'PFA-VI-2026-00002');
@@ -304,13 +309,14 @@ test('one person, one application: two from before one-per-email show once, and 
   const apps = (await admin('GET', { query: { applications: '1' } })).json.applications;
   assert.equal(apps.length, 1, 'one line for one email');
   assert.deepEqual([apps[0].reference, apps[0].dob, apps[0].missing, apps[0].also], ['PFA-VI-2026-00003', '2007-10-14', [], ['PFA-VI-2026-00004']]);
-  /* a new sending joins the earliest */
-  const again = await sendForm({ name: 'Anushka Das', email: 'anushka@example.com', mobile: '9880847070', dob: '2007-10-14' });
-  assert.equal(again.json.reference, 'PFA-VI-2026-00003');
   /* the earliest misses its date of birth on its own, but the person has
      given it, so either reference approves them */
   const ok = await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00004' } });
   assert.equal(ok.status, 200, JSON.stringify(ok.json));
+  /* a new sending joins the earliest, already started */
+  const again = await sendForm({ name: 'Anushka Das', email: 'anushka@example.com', mobile: '9880847070', dob: '2007-10-14' });
+  assert.equal(again.json.reference, 'PFA-VI-2026-00003');
+  assert.equal(again.json.started, true, 'the page shows the way in');
   for (const ref of ['PFA-VI-2026-00003', 'PFA-VI-2026-00004']) assert.equal((await db.collection('submissions').doc(ref).get()).data().status, 'approved', `${ref} Accepted`);
   assert.equal((await admin('GET', { query: { applications: '1' } })).json.applications.length, 0);
   assert.equal((await admin('POST', { body: { action: 'issue', applicationRef: 'PFA-VI-2026-00003' } })).status, 409, 'one intern per email');
@@ -615,7 +621,7 @@ test('reminders: on each week\'s Sunday, once per intern, only when something is
   assert.equal(sent.length, 1, 'Asha sent hers; only Zoya is reminded');
   assert.equal(sent[0].to, 'zoya@example.com');
   assert.match(sent[0].subject, /week 1: 1 still open/);
-  assert.match(sent[0].text, /Learn the law \(30-question quiz\)/);
+  assert.match(sent[0].text, /Learn the law \(25-question quiz\)/);
   assert.match(sent[0].text, /Sun 15 Nov, 11:59 pm/);
   /* every later run that Sunday: no second email */
   await R.run({ db, nowMs: SUN + 600000 });
@@ -631,7 +637,7 @@ test('reminders: on each week\'s Sunday, once per intern, only when something is
   await R.run({ db, nowMs: at('2026-11-29T03:30:00.000Z') });
   const zoya = sent.find((m) => m.to === 'zoya@example.com');
   assert.match(zoya.text, /Bring 50 people onto the RRT: 12 of 50 have registered/);
-  assert.match(zoya.text, /Learn the law \(30-question quiz\) \(Overdue\)/);
+  assert.match(zoya.text, /Learn the law \(25-question quiz\) \(Overdue\)/);
   /* a closed batch is not reminded */
   sent = [];
   await db.collection('intern_batches').doc(id).set({ status: 'closed' }, { merge: true });
@@ -853,7 +859,7 @@ test('reminders by hand: one intern, everyone behind, and applications missing a
   r = await admin('POST', { body: { action: 'remind', internId: z.internId, note: 'Do write if you are stuck.', token: r.json.token } });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   assert.equal(sent.length, 1);
-  assert.match(sent[0].text, /Learn the law \(30-question quiz\) \(Overdue, due Sun 15 Nov, 11:59 pm\)/);
+  assert.match(sent[0].text, /Learn the law \(25-question quiz\) \(Overdue, due Sun 15 Nov, 11:59 pm\)/);
   assert.match(sent[0].text, /Map your district \(1 district\) \(Due Sun 22 Nov, due Sun 22 Nov, 11:59 pm\)/);
   assert.ok(audits.some((x) => x.action === 'intern-reminded' && x.subject === z.internId));
   /* again within 12 hours: held back, and says when, unless sent anyway */

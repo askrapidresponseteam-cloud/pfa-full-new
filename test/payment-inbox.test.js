@@ -72,7 +72,9 @@ test('a record of money goes to both payments inboxes; a form to gandhim, as bef
     assert.deepEqual(F.copiesOf({ kind: 'PFA-MEM' }),
       [{ to: GANDHIM, copy: 'application' }, ...PAY.map((to) => ({ to, copy: 'payment' }))]);
     assert.deepEqual(F.relayInboxes({ kind: 'PFA-MEM' }), [GANDHIM]);
-    assert.deepEqual([...F.PANEL_ONLY_KINDS], []);
+    /* internship applications are kept to the panel and reported monthly (14 Nov 2026) */
+    assert.deepEqual([...F.PANEL_ONLY_KINDS], ['PFA-VI']);
+    assert.deepEqual(F.inboxes({ kind: 'PFA-VI', reference: 'PFA-VI-2026-00001' }), []);
     for (const kind of ['PFA-V', 'PFA-J', 'PFA-U', 'PFA-CR', 'PFA-Q', 'PFA-A', 'PFA-EV', 'PFA-CK']) {
       assert.deepEqual(F.inboxes({ kind }), [GANDHIM], kind);
     }

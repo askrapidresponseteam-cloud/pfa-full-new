@@ -41,7 +41,7 @@
       out += '<p class="qzc__now">You passed with <b>' + q.best.percent + '%</b>. ' + q.best.byLevel.map(function (l) { return l.label + ' ' + l.right + '/' + l.of; }).join(' · ') + '.</p>';
       out += '<button class="btn btn--light" type="button" data-qz="review">See the answers</button>';
     } else if (q.open) {
-      out += '<p class="qzc__now">Attempt ' + q.open.n + ' is open: ' + q.open.answered + ' of ' + q.count + ' answered. Your time runs out at ' + esc(H.when(q.open.deadline).replace(/^.*?,\s*/, '')) + '.</p>';
+      out += '<p class="qzc__now">Attempt ' + q.open.n + ' is open: ' + q.open.answered + ' of ' + (q.open.total || q.count) + ' answered. Your time runs out at ' + esc(H.when(q.open.deadline).replace(/^.*?,\s*/, '')) + '.</p>';
       out += '<button class="btn" type="button" data-qz="resume">Carry on</button>';
     } else if (q.canStart) {
       out += '<button class="btn" type="button" data-qz="intro">' + (q.attempts.length ? 'Start attempt ' + (q.attempts.length + 1) + ' of ' + q.maxAttempts : 'Take the quiz') + '</button>';
@@ -55,7 +55,7 @@
     /* seven practice questions, never in the quiz (assets/law-quiz-sample.js) */
     if (!q.passed && root.PFALawSample) out += '<div data-law-sample-host><button class="btn btn--light" type="button" data-law-sample>Try 7 practice questions first</button></div>';
     out += '<details class="fold"><summary>How the quiz works</summary><ul>'
-      + '<li>Ten common incidents, three questions on each: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ' each)'; }).join(', ') + ', all mixed together.</li>'
+      + '<li>Ten common incidents, two or three questions on each: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ' each)'; }).join(', ') + ', all mixed together.</li>'
       + '<li>One question at a time, five choices, one best answer. Once you confirm an answer it is final: there is no going back.</li>'
       + '<li>The ' + q.minutes + ' minutes run from when you start, even if you close the page. Unanswered questions count as wrong.</li>'
       + '<li>' + q.maxAttempts + ' attempts, at least a day apart; your best counts. Pass with ' + q.passMark + '% and this task is done.</li>'
@@ -78,9 +78,9 @@
     stopClock(); guard(false);
     frame('<div class="qz__intro"><p class="tile__h">The quiz' + (q.attempts.length ? ', attempt ' + (q.attempts.length + 1) + ' of ' + q.maxAttempts : '') + '</p>'
       + '<h2 class="qz__h">' + q.count + ' questions. ' + q.minutes + ' minutes.</h2>'
-      + '<p class="qz__p">Three questions on each of ten incidents you will meet, mixed: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ')'; }).join(', ') + '. Two minutes a question.</p>'
+      + '<p class="qz__p">Two or three questions on each of ten incidents you will meet, mixed: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ')'; }).join(', ') + '. Two minutes a question.</p>'
       + '<ol class="qz__rules">'
-      + (q.incidents || []).map(function (x, i) { return '<li><b>' + (i + 1) + '. ' + esc(x.label) + '</b><span>' + plural(x.count, 'question', 'questions') + '</span></li>'; }).join('')
+      + (q.incidents || []).map(function (x, i) { return '<li><b>' + (i + 1) + '. ' + esc(x.label) + '</b><span>' + esc(x.each || plural(x.count, 'question', 'questions')) + '</span></li>'; }).join('')
       + '</ol>'
       + '<p class="qz__p">Answer each question, then confirm it. A confirmed answer is final. The clock starts when you press Start and keeps running if you leave. Find a quiet ' + q.minutes + ' minutes before you begin.</p>'
       + '<div class="qz__acts"><button class="btn" type="button" data-qz="start">Start the ' + q.minutes + ' minutes</button><button class="linkish" type="button" data-qz="back">Not now</button></div></div>');
@@ -107,7 +107,7 @@
     var q = a.question;
     var sec = q.section;
     var pct = Math.round(((q.index - 1) / q.total) * 100);
-    /* all thirty in one mixed run: where you are, one square a question */
+    /* the whole paper in one mixed run: where you are, one square a question */
     var cells = '';
     for (var i = 1; i <= q.total; i += 1) cells += '<i data-s="' + (i < q.index ? 'done' : i === q.index ? 'now' : '') + '"></i>';
     var map = '<aside class="qz__map" aria-label="Where you are"><p class="tile__h">Where you are</p><div class="qz__mapsec"><span>' + plural(q.total, 'question', 'questions') + '</span><div>' + cells + '</div></div>'

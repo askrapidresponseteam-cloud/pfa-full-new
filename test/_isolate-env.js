@@ -31,3 +31,4 @@ process.env.PFA_FINANCE_REPORT = 'off';
 process.env.PFA_CRUELTY_REPORT = 'off';
 /* and the Monday internship quiz email (lib/quiz-report.js) */
 process.env.PFA_QUIZ_REPORT = 'off';
+process.env.PFA_INTERN_APPS_REPORT = 'off';

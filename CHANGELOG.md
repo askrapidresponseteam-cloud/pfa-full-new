@@ -1,3 +1,30 @@
+## v1.572
+
+- **Internship applications reach gandhim once a month, not one email each.** Owner, 14 Nov 2026: "gandhim shouldnt be getting an email each time one applies for internship. monthyl report of people who applied for remote internship should do".
+  - An internship application is no longer copied to gandhim as it comes in. It is in the panel at once, as before.
+  - On the 1st of every month (India time; up to the 7th if the 1st is missed), one email to gandhim lists everyone who applied the month before: the day they applied, name, email, mobile, place, application number, and where they stand now (started and signed in, started but not signed in yet, missing a detail, or turned down), with their Intern ID and batch. The month at a glance comes first.
+  - A CSV is attached with every line and what each person wrote (age, college or work, Instagram or YouTube, why). Never the date of birth, as interns sign in with it.
+  - Sent once a month; a month with nobody still sends a short note.
+  - The Monday digest is unchanged.
+
+## v1.571
+
+- **The internship starts on its own: apply, and you are in.** Owner, 14 Nov 2026: "can you make the starting of internship automated. starting should not need an okay go ahead from admin. let the one interested just click apply. and they should get a link to start the internship".
+  - The moment someone applies, the intern is made, exactly as Approve made one, and emailed "Your PFA internship has started" with a Start my internship button. That email is their confirmation, so they get one email, not two. PFA still gets every application (gandhim), and can withdraw an intern in the panel as before.
+  - The page, once sent, says "Your internship has started" with a Start my internship button straight to the dashboard.
+  - They join a batch that has not begun or began in the last 3 days; otherwise a new one from the coming Monday, so nobody starts in week 2 or later with weeks already behind them. Approve in the panel still joins the open batch, as before.
+  - Everyone already waiting for an okay is started by the email worker on its next run (every 10 minutes). Applications PFA turned down stay turned down. If a start does not go through when someone applies, the worker tries again.
+  - The panel's Approve applications list now holds only applications missing a detail (from before the form asked for all three) or still being started.
+  - The internship page, the dashboard's sign-in, the two-page guide and the sign-in message no longer speak of waiting for PFA's approval.
+- **Reminders every 3 days to anyone who has not started.** Owner, 14 Nov 2026: "to all those who applied, send a reminder every 3 days if they have not started the internship".
+  - An intern who has never signed in is emailed "Your PFA internship is waiting for you", with the start link, 3 days after the start email and every 3 days after that, until they sign in or their internship is over. Logged in the batch's reminder log as "Not signed in yet (every 3 days)".
+  - An application missing a sign-in detail is asked for it again every 3 days.
+- **The law quiz is 25 questions.** Owner, 14 Nov 2026: "make the quiz shorter. with just 25 qs in total".
+  - Each attempt is 25 of the 30 questions: 8 easy, 9 medium and 8 hard, two or three on each of the ten incidents, so every paper covers all ten and is worth the same 50 marks. Which five are left out is drawn afresh for every attempt.
+  - 50 minutes, still two a question. The pass mark stays 60 percent (30 of 50).
+  - An attempt already open when this goes live keeps its own 30 questions and 60 minutes.
+  - The internship page, the practice quiz, the guide, the dashboard and the Monday quiz report to gandhim all say 25 questions and 50 minutes; batches saved earlier show the new size too.
+
 ## v1.570
 
 - **Maneka's Picks: the three books side by side, in one screen.** Owner, 13 Nov 2026: "let books also be arranged like this .. avoiding unless scroll", with a picture of three books in a row.

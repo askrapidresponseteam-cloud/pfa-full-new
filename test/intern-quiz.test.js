@@ -126,7 +126,7 @@ async function sit(br, rightIf) {
 
 /* ---- the questions -------------------------------------------------------- */
 
-test('30 questions on ten incidents, three each, one of every level; five choices and one answer each', () => {
+test('the bank: 30 questions on ten incidents, three each, one of every level; five choices and one answer each', () => {
   const count = { easy: 0, medium: 0, hard: 0 };
   const ids = new Set();
   const texts = new Set();
@@ -141,7 +141,11 @@ test('30 questions on ten incidents, three each, one of every level; five choice
     for (const x of [q.q, q.why].concat(q.choices)) assert.doesNotMatch(x, /[\u2013\u2014]/, `${q.id}: no long dash`);
   }
   assert.deepEqual(count, { easy: 10, medium: 10, hard: 10 });
-  assert.equal(Q.MAX_POINTS, 10 + 20 + 30);
+  /* a paper is 25 of them (owner, 14 Nov 2026: "make the quiz shorter. with just 25 qs in total") */
+  assert.deepEqual(Q.PAPER, { easy: 8, medium: 9, hard: 8 });
+  assert.equal(Q.COUNT, 25);
+  assert.equal(Q.MAX_POINTS, 8 + 18 + 24);
+  assert.equal(Q.MINUTES, 50, 'two minutes a question');
   assert.equal(BANK.INCIDENTS.length, 10);
   for (const [key, label] of BANK.INCIDENTS) {
     const mine = BANK.QUESTIONS.filter((q) => q.topic === key);
@@ -193,18 +197,28 @@ test('the sums in the number questions are right', () => {
   assert.match(ds.q, /within three years/);
 });
 
-test('every attempt is shuffled afresh, all thirty mixed; data sufficiency keeps A to E', () => {
+test('every attempt is 25 of the 30, drawn and shuffled afresh: 8 easy, 9 medium, 8 hard, every incident two or three; data sufficiency keeps A to E', () => {
   let seed = 1;
   const rnd = (n) => { seed = (seed * 16807) % 2147483647; return seed % n; };
   const a = Q.newPaper(rnd);
   const b = Q.newPaper(rnd);
-  assert.equal(a.order.length, 30);
-  assert.equal(new Set(a.order).size, 30);
+  assert.equal(a.order.length, 25);
+  assert.equal(new Set(a.order).size, 25);
   assert.notDeepEqual(a.order, b.order);
   const levels = a.order.map((id) => BANK.QUESTIONS.find((q) => q.id === id).level);
-  assert.notDeepEqual(levels, Array(10).fill('easy').concat(Array(10).fill('medium'), Array(10).fill('hard')), 'mixed, not in sections');
-  assert.ok(levels.slice(0, 10).some((l) => l !== 'easy'));
-  assert.deepEqual(a.perm['neglect-h'], [0, 1, 2, 3, 4]);
+  assert.notDeepEqual(levels, levels.slice().sort(), 'mixed, not in sections');
+  assert.ok(levels.slice(0, 8).some((l) => l !== 'easy'));
+  for (let i = 0; i < 300; i += 1) {
+    const p = Q.newPaper(rnd);
+    const qs = p.order.map((id) => BANK.QUESTIONS.find((q) => q.id === id));
+    const by = (k) => qs.reduce((m, q) => Object.assign(m, { [q[k]]: (m[q[k]] || 0) + 1 }), {});
+    assert.deepEqual(by('level'), { easy: 8, medium: 9, hard: 8 });
+    const topics = by('topic');
+    assert.equal(Object.keys(topics).length, 10, 'every incident');
+    assert.ok(Object.values(topics).every((n) => n === 2 || n === 3), 'two or three on each');
+  }
+  const ds = Array.from({ length: 40 }, () => Q.newPaper(rnd)).find((p) => p.order.includes('neglect-h'));
+  assert.deepEqual(ds.perm['neglect-h'], [0, 1, 2, 3, 4]);
   assert.ok(Object.keys(a.perm).some((id) => a.perm[id].join() !== '0,1,2,3,4'));
 });
 
@@ -228,9 +242,10 @@ test('the quiz opens with the internship; the browser never sees an answer while
 
   NOW = at('2026-11-09T05:00:00.000Z');
   const me = await br.go('me', 'GET');
-  assert.equal(me.json.quiz.count, 30);
-  assert.equal(me.json.quiz.minutes, 60);
-  assert.deepEqual(me.json.quiz.incidents.map((x) => x.count), Array(10).fill(3));
+  assert.equal(me.json.quiz.count, 25);
+  assert.equal(me.json.quiz.minutes, 50);
+  assert.deepEqual(me.json.quiz.incidents.map((x) => x.each), Array(10).fill('2 or 3 questions'));
+  assert.deepEqual(me.json.quiz.sections.map((x) => [x.level, x.count]), [['easy', 8], ['medium', 9], ['hard', 8]]);
   assert.equal(me.json.quiz.canStart, true);
   const law = me.json.batch.tasks.find((t) => t.key === 'law');
   assert.equal(law.auto, 'quiz');
@@ -239,7 +254,7 @@ test('the quiz opens with the internship; the browser never sees an answer while
   assert.equal(r.status, 200);
   const q = r.json.attempt.question;
   assert.equal(q.index, 1);
-  assert.equal(q.total, 30);
+  assert.equal(q.total, 25);
   assert.ok(['easy', 'medium', 'hard'].includes(q.section.level));
   assert.ok(BANK.INCIDENTS.some(([, label]) => label === q.section.incident), 'the incident it is about');
   assert.deepEqual(q.choices.map((c) => c.key), ['A', 'B', 'C', 'D', 'E']);
@@ -250,7 +265,7 @@ test('the quiz opens with the internship; the browser never sees an answer while
   const got = await br.go('quiz', 'GET');
   assert.equal(got.json.attempt.question.qid, q.qid);
   assert.doesNotMatch(got.raw, /"answer"|"why"|"perm"/);
-  assert.ok(got.json.attempt.secondsLeft <= 60 * 60 && got.json.attempt.secondsLeft > 59 * 60, 'sixty minutes: two a question');
+  assert.ok(got.json.attempt.secondsLeft <= 50 * 60 && got.json.attempt.secondsLeft > 49 * 60, 'fifty minutes: two a question');
 });
 
 test('answers are final and in order, as in a competitive exam', async () => {
@@ -279,26 +294,26 @@ test('answers are final and in order, as in a competitive exam', async () => {
 test('a pass marks the law task accepted, shows the marks by section, and opens the review', async () => {
   const { br, internId } = await intern();
   NOW = at('2026-11-10T05:00:00.000Z');
-  /* right on everything but five hard questions: 60 - 15 = 45 marks, 75 percent */
+  /* right on everything but four hard questions: 50 - 12 = 38 marks, 76 percent */
   let wrongHard = 0;
-  const done = await sit(br, (q) => !(q.section.level === 'hard' && wrongHard++ < 5));
+  const done = await sit(br, (q) => !(q.section.level === 'hard' && wrongHard++ < 4));
   const quiz = done.quiz;
   assert.equal(quiz.passed, true);
-  assert.equal(quiz.best.percent, 75);
-  assert.equal(quiz.best.points, 45);
-  assert.equal(quiz.best.max, 60);
-  assert.deepEqual(quiz.best.byLevel.map((l) => [l.level, l.right, l.of]), [['easy', 10, 10], ['medium', 10, 10], ['hard', 5, 10]]);
+  assert.equal(quiz.best.percent, 76);
+  assert.equal(quiz.best.points, 38);
+  assert.equal(quiz.best.max, 50);
+  assert.deepEqual(quiz.best.byLevel.map((l) => [l.level, l.right, l.of]), [['easy', 8, 8], ['medium', 9, 9], ['hard', 4, 8]]);
   assert.equal(quiz.best.byTopic.length, 10, 'marks by incident');
-  assert.ok(quiz.best.byTopic.every((t) => t.of === 3));
+  assert.ok(quiz.best.byTopic.every((t) => t.of === 2 || t.of === 3));
   assert.equal(quiz.canStart, false);
-  assert.equal(quiz.review.length, 30);
+  assert.equal(quiz.review.length, 25);
   assert.ok(quiz.review.every((x) => x.why && x.choices.filter((c) => c.right).length === 1));
-  assert.equal(quiz.review.filter((x) => !x.right).length, 5);
+  assert.equal(quiz.review.filter((x) => !x.right).length, 4);
   const work = (await db.collection('intern_work').doc(`${internId}__law`).get()).data();
   assert.equal(work.state, 'accepted');
   assert.equal(work.score, 7.5);
   assert.equal(work.reviewedBy, 'quiz');
-  assert.match(work.note, /75 percent \(45 of 60 marks\), attempt 1 of 3\. Easy 10\/10, medium 10\/10, hard 5\/10\./);
+  assert.match(work.note, /76 percent \(38 of 50 marks\), attempt 1 of 3\. Easy 8\/8, medium 9\/9, hard 4\/8\./);
   const me = await br.go('me', 'GET');
   assert.equal(me.json.progress.tasks.find((t) => t.key === 'law').state, 'accepted');
   /* no proof form for the quiz task */
@@ -312,7 +327,7 @@ test('three attempts a day apart; no review until passed or done; then PFA revie
   const { br, internId } = await intern();
   NOW = at('2026-11-10T05:00:00.000Z');
   const one = await sit(br, (q) => q.section.level === 'easy');
-  assert.equal(one.quiz.best.percent, 16.7);
+  assert.equal(one.quiz.best.percent, 16);
   assert.equal(one.quiz.passed, false);
   assert.equal(one.quiz.review, null, 'no answers while attempts remain');
   assert.equal(one.quiz.left, 2);
@@ -324,15 +339,15 @@ test('three attempts a day apart; no review until passed or done; then PFA revie
 
   NOW = at('2026-11-11T06:00:00.000Z');
   const two = await sit(br, (q) => q.section.level !== 'hard');
-  assert.equal(two.quiz.best.percent, 50);
+  assert.equal(two.quiz.best.percent, 52);
   NOW = at('2026-11-12T07:00:00.000Z');
   const three = await sit(br, (q) => q.section.level === 'medium');
   assert.equal(three.quiz.left, 0);
   assert.equal(three.quiz.best.n, 2, 'the best attempt counts');
-  assert.equal(three.quiz.review.length, 30, 'the review opens once every attempt is used');
+  assert.equal(three.quiz.review.length, 25, 'the review opens once every attempt is used');
   const work = (await db.collection('intern_work').doc(`${internId}__law`).get()).data();
   assert.equal(work.state, 'submitted', 'in the review queue for PFA to decide');
-  assert.match(work.note, /50 percent \(30 of 60 marks\), attempt 2 of 3\. .* Below the pass mark of 60 percent after 3 attempts\./);
+  assert.match(work.note, /52 percent \(26 of 50 marks\), attempt 2 of 3\. .* Below the pass mark of 60 percent after 3 attempts\./);
   NOW = at('2026-11-14T07:00:00.000Z');
   assert.equal((await br.go('quiz', 'POST', { action: 'start' })).json.code, 'NO_ATTEMPTS');
 });
@@ -348,7 +363,7 @@ test('the clock is the server’s: an attempt left open is marked when its time 
   }
   /* an answer that arrives after the time (and its grace) is not taken */
   const firstFour = (await db.collection('intern_quiz').doc(a.attemptId).get()).data().order.slice(0, 4);
-  NOW += 60 * MIN + Q.GRACE_MS + 1000;
+  NOW += 50 * MIN + Q.GRACE_MS + 1000;
   const late = await br.go('quiz', 'POST', { action: 'answer', attemptId: a.attemptId, qid: a.question.qid, choice: 'A' });
   assert.equal(late.json.attempt.state, 'done');
   assert.equal(late.json.attempt.timeUp, true);
@@ -356,7 +371,7 @@ test('the clock is the server’s: an attempt left open is marked when its time 
   assert.equal(s.answered, 4);
   assert.equal(s.points, firstFour.reduce((n, id) => n + BANK.POINTS[BANK.QUESTIONS.find((q) => q.id === id).level], 0));
   assert.equal(s.timedOut, true);
-  assert.equal(s.seconds, 60 * 60);
+  assert.equal(s.seconds, 50 * 60);
 });
 
 test('a closed tab: the dashboard marks the attempt when its time is up', async () => {
@@ -390,15 +405,15 @@ test('every attempt of the week goes to gandhim on Monday, once, with a CSV', as
   assert.equal(m.to, 'gandhim@exmpls.sansad.in', 'the forms inbox, and no one else');
   assert.ok(!m.cc || !m.cc.length);
   assert.equal(m.subject, 'PFA internship quiz: 9 Nov to 15 Nov 2026 (2 attempts, 1 passed)');
-  assert.match(m.text, /Asha Rao \(PFA-IN-[A-Z0-9]{6}\), attempt 1, 10 Nov, 10:30 am: 100% Pass\. Easy 10\/10, medium 10\/10, hard 10\/10\./);
-  assert.match(m.text, /Ravi Kumar \(PFA-IN-[A-Z0-9]{6}\), attempt 1, 11 Nov, 10:30 am: 16\.7% Not passed\. Easy 10\/10, medium 0\/10, hard 0\/10\./);
+  assert.match(m.text, /Asha Rao \(PFA-IN-[A-Z0-9]{6}\), attempt 1, 10 Nov, 10:30 am: 100% Pass\. Easy 8\/8, medium 9\/9, hard 8\/8\./);
+  assert.match(m.text, /Ravi Kumar \(PFA-IN-[A-Z0-9]{6}\), attempt 1, 11 Nov, 10:30 am: 16% Not passed\. Easy 8\/8, medium 0\/9, hard 0\/8\./);
   assert.match(m.text, /Most often got wrong:/);
   assert.equal(m.attachments.length, 1);
   assert.equal(m.attachments[0].filename, 'PFA-internship-quiz-week-of-2026-11-16.csv');
   const csv = Buffer.from(m.attachments[0].content).toString('utf8');
   assert.match(csv, /^\ufeffIntern,Intern ID,Batch,Attempt,Finished \(IST\),Percent,Marks,Out of,Result,Easy,Medium,Hard,Answered,Time taken,Ran out of time\r\n/);
   assert.equal(csv.trim().split('\r\n').length, 3);
-  assert.match(csv, /Ravi Kumar,PFA-IN-\w{6},November 2026,1,"11 Nov, 10:30 am",16\.7,10,60,Not passed,10\/10,0\/10,0\/10,30,/);
+  assert.match(csv, /Ravi Kumar,PFA-IN-\w{6},November 2026,1,"11 Nov, 10:30 am",16,8,50,Not passed,8\/8,0\/9,0\/8,25,/);
   /* once */
   assert.equal((await QR.run({ db, nowMs: at('2026-11-17T03:00:00.000Z') })).state, 'already');
   assert.equal(sent.length, 1);
@@ -424,8 +439,8 @@ test('wired: the route, the portal page, the plan, the email worker and the inte
   assert.match(read('lib/routes/caregiver/email-worker.js'), /require\('\.\.\/\.\.\/quiz-report'\)\.run/);
   assert.match(read('test/_isolate-env.js'), /PFA_QUIZ_REPORT = 'off'/);
   const internship = read('internship.html');
-  assert.match(internship, /30 questions/);
-  assert.doesNotMatch(internship + read('lib/internship.js') + read('assets/intern-quiz.js'), /55[ -]question|75 minutes/, 'the old size is gone everywhere');
+  assert.match(internship, /25 questions/);
+  assert.doesNotMatch(internship + read('lib/internship.js') + read('assets/intern-quiz.js') + read('assets/law-quiz-sample.js') + read('intern-guide.html'), /55[ -]question|75 minutes|30[ -]question|60 minutes|all thirty/, 'the old size is gone everywhere');
   /* the practice round, open to anyone, on the internship page and in the portal */
   assert.match(internship, /<script src="assets\/law-quiz-sample\.js" defer><\/script>/);
   assert.match(internship, /data-law-sample/);
@@ -443,9 +458,9 @@ test('each attempt’s marks are emailed to the intern who took it, once; no ans
   assert.equal(sent.length, 1);
   const m = sent[0];
   assert.equal(m.to, 'asha@example.com');
-  assert.equal(m.subject, 'Your PFA internship quiz: 16.7%, attempt 1 of 3');
+  assert.equal(m.subject, 'Your PFA internship quiz: 16%, attempt 1 of 3');
   assert.match(m.text, /Asha, here are your marks for attempt 1 of 3 of the internship quiz\./);
-  assert.match(m.text, /Easy 10 of 10, medium 0 of 10, hard 0 of 10\./);
+  assert.match(m.text, /Easy 8 of 8, medium 0 of 9, hard 0 of 8\./);
   assert.match(m.text, /You have 2 more attempts; the next opens Wed 11 Nov, 10:30 am\./);
   assert.doesNotMatch(m.text + m.html, /The answer|Why:/, 'no answers by email');
   /* the dashboard reading the finished attempt again sends nothing more */

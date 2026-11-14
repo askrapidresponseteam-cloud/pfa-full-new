@@ -84,7 +84,7 @@ test('each of the eight with its week, its target and its proof', () => {
   assert.deepEqual(laneOf('all').map((c) => c.querySelector('.lane-card-pill').textContent),
     ['TASK 1 · WEEK 1', 'TASK 2 · WEEK 2', 'TASK 3 · WEEK 3', 'TASK 4 · WEEK 4', 'TASK 5 · WEEKS 5-6', 'TASK 6 · WEEK 6', 'TASK 7 · WEEK 7', 'TASK 8 · WEEK 8']);
   assert.deepEqual(laneOf('all').map((c) => c.querySelector('.lane-card-bottom').textContent),
-    ['30 questions · View task', '1 district · View task', '50 people · View task', '2 films · View task', '20 hours · View task', '1 RTI · View task', '1 nomination · View task', '1 story · View task']);
+    ['25 questions · View task', '1 district · View task', '50 people · View task', '2 films · View task', '20 hours · View task', '1 RTI · View task', '1 nomination · View task', '1 story · View task']);
   const body = (t) => new JSDOM(task(t).body).window.document;
   for (const t of lanes) {
     const b = body(t.title);
@@ -92,11 +92,11 @@ test('each of the eight with its week, its target and its proof', () => {
     if (t.title === 'Learn the law') assert.ok(b.querySelector('a[href="intern.html"]'), 'the law task: its quiz, in the portal');
     else assert.ok(b.querySelector(`a[href="#proof"][data-task="${t.title}"]`), `${t.title}: a way to send its proof`);
   }
-  /* 1: the four laws and ten common incidents, then the 30-question quiz in the portal (3 Nov 2026) */
+  /* 1: the four laws and ten common incidents, then the 25-question quiz in the portal (3 Nov 2026; 25 from 14 Nov 2026) */
   const law = body('Learn the law');
   assert.deepEqual([...law.querySelectorAll('.vi-how li')].slice(0, 4).map((li) => li.textContent), ['Section 325 of the Bharatiya Nyaya Sanhita', 'The Prevention of Cruelty to Animals Act, 1960', 'The ABC Rules, 2023, and the right to feed community animals', 'Article 51A(g) of the Constitution: compassion for living creatures']);
-  assert.match(law.querySelector('.vi-goal-line').textContent, /10 incidents, 30 questions/);
-  assert.match(law.querySelector('.vi-qs').textContent, /Three questions on each incident, one easy, one medium and one hard, worth 1, 2 and 3 marks, all thirty mixed\./);
+  assert.match(law.querySelector('.vi-goal-line').textContent, /10 incidents, 25 questions/);
+  assert.match(law.querySelector('.vi-qs').textContent, /Two or three questions on each incident, easy, medium and hard, worth 1, 2 and 3 marks, all 25 mixed\./);
   assert.match(law.querySelector('.vi-qs').textContent, /Two minutes a question\./);
   assert.ok(law.querySelector('[data-law-sample-host] [data-law-sample]'), 'the practice round, from the task itself');
   assert.match(law.querySelector('.vi-qs').textContent, /Pass with 60 percent\. Three attempts/);

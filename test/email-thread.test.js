@@ -906,5 +906,5 @@ test('the panel shows who wrote back, and no longer says volunteers and membersh
   assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n {10}\+ '<td>' \+ esc\(when\(r\.createdAt\)\)/, 'and in the volunteers list');
   assert.doesNotMatch(html, /are not emailed to anyone at PFA/);
   assert.match(html, /every application included \(caregiver, membership, volunteer and job\), without any payment in it/);
-  assert.deepEqual([...require('../lib/submission-forward.js').PANEL_ONLY_KINDS], [], 'nothing is kept to the panel alone');
+  assert.deepEqual([...require('../lib/submission-forward.js').PANEL_ONLY_KINDS], ['PFA-VI'], 'only internship applications are kept to the panel, for the monthly report (14 Nov 2026)');
 });

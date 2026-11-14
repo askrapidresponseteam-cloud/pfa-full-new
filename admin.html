@@ -5000,13 +5000,13 @@ window.addEventListener('unhandledrejection', function (event) {
     }).join('');
     out += '</tbody></table></div>';
     var rem = v.reminders || [];
-    if (rem.length) out += '<details class="fold"><summary>Reminder log</summary><ul class="ip-links">' + rem.map(function (x) { return '<li>' + (x.kind === 'hand' ? 'By hand' + (x.by ? ' (' + esc(x.by) + ')' : '') : 'Week ' + x.week) + ', ' + esc(when(x.at)) + ': ' + x.sent + ' sent, ' + x.queued + ' queued, ' + x.failed + ' failed, ' + x.nothingOpen + ' with nothing open</li>'; }).join('') + '</ul></details>';
+    if (rem.length) out += '<details class="fold"><summary>Reminder log</summary><ul class="ip-links">' + rem.map(function (x) { return '<li>' + (x.kind === 'hand' ? 'By hand' + (x.by ? ' (' + esc(x.by) + ')' : '') : x.kind === 'not-started' ? 'Not signed in yet (every 3 days)' : 'Week ' + x.week) + ', ' + esc(when(x.at)) + ': ' + x.sent + ' sent, ' + x.queued + ' queued, ' + x.failed + ' failed' + (x.kind === 'not-started' ? '' : ', ' + x.nothingOpen + ' with nothing open') + '</li>'; }).join('') + '</ul></details>';
     return out;
   }
   function ipIssue() {
     var out = '';
     if (ip.issued) out += '<div class="ct-issued"><p><b>' + esc(ip.issued.internId) + '</b> approved. The start email was ' + esc(ip.issued.mailed === 'sent' ? 'sent' : ip.issued.mailed === 'queued' ? 'queued' : 'not sent') + '.</p></div>';
-    out += '<p class="note">Approve emails them that the internship has started; they sign in with the email, mobile and date of birth they applied with. Missing one? Ask for it: they send the form again and it joins the same application.</p>' + (window.PFAInternTime ? window.PFAInternTime.askAll(ip.apps) : '');
+    out += '<p class="note">Applications start on their own: the start link is emailed the moment someone applies. Anyone below is missing a detail (asked again every 3 days) or is still being started. Approve starts them now.</p>' + (window.PFAInternTime ? window.PFAInternTime.askAll(ip.apps) : '');
     if (!ip.apps.length) out += '<p class="note">No application is waiting.</p>';
     else out += '<div class="wrap"><table><thead><tr><th>Application</th><th>Applicant</th><th aria-label="Actions"></th></tr></thead><tbody>' + ip.apps.map(function (a) {
       return '<tr data-app="' + esc(a.reference) + '"><td><button class="linky" type="button" data-open-case="' + esc(a.reference) + '">' + esc(a.reference) + '</button><br><span class="note">' + esc(dayOf(a.createdAt)) + '</span></td><td>' + esc(a.name) + '<br><span class="note">' + esc(a.email) + (a.city ? ' · ' + esc(a.city) : '') + '</span></td><td>' + (a.missing.length ? '<span class="note">No ' + esc(a.missing.join(', ')) + (a.askedAt ? '. Asked ' + esc(dayOf(a.askedAt)) : '') + '</span> <button class="ghost" type="button" data-ip="ask-app">Ask for it</button>' : '<button class="press" type="button" data-ip="issue-app">Approve</button>') + '</td></tr>';
