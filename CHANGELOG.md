@@ -1,3 +1,13 @@
+## v1.573
+
+- **A case in the panel opens full screen, and Previous and Next go from one to the next.** Owner, 14 Nov 2026: "this kinda thing on the right is not easy to navigate. can you make it full screen and easy to nav from 1 ticket to another".
+  - The case takes the whole screen. What was sent is on the left, at a comfortable reading width; reply, internal note, assign, move and remove are in a column on the right, always in view however long the case is.
+  - Previous and Next sit beside Close, with where you are ("9 of 138"). They walk the list the case was opened from, in the order it is on screen, with its search and filters. The left and right arrow keys do the same, except while typing.
+  - A reply or note typed and not sent is kept when you move to another case, and is there again when you come back; it goes once it is sent.
+  - Each case opens at its top. Close, or Escape, goes back to the list.
+  - On a phone the case is as before, with Previous and Next on a row under the title.
+  - In its own two files (assets/admin-case-nav.js and .css), so the panel page stays under its size ceiling.
+
 ## v1.572
 
 - **Internship applications reach gandhim once a month, not one email each.** Owner, 14 Nov 2026: "gandhim shouldnt be getting an email each time one applies for internship. monthyl report of people who applied for remote internship should do".

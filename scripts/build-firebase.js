@@ -100,7 +100,9 @@ const PANEL_ASSETS = [
   'media/birthday/card-flowers.jpg',
   'media/birthday/card-logo.png',
   /* the Old site members section's styles, out of admin.html (11 Nov 2026) */
-  'assets/admin-oldmembers.css'
+  'assets/admin-oldmembers.css',
+  /* a case full screen, Previous and Next (14 Nov 2026) */
+  'assets/admin-case-nav.css', 'assets/admin-case-nav.js'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */

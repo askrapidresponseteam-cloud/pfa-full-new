@@ -1,0 +1,30 @@
+/* People for Animals - a case in the panel, full screen.
+   Owner, 14 Nov 2026: "this kinda thing on the right is not easy to
+   navigate. can you make it full screen and easy to nav from 1 ticket to
+   another". The case takes the whole screen: what was sent on the left, at
+   a comfortable reading width, and what to do with it (reply, note,
+   assign, move) in a column on the right, always in view. Previous and
+   Next, with where you are in the list, sit beside Close
+   (assets/admin-case-nav.js). Kept out of admin.html so that page stays
+   under its ceiling. */
+.drawer{width:100%}
+.cnav{display:flex;align-items:center;gap:8px;flex:none}
+.cnav[hidden]{display:none}
+.cnav button.ghost{width:auto;min-height:40px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.cnav button.ghost:disabled{opacity:.35;cursor:default}
+.cnav button svg{width:12px;height:12px;flex:none}
+.cnav .note{min-width:72px;text-align:center;white-space:nowrap}
+@media (min-width:901px){
+  .drawer{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,440px);grid-template-rows:auto minmax(0,1fr)}
+  .drawer header{grid-column:1 / -1;padding:20px clamp(26px,3vw,48px);align-items:center}
+  .drawer .body{grid-column:1;grid-row:2;padding:32px clamp(26px,4vw,64px) 56px;min-height:0}
+  .drawer .body > *{max-width:920px}
+  .drawer .act{grid-column:2;grid-row:2;border-top:0;border-left:1px solid var(--line);padding:24px 26px;overflow-y:auto;min-height:0}
+  .drawer .act textarea{min-height:180px}
+  .drawer header .cnav{margin-right:12px}
+}
+@media (max-width:900px){
+  .drawer header{flex-wrap:wrap}
+  .drawer header > div{flex:1 1 0}
+  .drawer header .cnav{order:3;flex:1 1 100%;justify-content:space-between}
+}

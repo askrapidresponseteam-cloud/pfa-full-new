@@ -705,6 +705,7 @@ body select:not([multiple]):not([size]):disabled{cursor:not-allowed;background-i
 body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:baseline}
 </style>
 <link rel="stylesheet" href="assets/admin-oldmembers.css">
+<link rel="stylesheet" href="assets/admin-case-nav.css">
 </head>
 <body>
 <script>document.addEventListener('contextmenu',function(e){e.preventDefault();},true);</script>
@@ -980,6 +981,11 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div>
       <h2 class="ttl" id="caseTitle">Case</h2>
       <span class="note" id="caseKind"></span>
+    </div>
+    <div class="cnav" id="caseNav" hidden>
+      <button class="ghost" type="button" id="casePrev" aria-label="Previous in the list"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M8 1 3 6l5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Previous</button>
+      <span class="note" id="caseAt" aria-live="polite"></span>
+      <button class="ghost" type="button" id="caseNext" aria-label="Next in the list">Next<svg viewBox="0 0 12 12" aria-hidden="true"><path d="m4 1 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
     </div>
     <button class="x pfa-close" type="button" id="caseShut">Close</button>
   </header>
@@ -2851,7 +2857,6 @@ window.addEventListener('unhandledrejection', function (event) {
   var openCase = null;
   var caseMode = 'reply';
   var staffLoaded = false;
-
   function shutCase() {
     $('#caseDrawer').removeAttribute('data-open');
     $('#caseDrawer').setAttribute('aria-hidden', 'true');
@@ -6330,6 +6335,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-viewer.js"></script>
 <script src="assets/admin-cert-layout.js"></script>
 <script src="assets/admin-intern-time.js"></script>
+<script src="assets/admin-case-nav.js"></script>
 <script src="assets/admin-analytics.js"></script>
 <script src="assets/admin-certificates.js"></script>
 <script src="assets/admin-reports.js"></script>
