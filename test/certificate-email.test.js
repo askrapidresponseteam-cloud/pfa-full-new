@@ -214,14 +214,14 @@ test('the emailed PDF is print quality: a 2 MB certificate goes, attached exactl
 
 test('the PDF is drawn on the 6x print masters and carried losslessly', () => {
   const js = read('assets/certificate.js');
-  assert.match(js, /var ART_PRINT = ROOT \+ 'assets\/certificates\/completion-print\.png';/);
-  assert.match(js, /var SIG_PRINT = ROOT \+ 'assets\/certificates\/signature-print\.png';/);
+  assert.match(js, /var ART_PRINT = ROOT \+ 'assets\/certificates\/frame-print\.png\?v=' \+ ART_V;/);
+  assert.match(js, /var SIG_PRINT = ROOT \+ 'assets\/certificates\/signature-print\.png\?v=' \+ ART_V;/);
   assert.match(js, /var PRINT_SCALE = 6;/);
   assert.match(js, /new root\.CompressionStream\('deflate'\)/, 'lossless');
   assert.match(js, /\/Filter \/' \+ image\.filter/);
   assert.doesNotMatch(read('assets/admin-certificates.js'), /quality: 0\.\d+/, 'the emailed copy is not made smaller or lossy');
   assert.match(read('certificate.html'), /C\.pdf\(record\)/);
-  for (const [f, w, h] of [['completion-print.png', 6720, 4752], ['signature-print.png', 1512, 438]]) {
+  for (const [f, w, h] of [['frame-print.png', 6720, 4752], ['completion-print.png', 6720, 4752], ['signature-print.png', 1512, 438]]) {
     const png = fs.readFileSync(path.join(__dirname, '..', 'assets', 'certificates', f));
     assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [w, h], f);
     assert.match(read('scripts/build-firebase.js'), new RegExp(`'assets/certificates/${f.replace('.', '\\.')}'`), `${f} goes with the panel`);

@@ -233,8 +233,9 @@ test('the sample certificate: under step 04, opened when asked, drawn SAMPLE wit
   assert.ok(box.querySelector('canvas.vi-cert__canvas[width="1120"][height="792"]'), 'the certificate PFA issues, at its own shape (11 Nov 2026)');
   assert.ok(box.querySelector('label.cert-try input.vi-try[maxlength="48"]'));
   assert.match(box.querySelector('figcaption').textContent, /^A sample, as it would read if you began today\./);
-  const scripts = [...doc.querySelectorAll('script[src]')].map((s) => s.getAttribute('src'));
+  const scripts = [...doc.querySelectorAll('script[src]')].map((s) => s.getAttribute('src').replace(/\?v=[0-9a-f]+$/, ''));
   assert.ok(scripts.indexOf('assets/certificate.js') > -1 && scripts.indexOf('assets/certificate.js') < scripts.indexOf('assets/internship-fieldnotes.js'), 'certificate.js loads first');
+  assert.match(html, /<script src="assets\/certificate\.js\?v=[0-9a-f]{8,}"/, 'fingerprinted, so a page never pairs a new script with old art');
   assert.match(fnJs, /sample: true/);
   assert.match(fnJs, /input\.addEventListener\('input', paint\)/);
   assert.match(html, /\.cert-try input:focus,\.cert-try input:focus-visible\{outline:none;border-bottom-color:#fff\}/, 'the field shows focus by its own edge');

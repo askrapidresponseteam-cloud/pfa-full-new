@@ -307,7 +307,7 @@ test('on every page, loaded only when opened, talking only to the site itself', 
   const chrome = read('assets/chrome.js');
   assert.match(chrome, /var FILES = \['\/assets\/assistant-nlu\.js', '\/assets\/assistant-flows\.js', '\/assets\/assistant-units\.js', '\/assets\/assistant\.js'\]\.map/);
   assert.match(chrome, /if \(kept && kept\.open && !off\(\)\) load\(\);/, 'a conversation open in this tab comes to the next page, unless the panel has hidden it');
-  assert.match(chrome, /\(certificate\|caregiver-card\|member-photo\|tax-receipt\|submission-collage\|admin\)/, 'not on a page to print or a private step');
+  assert.match(chrome, /\(certificate\|card\|caregiver-card\|member-photo\|tax-receipt\|submission-collage\|admin\)/, 'not on a page to print or a private step');
   const files = ['assets/assistant.js', 'assets/assistant-nlu.js', 'assets/assistant-flows.js', 'assets/assistant.css'];
   const all = files.map(read).join('\n');
   /* no outside service: every call goes to this site */

@@ -38,7 +38,11 @@ const os = require('node:os');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'scripts', 'source', 'PFA-Certificate.html');
-const OUT = path.join(ROOT, 'assets', 'certificates', 'completion.webp');
+/* the frame alone (15 Nov 2026), under its own name: completion.webp stays
+   the full design it was, for any browser still holding the previous
+   assets/certificate.js, so no browser ever puts these words on a frame that
+   already has them */
+const OUT = path.join(ROOT, 'assets', 'certificates', 'frame.webp');
 /* the signature on its own, so it can be placed (owner, 12 Nov 2026: "signature
    a bit more to the right. or can you for now give me manual control to
    finalise the position"); assets/certificate.js draws it where SIG says */
@@ -50,7 +54,7 @@ const SIG_OUT = path.join(ROOT, 'assets', 'certificates', 'signature.png');
    downloaded picture on these, so the certificate prints sharp; the screen
    keeps the light 2x files above. */
 const PRINT_SCALE = 6;
-const PRINT_OUT = path.join(ROOT, 'assets', 'certificates', 'completion-print.png');
+const PRINT_OUT = path.join(ROOT, 'assets', 'certificates', 'frame-print.png');
 const SIG_PRINT_OUT = path.join(ROOT, 'assets', 'certificates', 'signature-print.png');
 
 function design(blank) {

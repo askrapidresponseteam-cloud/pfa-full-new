@@ -63,6 +63,7 @@ const PAGES = {
   'track.html':        { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },
   'verify-certificate.html': { current: null,       group: null,               announce: DEFAULT_ANNOUNCE },
   'certificate.html':    { current: null,             group: null,                              announce: DEFAULT_ANNOUNCE }, /* one certificate online, reached from its own link (11 Nov 2026) */
+  'card.html':           { current: null,             group: null,                              announce: DEFAULT_ANNOUNCE }, /* one card online, reached from its own link (15 Nov 2026) */
   'caregiver-card.html': { current: null,             group: 'get-involved.html',               announce: DEFAULT_ANNOUNCE }, /* the card page is about the card; the nav's tribe entry leads to applying (15 Sep 2026) */
   'member-photo.html':   { current: null,             group: 'get-involved.html',               announce: DEFAULT_ANNOUNCE }, /* reached only from the photo link a member is emailed (26 Oct 2026) */
   'tax-receipt.html':    { current: null,             group: null,                              announce: DEFAULT_ANNOUNCE }, /* reached only from the 80G link in a receipt email (10 Nov 2026) */
@@ -364,9 +365,59 @@ function stampAssistant({ check } = {}) {
   return true;
 }
 
+/* The certificate likewise (owner, 15 Nov 2026: "all the certs look terrible
+   because of double text/ text over text"): a cached frame or script from
+   before a change drew the words twice. assets/certificate.js carries the
+   fingerprint of its artwork (ART_V), and every page that loads it loads it
+   by its own fingerprint, so a page, its script and its art always change
+   together. */
+const CERT_ART = ['frame.webp', 'frame-print.png', 'signature.png', 'signature-print.png'];
+const CERT_PAGES = ['admin.html', 'certificate.html', 'internship.html'];
+function certArtStamp() {
+  const h = crypto.createHash('sha256');
+  CERT_ART.forEach((f) => h.update(fs.readFileSync(path.join(ROOT, 'assets', 'certificates', f))));
+  return h.digest('hex').slice(0, 10);
+}
+function stampCertificate({ check } = {}) {
+  const stale = [];
+  const js = path.join(ROOT, 'assets', 'certificate.js');
+  const was = fs.readFileSync(js, 'utf8');
+  const now = was.replace(/var ART_V = '[a-f0-9]*';/, `var ART_V = '${certArtStamp()}';`);
+  if (now !== was) { stale.push('assets/certificate.js (its artwork\'s fingerprint)'); if (!check) fs.writeFileSync(js, now); }
+  const v = crypto.createHash('sha256').update(now).digest('hex').slice(0, 10);
+  CERT_PAGES.forEach((page) => {
+    const file = path.join(ROOT, page);
+    const html = fs.readFileSync(file, 'utf8');
+    const next = html.replace(/<script src="assets\/certificate\.js(?:\?v=[a-f0-9]+)?"><\/script>/g, `<script src="assets/certificate.js?v=${v}"></script>`);
+    if (next !== html) { stale.push(`${page} (the certificate's fingerprint)`); if (!check) fs.writeFileSync(file, next); }
+  });
+  return stale;
+}
+
+/* The online card's own style and script carry a fingerprint of their
+   contents (15 Nov 2026), the same lesson as the certificate: a new
+   colour or layout reaches every holder at once. */
+const CARD_ASSETS = [['assets/digital-card.css', /<link rel="stylesheet" href="assets\/digital-card\.css(?:\?v=[a-f0-9]+)?">/g, (v) => `<link rel="stylesheet" href="assets/digital-card.css?v=${v}">`],
+  ['assets/digital-card.js', /<script src="assets\/digital-card\.js(?:\?v=[a-f0-9]+)?"><\/script>/g, (v) => `<script src="assets/digital-card.js?v=${v}"></script>`],
+  ['assets/qr.js', /<script src="assets\/qr\.js(?:\?v=[a-f0-9]+)?"><\/script>/g, (v) => `<script src="assets/qr.js?v=${v}"></script>`]];
+function stampCard({ check } = {}) {
+  const file = path.join(ROOT, 'card.html');
+  const html = fs.readFileSync(file, 'utf8');
+  let next = html;
+  CARD_ASSETS.forEach(([asset, re, tag]) => {
+    const v = crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, asset))).digest('hex').slice(0, 10);
+    next = next.replace(re, tag(v));
+  });
+  if (next === html) return [];
+  if (!check) fs.writeFileSync(file, next);
+  return ['card.html (the card\'s fingerprint)'];
+}
+
 function run({ check } = {}) {
   const stale = [];
+  stampCard({ check }).forEach((s) => stale.push(s));
   if (stampAssistant({ check })) stale.push('assets/chrome.js (the assistant\'s fingerprint)');
+  stampCertificate({ check }).forEach((s) => stale.push(s));
   for (const page of pages()) {
     const file = path.join(ROOT, page);
     const current = fs.readFileSync(file, 'utf8');
@@ -379,7 +430,7 @@ function run({ check } = {}) {
   return stale;
 }
 
-module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, ALERT, TABS, tabOf, run, assistStamp, ASSIST_FILES };
+module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, ALERT, TABS, tabOf, run, assistStamp, ASSIST_FILES, certArtStamp, CERT_PAGES };
 
 if (require.main === module) {
   const check = process.argv.includes('--check');

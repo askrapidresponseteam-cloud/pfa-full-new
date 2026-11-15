@@ -1068,6 +1068,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <figure><canvas data-view="back" aria-label="The back of the card"></canvas><figcaption>Back</figcaption></figure>
     </div>
     <p class="note" id="cardViewNote"></p>
+    <div data-digital="caregiver"></div>
     <div data-sig-card="caregiver"></div>
     <p class="note" id="cardViewGuide" data-issued>Card printer: Print / Save PDF, one face a page at 85.6 x 54 mm. Paper: A4 paper (PDF), four cards a sheet, printed at 100% (Actual size) with headers and footers off; check one paper proof before a batch. PNGs are 600 dpi and carry it, so they print at 85.6 x 54 mm.</p>
   </div>
@@ -1096,6 +1097,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <figure><canvas data-face="front" aria-label="The front of the membership card"></canvas><figcaption>Front</figcaption></figure>
       <figure><canvas data-face="back" aria-label="The back of the membership card"></canvas><figcaption>Back</figcaption></figure>
     </div>
+    <div data-digital="member"></div>
     <div data-sig-card="member"></div>
     <p class="note">Card printer: Print this card, one face a page at 85.6 x 54 mm, at 100% with headers and footers off. The printed card is the only copy: it goes to the member by courier, and is never emailed or shared.</p>
   </div>
@@ -1128,7 +1130,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/card-print.js"></script>
 <script src="assets/caregiver-card.js"></script>
 <script src="assets/member-card.js"></script>
-<script src="assets/certificate.js"></script>
+<script src="assets/certificate.js?v=b18bad4b4e"></script>
 <script>
 /* The panel.
 
@@ -6203,6 +6205,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-viewer.js"></script>
 <script src="assets/admin-cert-layout.js"></script>
 <script src="assets/admin-cert-pane.js"></script>
+<script src="assets/admin-digital-cards.js"></script>
 <script src="assets/admin-intern-time.js"></script>
 <script src="assets/admin-case-nav.js"></script>
 <script src="assets/admin-analytics.js"></script>

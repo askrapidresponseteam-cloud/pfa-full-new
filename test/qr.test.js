@@ -171,3 +171,33 @@ test('a card URL fits, and an oversized payload is refused rather than silently 
   assert.ok(code.version >= 1 && code.version <= 5);
   assert.throws(() => QR.build('x'.repeat(200)), /too long/);
 });
+
+/* 15 Nov 2026: the format information was written transposed, so the code
+   proved itself to its own reader here and to no phone. It is now placed
+   where ISO/IEC 18004 puts it, read from those places below, and the code
+   for a card online was checked with two independent readers (zxing-cpp
+   and OpenCV), which both read it back exactly; its fingerprint is kept
+   so the encoder cannot drift from what they read. */
+test('the format information sits where the standard puts it, so a phone can read the code', () => {
+  for (const text of ['A', 'https://peopleforanimalsindia.org/card?id=PFA-CCT-AB2CD3EF', 'x'.repeat(100)]) {
+    const q = QR.matrix(text);
+    const m = q.modules;
+    const n = q.size;
+    const want = QR._formatBits(q.pattern);
+    const bit = (i) => (want >> i) & 1;
+    /* first copy: bits 0-5 down column 8, 6 at row 7, 7 at (8,8), 8 at column 7, 9-14 leftward along row 8 */
+    for (let i = 0; i < 6; i += 1) assert.equal(m[i][8], bit(i), `${text.slice(0, 20)}: bit ${i}`);
+    assert.equal(m[7][8], bit(6));
+    assert.equal(m[8][8], bit(7));
+    assert.equal(m[8][7], bit(8));
+    for (let i = 9; i < 15; i += 1) assert.equal(m[8][14 - i], bit(i), `bit ${i}`);
+    /* second copy: bits 0-7 along row 8 from the right, 8-14 up column 8 from the bottom */
+    for (let i = 0; i < 8; i += 1) assert.equal(m[8][n - 1 - i], bit(i), `copy bit ${i}`);
+    for (let i = 8; i < 15; i += 1) assert.equal(m[n - 15 + i][8], bit(i), `copy bit ${i}`);
+    assert.equal(m[n - 8][8], 1, 'the dark module');
+    assert.equal(want >> 13, 0b01 ^ 0b10, 'level L (01), under the format mask');
+  }
+  const card = QR.matrix('https://peopleforanimalsindia.org/card?id=PFA-MBR-AB2CD3EF');
+  const print = require('node:crypto').createHash('sha256').update(card.modules.map((r) => r.join('')).join('|')).digest('hex');
+  assert.equal(print, '67537de918cd25d834f232a9354f8460375121758aa94aa1df526edf645e7493', 'the code two independent readers read back exactly');
+});

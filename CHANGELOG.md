@@ -1,3 +1,32 @@
+## v1.577
+
+- **The membership card online is the owner's own template.** Owner, 15 Nov 2026: "PFA-Premium-Membership.html for membership. let this be the exact template", then "font should be marcellus in membership card".
+  - Matte black, the PFA logo for dark grounds, the tier (Golden Membership) at the top right, the member's photograph in black and white fading into the card on the right, Member, the name and the place on the left, and the member number and Member since along the foot; all in Marcellus.
+  - A member's photograph is usually taken against a plain wall, which would show as a pale panel on the black card; the wall is taken down to black, softly at the edge, as the card is drawn, so the face fades in as the template's does. A busy background is left as it is.
+  - The back: A voice for the voiceless., that it is a digital card for the screen and not to be printed, the line on misuse, Smt. Maneka Sanjay Gandhi's signature, the QR code (Scan to verify) and peopleforanimalsindia.org with the member number along the foot.
+  - It keeps a bank card's shape on a phone too, as the template does; a long name, or the back's message on a small screen, steps down in size to fit.
+- **The card online: its back, its signature, and no printing.** Owner, 15 Nov 2026: "give option to adjust the sign position. and dont print the url. and at the back instead of check this card is genuine. just say something like find the card online or something standard. enterprise grade framing. and dont print the url instead if one scans the qr- it should open the right url and show the card. and mention it is digital card. not to be printed and have 1 line of no misues. standard line".
+  - The back now reads: Scan to verify. Scan the QR code to view this card on the People for Animals website and confirm that it is valid. Then two lines: This is a digital card, for display on screen only. It is not to be printed. This card is non-transferable. Any misuse will lead to its withdrawal.
+  - No address is printed on the card. The QR code carries the card's own address, as PFA issued it, and opens the card.
+  - The QR code now scans. Its format information had been written in the wrong places, so phones could not read it; it is now placed as the QR standard puts it, and checked with two independent readers. Only the card online uses this code.
+  - Printing the page prints the line that says the card is not to be printed, not the card.
+  - In each card studio, under Card online: + Signature position online, with Left / right and Up / down, the card online drawn above them and following as they move, Save for every card online and Reset. Kept apart from the printed card's Signature position, saved for the whole site, and in the audit log.
+
+## v1.576
+
+- **Certificates no longer show words twice.** Owner, 15 Nov 2026: "all the certs look terrible because of double text/ text over text. fix thoroughly".
+  - The cause: a browser still holding the earlier artwork, which had the internship's words printed in it, while the new script drew each purpose's words on top.
+  - The artwork without words now has its own name (assets/certificates/frame.webp), and the script and every page that loads it carry a fingerprint of their files. A deploy that changes a certificate is fetched at once, and never mixed with an hour-old copy.
+  - The earlier artwork stays where it was, so a browser still holding the earlier script draws the internship certificate as before until it lets go.
+- **Cards online: the colony caregiver card and the membership card, front and back, turned over with a tap.** Owner, 15 Nov 2026: "Add an option to issue digital caregiver and membership cards with front and back views and a flip feature premium style ... Each should have a unique peopleforanimals.org URL, like the internship certificate. All cards and certificates must be verifiable online ... each bg to be in diff cool colors".
+  - In each card studio in the panel: Issue online and email. The card gets its own address, peopleforanimalsindia.org/card?id=..., keeps the photograph as the studio drew it, and the holder is emailed the link. Then Open, Copy link, and Withdraw. Issuing again brings it up to date.
+  - A colony caregiver card's address is its own card number. A membership card gets PFA-MBR- and eight characters at random, never the member's number, which is in order and could be guessed.
+  - The colony caregiver card: sky blue, light where the logo stands. Owner, 15 Nov 2026: "logo has to render perfectly. and it has to have transparent bg. not with white banner behind", "color of the card has to be chosen keeping the contrast in mind". The PFA logo sits on the card in its own colours with nothing behind it, and every word is in deep ink, at 7 to 1 or more against every part of the card (the labels at 4.5 to 1 or more). Marcellus for the card and the name, DM Sans for every detail. Clean, nothing said twice (owner, 15 Nov 2026: "it cant be cluttered. have a clean and premium design"): the front carries the logo, the card's name (with a member's tier under it), the holder's name and place, the number, the date it is valid until, the photograph and Smt. Maneka Sanjay Gandhi's signature, on a plain ground; the back only a QR code of the card's own address and where to return it, with no dark stripe (owner, 15 Nov 2026: "no need of black strip at the back, has no function"). A long name or place steps down in size so it never runs into the logo or the signature. Wide, it is a bank-card shape; on a phone it stands upright, so nothing on it is small. Tap, click, Enter or the button turns it over.
+  - The page says whether the card is valid today. An expired or withdrawn card is marked across its face and shows no photograph. Nothing else about the holder is shown: no address, mobile or email.
+  - The card's style and script carry a fingerprint too, so a change to a card reaches every holder at once.
+  - This changes the earlier rule that the printed card was the only copy. The printed cards are unchanged.
+- **Every card and certificate can be checked online.** The check page is now "Check a certificate or card": a certificate by its number, a colony caregiver card by PFA-CCT-..., a membership card online by PFA-MBR-..., and a printed membership card by its member number (KA 2399). The chat checks them too.
+
 ## v1.575
 
 - **The chat shows the summary before the terms, not after.** Owner, 15 Nov 2026: "chat isnt showing the prviwe at the right stage/moment. fix".

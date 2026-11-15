@@ -186,6 +186,20 @@ test('the cards: the signature above the line, moved by the studio, saved for ev
   firebase._setDbForTests(db);
   try {
     const out = await new Promise((resolve) => { const { response } = respond(resolve); pub({ method: 'GET', headers: {} }, response); });
-    assert.deepEqual(out.json.cards, { caregiver: { x: -60, y: 30 }, member: { x: 12, y: -4 } });
+    assert.deepEqual(out.json.cards, { caregiver: { x: -60, y: 30 }, member: { x: 12, y: -4 }, caregiverOnline: { x: 0, y: 0 }, memberOnline: { x: 0, y: 0 } });
   } finally { firebase._setDbForTests(null); }
+});
+
+test('never words on words: the frame has its own name, and the script and its art change together (owner, 15 Nov 2026: "all the certs look terrible because of double text/ text over text")', () => {
+  const js = read('assets/certificate.js');
+  const SC = require('../scripts/sync-chrome.js');
+  assert.match(js, new RegExp(`var ART_V = '${SC.certArtStamp()}';`), 'run npm run sync:chrome');
+  assert.match(js, /var ART = ROOT \+ 'assets\/certificates\/frame\.webp\?v=' \+ ART_V;/);
+  assert.doesNotMatch(js, /completion\.webp|completion-print\.png/, 'never the full design, which already has the words');
+  const v = require('node:crypto').createHash('sha256').update(js).digest('hex').slice(0, 10);
+  for (const page of SC.CERT_PAGES) assert.ok(read(page).includes(`<script src="assets/certificate.js?v=${v}"></script>`), `${page} loads this very script`);
+  /* the full design stays where it was, for a browser still holding the previous script */
+  assert.ok(fs.statSync(path.join(ROOT, 'assets/certificates/completion.webp')).size > 50000);
+  /* the frame carries none of the purpose's words: its middle is bare paper */
+  assert.ok(fs.statSync(path.join(ROOT, 'assets/certificates/frame.webp')).size < fs.statSync(path.join(ROOT, 'assets/certificates/completion.webp')).size);
 });

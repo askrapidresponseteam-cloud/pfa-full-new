@@ -178,9 +178,9 @@
       /* proof of an internship task is not a new application */
       if (x.id === 'proof' && has('internship')) x.score += 3;
       /* a certificate or card number is checked, not tracked */
-      if (x.id === 'track' && /PFA[\s-]*(INT|VOL|PAR|REC|DNR|CCT)[\s-]*[A-Z0-9]{8}/i.test(text)) x.score = 0;
+      if (x.id === 'track' && /PFA[\s-]*(INT|VOL|PAR|REC|DNR|CCT|MBR)[\s-]*[A-Z0-9]{8}/i.test(text)) x.score = 0;
     });
-    if (/PFA[\s-]*(INT|VOL|PAR|REC|DNR|CCT)[\s-]*[A-Z0-9]{8}/i.test(text) && !has('verify')) out.push({ id: 'verify', score: 2 });
+    if (/PFA[\s-]*(INT|VOL|PAR|REC|DNR|CCT|MBR)[\s-]*[A-Z0-9]{8}/i.test(text) && !has('verify')) out.push({ id: 'verify', score: 2 });
     out = out.filter(function (x) { return x.score > 0; });
     /* "injured" with "beaten" is cruelty; "injured" alone is help near me */
     out.sort(function (a, b) { return b.score - a.score || INTENTS.findIndex(function (i) { return i.id === a.id; }) - INTENTS.findIndex(function (i) { return i.id === b.id; }); });

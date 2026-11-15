@@ -4,7 +4,7 @@
    design since 11 Nov 2026 is the owner's PFA-Certificate.html ("this is
    the internship certificate btw", "font has to be marcellus").
 
-   The artwork is that design's frame (assets/certificates/completion.webp,
+   The artwork is that design's frame (assets/certificates/frame.webp,
    2240 x 1584, the design drawn at twice its 1120 x 792, which is A4
    landscape exactly), made by scripts/build-certificate-art.js: since the
    variants (15 Nov 2026, KINDS and COLOURS below) its borders and every
@@ -27,7 +27,7 @@
    Print quality (owner, 12 Nov 2026: "the cert sent as an attachment over
    email is of low res. can you make it super high/highest quality"): the
    PDF and the downloaded picture are drawn on the print masters
-   (assets/certificates/completion-print.png and signature-print.png, the
+   (assets/certificates/frame-print.png and signature-print.png, the
    design at 6x, lossless) at 6x, 6720 x 4752, about 575 dots per inch on
    A4, and the PDF carries that picture losslessly: no JPEG anywhere, so
    every letter and line prints as sharp as the design. 6x is for the panel;
@@ -49,7 +49,13 @@
     try { var s = root.document && root.document.currentScript; if (s && s.src) return s.src.replace(/assets\/certificate\.js(\?.*)?$/, ''); } catch (e) {}
     return '';
   }());
-  var ART = ROOT + 'assets/certificates/completion.webp';
+  /* The frame, by a name of its own and the fingerprint of the files
+     (ART_V, written by npm run sync:chrome), so a browser never draws these
+     words on a cached copy of an older artwork that has them already
+     (owner, 15 Nov 2026: "all the certs look terrible because of double
+     text/ text over text"). */
+  var ART_V = 'e22f0df390';
+  var ART = ROOT + 'assets/certificates/frame.webp?v=' + ART_V;
   var INK = '#242620';
   var FONTS = [
     ['Marcellus', ROOT + 'fonts/marcellus-latin.woff2', '400']
@@ -66,10 +72,10 @@
      here by setLayout before a certificate is drawn; until it is, the
      design's own: 26 to the right. Within the design's own ranges: 100
      either way across, 50 up or down. */
-  var SIG_ART = ROOT + 'assets/certificates/signature.png';
+  var SIG_ART = ROOT + 'assets/certificates/signature.png?v=' + ART_V;
   /* the same two at 6x, lossless, for the PDF and the download */
-  var ART_PRINT = ROOT + 'assets/certificates/completion-print.png';
-  var SIG_PRINT = ROOT + 'assets/certificates/signature-print.png';
+  var ART_PRINT = ROOT + 'assets/certificates/frame-print.png?v=' + ART_V;
+  var SIG_PRINT = ROOT + 'assets/certificates/signature-print.png?v=' + ART_V;
   var PRINT_SCALE = 6;
   var SIG = { x: 798, y: 653, w: 252, h: 73, dx: 26, dy: 0 };
   var SIG_RANGE = { x: 100, y: 50 };

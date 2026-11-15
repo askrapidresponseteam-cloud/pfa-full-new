@@ -104,6 +104,16 @@
         "type": 301
       },
       {
+        "source": "/card",
+        "destination": "https://peopleforanimalsindia.org/card",
+        "type": 301
+      },
+      {
+        "source": "/card.html",
+        "destination": "https://peopleforanimalsindia.org/card",
+        "type": 301
+      },
+      {
         "source": "/certificate.html",
         "destination": "https://peopleforanimalsindia.org/certificate",
         "type": 301

@@ -239,16 +239,21 @@
     for (var i = 0; i < 15; i += 1) {
       var bit = (bits >> i) & 1;
 
-      // Around the top-left finder.
-      if (i < 6) grid.modules[8][i] = bit;
-      else if (i === 6) grid.modules[8][7] = bit;
+      /* Around the top-left finder: bits 0 to 7 down column 8 (skipping
+         the timing row), bits 8 to 14 leftward along row 8 (skipping the
+         timing column), as ISO/IEC 18004 places them. Until 15 Nov 2026
+         these were written transposed, which no phone reads; checked now
+         against an independent reader (test/qr.test.js). */
+      if (i < 6) grid.modules[i][8] = bit;
+      else if (i === 6) grid.modules[7][8] = bit;
       else if (i === 7) grid.modules[8][8] = bit;
-      else if (i === 8) grid.modules[7][8] = bit;
-      else grid.modules[14 - i][8] = bit;
+      else if (i === 8) grid.modules[8][7] = bit;
+      else grid.modules[8][14 - i] = bit;
 
-      // The duplicate copy.
-      if (i < 8) grid.modules[size - 1 - i][8] = bit;
-      else grid.modules[8][size - 15 + i] = bit;
+      // The duplicate copy: bits 0 to 7 along row 8 from the right edge,
+      // bits 8 to 14 up column 8 from the bottom.
+      if (i < 8) grid.modules[8][size - 1 - i] = bit;
+      else grid.modules[size - 15 + i][8] = bit;
     }
     grid.modules[size - 8][8] = 1;
   }

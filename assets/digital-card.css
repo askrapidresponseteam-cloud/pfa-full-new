@@ -1,0 +1,176 @@
+/* People for Animals - the digital card (owner, 15 Nov 2026: "Add an option
+   to issue digital caregiver and membership cards with front and back views
+   and a flip feature premium style ... each bg to be in diff cool colors.
+   like blue, yellow, etc. text, font, everything to be perfectly legible").
+
+   One card, two faces, turned over in place. The colony caregiver card is
+   sky blue, the membership card sunflower yellow, each light at the top
+   left where the PFA logo stands, in its own colours on a clear ground
+   (owner, 15 Nov 2026: "logo has to render perfectly. and it has to have
+   transparent bg", "color of the card has to be chosen keeping the
+   contrast in mind"); every word is in deep ink, at a contrast of 7 to 1
+   or more on every part of the card (test/digital-cards.test.js).
+   Wide, it is a card the shape of a bank card; on a phone it stands upright,
+   so nothing on it is ever small. Marcellus names the card and the holder;
+   DM Sans carries everything read. Drawn by assets/digital-card.js. */
+@font-face{font-family:"PFA DC Marcellus";src:url("../fonts/marcellus-latin.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"PFA DC Sans";src:url("../fonts/dm-sans-latin-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"PFA DC Sans";src:url("../fonts/dm-sans-latin-500.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"PFA DC Sans";src:url("../fonts/dm-sans-latin-600.woff2") format("woff2");font-weight:600;font-display:swap}
+
+.dc{--dc-serif:"PFA DC Marcellus",Marcellus,Georgia,serif;--dc-sans:"PFA DC Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  container-type:inline-size;width:100%;max-width:680px;margin:0 auto;font-family:var(--dc-sans);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.dc *,.dc *::before,.dc *::after{box-sizing:border-box}
+
+/* the two colours: each face's ground, its type and its fine lines */
+.dc[data-kind="caregiver"]{--g1:#f5faff;--g2:#deedff;--g3:#bfdbfe;--g4:#93c5fd;--ink:#0b1f3a;--soft:#2b4468;--hair:rgba(11,31,58,.30);--sheen:rgba(255,255,255,.55)}
+
+/* the stage: the card turns about its upright */
+.dc__stage{position:relative;width:100%;aspect-ratio:85.6/54;perspective:1800px;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none}
+.dc__stage:focus-visible .dc__face{box-shadow:0 0 0 3px #fff,0 0 0 6px #111,0 30px 60px -28px rgba(0,0,0,.55)}
+.dc__turn{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.2,.75,.2,1)}
+.dc[data-side="back"] .dc__turn{transform:rotateY(180deg)}
+.dc__face{position:absolute;inset:0;border-radius:4.2cqw;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;color:var(--ink);
+  background:
+    radial-gradient(90% 70% at 0% 0%,var(--sheen),transparent 60%),
+    linear-gradient(135deg,var(--g1) 0%,var(--g2) 34%,var(--g3) 70%,var(--g4) 100%);
+  box-shadow:0 0 0 1px rgba(11,31,58,.08) inset,0 30px 60px -28px rgba(0,0,0,.45),0 10px 22px -12px rgba(0,0,0,.25)}
+.dc__back{transform:rotateY(180deg)}
+/* a sheen that crosses the card once, as it arrives */
+.dc__face::after{content:"";position:absolute;inset:-40%;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.28) 50%,transparent 60%);transform:translateX(-60%);animation:dc-sheen 2.4s .4s ease both;pointer-events:none}
+@keyframes dc-sheen{to{transform:translateX(60%)}}
+@media (hover:hover){.dc__stage:hover .dc__turn{transform:translateY(-4px)}.dc[data-side="back"] .dc__stage:hover .dc__turn{transform:translateY(-4px) rotateY(180deg)}}
+
+/* ---- the front ---- */
+.dc__front{display:grid;grid-template-columns:minmax(0,1fr) 27%;grid-template-rows:auto minmax(0,1fr) auto;column-gap:4.5cqw;padding:4.6cqw 5.2cqw 4cqw}
+.dc__top{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:3cqw}
+.dc__logo{flex:none;display:block;width:15.5cqw}
+.dc__logo img{display:block;width:100%;height:auto;image-rendering:auto}
+.dc__title{text-align:right;min-width:0}
+.dc__title b{display:block;font-family:var(--dc-serif);font-weight:400;font-size:max(15px,4.1cqw);letter-spacing:.06em;line-height:1.1;text-transform:uppercase}
+.dc__title span{display:block;margin-top:.6cqw;font-size:max(10px,1.9cqw);font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--soft)}
+.dc__body{grid-column:1;align-self:center;min-width:0;padding-top:2.2cqw}
+.dc__lab{display:block;font-size:max(9.5px,1.75cqw);font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);line-height:1.3}
+.dc__name{display:block;margin:0;font-family:var(--dc-serif);font-weight:400;font-size:calc(max(20px,6cqw) * var(--fit,1));line-height:1.05;letter-spacing:.01em;overflow-wrap:anywhere}
+.dc__place{display:block;margin:1cqw 0 0;font-size:max(12px,calc(2.6cqw * var(--fit,1)));font-weight:500;color:var(--soft);line-height:1.3}
+.dc__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.2cqw 3.5cqw;margin-top:3.6cqw}
+.dc__val{display:block;margin-top:.35cqw;font-size:max(13px,2.8cqw);font-weight:500;line-height:1.25;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.dc__photo{grid-column:2;grid-row:2;align-self:center;aspect-ratio:3/4;width:100%;border-radius:2.4cqw;overflow:hidden;background:rgba(255,255,255,.6);border:max(2px,.45cqw) solid #fff;box-shadow:0 0 0 1px rgba(11,31,58,.14),0 10px 24px -12px rgba(0,0,0,.4)}
+.dc__photo img{display:block;width:100%;height:100%;object-fit:cover}
+.dc__photo i{display:grid;place-items:center;height:100%;font-style:normal;font-size:max(10px,1.8cqw);letter-spacing:.2em;color:var(--soft)}
+.dc__foot{grid-column:1 / -1;display:flex;align-items:flex-end;justify-content:space-between;gap:3cqw;margin-top:2.4cqw}
+.dc__sign{min-width:0}
+.dc__sign img{display:block;height:max(26px,6.4cqw);width:auto;margin:0 0 -.6cqw;transform:translate(calc(var(--sx,0) * 100cqw / 856),calc(var(--sy,0) * 100cqw / 856))}
+.dc__sign b{display:block;border-top:1px solid var(--hair);padding-top:.8cqw;font-family:var(--dc-serif);font-weight:400;font-size:max(12px,2.3cqw);line-height:1.2}
+.dc__sign span{display:block;font-size:max(9.5px,1.6cqw);font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-top:.3cqw}
+.dc__ok{flex:none;display:inline-flex;align-items:center;gap:1cqw;padding:1cqw 2cqw;border-radius:99px;background:#0f6b35;color:#fff;font-size:max(10px,1.75cqw);font-weight:600;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.dc__ok svg{width:max(11px,2cqw);height:max(11px,2cqw);flex:none;color:#fff}
+.dc__ok svg path{stroke:#0f6b35}
+.dc__ok[data-state="expired"],.dc__ok[data-state="withdrawn"]{background:#9b1c1c}
+.dc__ok[data-state="expired"] svg path,.dc__ok[data-state="withdrawn"] svg path{stroke:#9b1c1c}
+
+/* ---- the back ---- */
+.dc__back{display:grid;grid-template-rows:minmax(0,1fr) auto}
+.dc__rest{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;align-content:center;gap:4cqw;padding:5.2cqw 5.2cqw 0}
+.dc__qr{width:21cqw;padding:1.4cqw;border-radius:2cqw;background:#fff;box-shadow:0 0 0 1px rgba(11,31,58,.12),0 8px 20px -10px rgba(0,0,0,.35)}
+.dc__qr svg{display:block;width:100%;height:auto}
+.dc__check b{display:block;font-family:var(--dc-serif);font-weight:400;font-size:max(15px,3.2cqw);line-height:1.15}
+.dc__check p{margin:1.2cqw 0 0;font-size:max(12px,2.2cqw);line-height:1.45;color:var(--soft)}
+.dc__return{padding:0 5.2cqw 4.2cqw}
+.dc__return p{margin:0;font-size:max(10px,1.75cqw);line-height:1.5;color:var(--soft)}
+.dc__return p + p{margin-top:.4cqw}
+
+/* ---- a card that does not stand ---- */
+.dc__void{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.dc__void span{transform:rotate(-12deg);padding:1.2cqw 3cqw;border:max(3px,.6cqw) solid #b91c1c;border-radius:1.4cqw;color:#b91c1c;background:rgba(255,255,255,.88);font-family:var(--dc-sans);font-weight:600;font-size:max(18px,5.4cqw);letter-spacing:.16em}
+
+/* ---- upright, on a phone: the same card, nothing on it small ---- */
+@container (max-width:519px){
+  .dc__stage{aspect-ratio:54/85.6}
+  .dc__face{border-radius:6cqw}
+  .dc__front{grid-template-columns:minmax(0,1fr) 34cqw;grid-template-rows:auto minmax(0,1fr) auto;column-gap:5cqw;padding:7cqw 7cqw 6cqw}
+  .dc__top{grid-column:1;grid-row:1;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:4cqw}
+  .dc__logo{width:30cqw}
+  .dc__title{text-align:left}
+  .dc__title b{font-size:max(16px,5.6cqw);line-height:1.15}
+  .dc__title span{font-size:max(10px,2.8cqw)}
+  .dc__photo{grid-column:2;grid-row:1;align-self:start;width:34cqw;border-radius:4cqw}
+  .dc__body{grid-column:1 / -1;grid-row:2;align-self:center;padding-top:4cqw}
+  .dc__lab{font-size:max(10px,3cqw)}
+  .dc__name{font-size:calc(max(22px,8.6cqw) * var(--fit,1))}
+  .dc__place{font-size:max(12px,calc(4cqw * var(--fit,1)));margin-top:1.6cqw}
+  .dc__grid{gap:3.6cqw 5cqw;margin-top:6cqw}
+  .dc__val{font-size:max(14px,4.4cqw)}
+  .dc[data-kind="caregiver"] .dc__val--id{white-space:nowrap;font-size:max(12px,3.9cqw);letter-spacing:-.01em}
+  .dc__foot{grid-row:3;margin-top:3cqw}
+  .dc__sign img{height:max(30px,10cqw);transform:translate(calc(var(--sx,0) * 100cqw / 540),calc(var(--sy,0) * 100cqw / 540))}
+  .dc__sign b{font-size:max(13px,3.8cqw)}
+  .dc__sign span{font-size:max(10px,2.7cqw)}
+  .dc__ok{font-size:max(10px,2.8cqw);padding:1.6cqw 3cqw}
+  .dc__ok svg{width:max(12px,3.2cqw);height:max(12px,3.2cqw)}
+  .dc__rest{grid-template-columns:minmax(0,1fr);justify-items:start;gap:6cqw;padding:7cqw 7cqw 0}
+  .dc__qr{width:44%;padding:2.4cqw;border-radius:3.2cqw}
+  .dc__check b{font-size:max(17px,5.6cqw)}
+  .dc__check p{font-size:max(13px,3.8cqw)}
+  .dc__return{padding:0 7cqw 7cqw}
+  .dc__return p{font-size:max(11px,3.1cqw)}
+  .dc__return p + p{margin-top:1cqw}
+  .dc__void span{font-size:max(20px,8cqw)}
+}
+
+/* ---- the membership card: the owner's template (15 Nov 2026: "PFA-
+   Premium-Membership.html for membership. let this be the exact
+   template"), in Marcellus throughout ("font should be marcellus in
+   membership card"). Measured from the template's 640 px card, in the
+   card's own width, so it holds its proportions at every size, a bank
+   card's shape on a phone too. ---- */
+.dc[data-kind="member"]{--ink:#e7e7e5;--soft:#aeb4bb;--g1:#303234;--g2:#111213;--g3:#08090a;--g4:#202224;font-family:var(--dc-serif)}
+.dc[data-kind="member"] .dc__stage{aspect-ratio:85.6/53.98}
+.dc[data-kind="member"] .dc__face{border-radius:4.7% / 7.4%;background:linear-gradient(125deg,#303234 0%,#111213 39%,#08090a 75%,#202224 100%);color:#e7e7e5;box-shadow:0 25px 38px -18px rgba(0,0,0,.53),inset 0 0 0 1px rgba(255,255,255,.14)}
+.dc[data-kind="member"] .dc__face::after{inset:0;transform:none;animation:none;border-radius:inherit;background:repeating-linear-gradient(0deg,transparent 0,transparent 2px,rgba(255,255,255,.008) 3px)}
+.dc[data-kind="member"] .dc__front,.dc[data-kind="member"] .dc__back{display:block;padding:6%}
+.dcm__brand{display:flex;align-items:center;gap:1.9cqw;position:relative;z-index:2}
+.dcm__logo{display:block;width:27.2cqw;height:auto}
+.dcm__tier{margin-left:auto;font-size:max(8px,1.5cqw);letter-spacing:.36cqw;text-transform:uppercase;color:#c1c5c9}
+.dcm__portrait{position:absolute;right:0;top:17%;width:59%;height:76%;object-fit:cover;mix-blend-mode:screen;filter:grayscale(1);opacity:.82;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 28%,#000 86%,transparent),linear-gradient(to bottom,transparent,#000 15%,#000 55%,transparent 100%);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right,transparent,#000 28%,#000 86%,transparent),linear-gradient(to bottom,transparent,#000 15%,#000 55%,transparent 100%);mask-composite:intersect}
+.dcm__details{position:absolute;left:6%;bottom:21%;z-index:2;max-width:50%}
+.dcm__label{font-size:max(8px,1.3cqw);letter-spacing:.36cqw;text-transform:uppercase;color:#969da5}
+.dcm__name{font-size:calc(max(17px,4.4cqw) * var(--fit,1));line-height:1.12;margin:1.4cqw 0 2.2cqw;overflow-wrap:anywhere}
+.dcm__role{font-size:max(8px,1.3cqw);letter-spacing:.26cqw;text-transform:uppercase;color:#b4b9bf}
+.dcm__footer{position:absolute;left:6%;right:6%;bottom:7%;display:flex;justify-content:space-between;gap:3cqw;border-top:1px solid rgba(255,255,255,.14);padding-top:4%;font-size:max(8px,1.45cqw);letter-spacing:.3cqw;text-transform:uppercase;color:#aeb4bb;font-variant-numeric:tabular-nums}
+.dcm__content{display:flex;align-items:center;justify-content:space-between;gap:3.75cqw;position:absolute;left:6%;right:6%;top:28%}
+.dcm__message{max-width:64%}
+.dcm__message h2{font-family:var(--dc-serif);font-weight:400;font-size:calc(max(15px,4.06cqw) * var(--bfit,1));line-height:1.15;margin:0 0 1.4cqw}
+.dcm__message p{margin:0;font-size:calc(max(8.5px,1.6cqw) * var(--bfit,1));line-height:1.55;color:#aeb4bb}
+.dcm__message p + p{margin-top:.5cqw}
+.dcm__qr{width:17.5cqw;flex-shrink:0}
+.dcm__qr svg{display:block;width:100%;height:auto;border-radius:.8cqw}
+.dcm__scan{text-align:center;font-size:max(7px,1.1cqw);letter-spacing:.26cqw;text-transform:uppercase;color:#aeb4bb;margin-top:1.5cqw}
+.dcm__sign{margin-top:2.2cqw}
+.dcm__sign img{display:block;height:calc(max(18px,4.6cqw) * var(--bfit,1));width:auto;filter:brightness(0) invert(1);opacity:.9;margin:0 0 -.4cqw;transform:translate(calc(var(--sx,0) * 100cqw / 856),calc(var(--sy,0) * 100cqw / 856))}
+.dcm__sign span{display:block;font-size:calc(max(7px,1.15cqw) * var(--bfit,1));letter-spacing:.2cqw;text-transform:uppercase;color:#969da5}
+.dc[data-kind="member"] .dcm__footer span{white-space:nowrap}
+.dc[data-kind="member"] .dc__back .dcm__footer{font-size:max(7px,1.25cqw);letter-spacing:.16cqw;text-transform:none}
+@container (max-width:519px){
+  .dc[data-kind="member"] .dc__stage{aspect-ratio:85.6/53.98}
+  .dc[data-kind="member"] .dc__face{border-radius:4.7% / 7.4%}
+}
+
+/* the controls under the card */
+.dc__acts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:22px 0 0}
+.dc__acts button{display:inline-flex;align-items:center;gap:10px;min-height:46px;padding:0 20px;border:1px solid #111;background:#fff;color:#111;font:600 13px/1 var(--dc-sans);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.dc__acts button svg{width:16px;height:16px;flex:none}
+@media (hover:hover){.dc__acts button:hover{background:#111;color:#fff}}
+.dc__acts button:focus-visible{outline:2px solid #111;outline-offset:3px}
+.dc__hint{margin:12px 0 0;text-align:center;font-size:13px;color:#555}
+
+@media (prefers-reduced-motion:reduce){
+  .dc__turn{transition:none}
+  .dc__face::after{animation:none;display:none}
+}
+/* a digital card is for the screen (owner, 15 Nov 2026: "not to be
+   printed"): printed, the page shows the line that says so instead */
+.dc__noprint{display:none}
+@media print{.dc__stage,.dc__acts,.dc__hint{display:none!important}.dc__noprint{display:block;margin:0;padding:16px;border:1px solid #111;font:500 14px/1.5 var(--dc-sans);color:#111;text-align:center}}

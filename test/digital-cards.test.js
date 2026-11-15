@@ -1,0 +1,312 @@
+'use strict';
+
+/* Digital cards (owner, 15 Nov 2026: "Add an option to issue digital
+   caregiver and membership cards with front and back views and a flip
+   feature premium style ... Each should have a unique peopleforanimals.org
+   URL, like the internship certificate. All cards and certificates must be
+   verifiable online ... each bg to be in diff cool colors. like blue,
+   yellow, etc. text, font, everything to be perfectly legible").
+
+   Issued from the card studio with the photograph as drawn; its own
+   address (the caregiver card's number, or a random PFA-MBR- for a member,
+   never the member's sequential number); the page shows only what the card
+   prints; it says when the card is expired or withdrawn; and the check page
+   answers for every card and certificate. */
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const { memoryFirestore } = require('./_memory-firestore');
+const audit = require('../lib/admin-audit');
+const DC = require('../lib/digital-cards');
+const ADMIN = require('../lib/routes/admin/digital-cards');
+const PUBLIC = require('../lib/routes/digital-card');
+
+const ROOT = path.join(__dirname, '..');
+const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+const NOW = Date.parse('2026-11-15T09:00:00.000Z');
+/* a real JPEG's first bytes, enough to be taken for one */
+const JPEG = Buffer.concat([Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]), Buffer.alloc(400, 7), Buffer.from([0xFF, 0xD9])]).toString('base64');
+
+let db; let rows; let realRecord; let mails;
+test.beforeEach(() => {
+  db = memoryFirestore();
+  rows = []; mails = [];
+  realRecord = audit.record;
+  audit.record = async (who, row) => { rows.push(row); };
+});
+test.afterEach(() => { audit.record = realRecord; });
+
+function respond(resolve) {
+  const out = { statusCode: 200, headers: {} };
+  return { status(v) { out.statusCode = v; return this; }, json(b) { out.json = b; resolve(out); }, get statusCode() { return out.statusCode; }, set statusCode(v) { out.statusCode = v; }, setHeader(k, v) { out.headers[k.toLowerCase()] = v; },
+    end(raw) { out.raw = raw; try { out.json = JSON.parse(String(raw || '{}')); } catch (_) { out.json = null; } resolve(out); } };
+}
+function admin(method, body, asked) {
+  const h = ADMIN.createHandler({ getDb: () => db, now: () => NOW, notify: async (m) => { mails.push(m); return { sent: true }; },
+    requireAdmin: async (q, r, m) => { if (asked) asked.push(m); return { uid: 'u1', email: 'office@pfa.test' }; } });
+  return new Promise((resolve, reject) => Promise.resolve(h(method === 'GET' ? { method, query: body, headers: {} } : { method, body, headers: {} }, respond(resolve))).catch(reject));
+}
+function open(query) {
+  const h = PUBLIC.createHandler({ getDb: () => db, now: () => NOW });
+  return new Promise((resolve, reject) => Promise.resolve(h({ method: 'GET', query, headers: {} }, respond(resolve))).catch(reject));
+}
+async function seed() {
+  await db.collection('caretakerCards').doc('PFA-CCT-AB2CD3EF').set({ cardId: 'PFA-CCT-AB2CD3EF', name: 'ravi kumar', printName: 'Ravi Kumar', email: 'ravi@example.com', mobile: '9876543210', address: '12 MG Road', district: 'Udupi', state: 'Karnataka', issuedAt: '2026-10-24T10:00:00.000Z', validUntil: '2027-10-23T00:00:00.000Z', status: 'active' });
+  await db.collection('memberCards').doc('PFA-MEM-2026-00004').set({ cardId: 'KA 2399', reference: 'PFA-MEM-2026-00004', name: 'Asha Rao', printName: 'Asha Rao', tierLabel: 'Golden', district: 'Udupi', state: 'Karnataka', validUntil: '2027-11-09', lifetime: false, approvedAt: '2026-11-10T08:00:00.000Z', status: 'active' });
+  await db.collection('submissions').doc('PFA-MEM-2026-00004').set({ kind: 'PFA-MEM', fields: { name: 'Asha Rao', email: 'asha@example.com', mobile: '9000000001' } });
+}
+
+test('a caregiver card online: its own number is its address; issued with its photograph, logged and emailed', async () => {
+  await seed();
+  const asked = [];
+  const r = await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', photo: JPEG }, asked);
+  assert.equal(r.statusCode, 200, JSON.stringify(r.json));
+  assert.deepEqual(asked, ['caregivers'], 'a caregiver card by whoever has Caregivers');
+  assert.equal(r.json.digital.id, 'PFA-CCT-AB2CD3EF');
+  assert.equal(r.json.digital.url, 'https://peopleforanimalsindia.org/card?id=PFA-CCT-AB2CD3EF');
+  assert.deepEqual([r.json.digital.name, r.json.digital.number, r.json.digital.district, r.json.digital.state, r.json.digital.issuedOn, r.json.digital.validUntil, r.json.digital.standing], ['Ravi Kumar', 'PFA-CCT-AB2CD3EF', 'Udupi', 'Karnataka', '2026-10-24', '2027-10-23', 'valid']);
+  assert.equal(r.json.emailed, true);
+  assert.equal(mails[0].template, 'digital_card');
+  assert.equal(mails[0].to, 'ravi@example.com');
+  assert.equal(mails[0].payload.url, 'https://peopleforanimalsindia.org/card?id=PFA-CCT-AB2CD3EF');
+  assert.match(rows[0].detail, /Colony Caregiver Card for Ravi Kumar/);
+  /* the page: what the card prints, never the address, mobile or email */
+  const page = await open({ id: 'pfa-cct-ab2cd3ef' });
+  assert.equal(page.statusCode, 200);
+  assert.doesNotMatch(JSON.stringify(page.json), /MG Road|9876543210|ravi@example/);
+  const pic = await open({ id: 'PFA-CCT-AB2CD3EF', photo: '1' });
+  assert.equal(pic.statusCode, 200);
+  assert.equal(pic.headers['content-type'], 'image/jpeg');
+  /* withdrawn: says so, shows no photograph */
+  const w = await admin('POST', { action: 'withdraw', kind: 'caregiver', id: 'PFA-CCT-AB2CD3EF' });
+  assert.equal(w.json.digital.standing, 'withdrawn');
+  assert.equal((await open({ id: 'PFA-CCT-AB2CD3EF' })).json.standing, 'withdrawn');
+  assert.equal((await open({ id: 'PFA-CCT-AB2CD3EF', photo: '1' })).statusCode, 404);
+});
+
+test('a membership card online: a random PFA-MBR address, never the member\'s number; issued again it keeps it', async () => {
+  await seed();
+  const asked = [];
+  const r = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004', photo: JPEG }, asked);
+  assert.equal(r.statusCode, 200, JSON.stringify(r.json));
+  assert.deepEqual(asked, ['membership']);
+  const id = r.json.digital.id;
+  assert.match(id, /^PFA-MBR-[A-HJ-NP-Z2-9]{8}$/);
+  assert.deepEqual([r.json.digital.number, r.json.digital.tier, r.json.digital.kind], ['KA 2399', 'Golden', 'member']);
+  assert.equal(mails[0].to, 'asha@example.com');
+  const again = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004', photo: JPEG });
+  assert.equal(again.json.digital.id, id, 'one card, one address');
+  assert.equal((await admin('GET', { kind: 'member', ref: 'PFA-MEM-2026-00004' })).json.digital.id, id);
+  /* never without a photograph, never for a card not on the register */
+  assert.equal((await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004' })).statusCode, 422);
+  assert.equal((await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00099', photo: JPEG })).statusCode, 422);
+  assert.equal((await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-ZZZZZZZZ', photo: JPEG })).statusCode, 422);
+  assert.equal((await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', photo: Buffer.from('not a picture').toString('base64') })).statusCode, 422);
+  /* expired, as the page says */
+  assert.equal(DC.standing({ validUntil: '2026-01-01' }, NOW), 'expired');
+  assert.equal(DC.standing({ lifetime: true }, NOW), 'valid');
+  assert.equal((await open({ id: 'PFA-MBR-AAAAAAAA' })).statusCode, 404);
+  assert.equal((await open({ id: 'KA 2399' })).statusCode, 400, 'a member number is not an address');
+});
+
+test('every card is checked online: a caregiver card, a membership card online, and a printed membership card by its number', async () => {
+  await seed();
+  const firebase = require('../lib/firebase');
+  firebase._setDbForTests(db);
+  try {
+    const issued = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004', photo: JPEG });
+    const verify = require('../lib/routes/verify-card');
+    const ask = (id) => new Promise((resolve) => verify({ method: 'GET', query: { id }, headers: {} }, respond(resolve)));
+    const mbr = await ask(issued.json.digital.id);
+    assert.equal(mbr.statusCode, 200);
+    assert.deepEqual([mbr.json.kind, mbr.json.name, mbr.json.number, mbr.json.valid], ['member', 'Asha Rao', 'KA 2399', true]);
+    const printed = await ask('ka2399');
+    assert.equal(printed.statusCode, 200, JSON.stringify(printed.json));
+    assert.deepEqual([printed.json.name, printed.json.tier, printed.json.valid], ['Asha Rao', 'Golden', true]);
+    assert.doesNotMatch(JSON.stringify(printed.json), /asha@example|9000000001/);
+    assert.equal((await ask('KA 9999')).statusCode, 404);
+  } finally { firebase._setDbForTests(null); }
+  const page = read('verify-certificate.html');
+  assert.match(page, /fetch\('\/api\/verify-card\?id=' \+ encodeURIComponent\(n\)/);
+  assert.match(page, /Check a certificate or card\./);
+});
+
+test('the page: front and back, turned over by a tap, Enter or the button; sky blue for a caregiver, the owner\'s matte black for a member', () => {
+  const html = read('card.html');
+  assert.match(html, /<meta name="robots" content="noindex, nofollow">/);
+  assert.match(html, /<link rel="stylesheet" href="assets\/digital-card\.css\?v=[a-f0-9]{10}">/);
+  assert.match(html, /<script src="assets\/qr\.js\?v=[a-f0-9]{10}"><\/script>\n<script src="assets\/digital-card\.js\?v=[a-f0-9]{10}"><\/script>/);
+  assert.match(html, /fetch\('\/api\/digital-card\?id=' \+ encodeURIComponent\(id\)/);
+  assert.ok(require('../scripts/build-search-index').EXCLUDE.has('card.html'), 'a person\'s card is not for search');
+  const css = read('assets/digital-card.css');
+  const vars = (kind) => { const m = new RegExp(`\\.dc\\[data-kind="${kind}"\\]\\{([^}]*)\\}`).exec(css); return Object.fromEntries(m[1].split(';').filter(Boolean).map((x) => x.split(':'))); };
+  const blue = vars('caregiver');
+  const black = vars('member');
+  assert.deepEqual([blue['--g1'], blue['--g4']], ['#f5faff', '#93c5fd'], 'sky blue');
+  assert.deepEqual([black['--g1'], black['--g2'], black['--g3'], black['--g4']], ['#303234', '#111213', '#08090a', '#202224'], 'the template\'s own black');
+  assert.match(css, /backface-visibility:hidden/);
+  assert.match(css, /@container \(max-width:519px\)\{\n {2}\.dc__stage\{aspect-ratio:54\/85\.6\}/, 'upright on a phone');
+  assert.match(css, /@media \(prefers-reduced-motion:reduce\)/);
+  assert.doesNotMatch(css + read('assets/digital-card.js') + html.replace(/<script id="pfa-vis">[\s\S]*?<\/script>/, ''), /[–—]/, 'no long dash');
+  const js = read('assets/digital-card.js');
+  assert.match(js, /if \(e\.key === 'Enter' \|\| e\.key === ' '\) \{ e\.preventDefault\(\); flip\(\); \}/);
+  assert.match(js, /role="button" tabindex="0" aria-pressed="false"/);
+  assert.match(js, /assets\/certificates\/signature\.png/, 'the chairperson\'s signature, as on the printed cards');
+  /* owner, 15 Nov 2026: "logo has to render perfectly. and it has to have
+     transparent bg", "color of the card has to be chosen keeping the
+     contrast in mind": every word in deep ink at 7 to 1 or more on every
+     part of each card, the smaller labels at 4.5 to 1 or more, and the
+     logo's own blue and black clear of the light corner it stands in */
+  const lum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  for (const v of [blue, black]) {
+    for (const g of ['--g1', '--g2', '--g3', '--g4']) {
+      assert.ok(ratio(v['--ink'], v[g]) >= 7, `ink ${v['--ink']} on ${v[g]}: ${ratio(v['--ink'], v[g]).toFixed(1)}`);
+      assert.ok(ratio(v['--soft'], v[g]) >= 4.5, `labels ${v['--soft']} on ${v[g]}: ${ratio(v['--soft'], v[g]).toFixed(1)}`);
+    }
+  }
+  for (const logo of ['#0064a0', '#000000']) assert.ok(ratio(logo, blue['--g1']) >= 4.5, `the logo's ${logo} on ${blue['--g1']}`);
+  /* the black card's small type, the template's greys, read on its lightest corner */
+  for (const grey of ['#969da5', '#b4b9bf', '#c1c5c9']) assert.ok(ratio(grey, '#303234') >= 4.5, `${grey} on the card`);
+  assert.match(css, /\.dc__logo\{flex:none;display:block;width:15.5cqw\}/, 'the logo on the card itself, no panel behind it');
+  assert.doesNotMatch(css, /--chip|\.dc__logo\{[^}]*background/, 'no white banner behind the logo');
+  const page = fs.readFileSync(path.join(ROOT, 'card.html'), 'utf8');
+  assert.match(page, /href="assets\/digital-card\.css\?v=[a-f0-9]{10}"/, 'the style is fingerprinted, so a new colour reaches every holder at once');
+  assert.match(page, /src="assets\/digital-card\.js\?v=[a-f0-9]{10}"/);
+  const png = fs.readFileSync(path.join(ROOT, 'media/member-card-logo.png'));
+  assert.equal(png[25], 6, 'the logo is a PNG with its own transparency (colour type 6, RGBA)');
+});
+
+test('the panel: Issue online in each card studio, in its own file; the routes are wired', () => {
+  const admin = read('admin.html');
+  assert.match(admin, /<div data-digital="caregiver"><\/div>/);
+  assert.match(admin, /<div data-digital="member"><\/div>/);
+  assert.match(admin, /<script src="assets\/admin-digital-cards\.js"><\/script>/);
+  assert.ok(fs.statSync(path.join(ROOT, 'admin.html')).size < 409600);
+  const js = read('assets/admin-digital-cards.js');
+  assert.match(js, /A\.api\('\/api\/admin\/digital-cards', \{ method: 'POST', body: \{ action: 'issue', kind: kind, ref: card\.ref, photo: photo, email: true \} \}\)/);
+  const api = read('api/index.js');
+  assert.match(api, /'admin\/digital-cards': \(\) => require\('\.\.\/lib\/routes\/admin\/digital-cards\.js'\)/);
+  assert.match(api, /'digital-card': \(\) => require\('\.\.\/lib\/routes\/digital-card\.js'\)/);
+  assert.match(read('scripts/build-firebase.js'), /'assets\/admin-digital-cards\.js'/);
+  const fb = JSON.parse(read('firebase.json'));
+  const host = Array.isArray(fb.hosting) ? fb.hosting[0] : fb.hosting;
+  assert.ok(host.redirects.some((r) => r.source === '/card' && r.destination === 'https://peopleforanimalsindia.org/card'), 'the panel\'s host sends a card link to the public site');
+  assert.match(read('firestore.rules'), /match \/digitalCards\/\{id\}\s+\{ allow read, write: if false; \}/);
+});
+
+/* Owner, 15 Nov 2026: "it cant be cluttered. have a clean and premium
+   design". The front carries the logo, the card's name, the holder's name
+   and place, two facts and the signature; nothing says the same thing
+   twice, and the back holds only the check and where to return it. */
+test('the faces: clean, each thing said once', () => {
+  const { JSDOM } = require('jsdom');
+  const dom = new JSDOM('<div id="c"></div>', { runScripts: 'outside-only' });
+  dom.window.eval(read('assets/qr.js'));
+  dom.window.eval(read('assets/digital-card.js'));
+  const D = dom.window.PFADigitalCard;
+  const box = dom.window.document.getElementById('c');
+  const base = { found: true, standing: 'valid', valid: true, district: 'Udupi', state: 'Karnataka', issuedOn: '2026-11-10', validUntil: '2027-11-09', url: 'https://peopleforanimalsindia.org/card?id=PFA-MBR-AB2CD3EF' };
+  for (const [data, labels, kicker] of [
+    [{ ...base, kind: 'caregiver', name: 'Ravi Kumar Shetty', id: 'PFA-CCT-AB2CD3EF', number: 'PFA-CCT-AB2CD3EF' }, ['Card number', 'Valid until'], null]
+  ]) {
+    D.render(box, data, {});
+    const front = box.querySelector('.dc__front');
+    assert.deepEqual([...front.querySelectorAll('.dc__lab')].map((l) => l.textContent), labels, 'two facts, no "Name" label');
+    assert.equal(front.querySelector('.dc__name').textContent, data.name);
+    assert.equal(front.querySelector('.dc__place').textContent, 'Udupi, Karnataka');
+    const sub = front.querySelector('.dc__title span');
+    assert.equal(sub ? sub.textContent : null, kicker, 'the logo already says People for Animals; a member\'s tier stands under the title');
+    assert.equal(front.querySelectorAll('.dc__logo').length, 1);
+    const back = box.querySelector('.dc__back');
+    assert.equal(back.querySelectorAll('.dc__logo').length, 0, 'the back holds only the check and the return address');
+    assert.equal(back.querySelector('.dc__strip'), null, 'no stripe on the back: it does nothing (owner, 15 Nov 2026: "no need of black strip at the back, has no function")');
+    /* owner, 15 Nov 2026: "dont print the url ... at the back instead of
+       check this card is genuine. just say something like find the card
+       online or something standard. enterprise grade framing ... mention it
+       is digital card. not to be printed and have 1 line of no misues" */
+    assert.equal(back.querySelector('.dc__check b').textContent, 'Scan to verify');
+    assert.doesNotMatch(back.textContent, /peopleforanimalsindia\.org|card\?id=|https?:/, 'no address printed: the QR code carries it');
+    assert.deepEqual([...back.querySelectorAll('.dc__return p')].map((p) => p.textContent), [
+      'This is a digital card, for display on screen only. It is not to be printed.',
+      'This card is non-transferable. Any misuse will lead to its withdrawal.'
+    ]);
+    assert.ok(back.querySelector('.dc__qr svg, .dc__qr canvas, .dc__qr img, .dc__qr *'), 'the QR code of the card\'s own address');
+    assert.ok(box.querySelector('.dc__noprint'), 'printed, the page says it is not to be printed');
+  }
+  /* the signature where the panel put it (owner, 15 Nov 2026: "give
+     option to adjust the sign position") */
+  D.render(box, { ...base, kind: 'caregiver', name: 'Ravi', id: 'PFA-CCT-AB2CD3EF', sig: { x: -20, y: 6 } }, {});
+  assert.deepEqual([box.style.getPropertyValue('--sx'), box.style.getPropertyValue('--sy')], ['-20', '6']);
+  const css = read('assets/digital-card.css');
+  assert.match(css, /\.dc__sign img\{[^}]*transform:translate\(calc\(var\(--sx,0\) \* 100cqw \/ 856\),calc\(var\(--sy,0\) \* 100cqw \/ 856\)\)\}/, 'in tenths of a millimetre of a bank card 85.6 mm wide');
+  assert.match(css, /\.dc__sign img\{height:max\(30px,10cqw\);transform:translate\(calc\(var\(--sx,0\) \* 100cqw \/ 540\)/, 'and 54 mm wide upright');
+  assert.match(css, /@media print\{\.dc__stage,\.dc__acts,\.dc__hint\{display:none!important\}\.dc__noprint\{display:block/, 'the card itself does not print');
+  assert.match(read('card.html'), /D\.render\(box, Object\.assign\(\{\}, d, \{ url: d\.url \|\| here \}\)/, 'the QR code opens the card\'s own address, as PFA issued it');
+  assert.doesNotMatch(css, /repeating-radial-gradient/, 'a clean ground, no pattern');
+  assert.match(css, /font-size:calc\(max\(20px,6cqw\) \* var\(--fit,1\)\)/, 'a long name steps down to fit');
+  assert.match(read('assets/digital-card.js'), /name\.getBoundingClientRect\(\)\.top < top\.getBoundingClientRect\(\)\.bottom \+ gap/);
+});
+
+test('the signature on a card online: its own place, set in the panel, saved, logged and served with the card', async () => {
+  const L = require('../lib/certificate-layout');
+  assert.deepEqual(Object.keys(L.CARDS), ['caregiver', 'member', 'caregiverOnline', 'memberOnline']);
+  assert.equal(L.CARDS.caregiverOnline.module, 'caregivers');
+  assert.equal(L.CARDS.memberOnline.module, 'membership');
+  const db = require('./_memory-firestore.js').memoryFirestore();
+  await L.writeCard(db, 'memberOnline', 14, -8, { email: 'a@b.c' }, Date.parse('2026-11-15T10:00:00Z'));
+  const all = await L.readCards(db);
+  assert.deepEqual([all.memberOnline.x, all.memberOnline.y, all.member.x, all.member.y], [14, -8, 0, 0], 'the printed card keeps its own');
+  assert.equal(L.checkCard({ card: 'caregiverOnline', x: 61, y: 0 }).ok, false);
+  const route = read('lib/routes/digital-card.js');
+  assert.match(route, /view\.kind === 'member' \? 'memberOnline' : 'caregiverOnline'/);
+  assert.match(route, /view\.sig = \{ x: Number\(sig\.x\) \|\| 0, y: Number\(sig\.y\) \|\| 0 \};/);
+  const panel = read('assets/admin-digital-cards.js');
+  assert.match(panel, /<summary>Signature position online<\/summary>/, 'apart from the printed card\'s Signature position');
+  assert.match(panel, /A\.api\('\/api\/admin\/card-signature', \{ method: 'POST', body: \{ card: SIG\[kind\], x: l\.x, y: l\.y \} \}\)/);
+  assert.match(panel, /Save for every card online/);
+  const files = read('scripts/build-firebase.js');
+  for (const f of ['assets/digital-card.css', 'assets/digital-card.js', 'media/member-card-logo.png', 'assets/certificates/signature.png', 'fonts/dm-sans-latin-400.woff2']) assert.ok(files.includes(`'${f}'`), `${f} goes with the panel`);
+});
+
+/* Owner, 15 Nov 2026: "PFA-Premium-Membership.html for membership. let
+   this be the exact template", then "font should be marcellus in
+   membership card". */
+test('the membership card online: the owner\'s template, in Marcellus, with what it must say', () => {
+  const { JSDOM } = require('jsdom');
+  const dom = new JSDOM('<div id="c"></div>', { runScripts: 'outside-only' });
+  dom.window.eval(read('assets/qr.js'));
+  dom.window.eval(read('assets/digital-card.js'));
+  const box = dom.window.document.getElementById('c');
+  dom.window.PFADigitalCard.render(box, { kind: 'member', standing: 'valid', valid: true, name: 'Asha Venkataraman', id: 'PFA-MBR-AB2CD3EF', number: 'KA 2399', tier: 'Golden membership', district: 'Udupi', state: 'Karnataka', issuedOn: '2026-11-10', validUntil: '2027-11-09', url: 'https://peopleforanimalsindia.org/card?id=PFA-MBR-AB2CD3EF', sig: { x: 4, y: -2 } }, { photo: 'data:image/png;base64,AAAA' });
+  const front = box.querySelector('.dc__front');
+  const back = box.querySelector('.dc__back');
+  assert.equal(front.querySelector('.dcm__logo').getAttribute('src'), 'img/logo-dark.png', 'the template\'s logo for dark grounds, transparent');
+  assert.equal(front.querySelector('.dcm__tier').textContent, 'Golden Membership');
+  assert.ok(front.querySelector('img.dcm__portrait'), 'the member\'s photograph, fading into the card');
+  assert.deepEqual([...front.querySelectorAll('.dcm__details > div')].map((d) => d.textContent), ['Member', 'Asha Venkataraman', 'Udupi, Karnataka']);
+  assert.deepEqual([...front.querySelectorAll('.dcm__footer span')].map((d) => d.textContent.replace(/\s+/g, ' ')), ['KA 2399', 'Member since 2026']);
+  assert.equal(back.querySelector('h2').innerHTML, 'A voice for<br>the voiceless.');
+  assert.deepEqual([...back.querySelectorAll('.dcm__message p')].map((p) => p.textContent), [
+    'This digital card identifies the named member of People for Animals. It is for display on screen only and is not to be printed.',
+    'Non-transferable. Any misuse will lead to its withdrawal.'
+  ]);
+  assert.equal(back.querySelector('.dcm__scan').textContent, 'Scan to verify');
+  assert.ok(back.querySelector('.dcm__qr svg path'), 'the QR code of the card\'s own address');
+  assert.doesNotMatch(back.textContent, /card\?id=/, 'the card\'s address is in the code, not printed');
+  assert.ok(back.querySelector('.dcm__sign img[src="assets/certificates/signature.png"]'), 'the chairperson\'s signature, where the panel puts it');
+  assert.deepEqual([box.style.getPropertyValue('--sx'), box.style.getPropertyValue('--sy')], ['4', '-2']);
+  const css = read('assets/digital-card.css');
+  assert.match(css, /\.dc\[data-kind="member"\]\{[^}]*font-family:var\(--dc-serif\)\}/, 'Marcellus throughout');
+  assert.doesNotMatch(css.slice(css.indexOf('/* ---- the membership card')), /Georgia|Arial/, 'none of the template\'s stand-in faces');
+  assert.match(css, /\.dcm__portrait\{[^}]*mix-blend-mode:screen;filter:grayscale\(1\);opacity:\.82/);
+  assert.match(css, /\.dc\[data-kind="member"\] \.dc__stage\{aspect-ratio:85\.6\/53\.98\}/, 'a bank card\'s shape, on a phone too');
+  assert.match(css, /\.dcm__sign img\{[^}]*filter:brightness\(0\) invert\(1\)[^}]*100cqw \/ 856/, 'white on black, moved as the panel says');
+  const js = read('assets/digital-card.js');
+  assert.match(js, /if \(plain < 0\.6\) return;/, 'a busy background is left as it is');
+  assert.match(js, /if \(member\) cutout\(box\.querySelector\('\.dcm__portrait'\)\);/, 'a plain wall behind the member goes to black, as the template\'s portrait');
+  assert.ok(read('scripts/build-firebase.js').includes("'img/logo-dark.png'"), 'the panel draws it too');
+});

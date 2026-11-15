@@ -50,7 +50,7 @@ test('the design\'s own place until it is set, then saved from the panel, logged
   let list = await admin('GET');
   assert.deepEqual([list.json.layout.x, list.json.layout.y], [26, 0]);
   let pub = await respond(PUBLIC, { method: 'GET', headers: {} });
-  assert.deepEqual(pub.json, { x: 26, y: 0, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } } });
+  assert.deepEqual(pub.json, { x: 26, y: 0, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 }, caregiverOnline: { x: 0, y: 0 }, memberOnline: { x: 0, y: 0 } } });
 
   const saved = await admin('POST', { action: 'layout', x: 40, y: -6 });
   assert.equal(saved.statusCode, 200, saved.raw);
@@ -59,7 +59,7 @@ test('the design\'s own place until it is set, then saved from the panel, logged
   assert.equal(rows[0].action, 'certificate-layout');
   assert.equal(rows[0].detail, 'Signature moved from 26 across, 0 down to 40 across, -6 down');
   pub = await respond(PUBLIC, { method: 'GET', headers: {} });
-  assert.deepEqual(pub.json, { x: 40, y: -6, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } } });
+  assert.deepEqual(pub.json, { x: 40, y: -6, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 }, caregiverOnline: { x: 0, y: 0 }, memberOnline: { x: 0, y: 0 } } });
   assert.match(pub.headers['cache-control'], /s-maxage=60/);
   list = await admin('GET');
   assert.deepEqual([list.json.layout.x, list.json.layout.y], [40, -6]);
@@ -81,7 +81,7 @@ test('the public answer fails to the design\'s own place, kept only a moment', a
   const warn = console.warn; console.warn = () => {};
   try {
     const r = await respond(PUBLIC, { method: 'GET', headers: {} });
-    assert.deepEqual(r.json, { x: 26, y: 0, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } }, unavailable: true });
+    assert.deepEqual(r.json, { x: 26, y: 0, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 }, caregiverOnline: { x: 0, y: 0 }, memberOnline: { x: 0, y: 0 } }, unavailable: true });
     assert.equal(r.headers['cache-control'], 'public, max-age=0, s-maxage=2');
   } finally { console.warn = warn; }
   assert.equal((await respond(PUBLIC, { method: 'POST', headers: {} })).statusCode, 405);
@@ -114,8 +114,8 @@ test('the paper, then the art, then the signature on it; the signature where the
   C.draw(canvas, { name: 'Asha Rao', endDate: '2026-11-01', number: 'PFA-INT-4K2M8QRT' }, 1);
   const images = calls.filter((c) => c[0] === 'drawImage');
   assert.equal(images.length, 2, 'the art and the signature, each once');
-  assert.match(images[0][1]._src, /completion\.webp$/);
-  assert.match(images[1][1]._src, /signature\.png$/);
+  assert.match(images[0][1]._src, /frame\.webp\?v=[a-f0-9]{10}$/);
+  assert.match(images[1][1]._src, /signature\.png\?v=[a-f0-9]{10}$/);
   assert.deepEqual([...images[1].slice(2)], [798 + 26, 653, 252, 73], 'the design\'s own place: 26 to the right');
   assert.ok(!calls.some((c) => c[0] === 'fillRect' && c[3] === 1120), 'the art drawn, so no white paper laid over it');
   assert.deepEqual({ ...C.setLayout({ x: -12, y: 8 }) }, { x: -12, y: 8 });

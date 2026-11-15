@@ -48,6 +48,8 @@ const CASES = {
   'a membership photo asked for': ['member_photo_request', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', uploadUrl: `${site}/member-photo.html#t=abc`, expiresAt: '2026-11-09T09:10:00Z', reasons: [] }],
   'a membership photo asked for again': ['member_photo_request', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', uploadUrl: `${site}/member-photo.html#t=abd`, expiresAt: '2026-11-09T09:10:00Z', reasons: ['Your face is not clearly visible.'] }],
   'a membership photo received': ['member_photo_received', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', receivedAt: '2026-10-26T09:10:00Z' }],
+  'a caregiver card online': ['digital_card', 'person', { ...base, kind: 'caregiver', name: 'Asha Rao', number: 'PFA-CCT-AB2CD3EF', url: 'https://peopleforanimalsindia.org/card?id=PFA-CCT-AB2CD3EF' }],
+  'a membership card online': ['digital_card', 'person', { ...base, kind: 'member', name: 'Asha Rao', number: 'KA 2399', url: 'https://peopleforanimalsindia.org/card?id=PFA-MBR-AB2CD3EF' }],
   'a membership card approved': ['member_card_approved', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', tierLabel: 'Golden membership', validUntil: '2027-10-26T09:10:00Z', lifetime: false }],
   'a lifetime membership card approved': ['member_card_approved', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00006', tierLabel: 'Lifetime membership', validUntil: '', lifetime: true }],
   'a membership card dispatched': ['member_card_dispatched', 'person', { ...base, name: 'Asha Rao', memberId: 'PFA-MEM-2026-00005', courier: 'Blue Dart', trackingNumber: '90812345678', dispatchedAt: '2026-10-28T09:10:00Z' }],

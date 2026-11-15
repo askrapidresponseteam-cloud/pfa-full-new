@@ -64,7 +64,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Check a certificate | People for Animals</title>
-<meta name="description" content="Check that a People for Animals certificate is genuine, with the number printed on it.">
+<meta name="description" content="Check that a People for Animals certificate or card is genuine, with the number printed on it.">
 <link rel="stylesheet" href="assets/chrome.css?v=2ddf9151a8">
 <style>
 :root{
@@ -260,7 +260,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
   <meta property="og:locale" content="en_IN">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Check a certificate">
-  <meta property="og:description" content="Check that a People for Animals certificate is genuine, with the number printed on it.">
+  <meta property="og:description" content="Check that a People for Animals certificate or card is genuine, with the number printed on it.">
   <meta property="og:url" content="https://peopleforanimalsindia.org/verify-certificate">
   <meta property="og:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
   <meta property="og:image:width" content="1200">
@@ -269,7 +269,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@pfaindia">
   <meta name="twitter:title" content="Check a certificate">
-  <meta name="twitter:description" content="Check that a People for Animals certificate is genuine, with the number printed on it.">
+  <meta name="twitter:description" content="Check that a People for Animals certificate or card is genuine, with the number printed on it.">
   <meta name="twitter:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://peopleforanimalsindia.org/"},{"@type":"ListItem","position":2,"name":"Check a certificate","item":"https://peopleforanimalsindia.org/verify-certificate"}]}</script>
   <!-- seo:end -->
@@ -536,7 +536,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=06d0974b8a"></script>
+<script src="assets/chrome.js?v=b72787319f"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -550,8 +550,8 @@ if (root.document && root.document.head) apply(read());
        nothing else on the record. -->
   <section class="hero" id="top">
     <div class="hero__in">
-      <p class="eyebrow pfa-kicker">Certificates</p>
-      <h1 class="pfa-title display">Check a certificate.</h1>
+      <p class="eyebrow pfa-kicker">Certificates and cards</p>
+      <h1 class="pfa-title display">Check a certificate or card.</h1>
     </div>
   </section>
 
@@ -559,9 +559,9 @@ if (root.document && root.document.head) apply(read());
     <div class="track">
       <form class="tform" id="certForm" novalidate>
         <div class="field">
-          <label for="cNum">Certificate number</label>
+          <label for="cNum">Certificate or card number</label>
           <input id="cNum" name="number" type="text" autocomplete="off" spellcheck="false" placeholder="PFA-INT-XXXXXXXX" required>
-          <span class="hint">Printed at the foot of the certificate, after Certificate No.</span>
+          <span class="hint">On a certificate, at its foot. On a colony caregiver card, its card number (PFA-CCT-...). On a membership card, the member number (such as KA 2399), or PFA-MBR-... from a card online.</span>
         </div>
         <button class="btn" type="submit" id="cGo">Check it</button>
       </form>
@@ -711,10 +711,41 @@ if (root.document && root.document.head) apply(read());
       + (d.withdrawn ? '<dt>Withdrawn on</dt><dd>' + esc(long(d.withdrawnOn)) + '</dd>' : '');
     $('#cNext').innerHTML = d.genuine ? 'The name and the details should match the certificate exactly. <a href="certificate.html?n=' + encodeURIComponent(d.number) + '">See the certificate</a>' : 'This certificate is no longer valid.';
   }
+  /* a card (15 Nov 2026: "All cards and certificates must be verifiable
+     online"): a colony caregiver card, a membership card online, or a
+     printed membership card by its member number; /api/verify-card */
+  var CARD = /^PFA-(CCT-[A-Z0-9]{8}|MBR-[A-HJ-NP-Z2-9]{8})$/;
+  var PRINTED = /^([A-Z]{2,4}) ?(\d{1,6})$/;
+  function showCard(d){
+    card.hidden = false;
+    card.setAttribute('data-state', d.valid ? 'good' : 'bad');
+    var what = d.kind === 'member' ? 'membership card' : 'colony caregiver card';
+    $('#cKind').textContent = d.valid ? 'Genuine: a ' + what + ' issued by People for Animals' : (d.status === 'expired' ? 'Expired: a ' + what + ' issued by People for Animals' : 'No longer valid');
+    $('#cName').textContent = d.name;
+    $('#cFacts').innerHTML = '<dt>Card</dt><dd>' + esc(d.number || d.cardId) + '</dd>'
+      + (d.tier ? '<dt>Membership</dt><dd>' + esc(d.tier) + '</dd>' : '')
+      + '<dt>Valid</dt><dd>' + esc(d.lifetime ? 'For life' : d.validUntil ? 'Until ' + long(String(d.validUntil).slice(0, 10)) : (d.valid ? 'Yes' : 'No')) + '</dd>';
+    $('#cNext').innerHTML = d.valid ? 'The name should match the card exactly.' + (d.url ? ' <a href="card.html?id=' + encodeURIComponent(d.cardId) + '">See the card</a>' : '') : 'This card is no longer valid.';
+  }
+  function checkCard(n){
+    go.disabled = true;
+    tell('Checking...');
+    fetch('/api/verify-card?id=' + encodeURIComponent(n), { headers: { Accept: 'application/json' } }).then(function(r){
+      return r.json().then(function(d){ return { status: r.status, d: d }; }, function(){ return { status: r.status, d: {} }; });
+    }).then(function(x){
+      go.disabled = false;
+      if (x.status === 200 && x.d.found) { tell(''); showCard(x.d); return; }
+      if (x.status === 404) { tell('PFA has not issued a card with that number. Check each character against the card.', 'bad'); return; }
+      tell(x.d.message || 'That could not be checked just now. Try again.', 'bad');
+    }).catch(function(){ go.disabled = false; tell('That could not be checked just now. Check your connection and try again.', 'bad'); });
+  }
   function check(raw){
     var n = String(raw || '').replace(/\s+/g, '').toUpperCase();
     card.hidden = true;
-    if (!NUMBER.test(n)) { tell('That is not a PFA certificate number. They look like PFA-INT-XXXXXXXX or PFA-VOL-XXXXXXXX: eight letters and digits at the end.', 'bad'); input.focus(); return; }
+    if (CARD.test(n)) { input.value = n; checkCard(n); return; }
+    var printed = PRINTED.exec(String(raw || '').trim().toUpperCase());
+    if (printed && !/^PFA/.test(n)) { input.value = printed[1] + ' ' + printed[2]; checkCard(printed[1] + ' ' + printed[2]); return; }
+    if (!NUMBER.test(n)) { tell('That is not a PFA certificate or card number. A certificate reads like PFA-INT-XXXXXXXX, a caregiver card PFA-CCT-XXXXXXXX, a membership card KA 2399.', 'bad'); input.focus(); return; }
     input.value = n;
     go.disabled = true;
     tell('Checking...');

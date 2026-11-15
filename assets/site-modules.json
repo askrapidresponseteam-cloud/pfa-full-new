@@ -977,6 +977,23 @@
    ]
   },
   {
+   "id": "card",
+   "file": "card.html",
+   "title": "Card",
+   "group": "Not in the menus",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Card."
+    },
+    {
+     "id": "card",
+     "label": "Card"
+    }
+   ]
+  },
+  {
    "id": "certificate",
    "file": "certificate.html",
    "title": "Certificate",
@@ -1002,7 +1019,7 @@
    "modules": [
     {
      "id": "top",
-     "label": "Check a certificate."
+     "label": "Check a certificate or card."
     },
     {
      "id": "check",
@@ -1895,6 +1912,16 @@
    "trDoneLead": "card",
    "trIdKind": "card",
    "trIdShown": "card"
+  },
+  "card": {
+   "dcvKind": "top",
+   "dcvTitle": "top",
+   "dcvLine": "top",
+   "dcvActs": "top",
+   "dcvCard": "card",
+   "dcvMore": "card",
+   "dcvFacts": "card",
+   "dcvOther": "card"
   },
   "certificate": {
    "cvTitle": "top",

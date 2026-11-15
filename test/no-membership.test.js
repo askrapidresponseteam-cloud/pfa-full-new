@@ -102,11 +102,16 @@ test('the admin panel has no section without a feature behind it', () => {
   }
 });
 
-test('the colony caregiver card survives, and is the only card there is', () => {
+/* The membership card came back with the member's photo (v1.575, the card
+   studio), and both cards went online in v1.576 (owner, 15 Nov 2026: "Add
+   an option to issue digital caregiver and membership cards ... All cards
+   and certificates must be verifiable online"), so the public check now
+   answers both. The old membership circle and its register stay gone. */
+test('the colony caregiver card survives, and the online check answers both cards', () => {
   const verify = fs.readFileSync(path.join(ROOT, 'lib', 'routes', 'verify-card.js'), 'utf8');
   assert.match(verify, /CAREGIVER_ID/);
-  assert.ok(!/MEMBER_ID/.test(verify));
-  assert.match(verify, /PFA-CCT-XXXXXXXX/, 'the message must not still offer PFA-MBR');
+  assert.match(verify, /DC\.MEMBER_ID\.test\(id\)/, 'a membership card issued online is checked from digitalCards');
+  assert.match(verify, /PFA-CCT-XXXXXXXX or PFA-MBR-XXXXXXXX/);
   const cards = fs.readFileSync(path.join(ROOT, 'lib', 'routes', 'admin', 'cards.js'), 'utf8');
   assert.match(cards, /new Set\(\['caregiver'\]\)/);
 });

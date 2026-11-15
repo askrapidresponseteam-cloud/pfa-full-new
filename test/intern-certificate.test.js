@@ -127,7 +127,7 @@ test('the certificate online: drawn from the record, verified, downloadable, sha
   const html = read('certificate.html');
   assert.match(html, /<meta name="robots" content="noindex, nofollow">/, 'a person\'s certificate is not for search engines');
   assert.match(html, /fetch\('\/api\/verify-certificate\?n=' \+ encodeURIComponent\(n\)/, 'what PFA issued, never what the address says');
-  assert.match(html, /<script src="assets\/certificate\.js"><\/script>/);
+  assert.match(html, /<script src="assets\/certificate\.js\?v=[a-f0-9]{10}"><\/script>/);
   assert.match(html, /C\.draw\(canvas, record, scale\)/);
   for (const id of ['cvPdf', 'cvCopy', 'cvLinkedIn']) assert.ok(html.includes(`id="${id}"`), id);
   assert.match(html, /https:\/\/www\.linkedin\.com\/profile\/add\?startTask=CERTIFICATION_NAME/);
@@ -147,7 +147,7 @@ test('the certificate online: drawn from the record, verified, downloadable, sha
 
 test('the design is the owner\'s, in Marcellus, its fields where the design puts them', () => {
   const js = read('assets/certificate.js');
-  assert.match(js, /var ART = ROOT \+ 'assets\/certificates\/completion\.webp';/);
+  assert.match(js, /var ART = ROOT \+ 'assets\/certificates\/frame\.webp\?v=' \+ ART_V;/);
   assert.match(js, /var W = 1120;\n {2}var H = 792;/, 'A4 landscape, the design\'s own size');
   assert.match(js, /var FONTS = \[\n {4}\['Marcellus', ROOT \+ 'fonts\/marcellus-latin\.woff2', '400'\]\n {2}\];/, 'Marcellus only (owner: "font has to be marcellus")');
   assert.doesNotMatch(js, /Cinzel|Garamond/);

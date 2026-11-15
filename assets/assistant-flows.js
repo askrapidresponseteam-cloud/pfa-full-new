@@ -87,6 +87,9 @@
     callHq: { en: 'Call the head office', hi: 'मुख्य कार्यालय को कॉल करें' },
     openPage: { en: 'Open it', hi: 'खोलें' },
     certGood: { en: 'Genuine. PFA issued internship certificate {no} to {name} on {issued}, for {from} to {to}.', hi: 'असली। PFA ने इंटर्नशिप प्रमाणपत्र {no} {name} को {issued} को दिया था, {from} से {to} तक के लिए।' },
+    seeCard: { en: 'See the card', hi: 'कार्ड देखें' },
+    memberGood: { en: '{name} holds a genuine PFA membership card, {no}, valid {until}.', hi: '{name} के पास असली PFA सदस्यता कार्ड {no} है, {until}।' },
+    memberOld: { en: '{name} holds PFA membership card {no}, but it is no longer valid.', hi: '{name} के पास PFA सदस्यता कार्ड {no} है, पर यह अब मान्य नहीं है।' },
     certOther: { en: 'Genuine. PFA issued {no}, a {title}, to {name} on {issued}, for {about}.', hi: 'असली। PFA ने {no} ({title}) {name} को {issued} को दिया था, {about} के लिए।' },
     certWithdrawn: { en: 'PFA issued certificate {no} to {name}, but withdrew it on {on}. It is no longer valid.', hi: 'PFA ने प्रमाणपत्र {no} {name} को दिया था, पर {on} को वापस ले लिया। यह अब मान्य नहीं है।' },
     cardGood: { en: '{name} holds a genuine colony caregiver card, {no}, valid until {until}.', hi: '{name} के पास असली कॉलोनी केयरगिवर कार्ड {no} है, {until} तक मान्य।' },
@@ -722,7 +725,7 @@
        and PFA-DNR- the other purposes, 15 Nov 2026) or PFA-CCT-XXXXXXXX (a
        colony caregiver card) */
     function certOf(text) {
-      var m = /PFA[\s-]*(INT|VOL|PAR|REC|DNR|CCT)[\s-]*([A-Z0-9]{8})\b/i.exec(String(text || ''));
+      var m = /PFA[\s-]*(INT|VOL|PAR|REC|DNR|CCT|MBR)[\s-]*([A-Z0-9]{8})\b/i.exec(String(text || ''));
       return m ? 'PFA-' + m[1].toUpperCase() + '-' + m[2].toUpperCase() : '';
     }
 
@@ -869,7 +872,8 @@
         if (r.found && cert) return out([msg(r.withdrawn ? t('certWithdrawn', lang(), { no: no, name: r.name, on: dayOf(r.withdrawnOn) })
           : /^PFA-INT-/.test(no) ? t('certGood', lang(), { no: no, name: r.name, issued: dayOf(r.issuedOn), from: dayOf(r.startDate), to: dayOf(r.endDate) })
           : t('certOther', lang(), { no: no, name: r.name, issued: dayOf(r.issuedOn), title: String(r.title || '').toLowerCase(), about: r.about || r.line || '' }), { links: check, chips: after })]);
-        if (r.found) return out([msg(t(r.valid ? 'cardGood' : 'cardOld', lang(), { no: no, name: r.name, until: dayOf(r.validUntil) }), { chips: after })]);
+        if (r.found && r.kind === 'member') return out([msg(t(r.valid ? 'memberGood' : 'memberOld', lang(), { no: r.number || no, name: r.name, until: lang() === 'hi' ? (r.lifetime ? 'आजीवन मान्य' : dayOf(r.validUntil) + ' तक मान्य') : (r.lifetime ? 'for life' : 'until ' + dayOf(r.validUntil)) }), { links: r.url ? [{ label: t('seeCard', lang()), href: 'card.html?id=' + encodeURIComponent(no) }] : [], chips: after })]);
+        if (r.found) return out([msg(t(r.valid ? 'cardGood' : 'cardOld', lang(), { no: no, name: r.name, until: dayOf(r.validUntil) }), { links: r.url ? [{ label: t('seeCard', lang()), href: 'card.html?id=' + encodeURIComponent(no) }] : [], chips: after })]);
         return out([msg(r.notFound ? t('verifyNone', lang()) : (r.message || t('tryLater', lang())), { chips: [chip('verify', lang())].concat(after) })]);
       }
       if (flow.look === 'nearby') {
