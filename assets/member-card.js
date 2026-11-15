@@ -41,6 +41,25 @@
     ['PFA Card DM Sans', 'fonts/dm-sans-latin-600.woff2', '600']
   ];
   var LOGO_SRC = 'media/member-card-logo.png';
+  /* Smt. Maneka Sanjay Gandhi's signature (owner, 15 Nov 2026: "Add Maneka
+     Gandhi's signature to caregiver and membership cards using the same
+     logic as the internship certificate"): the certificate's own, at print
+     quality, above the signature line and centred on it, moved from there
+     by the studio's Signature position, kept for the whole site
+     (lib/certificate-layout.js, /api/certificate-layout). A card is never
+     printed without it. */
+  var SIG_SRC = 'assets/certificates/signature-print.png';
+  var SIG_BOX = { h: 62, aspect: 1512 / 438, gap: 1 };
+  var SIG_RANGE = { x: 60, y: 30 };
+  var SIG_DEFAULT = { x: 0, y: 0 };
+  var sigAt = { x: 0, y: 0 };
+  var signature = null;
+  function setSignature(l) {
+    var c = function (v, max, d) { var n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(-max, Math.min(max, n)) : d; };
+    sigAt = { x: c(l && l.x, SIG_RANGE.x, SIG_DEFAULT.x), y: c(l && l.y, SIG_RANGE.y, SIG_DEFAULT.y) };
+    return signatureAt();
+  }
+  function signatureAt() { return { x: sigAt.x, y: sigAt.y }; }
   var LOGO_ASPECT = 386 / 259;
 
   /* ---- the layout --------------------------------------------------------- */
@@ -87,7 +106,15 @@
       img.onerror = function () { resolve(); };
       img.src = LOGO_SRC;
     });
-    loading = Promise.all(fonts.concat([image]));
+    var signed = new Promise(function (resolve) {
+      var img = new Image();
+      img.onload = function () { signature = img; resolve(); };
+      img.onerror = function () { resolve(); };
+      img.src = SIG_SRC;
+    });
+    var placed = (typeof fetch === 'function' ? fetch('/api/certificate-layout', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }) : Promise.resolve(null))
+      .then(function (l) { if (l && l.cards && l.cards.member) setSignature(l.cards.member); }, function () {});
+    loading = Promise.all(fonts.concat([image, signed, placed]));
     return loading;
   }
 
@@ -259,7 +286,15 @@
       });
     });
 
-    /* the signature: a clear space to sign above the line */
+    /* the signature, on the line */
+    if (signature) {
+      var sw = SIG_BOX.h * SIG_BOX.aspect;
+      ctx.save();
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(signature, L.sign.x + (L.sign.lineW - sw) / 2 + sigAt.x, L.sign.lineY - SIG_BOX.gap - SIG_BOX.h + sigAt.y, sw, SIG_BOX.h);
+      ctx.restore();
+    }
     ctx.strokeStyle = RULE;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -315,6 +350,8 @@
      corners for the screen; square for the printer, which cuts the card. */
   function draw(canvas, side, card, options) {
     var o = options || {};
+    /* kept, so a new signature place redraws every card on screen */
+    canvas._pfaMember = [side, card, options];
     var k = o.pxPerUnit || 1;
     canvas.width = Math.round(REF.w * k);
     canvas.height = Math.round(REF.h * k);
@@ -339,6 +376,7 @@
   function printScale() { return (CARD.w / 25.4) * PRINT_DPI / REF.w; }   // about 2.36 px a unit
 
   function pngOf(side, card, photo) {
+    if (!signature) throw new Error('The signature did not load, so the card is not printed. Reload the page and try again.');
     var c = document.createElement('canvas');
     draw(c, side, card, { pxPerUnit: printScale(), rounded: false, photo: photo });
     return c.toDataURL('image/png');
@@ -361,6 +399,7 @@
     if (!win) return Promise.reject(new Error('The browser blocked the print window. Allow pop-ups for the panel and try again.'));
     win.document.write('<!doctype html><title>Membership cards</title><p style="font:14px Arial;margin:24px">Preparing the cards...</p>');
     return ready().then(function () {
+      if (!signature) { win.close(); throw new Error('The signature did not load, so the cards are not printed. Reload the page and try again.'); }
       return Promise.all((list || []).map(function (item) {
         return loadPhoto(item.photoSrc).then(function (photo) {
           return [pngOf('front', item.card, photo), pngOf('back', item.card, null)];
@@ -385,6 +424,12 @@
   window.PFAMemberCard = {
     ready: ready, draw: draw, pngOf: pngOf, printCards: printCards, loadPhoto: loadPhoto,
     fitsName: fitsName, suggestName: suggestName, shortDate: shortDate,
+    setSignature: setSignature, signatureAt: signatureAt, SIG_RANGE: SIG_RANGE, SIG_DEFAULT: SIG_DEFAULT,
+    redraw: function () {
+      Array.prototype.forEach.call(document.querySelectorAll('canvas'), function (c) {
+        if (c._pfaMember && document.body.contains(c)) draw.apply(null, [c].concat(c._pfaMember));
+      });
+    },
     CARD: CARD, REF: REF, LAYOUT: L
   };
 })();

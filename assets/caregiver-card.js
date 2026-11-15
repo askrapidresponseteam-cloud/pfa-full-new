@@ -49,6 +49,32 @@
   var FONT_SRC = 'fonts/absans-card.woff2';
   var PATTERN_SRC = 'media/caregiver-card-pattern.jpg';
   var LOGO_SRC = 'media/caregiver-card-logo.png';
+  /* Smt. Maneka Sanjay Gandhi's signature (owner, 15 Nov 2026: "Add Maneka
+     Gandhi's signature to caregiver and membership cards using the same
+     logic as the internship certificate"): the certificate's own signature,
+     at print quality, drawn above the signatory's line, centred on it, and
+     moved from there by the card studio's Signature position, kept for the
+     whole site (lib/certificate-layout.js, read from /api/certificate-layout
+     with the card's other assets). A card is never printed without it. */
+  var SIG_SRC = 'assets/certificates/signature-print.png';
+  var SIG_BOX = { h: 62, aspect: 1512 / 438, gap: 1 };
+  var SIG_RANGE = { x: 60, y: 30 };
+  var SIG_DEFAULT = { x: 0, y: 0 };
+  var sigAt = { x: SIG_DEFAULT.x, y: SIG_DEFAULT.y };
+  function setSignature(l) {
+    var c = function (v, max, d) { var n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(-max, Math.min(max, n)) : d; };
+    sigAt = { x: c(l && l.x, SIG_RANGE.x, SIG_DEFAULT.x), y: c(l && l.y, SIG_RANGE.y, SIG_DEFAULT.y) };
+    return signatureAt();
+  }
+  function signatureAt() { return { x: sigAt.x, y: sigAt.y }; }
+  /* the saved place, asked once; the card's own place if it cannot be read */
+  var placeReady = null;
+  function loadPlace() {
+    if (placeReady) return placeReady;
+    placeReady = (typeof fetch === 'function' ? fetch('/api/certificate-layout', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }) : Promise.resolve(null))
+      .then(function (l) { if (l && l.cards && l.cards.caregiver) setSignature(l.cards.caregiver); }, function () {});
+    return placeReady;
+  }
 
   var PRINT_DPI = 600;
 
@@ -131,8 +157,8 @@
 
   /* The font and the two images every card needs. */
   function loadAssets() {
-    return Promise.all([loadFont(), loadImage(PATTERN_SRC), loadImage(LOGO_SRC)]).then(function (out) {
-      return { pattern: out[1], logo: out[2] };
+    return Promise.all([loadFont(), loadImage(PATTERN_SRC), loadImage(LOGO_SRC), loadImage(SIG_SRC), loadPlace()]).then(function (out) {
+      return { pattern: out[1], logo: out[2], signature: out[3] };
     });
   }
 
@@ -314,8 +340,16 @@
     }
     box(ctx, P, ph, PHOTO_LINE);
 
-    /* The signatory: the line left for the signature, then the name and
-       the role, centred under it. */
+    /* The signatory: the signature on the line, then the name and the
+       role, centred under it. */
+    if (data.signatureImage) {
+      var sw = SIG_BOX.h * SIG_BOX.aspect;
+      ctx.save();
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(data.signatureImage, P.v(L.centre - sw / 2 + sigAt.x), P.v(L.sign.y - SIG_BOX.gap - SIG_BOX.h + sigAt.y), P.v(sw), P.v(SIG_BOX.h));
+      ctx.restore();
+    }
     hairline(ctx, P, L.sign.x, L.sign.y, L.sign.w, SIGN);
     L.signatory.forEach(function (line) {
       ctx.fillStyle = line.colour === 'soft' ? SOFT : INK;
@@ -359,6 +393,8 @@
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     var full = withAssets(data, assets);
+    /* kept, so a new signature place redraws every card on screen */
+    canvas._pfaCard = [side, data, assets, cssWidth, density];
     if (side === 'back') drawBack(ctx, scale, full);
     else drawFront(ctx, scale, full);
     return canvas;
@@ -377,11 +413,12 @@
 
   /* hydrate() puts the images on the data; draw() is also handed the assets. */
   function withAssets(data, assets) {
-    if (!data || !assets || (data.patternImage && data.logoImage)) return data;
+    if (!data || !assets || (data.patternImage && data.logoImage && data.signatureImage)) return data;
     var out = {};
     Object.keys(data).forEach(function (key) { out[key] = data[key]; });
     out.patternImage = out.patternImage || assets.pattern;
     out.logoImage = out.logoImage || assets.logo;
+    out.signatureImage = out.signatureImage || assets.signature;
     return out;
   }
 
@@ -702,6 +739,7 @@
       copy.photoImage = out[0];
       copy.patternImage = out[1].pattern;
       copy.logoImage = out[1].logo;
+      copy.signatureImage = out[1].signature;
       return copy;
     });
   }
@@ -722,6 +760,8 @@
       if (missing.length) throw new Error('This card is not ready to print: no ' + missing.join(', no ') + '.');
       /* a card is never printed with PHOTO where the face should be */
       if (!data.photoImage) throw new Error('This card has no photograph, so it is not printed. Add one with "Use a photograph from this computer", or match one from a folder.');
+      /* nor without the signature (15 Nov 2026) */
+      if (!data.signatureImage) throw new Error('The signature did not load, so the card is not printed. Reload the page and try again.');
       return data;
     });
   }
@@ -797,6 +837,17 @@
     loadImage: loadImage,
     normalisePhoto: normalisePhoto,
     offscreen: offscreen,
-    saveBlob: saveBlob
+    saveBlob: saveBlob,
+    setSignature: setSignature,
+    signatureAt: signatureAt,
+    SIG_RANGE: SIG_RANGE,
+    SIG_DEFAULT: SIG_DEFAULT,
+    loadPlace: loadPlace,
+    /* every card drawn on screen, drawn again (the studio's Signature position) */
+    redraw: function () {
+      Array.prototype.forEach.call(document.querySelectorAll('canvas'), function (c) {
+        if (c._pfaCard && document.body.contains(c)) draw.apply(null, [c].concat(c._pfaCard));
+      });
+    }
   };
 })();

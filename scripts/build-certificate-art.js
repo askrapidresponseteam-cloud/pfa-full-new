@@ -82,14 +82,68 @@ function design(blank) {
   return s;
 }
 
+/* Certificate variants (owner, 15 Nov 2026: "create certificate variants for
+   different purposes, with distinct colour options"). The art is now the
+   design's frame alone: everything that changes with the purpose (the
+   eyebrow, the title, the subtitle, the star, the lines of wording, the two
+   labels at the foot) and with the colour (the two borders) is taken out,
+   measured where the design sets it, and drawn by assets/certificate.js in
+   the purpose's words and the chosen colour. The internship certificate is
+   drawn from these same measurements in the design's own words and gold,
+   so it is the design as before. */
+const WORDING = [
+  ['eyebrow', '.eyebrow'], ['title', '.title'], ['subtitle', '.subtitle'], ['star', '.rule'],
+  ['presented', '.presented'], ['lead', '.main .copy:nth-of-type(1)'], ['course', '.course'],
+  ['after', '.main .copy:nth-of-type(2)'], ['mission', '.mission'],
+  ['dateLabel', '.metadata .label:nth-of-type(1)'], ['idLabel', '.metadata .label:nth-of-type(3)']
+];
+function frame(s) {
+  return s.replace('</style>', WORDING.map((w) => w[1]).join(',') + '{visibility:hidden}'
+    + '.certificate:before,.certificate:after{display:none!important}</style>');
+}
+
 async function main() {
   let chromium;
   try { ({ chromium } = require('playwright')); } catch (_) { console.error('build-certificate-art needs Playwright: npm i -D playwright'); process.exit(1); }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pfa-cert-'));
+  const measurePage = path.join(dir, 'measure.html');
+  fs.writeFileSync(measurePage, design(true));
   const page = path.join(dir, 'blank.html');
-  fs.writeFileSync(page, design(true));
+  fs.writeFileSync(page, frame(design(true)));
   const browser = await chromium.launch(process.env.CHROME ? { executablePath: process.env.CHROME } : {});
   const tab = await browser.newPage({ viewport: { width: 1200, height: 900 }, deviceScaleFactor: 2 });
+  /* the wording, as the design sets it, before it is taken out */
+  await tab.goto('file://' + measurePage);
+  await tab.evaluate(() => document.fonts.ready);
+  const words = await tab.evaluate((list) => {
+    const box = document.querySelector('.certificate').getBoundingClientRect();
+    const out = {};
+    for (const [key, sel] of list) {
+      const e = document.querySelector(sel);
+      const cs = getComputedStyle(e);
+      const range = document.createRange(); range.selectNodeContents(e);
+      const r = range.getBoundingClientRect();
+      const size = parseFloat(cs.fontSize);
+      const m = document.createElement('canvas').getContext('2d'); m.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const t = m.measureText('Hg');
+      const rects = Array.from(range.getClientRects());
+      const top = rects.length ? rects[0].top : r.top;
+      const text = cs.textTransform === 'uppercase' ? e.textContent.trim().toUpperCase() : e.textContent.trim();
+      out[key] = {
+        text, size, style: cs.fontStyle === 'italic' ? 'italic' : 'normal', weight: cs.fontWeight,
+        spacing: parseFloat(cs.letterSpacing) || 0, color: cs.color, upper: cs.textTransform === 'uppercase',
+        align: cs.textAlign === 'center' || getComputedStyle(e.parentNode).textAlign === 'center' ? 'center' : 'left',
+        x: +((cs.textAlign === 'center' || getComputedStyle(e.parentNode).textAlign === 'center' ? r.left + r.width / 2 : r.left) - box.left).toFixed(2),
+        /* a range's box is the font's own height, without the line's: the
+           baseline is its top and the font's ascent */
+        y: +(top - box.top + t.fontBoundingBoxAscent).toFixed(2),
+        w: +r.width.toFixed(2)
+      };
+    }
+    return out;
+  }, WORDING);
+  fs.writeFileSync(path.join(dir, 'words.json'), JSON.stringify(words, null, 2));
+  writeDesign(words);
   await tab.goto('file://' + page);
   await tab.evaluate(() => document.fonts.ready);
   const png = path.join(dir, 'art.png');
@@ -128,6 +182,21 @@ async function main() {
   console.log('the blanks, in the design\'s pixels:', JSON.stringify(at));
   console.log('wrote', path.relative(ROOT, SIG_OUT), 'the signature, where the design puts it:', JSON.stringify(sigBox));
   await printMasters(chromium, page, sigPage);
+}
+
+/* The measurements, written into assets/certificate.js between its two
+   design markers, so the renderer and the art cannot drift apart. */
+function writeDesign(words) {
+  const file = path.join(ROOT, 'assets', 'certificate.js');
+  const js = fs.readFileSync(file, 'utf8');
+  const start = '/* design:start (scripts/build-certificate-art.js writes this) */';
+  const end = '/* design:end */';
+  const a = js.indexOf(start);
+  const b = js.indexOf(end);
+  if (a < 0 || b < a) throw new Error('build-certificate-art: assets/certificate.js has no design markers');
+  const body = '\n  var DESIGN = ' + JSON.stringify(words, null, 2).replace(/\n/g, '\n  ') + ';\n  ';
+  fs.writeFileSync(file, js.slice(0, a + start.length) + body + js.slice(b));
+  console.log('wrote the wording\'s places into assets/certificate.js');
 }
 
 /* the same two pages again, at the print scale, kept lossless */

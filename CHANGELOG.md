@@ -1,3 +1,24 @@
+## v1.575
+
+- **The chat shows the summary before the terms, not after.** Owner, 15 Nov 2026: "chat isnt showing the prviwe at the right stage/moment. fix".
+  - Donating or joining in the chat no longer asks "Do you confirm these details are yours?" before the details have been shown. The details come first, then one line on what paying agrees to (with the page's terms), then "Accept and pay ₹1,000 on CCAvenue", Change something and Cancel.
+  - A reply too tall for the chat window, such as that summary, now opens at its first line, so the details are read before the button. A short reply still comes to the bottom.
+  - The chat's files carry a fingerprint, so a deploy that changes the chat reaches every visitor at once rather than after their browser lets go of an hour-old copy.
+- **The chat answers straight questions in one line.** Owner, 15 Nov 2026: "questions like maneka gandhi email id should give a simple and straight answer.. instead of tons of links. be really smart".
+  - "maneka gandhi email id" now answers: You can write to Smt. Maneka Sanjay Gandhi at PFA's office: gandhim@exmpls.sansad.in, with one Write an email button.
+  - The same for PFA's email, phone, office address, who founded PFA, the 80G deduction, membership fees, the internship's terms, the Sanjay Gandhi Animal Care Centre's address, hours and phone, and PFA's social pages. Every answer is as the site already publishes it, in English or Hindi.
+  - A question with no straight answer gets the one page that fits, in a line, with one link, instead of a table of pages.
+  - Answers come only from the site (owner, 15 Nov 2026: "always answer from site database. not google or anywhere else. that is 100% the rule"). The chat looks nothing up outside the site, and a test checks that every email, phone number, PIN code and rupee figure it answers with is printed on the site's own pages.
+- **Smt. Maneka Sanjay Gandhi's signature on the colony caregiver card and the membership card.** Owner, 15 Nov 2026: "Add Maneka Gandhi's signature to caregiver and membership cards using the same logic as the internship certificate".
+  - The certificate's own signature, at print quality, above the signature line on both cards.
+  - Each card studio has the certificate's + Signature position: Left / right and Up / down, the card following as you move it, Save for every card and Reset. Saved for the whole site and in the audit log; caregiver cards by whoever has Caregivers, membership cards by whoever has Members.
+  - A card is never printed or saved without the signature.
+- **Certificates for five purposes, each in its own colour.** Owner, 15 Nov 2026: "create certificate variants for different purposes, with distinct colour options".
+  - Internship completion (PFA-INT, gold, as before), Volunteer appreciation (PFA-VOL, forest green), Participation (PFA-PAR, royal blue), Recognition or award (PFA-REC, maroon) and Donor appreciation (PFA-DNR, gold).
+  - In the panel's Internship certificates section: What it is for, then Colour (any purpose can be given any of the four), then the name and the one line it needs (their service, what they took part in, what they are recognised for, or what the gift was) and, if it is not the day of issue, the day of it.
+  - Each has its own title and wording on the same design, its own email, and is checked online and opened at its link like the internship's. The internship certificate in gold is drawn exactly as before.
+  - The certificates pane moved into its own file (assets/admin-cert-pane.js), so the panel page stays under its size ceiling.
+
 ## v1.574
 
 - **The panel can show or hide the assistant.** Owner, 15 Nov 2026: "Add an admin toggle to show or hide the assistant".

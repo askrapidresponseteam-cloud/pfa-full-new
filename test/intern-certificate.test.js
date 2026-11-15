@@ -142,7 +142,7 @@ test('the certificate online: drawn from the record, verified, downloadable, sha
   assert.match(read('verify-certificate.html'), /<a href="certificate\.html\?n=' \+ encodeURIComponent\(d\.number\) \+ '">See the certificate<\/a>/);
   assert.equal((read('intern.html').match(/<a href="certificate\.html\?n=' \+ encodeURIComponent\(data\.intern\.certificateNumber\) \+ '">See your certificate<\/a>/g) || []).length, 2, 'the intern\'s dashboard, once issued');
   /* and the panel lists it */
-  assert.match(read('admin.html'), /r\.certificateUrl \? ' \\u00b7 <a class="linky" href="' \+ esc\(r\.certificateUrl\) \+ '" target="_blank" rel="noopener">Online<\/a>'/);
+  assert.match(read('assets/admin-cert-pane.js'), /r\.certificateUrl \? ' \\u00b7 <a class="linky" href="' \+ esc\(r\.certificateUrl\) \+ '" target="_blank" rel="noopener">Online<\/a>'/);
 });
 
 test('the design is the owner\'s, in Marcellus, its fields where the design puts them', () => {

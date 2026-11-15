@@ -125,7 +125,7 @@ test('the public check: genuine, withdrawn, or not issued; never the email', asy
   const c = await issued();
   const ok = await verify(c.number.toLowerCase());
   assert.equal(ok.status, 200);
-  assert.deepEqual(ok.json, { found: true, genuine: true, number: c.number, kind: 'Internship', name: 'Asha Rao', startDate: '2026-11-02', endDate: '2026-12-27', issuedOn: '2026-12-28', withdrawn: false, withdrawnOn: '' });
+  assert.deepEqual(ok.json, { found: true, genuine: true, number: c.number, kind: 'internship', kindLabel: 'Internship completion', title: 'Certificate of Completion', about: 'Remote Internship, from 2 November 2026 to 27 December 2026', line: '', date: '', colour: 'gold', name: 'Asha Rao', startDate: '2026-11-02', endDate: '2026-12-27', issuedOn: '2026-12-28', withdrawn: false, withdrawnOn: '' });
   assert.doesNotMatch(JSON.stringify(ok.json), /example\.com|office@/, 'no email, no one at PFA');
   await admin({ action: 'revoke', number: c.number, reason: 'Issued in error' });
   const gone = await verify(c.number);
@@ -144,10 +144,10 @@ test('wired: the route, the page, the panel and the Firebase panel', () => {
   assert.match(page, /<title>Check a certificate \| People for Animals<\/title>/);
   assert.match(page, /fetch\('\/api\/verify-certificate\?n=' \+ encodeURIComponent\(n\)/);
   assert.match(page, /new URLSearchParams\(window\.location\.search\)\)\.get\('n'\)/, 'the emailed link fills the number in and checks it');
-  const panel = read('admin.html');
+  const panel = read('assets/admin-cert-pane.js');
   assert.match(panel, /<input id="ctEmail" type="email"/);
   assert.match(panel, /data-ct-mail="' \+ esc\(c\.number\) \+ '">Email it</);
-  assert.match(panel, /<script src="assets\/admin-certificates\.js"><\/script>/);
+  assert.match(read('admin.html'), /<script src="assets\/admin-certificates\.js"><\/script>/);
   const js = read('assets/admin-certificates.js');
   assert.match(js, /action: 'preview', number: state\.cert\.number, email: to/);
   assert.match(js, /C\.pdf\(\{[^}]+\}\)\.then\(base64\)/, 'at print quality, the default');

@@ -78,7 +78,7 @@ const PANEL_ASSETS = [
      the page-weight ceiling */
   'assets/admin-registers.js',
   /* emailing an internship certificate (2 Nov 2026) */
-  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-site-designs.js', 'assets/admin-viewer.js', 'assets/admin-cert-layout.js', 'assets/admin-intern-time.js',
+  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-site-designs.js', 'assets/admin-viewer.js', 'assets/admin-cert-layout.js', 'assets/admin-cert-pane.js', 'assets/admin-intern-time.js',
   /* the viewer draws a PDF sent with a case with the site's own pdf.js (11 Nov 2026) */
   'assets/vendor/pdfjs/pdf.min.js', 'assets/vendor/pdfjs/pdf.worker.min.js', 'assets/vendor/pdfjs/wasm/jbig2.wasm', 'assets/vendor/pdfjs/wasm/openjpeg.wasm', 'assets/vendor/pdfjs/wasm/qcms_bg.wasm', 'assets/vendor/pdfjs/LICENSE', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-taxid.js',
   'fonts/cinzel-latin-500.woff2',
@@ -127,7 +127,7 @@ const FN_DIRS = ['api', 'lib'];
    "Cannot find module '../assets/field-rules.js'" and the panel reported that
    it could not reach /api/admin. checkRequires() below now stops the build if
    anything lib/ or api/ loads is missing from the bundle. */
-const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json', 'assets/unit-pages.json'];
+const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json', 'assets/unit-pages.json', 'assets/certificate.js'];
 
 function rmrf(dir) { fs.rmSync(dir, { recursive: true, force: true }); }
 

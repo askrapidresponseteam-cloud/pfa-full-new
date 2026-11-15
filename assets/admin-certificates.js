@@ -1,4 +1,4 @@
-/* People for Animals - emailing an internship certificate, from the panel.
+/* People for Animals - emailing a certificate (any purpose), from the panel.
    ------------------------------------------------------------------------
    Owner, 2 Nov 2026: "once course is completed - admin should be able to
    issue the cert digitally which can be sent to the person completing it
@@ -40,14 +40,14 @@
     dlg.innerHTML = '<div class="rgm-head"><h3>Check the email before it goes</h3>'
       + '<p class="rgm-sub">' + esc(cert.number) + ' · ' + esc(cert.name) + ', ' + esc(long(cert.startDate)) + ' to ' + esc(long(cert.endDate)) + '. The certificate goes as an A4 PDF, and the email links to the public check.</p></div>'
       + '<div class="rgm-cards">'
-      + '<article class="rgm-card"><p class="rgm-to"><b>The certificate, attached</b><span>PFA-internship-certificate-' + esc(cert.number) + '.pdf</span></p><canvas class="ctm-cert" width="1120" height="792" aria-label="The certificate as it will be attached"></canvas></article>'
+      + '<article class="rgm-card"><p class="rgm-to"><b>The certificate, attached</b><span>PFA-' + esc(cert.kind || 'internship') + '-certificate-' + esc(cert.number) + '.pdf</span></p><canvas class="ctm-cert" width="1120" height="792" aria-label="The certificate as it will be attached"></canvas></article>'
       + '<article class="rgm-card"><p class="rgm-to"><label for="ctmTo"><b>To</b></label><input id="ctmTo" class="ctm-to" type="email" maxlength="254" autocomplete="off" value="' + esc(state.to) + '" placeholder="Their email"></p><p class="rgm-subj" data-ctm-subj></p><iframe class="rgm-frame" sandbox="" title="The email" data-ctm-frame></iframe><p class="rgm-why" data-ctm-why hidden></p></article>'
       + '</div>'
       + '<div class="rgm-foot"><p class="rg-say" data-ctm-say role="status" aria-live="polite"></p><button class="ghost" type="button" data-ctm="cancel">Cancel</button><button class="press" type="button" data-ctm="send" disabled>Send the certificate</button></div>';
     var C = window.PFACertificate;
     var canvas = dlg.querySelector('.ctm-cert');
     if (C && canvas) {
-      var data = { name: cert.name, startDate: cert.startDate, endDate: cert.endDate, issuedOn: cert.issuedOn, number: cert.number };
+      var data = { kind: cert.kind, colour: cert.colour, line: cert.line, date: cert.date, name: cert.name, startDate: cert.startDate, endDate: cert.endDate, issuedOn: cert.issuedOn, number: cert.number };
       C.draw(canvas, data, 2);
       C.load().then(function () { C.draw(canvas, data, 2); }, function () {});
     }
@@ -107,7 +107,7 @@
     b.disabled = true;
     say(said, 'Making the PDF and sending...', '');
     var cert = state.cert;
-    C.pdf({ name: cert.name, startDate: cert.startDate, endDate: cert.endDate, issuedOn: cert.issuedOn, number: cert.number }).then(base64).then(function (pdf) {
+    C.pdf({ kind: cert.kind, colour: cert.colour, line: cert.line, date: cert.date, name: cert.name, startDate: cert.startDate, endDate: cert.endDate, issuedOn: cert.issuedOn, number: cert.number }).then(base64).then(function (pdf) {
       return api('/api/admin/certificates', { method: 'POST', body: { action: 'email', number: cert.number, email: state.to, token: state.token, pdf: pdf } });
     }).then(function (r) {
       close();

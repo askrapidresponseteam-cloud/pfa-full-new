@@ -191,6 +191,7 @@
     if (mine) { log.push({ who: 'me', text: mine }); }
     retire();
     if (mine) draw({ text: mine }, 'me', false);
+    var before = logEl.children.length;
     (o.messages || []).forEach(function (m, i) {
       log.push({ who: 'pfa', m: m });
       draw(m, 'pfa', i === o.messages.length - 1);
@@ -199,9 +200,20 @@
     clipBtn.hidden = !(o.input && o.input.type === 'photo');
     input.rows = o.input && o.input.type === 'long' ? 3 : 1;
     grow();
-    logEl.scrollTop = logEl.scrollHeight;
+    reveal(logEl.children[before]);
     store(true);
     if (o.action) act(o.action);
+  }
+
+  /* The reply is read from its start. A reply taller than the window (the
+     summary before sending or paying, with the terms and the button under
+     it) opens at its first line, not at its last, so the details are seen
+     before the button; a short one simply comes to the bottom. */
+  function reveal(first) {
+    var bottom = logEl.scrollHeight;
+    if (!first) { logEl.scrollTop = bottom; return; }
+    var top = logEl.scrollTop + first.getBoundingClientRect().top - logEl.getBoundingClientRect().top - 12;
+    logEl.scrollTop = bottom - top > logEl.clientHeight ? top : bottom;
   }
 
   function paintLang(l) {
@@ -324,7 +336,7 @@
         .then(json).then(function (r) { finish(a.id, { ok: r.ok, message: (r.p || {}).message || '' }); }).catch(fail);
     }
     if (a.type === 'verify') {
-      var cert = /^PFA-INT-/.test(a.number);
+      var cert = /^PFA-(INT|VOL|PAR|REC|DNR)-/.test(a.number);
       return fetch(cert ? '/api/verify-certificate?n=' + encodeURIComponent(a.number) : '/api/verify-card?id=' + encodeURIComponent(a.number), { headers: { Accept: 'application/json' } })
         .then(json).then(function (r) {
           var p = r.p || {};

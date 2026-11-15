@@ -169,18 +169,31 @@ test('the first message is used: the animal, how urgent, the number, the PIN, th
 /* ---- paying: CCAvenue's own page, as the site's buttons ---- */
 
 test('a donation and a membership are posted as the pages post them, and the payment code accepts them', () => {
-  const don = talk(['#donate', { tap: '2500' }, { tap: 'Hospitals' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, { tap: 'yes' }].map((x) => (typeof x === 'string' && x.charAt(0) === '#' ? { tap: x } : x)));
-  assert.match(don.o.messages[0].chips[0].label, /Pay ₹2,500 on CCAvenue/);
-  const pay = talk(['#donate', { tap: '2500' }, { tap: 'Hospitals' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, { tap: 'yes' }, { tap: '#send' }].map((x) => (typeof x === 'string' && x.charAt(0) === '#' ? { tap: x } : x))).actions.find((a) => a.type === 'pay');
+  const tapAll = (list) => list.map((x) => (typeof x === 'string' && x.charAt(0) === '#' ? { tap: x } : x));
+  const don = talk(tapAll(['#donate', { tap: '2500' }, { tap: 'Hospitals' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS]));
+  /* owner, 15 Nov 2026: "chat isnt showing the prviwe at the right stage".
+     The details come first, then what paying agrees to, then the button:
+     the terms are never asked before the details are in view. */
+  assert.doesNotMatch(don.text, /Do you confirm these details are yours/, 'no terms question before the summary');
+  const [shownFirst, termsAfter] = don.o.messages;
+  assert.match(shownFirst.text, /^Please check before it is sent: Donate/);
+  assert.ok(shownFirst.list.some(([k, v]) => k === 'Amount' && v === '₹2,500'), 'the details, listed');
+  assert.ok(!shownFirst.chips, 'no button above the terms');
+  assert.match(termsAfter.text, /^Paying confirms these details are yours and that you accept the donation and receipt terms\./);
+  assert.equal(termsAfter.links[0].href, 'donate.html');
+  assert.equal(termsAfter.chips[0].label, 'Accept and pay ₹2,500 on CCAvenue');
+  const pay = talk(tapAll(['#donate', { tap: '2500' }, { tap: 'Hospitals' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, { tap: '#send' }])).actions.find((a) => a.type === 'pay');
+  assert.equal(pay.fields.terms, 'yes', 'accepted by pressing Accept and pay');
   const p = PAY.parsePaymentRequest(pay.fields);
   assert.deepEqual([p.type, p.amount, p.metadata.cause, p.customer.name, p.customer.pin], ['donate', '2500.00', 'Hospitals', 'Asha Rao', '576101']);
-  const mem = talk(['#member', { tap: 'golden' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, { tap: 'yes' }, { tap: '#send' }].map((x) => (typeof x === 'string' && x.charAt(0) === '#' ? { tap: x } : x))).actions.find((a) => a.type === 'pay');
+  const memSummary = talk(tapAll(['#member', { tap: 'golden' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS]));
+  assert.match(memSummary.o.messages[1].text, /accept the membership terms/);
+  const mem = talk(tapAll(['#member', { tap: 'golden' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, { tap: '#send' }])).actions.find((a) => a.type === 'pay');
   const m = PAY.parsePaymentRequest(mem.fields);
   assert.deepEqual([m.type, m.amount, m.metadata.tier, m.customer.district], ['membership', 2500, 'golden', 'Udupi']);
-  /* the terms are never assumed */
-  const no = talk(['#donate', { tap: '500' }, { tap: 'Hospitals' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, { tap: 'no' }].map((x) => (typeof x === 'string' && x.charAt(0) === '#' ? { tap: x } : x)));
-  assert.match(no.o.messages[0].text, /cannot start without the terms/);
-  assert.equal(no.actions.filter((a) => a.type === 'pay').length, 0);
+  /* nothing goes until the button is pressed */
+  const waiting = talk(tapAll(['#donate', { tap: '500' }, { tap: 'Hospitals' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, { tap: '#cancel' }]));
+  assert.equal(waiting.actions.filter((a) => a.type === 'pay').length, 0);
 });
 
 /* ---- summarise, change, cancel, fix ---- */
@@ -292,7 +305,7 @@ test('a receipt is sent again only to the email on a paid payment whose email an
 
 test('on every page, loaded only when opened, talking only to the site itself', () => {
   const chrome = read('assets/chrome.js');
-  assert.match(chrome, /var FILES = \['\/assets\/assistant-nlu\.js', '\/assets\/assistant-flows\.js', '\/assets\/assistant-units\.js', '\/assets\/assistant\.js'\];/);
+  assert.match(chrome, /var FILES = \['\/assets\/assistant-nlu\.js', '\/assets\/assistant-flows\.js', '\/assets\/assistant-units\.js', '\/assets\/assistant\.js'\]\.map/);
   assert.match(chrome, /if \(kept && kept\.open && !off\(\)\) load\(\);/, 'a conversation open in this tab comes to the next page, unless the panel has hidden it');
   assert.match(chrome, /\(certificate\|caregiver-card\|member-photo\|tax-receipt\|submission-collage\|admin\)/, 'not on a page to print or a private step');
   const files = ['assets/assistant.js', 'assets/assistant-nlu.js', 'assets/assistant-flows.js', 'assets/assistant.css'];
@@ -367,7 +380,7 @@ test('checking a certificate or a card: genuine, withdrawn, expired, unknown', (
 });
 
 test('monthly giving in the chat: asked only while the panel has it on, and sent as monthly only then', () => {
-  const donor = ['Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, 'yes'];
+  const donor = ['Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS];
   const off = talk(['donate', { tap: '1000' }, { tap: 'Rescue' }, ...donor, '#send'], { monthly: () => false });
   assert.doesNotMatch(off.text, /every month/i, 'not asked while it is off');
   const offPay = off.actions.find((a) => a.type === 'pay').fields;
@@ -376,7 +389,7 @@ test('monthly giving in the chat: asked only while the panel has it on, and sent
 
   const on = talk(['donate', { tap: '1000' }, { tap: 'monthly' }, { tap: 'Rescue' }, ...donor], { monthly: () => true });
   assert.match(on.text, /Once, or the same amount every month\?/);
-  assert.ok(on.o.messages.some((m) => (m.chips || []).some((c) => c.label === 'Pay ₹1,000 a month on CCAvenue')), 'the pay button says monthly');
+  assert.ok(on.o.messages.some((m) => (m.chips || []).some((c) => c.label === 'Accept and pay ₹1,000 a month on CCAvenue')), 'the pay button says monthly');
   const pay = on.s.tap('#send').action.fields;
   assert.equal(pay.frequency, 'monthly');
   assert.equal(PAY.parsePaymentRequest(pay).recurring, true);
@@ -386,4 +399,75 @@ test('monthly giving in the chat: asked only while the panel has it on, and sent
   const late = talk(['donate 500 every month'], { monthly: () => false });
   assert.equal(late.s.state().data.frequency, undefined, 'not taken while it is off');
   assert.match(read('assets/assistant.js'), /v\.choices\['donate#monthly'\] === 'on'/, 'the page asks the panel\'s choice');
+});
+
+test('the chat\'s files are fetched fresh after every deploy that changes them', () => {
+  /* they load from inside chrome.js, so chrome.js carries their fingerprint */
+  const SC = require('../scripts/sync-chrome.js');
+  const chrome = read('assets/chrome.js');
+  assert.match(chrome, new RegExp(`var ASSIST_V = '${SC.assistStamp()}';`), 'run npm run sync:chrome');
+  assert.match(chrome, /return f \+ '\?v=' \+ ASSIST_V;/);
+  assert.match(chrome, /css\.href = '\/assets\/assistant\.css\?v=' \+ ASSIST_V;/);
+  assert.deepEqual(SC.ASSIST_FILES.slice(0, 4).map((f) => '/assets/' + f), ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/assistant.js']);
+});
+
+test('a long reply opens at its first line, so the summary is read before the button', () => {
+  const ui = read('assets/assistant.js');
+  assert.match(ui, /reveal\(logEl\.children\[before\]\);/);
+  assert.match(ui, /logEl\.scrollTop = bottom - top > logEl\.clientHeight \? top : bottom;/);
+});
+
+test('a straight question gets a straight answer: one line, the one link that does it (owner, 15 Nov 2026: "maneka gandhi email id should give a simple and straight answer.. instead of tons of links")', () => {
+  const ask = (q) => { const t = talk([q]); return { m: t.o.messages[0], action: t.o.action }; };
+  let a = ask('maneka gandhi email id');
+  assert.equal(a.m.text, 'You can write to Smt. Maneka Sanjay Gandhi at PFA\'s office: gandhim@exmpls.sansad.in');
+  assert.deepEqual(a.m.links.map((l) => l.href), ['mailto:gandhim@exmpls.sansad.in']);
+  assert.equal(a.action, null, 'no search, no list of pages');
+  assert.match(read('index.html'), /mailto:gandhim@exmpls\.sansad\.in/, 'the address the site publishes');
+  assert.match(ask('pfa email').m.text, /^PFA's email is gandhim@exmpls\.sansad\.in\.$/);
+  assert.match(ask('what is the phone number of pfa office').m.text, /\+91 11 2081 8191/);
+  assert.match(ask('where is pfa head office').m.text, /16 Barakhamba Road, New Delhi 110001/);
+  assert.match(ask('who founded pfa').m.text, /founded by Smt\. Maneka Sanjay Gandhi/);
+  assert.match(ask('is donation tax exempt?').m.text, /^Yes\. Donations to PFA are eligible for tax deduction under Section 80G/);
+  assert.match(ask('membership fees').m.text, /Student ₹500, Silver ₹1,000, Golden ₹2,500, Platinum ₹5,000, Lifetime ₹10,000/);
+  assert.match(ask('is the internship paid?').m.text, /free to join and unpaid/);
+  assert.match(ask('sanjay gandhi care centre address').m.text, /Raja Garden, New Delhi 110027/);
+  assert.match(ask('मेनका गांधी का ईमेल').m.text, /gandhim@exmpls\.sansad\.in/);
+  /* and a task is still a task */
+  assert.equal(talk(['I want to donate 500']).s.state().flow, 'donate');
+  assert.equal(talk(['become a member']).s.state().flow, 'member');
+  assert.equal(talk(['I want to help the sanjay gandhi care centre']).s.state().flow, 'sgacc');
+  assert.equal(talk(['someone is beating a dog']).s.state().flow, 'report');
+  /* the facts are the site's own */
+  assert.match(read('sgacc.html'), /tel:\+919560802425/);
+  assert.match(read('internship.html'), /Free to join/);
+});
+
+test('a search answers with the one page that fits, not a list of links', () => {
+  const t = talk(['what should i do if a dog bites someone', { done: { rows: [{ title: 'Laws: dogs', url: 'laws.html#part-a', desc: 'What the law says when a dog bites.' }, { title: 'Newsroom', url: 'newsroom.html', desc: 'x' }, { title: 'Wall', url: 'wall.html', desc: 'y' }] } }]);
+  const m = t.o.messages[0];
+  assert.equal(m.text, 'What the law says when a dog bites.');
+  assert.equal(m.links.length, 1);
+  assert.equal(m.links[0].href, 'laws.html#part-a');
+  assert.ok(!m.list, 'no table of pages');
+});
+
+test('every straight answer is the site\'s own: each email, phone number, PIN code and rupee figure is printed on the site (owner, 15 Nov 2026: "always answer from site database. not google or anywhere else. that is 100% the rule")', () => {
+  const pages = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html')).map(read).join('\n');
+  const site = pages.replace(/&nbsp;| /g, ' ').replace(/&#8377;/g, '₹');
+  const digits = site.replace(/[^0-9]/g, '');
+  for (const f of FL.FACTS) {
+    for (const lang of ['en', 'hi']) {
+      const say = f.say[lang];
+      for (const email of say.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi) || []) assert.ok(site.includes(email), `${f.id}: ${email} is on the site`);
+      for (const phone of say.match(/\+91[\d ]{10,14}\d/g) || []) assert.ok(digits.includes(phone.replace(/\D/g, '').slice(2)), `${f.id}: ${phone} is on the site`);
+      for (const pin of say.match(/\b[1-9]\d{5}\b/g) || []) assert.ok(site.includes(pin), `${f.id}: PIN ${pin} is on the site`);
+      for (const rupees of say.match(/₹\d[\d,]*\d/g) || []) assert.ok(site.includes(rupees) || site.includes(rupees.replace(/,/g, '')) || site.includes('Rs ' + rupees.slice(1)) || site.includes(rupees.slice(1)), `${f.id}: ${rupees} is on the site`);
+    }
+    for (const l of f.links || []) assert.match(l.href, /^(mailto:|tel:|[a-z-]+\.html)/, `${f.id}: a link to write, call, or a page of the site, never anywhere else`);
+  }
+  for (const words of ['4-T, DCM Building, 16 Barakhamba Road', 'Raja Garden, New Delhi 110027', 'Free to join', '16-17 need a parent', '80G']) assert.ok(site.includes(words), words);
+  /* and the chat itself asks nothing of anywhere but the site */
+  const ui = read('assets/assistant.js');
+  for (const c of [...ui.matchAll(/fetch\(\s*'([^']+)'/g)].map((m) => m[1])) assert.match(c, /^\/api\//, c);
 });

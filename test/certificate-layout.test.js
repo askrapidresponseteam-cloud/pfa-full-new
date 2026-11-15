@@ -50,7 +50,7 @@ test('the design\'s own place until it is set, then saved from the panel, logged
   let list = await admin('GET');
   assert.deepEqual([list.json.layout.x, list.json.layout.y], [26, 0]);
   let pub = await respond(PUBLIC, { method: 'GET', headers: {} });
-  assert.deepEqual(pub.json, { x: 26, y: 0 });
+  assert.deepEqual(pub.json, { x: 26, y: 0, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } } });
 
   const saved = await admin('POST', { action: 'layout', x: 40, y: -6 });
   assert.equal(saved.statusCode, 200, saved.raw);
@@ -59,7 +59,7 @@ test('the design\'s own place until it is set, then saved from the panel, logged
   assert.equal(rows[0].action, 'certificate-layout');
   assert.equal(rows[0].detail, 'Signature moved from 26 across, 0 down to 40 across, -6 down');
   pub = await respond(PUBLIC, { method: 'GET', headers: {} });
-  assert.deepEqual(pub.json, { x: 40, y: -6 });
+  assert.deepEqual(pub.json, { x: 40, y: -6, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } } });
   assert.match(pub.headers['cache-control'], /s-maxage=60/);
   list = await admin('GET');
   assert.deepEqual([list.json.layout.x, list.json.layout.y], [40, -6]);
@@ -81,7 +81,7 @@ test('the public answer fails to the design\'s own place, kept only a moment', a
   const warn = console.warn; console.warn = () => {};
   try {
     const r = await respond(PUBLIC, { method: 'GET', headers: {} });
-    assert.deepEqual(r.json, { x: 26, y: 0, unavailable: true });
+    assert.deepEqual(r.json, { x: 26, y: 0, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } }, unavailable: true });
     assert.equal(r.headers['cache-control'], 'public, max-age=0, s-maxage=2');
   } finally { console.warn = warn; }
   assert.equal((await respond(PUBLIC, { method: 'POST', headers: {} })).statusCode, 405);
@@ -153,8 +153,9 @@ test('the panel: Signature position under its +, two sliders with their numbers,
   assert.match(js, /A\.api\('\/api\/admin\/certificates', \{ method: 'POST', body: \{ action: 'layout', x: l\.x, y: l\.y \} \}\)/);
   assert.doesNotMatch(js, /[–—]/);
   const admin = read('admin.html');
-  assert.match(admin, /\+ \(window\.PFACertLayout \? window\.PFACertLayout\.panel\(ct\.layout\) : ''\)/);
-  assert.match(admin, /ct\.layout = d\.layout \|\| null;/);
+  const pane = read('assets/admin-cert-pane.js');
+  assert.match(pane, /\+ \(window\.PFACertLayout \? window\.PFACertLayout\.panel\(ct\.layout\) : ''\)/);
+  assert.match(pane, /ct\.layout = d\.layout \|\| null;/);
   assert.match(admin, /<script src="assets\/admin-cert-layout\.js"><\/script>/);
   assert.ok(fs.statSync(path.join(ROOT, 'admin.html')).size < 409600, 'the panel stays under its ceiling');
   assert.match(read('certificate.html'), /fetch\('\/api\/certificate-layout'/);

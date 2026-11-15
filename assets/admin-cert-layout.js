@@ -152,5 +152,110 @@
     if (e.target.closest && e.target.closest('[data-tab], [data-pane-tab], .tab') && !e.target.closest('[data-pane="certificates"]')) forget();
   }, true);
 
-  window.PFACertLayout = { panel: panel, forget: forget };
+  /* ---- the cards' signature (owner, 15 Nov 2026: "Add Maneka Gandhi's
+     signature to caregiver and membership cards using the same logic as the
+     internship certificate") ---------------------------------------------
+     The same + Signature position, in each card studio: Left / right and Up
+     / down in the card's tenths of a millimetre (60 either way across, 30 up
+     or down), the faces on screen following as they move, Save for every
+     card (POST /api/admin/card-signature, in the audit log) and Reset to the
+     card's own place. Leaving without saving puts the saved place back. */
+  var CARDS = {
+    caregiver: { mod: function () { return window.PFACaregiverCard; }, name: 'colony caregiver card' },
+    member: { mod: function () { return window.PFAMemberCard; }, name: 'membership card' }
+  };
+  var cardSaved = { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } };
+  function cardRange(card) { var m = CARDS[card].mod(); return (m && m.SIG_RANGE) || { x: 60, y: 30 }; }
+  function cardRow(card, axis, label, max, value) {
+    var id = 'cs' + card + axis;
+    return '<div class="ct-sig__row"><label for="' + id + 'R">' + label + '</label>'
+      + '<input id="' + id + 'R" type="range" min="' + (-max) + '" max="' + max + '" step="1" value="' + value + '" data-csig="' + card + '" data-axis="' + axis + '" aria-label="' + label + '">'
+      + '<span class="ct-sig__num"><input id="' + id + 'N" type="number" min="' + (-max) + '" max="' + max + '" step="1" value="' + value + '" data-csig="' + card + '" data-axis="' + axis + '" aria-label="' + label + ', in tenths of a millimetre"> tenths of a mm</span></div>';
+  }
+  function cardFold(card) {
+    var r = cardRange(card);
+    var l = cardSaved[card];
+    return '<details class="fold ct-sig" data-csig-fold="' + card + '"><summary>Signature position</summary><div class="ct-sig__body">'
+      + cardRow(card, 'x', 'Left / right', r.x, l.x)
+      + cardRow(card, 'y', 'Up / down', r.y, l.y)
+      + '<div class="ct-sig__acts"><button class="press" type="button" data-csig-act="save" data-card="' + card + '" disabled>Save for every card</button>'
+      + '<button class="ghost" type="button" data-csig-act="reset" data-card="' + card + '">Reset</button>'
+      + '<p class="say" data-csig-say="' + card + '" role="status" aria-live="polite"></p></div>'
+      + '<p class="ct-sig__note">Smt. Maneka Sanjay Gandhi\u2019s signature on every ' + esc(CARDS[card].name) + ', drawn above the line. Right and down are more, left and up are less; the card above follows as you move it.</p>'
+      + '</div></details>';
+  }
+  function cardShow(card, axis, v) {
+    var max = cardRange(card)[axis];
+    var n = Math.max(-max, Math.min(max, Math.round(Number(v) || 0)));
+    ['R', 'N'].forEach(function (k) { var el = document.getElementById('cs' + card + axis + k); if (el && Number(el.value) !== n) el.value = n; });
+    return n;
+  }
+  function cardApply(card) {
+    var x = cardShow(card, 'x', (document.getElementById('cs' + card + 'xN') || {}).value);
+    var y = cardShow(card, 'y', (document.getElementById('cs' + card + 'yN') || {}).value);
+    var m = CARDS[card].mod();
+    if (m && m.setSignature) { m.setSignature({ x: x, y: y }); if (m.redraw) m.redraw(); }
+    var changed = x !== cardSaved[card].x || y !== cardSaved[card].y;
+    var b = document.querySelector('[data-csig-act="save"][data-card="' + card + '"]');
+    if (b) b.disabled = !changed;
+    var say = document.querySelector('[data-csig-say="' + card + '"]');
+    if (say) A.say(say, changed ? 'Not saved yet.' : '', '');
+  }
+  function cardsFill() {
+    Object.keys(CARDS).forEach(function (card) {
+      var slot = document.querySelector('[data-sig-card="' + card + '"]');
+      if (slot) slot.innerHTML = cardFold(card);
+    });
+  }
+  cardsFill();
+  fetch('/api/certificate-layout', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (l) {
+    if (!l || !l.cards) return;
+    Object.keys(CARDS).forEach(function (card) {
+      if (!l.cards[card]) return;
+      cardSaved[card] = { x: Number(l.cards[card].x) || 0, y: Number(l.cards[card].y) || 0 };
+      cardShow(card, 'x', cardSaved[card].x); cardShow(card, 'y', cardSaved[card].y);
+    });
+  }).catch(function () { /* the cards' own place */ });
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    var card = el && el.getAttribute && el.getAttribute('data-csig');
+    if (!card) return;
+    var other = document.getElementById('cs' + card + el.getAttribute('data-axis') + (el.type === 'range' ? 'N' : 'R'));
+    if (other) other.value = el.value;
+    cardApply(card);
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-csig-act]');
+    if (!b) return;
+    var card = b.getAttribute('data-card');
+    var say = document.querySelector('[data-csig-say="' + card + '"]');
+    if (b.getAttribute('data-csig-act') === 'reset') { cardShow(card, 'x', 0); cardShow(card, 'y', 0); cardApply(card); return; }
+    if (b.disabled) return;
+    var x = Number((document.getElementById('cs' + card + 'xN') || {}).value) || 0;
+    var y = Number((document.getElementById('cs' + card + 'yN') || {}).value) || 0;
+    b.disabled = true;
+    A.say(say, 'Saving\u2026', '');
+    A.api('/api/admin/card-signature', { method: 'POST', body: { card: card, x: x, y: y } }).then(function (r) {
+      cardSaved[card] = { x: r.layout.x, y: r.layout.y };
+      A.say(say, 'Saved. Every ' + CARDS[card].name + ' drawn, printed or saved has the signature here from now on.', 'good');
+    }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be saved.', 'bad'); });
+  });
+  /* a studio closed without saving: the saved place back */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('#cardViewShut, #memberViewShut')) return;
+    Object.keys(CARDS).forEach(function (card) {
+      var m = CARDS[card].mod();
+      if (!m || !m.signatureAt) return;
+      var now = m.signatureAt();
+      if (now.x !== cardSaved[card].x || now.y !== cardSaved[card].y) {
+        m.setSignature(cardSaved[card]);
+        cardShow(card, 'x', cardSaved[card].x); cardShow(card, 'y', cardSaved[card].y);
+        var b = document.querySelector('[data-csig-act="save"][data-card="' + card + '"]'); if (b) b.disabled = true;
+        var say = document.querySelector('[data-csig-say="' + card + '"]'); if (say) A.say(say, '', '');
+        if (m.redraw) m.redraw();
+      }
+    });
+  }, true);
+
+  window.PFACertLayout = { panel: panel, forget: forget, cardFold: cardFold };
 }());

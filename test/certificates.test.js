@@ -108,9 +108,10 @@ test('wired: a module of its own, a route, closed to the browser, shipped with t
   assert.match(read('firestore.rules'), /match \/certificates\/\{id\}\s+\{ allow read, write: if false; \}/);
   const build = read('scripts/build-firebase.js');
   assert.ok(build.includes("'assets/certificate.js'") && build.includes("'assets/certificates/completion.webp'"));
-  /* the owner's design (11 Nov 2026), at twice its 1120 x 792 */
+  /* the owner's design (11 Nov 2026), at twice its 1120 x 792: since the
+     variants (15 Nov 2026) its frame, the words drawn on it by purpose */
   const art = fs.readFileSync(path.join(ROOT, 'assets', 'certificates', 'completion.webp'));
-  assert.ok(art.length > 50000, 'the artwork is there');
+  assert.ok(art.length > 20000, 'the artwork is there');
   assert.equal(art.subarray(0, 4).toString(), 'RIFF');
   assert.ok(!fs.existsSync(path.join(ROOT, 'assets', 'certificates', 'internship.webp')), 'the old design is gone');
 });
@@ -122,7 +123,12 @@ test('the panel: a Certificates section that draws, issues, downloads and withdr
   assert.match(html, /internship:\s+\{ title: 'Internship',\s+module: 'internship',\s+needs: 'internship', panes: \['internship', 'interns', 'shelters', 'certificates'\] \}/);
   assert.match(html, /<script src="assets\/certificate\.js"><\/script>/);
   assert.match(html, /certificates: \{ title: 'Internship certificates', module: 'certificates', needs: 'certificates' \}/);
-  for (const bit of ["data-ct=\"issue\"", "data-ct=\"pdf\"", "data-ct=\"png\"", "data-ct=\"withdraw\"", 'id="ctCanvas"', "api('/api/admin/certificates'"]) assert.ok(html.includes(bit), bit);
+  /* the pane itself, in its own file since 15 Nov 2026 (the panel's weight ceiling) */
+  assert.match(html, /<script src="assets\/admin-cert-pane\.js"><\/script>/);
+  assert.match(html, /function certificatesPane\(said\) \{ return window\.PFACertPane \? window\.PFACertPane\.open\(said\) : undefined; \}/);
+  const pane = read('assets/admin-cert-pane.js');
+  for (const bit of ["data-ct=\"issue\"", "data-ct=\"pdf\"", "data-ct=\"png\"", "data-ct=\"withdraw\"", 'id="ctCanvas"', "api('/api/admin/certificates'"]) assert.ok(pane.includes(bit), bit);
+  assert.match(read('scripts/build-firebase.js'), /'assets\/admin-cert-pane\.js'/);
   const js = read('assets/certificate.js');
   for (const name of ['load', 'draw', 'png', 'pdf', 'save', 'fileStem', 'longDate']) assert.match(js, new RegExp(`\\b${name}: ${name}\\b`));
   assert.ok(!/[–—]/.test(js + read('lib/routes/admin/certificates.js')), 'no dashes');

@@ -344,8 +344,29 @@ function pages() {
   return fs.readdirSync(ROOT).filter((f) => f.endsWith('.html') && !SKIP.has(f)).sort();
 }
 
+/* The assistant's files load only when the chat is opened, from inside
+   chrome.js, so they carry one fingerprint of their own, written into
+   chrome.js as ASSIST_V (15 Nov 2026): a deploy that changes the chat is
+   fetched at once, never mixed with an hour-old copy of another of its
+   files. Written before chrome.js is fingerprinted, so the pages follow. */
+const ASSIST_FILES = ['assistant-nlu.js', 'assistant-flows.js', 'assistant-units.js', 'assistant.js', 'assistant.css'];
+function assistStamp() {
+  const h = crypto.createHash('sha256');
+  ASSIST_FILES.forEach((f) => h.update(fs.readFileSync(path.join(ROOT, 'assets', f))));
+  return h.digest('hex').slice(0, 10);
+}
+function stampAssistant({ check } = {}) {
+  const file = path.join(ROOT, 'assets', 'chrome.js');
+  const current = fs.readFileSync(file, 'utf8');
+  const next = current.replace(/var ASSIST_V = '[a-f0-9]*';/, `var ASSIST_V = '${assistStamp()}';`);
+  if (next === current) return false;
+  if (!check) fs.writeFileSync(file, next);
+  return true;
+}
+
 function run({ check } = {}) {
   const stale = [];
+  if (stampAssistant({ check })) stale.push('assets/chrome.js (the assistant\'s fingerprint)');
   for (const page of pages()) {
     const file = path.join(ROOT, page);
     const current = fs.readFileSync(file, 'utf8');
@@ -358,7 +379,7 @@ function run({ check } = {}) {
   return stale;
 }
 
-module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, ALERT, TABS, tabOf, run };
+module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, ALERT, TABS, tabOf, run, assistStamp, ASSIST_FILES };
 
 if (require.main === module) {
   const check = process.argv.includes('--check');

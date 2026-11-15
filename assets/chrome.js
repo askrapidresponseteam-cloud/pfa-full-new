@@ -1718,7 +1718,9 @@
   if (/^(certificate|caregiver-card|member-photo|tax-receipt|submission-collage|admin)(\.html)?$/.test(path)) return;
   if (document.documentElement.hasAttribute('data-no-assist')) return;
   var KEY = 'pfa.assist.v1';
-  var FILES = ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/assistant.js'];
+  /* one fingerprint for the five files, written by npm run sync:chrome */
+  var ASSIST_V = 'e852036be2';
+  var FILES = ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/assistant.js'].map(function (f) { return f + '?v=' + ASSIST_V; });
   var loading = null;
 
   function load() {
@@ -1726,7 +1728,7 @@
     if (loading) return loading;
     var css = document.createElement('link');
     css.rel = 'stylesheet';
-    css.href = '/assets/assistant.css';
+    css.href = '/assets/assistant.css?v=' + ASSIST_V;
     document.head.appendChild(css);
     loading = FILES.reduce(function (p, src) {
       return p.then(function () {

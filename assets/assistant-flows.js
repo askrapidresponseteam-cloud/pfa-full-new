@@ -62,8 +62,8 @@
     follow: { en: 'Follow it', hi: 'स्थिति देखें' },
     switchTo: { en: 'Leave this and {what}?', hi: 'इसे छोड़कर {what}?' },
     keepGoing: { en: 'Carry on here', hi: 'यहीं जारी रखें' },
-    payNow: { en: 'Pay {amount} on CCAvenue', hi: 'CCAvenue पर {amount} चुकाएँ' },
-    payMonthly: { en: 'Pay {amount} a month on CCAvenue', hi: 'CCAvenue पर हर महीने {amount} दें' },
+    payNow: { en: 'Accept and pay {amount} on CCAvenue', hi: 'मानें और CCAvenue पर {amount} चुकाएँ' },
+    payMonthly: { en: 'Accept and pay {amount} a month on CCAvenue', hi: 'मानें और CCAvenue पर हर महीने {amount} दें' },
     paying: { en: 'Opening CCAvenue\'s secure payment page. You pay there; PFA never sees your card or UPI details. Your receipt comes by email.', hi: 'CCAvenue का सुरक्षित भुगतान पेज खुल रहा है। भुगतान वहीं होगा; PFA आपके कार्ड या UPI की जानकारी कभी नहीं देखता। रसीद ईमेल पर आएगी।' },
     urgent: { en: 'If the animal is in danger right now, call 112 as well, and the nearest PFA unit.', hi: 'अगर जानवर अभी खतरे में है, तो 112 पर भी कॉल करें, और पास की PFA यूनिट को भी।' },
     langSet: { en: 'I will reply in English.', hi: 'अब मैं हिंदी में जवाब दूँगा।' },
@@ -87,6 +87,7 @@
     callHq: { en: 'Call the head office', hi: 'मुख्य कार्यालय को कॉल करें' },
     openPage: { en: 'Open it', hi: 'खोलें' },
     certGood: { en: 'Genuine. PFA issued internship certificate {no} to {name} on {issued}, for {from} to {to}.', hi: 'असली। PFA ने इंटर्नशिप प्रमाणपत्र {no} {name} को {issued} को दिया था, {from} से {to} तक के लिए।' },
+    certOther: { en: 'Genuine. PFA issued {no}, a {title}, to {name} on {issued}, for {about}.', hi: 'असली। PFA ने {no} ({title}) {name} को {issued} को दिया था, {about} के लिए।' },
     certWithdrawn: { en: 'PFA issued certificate {no} to {name}, but withdrew it on {on}. It is no longer valid.', hi: 'PFA ने प्रमाणपत्र {no} {name} को दिया था, पर {on} को वापस ले लिया। यह अब मान्य नहीं है।' },
     cardGood: { en: '{name} holds a genuine colony caregiver card, {no}, valid until {until}.', hi: '{name} के पास असली कॉलोनी केयरगिवर कार्ड {no} है, {until} तक मान्य।' },
     cardOld: { en: '{name} holds colony caregiver card {no}, but it expired on {until}.', hi: '{name} के पास कॉलोनी केयरगिवर कार्ड {no} है, पर यह {until} को समाप्त हो गया।' },
@@ -209,8 +210,8 @@
     often: { type: 'choice', key: 'frequency', options: O.often, label: { en: 'How often', hi: 'कितनी बार' }, ask: { en: 'Once, or the same amount every month? A monthly donation is approved once on CCAvenue\'s page, and replying to the receipt email stops it any time.', hi: 'एक बार, या हर महीने यही राशि? मासिक दान CCAvenue के पेज पर एक बार मंज़ूर होता है, और रसीद वाले ईमेल का जवाब देकर इसे कभी भी रोक सकते हैं।' } },
     cause: { type: 'choice', options: O.cause, label: { en: 'For', hi: 'किसके लिए' }, ask: { en: 'Where should it go?', hi: 'यह कहाँ लगे?' } },
     tier: { type: 'choice', options: O.tier, label: { en: 'Membership', hi: 'सदस्यता' }, ask: { en: 'Which membership? Each has its own card and kit.', hi: 'कौन सी सदस्यता? हर एक का अपना कार्ड और किट है।' } },
-    donateTerms: { type: 'consent', key: 'terms', link: 'donate.html', label: { en: 'Terms', hi: 'शर्तें' }, ask: { en: 'Do you confirm these details are yours, and accept the donation and receipt terms? Donations to PFA are eligible for tax deduction under Section 80G; the receipt follows by email, and a PAN or Aadhaar for it can be given after paying.', hi: 'क्या आप पुष्टि करते हैं कि ये जानकारी आपकी है, और दान और रसीद की शर्तें मानते हैं? PFA को दान पर धारा 80G के तहत कर छूट मिलती है; रसीद ईमेल पर आएगी, और उसके लिए PAN या आधार भुगतान के बाद दे सकते हैं।' } },
-    memberTerms: { type: 'consent', key: 'terms', link: 'get-involved.html#membership', label: { en: 'Terms', hi: 'शर्तें' }, ask: { en: 'Do you accept the membership terms, and that PFA may contact you as a member? Your card and kit come by courier in 20 to 25 days.', hi: 'क्या आप सदस्यता की शर्तें मानते हैं, और कि PFA आपसे सदस्य के रूप में संपर्क कर सकता है? आपका कार्ड और किट 20 से 25 दिन में कूरियर से आएगा।' } },
+    donateTerms: { type: 'consent', key: 'terms', link: 'donate.html', agree: { en: 'Paying confirms these details are yours and that you accept the donation and receipt terms. Donations to PFA are eligible for tax deduction under Section 80G; the receipt follows by email, and a PAN or Aadhaar for it can be given after paying.', hi: 'भुगतान करने का अर्थ है कि ये जानकारी आपकी है और आप दान और रसीद की शर्तें मानते हैं। PFA को दान पर धारा 80G के तहत कर छूट मिलती है; रसीद ईमेल पर आएगी, और उसके लिए PAN या आधार भुगतान के बाद दे सकते हैं।' }, label: { en: 'Terms', hi: 'शर्तें' }, ask: { en: 'Do you confirm these details are yours, and accept the donation and receipt terms? Donations to PFA are eligible for tax deduction under Section 80G; the receipt follows by email, and a PAN or Aadhaar for it can be given after paying.', hi: 'क्या आप पुष्टि करते हैं कि ये जानकारी आपकी है, और दान और रसीद की शर्तें मानते हैं? PFA को दान पर धारा 80G के तहत कर छूट मिलती है; रसीद ईमेल पर आएगी, और उसके लिए PAN या आधार भुगतान के बाद दे सकते हैं।' } },
+    memberTerms: { type: 'consent', key: 'terms', link: 'get-involved.html#membership', agree: { en: 'Paying confirms these details are yours, that you accept the membership terms, and that PFA may contact you as a member. Your card and kit come by courier in 20 to 25 days.', hi: 'भुगतान करने का अर्थ है कि ये जानकारी आपकी है, आप सदस्यता की शर्तें मानते हैं, और PFA आपसे सदस्य के रूप में संपर्क कर सकता है। आपका कार्ड और किट 20 से 25 दिन में कूरियर से आएगा।' }, label: { en: 'Terms', hi: 'शर्तें' }, ask: { en: 'Do you accept the membership terms, and that PFA may contact you as a member? Your card and kit come by courier in 20 to 25 days.', hi: 'क्या आप सदस्यता की शर्तें मानते हैं, और कि PFA आपसे सदस्य के रूप में संपर्क कर सकता है? आपका कार्ड और किट 20 से 25 दिन में कूरियर से आएगा।' } },
     /* The Wall, and an intern's proof */
     wallUrl: { type: 'url', key: 'url', hosts: ['instagram.com', 'facebook.com', 'fb.watch', 'youtube.com', 'youtu.be', 'vimeo.com'], label: { en: 'Link', hi: 'लिंक' }, ask: { en: 'Paste the link to the public post: Instagram, Facebook, YouTube or Vimeo.', hi: 'सार्वजनिक पोस्ट का लिंक डालें: Instagram, Facebook, YouTube या Vimeo।' } },
     wall: { type: 'choice', options: O.wall, label: { en: 'Which wall', hi: 'कौन सी वॉल' }, ask: { en: 'Is it long, over three minutes, or short, under a minute?', hi: 'यह लंबी है, तीन मिनट से ज़्यादा, या छोटी, एक मिनट से कम?' } },
@@ -219,7 +220,7 @@
     task: { type: 'choice', options: O.task, label: { en: 'Task', hi: 'काम' }, ask: { en: 'Which task is this proof for?', hi: 'यह किस काम का सबूत है?' } },
     proofWhat: { type: 'long', min: 10, key: 'what', label: { en: 'What you did', hi: 'आपने क्या किया' }, ask: { en: 'What did you do? A few lines.', hi: 'आपने क्या किया? कुछ पंक्तियाँ।' } },
     links: { type: 'url', key: 'links', many: true, label: { en: 'Links to the proof', hi: 'सबूत के लिंक' }, ask: { en: 'The links to the proof: a Drive folder, a post, a document. Paste one or more.', hi: 'सबूत के लिंक: Drive फ़ोल्डर, पोस्ट, दस्तावेज़। एक या ज़्यादा डालें।' } },
-    certno: { type: 'certno', label: { en: 'Number', hi: 'नंबर' }, ask: { en: 'The number on the certificate or card? It reads like PFA-INT-AB2CD3EF or PFA-CCT-AB2CD3EF.', hi: 'प्रमाणपत्र या कार्ड पर लिखा नंबर? जैसे PFA-INT-AB2CD3EF या PFA-CCT-AB2CD3EF।' } },
+    certno: { type: 'certno', label: { en: 'Number', hi: 'नंबर' }, ask: { en: 'The number on the certificate or card? It reads like PFA-INT-AB2CD3EF, PFA-VOL-AB2CD3EF or PFA-CCT-AB2CD3EF.', hi: 'प्रमाणपत्र या कार्ड पर लिखा नंबर? जैसे PFA-INT-AB2CD3EF या PFA-CCT-AB2CD3EF।' } },
     /* looking things up */
     reference: { type: 'reference', label: { en: 'Number', hi: 'नंबर' }, ask: { en: 'What is the number you were given? It reads like PFA-CR-2026-00012.', hi: 'आपको कौन सा नंबर मिला था? जैसे PFA-CR-2026-00012।' } },
     contact: { type: 'contact', label: { en: 'Email or mobile', hi: 'ईमेल या मोबाइल' }, ask: { en: 'The email or mobile you gave with it?', hi: 'उसके साथ दिया गया ईमेल या मोबाइल?' } },
@@ -276,6 +277,79 @@
     adopt: { title: { en: 'Adopt an animal', hi: 'जानवर गोद लें' }, q: 'adopt adoption', topic: 'Adoption' },
     law: { title: { en: 'Animal law', hi: 'पशु कानून' }, q: 'law', topic: 'Animal law' }
   };
+  /* ---- straight answers ----------------------------------------------------
+     Owner, 15 Nov 2026: "questions like maneka gandhi email id should give a
+     simple and straight answer.. instead of tons of links. be really smart".
+     A question about a fact the site states (an email, a phone number, an
+     address, who founded PFA, the 80G deduction, what membership costs, the
+     internship's terms) is answered in one line, with the one link that does
+     it (write, call, open), never a list of pages. Each answer is as the
+     site publishes it: the footer's registered office, the care centre's
+     page, the internship and membership pages. A fact is matched when the
+     question holds a word from each of its groups; `over` names the
+     offerings a question about it may come before ("is my donation 80G?"
+     is a question, not a donation).
+
+     The rule (owner, 15 Nov 2026: "always answer from site database. not
+     google or anywhere else. that is 100% the rule"): every answer here is
+     the site's own words and figures, and nothing is ever looked up
+     anywhere else. test/assistant.test.js checks that each email, phone
+     number, PIN code and rupee figure below is printed on the site's own
+     pages, so an answer cannot say what the site does not. A question with
+     no answer here goes to the site's own search index, then to PFA's help
+     desk; never to the web. */
+  var OFFICE_EMAIL = 'gandhim@exmpls.sansad.in';
+  var FACTS = [
+    { id: 'emailManeka', need: [['email', 'mail', 'e-mail', 'ईमेल', 'मेल'], ['maneka', 'menka', 'gandhi', 'chairperson', 'chairman', 'madam', 'founder', 'मेनका', 'गांधी']],
+      say: { en: 'You can write to Smt. Maneka Sanjay Gandhi at PFA\'s office: ' + OFFICE_EMAIL, hi: 'श्रीमती मेनका संजय गांधी को PFA के कार्यालय के ईमेल पर लिखें: ' + OFFICE_EMAIL },
+      links: [{ en: 'Write an email', hi: 'ईमेल लिखें', href: 'mailto:' + OFFICE_EMAIL }] },
+    { id: 'email', need: [['email', 'mail', 'e-mail', 'ईमेल', 'मेल']],
+      say: { en: 'PFA\'s email is ' + OFFICE_EMAIL + '.', hi: 'PFA का ईमेल है: ' + OFFICE_EMAIL },
+      links: [{ en: 'Write an email', hi: 'ईमेल लिखें', href: 'mailto:' + OFFICE_EMAIL }] },
+    { id: 'sgacc', over: ['sgacc', 'nearby'], need: [['sanjay', 'sgacc', 'care centre', 'care center', 'raja garden'], ['address', 'where', 'located', 'location', 'phone', 'number', 'contact', 'call', 'timing', 'timings', 'hours', 'open', 'kahan', 'kaha', 'पता', 'कहाँ', 'फोन', 'नंबर']],
+      say: { en: 'The Sanjay Gandhi Animal Care Centre is at Raja Garden, New Delhi 110027, near Shivaji College (Metro: Rajouri Garden). The wards and out-patients are open 24 hours. Call +91 95608 02425 or +91 88823 25407.', hi: 'संजय गांधी एनिमल केयर सेंटर राजा गार्डन, नई दिल्ली 110027 में है, शिवाजी कॉलेज के पास (मेट्रो: राजौरी गार्डन)। वार्ड और ओपीडी 24 घंटे खुले हैं। कॉल करें: +91 95608 02425 या +91 88823 25407।' },
+      links: [{ en: 'Call +91 95608 02425', hi: 'कॉल करें: +91 95608 02425', href: 'tel:+919560802425' }, { en: 'Directions and more', hi: 'रास्ता और जानकारी', href: 'sgacc.html' }] },
+    { id: 'phone', need: [['phone', 'number', 'call', 'contact', 'telephone', 'landline', 'फोन', 'नंबर', 'संपर्क'], ['pfa', 'office', 'head', 'headquarters', 'maneka', 'gandhi', 'delhi', 'your', 'you', 'people for animals', 'कार्यालय', 'मेनका']],
+      say: { en: 'PFA\'s head office in Delhi: +91 11 2081 8191 or +91 11 2081 8194. If an animal is in danger right now, call 112 and your nearest PFA unit.', hi: 'PFA का दिल्ली मुख्यालय: +91 11 2081 8191 या +91 11 2081 8194। अगर कोई जानवर अभी खतरे में है, तो 112 और पास की PFA यूनिट को कॉल करें।' },
+      links: [{ en: 'Call +91 11 2081 8191', hi: 'कॉल करें: +91 11 2081 8191', href: 'tel:+911120818191' }], chip: 'nearby' },
+    { id: 'address', need: [['address', 'office', 'located', 'location', 'headquarters', 'where', 'kahan', 'kaha', 'पता', 'कहाँ'], ['pfa', 'office', 'head', 'headquarters', 'registered', 'maneka', 'gandhi', 'people for animals', 'your', 'कार्यालय']],
+      say: { en: 'PFA\'s registered office: 4-T, DCM Building, 16 Barakhamba Road, New Delhi 110001.', hi: 'PFA का पंजीकृत कार्यालय: 4-T, DCM बिल्डिंग, 16 बाराखंभा रोड, नई दिल्ली 110001।' },
+      chip: 'nearby' },
+    { id: 'founder', need: [['founder', 'founded', 'started', 'start', 'chairperson', 'chairman', 'head', 'runs', 'who', 'sansthapak', 'संस्थापक', 'अध्यक्ष', 'कौन'], ['pfa', 'people for animals', 'maneka', 'gandhi', 'मेनका', 'organisation', 'organization', 'ngo']],
+      say: { en: 'People for Animals was founded by Smt. Maneka Sanjay Gandhi, who is its chairperson.', hi: 'पीपल फॉर एनिमल्स की स्थापना श्रीमती मेनका संजय गांधी ने की, और वे इसकी अध्यक्ष हैं।' },
+      links: [{ en: 'About her', hi: 'उनके बारे में', href: 'founder.html' }] },
+    { id: 'tax', over: ['donate'], need: [['80g', 'tax', 'exemption', 'exempt', 'deduction', 'deductible', 'income', 'टैक्स', 'कर']],
+      say: { en: 'Yes. Donations to PFA are eligible for tax deduction under Section 80G. Your receipt comes by email, with a link to add your PAN or Aadhaar for the 80G receipt.', hi: 'हाँ। PFA को दान पर धारा 80G के तहत कर छूट मिलती है। रसीद ईमेल पर आती है, उसी में 80G रसीद के लिए PAN या आधार देने का लिंक होता है।' },
+      chip: 'donate' },
+    { id: 'memberFee', over: ['member'], need: [['fee', 'fees', 'cost', 'costs', 'price', 'charge', 'charges', 'how much', 'kitna', 'kitne', 'paisa', 'शुल्क', 'कितना', 'फीस'], ['member', 'membership', 'sadasya', 'सदस्य', 'सदस्यता']],
+      say: { en: 'Membership: Student ₹500, Silver ₹1,000, Golden ₹2,500, Platinum ₹5,000, Lifetime ₹10,000. Each has its own card and kit.', hi: 'सदस्यता: विद्यार्थी ₹500, सिल्वर ₹1,000, गोल्डन ₹2,500, प्लैटिनम ₹5,000, आजीवन ₹10,000। हर एक का अपना कार्ड और किट है।' },
+      chip: 'member' },
+    { id: 'internTerms', over: ['internship'], need: [['fee', 'fees', 'cost', 'free', 'paid', 'stipend', 'salary', 'duration', 'long', 'weeks', 'age', 'eligible', 'eligibility', 'hours', 'kitna', 'kitne', 'शुल्क', 'कितना', 'उम्र'], ['intern', 'internship', 'इंटर्न']],
+      say: { en: 'The remote internship is free to join and unpaid: 8 weeks, one task a week, 6 to 8 hours a week. Anyone in India aged 18 or over can apply; at 16 or 17, with a parent\'s consent.', hi: 'रिमोट इंटर्नशिप मुफ़्त है और इसमें भुगतान नहीं मिलता: 8 हफ़्ते, हर हफ़्ते एक काम, हफ़्ते में 6 से 8 घंटे। भारत में 18 या उससे ज़्यादा उम्र का कोई भी आवेदन कर सकता है; 16 या 17 की उम्र में माता-पिता की सहमति से।' },
+      chip: 'internship' },
+    { id: 'social', need: [['instagram', 'facebook', 'twitter', 'youtube', 'social', 'insta']],
+      say: { en: 'PFA is on Instagram (@pfa.official), Facebook (people4animals), X (@pfaindia) and YouTube (@peopleforanimals9047).', hi: 'PFA इंस्टाग्राम (@pfa.official), फेसबुक (people4animals), X (@pfaindia) और यूट्यूब (@peopleforanimals9047) पर है।' } }
+  ];
+  /* a question, said as one: "kya", "where is", "?" */
+  var ASKING = /\?|\b(what|whats|who|whom|where|when|how|which|is|are|can|does|do|kya|kaun|kahan|kaha|kab|kaise|kitna|kitne)\b|क्या|कौन|कहाँ|कब|कैसे|कितना/i;
+  /* the fact a question asks, or null; `top` is the offering it reads as */
+  function factOf(text, top) {
+    var s = N.normalise(text);
+    var words = N.tokens(s);
+    if (!words.length || words.length > 16) return null;
+    /* someone giving their own email or number is answering, not asking */
+    if (N.emailOf(text) || N.mobileOf(text)) return null;
+    for (var i = 0; i < FACTS.length; i++) {
+      var f = FACTS[i];
+      if (!f.need.every(function (group) { return N.countHits(s, words, group) > 0; })) continue;
+      if (!top || top === 'question' || top === 'greet' || top === 'thanks') return f;
+      /* a fact with a word of what is asked (an address, a fee) is asked even
+         without a question word: "care centre address" */
+      if ((f.over || []).indexOf(top) > -1 && (ASKING.test(text) || f.need.length > 1)) return f;
+    }
+    return null;
+  }
+
   var INTENT_TO = { report: 'report', nearby: 'nearby', donate: 'donate', member: 'member', volunteer: 'volunteer', internship: 'internship', caregiver: 'caregiver', track: 'track', receipt: 'receipt',
     adopt: 'adopt', event: 'event', sgacc: 'sgacc', csr: 'csr', legacy: 'legacy', campaign: 'campaign', campus: 'campus', privacy: 'privacy', cinekind: 'cinekind', wall: 'wallstory', proof: 'proof', verify: 'verify', jobs: 'jobs', shop: 'shop', newunit: 'newunit', law: 'law', question: 'helpdesk' };
 
@@ -394,7 +468,9 @@
     /* ---- asking ---- */
     function keyOf(fid) { return (F[fid] && F[fid].key) || fid; }
     function fieldIds() {
-      var list = FLOWS[S.flow].fields.slice();
+      /* the terms are not a question of their own: they sit under the
+         summary, so they are agreed to with the details in view */
+      var list = FLOWS[S.flow].fields.filter(function (x) { return F[x].type !== 'consent'; });
       /* the parent's agreement only for 16 and 17 */
       if (S.flow === 'donate' && !monthlyOn()) list = list.filter(function (x) { return x !== 'often'; });
       if (S.flow === 'internship') {
@@ -642,9 +718,11 @@
         .filter(function (u, i, all) { return all.indexOf(u) === i && hostOf(u).indexOf('.') > 0; });
     }
     function hostOf(u) { var m = /^https?:\/\/([^\/?#:]+)/i.exec(u); return m ? m[1].toLowerCase().replace(/^www\.|^m\./, '') : ''; }
-    /* PFA-INT-XXXXXXXX (an internship certificate) or PFA-CCT-XXXXXXXX (a colony caregiver card) */
+    /* PFA-INT-XXXXXXXX (an internship certificate; PFA-VOL-, PFA-PAR-, PFA-REC-
+       and PFA-DNR- the other purposes, 15 Nov 2026) or PFA-CCT-XXXXXXXX (a
+       colony caregiver card) */
     function certOf(text) {
-      var m = /PFA[\s-]*(INT|CCT)[\s-]*([A-Z0-9]{8})\b/i.exec(String(text || ''));
+      var m = /PFA[\s-]*(INT|VOL|PAR|REC|DNR|CCT)[\s-]*([A-Z0-9]{8})\b/i.exec(String(text || ''));
       return m ? 'PFA-' + m[1].toUpperCase() + '-' + m[2].toUpperCase() : '';
     }
 
@@ -674,7 +752,14 @@
       if (flow.look) return lookUp();
       var rows = fieldIds().filter(function (id) { return F[id].type !== 'consent'; }).map(function (id) { return [L(F[id].label, lang()), shown(id)]; });
       var go = flow.pay ? t(S.flow === 'donate' && S.data.frequency === 'monthly' && monthlyOn() ? 'payMonthly' : 'payNow', lang(), { amount: '₹' + Number(payAmount()).toLocaleString('en-IN') }) : t('send', lang());
-      return out((lead || []).concat([msg(t('checkTitle', lang()) + ' ' + L(flow.title, lang()), { list: rows, chips: [{ label: go, value: '#send' }, { label: t('change', lang()), value: '#change' }, { label: t('cancel', lang()), value: '#cancel' }] })]));
+      var chips = [{ label: go, value: '#send' }, { label: t('change', lang()), value: '#change' }, { label: t('cancel', lang()), value: '#cancel' }];
+      var terms = flow.fields.map(function (id) { return F[id]; }).filter(function (f) { return f.type === 'consent'; })[0];
+      if (!terms) return out((lead || []).concat([msg(t('checkTitle', lang()) + ' ' + L(flow.title, lang()), { list: rows, chips: chips })]));
+      /* the details first, then what paying agrees to, then the button */
+      return out((lead || []).concat([
+        msg(t('checkTitle', lang()) + ' ' + L(flow.title, lang()), { list: rows }),
+        msg(L(terms.agree, lang()), { links: [{ label: terms.link === 'donate.html' ? (lang() === 'hi' ? 'दान का पेज' : 'The donation page') : t('readTerms', lang()), href: terms.link }], chips: chips })
+      ]));
     }
     function payAmount() {
       if (S.flow === 'member') { var tier = O.tier.filter(function (x) { return x.value === S.data.tier; })[0]; return tier ? tier.amount : 0; }
@@ -779,8 +864,11 @@
       if (flow.look === 'verify') {
         S.phase = 'menu';
         var no = S.data.certno || r.number || r.cardId || '';
-        var check = /^PFA-INT-/.test(no) ? [{ label: t('verifyPage', lang()), href: 'verify-certificate.html?n=' + encodeURIComponent(no) }] : [];
-        if (r.found && /^PFA-INT-/.test(no)) return out([msg(r.withdrawn ? t('certWithdrawn', lang(), { no: no, name: r.name, on: dayOf(r.withdrawnOn) }) : t('certGood', lang(), { no: no, name: r.name, issued: dayOf(r.issuedOn), from: dayOf(r.startDate), to: dayOf(r.endDate) }), { links: check, chips: after })]);
+        var cert = /^PFA-(INT|VOL|PAR|REC|DNR)-/.test(no);
+        var check = cert ? [{ label: t('verifyPage', lang()), href: 'verify-certificate.html?n=' + encodeURIComponent(no) }] : [];
+        if (r.found && cert) return out([msg(r.withdrawn ? t('certWithdrawn', lang(), { no: no, name: r.name, on: dayOf(r.withdrawnOn) })
+          : /^PFA-INT-/.test(no) ? t('certGood', lang(), { no: no, name: r.name, issued: dayOf(r.issuedOn), from: dayOf(r.startDate), to: dayOf(r.endDate) })
+          : t('certOther', lang(), { no: no, name: r.name, issued: dayOf(r.issuedOn), title: String(r.title || '').toLowerCase(), about: r.about || r.line || '' }), { links: check, chips: after })]);
         if (r.found) return out([msg(t(r.valid ? 'cardGood' : 'cardOld', lang(), { no: no, name: r.name, until: dayOf(r.validUntil) }), { chips: after })]);
         return out([msg(r.notFound ? t('verifyNone', lang()) : (r.message || t('tryLater', lang())), { chips: [chip('verify', lang())].concat(after) })]);
       }
@@ -837,13 +925,20 @@
       return o;
     }
 
+    /* the one page that answers it, in a line, and the way to it; not a
+       list of pages (owner, 15 Nov 2026: "instead of tons of links") */
     function searchDone(r) {
-      var rows = (r.rows || []).slice(0, 3);
+      var best = (r.rows || [])[0];
       var chips = [];
       chips.push({ label: t('askDesk', lang()), value: '#desk' });
       chips.push({ label: t('menuChip', lang()), value: '#menu' });
-      if (!rows.length) return out([msg(t('nothingFound', lang()), { chips: chips })]);
-      return out([msg(t('found', lang()), { list: rows.map(function (x) { return [x.title, x.desc || '']; }), links: rows.map(function (x) { return { label: x.title, href: x.url }; }), chips: chips })]);
+      if (!best) return out([msg(t('nothingFound', lang()), { chips: chips })]);
+      return out([msg(best.desc || best.title, { links: [{ label: best.title, href: best.url }], chips: chips })]);
+    }
+    function answer(f) {
+      S.phase = 'menu'; S.flow = '';
+      var chips = (f.chip ? [chip(f.chip, lang())] : []).concat([{ label: t('menuChip', lang()), value: '#menu' }]);
+      return out([msg(L(f.say, lang()), { links: (f.links || []).map(function (k) { return { label: L(k, lang()), href: k.href }; }), chips: chips })]);
     }
 
     /* ---- one message in ---- */
@@ -919,6 +1014,9 @@
       /* free text at the menu: what do they want? */
       var intents = N.intentOf(s);
       var top = intents[0];
+      /* a question with a straight answer gets it, in one line */
+      var fact = factOf(s, top && top.id);
+      if (fact) return answer(fact);
       /* only a number, an email or a PIN: nothing to search for */
       var bare = N.normalise(s).replace(/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/g, '').replace(/[\d\s+\-]/g, '');
       if (!top && bare.length < 3) return out([msg(t('notSure', lang()), { chips: MENU.map(function (id) { return chip(id, lang()); }).concat([{ label: t('more', lang()), value: '#more' }]) })]);
@@ -1001,5 +1099,5 @@
     });
   }
 
-  return { createSession: createSession, unitsNear: unitsNear, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
+  return { createSession: createSession, unitsNear: unitsNear, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
 }));

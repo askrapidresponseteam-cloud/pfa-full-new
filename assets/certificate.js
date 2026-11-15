@@ -4,11 +4,14 @@
    design since 11 Nov 2026 is the owner's PFA-Certificate.html ("this is
    the internship certificate btw", "font has to be marcellus").
 
-   The artwork is that design with its three blanks taken out
-   (assets/certificates/completion.webp, 2240 x 1584, the design drawn at
-   twice its 1120 x 792, which is A4 landscape exactly), made by
-   scripts/build-certificate-art.js. On it this draws, where the design put
-   them, all in Marcellus:
+   The artwork is that design's frame (assets/certificates/completion.webp,
+   2240 x 1584, the design drawn at twice its 1120 x 792, which is A4
+   landscape exactly), made by scripts/build-certificate-art.js: since the
+   variants (15 Nov 2026, KINDS and COLOURS below) its borders and every
+   word that changes with the purpose are taken out of the art and drawn
+   here, where the design sets them (DESIGN, written by that script), in
+   the purpose's words and the chosen colour. The internship in gold is the
+   design exactly as before. On it this also draws, all in Marcellus:
      the intern's name        43px, the design's ink, sized down to fit
      Date of completion       the internship's last day
      Certificate ID           the number the server gave it (PFA-INT-...)
@@ -78,6 +81,213 @@
     return layout();
   }
   function layout() { return { x: SIG.dx, y: SIG.dy }; }
+  /* design:start (scripts/build-certificate-art.js writes this) */
+  var DESIGN = {
+    "eyebrow": {
+      "text": "COMPASSION. KNOWLEDGE. ACTION.",
+      "size": 11,
+      "style": "normal",
+      "weight": "400",
+      "spacing": 4,
+      "color": "rgb(131, 114, 77)",
+      "upper": true,
+      "align": "center",
+      "x": 560,
+      "y": 175,
+      "w": 311.75
+    },
+    "title": {
+      "text": "Certificate of Completion",
+      "size": 65,
+      "style": "normal",
+      "weight": "400",
+      "spacing": -2,
+      "color": "rgb(36, 38, 32)",
+      "upper": false,
+      "align": "center",
+      "x": 560,
+      "y": 250,
+      "w": 703.22
+    },
+    "subtitle": {
+      "text": "PEOPLE FOR ANIMALS • REMOTE INTERNSHIP",
+      "size": 11,
+      "style": "normal",
+      "weight": "400",
+      "spacing": 5,
+      "color": "rgb(89, 93, 82)",
+      "upper": true,
+      "align": "center",
+      "x": 559.99,
+      "y": 285.94,
+      "w": 419.17
+    },
+    "star": {
+      "text": "✦",
+      "size": 13,
+      "style": "normal",
+      "weight": "400",
+      "spacing": 0,
+      "color": "rgb(165, 141, 85)",
+      "upper": false,
+      "align": "center",
+      "x": 560,
+      "y": 324.94,
+      "w": 10.91
+    },
+    "presented": {
+      "text": "This certificate is proudly presented to",
+      "size": 16,
+      "style": "italic",
+      "weight": "400",
+      "spacing": 0,
+      "color": "rgb(116, 118, 106)",
+      "upper": false,
+      "align": "center",
+      "x": 559.99,
+      "y": 364.94,
+      "w": 278.48
+    },
+    "lead": {
+      "text": "for successfully completing the",
+      "size": 13,
+      "style": "normal",
+      "weight": "400",
+      "spacing": 0,
+      "color": "rgb(100, 103, 94)",
+      "upper": false,
+      "align": "center",
+      "x": 559.99,
+      "y": 461.38,
+      "w": 180.48
+    },
+    "course": {
+      "text": "Remote Internship",
+      "size": 18,
+      "style": "normal",
+      "weight": "700",
+      "spacing": 0,
+      "color": "rgb(48, 56, 45)",
+      "upper": false,
+      "align": "center",
+      "x": 559.99,
+      "y": 493.77,
+      "w": 149.58
+    },
+    "after": {
+      "text": "in recognition of their commitment to learning and building a kinder world for animals.",
+      "size": 13,
+      "style": "normal",
+      "weight": "400",
+      "spacing": 0,
+      "color": "rgb(100, 103, 94)",
+      "upper": false,
+      "align": "center",
+      "x": 560,
+      "y": 523.77,
+      "w": 514.63
+    },
+    "mission": {
+      "text": "Every act of compassion begins with understanding.",
+      "size": 14,
+      "style": "italic",
+      "weight": "400",
+      "spacing": 0,
+      "color": "rgb(115, 116, 102)",
+      "upper": false,
+      "align": "center",
+      "x": 559.99,
+      "y": 559.16,
+      "w": 325.67
+    },
+    "dateLabel": {
+      "text": "DATE OF COMPLETION",
+      "size": 8,
+      "style": "normal",
+      "weight": "400",
+      "spacing": 2,
+      "color": "rgb(124, 125, 112)",
+      "upper": true,
+      "align": "left",
+      "x": 66,
+      "y": 629,
+      "w": 121.06
+    },
+    "idLabel": {
+      "text": "CERTIFICATE ID",
+      "size": 8,
+      "style": "normal",
+      "weight": "400",
+      "spacing": 2,
+      "color": "rgb(124, 125, 112)",
+      "upper": true,
+      "align": "left",
+      "x": 66,
+      "y": 677,
+      "w": 84.03
+    }
+  };
+  /* design:end */
+  /* ---- the purposes, and the colours (owner, 15 Nov 2026: "create
+     certificate variants for different purposes, with distinct colour
+     options") ---------------------------------------------------------------
+
+     One design, five purposes. Each has its own number (PFA-INT-, PFA-VOL-
+     and so on, checked online like the internship's), its own words where
+     the design has words, and a colour of its own that the panel can change
+     for any one certificate. The internship's words and gold are the
+     design's own. `line` is the one line the panel writes for a purpose that
+     has it (what they did, took part in or were recognised for); the
+     internship's is always Remote Internship. Read by the panel, the server
+     (lib/certificate-kinds.js) and the pages that show a certificate. */
+  var PRESENTED = 'This certificate is proudly presented to';
+  var KINDS = {
+    internship: { prefix: 'INT', label: 'Internship completion', noun: 'internship certificate', colour: 'gold', line: false,
+      words: { eyebrow: 'Compassion. Knowledge. Action.', title: 'Certificate of Completion', subtitle: 'People for Animals • Remote Internship', presented: PRESENTED, lead: 'for successfully completing the', course: 'Remote Internship', after: 'in recognition of their commitment to learning and building a kinder world for animals.', mission: 'Every act of compassion begins with understanding.', dateLabel: 'Date of completion' } },
+    volunteer: { prefix: 'VOL', label: 'Volunteer appreciation', noun: 'certificate of appreciation for volunteering', colour: 'forest', line: { label: 'Their service', mail: 'Service', hint: 'Rescue volunteer, PFA Udupi', fallback: 'Volunteer, People for Animals' },
+      words: { eyebrow: 'Compassion. Service. Action.', title: 'Certificate of Appreciation', subtitle: 'People for Animals • Volunteer', presented: PRESENTED, lead: 'with gratitude for their service', after: 'giving their time, care and courage to the animals who need it most.', mission: 'Kindness is measured in the hours we give.', dateLabel: 'Date' } },
+    participation: { prefix: 'PAR', label: 'Participation', noun: 'certificate of participation', colour: 'blue', line: { label: 'What they took part in', mail: 'Took part in', hint: 'Vaccination camp, Udupi' },
+      words: { eyebrow: 'Compassion. Community. Action.', title: 'Certificate of Participation', subtitle: 'People for Animals • Participation', presented: PRESENTED, lead: 'for taking part in', after: 'and for standing up for the animals around them.', mission: 'Every act of compassion begins with showing up.', dateLabel: 'Date' } },
+    recognition: { prefix: 'REC', label: 'Recognition or award', noun: 'certificate of recognition', colour: 'maroon', line: { label: 'Recognised for', mail: 'Recognised for', hint: 'CineKind Award 2026, Best Short Film' },
+      words: { eyebrow: 'Compassion. Courage. Action.', title: 'Certificate of Recognition', subtitle: 'People for Animals • Recognition', presented: PRESENTED, lead: 'in recognition of', after: 'and an example of what one person can do for animals.', mission: 'One act of courage can change many lives.', dateLabel: 'Date' } },
+    donor: { prefix: 'DNR', label: 'Donor appreciation', noun: 'certificate of appreciation for a gift', colour: 'gold', line: { label: 'For', mail: 'For', hint: 'A generous gift to the animals', fallback: 'A generous gift to the animals' },
+      words: { eyebrow: 'Compassion. Generosity. Action.', title: 'Certificate of Appreciation', subtitle: 'People for Animals • With Gratitude', presented: PRESENTED, lead: 'with heartfelt thanks for', after: 'Their kindness feeds, heals and shelters animals across India.', mission: 'Every gift is a second chance for an animal.', dateLabel: 'Date' } }
+  };
+  var KIND_ORDER = ['internship', 'volunteer', 'participation', 'recognition', 'donor'];
+  /* the borders, the eyebrow, the star and the purpose line take the colour;
+     gold is the design's own, with its hairline border; the others draw
+     the outer border twice as heavy, so the colour reads at a glance */
+  var COLOURS = {
+    gold: { label: 'Gold', weight: 1, border: '#b8a77c', inner: '#dbd4c3', accent: '#83724d', star: '#a58d55', line: '#30382d' },
+    forest: { weight: 2, label: 'Forest green', border: '#4f7d5a', inner: '#c3d8c8', accent: '#2f5e3c', star: '#3f7a4f', line: '#24502f' },
+    blue: { weight: 2, label: 'Royal blue', border: '#5671ab', inner: '#c8d3ea', accent: '#2b4a8c', star: '#3d5fa8', line: '#1f3a73' },
+    maroon: { weight: 2, label: 'Maroon', border: '#94555b', inner: '#e4cbcd', accent: '#7a2a33', star: '#93424a', line: '#5e1f27' }
+  };
+  var COLOUR_ORDER = ['gold', 'forest', 'blue', 'maroon'];
+  var NUMBER = /^PFA-(INT|VOL|PAR|REC|DNR)-[A-HJ-NP-Z2-9]{8}$/;
+  function kindOf(d) {
+    var k = d && d.kind;
+    if (KINDS[k]) return k;
+    var m = NUMBER.exec(String((d && d.number) || ''));
+    if (m) for (var id in KINDS) if (KINDS[id].prefix === m[1]) return id;
+    return 'internship';
+  }
+  function colourOf(d) {
+    var c = d && d.colour;
+    return COLOURS[c] ? c : KINDS[kindOf(d)].colour;
+  }
+  /* the purpose line as it prints: the panel's words, or the purpose's own */
+  function lineOf(d) {
+    var k = KINDS[kindOf(d)];
+    if (!k.line) return k.words.course;
+    return String((d && d.line) || '').replace(/\s+/g, ' ').trim() || k.line.fallback || '';
+  }
+  /* the day printed at the foot: the internship's last day, or the day of
+     the service, event or award (the day of issue when none is given) */
+  function dayPrinted(d) {
+    return kindOf(d) === 'internship' ? (d && d.endDate) : ((d && d.date) || (d && d.issuedOn));
+  }
+
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   var ready = null;
@@ -134,10 +344,11 @@
     return Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1];
   }
 
-  function fit(ctx, text, font, size, maxWidth) {
+  function fit(ctx, text, font, size, maxWidth, floor) {
     var s = size;
+    var least = floor || 22;
     ctx.font = font.replace('{s}', s);
-    while (s > 22 && ctx.measureText(text).width > maxWidth) {
+    while (s > least && ctx.measureText(text).width > maxWidth) {
       s -= 1;
       ctx.font = font.replace('{s}', s);
     }
@@ -180,6 +391,32 @@
     if (sig) ctx.drawImage(sig, SIG.x + SIG.dx, SIG.y + SIG.dy, SIG.w, SIG.h);
     ctx.textBaseline = 'alphabetic';
 
+    /* the frame's two borders, then the purpose's words, in its colour */
+    var kind = KINDS[kindOf(d)];
+    var hue = COLOURS[colourOf(d)];
+    ctx.lineWidth = hue.weight;
+    ctx.strokeStyle = hue.border;
+    ctx.strokeRect(17 + hue.weight / 2, 17 + hue.weight / 2, W - 34 - hue.weight, H - 34 - hue.weight);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = hue.inner;
+    ctx.strokeRect(23.5, 23.5, W - 47, H - 47);
+    var tint = { eyebrow: hue.accent, star: hue.star, course: hue.line };
+    var say = { course: lineOf(d), star: '\u2726', idLabel: 'Certificate ID' };
+    Object.keys(DESIGN).forEach(function (key) {
+      var at = DESIGN[key];
+      var text = say[key] != null ? say[key] : kind.words[key];
+      if (text == null || text === '') return;
+      if (at.upper) text = String(text).toUpperCase();
+      var font = at.style + ' ' + at.weight + ' {s}px ' + FACE;
+      /* a line the panel writes is made smaller only if it would not fit */
+      var size = key === 'course' || key === 'after' ? fit(ctx, text, font, at.size, 940, 9) : at.size;
+      ctx.font = font.replace('{s}', size);
+      ctx.fillStyle = tint[key] || at.color;
+      /* the design's centre is measured with the spacing after the last
+         letter, which spaced() leaves out: half of it back */
+      spaced(ctx, text, at.align === 'center' ? at.x - at.spacing / 2 : at.x, at.y, at.spacing, at.align);
+    });
+
     /* the name, as the design sets it, made smaller only if it would not fit */
     var name = String(d.name || '').replace(/\s+/g, ' ').trim() || 'Your Name';
     ctx.fillStyle = d.name ? INK : 'rgba(36,38,32,.32)';
@@ -190,7 +427,7 @@
     /* the foot, on the left: the day it was completed, and its number */
     ctx.fillStyle = INK;
     ctx.font = '400 12px ' + FACE;
-    spaced(ctx, longDate(d.endDate) || '. . .', AT.date.x, AT.date.y, 0.6, 'left');
+    spaced(ctx, longDate(dayPrinted(d)) || '. . .', AT.date.x, AT.date.y, 0.6, 'left');
     spaced(ctx, d.number || 'Given when issued', AT.number.x, AT.number.y, 0.6, 'left');
 
     /* The public page's preview (internship.html) is marked SAMPLE across
@@ -319,7 +556,7 @@
       var x = (pw - w) / 2;
       var y = (ph - h) / 2;
       var content = 'q\n' + w.toFixed(2) + ' 0 0 ' + h.toFixed(2) + ' ' + x.toFixed(2) + ' ' + y.toFixed(2) + ' cm\n/Im0 Do\nQ\n';
-      var title = 'Certificate of Completion' + (data && data.name ? ', ' + String(data.name) : '') + (data && data.number ? ', ' + String(data.number) : '');
+      var title = KINDS[kindOf(data)].words.title + (data && data.name ? ', ' + String(data.name) : '') + (data && data.number ? ', ' + String(data.number) : '');
       var parts = [];
       var length = 0;
       var offsets = [];
@@ -367,11 +604,13 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
   }
 
-  /* "Asha Rao" + "PFA-INT-AB12CD34" -> "pfa-internship-certificate-asha-rao-PFA-INT-AB12CD34" */
+  /* "Asha Rao" + "PFA-INT-AB12CD34" -> "pfa-internship-certificate-asha-rao-PFA-INT-AB12CD34";
+     the other purposes, "pfa-volunteer-certificate-..." and so on */
   function fileStem(data) {
-    var slug = String((data && data.name) || 'intern').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'intern';
-    return 'pfa-internship-certificate-' + slug + (data && data.number ? '-' + data.number : '');
+    var slug = String((data && data.name) || 'certificate').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'certificate';
+    return 'pfa-' + kindOf(data) + '-certificate-' + slug + (data && data.number ? '-' + data.number : '');
   }
 
-  root.PFACertificate = { W: W, H: H, PRINT_SCALE: PRINT_SCALE, loadPrint: loadPrint, SIG: SIG, SIG_RANGE: SIG_RANGE, SIG_DEFAULT: SIG_DEFAULT, setLayout: setLayout, layout: layout, load: load, draw: draw, png: png, pdf: pdf, save: save, fileStem: fileStem, longDate: longDate };
+  root.PFACertificate = { W: W, H: H, PRINT_SCALE: PRINT_SCALE, loadPrint: loadPrint, SIG: SIG, SIG_RANGE: SIG_RANGE, SIG_DEFAULT: SIG_DEFAULT, setLayout: setLayout, layout: layout, load: load, draw: draw, png: png, pdf: pdf, save: save, fileStem: fileStem, longDate: longDate,
+    KINDS: KINDS, KIND_ORDER: KIND_ORDER, COLOURS: COLOURS, COLOUR_ORDER: COLOUR_ORDER, NUMBER: NUMBER, kindOf: kindOf, colourOf: colourOf, lineOf: lineOf, dayPrinted: dayPrinted };
 })(typeof window !== 'undefined' ? window : this);
