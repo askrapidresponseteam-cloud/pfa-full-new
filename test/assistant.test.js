@@ -471,3 +471,38 @@ test('every straight answer is the site\'s own: each email, phone number, PIN co
   const ui = read('assets/assistant.js');
   for (const c of [...ui.matchAll(/fetch\(\s*'([^']+)'/g)].map((m) => m[1])) assert.match(c, /^\/api\//, c);
 });
+
+/* Owner, 15 Nov 2026, of "ok" typed when the chat asked for a number and
+   answered "That does not look like a PFA number": "how is it that the bot
+   doesnt even understand ok..it should give sensible and approp response". */
+test('a word in passing while a question waits: ok, thanks, hello, and "I don\'t have it"', () => {
+  const track = (word, l) => talk([{ tap: '#track' }, word], l ? { lang: l } : undefined);
+  for (const word of ['ok', 'Ok.', 'okay', 'sure', 'haan', 'theek hai', 'ठीक है']) {
+    const r = track(word);
+    const last = r.o.messages.map((m) => m.text).join(' ');
+    assert.doesNotMatch(last, /does not look like|नंबर नहीं लगता/, word);
+    assert.match(last, /^(Sure\.|ठीक है।) /, word);
+    assert.match(last, /PFA-CR-2026-00012/, `${word}: how the number reads`);
+  }
+  assert.match(track('thanks').o.messages[0].text, /^You are welcome\. Type the number/);
+  assert.match(track('hello').o.messages[0].text, /^Hello\. Type the number/);
+  for (const word of ["I don't have it", 'no', 'lost it', 'forgot', "don't know", 'pata nahi', 'नहीं है']) {
+    const r = track(word);
+    const m = r.o.messages[0];
+    assert.match(m.text, /email PFA sent you|उस ईमेल में है/, word);
+    assert.deepEqual(m.chips.map((c) => c.value), ['#helpdesk', '#menu'], `${word}: the help desk instead, or something else`);
+  }
+  /* still waiting for the number, and taking it when it comes */
+  const done = talk([{ tap: '#track' }, 'ok', 'PFA-CR-2026-00012', 'ravi@example.com']);
+  assert.equal(done.o.action.type, 'track');
+  assert.equal(done.o.action.reference, 'PFA-CR-2026-00012');
+  /* a name, an email: "ok" is not taken as the answer, the question is put again */
+  const intern = talk([{ tap: '#internship' }, 'ok']);
+  assert.deepEqual(intern.o.messages.map((m) => m.text), ['Sure.', 'What is your full name?']);
+  const ask = talk([{ tap: '#helpdesk' }, 'okay']);
+  assert.deepEqual(ask.o.messages.map((m) => m.text), ['Sure.', 'What would you like to ask PFA?'], 'not taken as the question itself');
+  /* a choice still takes its own answer */
+  assert.doesNotMatch(talk([{ tap: '#volunteer' }, 'ok']).o.messages[0].text, /^Sure\./);
+  /* where yes or no is the question, ok is still yes */
+  assert.equal(N.yesNoOf('ok'), true);
+});

@@ -172,7 +172,7 @@
       data.valid = true;
       data.url = data.url || 'https://peopleforanimalsindia.org/card';
       data.sig = at(kind);
-      if (!box._photo) box._photo = jpeg(card.photo);
+      if (!box._photo && kind !== 'member') box._photo = jpeg(card.photo);
       D.render(box, data, { root: '', photo: box._photo, controls: false });
       box.classList.add('dg__peek');
     }).catch(function () { box.textContent = 'The card could not be drawn here just now.'; });
@@ -270,8 +270,9 @@
       return;
     }
     if (what === 'issue') {
-      var photo = jpeg(card.photo);
-      if (!photo) { A.say(say, 'The card has no photograph on screen, so it is not issued online. Add the photograph first.', 'bad'); return; }
+      /* the membership card online shows no photograph (15 Nov 2026) */
+      var photo = kind === 'member' ? '' : jpeg(card.photo);
+      if (!photo && kind !== 'member') { A.say(say, 'The card has no photograph on screen, so it is not issued online. Add the photograph first.', 'bad'); return; }
       b.disabled = true;
       A.say(say, 'Issuing…', '');
       A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'issue', kind: kind, ref: card.ref, photo: photo, email: true } }).then(function (r) {

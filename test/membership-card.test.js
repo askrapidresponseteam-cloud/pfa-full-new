@@ -422,6 +422,40 @@ test('every membership row offers Preview card, before and after the photograph'
   assert.match(row, /var preview = '<button class="ghost" type="button" data-mq="view">Preview card<\/button>';/);
   assert.match(row, /act = act && r\.queue !== 'printed' \? '<span class="mq-btns">' \+ act \+ preview \+ '<\/span>' : act \? act \+ '<span class="mq-btns mq-btns--under">' \+ preview \+ '<\/span>' : preview;/);
   assert.doesNotMatch(row, /else if \(r\.cardId\) act =/, 'no longer only once a card exists');
-  assert.match(html, /The photograph goes in the window marked PHOTO\./);
+  /* the card has no photograph window since 15 Nov 2026 (the owner's black template) */
+  assert.match(html, /'As it will print once approved\.'/);
   assert.match(html, /\$\$\('#memberView \[data-issued\]'\)\.forEach\(function \(b\) \{ b\.hidden = Boolean\(d\.card\.draft\); \}\);/, 'a draft cannot be printed or saved');
+});
+
+const fs = require('node:fs');
+const path = require('node:path');
+const ROOT = path.join(__dirname, '..');
+
+/* Owner, 15 Nov 2026: "why is it still showing old style", then, asked,
+   "Black design everywhere": the printed membership card is the owner's
+   black template too, as the card online is. */
+test('the printed membership card: the owner\'s black template, in Marcellus, no photograph', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'assets', 'member-card.js'), 'utf8');
+  assert.match(js, /\[\[0, '#303234'\], \[0\.39, '#111213'\], \[0\.75, '#08090a'\], \[1, '#202224'\]\]/, 'the template\'s black');
+  assert.match(js, /var LOGO_SRC = 'img\/logo-dark\.png';/);
+  assert.match(js, /\['PFA Card Marcellus', 'fonts\/marcellus-latin\.woff2', '400'\]/);
+  assert.doesNotMatch(js, /Cinzel|'PHOTO'|brushed silver/i);
+  assert.match(js, /'A voice for the voiceless\.'/);
+  assert.match(js, /'If found, please return it to a PFA centre\.'/);
+  assert.match(js, /'Non-transferable\. Any misuse will lead to its withdrawal\.'/);
+  assert.doesNotMatch(js, /not to be printed/, 'the printed card does not say it must not be printed');
+  assert.match(js, /CHECK_URL = 'https:\/\/peopleforanimalsindia\.org\/verify-certificate\.html\?n='/, 'its QR checks the member number on the site');
+  assert.match(js, /SIGNATORY = \{ name: 'SMT\. MANEKA SANJAY GANDHI', role: 'CHAIRPERSON, PEOPLE FOR ANIMALS' \}/);
+  assert.match(fs.readFileSync(path.join(ROOT, 'verify-certificate.html'), 'utf8'), /get\('n'\)/);
+});
+
+/* Owner, 15 Nov 2026: "also make the membership section simple pls..this
+   looks complex and the ux isnt great". */
+test('the members register: one short line a member, the rest under Open', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'assets', 'admin-registers.js'), 'utf8');
+  assert.match(js, /compact: true,/);
+  assert.match(js, /var COMPACT_HEAD = \['Member', 'Place', 'Paid on', 'Shipping'\];/);
+  assert.match(js, /data-rg="open" aria-expanded="' \+ open \+ '" aria-controls="' \+ more \+ '">' \+ \(open \? 'Close' : 'Open'\)/);
+  assert.match(js, /'<tr class="rg-more" id="' \+ more \+ '" data-rg-id="' \+ esc\(r\.id\) \+ '"' \+ \(open \? '' : ' hidden'\)/, 'details, shipping and the buttons only when opened');
+  assert.match(js, /\.rg-compact table\{min-width:0!important;width:100%/, 'nothing scrolls sideways on a phone');
 });

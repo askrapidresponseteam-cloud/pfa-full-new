@@ -90,9 +90,13 @@ test('a caregiver card online: its own number is its address; issued with its ph
 test('a membership card online: a random PFA-MBR address, never the member\'s number; issued again it keeps it', async () => {
   await seed();
   const asked = [];
-  const r = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004', photo: JPEG }, asked);
+  /* no photograph on the membership card online (owner, 15 Nov 2026: "i
+     dont need this kinda display", "can you update the code"): none asked
+     for, none kept even if one is sent */
+  const r = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004' }, asked);
   assert.equal(r.statusCode, 200, JSON.stringify(r.json));
   assert.deepEqual(asked, ['membership']);
+  assert.equal(r.json.digital.photo, false);
   const id = r.json.digital.id;
   assert.match(id, /^PFA-MBR-[A-HJ-NP-Z2-9]{8}$/);
   assert.deepEqual([r.json.digital.number, r.json.digital.tier, r.json.digital.kind], ['KA 2399', 'Golden', 'member']);
@@ -100,8 +104,10 @@ test('a membership card online: a random PFA-MBR address, never the member\'s nu
   const again = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004', photo: JPEG });
   assert.equal(again.json.digital.id, id, 'one card, one address');
   assert.equal((await admin('GET', { kind: 'member', ref: 'PFA-MEM-2026-00004' })).json.digital.id, id);
-  /* never without a photograph, never for a card not on the register */
-  assert.equal((await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004' })).statusCode, 422);
+  assert.equal((await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004', photo: JPEG })).json.digital.photo, false, 'a photograph sent is not kept');
+  assert.equal((await open({ id, photo: '1' })).statusCode, 404);
+  /* a caregiver card never without its photograph; never a card not on the register */
+  assert.equal((await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF' })).statusCode, 422);
   assert.equal((await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00099', photo: JPEG })).statusCode, 422);
   assert.equal((await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-ZZZZZZZZ', photo: JPEG })).statusCode, 422);
   assert.equal((await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', photo: Buffer.from('not a picture').toString('base64') })).statusCode, 422);
@@ -286,14 +292,22 @@ test('the membership card online: the owner\'s template, in Marcellus, with what
   const back = box.querySelector('.dc__back');
   assert.equal(front.querySelector('.dcm__logo').getAttribute('src'), 'img/logo-dark.png', 'the template\'s logo for dark grounds, transparent');
   assert.equal(front.querySelector('.dcm__tier').textContent, 'Golden Membership');
-  assert.ok(front.querySelector('img.dcm__portrait'), 'the member\'s photograph, fading into the card');
+  assert.equal(front.querySelector('.dcm__portrait, .dc__photo'), null, 'no photograph on the membership card online, even if one is given');
   assert.deepEqual([...front.querySelectorAll('.dcm__details > div')].map((d) => d.textContent), ['Member', 'Asha Venkataraman', 'Udupi, Karnataka']);
   assert.deepEqual([...front.querySelectorAll('.dcm__footer span')].map((d) => d.textContent.replace(/\s+/g, ' ')), ['KA 2399', 'Member since 2026']);
-  assert.equal(back.querySelector('h2').innerHTML, 'A voice for<br>the voiceless.');
+  /* owner, 15 Nov 2026: "a voice for the voiceless can be in 1 row", a
+     sentence a line, and the signature just above the line, the name over
+     "Chairperson, People for Animals" */
+  assert.equal(back.querySelector('h2').innerHTML, 'A voice for the voiceless.');
+  assert.match(read('assets/digital-card.css'), /\.dcm__message h2\{[^}]*white-space:nowrap\}/);
   assert.deepEqual([...back.querySelectorAll('.dcm__message p')].map((p) => p.textContent), [
-    'This digital card identifies the named member of People for Animals. It is for display on screen only and is not to be printed.',
+    'This digital card identifies the named member of People for Animals.',
+    'It is for display on screen only and is not to be printed.',
     'Non-transferable. Any misuse will lead to its withdrawal.'
   ]);
+  const baseRow = back.querySelector('.dcm__base');
+  assert.deepEqual([...baseRow.children].map((c) => c.className), ['dcm__sign', 'dcm__footer'], 'the signature sits just above the line');
+  assert.deepEqual([baseRow.querySelector('.dcm__sign b').textContent, baseRow.querySelector('.dcm__sign span').textContent], ['Smt. Maneka Sanjay Gandhi', 'Chairperson, People for Animals']);
   assert.equal(back.querySelector('.dcm__scan').textContent, 'Scan to verify');
   assert.ok(back.querySelector('.dcm__qr svg path'), 'the QR code of the card\'s own address');
   assert.doesNotMatch(back.textContent, /card\?id=/, 'the card\'s address is in the code, not printed');
@@ -302,11 +316,9 @@ test('the membership card online: the owner\'s template, in Marcellus, with what
   const css = read('assets/digital-card.css');
   assert.match(css, /\.dc\[data-kind="member"\]\{[^}]*font-family:var\(--dc-serif\)\}/, 'Marcellus throughout');
   assert.doesNotMatch(css.slice(css.indexOf('/* ---- the membership card')), /Georgia|Arial/, 'none of the template\'s stand-in faces');
-  assert.match(css, /\.dcm__portrait\{[^}]*mix-blend-mode:screen;filter:grayscale\(1\);opacity:\.82/);
+  assert.doesNotMatch(css + read('assets/digital-card.js'), /dcm__portrait|cutout/);
   assert.match(css, /\.dc\[data-kind="member"\] \.dc__stage\{aspect-ratio:85\.6\/53\.98\}/, 'a bank card\'s shape, on a phone too');
   assert.match(css, /\.dcm__sign img\{[^}]*filter:brightness\(0\) invert\(1\)[^}]*100cqw \/ 856/, 'white on black, moved as the panel says');
-  const js = read('assets/digital-card.js');
-  assert.match(js, /if \(plain < 0\.6\) return;/, 'a busy background is left as it is');
-  assert.match(js, /if \(member\) cutout\(box\.querySelector\('\.dcm__portrait'\)\);/, 'a plain wall behind the member goes to black, as the template\'s portrait');
+  assert.match(read('assets/admin-digital-cards.js'), /var photo = kind === 'member' \? '' : jpeg\(card\.photo\);/, 'the panel sends none');
   assert.ok(read('scripts/build-firebase.js').includes("'img/logo-dark.png'"), 'the panel draws it too');
 });

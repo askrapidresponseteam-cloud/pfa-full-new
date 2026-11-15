@@ -37,5 +37,6 @@ test('the membership photo control starts from the whole photograph on white, an
   assert.match(paint, /context\.fillStyle = '#ffffff';/);
   assert.doesNotMatch(paint, /Math\.max\(targetWidth \/ image\.width/, 'not the old fill-and-crop');
   assert.match(ed, /zoomInput\.max = String\(Math\.round\(maxZoom\(image\) \* 100\)\);/, 'zooming in is the person\'s choice');
-  assert.match(read('assets/member-card.js'), /var scale = Math\.min\(P\.w \/ photo\.width, P\.h \/ photo\.height\);/);
+  /* the membership card itself shows no photograph since 15 Nov 2026 (owner: "i dont need this kinda display", "Black design everywhere") */
+  assert.doesNotMatch(read('assets/member-card.js'), /drawImage\(photo/);
 });

@@ -37,6 +37,10 @@
     },
     membership: {
       pane: 'memsheet', noun: 'members', todo: 'Not shipped', done: 'Shipped', file: 'members',
+      /* one short line a member, the rest under Open (owner, 15 Nov 2026:
+         "make the membership section simple pls..this looks complex and the
+         ux isnt great") */
+      compact: true,
       cols: [
         ['Name / number / email', function (r) { return [[r.name], [r.mobile], r.altMobile ? [r.altMobile, 'other'] : null, [r.email]]; }, 'rg-name'],
         /* the state member number (lib/member-numbers.js); the reference under it */
@@ -91,13 +95,13 @@
       + '<button class="press" type="button" data-rg="mailpicked" disabled>Preview emails</button>'
       + '<button class="ghost" type="button" data-rg="copyall">Copy table</button>'
       + '<button class="ghost" type="button" data-rg="csv">Export to Excel</button>'
-      + '</div><p class="rg-hint">Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.</p>'
+      + '</div><p class="rg-hint">' + (spec.compact ? 'Open a member for their details and to update shipping. Tick several to email them together. Green is shipped.' : 'Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.') + '</p>'
       + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
       + '<div data-rg-sheet>' + sheetHtml(kind, st.sheet) + '</div>'
       + (kind === 'membership' ? numbersHtml(st) : caregiverNews(st))
       + codesHtml(st)
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
-      + '<div class="wrap"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + spec.cols.map(function (c) { return '<th>' + esc(c[0]) + '</th>'; }).join('') + '<th>Shipping</th></tr></thead><tbody data-rg-body></tbody></table></div>';
+      + '<div class="wrap' + (spec.compact ? ' rg-compact' : '') + '"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + (spec.compact ? COMPACT_HEAD : spec.cols.map(function (c) { return c[0]; })).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + (spec.compact ? '<th><span class="rg-vh">Open</span></th>' : '<th>Shipping</th>') + '</tr></thead><tbody data-rg-body></tbody></table></div>';
     paintRegisterRows(kind);
   }
 
@@ -285,8 +289,68 @@
   }
   function regRow(kind, id) { return regState[kind].rows.filter(function (x) { return x.id === id; })[0] || null; }
 
+  /* ---- the compact register: a line a member, the rest under Open ---- */
+  var COMPACT_HEAD = ['Member', 'Place', 'Paid on', 'Shipping'];
+  var regOpen = {};
+  function copyBtn(v, cls, label) { return v ? '<button type="button" class="rg-c' + (cls ? ' ' + cls : '') + '" data-copy="' + esc(v) + '" title="Copy">' + esc(label || v) + '</button>' : ''; }
+  function shipChip(r) {
+    var label = r.shipLabel || SHIP_LABELS[r.ship] || 'Not shipped';
+    return '<span class="rg-chip' + (r.done ? ' rg-chip--done' : r.ship ? ' rg-chip--on' : '') + '">' + esc(label) + '</span>'
+      + (r.courier || r.tracking ? '<span class="rg-sub rg-one">' + esc([r.courier, r.tracking].filter(Boolean).join(' ')) + '</span>' : '');
+  }
+  function compactRowHtml(kind, r) {
+    var open = Boolean(regOpen[kind + ':' + r.id]);
+    var type = String(r.type || '').replace(/\s*membership$/i, '');
+    var place = [r.district || r.city, r.state].filter(Boolean).join(', ');
+    var more = 'rg-more-' + kind + '-' + String(r.id).replace(/[^A-Za-z0-9-]/g, '');
+    return '<tr class="rg-sum' + (r.done ? ' rg-done' : '') + (open ? ' is-open' : '') + '" data-rg-sum="' + esc(r.id) + '">'
+      + '<td class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pick" aria-label="Select ' + esc(r.name) + '"' + (regState[kind].picked[r.id] ? ' checked' : '') + '></label></td>'
+      + '<td><b class="rg-who">' + esc(r.name) + '</b><span class="rg-sub rg-one">' + esc([r.memberNo || 'Not numbered yet', type].filter(Boolean).join(' · ')) + '</span></td>'
+      + '<td>' + esc(place) + '</td>'
+      + '<td class="rg-nw">' + esc(r.paidOn || '') + '</td>'
+      + '<td>' + shipChip(r) + '</td>'
+      + '<td class="rg-nw"><button type="button" class="rg-row rg-open" data-rg="open" aria-expanded="' + open + '" aria-controls="' + more + '">' + (open ? 'Close' : 'Open') + '</button></td></tr>'
+      + '<tr class="rg-more" id="' + more + '" data-rg-id="' + esc(r.id) + '"' + (open ? '' : ' hidden') + '><td></td><td colspan="5"><div class="rg-grid">'
+      + '<section><h4>Contact</h4>' + copyBtn(r.mobile) + (r.altMobile ? copyBtn(r.altMobile, '', 'Other: ' + r.altMobile) : '') + copyBtn(r.email) + '</section>'
+      + '<section><h4>Address</h4>' + copyBtn(r.lines.join('\n')) + '</section>'
+      + '<section><h4>Membership</h4>' + copyBtn(r.memberNo || '', '', r.memberNo ? 'Member number ' + r.memberNo : '') + (r.paidOn ? '<span class="rg-sub">Paid on ' + esc(r.paidOn) + '</span>' : '') + (r.memberNoWas ? '<span class="rg-sub">Was ' + esc(r.memberNoWas) + '</span>' : '') + (r.numberHold ? '<span class="rg-sub">' + esc(r.numberHold) + '</span>' : '') + copyBtn(r.id, 'rg-sub') + '<span class="rg-sub">' + esc([r.type, r.amount].filter(Boolean).join(', ')) + '</span></section>'
+      + '<section class="rg-shipbox"><h4>Shipping</h4>' + regShipHtml(kind, r) + '</section>'
+      + '</div><p class="rg-moreacts"><button type="button" class="rg-row" data-rg="row">Copy row</button>' + (r.email ? '<button type="button" class="rg-row" data-open-case="' + esc(r.id) + '" data-reply-case>Reply</button>' : '') + '</p></td></tr>';
+  }
+  (function () {
+    var css = document.createElement('style');
+    css.textContent = '.rg-compact tr.rg-sum td{vertical-align:middle;padding-top:12px;padding-bottom:12px}'
+      + '.rg-compact .rg-who{display:block;font-weight:600}'
+      + '.rg-compact .rg-one{display:block;margin-top:2px}'
+      + '.rg-compact th:last-child,.rg-compact td:last-child{position:static;box-shadow:none}'
+      + '.rg-compact tr.rg-sum td:last-child{text-align:right}'
+      + '.rg-compact tr.rg-more td,.rg-compact tr.rg-more td:last-child{text-align:left;background:none}'
+      + '.rg-compact tr.rg-sum.is-open td{border-bottom-color:transparent}'
+      + '.rg-compact tr.rg-more>td{padding:4px 12px 18px}'
+      + '.rg-compact tr.rg-more[hidden]{display:none}'
+      + '.rg-chip{display:inline-block;padding:3px 10px;border:1px solid var(--line);border-radius:99px;font-size:12px;white-space:nowrap}'
+      + '.rg-chip--on{border-color:#c9a227;background:#fff8e1}'
+      + '.rg-chip--done{border-color:#1f6b3a;background:#e7f5dd;color:#1f6b3a}'
+      + '.rg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px 24px;padding:12px 14px;border:1px solid var(--line);background:var(--paper)}'
+      + '.rg-grid h4{margin:0 0 6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}'
+      + '.rg-grid section{min-width:0}.rg-grid .rg-c{padding:3px 0}.rg-grid .rg-sub{display:block;padding:3px 0}'
+      + '.rg-shipbox .rg-ship{max-width:320px}'
+      + '.rg-moreacts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}'
+      + '.rg-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}'
+      + '.rg-compact tr.rg-done td:last-child{background:#e7f5dd}'
+      /* a phone: the line is the member, their shipping and Open; place and
+         date are in the details; nothing scrolls sideways */
+      + '@media (max-width:700px){.rg-compact table{min-width:0!important;width:100%;table-layout:auto}'
+      + '.rg-compact th:nth-child(3),.rg-compact th:nth-child(4),.rg-compact tr.rg-sum td:nth-child(3),.rg-compact tr.rg-sum td:nth-child(4){display:none}'
+      + '.rg-compact tr.rg-more>td:first-child{display:none}.rg-compact tr.rg-more>td{padding:0 8px 14px}'
+      + '.rg-compact .rg-grid{grid-template-columns:1fr;gap:14px}.rg-compact .rg-chip{white-space:normal}'
+      + '.rg-compact tr.rg-sum td{padding-left:12px;padding-right:12px}}';
+    document.head.appendChild(css);
+  })();
+
   function regRowHtml(kind, r) {
     var spec = REG[kind];
+    if (spec.compact) return compactRowHtml(kind, r);
     return '<tr' + (r.done ? ' class="rg-done"' : '') + ' data-rg-id="' + esc(r.id) + '">'
       + '<td class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pick" aria-label="Select ' + esc(r.name) + '"' + (regState[kind].picked[r.id] ? ' checked' : '') + '></label><button type="button" class="rg-row" data-rg="row">Copy row</button>'
         /* the record, open at its reply box with the ready replies (5 Nov 2026) */
@@ -305,7 +369,7 @@
     var body = box.querySelector('[data-rg-body]');
     var rows = regRows(kind);
     body.innerHTML = rows.length ? rows.map(function (r) { return regRowHtml(kind, r); }).join('')
-      : '<tr><td class="rg-empty" colspan="' + (spec.cols.length + 2) + '">' + (regState[kind].rows.length ? 'Nothing matches.' : 'No ' + spec.noun + ' yet.') + '</td></tr>';
+      : '<tr><td class="rg-empty" colspan="' + (spec.compact ? COMPACT_HEAD.length + 2 : spec.cols.length + 2) + '">' + (regState[kind].rows.length ? 'Nothing matches.' : 'No ' + spec.noun + ' yet.') + '</td></tr>';
     [].forEach.call(body.querySelectorAll('tr[data-rg-id]'), function (tr) { regSync(kind, tr); });
     regPickCount(kind);
   }
@@ -343,6 +407,15 @@
       row.done = row.ship === 'shipped' || row.ship === 'delivered';
       var fresh = document.createElement('tbody');
       fresh.innerHTML = regRowHtml(kind, row);
+      if (REG[kind].compact) {
+        var sum = tr.parentNode.querySelector('tr[data-rg-sum="' + id + '"]');
+        var newSum = fresh.querySelector('tr[data-rg-sum]');
+        var newMore = fresh.querySelector('tr[data-rg-id]');
+        if (sum) sum.parentNode.replaceChild(newSum, sum);
+        tr.parentNode.replaceChild(newMore, tr);
+        regSync(kind, newMore);
+        return row;
+      }
       var tr2 = fresh.firstChild;
       tr.parentNode.replaceChild(tr2, tr);
       regSync(kind, tr2);
@@ -454,7 +527,7 @@
     on(pane, 'change', function (e) {
       var t = e.target;
       var box = $(pane);
-      if (t.getAttribute('data-rg') === 'pick') { regState[kind].picked[t.closest('tr').getAttribute('data-rg-id')] = t.checked; regPickCount(kind); return; }
+      if (t.getAttribute('data-rg') === 'pick') { var ptr = t.closest('tr'); regState[kind].picked[ptr.getAttribute('data-rg-id') || ptr.getAttribute('data-rg-sum')] = t.checked; regPickCount(kind); return; }
       if (t.getAttribute('data-rg') === 'pickall') {
         regRows(kind).forEach(function (r) { regState[kind].picked[r.id] = t.checked; });
         [].forEach.call(box.querySelectorAll('[data-rg="pick"]'), function (x) { x.checked = t.checked; });
@@ -490,6 +563,18 @@
         return;
       }
       var what = b.getAttribute('data-rg');
+      if (what === 'open') {
+        var sumTr = b.closest('tr[data-rg-sum]');
+        var sid = sumTr.getAttribute('data-rg-sum');
+        var moreTr = box.querySelector('tr[data-rg-id="' + sid + '"]');
+        var nowOpen = !regOpen[kind + ':' + sid];
+        regOpen[kind + ':' + sid] = nowOpen;
+        if (moreTr) moreTr.hidden = !nowOpen;
+        sumTr.classList.toggle('is-open', nowOpen);
+        b.setAttribute('aria-expanded', String(nowOpen));
+        b.textContent = nowOpen ? 'Close' : 'Open';
+        return;
+      }
       var tr = b.closest('tr[data-rg-id]');
       var id = tr ? tr.getAttribute('data-rg-id') : '';
       var row = id ? regState[kind].rows.filter(function (r) { return r.id === id; })[0] : null;

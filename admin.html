@@ -903,7 +903,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <div class="tools">
         <select id="payType" aria-label="Purpose">
           <option value="">Every purpose</option><option value="donate">Donation</option><option value="membership">Membership</option>
-          <option value="caregiver">Colony card postage</option><option value="caregiver-application">Caregiver application fee</option><option value="shop">Shop order</option>
+          <option value="caregiver-application">Caregiver application fee</option><option value="shop">Shop order</option>
         </select>
         <!-- Paid first, and chosen (owner, 1 Nov 2026: "by default show
              completed ones only. only if someone clicks on unfinished");
@@ -1099,7 +1099,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     </div>
     <div data-digital="member"></div>
     <div data-sig-card="member"></div>
-    <p class="note">Card printer: Print this card, one face a page at 85.6 x 54 mm, at 100% with headers and footers off. The printed card is the only copy: it goes to the member by courier, and is never emailed or shared.</p>
+    <p class="note">Card printer: Print this card, one face a page at 85.6 x 54 mm, at 100% with headers and footers off.</p>
   </div>
 </div>
 
@@ -2047,7 +2047,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function payRow(r, short) {
     var cells = '<tr><td class="ref">' + esc(r.orderId || r.id) + '</td>';
-    if (!short) cells += '<td>' + esc(r.monthly ? 'Monthly donation' + (r.mandate ? ' (mandate ' + r.mandate + ')' : '') : { donate: 'Donation', membership: 'Membership', shop: 'Shop order', caregiver: 'Colony card postage', 'caregiver-application': 'Caregiver application fee' }[r.type] || r.type || '-') + '</td>';
+    if (!short) cells += '<td>' + esc(r.monthly ? 'Monthly donation' + (r.mandate ? ' (mandate ' + r.mandate + ')' : '') : { donate: 'Donation', membership: 'Membership', shop: 'Shop order', caregiver: 'Colony caregiver card (earlier)', 'caregiver-application': 'Caregiver application fee' }[r.type] || r.type || '-') + '</td>';
     cells += '<td>' + esc(r.name || '-') + '</td>';
     if (short) cells += '<td>' + esc(r.email || r.mobile || '-') + '</td>';
     /* A shop payment that settled an order already cancelled or failed is
@@ -5509,7 +5509,7 @@ window.addEventListener('unhandledrejection', function (event) {
         MCARD.draw($('#memberView canvas[data-face="front"]'), 'front', card, { pxPerUnit: 1.2, photo: d.image });
         MCARD.draw($('#memberView canvas[data-face="back"]'), 'back', card, { pxPerUnit: 1.2 });
         $$('#memberView [data-issued]').forEach(function (b) { b.hidden = Boolean(d.card.draft); });
-        say($('#memberViewSay'), !d.card.draft ? 'Exactly as it prints.' : d.image ? 'As it would print once approved.' : 'As it would print once the photograph is in and approved. The photograph goes in the window marked PHOTO.');
+        say($('#memberViewSay'), !d.card.draft ? 'Exactly as it prints, and as it shows online.' : 'As it will print once approved.');
       });
     }).catch(function (e) { say($('#memberViewSay'), e.message, 'bad'); });
   }

@@ -404,3 +404,18 @@ test('Payments opens on the paid ones; the rest only when chosen', () => {
   const html = read('admin.html');
   assert.match(html, /<select id="payStatus" aria-label="Outcome">\s*<option value="paid" selected>Paid<\/option><option value="">Every outcome<\/option>/);
 });
+
+/* Owner, 15 Nov 2026: "card postage fee is not needed. as it is not right.
+   site doesnt collect any fee for card postage separately". */
+test('no card postage among the purposes: the panel, its search and the report', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const root = path.join(__dirname, '..');
+  const admin = fs.readFileSync(path.join(root, 'admin.html'), 'utf8');
+  assert.doesNotMatch(admin, /<option value="caregiver">/, 'no Colony card postage in Every purpose');
+  assert.match(admin, /<option value="caregiver-application">Caregiver application fee<\/option>/);
+  for (const f of ['admin.html', 'lib/admin-search.js', 'lib/finance-report.js']) {
+    /* in what is shown: the quoted words of a label or an option, not a comment */
+    assert.doesNotMatch(fs.readFileSync(path.join(root, f), 'utf8'), /'[^'\n]*(card postage|printing and postage|application: postage)[^'\n]*'|<option[^>]*>[^<]*postage/i, f);
+  }
+});

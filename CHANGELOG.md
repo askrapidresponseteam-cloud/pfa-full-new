@@ -1,8 +1,35 @@
+## v1.579
+
+- **The printed membership card is the black template too.** Owner, 15 Nov 2026: "why is it still showing old style", then, asked, "Black design everywhere".
+  - Members, Preview card and every printed card now draw the owner's template, as the card online does: matte black, the PFA logo for dark grounds, the tier, Member, the name, the place, the member number and Member since, in Marcellus, with no photograph.
+  - The back: A voice for the voiceless.; This card identifies the named member of People for Animals. / If found, please return it to a PFA centre. / Non-transferable. Any misuse will lead to its withdrawal.; a QR code that checks the member number on the site (Scan to verify); Smt. Maneka Sanjay Gandhi's signature in white just above the line, with her name and Chairperson, People for Animals under it.
+  - Still 85.6 x 54 mm, at 600 dpi, one face a page; the signature still moves with the card's Signature position.
+- **The members register is simple.** Owner, 15 Nov 2026: "make the membership section simple pls..this looks complex and the ux isnt great".
+  - One short line a member: the name with the member number and tier under it, the place, the date paid, the shipping state as a coloured tag (Not shipped, Processing, Shipped in green), and Open.
+  - Open shows the contact, the address, the membership, and the shipping form (status, courier, tracking number, Save, Preview email), with Copy row and Reply. Everything still copies with a click.
+  - On a phone the line is the name, the shipping tag and Open, and nothing scrolls sideways.
+
+## v1.578
+
+- **No photograph on the membership card online.** Owner, 15 Nov 2026, of the photograph's place on the card: "i dont need this kinda display", then "can you update the code".
+  - The front is the logo, the tier, Member, the name, the place, and the member number and Member since along the foot.
+  - None is asked for when it is issued from the panel, and none is kept, even if one is sent. The colony caregiver card keeps the holder's photograph.
+- **The membership card's back, as the owner set it out.** Owner, 15 Nov 2026: "'it is for' can be in the same row as display on screen..", "can be lower just above the line, and chairperson, has to be below, smt maneka sanjay gandhi, and next to chairperson should be , people for animals. a voice for the voiceless can be in 1 row".
+  - A voice for the voiceless. on one line; then one sentence a line: This digital card identifies the named member of People for Animals. / It is for display on screen only and is not to be printed. / Non-transferable. Any misuse will lead to its withdrawal.
+  - The signature sits just above the line, with Smt. Maneka Sanjay Gandhi under it and Chairperson, People for Animals under that.
+  - On a phone the back keeps the same order, each part with its own room.
+- **No card postage among the purposes.** Owner, 15 Nov 2026: "card postage fee is not needed. as it is not right. site doesnt collect any fee for card postage separately".
+  - Payments & donations no longer offers Colony card postage under Every purpose. The caregiver application fee stays.
+  - The finance report and the panel's search call the application fee the Colony caregiver card application fee, without postage. A payment of the older kind, if one exists, shows as Colony caregiver card (earlier).
+- **The chat understands a word in passing.** Owner, 15 Nov 2026, of "ok" typed when the chat asked for a reference number, and the reply "That does not look like a PFA number": "how is it that the bot doesnt even understand ok..it should give sensible and approp response".
+  - "ok", "sure", "haan", "theek hai" while a number, a name or a few words are asked for: Sure. and the question again, kindly; for a reference number, where to find it and how it reads. "thanks" and "hello" are heard as what they are.
+  - "I don't have it", "lost it", "pata nahi" to a reference number: where it is (the email PFA sent), and the help desk instead, or something else.
+  - Where the question wants yes or no, or one of its choices, "ok" is still its answer.
+
 ## v1.577
 
 - **The membership card online is the owner's own template.** Owner, 15 Nov 2026: "PFA-Premium-Membership.html for membership. let this be the exact template", then "font should be marcellus in membership card".
-  - Matte black, the PFA logo for dark grounds, the tier (Golden Membership) at the top right, the member's photograph in black and white fading into the card on the right, Member, the name and the place on the left, and the member number and Member since along the foot; all in Marcellus.
-  - A member's photograph is usually taken against a plain wall, which would show as a pale panel on the black card; the wall is taken down to black, softly at the edge, as the card is drawn, so the face fades in as the template's does. A busy background is left as it is.
+  - Matte black, the PFA logo for dark grounds, the tier (Golden Membership) at the top right, Member, the name and the place on the left, and the member number and Member since along the foot; all in Marcellus.
   - The back: A voice for the voiceless., that it is a digital card for the screen and not to be printed, the line on misuse, Smt. Maneka Sanjay Gandhi's signature, the QR code (Scan to verify) and peopleforanimalsindia.org with the member number along the foot.
   - It keeps a bank card's shape on a phone too, as the template does; a long name, or the back's message on a small screen, steps down in size to fit.
 - **The card online: its back, its signature, and no printing.** Owner, 15 Nov 2026: "give option to adjust the sign position. and dont print the url. and at the back instead of check this card is genuine. just say something like find the card online or something standard. enterprise grade framing. and dont print the url instead if one scans the qr- it should open the right url and show the card. and mention it is digital card. not to be printed and have 1 line of no misues. standard line".

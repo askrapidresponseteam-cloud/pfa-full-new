@@ -33,86 +33,11 @@
     return '<svg viewBox="0 0 ' + (n + 2 * q) + ' ' + (n + 2 * q) + '" shape-rendering="crispEdges" role="img" aria-label="QR code of this card’s address"><rect width="100%" height="100%" fill="#fff"/><path d="' + path + '" fill="#000"/></svg>';
   }
 
-  /* The template's portrait fades into the black card; a member's photo
-     is usually taken against a plain light wall, which would show as a
-     pale panel. So the wall is found from the photo's top and sides and
-     taken down to black, softly at the edge, before the photo goes on the
-     card. A busy background is left as it is. Drawn here, in the browser,
-     from the photo PFA keeps; nothing is stored. */
-  function cutout(img) {
-    if (!img || img._dcCut || typeof document === 'undefined') return;
-    function run() {
-      if (img._dcCut) return;
-      img._dcCut = true;
-      try {
-        var w0 = img.naturalWidth;
-        var h0 = img.naturalHeight;
-        if (!w0 || !h0) return;
-        var k = Math.min(1, 520 / Math.max(w0, h0));
-        var w = Math.max(1, Math.round(w0 * k));
-        var h = Math.max(1, Math.round(h0 * k));
-        var c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        var x = c.getContext && c.getContext('2d');
-        if (!x) return;
-        x.drawImage(img, 0, 0, w, h);
-        var px = x.getImageData(0, 0, w, h);
-        var p = px.data;
-        var seeds = [];
-        var i;
-        for (i = 0; i < w; i += 1) seeds.push(i);
-        for (i = 1; i < Math.round(h * 0.75); i += 1) { seeds.push(i * w); seeds.push(i * w + w - 1); }
-        function med(off) { var v = seeds.map(function (s) { return p[s * 4 + off]; }).sort(function (a, b) { return a - b; }); return v[v.length >> 1]; }
-        var bg = [med(0), med(1), med(2)];
-        function far(s) { var dr = p[s * 4] - bg[0]; var dg = p[s * 4 + 1] - bg[1]; var db = p[s * 4 + 2] - bg[2]; return Math.sqrt(dr * dr + dg * dg + db * db); }
-        var T = 46;
-        var plain = seeds.filter(function (s) { return far(s) < T; }).length / seeds.length;
-        if (plain < 0.6) return;
-        var wall = new Uint8Array(w * h);
-        var queue = [];
-        seeds.forEach(function (s) { if (far(s) < T && !wall[s]) { wall[s] = 1; queue.push(s); } });
-        while (queue.length) {
-          var s = queue.pop();
-          var sx = s % w;
-          var nb = [sx > 0 ? s - 1 : -1, sx < w - 1 ? s + 1 : -1, s - w, s + w];
-          for (var n = 0; n < 4; n += 1) {
-            var t = nb[n];
-            if (t < 0 || t >= w * h || wall[t]) continue;
-            if (far(t) < T) { wall[t] = 1; queue.push(t); }
-          }
-        }
-        /* a soft edge: the wall's mask, blurred a few pixels each way */
-        var a = new Float32Array(w * h);
-        for (i = 0; i < w * h; i += 1) a[i] = wall[i] ? 0 : 1;
-        var r = Math.max(2, Math.round(w / 160));
-        for (var pass = 0; pass < 2; pass += 1) {
-          var b = new Float32Array(w * h);
-          for (var yy = 0; yy < h; yy += 1) {
-            for (var xx = 0; xx < w; xx += 1) {
-              var sum = 0; var cnt = 0;
-              for (var d2 = -r; d2 <= r; d2 += 1) {
-                var q = pass ? yy + d2 : xx + d2;
-                if (q < 0 || q >= (pass ? h : w)) continue;
-                sum += a[pass ? q * w + xx : yy * w + q]; cnt += 1;
-              }
-              b[yy * w + xx] = sum / cnt;
-            }
-          }
-          a = b;
-        }
-        for (i = 0; i < w * h; i += 1) { p[i * 4] *= a[i]; p[i * 4 + 1] *= a[i]; p[i * 4 + 2] *= a[i]; }
-        x.putImageData(px, 0, 0);
-        img.src = c.toDataURL('image/jpeg', 0.92);
-      } catch (e) { /* the photo as it is */ }
-    }
-    if (img.complete && img.naturalWidth) run(); else img.addEventListener('load', run);
-  }
-
   /* The membership card online, on the owner's own template (15 Nov 2026:
      "PFA-Premium-Membership.html for membership. let this be the exact
-     template"): matte black, the PFA logo for dark grounds, the member's
-     photograph in black and white fading into the card on the right, the
-     name, the place, and the number and the year along the foot; on the
+     template"): matte black, the PFA logo for dark grounds, the name, the
+     place, and the number and the year along the foot, with no photograph
+     ("i dont need this kinda display"); on the
      back "A voice for the voiceless.", what the card is and is not for,
      the chairperson's signature and the QR code that opens the card. */
   function premium(d, o, base, st) {
@@ -124,19 +49,23 @@
     return ''
       + '<section class="dc__face dc__front" aria-label="Front">'
       + '<div class="dcm__brand">' + logo + '<span class="dcm__tier">' + esc((tier ? tier + ' ' : '') + 'Membership') + '</span></div>'
-      + (o.photo ? '<img class="dcm__portrait" src="' + esc(o.photo) + '" alt="' + esc(d.name) + '">' : '')
       + '<div class="dcm__details"><div class="dcm__label">Member</div><div class="dcm__name">' + esc(d.name) + '</div>' + (place ? '<div class="dcm__role">' + esc(place) + '</div>' : '') + '</div>'
       + '<div class="dcm__footer"><span>' + esc(number) + '</span>' + (since ? '<span>Member since&nbsp;&nbsp;' + since[1] + '</span>' : '') + '</div>'
       + (st.s === 'valid' ? '' : '<div class="dc__void"><span>' + esc(st.word.toUpperCase()) + '</span></div>')
       + '</section>'
       + '<section class="dc__face dc__back" aria-label="Back">'
       + '<div class="dcm__brand">' + logo + '</div>'
-      + '<div class="dcm__content"><div class="dcm__message"><h2>A voice for<br>the voiceless.</h2>'
-      + '<p>This digital card identifies the named member of People for Animals. It is for display on screen only and is not to be printed.</p>'
-      + '<p>Non-transferable. Any misuse will lead to its withdrawal.</p>'
-      + '<div class="dcm__sign"><img src="' + esc(base) + 'assets/certificates/signature.png" alt="Signature of Smt. Maneka Sanjay Gandhi" width="504" height="146"><span>Smt. Maneka Sanjay Gandhi, Chairperson</span></div></div>'
+      /* owner, 15 Nov 2026: "a voice for the voiceless can be in 1 row",
+         each sentence on its own line ("'it is for' can be in the same row
+         as display on screen"), and the signature lower, just above the
+         line, with the name and under it "Chairperson, People for Animals" */
+      + '<div class="dcm__content"><div class="dcm__message"><h2>A voice for the voiceless.</h2>'
+      + '<p>This digital card identifies the named member of People for Animals.</p>'
+      + '<p>It is for display on screen only and is not to be printed.</p>'
+      + '<p>Non-transferable. Any misuse will lead to its withdrawal.</p></div>'
       + '<div class="dcm__qr">' + qr(d.url) + '<div class="dcm__scan">Scan to verify</div></div></div>'
-      + '<div class="dcm__footer"><span>peopleforanimalsindia.org</span><span>' + esc(number) + '</span></div>';
+      + '<div class="dcm__base"><div class="dcm__sign"><img src="' + esc(base) + 'assets/certificates/signature.png" alt="Signature of Smt. Maneka Sanjay Gandhi" width="504" height="146"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
+      + '<div class="dcm__footer"><span>peopleforanimalsindia.org</span><span>' + esc(number) + '</span></div></div>';
   }
 
   function state(d) {
@@ -219,7 +148,6 @@
     var btn = box.querySelector('[data-dc-flip]');
     if (btn) btn.addEventListener('click', flip);
     show('front');
-    if (member) cutout(box.querySelector('.dcm__portrait'));
 
     /* A long name or place never runs into the logo or the signature: the
        name and the place step down in size until the front has room, at
@@ -246,13 +174,13 @@
     function fitBack() {
       if (!member) return;
       var msg = back.querySelector('.dcm__content');
-      var foot = back.querySelector('.dcm__footer');
+      var foot = back.querySelector('.dcm__base');
       if (!msg || !foot) return;
       var f = 1;
       back.style.setProperty('--bfit', '1');
-      for (var i = 0; i < 10; i += 1) {
+      for (var i = 0; i < 4; i += 1) {
         if (msg.getBoundingClientRect().bottom <= foot.getBoundingClientRect().top - back.getBoundingClientRect().width * 0.012) break;
-        f = Math.round(f * 92) / 100;
+        f = Math.round(f * 95) / 100;
         back.style.setProperty('--bfit', String(f));
       }
     }

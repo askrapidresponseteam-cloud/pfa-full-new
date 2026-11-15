@@ -6,10 +6,16 @@
    never sent or shown the card: the printed card is the only copy (owner,
    26 Oct 2026, as for the colony caregiver card).
 
-   The design is the owner's (26 Oct 2026): brushed silver, the PFA logo and
-   MEMBERSHIP CARD across the top, the member's details on the left with the
-   chairperson's signature under them, and the photograph on the right. On
-   the back, the large logo and the same return lines as the caregiver card.
+   The design is the owner's own template (15 Nov 2026: "PFA-Premium-
+   Membership.html for membership. let this be the exact template", then
+   "Black design everywhere"), the same as the card online
+   (assets/digital-card.js): matte black, the PFA logo for dark grounds
+   and the tier across the top, Member, the name and the place on the
+   left, and the member number and Member since along the foot, all in
+   Marcellus; no photograph ("i dont need this kinda display"). On the
+   back, A voice for the voiceless., what the card is for, a QR code that
+   checks the member number on the site, and the chairperson's signature
+   just above the line.
    ISO/IEC 7810 ID-1, 85.6 x 54 mm, landscape. Every number below is in
    tenths of a millimetre on that card (856 x 540).
 
@@ -24,23 +30,22 @@
   var CARD = { w: 85.6, h: 54 };       // mm
   var REF = { w: 856, h: 540 };        // tenths of a mm
 
-  var INK = '#1b1b1b';
-  var MUTED = '#383836';
-  var RULE = 'rgba(27,27,27,0.55)';
-  var FRAME = 'rgba(27,27,27,0.40)';
-  var WELL = 'rgba(255,255,255,0.18)';
-  var EMBOSS = 'rgba(255,255,255,0.6)';
+  var INK = '#e7e7e5';
+  var TIER = '#c1c5c9';
+  var LABEL = '#969da5';
+  var ROLE = '#b4b9bf';
+  var FOOT = '#aeb4bb';
+  var RULE = 'rgba(255,255,255,0.18)';
+  var EMBOSS = '';
 
-  var SERIF = '"PFA Card Cinzel", Georgia, serif';
-  var SANS = '"PFA Card DM Sans", Arial, Helvetica, sans-serif';
+  var SERIF = '"PFA Card Marcellus", Marcellus, Georgia, serif';
+  var SANS = SERIF;
   var FONTS = [
-    ['PFA Card Cinzel', 'fonts/cinzel-latin-500.woff2', '500'],
-    ['PFA Card Cinzel', 'fonts/cinzel-latin-600.woff2', '600'],
-    ['PFA Card DM Sans', 'fonts/dm-sans-latin-400.woff2', '400'],
-    ['PFA Card DM Sans', 'fonts/dm-sans-latin-500.woff2', '500'],
-    ['PFA Card DM Sans', 'fonts/dm-sans-latin-600.woff2', '600']
+    ['PFA Card Marcellus', 'fonts/marcellus-latin.woff2', '400']
   ];
-  var LOGO_SRC = 'media/member-card-logo.png';
+  var LOGO_SRC = 'img/logo-dark.png';
+  /* the member number, checked on the site by anyone who scans the back */
+  var CHECK_URL = 'https://peopleforanimalsindia.org/verify-certificate.html?n=';
   /* Smt. Maneka Sanjay Gandhi's signature (owner, 15 Nov 2026: "Add Maneka
      Gandhi's signature to caregiver and membership cards using the same
      logic as the internship certificate"): the certificate's own, at print
@@ -60,33 +65,33 @@
     return signatureAt();
   }
   function signatureAt() { return { x: sigAt.x, y: sigAt.y }; }
-  var LOGO_ASPECT = 386 / 259;
+  var LOGO_ASPECT = 924 / 316;
 
-  /* ---- the layout --------------------------------------------------------- */
+  /* ---- the layout: the template's 640 px card, in tenths of a mm -------- */
   var L = {
-    pad: { top: 42, side: 52, bottom: 44 },
-    radius: 32,
-    logo: { x: 52, y: 42, w: 140, h: 94 },
-    title: { text: 'MEMBERSHIP CARD', right: 804, base: 102, size: 36, track: 0.1 },
-    body: { top: 160, bottom: 496 },
-    photo: { x: 552, y: 160, w: 252, h: 336, r: 14, line: 2 },
-    left: { x: 52, w: 464 },
-    label: { size: 16, track: 0.18 },
-    name: { labelBase: 175, base: 217, size: 38, track: 0.04 },
-    /* the left column is the wider: a member number is 18 characters, and
-       one column line for both rows keeps them aligned */
-    grid: { gap: 28, rows: [{ labelBase: 260, base: 290, split: 0.56 }, { labelBase: 334, base: 364, split: 0.56 }], size: 21, floor: 16, track: 0.02 },
-    sign: { x: 52, lineY: 449, lineW: 250, nameBase: 474, nameSize: 17, roleBase: 494, roleSize: 14 },
-    back: { logo: { w: 344, h: 231, y: 76 }, gap: 34, size: 18, lead: 23.4 }
+    pad: 51,
+    radius: 40,
+    logo: { x: 51, y: 51, w: 233, h: 80 },
+    tier: { right: 805, base: 97, size: 16, track: 0.24 },
+    left: { x: 51, w: 640 },
+    label: { size: 14, track: 0.26 },
+    name: { labelBase: 330, base: 382, size: 42, track: 0.01 },
+    role: { base: 424, size: 15, track: 0.18 },
+    rule: { y: 456 },
+    foot: { base: 502, size: 16, track: 0.2 },
+    back: {
+      head: { base: 206, size: 35, track: 0 },
+      lines: { first: 244, lead: 24, size: 15 },
+      qr: { x: 655, y: 160, w: 150, label: 336, labelSize: 12 },
+      sign: { h: 50, nameBase: 420, nameSize: 15, roleBase: 441, roleSize: 12.5 }
+    }
   };
 
-  var SIGNATORY = { name: 'Smt. Maneka Sanjay Gandhi', role: 'CHAIRPERSON, PEOPLE FOR ANIMALS' };
-  var RETURN_LINES = [
-    'This card is non-transferable.',
-    'If found, please return it to-',
-    'People For Animals.',
-    '4-T, DCM Building, 16 Barakhamba Road,',
-    'New Delhi 110001, India'
+  var SIGNATORY = { name: 'SMT. MANEKA SANJAY GANDHI', role: 'CHAIRPERSON, PEOPLE FOR ANIMALS' };
+  var BACK_LINES = [
+    'This card identifies the named member of People for Animals.',
+    'If found, please return it to a PFA centre.',
+    'Non-transferable. Any misuse will lead to its withdrawal.'
   ];
 
   /* ---- loading ------------------------------------------------------------ */
@@ -108,7 +113,7 @@
     });
     var signed = new Promise(function (resolve) {
       var img = new Image();
-      img.onload = function () { signature = img; resolve(); };
+      img.onload = function () { signature = whiten(img); resolve(); };
       img.onerror = function () { resolve(); };
       img.src = SIG_SRC;
     });
@@ -116,6 +121,21 @@
       .then(function (l) { if (l && l.cards && l.cards.member) setSignature(l.cards.member); }, function () {});
     loading = Promise.all(fonts.concat([image, signed, placed]));
     return loading;
+  }
+
+  /* the signature in white, for the black card: its own ink, filled white */
+  function whiten(img) {
+    try {
+      var c = document.createElement('canvas');
+      c.width = img.naturalWidth || img.width;
+      c.height = img.naturalHeight || img.height;
+      var x = c.getContext('2d');
+      x.drawImage(img, 0, 0);
+      x.globalCompositeOperation = 'source-in';
+      x.fillStyle = '#ffffff';
+      x.fillRect(0, 0, c.width, c.height);
+      return c;
+    } catch (e) { return img; }
   }
 
   /* ---- type ----------------------------------------------------------------- */
@@ -173,7 +193,7 @@
   /* Whether a name prints whole at the card's one size. */
   function fitsName(name) {
     var ctx = probeCtx();
-    font(ctx, SERIF, '500', L.name.size);
+    font(ctx, SERIF, '400', L.name.size);
     return measure(ctx, name, L.name.size, L.name.track) <= L.left.w;
   }
 
@@ -196,30 +216,17 @@
     return '';
   }
 
-  /* ---- the ground: brushed silver ----------------------------------------- */
-  function ground(ctx, sheenX) {
-    var g = ctx.createLinearGradient(0, 0, REF.w, REF.w * Math.tan(22 * Math.PI / 180));
-    [[0, '#9a9995'], [0.24, '#c7c6c1'], [0.44, '#f1f0ec'], [0.62, '#b9b8b3'], [0.80, '#d4d3ce'], [1, '#9d9c97']]
-      .forEach(function (s) { g.addColorStop(s[0], s[1]); });
+  /* ---- the ground: the template's matte black ----------------------------- */
+  function ground(ctx) {
+    /* linear-gradient(125deg, #303234 0%, #111213 39%, #08090a 75%, #202224 100%) */
+    var a = 125 * Math.PI / 180;
+    var dx = Math.sin(a);
+    var dy = -Math.cos(a);
+    var half = (Math.abs(REF.w * dx) + Math.abs(REF.h * dy)) / 2;
+    var g = ctx.createLinearGradient(REF.w / 2 - dx * half, REF.h / 2 - dy * half, REF.w / 2 + dx * half, REF.h / 2 + dy * half);
+    [[0, '#303234'], [0.39, '#111213'], [0.75, '#08090a'], [1, '#202224']].forEach(function (s) { g.addColorStop(s[0], s[1]); });
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, REF.w, REF.h);
-
-    ctx.save();
-    ctx.translate(REF.w * sheenX, REF.h * 0.2);
-    ctx.scale(0.55 * REF.w / (1.4 * REF.h), 1);
-    var r = ctx.createRadialGradient(0, 0, 0, 0, 0, 1.4 * REF.h * 0.6);
-    r.addColorStop(0, 'rgba(255,255,255,0.45)');
-    r.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = r;
-    ctx.fillRect(-REF.w * 2, -REF.h * 2, REF.w * 4, REF.h * 4);
-    ctx.restore();
-
-    for (var y = 0; y < REF.h; y += 4) {
-      ctx.fillStyle = 'rgba(255,255,255,0.035)';
-      ctx.fillRect(0, y, REF.w, 1);
-      ctx.fillStyle = 'rgba(0,0,0,0.04)';
-      ctx.fillRect(0, y + 1, REF.w, 1);
-    }
   }
 
   function roundRect(ctx, x, y, w, h, r) {
@@ -248,102 +255,99 @@
   }
 
   /* ---- the faces ------------------------------------------------------------ */
-  function front(ctx, card, photo) {
-    ground(ctx, 0.4);
+  function memberSince(card) {
+    var m = /^(\d{4})/.exec(String(card.approvedAt || card.validFrom || card.paidAt || ''));
+    return m ? m[1] : '';
+  }
+  function tierText(card) {
+    var t = String(card.tierWord || card.tierLabel || '').replace(/\s*membership$/i, '').trim();
+    return ((t ? t + ' ' : '') + 'Membership').toUpperCase();
+  }
+  function rule(ctx) {
+    ctx.fillStyle = RULE;
+    ctx.fillRect(L.pad, L.rule.y, REF.w - 2 * L.pad, 1.2);
+  }
+
+  function front(ctx, card) {
+    ground(ctx);
+    logoAt(ctx, L.logo.x, L.logo.y, L.logo.w, L.logo.h);
+    ctx.fillStyle = TIER;
+    font(ctx, SERIF, '400', L.tier.size);
+    tracked(ctx, tierText(card), L.tier.right, L.tier.base, L.tier.size, L.tier.track, 'right');
+
+    ctx.fillStyle = LABEL;
+    font(ctx, SERIF, '400', L.label.size);
+    tracked(ctx, 'MEMBER', L.left.x, L.name.labelBase, L.label.size, L.label.track, 'left');
+    ctx.fillStyle = INK;
+    var name = card.printName || card.name || '';
+    var size = fitSize(ctx, SERIF, '400', name, L.name.size, 30, L.name.track, L.left.w);
+    tracked(ctx, name, L.left.x, L.name.base, size, L.name.track, 'left');
+    var place = [card.district, card.state].filter(Boolean).join(', ').toUpperCase();
+    if (place) {
+      ctx.fillStyle = ROLE;
+      var ps = fitSize(ctx, SERIF, '400', place, L.role.size, 11, L.role.track, L.left.w);
+      tracked(ctx, place, L.left.x, L.role.base, ps, L.role.track, 'left');
+    }
+
+    rule(ctx);
+    ctx.fillStyle = FOOT;
+    font(ctx, SERIF, '400', L.foot.size);
+    tracked(ctx, String(card.cardId || card.reference || '').toUpperCase(), L.pad, L.foot.base, L.foot.size, L.foot.track, 'left');
+    var since = memberSince(card);
+    if (since) tracked(ctx, 'MEMBER SINCE  ' + since, REF.w - L.pad, L.foot.base, L.foot.size, L.foot.track, 'right');
+  }
+
+  function back(ctx, card) {
+    ground(ctx);
+    var B = L.back;
     logoAt(ctx, L.logo.x, L.logo.y, L.logo.w, L.logo.h);
 
     ctx.fillStyle = INK;
-    font(ctx, SERIF, '600', L.title.size);
-    tracked(ctx, L.title.text, L.title.right, L.title.base, L.title.size, L.title.track, 'right', true);
+    font(ctx, SERIF, '400', B.head.size);
+    tracked(ctx, 'A voice for the voiceless.', L.pad, B.head.base, B.head.size, B.head.track, 'left');
+    ctx.fillStyle = FOOT;
+    font(ctx, SERIF, '400', B.lines.size);
+    BACK_LINES.forEach(function (line, i) { tracked(ctx, line, L.pad, B.lines.first + i * B.lines.lead, B.lines.size, 0.01, 'left'); });
 
-    /* the name */
-    ctx.fillStyle = MUTED;
-    font(ctx, SANS, '600', L.label.size);
-    tracked(ctx, 'NAME', L.left.x, L.name.labelBase, L.label.size, L.label.track, 'left');
-    ctx.fillStyle = INK;
-    font(ctx, SERIF, '500', L.name.size);
-    tracked(ctx, card.printName || card.name || '', L.left.x, L.name.base, L.name.size, L.name.track, 'left', true);
-
-    /* the two rows of details */
-    var cells = [
-      [['MEMBER ID', card.cardId || card.reference || ''], ['VALID TILL', card.lifetime ? 'Lifetime' : shortDate(card.validUntil)]],
-      [['DISTRICT', card.district || ''], ['STATE', card.state || '']]
-    ];
-    cells.forEach(function (row, i) {
-      var r = L.grid.rows[i];
-      var colA = (L.left.w - L.grid.gap) * r.split;
-      var colB = L.left.w - L.grid.gap - colA;
-      var xB = L.left.x + colA + L.grid.gap;
-      row.forEach(function (cell, j) {
-        var x = j ? xB : L.left.x;
-        var max = j ? colB : colA;
-        ctx.fillStyle = MUTED;
-        font(ctx, SANS, '600', L.label.size);
-        tracked(ctx, cell[0], x, r.labelBase, L.label.size, L.label.track, 'left');
-        ctx.fillStyle = INK;
-        var size = fitSize(ctx, SANS, '500', cell[1], L.grid.size, L.grid.floor, L.grid.track, max);
-        tracked(ctx, cell[1], x, r.base, size, L.grid.track, 'left', true);
-      });
-    });
-
-    /* the signature, on the line */
-    if (signature) {
-      var sw = SIG_BOX.h * SIG_BOX.aspect;
+    /* the QR code: the member number, checked on the site */
+    var number = String((card && (card.cardId || card.reference)) || '');
+    var Q = B.qr;
+    if (number && window.PFAQR) {
       ctx.save();
+      ctx.fillStyle = '#ffffff';
+      roundRect(ctx, Q.x, Q.y, Q.w, Q.w, 8);
+      ctx.fill();
+      ctx.restore();
+      var quiet = Q.w * 2 / 37;
+      window.PFAQR.paint(ctx, CHECK_URL + encodeURIComponent(number), Q.x + quiet, Q.y + quiet, Q.w - 2 * quiet);
+      ctx.fillStyle = FOOT;
+      font(ctx, SERIF, '400', Q.labelSize);
+      tracked(ctx, 'SCAN TO VERIFY', Q.x + Q.w / 2, Q.label, Q.labelSize, 0.24, 'center');
+    }
+
+    /* the signature, just above the line, the name and the role under it */
+    if (signature) {
+      var sw = B.sign.h * SIG_BOX.aspect;
+      ctx.save();
+      ctx.globalAlpha = 0.92;
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(signature, L.sign.x + (L.sign.lineW - sw) / 2 + sigAt.x, L.sign.lineY - SIG_BOX.gap - SIG_BOX.h + sigAt.y, sw, SIG_BOX.h);
+      ctx.drawImage(signature, L.pad + sigAt.x, B.sign.nameBase - 16 - B.sign.h + sigAt.y, sw, B.sign.h);
       ctx.restore();
     }
-    ctx.strokeStyle = RULE;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(L.sign.x, L.sign.lineY);
-    ctx.lineTo(L.sign.x + L.sign.lineW, L.sign.lineY);
-    ctx.stroke();
     ctx.fillStyle = INK;
-    font(ctx, SERIF, '600', L.sign.nameSize);
-    tracked(ctx, SIGNATORY.name, L.sign.x, L.sign.nameBase, L.sign.nameSize, 0.02, 'left');
-    ctx.fillStyle = MUTED;
-    font(ctx, SANS, '500', L.sign.roleSize);
-    tracked(ctx, SIGNATORY.role, L.sign.x, L.sign.roleBase, L.sign.roleSize, 0.1, 'left');
+    font(ctx, SERIF, '400', B.sign.nameSize);
+    tracked(ctx, SIGNATORY.name, L.pad, B.sign.nameBase, B.sign.nameSize, 0.12, 'left');
+    ctx.fillStyle = LABEL;
+    font(ctx, SERIF, '400', B.sign.roleSize);
+    tracked(ctx, SIGNATORY.role, L.pad, B.sign.roleBase, B.sign.roleSize, 0.12, 'left');
 
-    /* the photograph */
-    var P = L.photo;
-    ctx.save();
-    roundRect(ctx, P.x, P.y, P.w, P.h, P.r);
-    ctx.fillStyle = WELL;
-    ctx.fill();
-    ctx.clip();
-    if (photo && photo.width) {
-      /* the whole photograph, never cut to fit (29 Oct 2026); the member framed
-         it to this window's shape (assets/photo-editor.js), so it fills it */
-      var scale = Math.min(P.w / photo.width, P.h / photo.height);
-      var w = photo.width * scale;
-      var h = photo.height * scale;
-      ctx.drawImage(photo, P.x + (P.w - w) / 2, P.y + (P.h - h) / 2, w, h);
-    } else {
-      ctx.fillStyle = MUTED;
-      font(ctx, SANS, '600', L.label.size);
-      tracked(ctx, 'PHOTO', P.x + P.w / 2, P.y + P.h / 2 + 6, L.label.size, 0.22, 'center');
-    }
-    ctx.restore();
-    ctx.strokeStyle = FRAME;
-    ctx.lineWidth = P.line;
-    roundRect(ctx, P.x + P.line / 2, P.y + P.line / 2, P.w - P.line, P.h - P.line, P.r);
-    ctx.stroke();
-  }
-
-  function back(ctx) {
-    ground(ctx, 0.6);
-    var B = L.back;
-    logoAt(ctx, (REF.w - B.logo.w) / 2, B.logo.y, B.logo.w, B.logo.h);
-    ctx.fillStyle = INK;
-    font(ctx, SANS, '400', B.size);
-    var y = B.logo.y + B.logo.h + B.gap + B.size;
-    RETURN_LINES.forEach(function (line, i) {
-      tracked(ctx, line, REF.w / 2, y + i * B.lead, B.size, 0, 'center');
-    });
+    rule(ctx);
+    ctx.fillStyle = FOOT;
+    font(ctx, SERIF, '400', 14);
+    tracked(ctx, 'peopleforanimalsindia.org', L.pad, L.foot.base, 14, 0.08, 'left');
+    font(ctx, SERIF, '400', L.foot.size);
+    tracked(ctx, number.toUpperCase(), REF.w - L.pad, L.foot.base, L.foot.size, L.foot.track, 'right');
   }
 
   /* Draws one face onto a canvas at `pxPerUnit` (1 = 856 x 540). Rounded
@@ -360,9 +364,9 @@
     ctx.clearRect(0, 0, REF.w, REF.h);
     ctx.save();
     if (o.rounded !== false) { roundRect(ctx, 0, 0, REF.w, REF.h, L.radius); ctx.clip(); }
-    if (side === 'back') back(ctx); else front(ctx, card || {}, o.photo || null);
+    if (side === 'back') back(ctx, card || {}); else front(ctx, card || {});
     if (o.rounded !== false) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.14)';
       ctx.lineWidth = 2;
       roundRect(ctx, 1, 1, REF.w - 2, REF.h - 2, L.radius);
       ctx.stroke();

@@ -120,7 +120,8 @@
 
 /* ---- the membership card: the owner's template (15 Nov 2026: "PFA-
    Premium-Membership.html for membership. let this be the exact
-   template"), in Marcellus throughout ("font should be marcellus in
+   template"), with no photograph ("i dont need this kinda display"),
+   in Marcellus throughout ("font should be marcellus in
    membership card"). Measured from the template's 640 px card, in the
    card's own width, so it holds its proportions at every size, a bank
    card's shape on a phone too. ---- */
@@ -132,30 +133,42 @@
 .dcm__brand{display:flex;align-items:center;gap:1.9cqw;position:relative;z-index:2}
 .dcm__logo{display:block;width:27.2cqw;height:auto}
 .dcm__tier{margin-left:auto;font-size:max(8px,1.5cqw);letter-spacing:.36cqw;text-transform:uppercase;color:#c1c5c9}
-.dcm__portrait{position:absolute;right:0;top:17%;width:59%;height:76%;object-fit:cover;mix-blend-mode:screen;filter:grayscale(1);opacity:.82;
-  -webkit-mask-image:linear-gradient(to right,transparent,#000 28%,#000 86%,transparent),linear-gradient(to bottom,transparent,#000 15%,#000 55%,transparent 100%);-webkit-mask-composite:source-in;
-  mask-image:linear-gradient(to right,transparent,#000 28%,#000 86%,transparent),linear-gradient(to bottom,transparent,#000 15%,#000 55%,transparent 100%);mask-composite:intersect}
-.dcm__details{position:absolute;left:6%;bottom:21%;z-index:2;max-width:50%}
+.dcm__details{position:absolute;left:6%;bottom:21%;z-index:2;max-width:72%}
 .dcm__label{font-size:max(8px,1.3cqw);letter-spacing:.36cqw;text-transform:uppercase;color:#969da5}
 .dcm__name{font-size:calc(max(17px,4.4cqw) * var(--fit,1));line-height:1.12;margin:1.4cqw 0 2.2cqw;overflow-wrap:anywhere}
 .dcm__role{font-size:max(8px,1.3cqw);letter-spacing:.26cqw;text-transform:uppercase;color:#b4b9bf}
 .dcm__footer{position:absolute;left:6%;right:6%;bottom:7%;display:flex;justify-content:space-between;gap:3cqw;border-top:1px solid rgba(255,255,255,.14);padding-top:4%;font-size:max(8px,1.45cqw);letter-spacing:.3cqw;text-transform:uppercase;color:#aeb4bb;font-variant-numeric:tabular-nums}
 .dcm__content{display:flex;align-items:center;justify-content:space-between;gap:3.75cqw;position:absolute;left:6%;right:6%;top:28%}
-.dcm__message{max-width:64%}
-.dcm__message h2{font-family:var(--dc-serif);font-weight:400;font-size:calc(max(15px,4.06cqw) * var(--bfit,1));line-height:1.15;margin:0 0 1.4cqw}
+.dcm__message{min-width:0;flex:1 1 auto}
+.dcm__message h2{font-family:var(--dc-serif);font-weight:400;font-size:calc(max(15px,3.8cqw) * var(--bfit,1));line-height:1.15;margin:0 0 1.6cqw;white-space:nowrap}
 .dcm__message p{margin:0;font-size:calc(max(8.5px,1.6cqw) * var(--bfit,1));line-height:1.55;color:#aeb4bb}
 .dcm__message p + p{margin-top:.5cqw}
 .dcm__qr{width:17.5cqw;flex-shrink:0}
 .dcm__qr svg{display:block;width:100%;height:auto;border-radius:.8cqw}
 .dcm__scan{text-align:center;font-size:max(7px,1.1cqw);letter-spacing:.26cqw;text-transform:uppercase;color:#aeb4bb;margin-top:1.5cqw}
-.dcm__sign{margin-top:2.2cqw}
-.dcm__sign img{display:block;height:calc(max(18px,4.6cqw) * var(--bfit,1));width:auto;filter:brightness(0) invert(1);opacity:.9;margin:0 0 -.4cqw;transform:translate(calc(var(--sx,0) * 100cqw / 856),calc(var(--sy,0) * 100cqw / 856))}
-.dcm__sign span{display:block;font-size:calc(max(7px,1.15cqw) * var(--bfit,1));letter-spacing:.2cqw;text-transform:uppercase;color:#969da5}
+.dcm__base{position:absolute;left:6%;right:6%;bottom:7%;z-index:2}
+.dcm__base .dcm__footer{position:static}
+.dcm__sign{margin:0 0 2cqw}
+.dcm__sign img{display:block;height:max(18px,4.6cqw);width:auto;filter:brightness(0) invert(1);opacity:.9;margin:0 0 -.4cqw;transform:translate(calc(var(--sx,0) * 100cqw / 856),calc(var(--sy,0) * 100cqw / 856))}
+.dcm__sign b{display:block;font-weight:400;font-size:max(8px,1.3cqw);letter-spacing:.2cqw;text-transform:uppercase;color:#e7e7e5}
+.dcm__sign span{display:block;margin-top:.4cqw;font-size:max(7px,1.15cqw);letter-spacing:.2cqw;text-transform:uppercase;color:#969da5}
 .dc[data-kind="member"] .dcm__footer span{white-space:nowrap}
 .dc[data-kind="member"] .dc__back .dcm__footer{font-size:max(7px,1.25cqw);letter-spacing:.16cqw;text-transform:none}
 @container (max-width:519px){
   .dc[data-kind="member"] .dc__stage{aspect-ratio:85.6/53.98}
   .dc[data-kind="member"] .dc__face{border-radius:4.7% / 7.4%}
+  /* a phone: the back's message, signature and foot each keep their own
+     room, every line still on its own row */
+  .dc[data-kind="member"] .dc__back .dcm__logo{width:20cqw}
+  .dcm__content{top:26%}
+  .dcm__message h2{font-size:calc(max(13px,3.8cqw) * var(--bfit,1));margin-bottom:1.4cqw}
+  .dcm__message p{font-size:calc(max(8px,1.6cqw) * var(--bfit,1));line-height:1.4}
+  .dcm__message p + p{margin-top:.3cqw}
+  .dcm__sign{margin-bottom:1.8cqw}
+  .dcm__sign img{height:max(14px,4.6cqw)}
+  .dcm__sign b{font-size:max(7px,1.3cqw)}
+  .dcm__sign span{font-size:max(6.5px,1.15cqw);margin-top:.2cqw}
+  .dc[data-kind="member"] .dc__back .dcm__footer{font-size:max(6.5px,1.25cqw)}
 }
 
 /* the controls under the card */
