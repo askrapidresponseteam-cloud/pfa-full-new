@@ -77,16 +77,21 @@
   var ART_PRINT = ROOT + 'assets/certificates/frame-print.png?v=' + ART_V;
   var SIG_PRINT = ROOT + 'assets/certificates/signature-print.png?v=' + ART_V;
   var PRINT_SCALE = 6;
-  var SIG = { x: 798, y: 653, w: 252, h: 73, dx: 26, dy: 0 };
-  var SIG_RANGE = { x: 100, y: 50 };
-  var SIG_DEFAULT = { x: 26, y: 0 };
+  var SIG = { x: 798, y: 653, w: 252, h: 73, dx: 26, dy: 0, s: 100 };
+  var SIG_RANGE = { x: 100, y: 50, s: [60, 160] };
+  var SIG_DEFAULT = { x: 26, y: 0, s: 100 };
   function setLayout(l) {
     var c = function (v, max, d) { var n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(-max, Math.min(max, n)) : d; };
     SIG.dx = c(l && l.x, SIG_RANGE.x, SIG_DEFAULT.x);
     SIG.dy = c(l && l.y, SIG_RANGE.y, SIG_DEFAULT.y);
+    var s = Math.round(Number(l && l.s));
+    /* its size, in per cent (owner, 15 Nov 2026: "there should be option to
+       adjust the size of the sign as well"), grown or shrunk from the
+       middle of its foot, so it stays on its line */
+    SIG.s = Number.isFinite(s) && s > 0 ? Math.max(SIG_RANGE.s[0], Math.min(SIG_RANGE.s[1], s)) : SIG_DEFAULT.s;
     return layout();
   }
-  function layout() { return { x: SIG.dx, y: SIG.dy }; }
+  function layout() { return { x: SIG.dx, y: SIG.dy, s: SIG.s }; }
   /* design:start (scripts/build-certificate-art.js writes this) */
   var DESIGN = {
     "eyebrow": {
@@ -394,7 +399,11 @@
     /* the paper first, then the art on it, then the signature on the art */
     if (art) ctx.drawImage(art, 0, 0, W, H);
     else { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H); }
-    if (sig) ctx.drawImage(sig, SIG.x + SIG.dx, SIG.y + SIG.dy, SIG.w, SIG.h);
+    if (sig) {
+      var sw = SIG.w * SIG.s / 100;
+      var sh = SIG.h * SIG.s / 100;
+      ctx.drawImage(sig, SIG.x + SIG.dx + (SIG.w - sw) / 2, SIG.y + SIG.dy + (SIG.h - sh), sw, sh);
+    }
     ctx.textBaseline = 'alphabetic';
 
     /* the frame's two borders, then the purpose's words, in its colour */

@@ -58,15 +58,16 @@
      with the card's other assets). A card is never printed without it. */
   var SIG_SRC = 'assets/certificates/signature-print.png';
   var SIG_BOX = { h: 62, aspect: 1512 / 438, gap: 1 };
-  var SIG_RANGE = { x: 60, y: 30 };
-  var SIG_DEFAULT = { x: 0, y: 0 };
-  var sigAt = { x: SIG_DEFAULT.x, y: SIG_DEFAULT.y };
+  var SIG_RANGE = { x: 60, y: 30, s: [60, 160] };
+  var SIG_DEFAULT = { x: 0, y: 0, s: 100 };
+  var sigAt = { x: SIG_DEFAULT.x, y: SIG_DEFAULT.y, s: SIG_DEFAULT.s };
   function setSignature(l) {
     var c = function (v, max, d) { var n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(-max, Math.min(max, n)) : d; };
-    sigAt = { x: c(l && l.x, SIG_RANGE.x, SIG_DEFAULT.x), y: c(l && l.y, SIG_RANGE.y, SIG_DEFAULT.y) };
+    var s = Math.round(Number(l && l.s));
+    sigAt = { x: c(l && l.x, SIG_RANGE.x, SIG_DEFAULT.x), y: c(l && l.y, SIG_RANGE.y, SIG_DEFAULT.y), s: Number.isFinite(s) && s > 0 ? Math.max(SIG_RANGE.s[0], Math.min(SIG_RANGE.s[1], s)) : SIG_DEFAULT.s };
     return signatureAt();
   }
-  function signatureAt() { return { x: sigAt.x, y: sigAt.y }; }
+  function signatureAt() { return { x: sigAt.x, y: sigAt.y, s: sigAt.s }; }
   /* the saved place, asked once; the card's own place if it cannot be read */
   var placeReady = null;
   function loadPlace() {
@@ -343,11 +344,12 @@
     /* The signatory: the signature on the line, then the name and the
        role, centred under it. */
     if (data.signatureImage) {
-      var sw = SIG_BOX.h * SIG_BOX.aspect;
+      var shh = SIG_BOX.h * sigAt.s / 100;
+      var sw = shh * SIG_BOX.aspect;
       ctx.save();
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(data.signatureImage, P.v(L.centre - sw / 2 + sigAt.x), P.v(L.sign.y - SIG_BOX.gap - SIG_BOX.h + sigAt.y), P.v(sw), P.v(SIG_BOX.h));
+      ctx.drawImage(data.signatureImage, P.v(L.centre - sw / 2 + sigAt.x), P.v(L.sign.y - SIG_BOX.gap - shh + sigAt.y), P.v(sw), P.v(shh));
       ctx.restore();
     }
     hairline(ctx, P, L.sign.x, L.sign.y, L.sign.w, SIGN);

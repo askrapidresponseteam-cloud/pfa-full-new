@@ -55,16 +55,17 @@
      printed without it. */
   var SIG_SRC = 'assets/certificates/signature-print.png';
   var SIG_BOX = { h: 62, aspect: 1512 / 438, gap: 1 };
-  var SIG_RANGE = { x: 60, y: 30 };
-  var SIG_DEFAULT = { x: 0, y: 0 };
-  var sigAt = { x: 0, y: 0 };
+  var SIG_RANGE = { x: 60, y: 30, s: [60, 160] };
+  var SIG_DEFAULT = { x: 0, y: 0, s: 100 };
+  var sigAt = { x: 0, y: 0, s: 100 };
   var signature = null;
   function setSignature(l) {
     var c = function (v, max, d) { var n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(-max, Math.min(max, n)) : d; };
-    sigAt = { x: c(l && l.x, SIG_RANGE.x, SIG_DEFAULT.x), y: c(l && l.y, SIG_RANGE.y, SIG_DEFAULT.y) };
+    var s = Math.round(Number(l && l.s));
+    sigAt = { x: c(l && l.x, SIG_RANGE.x, SIG_DEFAULT.x), y: c(l && l.y, SIG_RANGE.y, SIG_DEFAULT.y), s: Number.isFinite(s) && s > 0 ? Math.max(SIG_RANGE.s[0], Math.min(SIG_RANGE.s[1], s)) : SIG_DEFAULT.s };
     return signatureAt();
   }
-  function signatureAt() { return { x: sigAt.x, y: sigAt.y }; }
+  function signatureAt() { return { x: sigAt.x, y: sigAt.y, s: sigAt.s }; }
   var LOGO_ASPECT = 924 / 316;
 
   /* ---- the layout: the template's 640 px card, in tenths of a mm -------- */
@@ -327,12 +328,13 @@
 
     /* the signature, just above the line, the name and the role under it */
     if (signature) {
-      var sw = B.sign.h * SIG_BOX.aspect;
+      var shh = B.sign.h * sigAt.s / 100;
+      var sw = shh * SIG_BOX.aspect;
       ctx.save();
       ctx.globalAlpha = 0.92;
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(signature, L.pad + sigAt.x, B.sign.nameBase - 16 - B.sign.h + sigAt.y, sw, B.sign.h);
+      ctx.drawImage(signature, L.pad + sigAt.x, B.sign.nameBase - 16 - shh + sigAt.y, sw, shh);
       ctx.restore();
     }
     ctx.fillStyle = INK;

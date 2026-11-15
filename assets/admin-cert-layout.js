@@ -46,7 +46,16 @@
 
   function C() { return window.PFACertificate; }
   function range() { var c = C(); return (c && c.SIG_RANGE) || { x: 100, y: 50 }; }
-  function home() { var c = C(); return (c && c.SIG_DEFAULT) || { x: 26, y: 0 }; }
+  function home() { var c = C(); var h = (c && c.SIG_DEFAULT) || { x: 26, y: 0 }; return { x: h.x, y: h.y, s: h.s || 100 }; }
+  /* the signature's size (owner, 15 Nov 2026: "there should be option to
+     adjust the size of the sign as well not just position"), in per cent */
+  var SIZE = { min: 60, max: 160 };
+  function sizeRow(id, data, value, extra) {
+    return '<div class="ct-sig__row"><label for="' + id + 'R">Size</label>'
+      + '<input id="' + id + 'R" type="range" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + value + '" ' + data + ' aria-label="Size">'
+      + '<span class="ct-sig__num"><input id="' + id + 'N" type="number" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + value + '" ' + data + ' aria-label="Size, in per cent"> %</span></div>';
+  }
+  function sizeOf(v) { var n = Math.round(Number(v)); return Number.isFinite(n) && n > 0 ? Math.max(SIZE.min, Math.min(SIZE.max, n)) : 100; }
   function now() { var c = C(); return c && c.layout ? c.layout() : home(); }
 
   function row(axis, label, max, value) {
@@ -64,7 +73,7 @@
 
   /* the + Signature position, as the pane is drawn */
   function panel(l) {
-    saved = l && Number.isFinite(Number(l.x)) ? { x: Number(l.x), y: Number(l.y), updatedAt: l.updatedAt || '', updatedBy: l.updatedBy || '' } : { x: home().x, y: home().y };
+    saved = l && Number.isFinite(Number(l.x)) ? { x: Number(l.x), y: Number(l.y), s: sizeOf(l.s), updatedAt: l.updatedAt || '', updatedBy: l.updatedBy || '' } : { x: home().x, y: home().y, s: 100 };
     if (latest && String(latest.updatedAt) >= String(saved.updatedAt || '')) saved = latest;
     var c = C();
     if (c && c.setLayout) c.setLayout(saved);
@@ -72,6 +81,7 @@
     return '<details class="fold ct-sig" id="ctSig"><summary>Signature position</summary><div class="ct-sig__body">'
       + row('x', 'Left / right', r.x, saved.x)
       + row('y', 'Up / down', r.y, saved.y)
+      + sizeRow('ctSigs', 'data-sig="s"', saved.s)
       + '<div class="ct-sig__acts"><button class="press" type="button" data-sig-act="save" disabled>Save for every certificate</button>'
       + '<button class="ghost" type="button" data-sig-act="reset">Reset</button>'
       + '<p class="say" data-sig-say role="status" aria-live="polite"></p></div>'
@@ -86,17 +96,18 @@
   }
   function show(axis, v) {
     var max = range()[axis];
-    var n = Math.max(-max, Math.min(max, Math.round(Number(v) || 0)));
+    var n = axis === 's' ? sizeOf(v) : Math.max(-max, Math.min(max, Math.round(Number(v) || 0)));
     ['R', 'N'].forEach(function (k) { var el = document.getElementById('ctSig' + axis + k); if (el && Number(el.value) !== n) el.value = n; });
     return n;
   }
   function apply() {
     var x = show('x', (document.getElementById('ctSigxN') || {}).value);
     var y = show('y', (document.getElementById('ctSigyN') || {}).value);
+    var sz = show('s', (document.getElementById('ctSigsN') || {}).value);
     var c = C();
-    if (c && c.setLayout) c.setLayout({ x: x, y: y });
+    if (c && c.setLayout) c.setLayout({ x: x, y: y, s: sz });
     redraw();
-    var changed = !saved || x !== saved.x || y !== saved.y;
+    var changed = !saved || x !== saved.x || y !== saved.y || sz !== (saved.s || 100);
     var b = document.querySelector('[data-sig-act="save"]');
     if (b) b.disabled = !changed;
     var say = document.querySelector('[data-sig-say]');
@@ -121,7 +132,7 @@
     var what = b.getAttribute('data-sig-act');
     var say = document.querySelector('[data-sig-say]');
     if (what === 'reset') {
-      show('x', home().x); show('y', home().y);
+      show('x', home().x); show('y', home().y); show('s', 100);
       apply();
       return;
     }
@@ -129,7 +140,7 @@
       var l = now();
       b.disabled = true;
       A.say(say, 'Saving…', '');
-      A.api('/api/admin/certificates', { method: 'POST', body: { action: 'layout', x: l.x, y: l.y } }).then(function (r) {
+      A.api('/api/admin/certificates', { method: 'POST', body: { action: 'layout', x: l.x, y: l.y, s: l.s || 100 } }).then(function (r) {
         saved = r.layout;
         latest = r.layout;
         var when = document.querySelector('[data-sig-when]');
@@ -145,7 +156,7 @@
     var c = C();
     if (saved && c && c.setLayout) {
       var l = c.layout();
-      if (l.x !== saved.x || l.y !== saved.y) c.setLayout(saved);
+      if (l.x !== saved.x || l.y !== saved.y || (l.s || 100) !== (saved.s || 100)) c.setLayout(saved);
     }
   }
   document.addEventListener('click', function (e) {
@@ -164,7 +175,7 @@
     caregiver: { mod: function () { return window.PFACaregiverCard; }, name: 'colony caregiver card' },
     member: { mod: function () { return window.PFAMemberCard; }, name: 'membership card' }
   };
-  var cardSaved = { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } };
+  var cardSaved = { caregiver: { x: 0, y: 0, s: 100 }, member: { x: 0, y: 0, s: 100 } };
   function cardRange(card) { var m = CARDS[card].mod(); return (m && m.SIG_RANGE) || { x: 60, y: 30 }; }
   function cardRow(card, axis, label, max, value) {
     var id = 'cs' + card + axis;
@@ -178,6 +189,7 @@
     return '<details class="fold ct-sig" data-csig-fold="' + card + '"><summary>Signature position</summary><div class="ct-sig__body">'
       + cardRow(card, 'x', 'Left / right', r.x, l.x)
       + cardRow(card, 'y', 'Up / down', r.y, l.y)
+      + sizeRow('cs' + card + 's', 'data-csig="' + card + '" data-axis="s"', l.s || 100)
       + '<div class="ct-sig__acts"><button class="press" type="button" data-csig-act="save" data-card="' + card + '" disabled>Save for every card</button>'
       + '<button class="ghost" type="button" data-csig-act="reset" data-card="' + card + '">Reset</button>'
       + '<p class="say" data-csig-say="' + card + '" role="status" aria-live="polite"></p></div>'
@@ -186,16 +198,17 @@
   }
   function cardShow(card, axis, v) {
     var max = cardRange(card)[axis];
-    var n = Math.max(-max, Math.min(max, Math.round(Number(v) || 0)));
+    var n = axis === 's' ? sizeOf(v) : Math.max(-max, Math.min(max, Math.round(Number(v) || 0)));
     ['R', 'N'].forEach(function (k) { var el = document.getElementById('cs' + card + axis + k); if (el && Number(el.value) !== n) el.value = n; });
     return n;
   }
   function cardApply(card) {
     var x = cardShow(card, 'x', (document.getElementById('cs' + card + 'xN') || {}).value);
     var y = cardShow(card, 'y', (document.getElementById('cs' + card + 'yN') || {}).value);
+    var sz = cardShow(card, 's', (document.getElementById('cs' + card + 'sN') || {}).value);
     var m = CARDS[card].mod();
-    if (m && m.setSignature) { m.setSignature({ x: x, y: y }); if (m.redraw) m.redraw(); }
-    var changed = x !== cardSaved[card].x || y !== cardSaved[card].y;
+    if (m && m.setSignature) { m.setSignature({ x: x, y: y, s: sz }); if (m.redraw) m.redraw(); }
+    var changed = x !== cardSaved[card].x || y !== cardSaved[card].y || sz !== (cardSaved[card].s || 100);
     var b = document.querySelector('[data-csig-act="save"][data-card="' + card + '"]');
     if (b) b.disabled = !changed;
     var say = document.querySelector('[data-csig-say="' + card + '"]');
@@ -212,8 +225,8 @@
     if (!l || !l.cards) return;
     Object.keys(CARDS).forEach(function (card) {
       if (!l.cards[card]) return;
-      cardSaved[card] = { x: Number(l.cards[card].x) || 0, y: Number(l.cards[card].y) || 0 };
-      cardShow(card, 'x', cardSaved[card].x); cardShow(card, 'y', cardSaved[card].y);
+      cardSaved[card] = { x: Number(l.cards[card].x) || 0, y: Number(l.cards[card].y) || 0, s: sizeOf(l.cards[card].s) };
+      cardShow(card, 'x', cardSaved[card].x); cardShow(card, 'y', cardSaved[card].y); cardShow(card, 's', cardSaved[card].s);
     });
   }).catch(function () { /* the cards' own place */ });
   document.addEventListener('input', function (e) {
@@ -229,14 +242,15 @@
     if (!b) return;
     var card = b.getAttribute('data-card');
     var say = document.querySelector('[data-csig-say="' + card + '"]');
-    if (b.getAttribute('data-csig-act') === 'reset') { cardShow(card, 'x', 0); cardShow(card, 'y', 0); cardApply(card); return; }
+    if (b.getAttribute('data-csig-act') === 'reset') { cardShow(card, 'x', 0); cardShow(card, 'y', 0); cardShow(card, 's', 100); cardApply(card); return; }
     if (b.disabled) return;
     var x = Number((document.getElementById('cs' + card + 'xN') || {}).value) || 0;
     var y = Number((document.getElementById('cs' + card + 'yN') || {}).value) || 0;
+    var sz = sizeOf((document.getElementById('cs' + card + 'sN') || {}).value);
     b.disabled = true;
     A.say(say, 'Saving\u2026', '');
-    A.api('/api/admin/card-signature', { method: 'POST', body: { card: card, x: x, y: y } }).then(function (r) {
-      cardSaved[card] = { x: r.layout.x, y: r.layout.y };
+    A.api('/api/admin/card-signature', { method: 'POST', body: { card: card, x: x, y: y, s: sz } }).then(function (r) {
+      cardSaved[card] = { x: r.layout.x, y: r.layout.y, s: sizeOf(r.layout.s) };
       A.say(say, 'Saved. Every ' + CARDS[card].name + ' drawn, printed or saved has the signature here from now on.', 'good');
     }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be saved.', 'bad'); });
   });
@@ -247,9 +261,9 @@
       var m = CARDS[card].mod();
       if (!m || !m.signatureAt) return;
       var now = m.signatureAt();
-      if (now.x !== cardSaved[card].x || now.y !== cardSaved[card].y) {
+      if (now.x !== cardSaved[card].x || now.y !== cardSaved[card].y || (now.s || 100) !== (cardSaved[card].s || 100)) {
         m.setSignature(cardSaved[card]);
-        cardShow(card, 'x', cardSaved[card].x); cardShow(card, 'y', cardSaved[card].y);
+        cardShow(card, 'x', cardSaved[card].x); cardShow(card, 'y', cardSaved[card].y); cardShow(card, 's', cardSaved[card].s);
         var b = document.querySelector('[data-csig-act="save"][data-card="' + card + '"]'); if (b) b.disabled = true;
         var say = document.querySelector('[data-csig-say="' + card + '"]'); if (say) A.say(say, '', '');
         if (m.redraw) m.redraw();
@@ -257,5 +271,5 @@
     });
   }, true);
 
-  window.PFACertLayout = { panel: panel, forget: forget, cardFold: cardFold };
+  window.PFACertLayout = { panel: panel, forget: forget, cardFold: cardFold, sizeRow: sizeRow };
 }());

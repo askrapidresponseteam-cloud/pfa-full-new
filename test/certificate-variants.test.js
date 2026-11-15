@@ -158,11 +158,13 @@ test('the cards: the signature above the line, moved by the studio, saved for ev
     assert.match(js, /The signature did not load, so the card/, `${f}: no card printed without it`);
     assert.match(js, /setSignature: setSignature/);
   }
-  assert.match(read('assets/caregiver-card.js'), /ctx\.drawImage\(data\.signatureImage, P\.v\(L\.centre - sw \/ 2 \+ sigAt\.x\), P\.v\(L\.sign\.y - SIG_BOX\.gap - SIG_BOX\.h \+ sigAt\.y\)/);
+  assert.match(read('assets/caregiver-card.js'), /var shh = SIG_BOX\.h \* sigAt\.s \/ 100;\n {6}var sw = shh \* SIG_BOX\.aspect;/, 'at the size the studio set (owner, 15 Nov 2026)');
+  assert.match(read('assets/caregiver-card.js'), /ctx\.drawImage\(data\.signatureImage, P\.v\(L\.centre - sw \/ 2 \+ sigAt\.x\), P\.v\(L\.sign\.y - SIG_BOX\.gap - shh \+ sigAt\.y\)/);
   const admin = read('admin.html');
   assert.match(admin, /<div data-sig-card="caregiver"><\/div>/);
   assert.match(admin, /<div data-sig-card="member"><\/div>/);
-  assert.match(read('assets/admin-cert-layout.js'), /A\.api\('\/api\/admin\/card-signature', \{ method: 'POST', body: \{ card: card, x: x, y: y \} \}\)/);
+  assert.match(read('assets/admin-cert-layout.js'), /A\.api\('\/api\/admin\/card-signature', \{ method: 'POST', body: \{ card: card, x: x, y: y, s: sz \} \}\)/);
+  assert.match(read('assets/admin-cert-layout.js'), /\+ sizeRow\('cs' \+ card \+ 's', 'data-csig="' \+ card \+ '" data-axis="s"', l\.s \|\| 100\)/, 'Size, under Left / right and Up / down');
   assert.match(read('api/index.js'), /'admin\/card-signature': \(\) => require\('\.\.\/lib\/routes\/admin\/card-signature\.js'\)/);
 
   /* saved, logged, and told to the panel; each card by its own section */
@@ -178,6 +180,14 @@ test('the cards: the signature above the line, moved by the studio, saved for ev
   assert.equal(auditRows.length, 2);
   assert.match(auditRows[0].detail, /membership card moved from 0 across, 0 down to 12 across, -4 down/);
   assert.deepEqual(await LAYOUT.readCards(db).then((c) => [c.caregiver.x, c.caregiver.y, c.member.x, c.member.y]), [-60, 30, 12, -4]);
+  /* the size too (owner, 15 Nov 2026: "there should be option to adjust the size of the sign as well not just position") */
+  assert.equal((await post({ card: 'member', x: 12, y: -4, s: 130 })).statusCode, 200);
+  assert.equal((await LAYOUT.readCards(db)).member.s, 130);
+  assert.equal((await post({ card: 'member', x: 12, y: -4, s: 400 })).statusCode, 422, 'a size past its range is refused');
+  assert.equal((await post({ card: 'member', x: 12, y: -4 })).statusCode, 200);
+  assert.equal((await LAYOUT.readCards(db)).member.s, 130, 'a move alone keeps the size');
+  assert.match(auditRows[auditRows.length - 2].detail, /size from 100% to 130%/);
+  await post({ card: 'member', x: 12, y: -4, s: 100 });
   /* the certificate's own place is untouched */
   assert.deepEqual(await LAYOUT.read(db).then((l) => [l.x, l.y]), [26, 0]);
   /* and the public answer carries the cards' */
@@ -186,7 +196,7 @@ test('the cards: the signature above the line, moved by the studio, saved for ev
   firebase._setDbForTests(db);
   try {
     const out = await new Promise((resolve) => { const { response } = respond(resolve); pub({ method: 'GET', headers: {} }, response); });
-    assert.deepEqual(out.json.cards, { caregiver: { x: -60, y: 30 }, member: { x: 12, y: -4 }, caregiverOnline: { x: 0, y: 0 }, memberOnline: { x: 0, y: 0 } });
+    assert.deepEqual(out.json.cards, { caregiver: { x: -60, y: 30, s: 100 }, member: { x: 12, y: -4, s: 100 }, caregiverOnline: { x: 0, y: 0, s: 100 }, memberOnline: { x: 0, y: 0, s: 100 } });
   } finally { firebase._setDbForTests(null); }
 });
 

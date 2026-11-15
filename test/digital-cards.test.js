@@ -160,7 +160,7 @@ test('the page: front and back, turned over by a tap, Enter or the button; sky b
   const js = read('assets/digital-card.js');
   assert.match(js, /if \(e\.key === 'Enter' \|\| e\.key === ' '\) \{ e\.preventDefault\(\); flip\(\); \}/);
   assert.match(js, /role="button" tabindex="0" aria-pressed="false"/);
-  assert.match(js, /assets\/certificates\/signature\.png/, 'the chairperson\'s signature, as on the printed cards');
+  assert.match(js, /assets\/certificates\/signature-print\.png" alt="Signature of Smt\. Maneka Sanjay Gandhi" width="1512" height="438"/, 'the chairperson\'s signature at print resolution, sharp at any zoom (owner, 15 Nov 2026: "is the signature super high res")');
   /* owner, 15 Nov 2026: "logo has to render perfectly. and it has to have
      transparent bg", "color of the card has to be chosen keeping the
      contrast in mind": every word in deep ink at 7 to 1 or more on every
@@ -249,7 +249,7 @@ test('the faces: clean, each thing said once', () => {
   assert.deepEqual([box.style.getPropertyValue('--sx'), box.style.getPropertyValue('--sy')], ['-20', '6']);
   const css = read('assets/digital-card.css');
   assert.match(css, /\.dc__sign img\{[^}]*transform:translate\(calc\(var\(--sx,0\) \* 100cqw \/ 856\),calc\(var\(--sy,0\) \* 100cqw \/ 856\)\)\}/, 'in tenths of a millimetre of a bank card 85.6 mm wide');
-  assert.match(css, /\.dc__sign img\{height:max\(30px,10cqw\);transform:translate\(calc\(var\(--sx,0\) \* 100cqw \/ 540\)/, 'and 54 mm wide upright');
+  assert.match(css, /\.dc__sign img\{height:calc\(max\(30px,10cqw\) \* var\(--ss,1\)\);transform:translate\(calc\(var\(--sx,0\) \* 100cqw \/ 540\)/, 'and 54 mm wide upright, at the size the panel set');
   assert.match(css, /@media print\{\.dc__stage,\.dc__acts,\.dc__hint\{display:none!important\}\.dc__noprint\{display:block/, 'the card itself does not print');
   assert.match(read('card.html'), /D\.render\(box, Object\.assign\(\{\}, d, \{ url: d\.url \|\| here \}\)/, 'the QR code opens the card\'s own address, as PFA issued it');
   assert.doesNotMatch(css, /repeating-radial-gradient/, 'a clean ground, no pattern');
@@ -269,13 +269,14 @@ test('the signature on a card online: its own place, set in the panel, saved, lo
   assert.equal(L.checkCard({ card: 'caregiverOnline', x: 61, y: 0 }).ok, false);
   const route = read('lib/routes/digital-card.js');
   assert.match(route, /view\.kind === 'member' \? 'memberOnline' : 'caregiverOnline'/);
-  assert.match(route, /view\.sig = \{ x: Number\(sig\.x\) \|\| 0, y: Number\(sig\.y\) \|\| 0 \};/);
+  assert.match(route, /view\.sig = \{ x: Number\(sig\.x\) \|\| 0, y: Number\(sig\.y\) \|\| 0, s: Number\(sig\.s\) \|\| 100 \};/);
   const panel = read('assets/admin-digital-cards.js');
   assert.match(panel, /<summary>Signature position online<\/summary>/, 'apart from the printed card\'s Signature position');
-  assert.match(panel, /A\.api\('\/api\/admin\/card-signature', \{ method: 'POST', body: \{ card: SIG\[kind\], x: l\.x, y: l\.y \} \}\)/);
+  assert.match(panel, /A\.api\('\/api\/admin\/card-signature', \{ method: 'POST', body: \{ card: SIG\[kind\], x: l\.x, y: l\.y, s: l\.s \|\| 100 \} \}\)/);
+  assert.match(panel, /<label for="dgs' \+ kind \+ 'sR">Size<\/label>/, 'the size, as well as the place (owner, 15 Nov 2026)');
   assert.match(panel, /Save for every card online/);
   const files = read('scripts/build-firebase.js');
-  for (const f of ['assets/digital-card.css', 'assets/digital-card.js', 'media/member-card-logo.png', 'assets/certificates/signature.png', 'fonts/dm-sans-latin-400.woff2']) assert.ok(files.includes(`'${f}'`), `${f} goes with the panel`);
+  for (const f of ['assets/digital-card.css', 'assets/digital-card.js', 'media/member-card-logo.png', 'assets/certificates/signature-print.png', 'fonts/dm-sans-latin-400.woff2']) assert.ok(files.includes(`'${f}'`), `${f} goes with the panel`);
 });
 
 /* Owner, 15 Nov 2026: "PFA-Premium-Membership.html for membership. let
@@ -287,7 +288,7 @@ test('the membership card online: the owner\'s template, in Marcellus, with what
   dom.window.eval(read('assets/qr.js'));
   dom.window.eval(read('assets/digital-card.js'));
   const box = dom.window.document.getElementById('c');
-  dom.window.PFADigitalCard.render(box, { kind: 'member', standing: 'valid', valid: true, name: 'Asha Venkataraman', id: 'PFA-MBR-AB2CD3EF', number: 'KA 2399', tier: 'Golden membership', district: 'Udupi', state: 'Karnataka', issuedOn: '2026-11-10', validUntil: '2027-11-09', url: 'https://peopleforanimalsindia.org/card?id=PFA-MBR-AB2CD3EF', sig: { x: 4, y: -2 } }, { photo: 'data:image/png;base64,AAAA' });
+  dom.window.PFADigitalCard.render(box, { kind: 'member', standing: 'valid', valid: true, name: 'Asha Venkataraman', id: 'PFA-MBR-AB2CD3EF', number: 'KA 2399', tier: 'Golden membership', district: 'Udupi', state: 'Karnataka', issuedOn: '2026-11-10', validUntil: '2027-11-09', url: 'https://peopleforanimalsindia.org/card?id=PFA-MBR-AB2CD3EF', sig: { x: 4, y: -2, s: 120 } }, { photo: 'data:image/png;base64,AAAA' });
   const front = box.querySelector('.dc__front');
   const back = box.querySelector('.dc__back');
   assert.equal(front.querySelector('.dcm__logo').getAttribute('src'), 'img/logo-dark.png', 'the template\'s logo for dark grounds, transparent');
@@ -311,8 +312,8 @@ test('the membership card online: the owner\'s template, in Marcellus, with what
   assert.equal(back.querySelector('.dcm__scan').textContent, 'Scan to verify');
   assert.ok(back.querySelector('.dcm__qr svg path'), 'the QR code of the card\'s own address');
   assert.doesNotMatch(back.textContent, /card\?id=/, 'the card\'s address is in the code, not printed');
-  assert.ok(back.querySelector('.dcm__sign img[src="assets/certificates/signature.png"]'), 'the chairperson\'s signature, where the panel puts it');
-  assert.deepEqual([box.style.getPropertyValue('--sx'), box.style.getPropertyValue('--sy')], ['4', '-2']);
+  assert.ok(back.querySelector('.dcm__sign img[src="assets/certificates/signature-print.png"]'), 'the chairperson\'s signature, where the panel puts it');
+  assert.deepEqual([box.style.getPropertyValue('--sx'), box.style.getPropertyValue('--sy'), box.style.getPropertyValue('--ss')], ['4', '-2', '1.2']);
   const css = read('assets/digital-card.css');
   assert.match(css, /\.dc\[data-kind="member"\]\{[^}]*font-family:var\(--dc-serif\)\}/, 'Marcellus throughout');
   assert.doesNotMatch(css.slice(css.indexOf('/* ---- the membership card')), /Georgia|Arial/, 'none of the template\'s stand-in faces');

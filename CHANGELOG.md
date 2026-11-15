@@ -1,3 +1,14 @@
+## v1.580
+
+- **Issue a card, and it is online at once.** Owner, 15 Nov 2026: "there should be option to issue the membership card. which should instantly create online link for verification. same for colony caregiver".
+  - Members: every membership waiting for its card has Issue card. It gives the member number if needed, puts the card on the register to print, and puts it online at its own address in the same moment. No photograph is needed. The member is emailed the link (Open your card), and that the printed card follows by courier.
+  - Approving a photograph the old way puts the card online too.
+  - Colony caregiver cards: approving an application puts the card online at once, with the photograph the applicant sent, and the approval letter carries the link. If that photograph is not one the card can show, the card studio's Card online issues it as before.
+  - The panel says where each card is online as it is issued.
+- **The signature's size, as well as its place.** Owner, 15 Nov 2026: "there should be option to adjust the size of the sign as well not just position".
+  - Every Signature position (the certificates, each printed card, each card online) has Size, from 60% to 160%, with its own number box. The signature grows or shrinks from its foot, so it stays on its line. Saved for the whole site, with Reset, and in the audit log.
+- **The signature at print resolution on the cards online.** Owner, 15 Nov 2026: "is the signature super high res". The cards online now draw the same 1512 x 438 signature the printed cards use, so it stays sharp when zoomed. The printed cards draw it at more than three times the dots a 600 dpi print needs.
+
 ## v1.579
 
 - **The printed membership card is the black template too.** Owner, 15 Nov 2026: "why is it still showing old style", then, asked, "Black design everywhere".

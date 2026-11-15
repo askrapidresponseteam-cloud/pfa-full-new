@@ -231,7 +231,11 @@ test('approving a paid application issues the card from what was sent, closes th
      where the printed card is going, and the application to follow */
   const notice = delivered[0].payload;
   assert.equal(notice.cardId, undefined, 'no card number in the email');
-  assert.equal(notice.cardUrl, undefined, 'no link to a card');
+  /* the card online, when the applicant's photograph could be read (owner,
+     15 Nov 2026: "instantly create online link for verification. same for
+     colony caregiver"); here the test application's photograph is not an
+     image the card can show, so there is no link yet */
+  assert.equal(notice.cardUrl, '', 'no link without the card online');
   assert.equal(notice.applicationRef, 'PFA-CG-2026-00001');
   assert.match(notice.followUrl, /\/track\.html#ref=PFA-CG-2026-00001$/);
   assert.deepEqual(notice.postTo, ['Car Street colony, near the temple, Udupi', 'Karnataka 576101'], 'the state found from the district, the PIN once');
@@ -276,4 +280,36 @@ test('the drawer previews both faces, offers approve and a correction reply, and
   assert.match(html, /photos\.get\('app:' \+ row\.applicationRef\)/, 'Issue cards uses the application photograph');
   const cards = fs.readFileSync(path.join(__dirname, '..', 'lib', 'routes', 'admin', 'cards.js'), 'utf8');
   assert.match(cards, /applicationRef: clean\(c\.applicationRef/);
+});
+
+/* Owner, 15 Nov 2026: "there should be option to issue the membership card.
+   which should instantly create online link for verification. same for
+   colony caregiver": approving puts the card online at once, with the
+   photograph the applicant sent, and the letter carries the link. */
+test('approving a colony caregiver card puts it online at once, with the applicant\'s photograph', async () => {
+  const db = fakeDb();
+  const REF = 'PFA-CG-2026-00002';
+  await db.collection('submissions').doc(REF).create({
+    reference: REF, kind: 'PFA-CG', kindLabel: 'Colony caregiver card application', status: 'new', attachments: 1,
+    fields: { name: 'ravi shetty', mobile: '98765 43211', email: 'ravi@example.com', address: 'Car Street colony, near the temple 576101', city: 'Udupi' },
+    createdAt: new Date(NOW - 3600000).toISOString(), history: [{ status: 'new', at: new Date(NOW - 3600000).toISOString() }]
+  });
+  const jpeg = Buffer.concat([Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]), Buffer.alloc(200, 7)]);
+  await db.collection('submissions').doc(REF).collection('attachments').doc('1').set({ bytes: jpeg, contentType: 'image/jpeg' });
+  const delivered = [];
+  const handler = createCase({ getDb: () => db, fieldValue, requireAdmin,
+    deliver: async (m) => { delivered.push(m); return { providerId: 'resend_2' }; }, isConfigured: () => true, now: () => NOW,
+    issueCard: async ({ application }) => {
+      await db.collection('caretakerCards').doc('PFA-CCT-9K2M8QRT').set({ name: application.name, printName: application.printName, district: 'Udupi', state: 'Karnataka', issuedAt: new Date(NOW).toISOString(), validUntil: new Date(NOW + 365 * 86400000).toISOString(), email: application.email });
+      return { card: { cardId: 'PFA-CCT-9K2M8QRT', name: application.name, issuedAt: 'i', validUntil: 'v' }, reissued: false, sameRequest: false };
+    },
+    queueEmail: async () => ({ emailId: 'e2', created: true }),
+    recordEmailResult: async () => {} });
+  const res = await run(handler, request({ body: { reference: REF, action: 'approve' } }));
+  assert.equal(res.body.ok, true, JSON.stringify(res.body));
+  assert.deepEqual(res.body.digital, { id: 'PFA-CCT-9K2M8QRT', url: 'https://peopleforanimalsindia.org/card?id=PFA-CCT-9K2M8QRT' }, 'online at once, at the card\'s own number');
+  const online = (await db.collection('digitalCards').doc('PFA-CCT-9K2M8QRT').get()).data();
+  assert.equal(online.status, 'active');
+  assert.equal(online.photo.contentType, 'image/jpeg', 'with the photograph the applicant sent');
+  assert.equal(delivered[0].payload.cardUrl, res.body.digital.url, 'the letter carries the link');
 });

@@ -45,12 +45,13 @@ const admin = (method, body) => respond(ROUTE.createHandler({ getDb: () => db, r
   { method, url: '/api/admin/certificates', query: {}, body, headers: {} });
 
 test('the design\'s own place until it is set, then saved from the panel, logged, and told to every page', async () => {
-  assert.deepEqual(L.DEFAULT, { x: 26, y: 0 }, 'the design\'s own: 26 to the right');
+  assert.deepEqual(L.DEFAULT, { x: 26, y: 0, s: 100 }, 'the design\'s own: 26 to the right, at its own size');
+  assert.deepEqual(L.SIZE, { min: 60, max: 160, home: 100 }, 'the size, in per cent (owner, 15 Nov 2026: "there should be option to adjust the size of the sign as well")');
   assert.deepEqual(L.RANGE, { x: 100, y: 50 }, 'the design\'s own ranges');
   let list = await admin('GET');
   assert.deepEqual([list.json.layout.x, list.json.layout.y], [26, 0]);
   let pub = await respond(PUBLIC, { method: 'GET', headers: {} });
-  assert.deepEqual(pub.json, { x: 26, y: 0, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 }, caregiverOnline: { x: 0, y: 0 }, memberOnline: { x: 0, y: 0 } } });
+  assert.deepEqual(pub.json, { x: 26, y: 0, s: 100, cards: { caregiver: { x: 0, y: 0, s: 100 }, member: { x: 0, y: 0, s: 100 }, caregiverOnline: { x: 0, y: 0, s: 100 }, memberOnline: { x: 0, y: 0, s: 100 } } });
 
   const saved = await admin('POST', { action: 'layout', x: 40, y: -6 });
   assert.equal(saved.statusCode, 200, saved.raw);
@@ -59,7 +60,7 @@ test('the design\'s own place until it is set, then saved from the panel, logged
   assert.equal(rows[0].action, 'certificate-layout');
   assert.equal(rows[0].detail, 'Signature moved from 26 across, 0 down to 40 across, -6 down');
   pub = await respond(PUBLIC, { method: 'GET', headers: {} });
-  assert.deepEqual(pub.json, { x: 40, y: -6, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 }, caregiverOnline: { x: 0, y: 0 }, memberOnline: { x: 0, y: 0 } } });
+  assert.deepEqual(pub.json, { x: 40, y: -6, s: 100, cards: { caregiver: { x: 0, y: 0, s: 100 }, member: { x: 0, y: 0, s: 100 }, caregiverOnline: { x: 0, y: 0, s: 100 }, memberOnline: { x: 0, y: 0, s: 100 } } });
   assert.match(pub.headers['cache-control'], /s-maxage=60/);
   list = await admin('GET');
   assert.deepEqual([list.json.layout.x, list.json.layout.y], [40, -6]);
@@ -72,8 +73,9 @@ test('a position past the design\'s ranges, or not a number, is refused and noth
   }
   assert.equal(db.dump()['siteSettings/certificate'], undefined);
   /* and a hand edit in the database is held to the ranges */
-  assert.deepEqual(L.view({ sigX: 900, sigY: -900 }), { x: 100, y: -50 });
-  assert.deepEqual(L.view({ sigX: 'x' }), { x: 26, y: 0 });
+  assert.deepEqual(L.view({ sigX: 900, sigY: -900 }), { x: 100, y: -50, s: 100 });
+  assert.deepEqual(L.view({ sigS: 400 }), { x: 26, y: 0, s: 160 }, 'the size held to its range');
+  assert.deepEqual(L.view({ sigX: 'x' }), { x: 26, y: 0, s: 100 });
 });
 
 test('the public answer fails to the design\'s own place, kept only a moment', async () => {
@@ -81,7 +83,7 @@ test('the public answer fails to the design\'s own place, kept only a moment', a
   const warn = console.warn; console.warn = () => {};
   try {
     const r = await respond(PUBLIC, { method: 'GET', headers: {} });
-    assert.deepEqual(r.json, { x: 26, y: 0, cards: { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 }, caregiverOnline: { x: 0, y: 0 }, memberOnline: { x: 0, y: 0 } }, unavailable: true });
+    assert.deepEqual(r.json, { x: 26, y: 0, s: 100, cards: { caregiver: { x: 0, y: 0, s: 100 }, member: { x: 0, y: 0, s: 100 }, caregiverOnline: { x: 0, y: 0, s: 100 }, memberOnline: { x: 0, y: 0, s: 100 } }, unavailable: true });
     assert.equal(r.headers['cache-control'], 'public, max-age=0, s-maxage=2');
   } finally { console.warn = warn; }
   assert.equal((await respond(PUBLIC, { method: 'POST', headers: {} })).statusCode, 405);
@@ -118,18 +120,25 @@ test('the paper, then the art, then the signature on it; the signature where the
   assert.match(images[1][1]._src, /signature\.png\?v=[a-f0-9]{10}$/);
   assert.deepEqual([...images[1].slice(2)], [798 + 26, 653, 252, 73], 'the design\'s own place: 26 to the right');
   assert.ok(!calls.some((c) => c[0] === 'fillRect' && c[3] === 1120), 'the art drawn, so no white paper laid over it');
-  assert.deepEqual({ ...C.setLayout({ x: -12, y: 8 }) }, { x: -12, y: 8 });
+  assert.deepEqual({ ...C.setLayout({ x: -12, y: 8 }) }, { x: -12, y: 8, s: 100 });
   calls.length = 0;
   C.draw(canvas, {}, 1);
   assert.deepEqual([...calls.filter((c) => c[0] === 'drawImage')[1].slice(2)], [798 - 12, 653 + 8, 252, 73]);
-  assert.deepEqual({ ...C.setLayout({ x: 500, y: -500 }) }, { x: 100, y: -50 }, 'held to the ranges');
+  assert.deepEqual({ ...C.setLayout({ x: 500, y: -500 }) }, { x: 100, y: -50, s: 100 }, 'held to the ranges');
+  /* the size: grown from the middle of its foot, so it stays on its line */
+  C.setLayout({ x: 0, y: 0, s: 120 });
+  calls.length = 0;
+  C.draw(canvas, {}, 1);
+  const big = [...calls.filter((c) => c[0] === 'drawImage')[1].slice(2)].map((v) => Math.round(v * 10) / 10);
+  assert.deepEqual(big, [798 - 25.2, 653 - 14.6, 302.4, 87.6]);
+  assert.equal(C.setLayout({ x: 0, y: 0, s: 999 }).s, 160, 'held to its range');
 });
 
 test('a signature that does not arrive is an error, never a certificate drawn without it (12 Nov 2026 bug)', async () => {
   const { C } = drawn({ fail: ['signature.png'] });
   await assert.rejects(C.load(), /signature could not be loaded/);
   const src = read('assets/certificate.js');
-  assert.match(src, /if \(art\) ctx\.drawImage\(art, 0, 0, W, H\);\n {4}else \{ ctx\.fillStyle = '#ffffff'; ctx\.fillRect\(0, 0, W, H\); \}\n {4}if \(sig\) ctx\.drawImage\(sig,/, 'the white paper only when there is no art, whatever the signature does');
+  assert.match(src, /if \(art\) ctx\.drawImage\(art, 0, 0, W, H\);\n {4}else \{ ctx\.fillStyle = '#ffffff'; ctx\.fillRect\(0, 0, W, H\); \}\n {4}if \(sig\) \{\n {6}var sw = SIG\.w \* SIG\.s \/ 100;/, 'the white paper only when there is no art, whatever the signature does');
 });
 
 test('the art is the design without its signature, the signature its own file, and the course line the internship\'s', () => {
@@ -150,7 +159,7 @@ test('the panel: Signature position under its +, two sliders with their numbers,
   assert.match(js, /row\('x', 'Left \/ right', r\.x, saved\.x\)/);
   assert.match(js, /row\('y', 'Up \/ down', r\.y, saved\.y\)/);
   assert.match(js, /data-sig-act="save" disabled>Save for every certificate<\/button>/, 'Save only when something has moved');
-  assert.match(js, /A\.api\('\/api\/admin\/certificates', \{ method: 'POST', body: \{ action: 'layout', x: l\.x, y: l\.y \} \}\)/);
+  assert.match(js, /A\.api\('\/api\/admin\/certificates', \{ method: 'POST', body: \{ action: 'layout', x: l\.x, y: l\.y, s: l\.s \|\| 100 \} \}\)/);
   assert.doesNotMatch(js, /[–—]/);
   const admin = read('admin.html');
   const pane = read('assets/admin-cert-pane.js');

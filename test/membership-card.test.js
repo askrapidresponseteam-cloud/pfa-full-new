@@ -409,7 +409,14 @@ test('only the printed card is issued, by courier with a tracking number; no let
   }
   const approved = mail.render('member_card_approved', { name: 'A', memberId: REF, siteUrl: 'https://peopleforanimalsindia.org' });
   assert.match(approved.text, /by courier/);
-  assert.match(approved.text, /never sent by email/);
+  /* the card online, with its own address (owner, 15 Nov 2026: "there
+     should be option to issue the membership card. which should instantly
+     create online link for verification") */
+  const withLink = mail.render('member_card_approved', { name: 'A', memberId: REF, siteUrl: 'https://peopleforanimalsindia.org', cardUrl: 'https://peopleforanimalsindia.org/card?id=PFA-MBR-AB2CD3EF' });
+  assert.match(withLink.text, /online now/);
+  assert.match(withLink.html, /Open your card/);
+  const online = Object.values(db.dump()).filter((v) => v && v.kind === 'member' && /^PFA-MBR-/.test(v.id || ''));
+  assert.equal(online.length, 1, 'approving put the card online');
 });
 
 /* Owner, 26 Oct 2026: "still dont see card preview option". Every row in
@@ -420,7 +427,8 @@ test('every membership row offers Preview card, before and after the photograph'
   const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.html'), 'utf8');
   const row = html.slice(html.indexOf("function mqRow(r, pick) {"), html.indexOf("function mqRowOf("));
   assert.match(row, /var preview = '<button class="ghost" type="button" data-mq="view">Preview card<\/button>';/);
-  assert.match(row, /act = act && r\.queue !== 'printed' \? '<span class="mq-btns">' \+ act \+ preview \+ '<\/span>' : act \? act \+ '<span class="mq-btns mq-btns--under">' \+ preview \+ '<\/span>' : preview;/);
+  assert.match(row, /act = act && r\.queue !== 'printed' \? '<span class="mq-btns">' \+ \(\/data-mq="issue"\/\.test\(preview\) \? preview\.replace\(/);
+  assert.match(row, /: act \? act \+ '<span class="mq-btns mq-btns--under">' \+ preview \+ '<\/span>' : preview;/);
   assert.doesNotMatch(row, /else if \(r\.cardId\) act =/, 'no longer only once a card exists');
   /* the card has no photograph window since 15 Nov 2026 (the owner's black template) */
   assert.match(html, /'As it will print once approved\.'/);
@@ -458,4 +466,23 @@ test('the members register: one short line a member, the rest under Open', () =>
   assert.match(js, /data-rg="open" aria-expanded="' \+ open \+ '" aria-controls="' \+ more \+ '">' \+ \(open \? 'Close' : 'Open'\)/);
   assert.match(js, /'<tr class="rg-more" id="' \+ more \+ '" data-rg-id="' \+ esc\(r\.id\) \+ '"' \+ \(open \? '' : ' hidden'\)/, 'details, shipping and the buttons only when opened');
   assert.match(js, /\.rg-compact table\{min-width:0!important;width:100%/, 'nothing scrolls sideways on a phone');
+});
+
+/* Owner, 15 Nov 2026: "there should be option to issue the membership card.
+   which should instantly create online link for verification". */
+test('Issue card: no photograph needed, the card and its online link at once, and the member emailed it', async () => {
+  const db = setup();
+  const REF = 'PFA-MEM-2026-00031';
+  await seed(db, REF);
+  const r = await admin({ action: 'issue', reference: REF });
+  assert.equal(r.statusCode, 200, JSON.stringify(r.body));
+  assert.ok(db.dump()[`memberCards/${REF}`], 'the card is on the register, to print');
+  assert.match(r.body.digital.url, /\/card\?id=PFA-MBR-[A-HJ-NP-Z2-9]{8}$/, 'online at once');
+  assert.equal(db.dump()[`memberCards/${REF}`].digitalId, r.body.digital.id);
+  const letter = Object.values(db.dump()).find((v) => v && v.template === 'member_card_approved');
+  assert.equal(letter.payload.cardUrl, r.body.digital.url, 'the member is sent the link');
+  assert.equal((await admin({ action: 'issue', reference: REF })).statusCode, 409, 'one card a membership');
+  const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
+  assert.match(html, /preview = '<button class="press" type="button" data-mq="issue">Issue card<\/button>' \+ preview;/);
+  assert.match(html, /body: \{ action: 'issue', reference: r\.reference \}/);
 });

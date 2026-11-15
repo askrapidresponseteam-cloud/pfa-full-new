@@ -106,7 +106,12 @@ test('approval tells the applicant it is approved and will be posted, and gives 
   for (const part of [letter.subject, letter.html, letter.text]) assert.doesNotMatch(part, NOT_A_CARD);
   assert.match(letter.subject, /approved - PFA-CG-2026-00001/);
   assert.match(letter.text, /Posting to: Car Street colony, near the temple, Udupi, Karnataka 576101/);
-  assert.match(letter.text, /not sent by email or shown online/);
+  /* without the card online yet, the letter promises only the printed card;
+     with it, it gives the link (owner, 15 Nov 2026) */
+  assert.match(letter.text, /now being printed, and the printed card will be posted to you/);
+  const online = mail.render('card_issued', Object.assign({}, approval.payload, { cardUrl: 'https://peopleforanimalsindia.org/card?id=PFA-CCT-AB2CD3EF' }));
+  assert.match(online.text, /online now: open it on your phone to show it/);
+  assert.match(online.html, /href="https:\/\/peopleforanimalsindia\.org\/card\?id=PFA-CCT-AB2CD3EF"/);
   assert.equal(tracker('PFA-CG-2026-00001').statusLabel, 'Card issued');
   assert.match(tracker('PFA-CG-2026-00001').next, /being printed, and the printed card will be posted/);
 });

@@ -34,7 +34,7 @@
     '.dg__acts .say{margin:0;font-size:12px;overflow-wrap:anywhere}',
     '.dg__peek{max-width:520px}',
     '.dc.dg__peek{margin:0}',
-    '.dg .ct-sig__row{grid-template-columns:110px minmax(0,1fr) auto}',
+    '.dg .ct-sig__row{grid-template-columns:110px minmax(0,1fr) 170px}',
     '.dg .ct-sig__num{white-space:nowrap}',
     '@media (max-width:560px){.dg .ct-sig__row{grid-template-columns:minmax(0,1fr) auto}.dg .ct-sig__row label{grid-column:1 / -1}}'
   ].join('');
@@ -113,13 +113,15 @@
      card's, whose layout is not the same. */
   var SIG = { caregiver: 'caregiverOnline', member: 'memberOnline' };
   var RANGE = { x: 60, y: 30 };
-  var sigSaved = { caregiver: { x: 0, y: 0 }, member: { x: 0, y: 0 } };
+  var sigSaved = { caregiver: { x: 0, y: 0, s: 100 }, member: { x: 0, y: 0, s: 100 } };
+  var SIZE = { min: 60, max: 160 };
+  function sizeOf(v) { var n = Math.round(Number(v)); return Number.isFinite(n) && n > 0 ? Math.max(SIZE.min, Math.min(SIZE.max, n)) : 100; }
   var sigNow = { caregiver: null, member: null };
   fetch('/api/certificate-layout', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (l) {
     if (!l || !l.cards) return;
     Object.keys(SIG).forEach(function (kind) {
       var c = l.cards[SIG[kind]];
-      if (c) sigSaved[kind] = { x: Number(c.x) || 0, y: Number(c.y) || 0 };
+      if (c) sigSaved[kind] = { x: Number(c.x) || 0, y: Number(c.y) || 0, s: sizeOf(c.s) };
     });
   }).catch(function () { /* the card's own place */ });
   function at(kind) { return sigNow[kind] || sigSaved[kind]; }
@@ -131,11 +133,14 @@
   }
   function sigFold(kind) {
     var l = at(kind);
-    var changed = l.x !== sigSaved[kind].x || l.y !== sigSaved[kind].y;
+    var changed = l.x !== sigSaved[kind].x || l.y !== sigSaved[kind].y || (l.s || 100) !== sigSaved[kind].s;
     return '<details class="fold ct-sig" data-dgsig-fold="' + kind + '"><summary>Signature position online</summary><div class="ct-sig__body">'
       + '<div class="dg__peek" data-dg-peek="' + kind + '"></div>'
       + sigRow(kind, 'x', 'Left / right', RANGE.x, l.x)
       + sigRow(kind, 'y', 'Up / down', RANGE.y, l.y)
+      + '<div class="ct-sig__row"><label for="dgs' + kind + 'sR">Size</label>'
+      + '<input id="dgs' + kind + 'sR" type="range" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + (l.s || 100) + '" data-dgsig="' + kind + '" data-axis="s" aria-label="Size">'
+      + '<span class="ct-sig__num"><input id="dgs' + kind + 'sN" type="number" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + (l.s || 100) + '" data-dgsig="' + kind + '" data-axis="s" aria-label="Size, in per cent"> %</span></div>'
       + '<div class="ct-sig__acts"><button class="press" type="button" data-dgsig-act="save" data-kind="' + kind + '"' + (changed ? '' : ' disabled') + '>Save for every card online</button>'
       + '<button class="ghost" type="button" data-dgsig-act="reset" data-kind="' + kind + '">Reset</button>'
       + '<p class="say" data-dgsig-say="' + kind + '" role="status" aria-live="polite"></p></div>'
@@ -179,17 +184,18 @@
   }
   function sigShow(kind, axis, v) {
     var max = RANGE[axis];
-    var n = Math.max(-max, Math.min(max, Math.round(Number(v) || 0)));
+    var n = axis === 's' ? sizeOf(v) : Math.max(-max, Math.min(max, Math.round(Number(v) || 0)));
     ['R', 'N'].forEach(function (k) { var el = document.getElementById('dgs' + kind + axis + k); if (el && Number(el.value) !== n) el.value = n; });
     return n;
   }
   function sigApply(kind) {
     var x = sigShow(kind, 'x', (document.getElementById('dgs' + kind + 'xN') || {}).value);
     var y = sigShow(kind, 'y', (document.getElementById('dgs' + kind + 'yN') || {}).value);
-    sigNow[kind] = { x: x, y: y };
+    var sz = sigShow(kind, 's', (document.getElementById('dgs' + kind + 'sN') || {}).value);
+    sigNow[kind] = { x: x, y: y, s: sz };
     var box = document.querySelector('[data-dg-peek="' + kind + '"]');
-    if (box) { box.style.setProperty('--sx', String(x)); box.style.setProperty('--sy', String(y)); }
-    var changed = x !== sigSaved[kind].x || y !== sigSaved[kind].y;
+    if (box) { box.style.setProperty('--sx', String(x)); box.style.setProperty('--sy', String(y)); box.style.setProperty('--ss', String(sz / 100)); }
+    var changed = x !== sigSaved[kind].x || y !== sigSaved[kind].y || sz !== sigSaved[kind].s;
     var b = document.querySelector('[data-dgsig-act="save"][data-kind="' + kind + '"]');
     if (b) b.disabled = !changed;
     var say = document.querySelector('[data-dgsig-say="' + kind + '"]');
@@ -212,13 +218,13 @@
     if (!b) return;
     var kind = b.getAttribute('data-kind');
     var say = document.querySelector('[data-dgsig-say="' + kind + '"]');
-    if (b.getAttribute('data-dgsig-act') === 'reset') { sigShow(kind, 'x', 0); sigShow(kind, 'y', 0); sigApply(kind); return; }
+    if (b.getAttribute('data-dgsig-act') === 'reset') { sigShow(kind, 'x', 0); sigShow(kind, 'y', 0); sigShow(kind, 's', 100); sigApply(kind); return; }
     if (b.disabled) return;
     var l = at(kind);
     b.disabled = true;
     A.say(say, 'Saving\u2026', '');
-    A.api('/api/admin/card-signature', { method: 'POST', body: { card: SIG[kind], x: l.x, y: l.y } }).then(function (r) {
-      sigSaved[kind] = { x: r.layout.x, y: r.layout.y };
+    A.api('/api/admin/card-signature', { method: 'POST', body: { card: SIG[kind], x: l.x, y: l.y, s: l.s || 100 } }).then(function (r) {
+      sigSaved[kind] = { x: r.layout.x, y: r.layout.y, s: sizeOf(r.layout.s) };
       sigNow[kind] = null;
       A.say(say, 'Saved. Every ' + (kind === 'member' ? 'membership card' : 'colony caregiver card') + ' online shows the signature here from now on.', 'good');
     }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be saved.', 'bad'); });
