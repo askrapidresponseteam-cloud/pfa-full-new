@@ -72,6 +72,7 @@ const ROUTES = {
   'photo/remove-background': './photo/remove-background.js',
   'verify-card': './verify-card.js',
   'verify-certificate': './verify-certificate.js',
+  'assistant/receipt': './assistant/receipt.js',
 };
 
 // Static requires so Vercel's file tracer bundles every handler.
@@ -142,6 +143,7 @@ const LOADERS = {
   'photo/remove-background': () => require('../lib/routes/photo/remove-background.js'),
   'verify-card': () => require('../lib/routes/verify-card.js'),
   'verify-certificate': () => require('../lib/routes/verify-certificate.js'),
+  'assistant/receipt': () => require('../lib/routes/assistant/receipt.js'),
 };
 
 function routeKey(request) {

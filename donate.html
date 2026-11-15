@@ -531,7 +531,8 @@ var c = clean(state).choices;
 var out = {};
 Object.keys(c).forEach(function (k) {
 var at = k.indexOf('#');
-if (k.slice(0, at) === String(page || 'index')) out['data-choice-' + k.slice(at + 1)] = c[k];
+var on = k.slice(0, at);
+if (on === 'site' || on === String(page || 'index')) out['data-choice-' + k.slice(at + 1)] = c[k];
 });
 return out;
 }
@@ -745,7 +746,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=8d5e29d85f"></script>
+<script src="assets/chrome.js?v=9e441d0b04"></script>
 <script src="assets/india-districts.js"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
@@ -865,6 +866,7 @@ if (root.document && root.document.head) apply(read());
             <input type="hidden" name="amount" id="gAmount" value="1500">
             <input type="hidden" name="terms" id="gTerms" value="">
             <input type="hidden" name="client_ref" id="gRef" value="">
+            <input type="hidden" name="frequency" id="gFreq" value="once">
             <p class="giftset__you" id="youHead" hidden>The 80G receipt is issued in your name.</p>
             <div class="field"><label for="gName">Full name</label><input id="gName" name="name" type="text" autocomplete="name" required><span class="error">Enter your full name using letters only.</span></div>
             <div class="field"><label for="gMobile">Mobile number</label><input id="gMobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" required><span class="error">Enter a 10-digit Indian mobile number.</span><span class="hint">Used to trace the payment if anything goes wrong.</span></div>
@@ -1073,11 +1075,13 @@ if (root.document && root.document.head) apply(read());
     function minAmt(){ return gift ? GIFT_MIN : MIN; }
     function tooLittle(){ return gift ? 'A gift of ' + fmt(GIFT_MIN) + ' or more comes with a certificate.' : 'Enter an amount of ' + fmt(MIN) + ' or more.'; }
 
-    /* Recurring gifts need a CCAvenue mandate (UPI AutoPay / card standing
-       instruction). /api/payment/create has no recurring path, so a "monthly"
-       choice would be charged once. Rather than mis-charge, monthly is hidden
-       until that integration exists: flip this to true only when it does. */
-    var MONTHLY_MANDATE_LIVE = false;
+    /* Monthly giving is a CCAvenue standing instruction the donor approves
+       once (owner, 15 Nov 2026). The panel switches it on and off (Website,
+       Page designs and features: donate#monthly), which this page reads as
+       data-choice-monthly="on" on <html>; off, or not yet known, the page is
+       the one-time donation only, and /api/payment/create refuses a monthly
+       request while it is off. */
+    function monthlyOn(){ return document.documentElement.getAttribute('data-choice-monthly') === 'on'; }
     var freq = 'once', amt = 1500, idx = 1, custom = false;
     var wrap = $('#otherWrap'), input = $('#other'), errBox = $('#amtErr');
     var fmt = function(n){ return '₹' + Number(n).toLocaleString('en-IN'); };
@@ -1148,7 +1152,7 @@ if (root.document && root.document.head) apply(read());
         ? 'You are handed to CCAvenue to pay. PFA never sees your card, bank or UPI credentials. Your receipt is emailed to you as soon as the gift clears, with a link to add your PAN or Aadhaar if you need the 80G tax receipt, and PFA posts their certificate.'
         : freq !== 'monthly'
         ? 'You are handed to CCAvenue to pay. PFA never sees your card, bank or UPI credentials. Your receipt is emailed as soon as the donation clears, with a link to add your PAN or Aadhaar if you need the 80G tax receipt.'
-        : 'A monthly donation needs a mandate you approve once, in your UPI app or on your bank\'s page. Cancel any time with one email.';
+        : 'You approve it once on CCAvenue\'s secure page, and the same amount is then given every month. Your receipt comes by email; reply to it any time to stop the monthly donation.';
     }
     function render(){
       chips();
@@ -1177,20 +1181,19 @@ if (root.document && root.document.head) apply(read());
       window.scrollTo({top:0, behavior:'smooth'});
     }
 
-    /* Monthly is removed from the DOM, not just greyed out, so a campaign link
-       carrying ?freq=monthly cannot select something that will not be honoured. */
-    if (!MONTHLY_MANDATE_LIVE){
-      var monthlyBtn = document.querySelector('[data-freq="monthly"]');
-      if (monthlyBtn){
-        var seg = monthlyBtn.parentNode;
-        monthlyBtn.remove();
-        /* And with monthly out of the DOM, "Give once" was a segmented
-           control with one segment: always pressed, answering nothing, a
-           full row restating the default. The seg hides whole until the
-           mandate path exists and there is a second choice to offer. */
-        seg.hidden = true;
-      }
+    /* Give once / Give monthly shows only while monthly is on, and not for a
+       gift (a gift is one payment with a certificate). Without monthly,
+       "Give once" alone would be a segmented control with one segment, so
+       the row hides whole. Turned off while someone has monthly chosen, the
+       page goes back to once rather than send what will not be honoured. */
+    var freqSeg = document.querySelector('[data-freq="monthly"]').parentNode;
+    function freqRow(){
+      var open = monthlyOn() && !gift;
+      freqSeg.hidden = !open;
+      if (!monthlyOn() && freq === 'monthly') setFreq('once');
     }
+    freqRow();
+    if (window.MutationObserver) new MutationObserver(freqRow).observe(document.documentElement, { attributes: true, attributeFilter: ['data-choice-monthly'] });
 
     /* ---------- donate, or give it as a gift ---------- */
     function setKind(k){
@@ -1223,6 +1226,8 @@ if (root.document && root.document.head) apply(read());
       document.querySelectorAll('#barGive span').forEach(function(sp, i){ sp.innerHTML = labels[i].replace(/^(\d+) (.+)$/, '$1 <em>$2</em>'); });
       if (wantGift === gift) return;
       gift = wantGift;
+      if (gift && freq === 'monthly') setFreq('once');
+      freqRow();
       if (!custom) amt = AMTS[tier()][Math.min(idx, AMTS[tier()].length - 1)][0];
       err(''); render();
     }
@@ -1357,6 +1362,9 @@ if (root.document && root.document.head) apply(read());
       /* parseDonation() expects the acceptance as a value, not a checkbox. */
       $('#gTerms').value = 'yes';
       $('#gAmount').value = String(amt);
+      /* monthly only when it is on, chosen, and not a gift */
+      var monthly = freq === 'monthly' && !gift && monthlyOn();
+      $('#gFreq').value = monthly ? 'monthly' : 'once';
       /* One key per visit and per request. Pressing back from the bank's page
          and paying again unchanged is the same transaction, not a second one.
          Changing anything the receipt or the gift carries (amount,
@@ -1365,7 +1373,7 @@ if (root.document && root.document.head) apply(read());
          transaction is never reused with stale details, and is never refused
          as a conflict (8 Oct 2026, review D7; the server compares them too). */
       var cause = $('#gCause');
-      var details = [amt, (this.querySelector('[name="currency"]') || {}).value || 'inr',
+      var details = [amt, monthly ? 'monthly' : 'once', (this.querySelector('[name="currency"]') || {}).value || 'inr',
         n.value.trim(), mob.value.replace(/\D/g, ''), m.value.trim().toLowerCase(), ad.value.trim(),
         city.value.trim(), pin.value.replace(/\D/g, ''), st.value,
         cause ? cause.value : '', $('#gDob') ? $('#gDob').value : '']
@@ -1399,7 +1407,7 @@ if (root.document && root.document.head) apply(read());
     (function fromUrl(){
       var q = new URLSearchParams(location.search), qf = q.get('freq'), qa = digits(q.get('amt'));
       if (q.get('gift') === '1' || location.hash === '#gift') setKind('gift');
-      if (qf === 'monthly' && !MONTHLY_MANDATE_LIVE) qf = 'once';
+      if (qf === 'monthly' && !monthlyOn()) qf = 'once';
       if (qf === 'once' || qf === 'monthly'){
         freq = qf;
         amt = AMTS[tier()][idx][0];

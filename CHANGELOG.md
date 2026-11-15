@@ -1,3 +1,18 @@
+## v1.574
+
+- **The panel can show or hide the assistant.** Owner, 15 Nov 2026: "Add an admin toggle to show or hide the assistant".
+  - Website, Page designs and features, has "Chat with PFA": Shown or Hidden. Hidden takes the button and any open chat off every page within a few seconds; every form works as before. It starts Shown.
+- **Monthly giving, with its own switch in the panel.** Owner, 15 Nov 2026: "Implement the recurring donation/payment journey with a separate admin toggle for visitor visibility. When recurring donations are disabled, show the regular one-time donation journey."
+  - "Donate: monthly giving" sits beside it, Shown or Hidden, and starts Hidden. Hidden, the donate page and the chat offer the one-time donation only, exactly as today, and the server refuses a monthly request.
+  - Shown, the donate page has Give once and Give monthly (not for a gift, and not in dollars). A monthly donation goes to CCAvenue as a fixed standing instruction: the first month is paid now, then the same amount each month from the same day next month, for up to 60 months.
+  - The thanks page and the receipt email say it is the first month, and that replying to the receipt stops it. The panel's Payments list shows "Monthly donation", and whether CCAvenue set up the mandate.
+  - Switch it on only once CCAvenue has enabled standing instructions on PFA's merchant account. CCAVENUE_SI_MONTHS and CCAVENUE_SI_DATE_FORMAT (default DD-MM-YYYY) can be set in Vercel if CCAvenue asks for other values.
+- **The assistant covers every visitor task on the site.** Owner, 15 Nov 2026: "Comprehensively audit and fix the PFA assistant so it supports all visitor-facing tasks across the site".
+  - New in the chat: share a film for The Wall, send proof of an internship task, and check whether an internship certificate or colony caregiver card is genuine (paste the number).
+  - Donating in the chat asks "Once, or every month?" while monthly giving is on. "har mahine 500 daan" is understood.
+  - The help for a receipt says it carries the 80G link. The shop no longer offers order tracking the site does not have.
+  - Jobs and a new unit stay on their own pages (each role has its own questions; a unit needs seven board members and their papers), and the chat takes you there.
+
 ## v1.573
 
 - **A case in the panel opens full screen, and Previous and Next go from one to the next.** Owner, 14 Nov 2026: "this kinda thing on the right is not easy to navigate. can you make it full screen and easy to nav from 1 ticket to another".

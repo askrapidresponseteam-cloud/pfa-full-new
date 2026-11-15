@@ -1118,7 +1118,8 @@ var c = clean(state).choices;
 var out = {};
 Object.keys(c).forEach(function (k) {
 var at = k.indexOf('#');
-if (k.slice(0, at) === String(page || 'index')) out['data-choice-' + k.slice(at + 1)] = c[k];
+var on = k.slice(0, at);
+if (on === 'site' || on === String(page || 'index')) out['data-choice-' + k.slice(at + 1)] = c[k];
 });
 return out;
 }
@@ -1321,7 +1322,7 @@ if (root.document && root.document.head) apply(read());
     <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
   </nav>
 </header>
-<script src="assets/chrome.js?v=8d5e29d85f"></script>
+<script src="assets/chrome.js?v=9e441d0b04"></script>
 <script src="assets/theatre.js"></script>
 <script src="assets/reels.js"></script>
 

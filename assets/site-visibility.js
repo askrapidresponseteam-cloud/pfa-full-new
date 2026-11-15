@@ -83,7 +83,9 @@
     var out = {};
     Object.keys(c).forEach(function (k) {
       var at = k.indexOf('#');
-      if (k.slice(0, at) === String(page || 'index')) out['data-choice-' + k.slice(at + 1)] = c[k];
+      var on = k.slice(0, at);
+      /* 'site#name' is a choice for every page (the assistant) */
+      if (on === 'site' || on === String(page || 'index')) out['data-choice-' + k.slice(at + 1)] = c[k];
     });
     return out;
   }

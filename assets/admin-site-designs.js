@@ -61,14 +61,14 @@
       }).join('');
       return '<li class="sd-row"><div><b>' + esc(c.label) + '</b>'
         + '<span class="detail">On the site now: ' + esc(current.label) + '.' + mark(site, c.id)
-        + ' <a href="' + SITE + esc(c.page) + '" target="_blank" rel="noopener noreferrer">Open the page</a></span>'
+        + ' <a href="' + SITE + (c.page === 'site' ? '' : esc(c.page)) + '" target="_blank" rel="noopener noreferrer">' + (c.page === 'site' ? 'Open the site' : 'Open the page') + '</a></span>'
         + '<details class="sd-more"><summary>What each option is</summary><ul>'
         + (c.options || []).map(function (o) { return '<li><b>' + esc(o.label) + '.</b> ' + esc(o.detail) + '</li>'; }).join('')
         + '</ul></details></div>'
         + '<span class="vis" role="group" aria-label="' + esc(c.label) + '">' + buttons + '</span></li>';
     }).join('');
-    return '<div class="panel"><h3>Page designs</h3>'
-      + '<p class="hint">Where a page has more than one design, choose the one the site shows. It is saved as you press it and is live within a few seconds.</p>'
+    return '<div class="panel"><h3>Page designs and features</h3>'
+      + '<p class="hint">Choose what the site shows. It is saved as you press it and is live within a few seconds.</p>'
       + '<ul class="sd-list">' + rows + '</ul></div>';
   }
 

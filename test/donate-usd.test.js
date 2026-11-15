@@ -28,16 +28,15 @@ test('the rupee flow is untouched by the dollar panel', () => {
     'dollars hide the rupee flow as one thing rather than editing it, and leave the gift choice in view (v1.401)');
 });
 
-test('no one-option controls: the frequency seg hides whole until monthly is real', () => {
-  /* The payment API has no recurring path, so monthly is removed at boot -
-     which left "Give once" as a segmented control with one segment, always
-     pressed, a full row restating the default (reported 2 Sep 2026). The
-     row hides entirely instead; the two-button markup stays for the day the
-     mandate path exists. */
-  assert.match(html, /data-freq="once"[\s\S]{0,120}data-freq="monthly"/, 'both buttons still in the markup for that day');
-  assert.match(html, /monthlyBtn\.remove\(\);/, 'monthly still leaves the DOM, as page-boot requires');
-  assert.match(html, /seg\.hidden = true;/, 'and the one-segment row waits out of sight with it');
-  assert.ok(!/seg--single/.test(html), 'and the one-segment styling is gone with it');
+test('no one-option controls: the frequency row shows only while monthly giving is on', () => {
+  /* "Give once" alone is a segmented control with one segment, always
+     pressed, a full row restating the default (reported 2 Sep 2026). Monthly
+     giving is now a panel switch (donate#monthly, 15 Nov 2026): while it is
+     off, or for a gift, the whole row hides; on, both choices show. */
+  assert.match(html, /data-freq="once"[\s\S]{0,120}data-freq="monthly"/, 'both buttons in the markup');
+  assert.match(html, /var open = monthlyOn\(\) && !gift;\s*freqSeg\.hidden = !open;/, 'the row hides whole while monthly is off, and for a gift');
+  assert.match(html, /if \(!monthlyOn\(\) && freq === 'monthly'\) setFreq\('once'\);/, 'switched off with monthly chosen, it is once again');
+  assert.ok(!/seg--single/.test(html), 'and no one-segment styling');
 });
 
 test('every dollar preset says what it buys, as every rupee preset does', () => {

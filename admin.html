@@ -2043,7 +2043,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function payRow(r, short) {
     var cells = '<tr><td class="ref">' + esc(r.orderId || r.id) + '</td>';
-    if (!short) cells += '<td>' + esc({ donate: 'Donation', membership: 'Membership', shop: 'Shop order', caregiver: 'Colony card postage', 'caregiver-application': 'Caregiver application fee' }[r.type] || r.type || '-') + '</td>';
+    if (!short) cells += '<td>' + esc(r.monthly ? 'Monthly donation' + (r.mandate ? ' (mandate ' + r.mandate + ')' : '') : { donate: 'Donation', membership: 'Membership', shop: 'Shop order', caregiver: 'Colony card postage', 'caregiver-application': 'Caregiver application fee' }[r.type] || r.type || '-') + '</td>';
     cells += '<td>' + esc(r.name || '-') + '</td>';
     if (short) cells += '<td>' + esc(r.email || r.mobile || '-') + '</td>';
     /* A shop payment that settled an order already cancelled or failed is

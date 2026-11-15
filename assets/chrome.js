@@ -1701,3 +1701,71 @@
   window.PFAAbbr = { FULL: FULL, mark: mark };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true }); else run();
 })();
+
+/* ---------- the assistant ----------
+   Owner, 15 Nov 2026: "build an assistant ... it should allow to do anything
+   and everything on the site". One button on every page, at the bottom right
+   (above the tab bar on a phone). Its files (assets/assistant*.js and .css)
+   load only when it is opened, so no page is heavier for it; a conversation
+   open in this tab comes back on the next page by itself. Not on the pages
+   that are a document to print or a single private step. The panel can hide
+   it everywhere (site#assistant in lib/site-visibility.js), which this
+   page reads as data-choice-assistant="off" on <html>. */
+(function () {
+  'use strict';
+  if (typeof location === 'undefined' || typeof document === 'undefined' || !document.documentElement) return;
+  var path = String(location.pathname || '').replace(/^\//, '');
+  if (/^(certificate|caregiver-card|member-photo|tax-receipt|submission-collage|admin)(\.html)?$/.test(path)) return;
+  if (document.documentElement.hasAttribute('data-no-assist')) return;
+  var KEY = 'pfa.assist.v1';
+  var FILES = ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/assistant.js'];
+  var loading = null;
+
+  function load() {
+    if (window.PFAAssistant) return Promise.resolve();
+    if (loading) return loading;
+    var css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = '/assets/assistant.css';
+    document.head.appendChild(css);
+    loading = FILES.reduce(function (p, src) {
+      return p.then(function () {
+        return new Promise(function (resolve, reject) {
+          var s = document.createElement('script');
+          s.src = src;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.body.appendChild(s);
+        });
+      });
+    }, Promise.resolve()).catch(function () { loading = null; });
+    return loading;
+  }
+
+  function mount() {
+    if (document.querySelector('.pfa-asst-launch')) return;
+    var css = document.createElement('style');
+    css.textContent = '.pfa-asst-launch{position:fixed;z-index:70;right:18px;bottom:calc(var(--tabbar,0px) + 18px);display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 18px;border:1px solid #111;background:#111;color:#fff;font:700 11px/1 var(--body,"Helvetica Neue",Helvetica,Arial,sans-serif);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 24px -14px rgba(0,0,0,.55)}@media (hover:hover){.pfa-asst-launch:hover{background:#fff;color:#111}}.pfa-asst-launch svg{width:18px;height:18px;flex:none}@media (max-width:900px){.pfa-asst-launch{right:14px;bottom:calc(var(--tabbar,0px) + 14px);width:48px;padding:0;justify-content:center}.pfa-asst-launch span{display:none}}body.in-flow .pfa-asst-launch{display:none}@media print{.pfa-asst-launch{display:none}}html[data-choice-assistant="off"] .pfa-asst-launch,html[data-choice-assistant="off"] .pfa-asst{display:none!important}';
+    document.head.appendChild(css);
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pfa-asst-launch';
+    b.setAttribute('aria-expanded', 'false');
+    b.setAttribute('aria-label', 'PFA assistant: report, donate, volunteer, ask, in English or Hindi');
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Chat with PFA</span>';
+    b.addEventListener('click', function () {
+      if (window.PFAAssistant) { var open = document.querySelector('.pfa-asst'); if (open && !open.hidden) window.PFAAssistant.hide(); else window.PFAAssistant.open(); return; }
+      b.disabled = true;
+      load().then(function () { b.disabled = false; if (window.PFAAssistant) window.PFAAssistant.open(); });
+    });
+    document.body.appendChild(b);
+    var kept = null;
+    try { kept = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (_) { kept = null; }
+    if (kept && kept.open && !off()) load();
+  }
+  /* Hidden from the panel (Website, Page designs and features): the rule
+     above hides the button and any open chat at once, and nothing loads. */
+  function off() { return document.documentElement.getAttribute('data-choice-assistant') === 'off'; }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true }); else mount();
+})();

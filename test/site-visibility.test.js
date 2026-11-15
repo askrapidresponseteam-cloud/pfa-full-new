@@ -151,7 +151,7 @@ test('hiding a page and a section, then showing them again', async () => {
   assert.equal(stored().version, 2);
 
   const pub = await call(visibility);
-  assert.deepEqual(pub.json, { version: 2, pages: ['units'], modules: ['laws#part-a'], choices: { 'manekas-picks#opening': '2' } }, 'the public site is told at once');
+  assert.deepEqual(pub.json, { version: 2, pages: ['units'], modules: ['laws#part-a'], choices: { 'donate#monthly': 'off', 'manekas-picks#opening': '2', 'site#assistant': 'on' } }, 'the public site is told at once');
 
   res = await change({ kind: 'page', id: 'units', visible: true });
   assert.deepEqual(res.json.state.hidden.pages, {}, 'shown again: gone from the list, not stored as false');
@@ -282,7 +282,7 @@ test('a hand edit in the database cannot hide a locked page or slip anything odd
     version: 7
   });
   const pub = await call(visibility);
-  assert.deepEqual(pub.json, { version: 7, pages: ['laws'], modules: ['index#founder', 'laws#part-a'], choices: { 'manekas-picks#opening': '2' } });
+  assert.deepEqual(pub.json, { version: 7, pages: ['laws'], modules: ['index#founder', 'laws#part-a'], choices: { 'donate#monthly': 'off', 'manekas-picks#opening': '2', 'site#assistant': 'on' } });
 });
 
 /* ---- the public answer --------------------------------------------------- */
@@ -292,7 +292,7 @@ test('the public route: the shape, the cache header, HEAD, and nothing about who
   const res = await call(visibility);
   assert.equal(res.statusCode, 200);
   assert.deepEqual(Object.keys(res.json).sort(), ['choices', 'modules', 'pages', 'version']);
-  assert.deepEqual(res.json, { version: 1, pages: ['events'], modules: [], choices: { 'manekas-picks#opening': '2' } });
+  assert.deepEqual(res.json, { version: 1, pages: ['events'], modules: [], choices: { 'donate#monthly': 'off', 'manekas-picks#opening': '2', 'site#assistant': 'on' } });
   assert.equal(res.headers['cache-control'], 'public, max-age=0, s-maxage=10, stale-while-revalidate=30');
   assert.match(res.headers['content-type'], /application\/json/);
   assert.ok(!/priya|marks|updatedBy/.test(res.raw), 'the public answer names nobody');
@@ -329,7 +329,7 @@ test('it fails open: if the setting cannot be read, nothing is hidden and the ed
   try {
     const res = await call(visibility);
     assert.equal(res.statusCode, 200);
-    assert.deepEqual(res.json, { version: 0, pages: [], modules: [], choices: { 'manekas-picks#opening': '2' }, unavailable: true });
+    assert.deepEqual(res.json, { version: 0, pages: [], modules: [], choices: { 'donate#monthly': 'off', 'manekas-picks#opening': '2', 'site#assistant': 'on' }, unavailable: true });
     assert.equal(res.headers['cache-control'], 'public, max-age=0, s-maxage=2');
     /* a read that hangs is given up on, not waited for */
     const hung = await V.publicState({ getDb: () => ({ collection: () => ({ doc: () => ({ get: () => new Promise(() => {}) }) }) }), timeoutMs: 30 });
@@ -337,7 +337,7 @@ test('it fails open: if the setting cannot be read, nothing is hidden and the ed
     /* and the failure is not remembered: the next ask reads again */
     firebase._setDbForTests(db);
     await db.collection('siteSettings').doc('visibility').set({ hidden: { pages: { quiz: true }, modules: {} }, version: 2 });
-    assert.deepEqual((await call(visibility)).json, { version: 2, pages: ['quiz'], modules: [], choices: { 'manekas-picks#opening': '2' } });
+    assert.deepEqual((await call(visibility)).json, { version: 2, pages: ['quiz'], modules: [], choices: { 'donate#monthly': 'off', 'manekas-picks#opening': '2', 'site#assistant': 'on' } });
   } finally {
     console.warn = warn;
   }
@@ -368,23 +368,27 @@ test('both routes are mounted, and the rules keep browsers out of the setting', 
 
 test('a page design is chosen in the panel, logged, and told to the public site', async () => {
   /* "have 2 options in the admin for manekas picks page. 1 and 2. which can be switched on the admin panel" */
-  assert.deepEqual(Object.keys(V.CHOICES), ['manekas-picks#opening']);
+  assert.deepEqual(Object.keys(V.CHOICES), ['manekas-picks#opening', 'site#assistant', 'donate#monthly']);
   assert.deepEqual(V.CHOICES['manekas-picks#opening'].options.map((o) => o.label), ['Option 1', 'Option 2']);
   assert.equal(V.CHOICES['manekas-picks#opening'].fallback, '2', 'the quiet portrait until Option 1 is chosen');
 
   const listing = await call(site, { token: 'test-admin' });
   assert.equal(listing.statusCode, 200, listing.raw);
-  assert.deepEqual(listing.json.choices.map((c) => [c.id, c.page, c.fallback, c.options.map((o) => o.value)]), [['manekas-picks#opening', 'manekas-picks', '2', ['1', '2']]]);
-  assert.deepEqual(listing.json.state.choices, { 'manekas-picks#opening': '2' });
+  assert.deepEqual(listing.json.choices.map((c) => [c.id, c.page, c.fallback, c.options.map((o) => o.value)]), [
+    ['manekas-picks#opening', 'manekas-picks', '2', ['1', '2']],
+    ['site#assistant', 'site', 'on', ['on', 'off']],
+    ['donate#monthly', 'donate', 'off', ['on', 'off']]
+  ]);
+  assert.deepEqual(listing.json.state.choices, { 'donate#monthly': 'off', 'manekas-picks#opening': '2', 'site#assistant': 'on' });
 
   let res = await change({ kind: 'choice', id: 'manekas-picks#opening', value: '1' });
   assert.equal(res.statusCode, 200, res.raw);
   assert.equal(res.json.changed, 1);
-  assert.deepEqual(res.json.state.choices, { 'manekas-picks#opening': '1' });
+  assert.deepEqual(res.json.state.choices, { 'donate#monthly': 'off', 'manekas-picks#opening': '1', 'site#assistant': 'on' });
   assert.deepEqual(res.json.state.marks['choice:manekas-picks#opening'].value, '1');
   assert.equal(res.json.state.marks['choice:manekas-picks#opening'].by, 'priya@pfa.test');
   assert.deepEqual(stored().choices, { 'manekas-picks#opening': '1' });
-  assert.deepEqual((await call(visibility)).json.choices, { 'manekas-picks#opening': '1' }, 'the public site is told at once');
+  assert.deepEqual((await call(visibility)).json.choices, { 'donate#monthly': 'off', 'manekas-picks#opening': '1', 'site#assistant': 'on' }, 'the public site is told at once');
   const row = auditRows()[0];
   assert.equal(row.action, 'site-design');
   assert.equal(row.subject, 'manekas-picks#opening');
@@ -396,7 +400,7 @@ test('a page design is chosen in the panel, logged, and told to the public site'
   assert.equal(auditRows().length, 1);
 
   res = await change({ kind: 'choice', id: 'manekas-picks#opening', value: '2' });
-  assert.deepEqual((await call(visibility)).json.choices, { 'manekas-picks#opening': '2' });
+  assert.deepEqual((await call(visibility)).json.choices, { 'donate#monthly': 'off', 'manekas-picks#opening': '2', 'site#assistant': 'on' });
   assert.equal(stored().version, 2);
 });
 
@@ -414,5 +418,19 @@ test('a page design that is not there, or an option it does not have, is refused
   assert.equal(stored(), undefined);
   /* a hand edit in the database cannot slip an option the page does not have into the public answer */
   await db.collection('siteSettings').doc('visibility').set({ choices: { 'manekas-picks#opening': '9', 'x#y': '1' }, version: 3 });
-  assert.deepEqual((await call(visibility)).json.choices, { 'manekas-picks#opening': '2' });
+  assert.deepEqual((await call(visibility)).json.choices, { 'donate#monthly': 'off', 'manekas-picks#opening': '2', 'site#assistant': 'on' });
+});
+
+test('the assistant and monthly giving are switched in the panel: the assistant on and monthly off until chosen', () => {
+  /* owner, 15 Nov 2026: "Add an admin toggle to show or hide the assistant ...
+     a separate admin toggle for visitor visibility" of monthly giving */
+  assert.equal(V.CHOICES['site#assistant'].fallback, 'on');
+  assert.equal(V.CHOICES['donate#monthly'].fallback, 'off', 'one-time giving only until CCAvenue standing instructions are enabled');
+  assert.equal(V.SITE_WIDE, 'site');
+  const P = require('../assets/site-visibility.js').PFA_VISIBILITY;
+  const state = { choices: { 'site#assistant': 'off', 'donate#monthly': 'on', 'manekas-picks#opening': '1' } };
+  assert.deepEqual(P.choicesFor(state, 'laws'), { 'data-choice-assistant': 'off' }, 'a site-wide choice is on every page');
+  assert.deepEqual(P.choicesFor(state, 'donate'), { 'data-choice-assistant': 'off', 'data-choice-monthly': 'on' });
+  const chrome = fs.readFileSync(require.resolve('../assets/chrome.js'), 'utf8');
+  assert.match(chrome, /html\[data-choice-assistant="off"\] \.pfa-asst-launch,html\[data-choice-assistant="off"\] \.pfa-asst\{display:none!important\}/, 'hidden: no button and no open chat');
 });

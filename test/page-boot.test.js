@@ -108,11 +108,12 @@ test('donate: every field the server requires is present and named', () => {
   }
 });
 
-test('donate: monthly is not reachable while there is no mandate flow', () => {
+test('donate: monthly is not reachable while the panel has monthly giving off', () => {
   const { doc, html } = boot('donate.html');
-  assert.ok(/MONTHLY_MANDATE_LIVE = false/.test(html), 'the flag must default to off');
-  // The button is removed on boot, so nothing can select it.
-  assert.equal(doc.querySelector('[data-freq="monthly"]'), null);
+  assert.match(html, /data-choice-monthly/, 'the page follows the panel\'s switch (donate#monthly)');
+  // Off until the panel says on: the row is hidden, so nothing can select it.
+  assert.equal(doc.querySelector('[data-freq="monthly"]').parentNode.hidden, true);
+  assert.match(html, /name="frequency" id="gFreq" value="once"/, 'and what is sent is once');
 });
 
 
