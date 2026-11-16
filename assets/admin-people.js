@@ -57,7 +57,7 @@
       + (hired ? ' · ' + hired + ' hired' : '') + Object.keys(by).map(function (k) { return ' · ' + esc(k) + ' ' + by[k]; }).join('') + '</p>'
       + '<div class="em-tools"><input type="search" data-em="q" placeholder="Find a name, phone, email, post or zone" aria-label="Find an applicant" value="' + esc(EM.q) + '">'
       + '<select data-em="role" aria-label="Post"><option value="">Every post</option>' + Object.keys(ROLES).map(function (k) { return '<option value="' + k + '"' + (EM.role === k ? ' selected' : '') + '>' + esc(ROLES[k]) + '</option>'; }).join('') + '</select>'
-      + '<button class="ghost" type="button" data-em="csv">Download for Excel</button></div>'
+      + '<span data-sr-slot></span><button class="ghost" type="button" data-em="csv" data-sr-extra="em-csv">Download for Excel</button></div>'
       + '<div class="wrap"><table><thead><tr><th>Applicant</th><th>Post</th><th>Contact</th><th>Status</th><th>Applied</th></tr></thead><tbody>'
       + (rows.length ? rows.map(function (r) {
         var c = contact(r);

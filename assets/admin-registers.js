@@ -124,7 +124,9 @@
     var pop = box.querySelector('.sr-pop');
     if (!pop) { setTimeout(function () { if (box.querySelector('.sr-pop')) exportsInto(box, kind); }, 0); return; }
     if (pop.querySelector('[data-rg="copyall"]')) return;
-    pop.insertAdjacentHTML('afterbegin', '<button type="button" role="menuitem" data-rg="copyall">Copy the table</button><button type="button" role="menuitem" data-rg="csv">Download for Excel</button><hr>');
+    pop.insertAdjacentHTML('afterbegin', '<button type="button" role="menuitem" data-rg="copyall">Copy the table</button><button type="button" role="menuitem" data-rg="csv" data-sr-extra="rg-csv">Download for Excel</button><hr>');
+    var csvBtn = pop.querySelector('[data-sr-act="csv"]');
+    if (csvBtn) { var sel = box.querySelector('[data-sr-when]'); csvBtn.hidden = !(sel && sel.value); csvBtn.textContent = 'Download this period'; }
   }
 
   /* What needs doing now, said once above the list: the sheet not updating,

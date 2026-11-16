@@ -247,6 +247,8 @@ button.cell:hover{background:var(--stone,#f4f3f1)}
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
 .tools input,.tools select{padding:0 11px;height:38px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px}
 .tools input{min-width:230px}
+.subtools #subQ{flex:1 1 240px}.subtools .linky{margin:0;padding:0 4px;font-size:13px}@media (max-width:640px){.subtools select{flex:1 1 40%;min-width:0}}
+.paytools #payQ{flex:1 1 240px}.paytools .sr-menu{margin-left:auto}@media (max-width:640px){.paytools select{flex:1 1 40%;min-width:0}.paytools .sr-menu{margin-left:0}}
 .paysum{position:sticky;z-index:6;background:var(--paper);border:1px solid var(--line);padding:12px 16px;margin:0 0 12px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 22px}.paysum:empty{display:none}.paysum small{flex:1 0 100%;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.paysum b{font-size:22px;font-weight:600}.paysum span{font-size:13px;color:var(--muted)}.paysum span i{font-style:normal;color:var(--ink)}
 #payRange:not([hidden]){display:inline-flex;gap:8px;align-items:center}#payRange input{min-width:0;width:150px}
 .tools input:focus,.tools select:focus{border-color:var(--ink);outline:none}
@@ -825,7 +827,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="overview" id="paneOverview"><div class="loading">Reading the registers&#8230;</div></div>
 
     <div class="pane" data-pane="submissions">
-      <div class="tools">
+      <!-- one line (16 Nov 2026): each applies as it changes; Clear shows only when something is chosen -->
+      <div class="tools subtools">
         <input type="search" id="subQ" placeholder="Reference, e.g. PFA-C-2026-00042" aria-label="Find a submission by reference">
         <select id="subKind" aria-label="Kind"><option value="">Every kind</option></select>
         <select id="subStatus" aria-label="Status">
@@ -836,8 +839,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
           <option value="spam">Spam</option>
           <option value="removed">Removed</option>
         </select>
-        <button class="ghost" type="button" id="subGo">Find</button>
-        <button class="ghost" type="button" id="subClear">Clear</button>
+        <button class="linky" type="button" id="subClear" hidden>Clear</button>
       </div>
       <div class="wrap"><table><thead><tr>
         <th>Reference</th><th>Kind</th><th>From</th><th>Status</th><th>With</th><th>Arrived</th>
@@ -917,7 +919,9 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="certificates" role="region" aria-label="Certificates"><div class="loading">Reading the certificates&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
-      <div class="tools">
+      <!-- one line (16 Nov 2026): find, the three filters, Export; each applies as it changes -->
+      <div class="tools paytools">
+        <input type="search" id="payQ" placeholder="Name, email, mobile or order" aria-label="Find a payment by name, email, mobile, order or bank reference">
         <select id="payType" aria-label="Purpose">
           <option value="">Every purpose</option><option value="donate">Donation</option><option value="membership">Membership</option>
           <option value="caregiver-application">Caregiver application fee</option><option value="shop">Shop order</option>
@@ -933,10 +937,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         <!-- when (3 Nov 2026): any time, a month, or dates chosen; the dates show only when asked for -->
         <select id="payWhen" aria-label="When"><option value="">Any time</option></select>
         <span id="payRange" hidden><input type="date" id="payFrom" aria-label="From"> <input type="date" id="payTo" aria-label="To"></span>
-        <input type="search" id="payQ" placeholder="Name, email, mobile or order" aria-label="Find a payment by name, email, mobile, order or bank reference">
-        <button class="ghost" type="button" id="payGo">Apply</button>
-        <button class="ghost" type="button" id="payCsv">Download the list</button>
-        <button class="ghost" type="button" id="payMail">Email this report</button>
+        <details class="sr-menu"><summary class="ghost">Export</summary><div class="sr-pop" role="menu"><button type="button" role="menuitem" id="payCsv">Download the list</button><button type="button" role="menuitem" id="payMail">Email this report</button></div></details>
       </div>
       <!-- the period's total, by purpose, held in view while the list scrolls (3 Nov 2026) -->
       <div class="paysum" id="paySum" aria-live="polite"></div>
@@ -3723,15 +3724,18 @@ window.addEventListener('unhandledrejection', function (event) {
   });
 
   on('#refresh', 'click', function () { $$('.pane[data-live]').forEach(function (p) { fill(p.getAttribute('data-pane'), true); }); panesOf(current).forEach(function (pane) { if (pane !== subOf[current]) loaded[pane] = false; }); });
-  on('#subGo', 'click', function () { submissions(true); });
-  on('#subClear', 'click', function () { $('#subQ').value = ''; $('#subKind').value = ''; $('#subStatus').value = ''; submissions(true); });
+  var subT = null;
+  function subFilters() { $('#subClear').hidden = !($('#subQ').value.trim() || $('#subKind').value || $('#subStatus').value); }
+  on('#subQ', 'input', function () { subFilters(); clearTimeout(subT); subT = setTimeout(function () { submissions(true); }, 450); });
+  on('#subClear', 'click', function () { $('#subQ').value = ''; $('#subKind').value = ''; $('#subStatus').value = ''; subFilters(); submissions(true); });
   on('#subMore', 'click', function () { submissions(false); });
   on('#subQ', 'keydown', function (e) { if (e.key === 'Enter') submissions(true); });
-  on('#subKind', 'change', function () { submissions(true); });
-  on('#subStatus', 'change', function () { submissions(true); });
+  on('#subKind', 'change', function () { subFilters(); submissions(true); });
+  on('#subStatus', 'change', function () { subFilters(); submissions(true); });
   on('#volMore', 'click', function () { volunteers(false); });
   on('#donMore', 'click', function () { donations(false); });
-  on('#payGo', 'click', function () { payments(true); });
+  var payT = null;
+  on('#payQ', 'input', function () { clearTimeout(payT); payT = setTimeout(function () { payments(true); }, 450); });
   on('#payType', 'change', function () { payments(true); });
   on('#payStatus', 'change', function () { payments(true); });
   on('#payWhen', 'change', function () {
@@ -5191,9 +5195,9 @@ window.addEventListener('unhandledrejection', function (event) {
     var rows = so.rows.filter(function (r) { return so.view === 'all' || r.stage === so.view; });
     var next = so.next ? soRow(so.next) : null;
     var empty = { 'to-ship': 'Every paid order has been shipped.', shipped: 'Nothing has been shipped yet.', all: 'No paid shop orders yet.' };
-    node.innerHTML = '<div class="mq-bar" role="group" aria-label="Where the orders stand">'
+    node.innerHTML = '<div class="tools"><div class="mq-bar" role="group" aria-label="Where the orders stand">'
       + Object.keys(SO_VIEWS).map(function (k) { return '<button type="button" class="mq-tab" data-so-view="' + k + '" aria-pressed="' + (k === so.view) + '">' + esc(SO_VIEWS[k]) + (k !== 'all' ? ' <span class="mq-n">' + count[k] + '</span>' : '') + '</button>'; }).join('')
-      + '</div>'
+      + '</div><span data-sr-slot></span></div>'
       + (so.mailOn ? '' : '<p class="say" data-tone="bad">Email is not set up on the server. Shipping emails are queued and will go once it is.</p>')
       + (next && next.shipment && !(next.shippedEmail && next.shippedEmail.trackingNumber === next.shipment.trackingNumber && next.shippedEmail.state !== 'unsent' && next.shippedEmail.state !== 'failed')
         ? '<div class="so-next" data-ref="' + esc(next.orderId) + '"><p><b>' + esc(next.orderId) + ' is marked shipped.</b> Email ' + esc(next.name || 'the customer') + ' the tracking details now?</p>'

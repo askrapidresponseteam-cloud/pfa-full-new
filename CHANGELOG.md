@@ -1,3 +1,22 @@
+## v1.588
+
+- **Panel layout, turn 2: one line of tools in every list.** The remaining sections now follow the pattern the registers set in v1.586.
+  - **Payments & donations:** find, purpose, outcome and period on one line, with Download the list and Email this report in the Export menu. Each filter applies as soon as it changes, and the search as you type, so there is no Apply button.
+  - **Submissions:** find, kind and status on one line, applied as they change. The Find button is gone, and Clear shows only when something is chosen.
+  - **Job applicants, Interns and Shop orders:** the period and Export sit on the same line as the search and filters, not as a separate row above. Each section's own Download for Excel moved into the Export menu.
+  - **One download per menu:** where a section has its own download, the report's CSV appears only once a period is chosen, as "Download this period", so there are never two downloads that look alike.
+
+- **The Overview is back as it was in v1.586.** Owner, 16 Nov 2026, of the v1.587 home screen: "this layout is worse in my opinion ... lets stick to 586 and continue with pending sections". The home screen file is gone and the Overview, its tests and the Firebase bundle are exactly as in v1.586. The section switch and the list-first registers from v1.586 stay.
+
+## v1.587
+
+- **Panel layout, turn 2: Overview is a home screen.** Owner, 16 Nov 2026, of a dashboard shown as an example: "stick to current pfa colors, but borrow the structure". PFA's black on white, hairlines, square corners and fonts are kept.
+  - **Top:** the day and a greeting ("Good morning, Gauri."), with the things most often done as buttons beside it: Open the inbox, Live chat, Issue a certificate, Verify a card. Only what the account has access to appears.
+  - **Needs you today:** each item that is waiting is a line with its count, what it is, and one way in. Visitors on the live chat come first, then new forms, member photographs, caregiver applications, internship applications, shop orders, films for the wall, volunteers, cards to print and birthdays. Each opens the exact part it is about (Print and post, To decide, Photos and cards). The counts are the rail's own, so the two never disagree. With nothing waiting it says "You are all caught up."
+  - **At a glance:** forms this week, money received in 30 days, members and colony cards. Each opens its page, and a row is never left half empty.
+  - **On the right:** the six latest forms, each opening its case, and System (email, replies, and the test data tool for a super admin), which used to sit across the middle of the page.
+  - On a phone it is one column, in the same order.
+
 ## v1.586
 
 - **Panel layout, turn 1: one job per screen, and the list first.** Owner, 16 Nov 2026: "you cant be showing less important stuffs above hero elements ... admin panel really needs to be made user friendly in terms of layout and UX. dont change colors and font family". Colours and fonts are unchanged.

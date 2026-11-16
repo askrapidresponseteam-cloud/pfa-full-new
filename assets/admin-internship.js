@@ -117,7 +117,7 @@
       + '<div class="rg-tools"><input type="search" data-ix="q" placeholder="Find a name, ID, email, phone, town, college or shelter" aria-label="Find an intern" value="' + esc(IN.q) + '">'
       + '<select data-ix="batch" aria-label="Batch"><option value="">Every batch</option>' + batches.map(function (b) { return '<option value="' + esc(b.id) + '"' + (IN.batch === b.id ? ' selected' : '') + '>' + esc(b.name) + '</option>'; }).join('') + '</select>'
       + '<select data-ix="show" aria-label="Show">' + [['all', 'Everyone'], ['active', 'Active'], ['waiting', 'Proof waiting'], ['complete', 'Every task accepted'], ['invited', 'Link sent, not in yet'], ['revoked', 'Withdrawn']].map(function (x) { return '<option value="' + x[0] + '"' + (IN.show === x[0] ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select>'
-      + '<button class="ghost" type="button" data-ix="csv">Download for Excel</button></div>'
+      + '<span data-sr-slot></span><button class="ghost" type="button" data-ix="csv" data-sr-extra="ix-csv">Download for Excel</button></div>'
       + '<p class="say" data-ix-say role="status" aria-live="polite"></p>'
       + '<div class="wrap"><table class="ix-t"><thead><tr><th>Intern</th><th>Batch</th><th>The eight tasks</th><th>Law quiz</th><th>Shelter work</th><th>Certificate</th></tr></thead><tbody data-ix-body></tbody></table></div>';
     paintInternRows();

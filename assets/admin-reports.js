@@ -53,11 +53,11 @@
     + '.sr-menu{position:relative}.sr-menu>summary{list-style:none;cursor:pointer;user-select:none}.sr-menu>summary::-webkit-details-marker{display:none}'
     + '.sr-menu>summary::after{content:"";width:6px;height:6px;margin:-3px 0 0 10px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg)}'
     + '.sr-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:15;min-width:220px;padding:6px 0;background:var(--paper);border:1px solid var(--ink);box-shadow:0 14px 34px rgba(0,0,0,.14)}'
-    + '.sr-pop button{display:block;width:100%;padding:11px 16px;border:0;background:none;font:inherit;font-size:13px;text-align:left;color:var(--ink);cursor:pointer;white-space:nowrap}'
+    + '.sr-pop button{display:block;width:100%;padding:11px 16px;border:0;background:none;font:inherit;font-size:13px;text-align:left;color:var(--ink);cursor:pointer;white-space:nowrap}.sr-pop button[hidden]{display:none}'
     + '.sr-pop button:hover,.sr-pop button:focus-visible{background:#f1f1f1;outline:none}.sr-pop button:disabled{color:var(--muted);cursor:default}'
     + '.sr-pop hr{margin:6px 0;border:0;border-top:1px solid var(--line)}'
     /* in a section's own toolbar: on its line, the email form and a period's lines under it */
-    + '[data-sr-slot],[data-sr-slot]>.sr{display:contents}'
+    + '[data-sr-slot],[data-sr-slot]>.sr{display:contents}.tools>.mq-bar{margin:0}.tools [data-sr-slot] .sr-bar{margin-left:auto}'
     + '[data-sr-slot] .sr-bar{display:inline-flex;gap:10px;align-items:center;flex-wrap:wrap}'
     + '[data-sr-slot] .sr-box,[data-sr-slot] .sr-say,[data-sr-slot] .sr-out{flex:1 1 100%;order:9;margin-top:0}'
     + '.pane.sr-on>.rg-tools{display:flex!important}.pane.sr-on .rg-tools>:not([data-sr-slot]){display:none!important}';
@@ -125,11 +125,39 @@
     if (!b) { b = bar(pane, PANES[pane]); state[pane].node = b; }
     var slot = p.querySelector('[data-sr-slot]');
     if (slot) { if (b.parentNode !== slot) slot.appendChild(b); } else if (b.parentNode !== p || p.firstElementChild !== b) p.insertBefore(b, p.firstChild);
+    extras(p, b);
     p.classList.toggle('sr-on', Boolean(state[pane].when));
+  }
+
+  /* A section's own export ([data-sr-extra], "Download for Excel") goes into
+     the Export menu, once: a redraw that brings it back drops the copy. */
+  function extras(p, b) {
+    var pop = b.querySelector('.sr-pop');
+    Array.prototype.forEach.call(p.querySelectorAll('[data-sr-extra]'), function (x) {
+      if (pop.contains(x)) return;
+      var key = x.getAttribute('data-sr-extra');
+      if (pop.querySelector('[data-sr-extra="' + key + '"]')) { x.remove(); return; }
+      x.className = ''; x.setAttribute('role', 'menuitem');
+      var hr = pop.querySelector('hr');
+      if (!hr) { hr = document.createElement('hr'); pop.insertBefore(hr, pop.firstChild); }
+      pop.insertBefore(x, hr);
+    });
+    menuSync(p.getAttribute('data-pane'));
+  }
+  /* one download, never two that look alike: with the section's own
+     download in the menu, the report's shows only for a chosen period, and
+     says so */
+  function menuSync(pane) {
+    var s = state[pane]; var b = s && s.node; if (!b) return;
+    var own = b.querySelector('.sr-pop [data-sr-extra]');
+    var csvBtn = b.querySelector('[data-sr-act="csv"]');
+    csvBtn.hidden = Boolean(own) && !s.when;
+    csvBtn.textContent = own ? 'Download this period' : 'Download CSV';
   }
 
   function paint(pane) {
     var s = state[pane]; var b = s.node; var kind = PANES[pane];
+    menuSync(pane);
     var out = b.querySelector('[data-sr-out]');
     nodeOf(pane).classList.toggle('sr-on', Boolean(s.when));
     if (!s.when) { out.hidden = true; out.innerHTML = ''; return; }
@@ -297,6 +325,6 @@
     if (!p) return;
     state[pane] = { when: '', from: '', to: '', open: false, people: null, data: null };
     mount(pane);
-    new MutationObserver(function () { var n = state[pane].node; if (!p.contains(n) || (!p.querySelector('[data-sr-slot]') && p.firstElementChild !== n)) mount(pane); }).observe(p, { childList: true });
+    new MutationObserver(function () { var n = state[pane].node; if (!p.contains(n) || (!p.querySelector('[data-sr-slot]') && p.firstElementChild !== n) || p.querySelector('[data-sr-extra]:not(.sr-pop *)')) mount(pane); }).observe(p, { childList: true });
   });
 })();

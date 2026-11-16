@@ -39,7 +39,7 @@ test('a register: the list first; above it only find, show, period, Export and w
   assert.ok(at('<table>') < at("numbersHtml(st)"), 'the numbering under the list');
   assert.match(paint, /<span data-sr-slot><\/span>/, 'the period and Export on the same line as find');
   assert.doesNotMatch(paint, />Copy table<|>Export to Excel</, 'no row of export buttons');
-  assert.match(js, /data-rg="copyall">Copy the table<\/button><button type="button" role="menuitem" data-rg="csv">Download for Excel<\/button>/, 'they are in the Export menu');
+  assert.match(js, /data-rg="copyall">Copy the table<\/button><button type="button" role="menuitem" data-rg="csv" data-sr-extra="rg-csv">Download for Excel<\/button>/, 'they are in the Export menu');
   assert.match(js, /function attention\(kind, st\)/);
 });
 
@@ -49,4 +49,25 @@ test('reports: the period is a filter and the exports one menu', () => {
   assert.match(js, /data-sr-act="csv">Download CSV<\/button>/);
   assert.match(js, /data-sr-act="mail" aria-expanded="false">Email this report<\/button>/);
   assert.match(js, /var slot = p\.querySelector\('\[data-sr-slot\]'\);/);
+});
+
+test('Payments and Submissions: one line each, applied as it changes, no Apply or Find buttons', () => {
+  const html = read('admin.html');
+  const pay = html.slice(html.indexOf('<div class="tools paytools">'), html.indexOf('id="paySum"'));
+  assert.ok(pay.indexOf('id="payQ"') < pay.indexOf('id="payType"'), 'find first');
+  assert.match(pay, /<details class="sr-menu"><summary class="ghost">Export<\/summary><div class="sr-pop" role="menu"><button type="button" role="menuitem" id="payCsv">Download the list<\/button><button type="button" role="menuitem" id="payMail">Email this report<\/button><\/div><\/details>/);
+  assert.doesNotMatch(html, /id="payGo"|id="subGo"/);
+  assert.match(html, /on\('#payQ', 'input', function \(\) \{ clearTimeout\(payT\); payT = setTimeout\(function \(\) \{ payments\(true\); \}, 450\); \}\);/);
+  assert.match(html, /<button class="linky" type="button" id="subClear" hidden>Clear<\/button>/, 'Clear only when something is chosen');
+  assert.match(html, /function subFilters\(\) \{ \$\('#subClear'\)\.hidden = !/);
+});
+
+test('Job applicants, Interns and Shop orders: the period and Export on their own line, one download in the menu', () => {
+  assert.match(read('assets/admin-people.js'), /<span data-sr-slot><\/span><button class="ghost" type="button" data-em="csv" data-sr-extra="em-csv">Download for Excel<\/button>/);
+  assert.match(read('assets/admin-internship.js'), /<span data-sr-slot><\/span><button class="ghost" type="button" data-ix="csv" data-sr-extra="ix-csv">Download for Excel<\/button>/);
+  assert.match(read('admin.html'), /'<\/div><span data-sr-slot><\/span><\/div>'/, 'the shop: where the orders stand, then the period and Export');
+  const js = read('assets/admin-reports.js');
+  assert.match(js, /function extras\(p, b\)/);
+  assert.match(js, /csvBtn\.hidden = Boolean\(own\) && !s\.when;/, 'the period download only for a chosen period');
+  assert.match(js, /\.sr-pop button\[hidden\]\{display:none\}/);
 });

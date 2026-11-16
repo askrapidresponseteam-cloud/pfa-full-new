@@ -175,7 +175,8 @@ test('never to anyone else: refused at the route, and at the last door', async (
 
 test('the panel: Email this report beside Download the list; the box in its own file, in the bundle', () => {
   const html = read('admin.html');
-  assert.match(html, /id="payCsv">Download the list<\/button>\n {8}<button class="ghost" type="button" id="payMail">Email this report<\/button>/);
+  /* together in the Export menu since 16 Nov 2026 */
+  assert.match(html, /id="payCsv">Download the list<\/button><button type="button" role="menuitem" id="payMail">Email this report<\/button>/);
   assert.match(html, /<script src="assets\/admin-payreport\.js"><\/script>/);
   assert.ok(fs.statSync(path.join(ROOT, 'admin.html')).size < 409600);
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-payreport\.js'/);
