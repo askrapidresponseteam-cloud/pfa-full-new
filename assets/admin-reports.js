@@ -11,7 +11,15 @@
    shop's only where money goes) and carries the CSV.
 
    The sections draw themselves and often redraw: the bar is put back at the
-   top whenever a redraw takes it away, with what was chosen kept. */
+   top whenever a redraw takes it away, with what was chosen kept.
+
+   16 Nov 2026 (owner: "you cant be showing less important stuffs above hero
+   elements"): the period is a filter like any other, and the two report
+   actions are one Export menu, not a row of buttons. A section with its own
+   toolbar keeps a place for them in it ([data-sr-slot], the registers), so
+   search, filters and the period sit on one line above the list; the email
+   form and a period's lines open under that line. The menu can carry the
+   section's own exports too ([data-sr-extra], added by the section). */
 (function () {
   'use strict';
   var A = window.PFAAdmin;
@@ -40,7 +48,19 @@
     + '.sr-acts{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0;align-items:center}.sr-acts .press,.sr-acts .ghost{width:auto;margin:0;min-height:38px;padding:0 18px}'
     + '.sr-say{font-size:13px;line-height:1.5;margin:10px 0 0;overflow-wrap:anywhere}.sr-say:empty{display:none}.sr-say[data-tone="bad"]{color:#a3251f}.sr-say[data-tone="good"]{color:#1f6b3a}'
     + '.sr-out{margin:14px 0 0}.sr-out[hidden]{display:none}.sr-line{margin:0 0 10px;font-size:14px}.sr .sr-out th,.sr .sr-out td{padding:10px 14px;vertical-align:top}.sr .sr-out td{font-size:13px}.sr .sr-out td.sr-wide{min-width:240px}.sr .sr-out td.sr-nw{white-space:nowrap}.sr-out td:first-child{white-space:nowrap}.sr-more{font-size:12px;color:var(--muted);margin:8px 0 0}'
-    + '.pane.sr-on>:not(.sr){display:none!important}';
+    + '.pane.sr-on>:not(.sr){display:none!important}'
+    /* the Export menu */
+    + '.sr-menu{position:relative}.sr-menu>summary{list-style:none;cursor:pointer;user-select:none}.sr-menu>summary::-webkit-details-marker{display:none}'
+    + '.sr-menu>summary::after{content:"";width:6px;height:6px;margin:-3px 0 0 10px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg)}'
+    + '.sr-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:15;min-width:220px;padding:6px 0;background:var(--paper);border:1px solid var(--ink);box-shadow:0 14px 34px rgba(0,0,0,.14)}'
+    + '.sr-pop button{display:block;width:100%;padding:11px 16px;border:0;background:none;font:inherit;font-size:13px;text-align:left;color:var(--ink);cursor:pointer;white-space:nowrap}'
+    + '.sr-pop button:hover,.sr-pop button:focus-visible{background:#f1f1f1;outline:none}.sr-pop button:disabled{color:var(--muted);cursor:default}'
+    + '.sr-pop hr{margin:6px 0;border:0;border-top:1px solid var(--line)}'
+    /* in a section's own toolbar: on its line, the email form and a period's lines under it */
+    + '[data-sr-slot],[data-sr-slot]>.sr{display:contents}'
+    + '[data-sr-slot] .sr-bar{display:inline-flex;gap:10px;align-items:center;flex-wrap:wrap}'
+    + '[data-sr-slot] .sr-box,[data-sr-slot] .sr-say,[data-sr-slot] .sr-out{flex:1 1 100%;order:9;margin-top:0}'
+    + '.pane.sr-on>.rg-tools{display:flex!important}.pane.sr-on .rg-tools>:not([data-sr-slot]){display:none!important}';
   document.head.appendChild(style);
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -76,8 +96,10 @@
         return '<option value="' + o[0] + '"' + (s.when === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
       }).join('') + '</select>'
       + '<span class="sr-range" data-sr-range' + (s.when === 'range' ? '' : ' hidden') + '><input type="date" data-sr-from aria-label="From" value="' + esc(s.from) + '"><span>to</span><input type="date" data-sr-to aria-label="To" value="' + esc(s.to) + '"></span>'
-      + '<button class="ghost" type="button" data-sr-act="csv">Download CSV</button>'
-      + '<button class="ghost" type="button" data-sr-act="mail" aria-expanded="false">Email this report</button>'
+      + '<details class="sr-menu"><summary class="ghost">Export</summary><div class="sr-pop" role="menu">'
+      + '<button type="button" role="menuitem" data-sr-act="csv">Download CSV</button>'
+      + '<button type="button" role="menuitem" data-sr-act="mail" aria-expanded="false">Email this report</button>'
+      + '</div></details>'
       + '</div>'
       + '<div class="sr-box" data-sr-box hidden></div>'
       + '<p class="sr-say" data-sr-say role="status" aria-live="polite"></p>'
@@ -101,7 +123,8 @@
     if (!p) return;
     var b = state[pane] && state[pane].node;
     if (!b) { b = bar(pane, PANES[pane]); state[pane].node = b; }
-    if (b.parentNode !== p || p.firstElementChild !== b) p.insertBefore(b, p.firstChild);
+    var slot = p.querySelector('[data-sr-slot]');
+    if (slot) { if (b.parentNode !== slot) slot.appendChild(b); } else if (b.parentNode !== p || p.firstElementChild !== b) p.insertBefore(b, p.firstChild);
     p.classList.toggle('sr-on', Boolean(state[pane].when));
   }
 
@@ -249,6 +272,15 @@
       sync(s.node.querySelector('[data-sr-box]'));
     }
   });
+  /* an open Export menu closes on a choice, or a click anywhere else */
+  document.addEventListener('click', function (e) {
+    Array.prototype.forEach.call(document.querySelectorAll('.sr-menu[open]'), function (m) {
+      if (!m.contains(e.target) || (e.target.closest && e.target.closest('.sr-pop button'))) m.open = false;
+    });
+  }, true);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') Array.prototype.forEach.call(document.querySelectorAll('.sr-menu[open]'), function (m) { m.open = false; var s = m.querySelector('summary'); if (s) s.focus(); });
+  });
   document.addEventListener('click', function (e) {
     var act = e.target.closest && e.target.closest('.sr [data-sr-act]');
     if (!act) return;
@@ -265,6 +297,6 @@
     if (!p) return;
     state[pane] = { when: '', from: '', to: '', open: false, people: null, data: null };
     mount(pane);
-    new MutationObserver(function () { if (p.firstElementChild !== state[pane].node) mount(pane); }).observe(p, { childList: true });
+    new MutationObserver(function () { var n = state[pane].node; if (!p.contains(n) || (!p.querySelector('[data-sr-slot]') && p.firstElementChild !== n)) mount(pane); }).observe(p, { childList: true });
   });
 })();

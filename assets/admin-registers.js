@@ -92,20 +92,59 @@
     var all = st.rows;
     var nDone = all.filter(function (r) { return r.done; }).length;
     var seg = [['all', 'All', all.length], ['todo', spec.todo, all.length - nDone], ['done', spec.done, nDone]];
+    /* The list first (owner, 16 Nov 2026: "you cant be showing less
+       important stuffs above hero elements"). Above it only what is used on
+       it (find, show, the period, Export, Preview emails) and anything that
+       needs doing now; the Google Sheet, the numbering and the state codes
+       are reference, and wait under the list. */
     box.innerHTML = '<div class="rg-tools">'
       + '<input type="search" data-rg="q" placeholder="Find a name, phone, email, number or place" aria-label="Find in the register" value="' + esc(st.q) + '">'
       + '<span class="rg-seg" role="group" aria-label="Show">' + seg.map(function (x) { return '<button type="button" data-rg-show="' + x[0] + '" aria-pressed="' + (st.show === x[0]) + '">' + esc(x[1]) + ' ' + x[2] + '</button>'; }).join('') + '</span>'
+      + '<span data-sr-slot></span>'
       + '<button class="press" type="button" data-rg="mailpicked" disabled>Preview emails</button>'
-      + '<button class="ghost" type="button" data-rg="copyall">Copy table</button>'
-      + '<button class="ghost" type="button" data-rg="csv">Export to Excel</button>'
-      + '</div><p class="rg-hint">' + (spec.compact ? 'Open ' + (kind === 'membership' ? 'a member' : 'a caregiver') + ' for their details and to update shipping. Tick several to email them together. Green is shipped.' : 'Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.') + '</p>'
+      + '</div>'
       + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
-      + '<div data-rg-sheet>' + sheetHtml(kind, st.sheet) + '</div>'
-      + (kind === 'membership' ? numbersHtml(st) : caregiverNews(st))
-      + codesHtml(st)
+      + attention(kind, st)
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
-      + '<div class="wrap' + (spec.compact ? ' rg-compact' : '') + '"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + (spec.compact ? COMPACT[kind].head : spec.cols.map(function (c) { return c[0]; })).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + (spec.compact ? '<th><span class="rg-vh">Open</span></th>' : '<th>Shipping</th>') + '</tr></thead><tbody data-rg-body></tbody></table></div>';
+      + '<div class="wrap' + (spec.compact ? ' rg-compact' : '') + '"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + (spec.compact ? COMPACT[kind].head : spec.cols.map(function (c) { return c[0]; })).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + (spec.compact ? '<th><span class="rg-vh">Open</span></th>' : '<th>Shipping</th>') + '</tr></thead><tbody data-rg-body></tbody></table></div>'
+      + '<p class="rg-hint rg-foot">' + (spec.compact ? 'Open ' + (kind === 'membership' ? 'a member' : 'a caregiver') + ' for their details and to update shipping. Tick several to email them together. Green is shipped.' : 'Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete. Green rows are shipped.') + '</p>'
+      + '<section class="rg-ref" aria-label="Sheet and numbering">'
+      + '<h3>Sheet and numbering</h3>'
+      + '<div data-rg-sheet>' + sheetHtml(kind, st.sheet) + '</div>'
+      + (kind === 'membership' ? numbersHtml(st) : '')
+      + codesHtml(st)
+      + '</section>';
     paintRegisterRows(kind);
+    exportsInto(box, kind);
+  }
+
+  /* The register's own exports, in the section's Export menu
+     (assets/admin-reports.js) rather than as a row of buttons */
+  function exportsInto(box, kind) {
+    var pop = box.querySelector('.sr-pop');
+    if (!pop) { setTimeout(function () { if (box.querySelector('.sr-pop')) exportsInto(box, kind); }, 0); return; }
+    if (pop.querySelector('[data-rg="copyall"]')) return;
+    pop.insertAdjacentHTML('afterbegin', '<button type="button" role="menuitem" data-rg="copyall">Copy the table</button><button type="button" role="menuitem" data-rg="csv">Download for Excel</button><hr>');
+  }
+
+  /* What needs doing now, said once above the list: the sheet not updating,
+     numbers given just now, people not numbered. A line each, never a
+     paragraph of names. */
+  function attention(kind, st) {
+    var out = [];
+    var sh = st.sheet;
+    if (sh && sh.on && sh.error) out.push(['bad', 'The Google Sheet is not updating: ' + sh.error.message, true]);
+    var done = st.numbering || {};
+    var noun = kind === 'membership' ? ['member', 'members'] : ['caregiver', 'caregivers'];
+    if (done.numbered && done.numbered.length) out.push(['good', (done.numbered.length === 1 ? 'One ' + noun[0] + ' numbered just now: ' : done.numbered.length + ' ' + noun[1] + ' numbered just now: ') + done.numbered.map(function (x) { return x.number; }).join(', ') + '.']);
+    var err = done.error || (kind === 'membership' && st.numbers && st.numbers.error) || '';
+    if (err) out.push(['bad', err]);
+    var held = st.rows.filter(function (r) { return kind === 'membership' ? !r.memberNo : !r.caregiverNo; });
+    if (held.length) out.push(['bad', held.length + ' ' + (held.length === 1 ? noun[0] : noun[1]) + ' not numbered yet: ' + (held[0].numberHold || 'open this page again to number them.'), kind === 'membership']);
+    if (!out.length) return '';
+    return '<div class="rg-attn">' + out.map(function (x) {
+      return '<p class="rg-attn__l" data-tone="' + x[0] + '"><span>' + esc(x[1]) + '</span>' + (x[2] ? '<button type="button" class="rg-attn__go" data-rg-ref>Details</button>' : '') + '</p>';
+    }).join('') + '</div>';
   }
 
   /* Member numbers (owner, 3 Nov 2026: "enterprise grade numbering-
@@ -171,6 +210,21 @@
   (function () {
     var css = document.createElement('style');
     css.textContent = '.rg-sheet{margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);background:var(--paper)}'
+      /* the toolbar: find, show, period and Export, then Preview emails at the end */
+      + '.rg-tools .press[data-rg="mailpicked"]{margin-left:auto}'
+      + '@media (max-width:640px){.rg-tools [data-sr-slot] .sr-bar{flex:1 1 100%}.rg-tools [data-sr-slot] .sr-bar select{flex:1 1 auto}.rg-tools .press[data-rg="mailpicked"]{margin-left:0;flex:1 1 100%}}'
+      + '.rg-foot{margin:12px 0 0}'
+      /* what needs doing now, above the list */
+      + '.rg-attn{display:grid;gap:6px;margin:0 0 14px}.rg-attn__l{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 14px;margin:0;padding:10px 14px;font-size:13px;line-height:1.5;border:1px solid var(--line);overflow-wrap:anywhere}'
+      + '.rg-attn__l[data-tone="bad"]{border-color:#e3b4b0;background:#fdf6f5;color:#7a1610}.rg-attn__l[data-tone="good"]{border-color:#b9d8c1;background:#f4faf5;color:#1f6b3a}'
+      + '.rg-attn__go{flex:none;padding:0;border:0;background:none;font:inherit;font-size:13px;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}'
+      /* reference, under the list */
+      + '.rg-ref{margin:44px 0 0;padding:26px 0 0;border-top:1px solid var(--line)}.rg-ref h3{margin:0 0 14px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}'
+      + '.rg-ref .rg-nums{margin:0 0 10px}'
+      /* the same + as every other expander in the panel */
+      + '.rg-nums>summary{display:flex;align-items:center;gap:10px;list-style:none}.rg-nums>summary::-webkit-details-marker{display:none}'
+      + '.rg-nums>summary::before{content:"";flex:none;box-sizing:border-box;width:23px;height:23px;border:1px solid var(--line,#ddd);background:linear-gradient(currentColor,currentColor) center/11px 1px no-repeat,linear-gradient(currentColor,currentColor) center/1px 11px no-repeat}'
+      + '.rg-nums[open]>summary::before{background:linear-gradient(currentColor,currentColor) center/11px 1px no-repeat}'
       + '.rg-sheet--bad{border-color:#e3b4b0}'
       + '.rg-sheet__line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;margin:0;font-size:13px;overflow-wrap:anywhere}'
       + '.rg-sheet__acts{display:inline-flex;flex-wrap:wrap;gap:8px}'
@@ -179,14 +233,6 @@
       + '.rg-sheet details.fold{margin:6px 0 0}.rg-sheet .rg-list{margin:0;padding-left:18px;font-size:12px;color:var(--muted)}.rg-sheet .rg-list li{margin:0 0 4px}';
     document.head.appendChild(css);
   })();
-  /* the caregiver numbers given as the register opened, and any that could not be */
-  function caregiverNews(st) {
-    var done = st.numbering || {};
-    var held = st.rows.filter(function (r) { return !r.caregiverNo; });
-    return (done.numbered && done.numbered.length ? '<p class="rg-hint rg-good">' + esc(done.numbered.length === 1 ? 'One caregiver numbered just now: ' : done.numbered.length + ' caregivers numbered just now: ') + esc(done.numbered.map(function (x) { return x.number; }).join(', ')) + '.</p>' : '')
-      + (done.error ? '<p class="rg-hint rg-bad">' + esc(done.error) + '</p>' : '')
-      + (held.length ? '<p class="rg-hint rg-bad">' + esc(held.length + (held.length === 1 ? ' caregiver' : ' caregivers') + ' with no number yet: ' + held.map(function (r) { return r.name + ' (' + (r.numberHold || 'not numbered: open this page again') + ')'; }).join('; ')) + '</p>' : '');
-  }
   /* PFA's state code directory (owner, 11 Nov 2026: "state wise code
      directory- add this to admin panel"): every number starts with its
      state's code. A number given before that day under the old code keeps
@@ -570,6 +616,12 @@
       var said = box.querySelector('[data-rg-say]');
       var b = e.target.closest && e.target.closest('button');
       if (!b) return;
+      /* "Details" on a line above the list: down to the sheet and numbering, opened */
+      if (b.hasAttribute('data-rg-ref')) {
+        var ref = box.querySelector('.rg-ref');
+        if (ref) { [].forEach.call(ref.querySelectorAll('details.rg-nums:not(.rg-codes)'), function (d) { d.open = true; }); ref.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        return;
+      }
       if (b.hasAttribute('data-rg-show')) {
         regState[kind].show = b.getAttribute('data-rg-show');
         [].forEach.call(box.querySelectorAll('[data-rg-show]'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });

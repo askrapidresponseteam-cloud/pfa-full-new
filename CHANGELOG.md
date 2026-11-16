@@ -1,3 +1,22 @@
+## v1.586
+
+- **Panel layout, turn 1: one job per screen, and the list first.** Owner, 16 Nov 2026: "you cant be showing less important stuffs above hero elements ... admin panel really needs to be made user friendly in terms of layout and UX. dont change colors and font family". Colours and fonts are unchanged.
+  - Sections made of several parts no longer stack them one under another. A switch under the title shows one part at a time:
+    - Members: Register, Photos and cards.
+    - Caregivers: Register, To decide, Card studio, Verify a card, Print and post.
+    - Payments, Internship, and Admins & audit work the same way.
+  - Waiting counts from the rail show on the part they belong to (To decide, Photos and cards, Batches and review). A notice, a search result or an old link opens the right part, and each section remembers the part you last used.
+  - In the Members and Caregivers registers the list comes first. Above it is one line of tools: find, show, the period, an Export menu, and Preview emails. The Google Sheet, member numbers and state codes have moved under the list, in Sheet and numbering. Anything that needs doing now (the sheet not updating, people not numbered) is a single line above the list with a Details link.
+  - Copy table, Export to Excel, Download CSV and Email this report are now one Export menu, in the registers and in Volunteers, Job applicants, Interns and Shop orders.
+  - The UI check now opens every part of every section, not only the first.
+
+## v1.585
+
+- **gandhim kept up to date on every cruelty case worked in the panel.** Owner, 16 Nov 2026: "ensure that when user replies/works on cruelty cases from here- a copy goes to gandhim on what was told ... gandhim should always be aware of the progress". Until now the forms inbox had the case when it arrived and every email the reporter sent back, but nothing done in the panel.
+  - For cruelty reports and requests to follow a case, the forms inbox now gets an email each time someone in the panel replies to the reporter (only once the reply is delivered), moves the status (with the note), adds a note, assigns the case, or takes it out of or back into the panel. Replies and notes are copied word for word.
+  - Each email goes into the case's own thread in that inbox, with the same subject as the original case, so the case reads top to bottom as one conversation. Replying to an update reaches whoever made the change, never the reporter.
+  - One email per action, each sent once even after a retry or a double click, and retried if the mail server is slow. Someone working from the forms inbox's own account is not sent their own action back. A record of a payment never reaches the forms inbox this way. Sending never holds up or blocks the action in the panel.
+
 ## v1.584
 
 - **Live chat with a person, from the site's chat.** Owner, 16 Nov 2026: "build a chat UI for admin side, where people can answer questions- when online.. i.e. if one asks for a person. and if the answer is not available in the site data", and "live chat works for main site user, only if someone from admin panel is online. else, ask the main site user to send a query".

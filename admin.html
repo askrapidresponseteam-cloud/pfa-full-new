@@ -136,6 +136,19 @@ button{font:inherit;color:inherit}
 .gres .gnear{color:var(--ink);border-bottom:1px solid var(--line)}
 .bar .spring{margin-left:0}
 .pane{padding:30px 34px 64px;display:none}
+/* One part of a section at a time (16 Nov 2026, owner: "you cant be showing
+   less important stuffs above hero elements"): a section made of several
+   parts shows a switch under its title, and only the part chosen. */
+.subnav{display:flex;padding:0 34px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.subnav[hidden]{display:none}.subnav::-webkit-scrollbar{display:none}
+.subnav button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:50px;margin-right:30px;padding:0;border:0;border-bottom:2px solid transparent;background:none;font:inherit;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.subnav button:last-child{margin-right:0}
+.subnav button[aria-current]{color:var(--ink);border-bottom-color:var(--ink)}
+@media (hover:hover){.subnav button:hover{color:var(--ink)}}
+.subnav .pip{min-width:20px;height:18px;padding:0 6px;display:grid;place-items:center;background:var(--deep);color:#fff;font-size:10px;font-weight:700}
+.subnav .pip[hidden]{display:none}
+.main[data-sub] .pane::before{content:none!important}
+@media (max-width:900px){.subnav{padding:0 20px}.subnav button{margin-right:22px}}
 .pane[data-live]{display:block}
 /* Sections folded into another (Donations, Verify, Issue, Audit) stack under
    their host with a rule and a small heading, so one page reads as parts. */
@@ -801,6 +814,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       </div>
       <span class="spring"><button class="ghost" type="button" id="refresh">Refresh</button></span>
     </div>
+    <nav class="subnav" id="subnav" aria-label="In this section" hidden></nav>
     <!-- replies not being picked up: on every page (owner, 27 Oct 2026, lib/reply-watch.js) -->
     <div class="ralert" id="replyAlert" role="alert" hidden><p id="replyAlertText"></p><button class="ghost" type="button" id="replyAlertCheck">Check now</button></div>
     <!-- a member sent their photograph: on every page (owner, 29 Oct 2026) -->
@@ -1044,6 +1058,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
            it back; it just stops appearing anywhere. -->
       <button class="ghost" type="button" id="caseRemove" style="width:auto">Remove from the panel</button>
     </div>
+    <!-- lib/case-progress.js (16 Nov 2026): the office is told -->
+    <p class="hint" id="caseOffice" hidden>Every reply, note, assignment and status change here is also emailed to PFA&#8217;s office inbox.</p>
     <p class="say" id="caseSay" role="status" aria-live="polite"></p>
   </div>
 </aside>
@@ -1151,7 +1167,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* what assets/admin-registers.js uses of this script (2 Nov 2026: moved
      out to keep this page under the page-weight ceiling) */
-  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t) { show(t); }, showCase: function (r) { return showCase(r); }, refresh: function () { fill(current, true); }, certificates: function () { return window.PFACertPane ? window.PFACertPane.rows() : []; }, fail: function (n, e) { fail(n, e); }, dayOf: function (iso) { return dayOf(iso); } };
+  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t, p) { show(t, p); }, showCase: function (r) { return showCase(r); }, refresh: function () { fill(current, true); }, certificates: function () { return window.PFACertPane ? window.PFACertPane.rows() : []; }, fail: function (n, e) { fail(n, e); }, dayOf: function (iso) { return dayOf(iso); } };
 
   var KEY = window.PFA_FIREBASE_API_KEY || '';
   var IDENTITY = 'https://identitytoolkit.googleapis.com/v1/accounts:';
@@ -1454,7 +1470,13 @@ window.addEventListener('unhandledrejection', function (event) {
     var spec = TABS[pane];
     return Boolean(spec) && can(spec.module) && can(spec.needs);
   }
-  function show(tab) {
+  /* the parts of a section, by name in its switch, and which rail count
+     belongs to which part */
+  var SUBNAME = { cgsheet: 'Register', apply: 'To decide', caregivers: 'Card studio', verify: 'Verify a card', cards: 'Print and post', memsheet: 'Register', membership: 'Photos and cards', payments: 'Payments', donations: 'Donations', internship: 'Batches and review', interns: 'Interns', shelters: 'Shelters', people: 'Admins', audit: 'History' };
+  var SUBPIP = { apply: 'pipApps', membership: 'pipMembers', internship: 'pipIntern' };
+  var subOf = {};
+  function show(tab, part) {
+    var asked = tab;
     tab = HOMES[tab] || tab;
     if (!can(tab)) tab = reachable(tab) ? tab : 'overview';
     if (!reachable(tab)) {
@@ -1466,6 +1488,13 @@ window.addEventListener('unhandledrejection', function (event) {
     /* Donations is the payments register again, filtered to donations: shown
        only to someone who cannot see Payments itself, never twice. */
     if (live.indexOf('payments') !== -1) live = live.filter(function (p) { return p !== 'donations'; });
+    /* a part asked for by name (an old link, a notice, a search) is chosen;
+       otherwise the one last used here, or the first */
+    var want = part || (asked !== tab ? asked : '') || subOf[tab];
+    var sub = live.indexOf(want) !== -1 ? want : live[0];
+    subOf[tab] = sub;
+    paintSubnav(tab, live, sub);
+    if (live.length > 1) live = [sub];
     $$('.tab').forEach(function (b) {
       if (b.getAttribute('data-tab') === tab) { b.setAttribute('aria-current', 'page'); } else { b.removeAttribute('aria-current'); }
     });
@@ -1478,6 +1507,28 @@ window.addEventListener('unhandledrejection', function (event) {
       if (!loaded[pane]) { loaded[pane] = true; fill(pane); }
     });
   }
+
+  function paintSubnav(tab, parts, sub) {
+    var nav = $('#subnav');
+    var many = parts.length > 1;
+    nav.hidden = !many;
+    if (many) $('.main').setAttribute('data-sub', ''); else $('.main').removeAttribute('data-sub');
+    if (!many) { nav.innerHTML = ''; return; }
+    nav.innerHTML = parts.map(function (p) {
+      var pip = SUBPIP[p] && $('#' + SUBPIP[p]);
+      return '<button type="button" data-sub="' + p + '"' + (p === sub ? ' aria-current="page"' : '') + '>' + esc(SUBNAME[p] || (TABS[p] || {}).title || p)
+        + (pip ? '<span class="pip"' + (pip.hidden ? ' hidden' : '') + '>' + esc(pip.textContent) + '</span>' : '') + '</button>';
+    }).join('');
+  }
+  on('#subnav', 'click', function (e) {
+    var b = e.target.closest('[data-sub]');
+    if (b) { show(current, b.getAttribute('data-sub')); window.scrollTo(0, 0); }
+  });
+  /* the rail's counts, echoed on the part they belong to */
+  if (window.MutationObserver) Object.keys(SUBPIP).forEach(function (p) {
+    var pip = $('#' + SUBPIP[p]);
+    if (pip) new MutationObserver(function () { var b = $('#subnav [data-sub="' + p + '"] .pip'); if (b) { b.textContent = pip.textContent; b.hidden = pip.hidden; } }).observe(pip, { attributes: true, childList: true, characterData: true, subtree: true });
+  });
 
   function fill(tab, force) {
     if (force) loaded[tab] = true;
@@ -3180,6 +3231,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function drawCase(c, mailConfigured) {
     openCase = c;
+    $('#caseOffice').hidden = !/^PFA-CR?$/.test(c.kind || '');
     $('#caseTitle').textContent = c.reference;
     $('#caseKind').textContent = c.kindLabel + ' · ' + statusWord(c, c.status) + (c.page ? ' · sent from ' + c.page : '');
     paintWall(c);
@@ -3670,7 +3722,7 @@ window.addEventListener('unhandledrejection', function (event) {
     act({ reference: openCase.reference, action: 'restore' }, 'Restored.', $('#caseRestore'));
   });
 
-  on('#refresh', 'click', function () { panesOf(current).filter(paneAllowed).forEach(function (pane) { fill(pane, true); }); });
+  on('#refresh', 'click', function () { $$('.pane[data-live]').forEach(function (p) { fill(p.getAttribute('data-pane'), true); }); panesOf(current).forEach(function (pane) { if (pane !== subOf[current]) loaded[pane] = false; }); });
   on('#subGo', 'click', function () { submissions(true); });
   on('#subClear', 'click', function () { $('#subQ').value = ''; $('#subKind').value = ''; $('#subStatus').value = ''; submissions(true); });
   on('#subMore', 'click', function () { submissions(false); });
@@ -4454,7 +4506,7 @@ window.addEventListener('unhandledrejection', function (event) {
       if ($('#payWhen')) { $('#payWhen').value = ''; $('#payRange').hidden = true; }
       return payments(true);
     }
-    if (r.type === 'card') { show('caregivers'); $('#cgQ').value = r.id; return caregivers(true); }
+    if (r.type === 'card') { show('caregivers', 'caregivers'); $('#cgQ').value = r.id; return caregivers(true); }
     if (r.type === 'email') { show('overview'); return gsWait('#mailbox', gsLand); }
     if (r.type === 'audit') {
       show('people');
@@ -4474,7 +4526,9 @@ window.addEventListener('unhandledrejection', function (event) {
       return gsWait('[data-vis="' + r.kind + '"][data-id="' + String(r.id).replace(/"/g, '') + '"]', gsLand);
     }
     if (r.type === 'panel') {
-      show(r.item.tab);
+      var at = r.item.anchor && document.querySelector(r.item.anchor);
+      var holder = at && (at.matches('.pane') ? at : at.closest('.pane'));
+      show(r.item.tab, holder ? holder.getAttribute('data-pane') : '');
       if (r.item.anchor) gsWait(r.item.anchor, gsLand);
     }
     return undefined;
@@ -4613,7 +4667,7 @@ window.addEventListener('unhandledrejection', function (event) {
     mqView = 'review';
     $('#photoNote').hidden = true;
     var fresh = !loaded.membership;
-    show('membership');
+    show('membership', 'membership');
     if (!fresh) membershipPane();
   });
   /* birthdays today: the count on the rail and the notice (assets/admin-birthdays.js) */

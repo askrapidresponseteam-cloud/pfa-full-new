@@ -323,6 +323,13 @@ async function run() {
           await page.evaluate((x) => { const b = document.querySelector(`.tab[data-tab="${x}"]`); if (b) b.click(); }, t).catch(() => {});
           await page.waitForTimeout(500);
           await look(`panel tab ${t}`);
+          /* a section in parts (16 Nov 2026): every part, as it is chosen */
+          const parts = await page.evaluate(() => [...document.querySelectorAll('#subnav [data-sub]')].map((b) => b.getAttribute('data-sub'))).catch(() => []);
+          for (const part of parts.slice(1)) {
+            await page.evaluate((x) => { const b = document.querySelector(`#subnav [data-sub="${x}"]`); if (b) b.click(); }, part).catch(() => {});
+            await page.waitForTimeout(400);
+            await look(`panel tab ${t}, ${part}`);
+          }
         }
       }
       /* every section that stays closed until it is asked for (a form behind
