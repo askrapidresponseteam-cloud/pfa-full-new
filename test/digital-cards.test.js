@@ -161,7 +161,7 @@ test('the page: front and back, turned over by a tap, Enter or the button; sky b
   const js = read('assets/digital-card.js');
   assert.match(js, /if \(e\.key === 'Enter' \|\| e\.key === ' '\) \{ e\.preventDefault\(\); flip\(\); \}/);
   assert.match(js, /role="button" tabindex="0" aria-pressed="false"/);
-  assert.match(js, /assets\/certificates\/signature-print\.png" alt="Signature of Smt\. Maneka Sanjay Gandhi" width="1512" height="438"/, 'the chairperson\'s signature at print resolution, sharp at any zoom (owner, 15 Nov 2026: "is the signature super high res")');
+  assert.match(js, /assets\/certificates\/signature\.svg" alt="Signature of Smt\. Maneka Sanjay Gandhi" width="1512" height="438"/, 'the chairperson\'s signature at print resolution, sharp at any zoom (owner, 15 Nov 2026: "is the signature super high res")');
   /* owner, 15 Nov 2026: "logo has to render perfectly. and it has to have
      transparent bg", "color of the card has to be chosen keeping the
      contrast in mind": every word in deep ink at 7 to 1 or more on every
@@ -250,12 +250,18 @@ test('the faces: clean, each thing said once', () => {
   assert.deepEqual([box.style.getPropertyValue('--sx'), box.style.getPropertyValue('--sy')], ['-20', '6']);
   const css = read('assets/digital-card.css');
   assert.match(css, /\.dc__sign img\{[^}]*transform:translate\(calc\(var\(--sx,0\) \* 100cqw \/ 856\),calc\(var\(--sy,0\) \* 100cqw \/ 856\)\)\}/, 'in tenths of a millimetre of a bank card 85.6 mm wide');
-  assert.match(css, /\.dc__sign img\{height:calc\(max\(30px,10cqw\) \* var\(--ss,1\)\);transform:translate\(calc\(var\(--sx,0\) \* 100cqw \/ 540\)/, 'and 54 mm wide upright, at the size the panel set');
+  assert.match(css, /\.dc__sign img\{height:calc\(max\(30px,10cqw\) \* var\(--ss,1\) \* var\(--sfit,1\)\);transform:translate\(calc\(var\(--sx,0\) \* 100cqw \/ 540\)/, 'and 54 mm wide upright, at the size the panel set');
   assert.match(css, /@media print\{\.dc__stage,\.dc__acts,\.dc__hint\{display:none!important\}\.dc__noprint\{display:block/, 'the card itself does not print');
   assert.match(read('card.html'), /D\.render\(box, Object\.assign\(\{\}, d, \{ url: d\.url \|\| here \}\)/, 'the QR code opens the card\'s own address, as PFA issued it');
   assert.doesNotMatch(css, /repeating-radial-gradient/, 'a clean ground, no pattern');
   assert.match(css, /font-size:calc\(max\(20px,6cqw\) \* var\(--fit,1\)\)/, 'a long name steps down to fit');
-  assert.match(read('assets/digital-card.js'), /name\.getBoundingClientRect\(\)\.top < top\.getBoundingClientRect\(\)\.bottom \+ gap/);
+  const js = read('assets/digital-card.js');
+  assert.match(js, /top\.getBoundingClientRect\(\)\.bottom \+ gap - name\.getBoundingClientRect\(\)\.top/, 'the name clear of the logo');
+  /* 16 Nov 2026: a 320 px phone drew the member's name a quarter of its
+     size, shrunk for lines it could not move; now only where it makes room */
+  assert.match(js, /if \(o < least - 0\.5\) \{ least = o; best = f; \}/);
+  assert.match(js, /f <= 0\.6\) break/);
+  assert.match(js, /front\.style\.setProperty\('--fit', String\(best\)\)/);
 });
 
 test('the signature on a card online: its own place, set in the panel, saved, logged and served with the card', async () => {
@@ -272,12 +278,12 @@ test('the signature on a card online: its own place, set in the panel, saved, lo
   assert.match(route, /view\.kind === 'member' \? 'memberOnline' : 'caregiverOnline'/);
   assert.match(route, /view\.sig = \{ x: Number\(sig\.x\) \|\| 0, y: Number\(sig\.y\) \|\| 0, s: Number\(sig\.s\) \|\| 100 \};/);
   const panel = read('assets/admin-digital-cards.js');
-  assert.match(panel, /<summary>Signature position online<\/summary>/, 'apart from the printed card\'s Signature position');
+  assert.match(panel, /\(pre === 'dgs' \? 'Signature position online' : 'Signature size and position'\)/, 'apart from the printed card\'s Signature position');
   assert.match(panel, /A\.api\('\/api\/admin\/card-signature', \{ method: 'POST', body: \{ card: SIG\[kind\], x: l\.x, y: l\.y, s: l\.s \|\| 100 \} \}\)/);
-  assert.match(panel, /<label for="dgs' \+ kind \+ 'sR">Size<\/label>/, 'the size, as well as the place (owner, 15 Nov 2026)');
+  assert.match(panel, /<label for="' \+ pre \+ kind \+ 'sR">Size<\/label>/, 'the size, as well as the place (owner, 15 Nov 2026)');
   assert.match(panel, /Save for every card online/);
   const files = read('scripts/build-firebase.js');
-  for (const f of ['assets/digital-card.css', 'assets/digital-card.js', 'media/member-card-logo.png', 'assets/certificates/signature-print.png', 'fonts/dm-sans-latin-400.woff2']) assert.ok(files.includes(`'${f}'`), `${f} goes with the panel`);
+  for (const f of ['assets/digital-card.css', 'assets/digital-card.js', 'media/member-card-logo.png', 'assets/certificates/signature.svg', 'fonts/dm-sans-latin-400.woff2']) assert.ok(files.includes(`'${f}'`), `${f} goes with the panel`);
 });
 
 /* Owner, 15 Nov 2026: "PFA-Premium-Membership.html for membership. let
@@ -315,7 +321,7 @@ test('the membership card online: the owner\'s template, in Marcellus, with what
   assert.equal(back.querySelector('.dcm__scan').textContent, 'Scan to verify');
   assert.ok(back.querySelector('.dcm__qr svg path'), 'the QR code of the card\'s own address');
   assert.doesNotMatch(back.textContent, /card\?id=/, 'the card\'s address is in the code, not printed');
-  assert.ok(back.querySelector('.dcm__sign img[src="assets/certificates/signature-print.png"]'), 'the chairperson\'s signature, where the panel puts it');
+  assert.ok(back.querySelector('.dcm__sign img[src="assets/certificates/signature.svg"]'), 'the chairperson\'s signature, where the panel puts it');
   assert.deepEqual([box.style.getPropertyValue('--sx'), box.style.getPropertyValue('--sy'), box.style.getPropertyValue('--ss')], ['4', '-2', '1.2']);
   const css = read('assets/digital-card.css');
   assert.match(css, /\.dc\[data-kind="member"\]\{[^}]*font-family:var\(--dc-serif\)\}/, 'Marcellus throughout');
@@ -325,4 +331,77 @@ test('the membership card online: the owner\'s template, in Marcellus, with what
   assert.match(css, /\.dcm__sign img\{[^}]*filter:brightness\(0\) invert\(1\)[^}]*100cqw \/ 856/, 'white on black, moved as the panel says');
   assert.match(read('assets/admin-digital-cards.js'), /var photo = jpeg\(card\.photo\);/, 'the panel sends the photograph on the card, when there is one');
   assert.ok(read('scripts/build-firebase.js').includes("'img/logo-dark.png'"), 'the panel draws it too');
+});
+
+/* owner, 16 Nov 2026: "why no option preview and issue digital card?" from
+   the Members and Caregivers registers, where no card studio is on screen:
+   the photograph kept on the server is used, and Preview saves nothing. */
+test('from a register: Preview card draws it with the kept photograph and saves nothing; Issue uses the kept photograph', async () => {
+  await seed();
+  await db.collection('caretakerCards').doc('PFA-CCT-AB2CD3EF').update({ applicationRef: 'PFA-CG-2026-00007' });
+  await db.collection('submissions').doc('PFA-CG-2026-00007').collection('attachments').doc('1').set({ bytes: Buffer.from(JPEG, 'base64'), contentType: 'image/jpeg' });
+  await db.collection('memberCards').doc('PFA-MEM-2026-00004').update({ photo: 'p1' });
+  await db.collection('submissions').doc('PFA-MEM-2026-00004').collection('attachments').doc('p1').set({ bytes: Buffer.from(JPEG, 'base64'), contentType: 'image/jpeg' });
+
+  const p = await admin('GET', { kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', preview: '1' });
+  assert.equal(p.statusCode, 200, JSON.stringify(p.json));
+  assert.equal(p.json.card.name, 'Ravi Kumar');
+  assert.equal(p.json.card.url, '', 'not online yet: no address, so no QR code');
+  assert.equal(p.json.online, null);
+  assert.match(p.json.photo, /^data:image\/jpeg;base64,/);
+  assert.equal((await db.collection('digitalCards').doc('PFA-CCT-AB2CD3EF').get()).exists, false, 'a preview saves nothing');
+  assert.equal(mails.length, 0);
+
+  const cg = await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', email: true });
+  assert.equal(cg.statusCode, 200, JSON.stringify(cg.json));
+  assert.equal(cg.json.digital.photo, true, 'the application\'s photograph');
+  assert.equal(cg.json.emailed, true);
+  const after = await admin('GET', { kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', preview: '1' });
+  assert.equal(after.json.online.url, 'https://peopleforanimalsindia.org/card?id=PFA-CCT-AB2CD3EF');
+
+  const m = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004', email: true });
+  assert.equal(m.statusCode, 200, JSON.stringify(m.json));
+  assert.equal(m.json.digital.photo, true, 'the member\'s approved photograph');
+
+  /* a caregiver card with no photograph anywhere: said plainly, not issued */
+  await db.collection('caretakerCards').doc('PFA-CCT-ZZ2ZZ3ZZ').set({ cardId: 'PFA-CCT-ZZ2ZZ3ZZ', name: 'No Photo', email: 'n@example.com', status: 'active' });
+  const none = await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-ZZ2ZZ3ZZ' });
+  assert.equal(none.statusCode, 422);
+  assert.match(none.json.message, /No photograph was found with the application/);
+  assert.equal((await admin('GET', { kind: 'member', ref: 'PFA-MEM-2026-00099', preview: '1' })).statusCode, 422);
+});
+
+/* owner, 16 Nov 2026: "sign should be super high res. like 4k . sharp and
+   crisp. even when zoomed": the card online draws it as lines, not pixels */
+test('the signature online is a vector: lines in the ink of the print master, sharp at any zoom', () => {
+  const svg = read('assets/certificates/signature.svg');
+  assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 1512 438"/);
+  assert.match(svg, /<path fill="#0e33a6" fill-rule="evenodd" d="M/);
+  assert.doesNotMatch(svg, /<image|data:image/, 'no picture inside it');
+  assert.ok(svg.length < 60000, 'small enough to load at once');
+  assert.match(read('scripts/build-firebase.js'), /'assets\/certificates\/signature\.svg'/, 'on the panel\'s server too');
+});
+
+/* owner, 16 Nov 2026: "there should be option to change size and pos of
+   sign"; a large signature never runs into the words on a small screen */
+test('signature size and position under Preview card; on a small screen it steps down only as far as it must', () => {
+  const panel = read('assets/admin-digital-cards.js');
+  assert.match(panel, /sigFold\(kind, 'dgr' \+ ref\.replace/);
+  assert.match(panel, /\.rg-dc__card > \.dc'\), function \(box\) \{/);
+  assert.match(panel, /box\._pfaFit\(\)/);
+  const js = read('assets/digital-card.js');
+  assert.match(js, /box\._pfaFit = fitAll;/);
+  assert.match(js, /var least = Math\.max\(0\.5, floor \|\| 0\);/);
+  assert.match(js, /shrinkSign\(back, crowd, ownSize\(back\)\);/);
+  assert.equal((read('assets/digital-card.css').match(/var\(--ss,1\) \* var\(--sfit,1\)/g) || []).length, 4);
+});
+
+test('the registers: a Digital card part under Open on Members and Caregivers lines, with Preview card and Issue digital card', () => {
+  const regs = read('assets/admin-registers.js');
+  const dc = read('assets/admin-digital-cards.js');
+  assert.match(regs, /PFADigitalCards\.regSlot\(kind, r\)/);
+  assert.match(regs, /PFADigitalCards\.regFill\(body\)/);
+  assert.match(dc, /data-dgr="preview">Preview card</);
+  assert.match(dc, />' \+ \(live \? 'Update and email again' : 'Issue digital card'\) \+ '</);
+  assert.match(dc, /regSlot: regSlot, regFill: regFill/);
 });

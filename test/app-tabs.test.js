@@ -108,7 +108,7 @@ test('the top bar on a phone is the mark, the search and the bell; on a wide scr
   assert.match(block, /html\[data-pfa-tabs\]\.pfa-typing \.pfa-tabs\{transform:translateY\(110%\)\}/);
   /* what a page pins to its foot stands on it */
   assert.match(block, /html\[data-pfa-tabs\] \.toast\{bottom:calc\(var\(--tabbar\) \+ 14px\)\}/);
-  assert.match(block, /html\[data-pfa-tabs\] \.bagbtn\{bottom:calc\(var\(--tabbar\) \+ 14px\)\}/);
+  assert.match(block, /html\[data-pfa-tabs\] \.bagbtn\{bottom:calc\(var\(--tabbar\) \+ 78px\)\}/);
   /* the menu sits between the two bars, as a list screen */
   assert.match(block, /html\[data-pfa-tabs\] \.mnav\{[^}]*bottom:var\(--tabbar\)/);
   assert.match(block, /html\[data-pfa-tabs\] \.mnav__list\{background:#fff;border-radius:14px/);

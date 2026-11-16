@@ -234,6 +234,10 @@ function render(page, data) {
     '<p class="eyebrow pfa-kicker">Get involved</p>',
     '<h1 class="pfa-title ev-title" id="evTitle">Events</h1>',
     '<p class="ev-lede">Every awards evening, drive, camp and open day PFA has held or announced, newest first.</p>',
+    /* the two requests the page takes, at the top (owner, 16 Nov 2026:
+       "add a clear Request an Event call to action"; the podcast with
+       Maneka Gandhi beside it, so it is one page, not two) */
+    '<p class="ev-head__acts"><a class="ev-btn" href="#request">Request an Event</a><a class="ev-btn ev-btn--light" href="#podcast">Apply for a podcast</a></p>',
     '</div>',
     '<div class="ev-tally">',
     `<p class="ev-count"><b>${events.length}</b> on the record</p>`,
@@ -252,8 +256,8 @@ function render(page, data) {
     '</div>',
     '<div class="ev-ask">',
     '<h3 class="ev-ask__title">Your area could be next.</h3>',
-    '<p>A drive or a camp happens where someone local asks for one: a ground, a hall, a residents association, a school.</p>',
-    '<a class="ev-btn" href="#request">Ask for an event</a>',
+    '<p>Maneka Gandhi joins live online to speak with the organisers. Organisers get a certificate anyone can verify online, and everyone who takes part a certificate of participation.</p>',
+    '<a class="ev-btn" href="#request">Request an Event</a>',
     '</div>',
     '</div>',
     '<div class="ev-bars" role="group" aria-label="Show one kind of event">',

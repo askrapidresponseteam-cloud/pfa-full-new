@@ -77,7 +77,7 @@ test('someone available: a chat is started, taken, answered both ways, and ended
 
   let list = (await panel(GAURI)).json;
   assert.equal(list.me.available, true);
-  assert.deepEqual(list.online, ['Gauri']);
+  assert.deepEqual(list.online, [{ uid: 'u-gauri', name: 'Gauri' }]);
   assert.equal(list.chats.length, 1);
   assert.equal(list.chats[0].status, 'waiting');
   assert.equal(list.chats[0].awaiting, true);
@@ -86,7 +86,7 @@ test('someone available: a chat is started, taken, answered both ways, and ended
   clock.at(T0 + 20000);
   const reply = await panel(GAURI, { method: 'POST', body: { action: 'send', id, text: 'Yes, the wards are open 24 hours.' } });
   assert.equal(reply.json.chat.status, 'open', 'answering a waiting chat takes it');
-  assert.deepEqual(reply.json.chat.takenBy, { uid: 'u-gauri', name: 'Gauri', email: 'gaurimaulekhi@gmail.com' });
+  assert.deepEqual(reply.json.chat.takenBy, { uid: 'u-gauri', name: 'Gauri' }, 'no email in what the panel lists');
 
   const look = (await site({ query: { id, token, after: '1' } })).json;
   assert.equal(look.status, 'open');
@@ -243,6 +243,168 @@ test('the panel: its own section on the rail, after Submissions, with a count wa
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-live-chat\.js'/);
   const js = read('assets/admin-live-chat.js');
   assert.match(js, /Available for chat/);
-  assert.match(js, /var BEAT_MS = 25000;/);
+  assert.match(js, /var BEAT_MS = 20000;/);
   assert.doesNotMatch(js + read('lib/live-chat.js'), /[–—]/, 'no long dashes');
+});
+
+
+/* ---- v1.589: fast, several people, offline, edge cases (owner, 16 Nov 2026:
+   "make chat work super fast ... enterprise grade. like whatsapp grade",
+   "how will chat be handled when multiple users are there in admin",
+   "when the person goes offline. end user needs to know ... diff color",
+   "no new chat should be allowed", "edge cases everything") ---- */
+
+const KARTHIK = { mode: 'firebase', uid: 'u-k', email: 'k@pfa.test', name: 'Karthik Dhanya', role: 'super', modules: [] };
+async function twoOn() {
+  const t = setup();
+  AS(GAURI); await t.panel(GAURI, { method: 'POST', body: { action: 'presence', available: true } });
+  AS(KARTHIK); await t.panel(KARTHIK, { method: 'POST', body: { action: 'presence', available: true } });
+  return t;
+}
+
+test('two people: the first reply takes the chat; the other cannot write into it without Take over, and the visitor is told who answers', async () => {
+  const t = await twoOn();
+  const { id, token } = (await t.site({ method: 'POST', body: { action: 'start', text: 'Help please', cid: 'abc123x' } })).json;
+  AS(GAURI);
+  assert.equal((await t.panel(GAURI, { method: 'POST', body: { action: 'send', id, text: 'Hello, Gauri here', cid: 'g1aaaaa' } })).status, 200);
+  AS(KARTHIK);
+  let k = await t.panel(KARTHIK, { method: 'POST', body: { action: 'send', id, text: 'Karthik here', cid: 'k1aaaaa' } });
+  assert.equal(k.status, 409);
+  assert.equal(k.json.code, 'TAKEN');
+  assert.match(k.json.message, /Gauri is answering this chat\. Take it over to reply\./);
+  const listK = (await t.panel(KARTHIK)).json.chats[0];
+  assert.equal(listK.mine, false);
+  assert.deepEqual(listK.takenBy, { uid: 'u-gauri', name: 'Gauri' });
+  k = await t.panel(KARTHIK, { method: 'POST', body: { action: 'take', id, force: true } });
+  assert.equal(k.status, 200);
+  assert.equal(k.json.chat.mine, true);
+  const v = (await t.site({ query: { id, token, after: '0' } })).json;
+  assert.equal(v.staff, 'Karthik');
+  assert.ok(v.messages.some((m) => m.text === 'Karthik from PFA took over from Gauri.'));
+});
+
+test('a send tried twice is one message, and each side sees what the other has read', async () => {
+  const t = await twoOn();
+  AS(GAURI);
+  const { id, token } = (await t.site({ method: 'POST', body: { action: 'start', text: 'First', cid: 'first01' } })).json;
+  const a = await t.site({ method: 'POST', body: { action: 'send', id, token, text: 'Again', cid: 'dupe001' } });
+  const b = await t.site({ method: 'POST', body: { action: 'send', id, token, text: 'Again', cid: 'dupe001' } });
+  assert.equal(a.json.n, b.json.n, 'the same message number');
+  const r = await t.panel(GAURI, { method: 'POST', body: { action: 'send', id, text: 'Reply', cid: 'rep0001' } });
+  const replyN = r.json.chat.seq;
+  await t.panel(GAURI, { method: 'POST', body: { action: 'send', id, text: 'Reply', cid: 'rep0001' } });
+  let chat = (await t.panel(GAURI, { query: { id } })).json.chat;
+  assert.equal(chat.messages.filter((m) => m.text === 'Again').length, 1);
+  assert.equal(chat.messages.filter((m) => m.text === 'Reply').length, 1);
+  assert.equal(chat.visitorSeenN, 0);
+  /* the visitor's page shows it, and says so */
+  await t.site({ query: { id, token, after: '0', seen: String(replyN) } });
+  chat = (await t.panel(GAURI, { query: { id } })).json.chat;
+  assert.equal(chat.visitorSeenN, replyN, 'Seen');
+  /* and the person answering read the visitor's latest */
+  await t.site({ method: 'POST', body: { action: 'send', id, token, text: 'Thanks', cid: 'thanks1' } });
+  const before = (await t.site({ query: { id, token, after: '99' } })).json.staffSeenN;
+  const seq = (await t.panel(GAURI, { query: { id } })).json.chat.seq;
+  await t.panel(GAURI, { query: { id, seen: String(seq) } });
+  assert.ok((await t.site({ query: { id, token, after: '99' } })).json.staffSeenN > before);
+});
+
+test('typing shows on the other side for a few seconds', async () => {
+  const t = await twoOn();
+  AS(GAURI);
+  const { id, token } = (await t.site({ method: 'POST', body: { action: 'start', text: 'Hi' } })).json;
+  await t.panel(GAURI, { method: 'POST', body: { action: 'take', id } });
+  await t.site({ method: 'POST', body: { action: 'typing', id, token } });
+  assert.equal((await t.panel(GAURI, { query: { id } })).json.chat.visitorTyping, true);
+  await t.panel(GAURI, { method: 'POST', body: { action: 'typing', id } });
+  assert.equal((await t.site({ query: { id, token } })).json.staffTyping, true);
+  t.clock.at(T0 + 10000);
+  assert.equal((await t.site({ query: { id, token } })).json.staffTyping, false);
+});
+
+test('the person answering goes offline: the visitor is told, what they write is marked away and the chat is first, in amber, until answered', async () => {
+  const t = await twoOn();
+  AS(GAURI);
+  const { id, token } = (await t.site({ method: 'POST', body: { action: 'start', text: 'Hi' } })).json;
+  await t.panel(GAURI, { method: 'POST', body: { action: 'send', id, text: 'Hello', cid: 'hello01' } });
+  await t.panel(GAURI, { method: 'POST', body: { action: 'presence', available: false } });
+  LC.forgetOnline();
+  const v = (await t.site({ query: { id, token } })).json;
+  assert.equal(v.staffOnline, false, 'the visitor is told');
+  assert.equal(v.online, true, 'someone else is still on');
+  const sent = await t.site({ method: 'POST', body: { action: 'send', id, token, text: 'are you there?', cid: 'away001' } });
+  assert.equal(sent.json.away, true);
+  AS(KARTHIK);
+  const row = (await t.panel(KARTHIK)).json.chats[0];
+  assert.equal(row.away, 1, 'came in while away');
+  assert.equal(row.ownerOnline, false);
+  const chat = (await t.panel(KARTHIK, { query: { id } })).json.chat;
+  assert.equal(chat.messages.find((m) => m.text === 'are you there?').away, true);
+  assert.equal(chat.messages.find((m) => m.text === 'are you there?').awayOf, 'Gauri', 'whose absence it was');
+  /* answered: no longer away */
+  await t.panel(KARTHIK, { method: 'POST', body: { action: 'send', id, text: 'Karthik here, I can help', cid: 'kk00001', force: true } });
+  assert.equal((await t.panel(KARTHIK)).json.chats[0].away, 0);
+});
+
+test('nobody available: no new chat starts; one already open keeps its messages', async () => {
+  const t = await twoOn();
+  AS(GAURI);
+  const { id, token } = (await t.site({ method: 'POST', body: { action: 'start', text: 'Hi' } })).json;
+  await t.panel(GAURI, { method: 'POST', body: { action: 'presence', available: false } });
+  AS(KARTHIK); await t.panel(KARTHIK, { method: 'POST', body: { action: 'presence', available: false } });
+  LC.forgetOnline();
+  const s2 = await t.site({ method: 'POST', body: { action: 'start', text: 'New one' }, ip: '198.51.100.7' });
+  assert.equal(s2.status, 409);
+  assert.equal(s2.json.code, 'NO_ONE');
+  const kept = await t.site({ method: 'POST', body: { action: 'send', id, token, text: 'still here', cid: 'still01' } });
+  assert.equal(kept.status, 200);
+  assert.equal(kept.json.away, true);
+});
+
+test('the visitor gone 15 minutes with nothing answered: closed and marked unanswered', async () => {
+  const t = await twoOn();
+  const { id } = (await t.site({ method: 'POST', body: { action: 'start', text: 'Anyone?' } })).json;
+  t.clock.at(T0 + 16 * 60000);
+  AS(GAURI);
+  const l = (await t.panel(GAURI, { query: { closed: '1' } })).json;
+  const c = l.closed.find((x) => x.id === id);
+  assert.equal(c.closedBy, 'left');
+  assert.equal(c.unanswered, 1);
+});
+
+test('the site\'s chat: the person answering going offline and coming back is said in a line; a take over is said too', () => {
+  let t0 = 0;
+  const s = FL.createSession({ lang: 'en', live: () => true, now: () => t0 });
+  s.start();
+  s.hear('talk to a person');
+  s.live({ type: 'started', id: 'LC1', token: 't', seq: 1 });
+  s.live({ type: 'news', status: 'open', staff: 'Gauri', staffOnline: true, seq: 2, messages: [] });
+  let o = s.live({ type: 'news', status: 'open', staff: 'Gauri', staffOnline: false, seq: 2, messages: [] });
+  assert.match(o.messages[0].text, /^Gauri has gone offline\. Your messages are kept, and Gauri will answer here when back\./);
+  assert.deepEqual(o.messages[0].chips.map((c) => c.value), ['#desk', '#endlive']);
+  assert.equal(s.live({ type: 'news', status: 'open', staff: 'Gauri', staffOnline: false, seq: 2, messages: [] }).messages.length, 0, 'said once');
+  o = s.live({ type: 'news', status: 'open', staff: 'Gauri', staffOnline: true, seq: 2, messages: [] });
+  assert.equal(o.messages[0].text, 'Gauri is back online.');
+  o = s.live({ type: 'news', status: 'open', staff: 'Karthik', staffOnline: true, seq: 3, messages: [] });
+  assert.equal(o.messages[0].text, 'Karthik from PFA is answering now.');
+  const send = s.hear('hello');
+  assert.equal(send.action.type, 'live-send');
+  assert.match(send.action.cid, /^v[a-z0-9]{6,}$/);
+  assert.equal(send.cid, send.action.cid, 'the bubble and the send share the id');
+});
+
+test('the visitor\'s page: Sending, Sent, Seen and Not sent; typing; quick checks', () => {
+  const js = read('assets/assistant.js');
+  assert.match(js, /var TICK = \{ sending: \['Sending', ''\], sent: \['\u2713', 'Sent'\], seen: \['\u2713\u2713', 'Seen'\], failed: \['Not sent\. Tap to send again', ''\] \};/);
+  assert.match(js, /return Date\.now\(\) - liveActive < 60000 \? 1000 : 3000;/, 'every second while lively');
+  assert.match(js, /post\(\{ action: 'typing', id: st\.live\.id, token: st\.live\.token \}\)/);
+  assert.match(js, /'&seen=' \+ \(l\.seq \|\| 0\)/);
+  const panel = read('assets/admin-live-chat.js');
+  assert.match(panel, /Came in while away/);
+  assert.match(panel, /data-lc-take="force">Take over</);
+  assert.match(panel, /Copy transcript/);
+  assert.match(panel, /new Notification\(title/);
+  assert.match(panel, /window\.addEventListener\('storage'/, 'one switch for every tab');
+  assert.match(panel, /return Date\.now\(\) - L\.activeAt < 60000 \? 1000 : 2500;/);
+  assert.doesNotMatch(panel + js + read('lib/live-chat.js'), /[–—]/);
 });

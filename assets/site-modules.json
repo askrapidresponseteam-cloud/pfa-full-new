@@ -326,6 +326,31 @@
    ]
   },
   {
+   "id": "pet-health",
+   "file": "pet-health.html",
+   "title": "Medical notes for pet parents and caregivers",
+   "group": "Learn",
+   "menu": "Medical notes",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Medical notes."
+    },
+    {
+     "id": "notes",
+     "label": "What others have learned."
+    },
+    {
+     "id": "share",
+     "label": "Three short steps."
+    },
+    {
+     "id": "edit",
+     "label": "Your note."
+    }
+   ]
+  },
+  {
    "id": "someone",
    "file": "someone.html",
    "title": "Someone, not something",
@@ -613,7 +638,7 @@
    "file": "events.html",
    "title": "Events 2026",
    "group": "Get Involved",
-   "menu": "Events",
+   "menu": "Events and podcasts",
    "modules": [
     {
      "id": "events",
@@ -621,7 +646,11 @@
     },
     {
      "id": "request",
-     "label": "Ask for an event."
+     "label": "Request an Event."
+    },
+    {
+     "id": "podcast",
+     "label": "Three a year."
     }
    ]
   },
@@ -1639,6 +1668,25 @@
    "old-dog": "repeat",
    "old-cat": "repeat",
    "mourning": "repeat"
+  },
+  "pet-health": {
+   "phChips": "notes",
+   "phList": "notes",
+   "phPicked": "share",
+   "phFileErr": "share",
+   "phRegBox": "share",
+   "done": "share",
+   "doneRef": "share",
+   "edHead": "edit",
+   "edLead": "edit",
+   "edStage": "edit",
+   "edAsked": "edit",
+   "edAskedText": "edit",
+   "edPicked": "edit",
+   "edFileErr": "edit",
+   "edStatus": "edit",
+   "edDone": "edit",
+   "edRef": "edit"
   },
   "quiz": {
    "qz": "the-quiz"

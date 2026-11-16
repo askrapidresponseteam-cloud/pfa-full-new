@@ -325,6 +325,50 @@ const FORMS = {
       "details": "Please send what you hold about my question from March"
     }
   },
+  /* pet-health.html (16 Nov 2026): a medical note, as the page sends it */
+  "PFA-MED": {
+    "page": "pet-health.html",
+    "data": {
+      "animal": "Dogs",
+      "title": "Tick fever in dogs",
+      "summary": "The signs, the blood test that confirms it, and when to go back to the vet.",
+      "noteText": "Watch for fever, a dog off its food, nose bleeds and pale gums. Ask the vet for a blood test.",
+      "role": "Vet",
+      "regNo": "KVC 1234",
+      "credit": "Dr. Asha Rao, Udupi",
+      "sources": "Our clinic",
+      "name": "Asha Rao",
+      "mobile": "9876543210",
+      "email": "tester.pfa@example.com",
+      "consent": "Yes",
+      "address": "16 MG Road, Ajjarkad",
+      "pincode": "576101",
+      "city": "Udupi",
+      "state": "Karnataka",
+      "district": "Udupi"
+    }
+  },
+  /* events.html#podcast (16 Nov 2026): a podcast with Maneka Gandhi */
+  "PFA-POD": {
+    "page": "events.html",
+    "data": {
+      "topic": "Street dogs and their feeders",
+      "pitch": "A conversation with feeders from our town about how a colony of street dogs is sterilised, vaccinated and kept, and what changed in our lane once the neighbours were told the law. We want people who see a dog as a nuisance to hear it from those who look after them every night.",
+      "wantedDate": "2099-01-15",
+      "platform": "YouTube",
+      "profile": "https://www.youtube.com/@feeders",
+      "followers": "12k",
+      "name": "Asha Rao",
+      "mobile": "9876543210",
+      "email": "tester.pfa@example.com",
+      "ownWords": "Yes",
+      "address": "16 MG Road, Ajjarkad",
+      "pincode": "576101",
+      "city": "Udupi",
+      "state": "Karnataka",
+      "district": "Udupi"
+    }
+  },
   /* units.html (22 Oct 2026): what the page sent when filled in, criterion B */
   "PFA-U": {
     "page": "units.html",

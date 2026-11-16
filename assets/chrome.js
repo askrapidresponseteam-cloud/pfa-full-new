@@ -1719,7 +1719,7 @@
   if (document.documentElement.hasAttribute('data-no-assist')) return;
   var KEY = 'pfa.assist.v1';
   /* one fingerprint for the five files, written by npm run sync:chrome */
-  var ASSIST_V = '28955ae531';
+  var ASSIST_V = 'b3043402e6';
   var FILES = ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/assistant.js'].map(function (f) { return f + '?v=' + ASSIST_V; });
   var loading = null;
 
@@ -1761,10 +1761,72 @@
       load().then(function () { b.disabled = false; if (window.PFAAssistant) window.PFAAssistant.open(); });
     });
     document.body.appendChild(b);
+    guard(b);
     var kept = null;
     try { kept = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (_) { kept = null; }
     /* open, or in a chat with someone at PFA who may reply */
     if (kept && (kept.open || (kept.state && kept.state.phase === 'live')) && !off()) load();
+  }
+  /* Never over anything that can be pressed (owner, 16 Nov 2026: "Ensure
+     the chat button never overlaps or obstructs other buttons or
+     interactive elements at any screen size"). It sits bottom right, or
+     bottom left when the right is taken. Nine points across the
+     button, and a little around it, are read for what lies beneath; while
+     any of them falls on a link, a button, a field, a player or another
+     pinned control (the shop's Bag, a dialog's Close), the button steps
+     aside, invisible and not pressable, and comes back the moment the spot
+     is clear. Checked as the page scrolls or resizes, and twice a second for
+     anything that opens or moves without either. Never while it has focus
+     or the chat is open, so it does not vanish from under the person using it. */
+  var PRESSABLE = 'a[href],button,input,select,textarea,summary,label,video[controls],iframe,[role="button"],[role="link"],[role="tab"],[role="checkbox"],[role="radio"],[contenteditable="true"]';
+  function underneath(b) {
+    if (typeof document.elementsFromPoint !== 'function') return false;
+    var r = b.getBoundingClientRect();
+    if (!r.width || !r.height) return false;
+    var pad = 6;
+    var xs = [r.left - pad, r.left + r.width / 2, r.right + pad - 1];
+    var ys = [r.top - pad, r.top + r.height / 2, r.bottom + pad - 1];
+    for (var i = 0; i < 3; i++) {
+      for (var j = 0; j < 3; j++) {
+        var x = Math.max(0, Math.min(window.innerWidth - 1, xs[i]));
+        var y = Math.max(0, Math.min(window.innerHeight - 1, ys[j]));
+        var stack = document.elementsFromPoint(x, y);
+        for (var k = 0; k < stack.length; k++) {
+          var el = stack[k];
+          if (el === b || b.contains(el)) continue;
+          if (el.closest && el.closest('.pfa-asst')) break;
+          var hit = el.closest && el.closest(PRESSABLE);
+          if (hit && hit !== b) return true;
+        }
+      }
+    }
+    return false;
+  }
+  function guard(b) {
+    /* a browser that cannot say what lies under a point has nothing to check */
+    if (typeof document.elementsFromPoint !== 'function') return;
+    var css = document.createElement('style');
+    css.textContent = '.pfa-asst-launch{transition:opacity .15s,visibility .15s}.pfa-asst-launch.is-left{right:auto;left:18px}.pfa-asst-launch.is-clear{opacity:0;visibility:hidden;pointer-events:none}';
+    document.head.appendChild(css);
+    var queued = false;
+    function check() {
+      queued = false;
+      if (document.activeElement === b || b.getAttribute('aria-expanded') === 'true') { b.classList.remove('is-clear'); return; }
+      /* read with the button out of the way, so it does not find itself */
+      /* the usual corner first, then the other one, and only then aside */
+      b.style.pointerEvents = 'none';
+      b.classList.remove('is-left');
+      var blocked = underneath(b);
+      if (blocked) { b.classList.add('is-left'); blocked = underneath(b); if (blocked) b.classList.remove('is-left'); }
+      b.style.pointerEvents = '';
+      b.classList.toggle('is-clear', blocked);
+    }
+    function soon() { if (!queued) { queued = true; (window.requestAnimationFrame || setTimeout)(check); } }
+    window.addEventListener('scroll', soon, { passive: true, capture: true });
+    window.addEventListener('resize', soon);
+    document.addEventListener('click', function () { setTimeout(soon, 350); }, true);
+    setInterval(function () { if (!document.hidden) soon(); }, 500);
+    soon();
   }
   /* Hidden from the panel (Website, Page designs and features): the rule
      above hides the button and any open chat at once, and nothing loads. */

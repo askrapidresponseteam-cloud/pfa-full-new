@@ -327,7 +327,10 @@ test('a submission cannot be deleted or altered from the public site, the panel,
     /* Only the two admin routes that work a case may update one, and they
        only ever touch status, handling and the conversation - never what
        the sender wrote. */
-    const admin = file.endsWith(path.join('admin', 'submission-status.js')) || file.endsWith(path.join('admin', 'case.js'));
+    /* and the medical notes (16 Nov 2026), which write the note PFA shows
+       and its versions beside the record, never what the sender sent */
+    const admin = file.endsWith(path.join('admin', 'submission-status.js')) || file.endsWith(path.join('admin', 'case.js'))
+      || file.endsWith(path.join('routes', 'med-notes.js')) || file.endsWith(path.join('admin', 'med-notes.js'));
     assert.ok(!/\{\s*merge:\s*true\s*\}/.test(source) || admin, `${path.relative(root, file)} must not merge over a submission`);
     if (admin) {
       /* Reading the fields back for the panel is fine; writing them is not:

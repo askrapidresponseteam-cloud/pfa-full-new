@@ -125,22 +125,25 @@
     });
   }).catch(function () { /* the card's own place */ });
   function at(kind) { return sigNow[kind] || sigSaved[kind]; }
-  function sigRow(kind, axis, label, max, value) {
-    var id = 'dgs' + kind + axis;
+  function sigRow(kind, axis, label, max, value, pre) {
+    var id = (pre || 'dgs') + kind + axis;
     return '<div class="ct-sig__row"><label for="' + id + 'R">' + label + '</label>'
       + '<input id="' + id + 'R" type="range" min="' + (-max) + '" max="' + max + '" step="1" value="' + value + '" data-dgsig="' + kind + '" data-axis="' + axis + '" aria-label="' + label + '">'
       + '<span class="ct-sig__num"><input id="' + id + 'N" type="number" min="' + (-max) + '" max="' + max + '" step="1" value="' + value + '" data-dgsig="' + kind + '" data-axis="' + axis + '" aria-label="' + label + ', in tenths of a millimetre"> tenths of a mm</span></div>';
   }
-  function sigFold(kind) {
+  /* pre 'dgs' in a card studio, with the card drawn inside; 'dgr' under a
+     register's Preview card, which is the card it moves */
+  function sigFold(kind, pre) {
+    pre = pre || 'dgs';
     var l = at(kind);
     var changed = l.x !== sigSaved[kind].x || l.y !== sigSaved[kind].y || (l.s || 100) !== sigSaved[kind].s;
-    return '<details class="fold ct-sig" data-dgsig-fold="' + kind + '"><summary>Signature position online</summary><div class="ct-sig__body">'
-      + '<div class="dg__peek" data-dg-peek="' + kind + '"></div>'
-      + sigRow(kind, 'x', 'Left / right', RANGE.x, l.x)
-      + sigRow(kind, 'y', 'Up / down', RANGE.y, l.y)
-      + '<div class="ct-sig__row"><label for="dgs' + kind + 'sR">Size</label>'
-      + '<input id="dgs' + kind + 'sR" type="range" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + (l.s || 100) + '" data-dgsig="' + kind + '" data-axis="s" aria-label="Size">'
-      + '<span class="ct-sig__num"><input id="dgs' + kind + 'sN" type="number" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + (l.s || 100) + '" data-dgsig="' + kind + '" data-axis="s" aria-label="Size, in per cent"> %</span></div>'
+    return '<details class="fold ct-sig" data-dgsig-fold="' + kind + '"' + (pre === 'dgs' ? '' : ' data-dgsig-here') + '><summary>' + (pre === 'dgs' ? 'Signature position online' : 'Signature size and position') + '</summary><div class="ct-sig__body">'
+      + (pre === 'dgs' ? '<div class="dg__peek" data-dg-peek="' + kind + '"></div>' : '')
+      + sigRow(kind, 'x', 'Left / right', RANGE.x, l.x, pre)
+      + sigRow(kind, 'y', 'Up / down', RANGE.y, l.y, pre)
+      + '<div class="ct-sig__row"><label for="' + pre + kind + 'sR">Size</label>'
+      + '<input id="' + pre + kind + 'sR" type="range" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + (l.s || 100) + '" data-dgsig="' + kind + '" data-axis="s" aria-label="Size">'
+      + '<span class="ct-sig__num"><input id="' + pre + kind + 'sN" type="number" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + (l.s || 100) + '" data-dgsig="' + kind + '" data-axis="s" aria-label="Size, in per cent"> %</span></div>'
       + '<div class="ct-sig__acts"><button class="press" type="button" data-dgsig-act="save" data-kind="' + kind + '"' + (changed ? '' : ' disabled') + '>Save for every card online</button>'
       + '<button class="ghost" type="button" data-dgsig-act="reset" data-kind="' + kind + '">Reset</button>'
       + '<p class="say" data-dgsig-say="' + kind + '" role="status" aria-live="polite"></p></div>'
@@ -185,40 +188,43 @@
   function sigShow(kind, axis, v) {
     var max = RANGE[axis];
     var n = axis === 's' ? sizeOf(v) : Math.max(-max, Math.min(max, Math.round(Number(v) || 0)));
-    ['R', 'N'].forEach(function (k) { var el = document.getElementById('dgs' + kind + axis + k); if (el && Number(el.value) !== n) el.value = n; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-dgsig="' + kind + '"][data-axis="' + axis + '"]'), function (el) { if (Number(el.value) !== n) el.value = n; });
     return n;
   }
-  function sigApply(kind) {
-    var x = sigShow(kind, 'x', (document.getElementById('dgs' + kind + 'xN') || {}).value);
-    var y = sigShow(kind, 'y', (document.getElementById('dgs' + kind + 'yN') || {}).value);
-    var sz = sigShow(kind, 's', (document.getElementById('dgs' + kind + 'sN') || {}).value);
-    sigNow[kind] = { x: x, y: y, s: sz };
-    var box = document.querySelector('[data-dg-peek="' + kind + '"]');
-    if (box) { box.style.setProperty('--sx', String(x)); box.style.setProperty('--sy', String(y)); box.style.setProperty('--ss', String(sz / 100)); }
-    var changed = x !== sigSaved[kind].x || y !== sigSaved[kind].y || sz !== sigSaved[kind].s;
-    var b = document.querySelector('[data-dgsig-act="save"][data-kind="' + kind + '"]');
-    if (b) b.disabled = !changed;
-    var say = document.querySelector('[data-dgsig-say="' + kind + '"]');
-    if (say) A.say(say, changed ? 'Not saved yet.' : '', '');
+  /* the card drawn with the signature where it is now: in the studio, and
+     under a register's Preview card */
+  function sigPaint(kind) {
+    var l = at(kind);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-dg-peek="' + kind + '"], .rg-dc[data-dgr-kind="' + kind + '"] .rg-dc__card > .dc'), function (box) {
+      box.style.setProperty('--sx', String(l.x)); box.style.setProperty('--sy', String(l.y)); box.style.setProperty('--ss', String((l.s || 100) / 100));
+      if (typeof box._pfaFit === 'function') box._pfaFit();
+    });
+  }
+  function sigApply(kind, axis, v) {
+    var l = Object.assign({}, at(kind));
+    if (axis) l[axis] = sigShow(kind, axis, v);
+    sigNow[kind] = { x: l.x, y: l.y, s: l.s || 100 };
+    sigPaint(kind);
+    var changed = l.x !== sigSaved[kind].x || l.y !== sigSaved[kind].y || (l.s || 100) !== sigSaved[kind].s;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-dgsig-act="save"][data-kind="' + kind + '"]'), function (b) { b.disabled = !changed; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-dgsig-say="' + kind + '"]'), function (say) { A.say(say, changed ? 'Not saved yet.' : '', ''); });
   }
   document.addEventListener('toggle', function (e) {
     var f = e.target;
-    if (f && f.getAttribute && f.getAttribute('data-dgsig-fold') && f.open) peek(f.getAttribute('data-dgsig-fold'));
+    if (f && f.getAttribute && f.getAttribute('data-dgsig-fold') && f.open && !f.hasAttribute('data-dgsig-here')) peek(f.getAttribute('data-dgsig-fold'));
   }, true);
   document.addEventListener('input', function (e) {
     var el = e.target;
     var kind = el && el.getAttribute && el.getAttribute('data-dgsig');
     if (!kind) return;
-    var other = document.getElementById('dgs' + kind + el.getAttribute('data-axis') + (el.type === 'range' ? 'N' : 'R'));
-    if (other) other.value = el.value;
-    sigApply(kind);
+    sigApply(kind, el.getAttribute('data-axis'), el.value);
   });
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-dgsig-act]');
     if (!b) return;
     var kind = b.getAttribute('data-kind');
-    var say = document.querySelector('[data-dgsig-say="' + kind + '"]');
-    if (b.getAttribute('data-dgsig-act') === 'reset') { sigShow(kind, 'x', 0); sigShow(kind, 'y', 0); sigShow(kind, 's', 100); sigApply(kind); return; }
+    var say = b.parentNode.querySelector('[data-dgsig-say]');
+    if (b.getAttribute('data-dgsig-act') === 'reset') { sigNow[kind] = { x: 0, y: 0, s: 100 }; ['x', 'y', 's'].forEach(function (k) { sigShow(kind, k, sigNow[kind][k]); }); sigApply(kind); return; }
     if (b.disabled) return;
     var l = at(kind);
     b.disabled = true;
@@ -226,6 +232,7 @@
     A.api('/api/admin/card-signature', { method: 'POST', body: { card: SIG[kind], x: l.x, y: l.y, s: l.s || 100 } }).then(function (r) {
       sigSaved[kind] = { x: r.layout.x, y: r.layout.y, s: sizeOf(r.layout.s) };
       sigNow[kind] = null;
+      sigApply(kind);
       A.say(say, 'Saved. Every ' + (kind === 'member' ? 'membership card' : 'colony caregiver card') + ' online shows the signature here from now on.', 'good');
     }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be saved.', 'bad'); });
   });
@@ -298,5 +305,158 @@
     }
   });
 
-  window.PFADigitalCards = { look: look };
+  /* ---- from the registers (owner, 16 Nov 2026: "why no option preview
+     and issue digital card?") ----------------------------------------------
+     Under Open on a line of the Members or Caregivers register, Digital
+     card: whether the card is online, Preview card (front and back, with
+     the photograph kept on the server, nothing saved), and Issue digital
+     card, which gives it its address and emails the holder the link; once
+     online, Open and Copy link. Withdrawing stays in the card studio. */
+  var regNow = {};
+  var regLook = {};
+  function regKey(kind, ref) { return kind + ':' + ref; }
+  function regLine(kind, ref) {
+    var d = regNow[regKey(kind, ref)];
+    if (d === undefined) return 'Checking whether it is online…';
+    if (!d) return 'Not online yet. Issuing gives the card its own address and emails the holder the link.';
+    if (d.standing === 'withdrawn') return 'Withdrawn online' + (d.withdrawnOn ? ' on ' + esc(day(d.withdrawnOn)) : '') + '. Issue it again to bring it back.';
+    return 'Online at <a href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">' + esc(String(d.url).replace(/^https?:\/\//, '')) + '</a>' + (d.standing === 'expired' ? ' (expired)' : '') + '.';
+  }
+  function regActs(kind, ref) {
+    var d = regNow[regKey(kind, ref)];
+    var live = d && d.standing !== 'withdrawn';
+    return '<button class="ghost" type="button" data-dgr="preview">Preview card</button>'
+      + '<button class="press" type="button" data-dgr="issue"' + (d === undefined ? ' disabled' : '') + '>' + (live ? 'Update and email again' : 'Issue digital card') + '</button>'
+      + (live ? '<a class="ghost" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">Open</a><button class="ghost" type="button" data-dgr="copy">Copy link</button>' : '');
+  }
+  /* what a register line carries: kind is 'membership' or 'caregiver', the
+     card's reference the membership's or the colony caregiver card's number */
+  function regSlot(regKind, r) {
+    var kind = regKind === 'membership' ? 'member' : 'caregiver';
+    var ref = kind === 'member' ? r.id : r.cardId;
+    var head = '<h4>Digital card</h4>';
+    if (!r.cardId) {
+      return '<div class="rg-dc">' + head + '<p class="dg__now">' + (kind === 'member'
+        ? 'No card on the register yet. Approve the photograph in Photos and cards first; the card is then online and its link emailed.'
+        : 'No card yet. Approve the application in To decide first; the card is then online and its link emailed.') + '</p></div>';
+    }
+    return '<div class="rg-dc" data-dgr-kind="' + kind + '" data-dgr-ref="' + esc(ref) + '">' + head
+      + '<p class="dg__now" data-dgr-line>' + regLine(kind, ref) + '</p>'
+      + '<div class="dg__acts" data-dgr-acts>' + regActs(kind, ref) + '</div>'
+      + '<p class="say" data-dgr-say role="status" aria-live="polite"></p>'
+      + '<div class="rg-dc__peek" data-dgr-peek hidden></div></div>';
+  }
+  function regPaint(kind, ref) {
+    Array.prototype.forEach.call(document.querySelectorAll('.rg-dc[data-dgr-kind="' + kind + '"]'), function (box) {
+      if (box.getAttribute('data-dgr-ref') !== ref) return;
+      box.querySelector('[data-dgr-line]').innerHTML = regLine(kind, ref);
+      box.querySelector('[data-dgr-acts]').innerHTML = regActs(kind, ref);
+    });
+  }
+  function regStatus(kind, ref, again) {
+    var key = regKey(kind, ref);
+    if (regLook[key] && !again) return regLook[key];
+    regLook[key] = A.api('/api/admin/digital-cards?kind=' + kind + '&ref=' + encodeURIComponent(ref)).then(function (r) {
+      regNow[key] = r.digital || null;
+      regPaint(kind, ref);
+    }).catch(function () { regLook[key] = null; regNow[key] = null; regPaint(kind, ref); });
+    return regLook[key];
+  }
+  /* each Digital card in sight asks once whether its card is online */
+  function regFill(root) {
+    Array.prototype.forEach.call((root || document).querySelectorAll('.rg-dc[data-dgr-kind]'), function (box) {
+      var tr = box.closest('tr');
+      if (tr && tr.hidden) return;
+      regStatus(box.getAttribute('data-dgr-kind'), box.getAttribute('data-dgr-ref'));
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.closest && t.closest('[data-rg="open"]')) { setTimeout(function () { regFill(); }, 0); return; }
+    var b = t.closest && t.closest('[data-dgr]');
+    if (!b) return;
+    var box = b.closest('.rg-dc');
+    var kind = box.getAttribute('data-dgr-kind');
+    var ref = box.getAttribute('data-dgr-ref');
+    var say = box.querySelector('[data-dgr-say]');
+    var peekBox = box.querySelector('[data-dgr-peek]');
+    var what = b.getAttribute('data-dgr');
+    if (what === 'copy') {
+      var d = regNow[regKey(kind, ref)];
+      if (!d) return;
+      var ok = function () { A.say(say, 'Link copied.', 'good'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(d.url).then(ok, function () { window.prompt('Copy this link', d.url); });
+      else window.prompt('Copy this link', d.url);
+      return;
+    }
+    if (what === 'hide') { peekBox.hidden = true; peekBox.innerHTML = ''; return; }
+    if (what === 'flip') {
+      var cardBox = peekBox.querySelector('.rg-dc__card');
+      var stage = cardBox && cardBox.querySelector('.dc__stage');
+      if (stage) stage.click();
+      return;
+    }
+    if (what === 'preview') {
+      b.disabled = true;
+      A.say(say, 'Drawing the card…', '');
+      Promise.all([needCard(), A.api('/api/admin/digital-cards?kind=' + kind + '&ref=' + encodeURIComponent(ref) + '&preview=1')]).then(function (both) {
+        var D = both[0];
+        var p = both[1];
+        b.disabled = false;
+        regNow[regKey(kind, ref)] = p.online || null;
+        regPaint(kind, ref);
+        peekBox.hidden = false;
+        var note = (p.online ? 'As it is online now.' : 'Preview only, not online yet. Once issued, the QR code on the back opens this card\u2019s own address.')
+          + (p.photo ? '' : kind === 'member' ? ' No approved photograph, so it is shown without one.' : ' No photograph was found with the application.');
+        peekBox.innerHTML = '<p class="rg-dc__note">' + note + '</p><div class="rg-dc__card"><div class="dc" data-kind="' + kind + '"></div></div>'
+          + '<div class="rg-dc__bar"><button class="ghost" type="button" data-dgr="flip">See the back</button><button class="ghost" type="button" data-dgr="hide">Hide preview</button></div>'
+          + sigFold(kind, 'dgr' + ref.replace(/[^A-Za-z0-9]/g, ''));
+        var data = Object.assign({}, p.card, p.online ? { url: p.online.url, id: p.online.id } : { url: p.card.url || 'https://peopleforanimalsindia.org/card' }, { sig: at(kind) });
+        D.render(peekBox.querySelector('.rg-dc__card > div'), data, { root: '', photo: p.photo || '', controls: false });
+        sigPaint(kind);
+        A.say(say, '', '');
+      }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'The card could not be drawn just now.', 'bad'); });
+      return;
+    }
+    if (what === 'issue') {
+      b.disabled = true;
+      A.say(say, 'Issuing…', '');
+      A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'issue', kind: kind, ref: ref, email: true } }).then(function (r) {
+        regNow[regKey(kind, ref)] = r.digital;
+        regPaint(kind, ref);
+        A.say(say, r.emailed ? 'Online, and the link was emailed to ' + r.to + '.' : 'Online. ' + (r.mailNote || 'The link was not emailed.'), 'good');
+        if (!peekBox.hidden) peekBox.hidden = true;
+      }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be issued.', 'bad'); });
+    }
+  });
+  if (window.MutationObserver) new MutationObserver(function (list) {
+    list.forEach(function (m) {
+      var box = m.target;
+      var peek = box.parentNode && box.parentNode.classList && box.parentNode.classList.contains('rg-dc__card') ? box.closest('.rg-dc__peek') : null;
+      var flip = peek && peek.querySelector('[data-dgr="flip"]');
+      if (flip) flip.textContent = box.getAttribute('data-side') === 'back' ? 'See the front' : 'See the back';
+    });
+  }).observe(document.body, { attributes: true, attributeFilter: ['data-side'], subtree: true });
+  var regStyle = document.createElement('style');
+  regStyle.textContent = '.rg-dc{grid-column:1 / -1;display:grid;gap:8px;padding:12px 0 0;border-top:1px solid var(--line);margin-top:4px}'
+    + '.rg-dc h4{margin:0}'
+    + '.rg-dc .dg__acts .ghost,.rg-dc .dg__acts .press{min-height:40px}'
+    + '.rg-dc .say:empty{display:none}'
+    + '.rg-dc .dg__acts a.ghost{text-decoration:none;display:inline-flex;align-items:center}'
+    + '.rg-dc__peek{display:grid;gap:12px;max-width:576px;margin-top:6px;padding:16px;border:1px solid var(--line);background:#fff}'
+    + '.rg-dc__peek[hidden]{display:none}'
+    + '.rg-dc__card{width:100%;margin-bottom:6px}'
+    + '.rg-dc__card .dc{margin:0;max-width:none}'
+    + '.rg-dc__card .dc__noprint{display:none}'
+    + '.rg-dc__bar{display:flex;flex-wrap:wrap;gap:8px}'
+    + '.rg-dc__bar .ghost{min-height:40px}'
+    + '.rg-dc__peek .ct-sig{margin:0}'
+    + '.rg-dc .ct-sig__row{grid-template-columns:96px minmax(0,1fr) 150px}'
+    + '.rg-dc .ct-sig__num{white-space:nowrap}'
+    + '@media (max-width:560px){.rg-dc .ct-sig__row{grid-template-columns:minmax(0,1fr) auto}.rg-dc .ct-sig__row label{grid-column:1 / -1}}'
+    + '.rg-dc__note{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}'
+    + '@media (max-width:560px){.rg-dc__peek{padding:12px}}';
+  document.head.appendChild(regStyle);
+
+  window.PFADigitalCards = { look: look, regSlot: regSlot, regFill: regFill };
 }());

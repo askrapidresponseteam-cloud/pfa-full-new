@@ -70,7 +70,7 @@
       + '<p>It is for display on screen only and is not to be printed.</p>'
       + '<p>Non-transferable. Any misuse will lead to its withdrawal.</p></div>'
       + '<div class="dcm__qr">' + qr(d.url) + '<div class="dcm__scan">Scan to verify</div></div></div>'
-      + '<div class="dcm__base"><div class="dcm__sign"><img src="' + esc(base) + 'assets/certificates/signature-print.png" alt="Signature of Smt. Maneka Sanjay Gandhi" width="1512" height="438"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
+      + '<div class="dcm__base"><div class="dcm__sign"><img src="' + esc(base) + 'assets/certificates/signature.svg" alt="Signature of Smt. Maneka Sanjay Gandhi" width="1512" height="438"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
       + '<div class="dcm__footer"><span>peopleforanimalsindia.org</span><span>' + esc(number) + '</span></div></div>';
   }
 
@@ -116,7 +116,7 @@
       + '<div class="dc__body"><span class="dc__name">' + esc(d.name) + '</span>' + (place ? '<span class="dc__place">' + esc(place) + '</span>' : '')
       + '<div class="dc__grid">' + cells.map(function (c, i) { return '<div><span class="dc__lab">' + esc(c[0]) + '</span><span class="dc__val' + (i === 0 ? ' dc__val--id' : '') + '">' + esc(c[1]) + '</span></div>'; }).join('') + '</div></div>'
       + '<div class="dc__photo">' + photo + '</div>'
-      + '<div class="dc__foot"><div class="dc__sign"><img src="' + esc(base) + 'assets/certificates/signature-print.png" alt="Signature of Smt. Maneka Sanjay Gandhi" width="1512" height="438"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
+      + '<div class="dc__foot"><div class="dc__sign"><img src="' + esc(base) + 'assets/certificates/signature.svg" alt="Signature of Smt. Maneka Sanjay Gandhi" width="1512" height="438"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
       + '<span class="dc__ok" data-state="' + esc(st.s) + '">' + (st.s === 'valid' ? CHECK : CROSS) + esc(st.word) + '</span></div>'
       + (st.s === 'valid' ? '' : '<div class="dc__void"><span>' + esc(st.word.toUpperCase()) + '</span></div>')
       + '</section>'
@@ -165,33 +165,78 @@
       var grid = front.querySelector(member ? '.dcm__details' : '.dc__grid');
       var foot = front.querySelector(member ? '.dcm__footer' : '.dc__foot');
       if (!top || !name || !grid || !foot) return;
-      var f = 1;
-      front.style.setProperty('--fit', '1');
-      for (var i = 0; i < 12; i++) {
+      /* how far the name and its details run into the logo or the foot */
+      function over() {
         var gap = front.getBoundingClientRect().width * 0.012;
-        var crowded = name.getBoundingClientRect().top < top.getBoundingClientRect().bottom + gap
-          || grid.getBoundingClientRect().bottom > foot.getBoundingClientRect().top - gap;
-        if (!crowded) break;
+        return Math.max(top.getBoundingClientRect().bottom + gap - name.getBoundingClientRect().top,
+          grid.getBoundingClientRect().bottom - (foot.getBoundingClientRect().top - gap));
+      }
+      var f = 1;
+      var best = 1;
+      var least = Infinity;
+      front.style.setProperty('--fit', '1');
+      /* a signature set large steps back to the card's own size first */
+      front.style.setProperty('--sfit', '1');
+      shrinkSign(front, over, ownSize(front));
+      /* a smaller name only where it makes room: on a very narrow screen
+         the lines that keep their size can sit close to the foot, and the
+         name is never shrunk for nothing (16 Nov 2026: a 320 px phone had
+         the name drawn a quarter of its size) */
+      for (var i = 0; i < 12; i++) {
+        var o = over();
+        if (o < least - 0.5) { least = o; best = f; }
+        if (o <= 0 || f <= 0.6) break;
         f = Math.round(f * 90) / 100;
         front.style.setProperty('--fit', String(f));
       }
+      front.style.setProperty('--fit', String(best));
+      /* a signature set large still clear of the details, on a small screen */
+      shrinkSign(front, over);
     }
+    /* the signature steps down on this screen only, never below half, until
+       nothing runs into it; the size the panel set stands where there is room */
+    function shrinkSign(face, crowd, floor) {
+      var k = Number(face.style.getPropertyValue('--sfit')) || 1;
+      var least = Math.max(0.5, floor || 0);
+      for (var j = 0; j < 12 && crowd() > 0 && k > least; j++) {
+        k = Math.max(least, Math.round(k * 92) / 100);
+        face.style.setProperty('--sfit', String(k));
+      }
+    }
+    /* first only back to the card's own size, then further if still needed */
+    var setSize = (Number((d.sig || {}).s) || 100) / 100;
+    function ownSize(face) { var ss = Number(face.style.getPropertyValue('--ss')) || Number(getComputedStyle(face).getPropertyValue('--ss')) || setSize; return ss > 1 ? 1 / ss : 1; }
     /* the membership card's back: the message steps down until it stands
        clear of the foot, at any width */
     function fitBack() {
       if (!member) return;
-      var msg = back.querySelector('.dcm__content');
+      var content = back.querySelector('.dcm__content');
       var foot = back.querySelector('.dcm__base');
-      if (!msg || !foot) return;
+      if (!content || !foot) return;
+      /* the message stands above the signature; the QR code beside it only
+         has to clear the foot line, as the signature sits at the left */
+      var msg = content.querySelector('.dcm__message') || content;
+      var side = msg === content ? null : content.lastElementChild;
+      var line = foot.querySelector('.dcm__footer') || foot;
       var f = 1;
+      function crowd() {
+        var gap = back.getBoundingClientRect().width * 0.012;
+        return Math.max(msg.getBoundingClientRect().bottom - (foot.getBoundingClientRect().top - gap),
+          side && side !== msg ? side.getBoundingClientRect().bottom - (line.getBoundingClientRect().top - gap) : -1);
+      }
       back.style.setProperty('--bfit', '1');
+      back.style.setProperty('--sfit', '1');
+      shrinkSign(back, crowd, ownSize(back));
       for (var i = 0; i < 4; i += 1) {
-        if (msg.getBoundingClientRect().bottom <= foot.getBoundingClientRect().top - back.getBoundingClientRect().width * 0.012) break;
+        if (crowd() <= 0) break;
         f = Math.round(f * 95) / 100;
         back.style.setProperty('--bfit', String(f));
       }
+      shrinkSign(back, crowd);
     }
     function fitAll() { fit(); fitBack(); }
+    /* the panel moves the signature on a card already drawn, then fits again */
+    box._pfaFit = fitAll;
     fitAll();
     if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
     if (typeof ResizeObserver === 'function') {

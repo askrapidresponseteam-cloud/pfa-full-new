@@ -101,7 +101,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Events 2026 | People for Animals</title>
 <meta name="description" content="Adoption drives, free sterilisation and vaccination camps, CineKind screenings, and shelter open days across India.">
-<link rel="stylesheet" href="assets/chrome.css?v=2ddf9151a8">
+<link rel="stylesheet" href="assets/chrome.css?v=51161f2e6a">
 <style>
 :root{
   --paper:#fff;
@@ -336,7 +336,21 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 }
 /* open, the request stands on the page's gutter, under the bar */
 .ev-lower.pfa-flow-path{--ev-gutter:max(clamp(16px,4vw,72px),calc((100% - 1440px) / 2));padding-top:0}
-#request .pfa-steps__nav .btn{min-width:180px}
+#request .pfa-steps__nav .btn,#podcast .pfa-steps__nav .btn{min-width:180px}
+@media (min-width:901px){.ev-lower > #podcast.is-flow{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.45fr);gap:clamp(28px,5vw,80px);align-items:start}}
+/* the two requests at the top of the page (16 Nov 2026) */
+.ev-head__acts{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0}
+.ev-head__acts .ev-btn{margin-top:0}
+.ev-btn--light{background:#fff;color:var(--ev-ink);border:1px solid var(--ev-ink)}
+/* what an event, or a podcast, comes with: plain lines on hairlines */
+.ev-gets{margin:24px 0 0;padding:0;list-style:none;border-top:1px solid var(--line);max-width:52ch}
+.ev-gets li{padding:13px 0;border-bottom:1px solid var(--line)}
+.ev-gets b{display:block;font-size:15px;line-height:1.4}
+.ev-gets span{display:block;margin-top:4px;font-size:14px;line-height:1.55;color:#333}
+.ev-only{font-size:13px!important;color:var(--muted)!important}
+.field textarea:invalid{box-shadow:none}
+.field.is-bad textarea{border-color:#b3261e}
+.agree.is-bad span{color:#b3261e}
 @media (max-width:900px){.ev-lower{grid-template-columns:minmax(0,1fr)}.ev-now__meta{width:100%;margin-left:0}}
 @media (max-width:560px){.ev-card{width:calc(100vw - 48px);min-width:0}.ev-bars{grid-template-columns:repeat(2,minmax(0,1fr))}.ev-card__title{font-size:30px}}
 @media (max-width:720px){.ev-head{padding-top:calc(var(--ann) + var(--nav) + 36px)}}
@@ -594,6 +608,7 @@ if (root.document && root.document.head) apply(read());
           <a href="library.html" data-nav="library.html">Resources library</a>
           <a href="academy.html" data-nav="academy.html">Academy</a>
           <a href="behaviour.html" data-nav="behaviour.html">Behaviour, A to Z</a>
+          <a href="pet-health.html" data-nav="pet-health.html">Medical notes</a>
           <a href="someone.html" data-nav="someone.html">Someone, not something</a>
           <a href="fireworks.html" data-nav="fireworks.html">Fireworks and animals</a>
           <a href="quiz.html" data-nav="quiz.html">Test yourself</a>
@@ -616,7 +631,7 @@ if (root.document && root.document.head) apply(read());
           <a href="csr.html" data-nav="csr.html">CSR partnerships</a>
           <span class="menu-sep" aria-hidden="true"></span>
           <a href="wall.html" data-nav="wall.html">The Wall</a>
-          <a href="#top" data-nav="events.html" class="current" aria-current="page">Events</a>
+          <a href="#top" data-nav="events.html" class="current" aria-current="page">Events and podcasts</a>
           <a href="cinekind.html" data-nav="cinekind.html">CineKind</a>
         </div>
       </div>
@@ -644,7 +659,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=4d2080c28a"></script>
+<script src="assets/chrome.js?v=5d0ae3c8e1"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -656,6 +671,7 @@ if (root.document && root.document.head) apply(read());
 <p class="eyebrow pfa-kicker">Get involved</p>
 <h1 class="pfa-title ev-title" id="evTitle">Events</h1>
 <p class="ev-lede">Every awards evening, drive, camp and open day PFA has held or announced, newest first.</p>
+<p class="ev-head__acts"><a class="ev-btn" href="#request">Request an Event</a><a class="ev-btn ev-btn--light" href="#podcast">Apply for a podcast</a></p>
 </div>
 <div class="ev-tally">
 <p class="ev-count"><b>2</b> on the record</p>
@@ -686,8 +702,8 @@ if (root.document && root.document.head) apply(read());
 </div>
 <div class="ev-ask">
 <h3 class="ev-ask__title">Your area could be next.</h3>
-<p>A drive or a camp happens where someone local asks for one: a ground, a hall, a residents association, a school.</p>
-<a class="ev-btn" href="#request">Ask for an event</a>
+<p>Maneka Gandhi joins live online to speak with the organisers. Organisers get a certificate anyone can verify online, and everyone who takes part a certificate of participation.</p>
+<a class="ev-btn" href="#request">Request an Event</a>
 </div>
 </div>
 <div class="ev-bars" role="group" aria-label="Show one kind of event">
@@ -720,8 +736,15 @@ if (root.document && root.document.head) apply(read());
   <section class="band" id="request" data-flow data-flow-back="Events">
     <div class="band__head">
       <p class="eyebrow">Bring one to your area</p>
-      <h2 class="display">Ask for&nbsp;an&nbsp;event.</h2>
+      <h2 class="display">Request an&nbsp;Event.</h2>
       <p>Drives and camps happen where someone local asks for one. Tell PFA what you have in mind; a named person comes back to you.</p>
+      <!-- what every event PFA agrees to comes with (owner, 16 Nov 2026) -->
+      <ul class="ev-gets">
+        <li><b>Maneka Gandhi joins live</b><span>She joins your event online, live, to speak with the organisers.</span></li>
+        <li><b>A certificate for every organiser</b><span>Digitally verifiable: anyone can check it is genuine on this website.</span></li>
+        <li><b>Certificates for everyone who takes part</b><span>A certificate of participation for each participant.</span></li>
+      </ul>
+      <p class="ev-only">Apply online through this website only. PFA does not take event requests anywhere else.</p>
     </div>
 
     <!-- Two steps, one at a time (owner, 9 Oct 2026: "open step 1 after
@@ -747,6 +770,11 @@ if (root.document && root.document.head) apply(read());
 
         <!-- where it would be held, whole (owner, 24 Oct 2026): assets/address.js -->
         <fieldset data-address data-kind="PFA-EV" data-legend="Where it would be held"></fieldset>
+
+        <div class="field">
+          <label for="evPeople">About how many people will take part <span class="opt">(optional)</span></label>
+          <input id="evPeople" type="text" inputmode="numeric" maxlength="6" placeholder="For the certificates, for example 60">
+        </div>
 
         <div class="field">
           <label for="evNotes">Anything else <span class="opt">(optional)</span></label>
@@ -778,7 +806,108 @@ if (root.document && root.document.head) apply(read());
       <div class="pfa-steps__nav">
         <button class="pfa-steps__back" type="button" data-step-back hidden>Back</button>
         <button class="btn" type="button" data-step-next>Continue</button>
-        <button class="btn" type="submit" id="evSend" hidden>Send the request</button>
+        <button class="btn" type="submit" id="evSend" hidden>Request the event</button>
+        <span class="pfa-steps__count" data-step-count></span>
+      </div>
+      <p class="formstatus" data-form-status hidden></p>
+    </form>
+  </section>
+
+  <!-- A podcast with Maneka Gandhi (owner, 16 Nov 2026): three a year, planned
+       at least 60 days ahead, approved by the PFA team; one paragraph in the
+       applicant's own words; priority to 10,000 followers or more, for reach.
+       On this page, beside the event request, so there is one place to ask
+       (owner: "dont have too many pages"). Goes to gandhim and the panel as
+       PFA-POD (lib/submission-fields.js). -->
+  <section class="band" id="podcast" data-flow data-flow-back="Events">
+    <div class="band__head">
+      <p class="eyebrow">A podcast with Maneka Gandhi</p>
+      <h2 class="display">Three a&nbsp;year.</h2>
+      <p>Maneka Gandhi records three podcasts a year. If the PFA team approves yours, it is planned with you at least 60 days ahead.</p>
+      <ul class="ev-gets">
+        <li><b>Apply 60 days ahead</b><span>Choose a date at least 60 days from today.</span></li>
+        <li><b>One paragraph, in your own words</b><span>What you wish to do the podcast on, and why. Please do not use AI to write it: it makes every application read the same.</span></li>
+        <li><b>Reach comes first</b><span>Priority goes to channels and pages with at least 10,000 followers on YouTube, Instagram or Facebook, purely for how far it spreads.</span></li>
+      </ul>
+      <p class="ev-only">For a podcast or any event, apply online through this website only.</p>
+    </div>
+
+    <form class="form" id="podForm" data-steps novalidate data-address-own>
+      <ol class="pfa-steps__tabs" aria-hidden="true"><li><span>01</span>The podcast</li><li><span>02</span>Your reach</li><li><span>03</span>You</li></ol>
+      <div class="pfa-steps__bar" aria-hidden="true"><span></span></div>
+
+      <div class="pfa-step" data-step="The podcast">
+        <div class="field">
+          <label for="podTopic">What it would be about</label>
+          <input id="podTopic" type="text" maxlength="140" required placeholder="Street dogs and the people who feed them">
+          <span class="error">Say what the podcast would be about.</span>
+        </div>
+        <div class="field">
+          <label for="podPitch">What you wish to do, and why <span class="opt">(one paragraph, your own words)</span></label>
+          <textarea id="podPitch" rows="7" minlength="250" maxlength="1500" required></textarea>
+          <span class="hint" id="podCount">At least 250 characters.</span>
+          <span class="error" id="podPitchErr">Write one paragraph, at least 250 characters.</span>
+        </div>
+        <div class="field">
+          <label for="podDate">The date you would like</label>
+          <input id="podDate" type="date" required>
+          <span class="hint" id="podDateHint">At least 60 days from today.</span>
+          <span class="error" id="podDateErr">Choose a date at least 60 days from today.</span>
+        </div>
+      </div>
+
+      <div class="pfa-step" data-step="Your reach">
+        <div class="field">
+          <label for="podPlatform">Where most of your followers are</label>
+          <select id="podPlatform" required>
+            <option value="">Choose one</option>
+            <option value="YouTube">YouTube</option>
+            <option value="Instagram">Instagram</option>
+            <option value="Facebook">Facebook</option>
+          </select>
+          <span class="error">Choose where your channel or page is.</span>
+        </div>
+        <div class="field">
+          <label for="podProfile">Link to the channel or page</label>
+          <input id="podProfile" type="url" inputmode="url" maxlength="300" required placeholder="https://www.youtube.com/@yourchannel">
+          <span class="error">Paste the full link, starting with https://</span>
+        </div>
+        <div class="field">
+          <label for="podFollowers">Followers there</label>
+          <input id="podFollowers" type="text" inputmode="numeric" maxlength="12" required placeholder="25000">
+          <span class="error">Add the number of followers, like 12000 or 12k.</span>
+        </div>
+        <div class="field">
+          <label for="podOther">Other channels <span class="opt">(optional)</span></label>
+          <input id="podOther" type="text" maxlength="300" placeholder="Instagram @yourpage, 8k">
+        </div>
+      </div>
+
+      <div class="pfa-step" data-step="You">
+        <div class="field">
+          <label for="podName">Your name</label>
+          <input id="podName" type="text" autocomplete="name" required>
+          <span class="error">Add your name.</span>
+        </div>
+        <div class="field">
+          <label for="podMobile">Mobile number</label>
+          <input id="podMobile" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" required>
+          <span class="error">Enter a 10-digit Indian mobile number.</span>
+        </div>
+        <div class="field">
+          <label for="podEmail">Email</label>
+          <input id="podEmail" type="email" autocomplete="email" required>
+          <span class="error">Add a valid email, so the PFA team can reply.</span>
+        </div>
+        <fieldset data-address data-kind="PFA-POD" data-legend="Your address"></fieldset>
+        <label class="agree"><input type="checkbox" id="podOwn" required> <span>I wrote the paragraph myself, without AI.</span></label>
+        <p class="fine">An application, not a booking: nothing is fixed until the PFA team writes to you.</p>
+      </div>
+
+      <div class="pfa-steps__nav">
+        <button class="pfa-steps__back" type="button" data-step-back hidden>Back</button>
+        <button class="btn" type="button" data-step-next>Continue</button>
+        <button class="btn" type="submit" id="podSend" hidden>Apply for the podcast</button>
         <span class="pfa-steps__count" data-step-count></span>
       </div>
       <p class="formstatus" data-form-status hidden></p>
@@ -818,6 +947,7 @@ if (root.document && root.document.head) apply(read());
         <li><a href="library.html">Resources library</a></li>
         <li><a href="academy.html">Academy</a></li>
         <li><a href="behaviour.html">Behaviour, A to Z</a></li>
+        <li><a href="pet-health.html">Medical notes</a></li>
         <li><a href="fireworks.html">Fireworks and animals</a></li>
         <li><a href="quiz.html">Test yourself</a></li>
       </ul>
@@ -831,7 +961,7 @@ if (root.document && root.document.head) apply(read());
         <li><a href="campus.html">PFA Campus</a></li>
         <li><a href="internship.html">Remote internship</a></li>
         <li><a href="wall.html">The Wall</a></li>
-        <li><a href="events.html">Events</a></li>
+        <li><a href="events.html">Events and podcasts</a></li>
         <li><a href="cinekind.html">CineKind</a></li>
       </ul>
     </nav>
@@ -1074,6 +1204,7 @@ if (root.document && root.document.head) apply(read());
         }
         return {
           title: kind.value,
+          people: ($('#evPeople') ? $('#evPeople').value.replace(/\D/g, '').slice(0, 6) : ''),
           name: name.value.trim(),
           mobile: mobile.value.replace(/\D/g, ''),
           email: email.value.trim(),
@@ -1087,6 +1218,100 @@ if (root.document && root.document.head) apply(read());
           '<p style="margin:14px 0 0;font-size:14px;line-height:1.6;color:var(--muted);max-width:52ch">' +
           'Keep the number. A named person at PFA picks it up from here, and will use the contact you gave. ' +
           'Nothing is confirmed until they reply.</p>';
+        var mailNote = window.PFAForms.emailNote && window.PFAForms.emailNote(reference);
+        if (mailNote) { mailNote.style.marginTop = '20px'; form.appendChild(mailNote); }
+        form.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  })();
+
+  /* ---------- a podcast with Maneka Gandhi ----------
+     Posts PFA-POD: three a year, at least 60 days ahead (the server holds
+     the same rule, lib/submission-fields.js), one paragraph in the
+     applicant's own words, and their reach. */
+  (function podcast(){
+    var form = $('#podForm');
+    if (!form) return;
+    if (!window.PFAForms){
+      var note = form.querySelector('[data-form-status]');
+      if (note){ note.hidden = false; note.setAttribute('data-state','bad'); note.textContent = 'This form cannot be sent right now. Please reload the page.'; }
+      var send = $('#podSend'); if (send) send.disabled = true;
+      return;
+    }
+    var DAY = 86400000;
+    function iso(ms){ var d = new Date(ms); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2); }
+    /* today in India, so the earliest date is the server's */
+    var today = Date.now() + 330 * 60000;
+    var earliest = iso(today + 60 * DAY);
+    var date = $('#podDate'), pitch = $('#podPitch'), count = $('#podCount');
+    date.min = earliest;
+    var hint = $('#podDateHint');
+    if (hint) hint.textContent = 'At least 60 days from today: ' + new Date(earliest + 'T00:00:00Z').toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) + ' or later.';
+    function words(){ return pitch.value.replace(/\s+/g, ' ').trim(); }
+    function counted(){ var n = words().length; count.textContent = n < 250 ? n + ' of at least 250 characters.' : n + ' characters. Up to 1500.'; }
+    pitch.addEventListener('input', counted);
+    function followers(v){
+      var m = /^\s*(\d+(?:[.,]\d+)*)\s*([kKmM]|lakh|lakhs|L)?\s*\+?\s*$/.exec(String(v || ''));
+      return m ? true : false;
+    }
+    function bad(el, on){ el.closest('.field').classList.toggle('is-bad', on); return on; }
+    function stepBad(step){
+      var errs = 0;
+      if (step.contains(pitch) && words().length && (words().length < 250 || words().length > 1500)) errs += bad(pitch, true) ? 1 : 0;
+      if (step.contains(date) && date.value && date.value < earliest) errs += bad(date, true) ? 1 : 0;
+      var f = $('#podFollowers');
+      if (step.contains(f) && f.value.trim() && !followers(f.value)) errs += bad(f, true) ? 1 : 0;
+      return errs;
+    }
+    form.addEventListener('pfa:step-check', function(e){ if (e.detail && e.detail.step && stepBad(e.detail.step)) e.preventDefault(); });
+    form.addEventListener('input', function(e){ var f = e.target.closest('.field'); if (f) f.classList.remove('is-bad'); });
+
+    window.PFAForms.wire(form, {
+      previewTitle: 'Check your application before it is sent',
+      kind: 'PFA-POD',
+      page: 'events.html',
+      sending: 'Sending\u2026',
+      previewLabels: { topic: 'About', pitch: 'What and why', wantedDate: 'Date wanted', platform: 'Followers on', profile: 'Channel or page', followers: 'Followers', other: 'Other channels' },
+      collect: function(){
+        var errs = 0;
+        var topic = $('#podTopic'), platform = $('#podPlatform'), profile = $('#podProfile'), fol = $('#podFollowers'),
+            name = $('#podName'), mobile = $('#podMobile'), email = $('#podEmail'), own = $('#podOwn');
+        errs += bad(topic, !topic.value.trim()) ? 1 : 0;
+        errs += bad(pitch, words().length < 250 || words().length > 1500) ? 1 : 0;
+        errs += bad(date, !date.value || date.value < earliest) ? 1 : 0;
+        errs += bad(platform, !platform.value) ? 1 : 0;
+        errs += bad(profile, !/^https?:\/\/\S+\.\S+/.test(profile.value.trim())) ? 1 : 0;
+        errs += bad(fol, !followers(fol.value)) ? 1 : 0;
+        if (!window.PFAAddress || window.PFAAddress.check(form.querySelector('[data-address]'))) errs += 1;
+        errs += bad(name, !name.value.trim()) ? 1 : 0;
+        errs += bad(mobile, !/^[6-9]\d{9}$/.test(mobile.value.replace(/\D/g, ''))) ? 1 : 0;
+        errs += bad(email, !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())) ? 1 : 0;
+        if (!own.checked){ own.closest('label').classList.add('is-bad'); errs += 1; }
+        if (errs){
+          var first = form.querySelector('.is-bad input, .is-bad select, .is-bad textarea');
+          if (first) first.focus();
+          return null;
+        }
+        return {
+          topic: topic.value.trim(),
+          pitch: words(),
+          wantedDate: date.value,
+          platform: platform.value,
+          profile: profile.value.trim(),
+          followers: fol.value.trim(),
+          other: $('#podOther').value.trim(),
+          name: name.value.trim(),
+          mobile: mobile.value.replace(/\D/g, ''),
+          email: email.value.trim(),
+          ownWords: 'Yes'
+        };
+      },
+      onSent: function(reference){
+        form.innerHTML =
+          '<p class="eyebrow">Application sent</p>' +
+          '<h3 class="display" style="margin:8px 0 0;font-size:clamp(22px,2.6vw,34px)">Your application number is ' + reference + '.</h3>' +
+          '<p style="margin:14px 0 0;font-size:14px;line-height:1.6;color:var(--muted);max-width:52ch">' +
+          'The PFA team reads every application. There are only three podcasts a year, so nothing is fixed until the team writes to you.</p>';
         var mailNote = window.PFAForms.emailNote && window.PFAForms.emailNote(reference);
         if (mailNote) { mailNote.style.marginTop = '20px'; form.appendChild(mailNote); }
         form.scrollIntoView({ block: 'nearest' });

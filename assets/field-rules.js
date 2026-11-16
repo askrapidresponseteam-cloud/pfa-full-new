@@ -673,6 +673,18 @@
         return null;
       }
     },
+    /* The text of a medical note (pet-health.html): a page or two, which
+       is longer than any other answer on the site, so a rule of its own. */
+    noteText: {
+      filter: stripMarkup,
+      normalise: squashLines,
+      max: 8000,
+      check: function (v) {
+        if (v.length > 8000) return 'Keep the note under 8000 characters, or attach it as a PDF.';
+        if (!LETTER.test(v)) return 'Use words here, not just numbers or symbols.';
+        return null;
+      }
+    },
     /* A small count someone estimates: how many animals they feed. Digits
        only, and bounded, so "abcd" and 99999999 are both refused. */
     count: {
@@ -782,6 +794,9 @@
        is how a cruelty report's own account of what happened, the place it
        happened and the person it names all used to arrive unexamined. */
 
+    /* pet-health.html: the note's own text; events.html#podcast: the
+       channel or page */
+    noteText: 'noteText', profile: 'url',
     /* report.html */
     what: 'longText', location: 'locality', accused: 'shortValue', when: 'shortValue',
     /* get-involved.html, events.html, wall.html */

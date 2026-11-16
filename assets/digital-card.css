@@ -60,7 +60,7 @@
 .dc__photo i{display:grid;place-items:center;height:100%;font-style:normal;font-size:max(10px,1.8cqw);letter-spacing:.2em;color:var(--soft)}
 .dc__foot{grid-column:1 / -1;display:flex;align-items:flex-end;justify-content:space-between;gap:3cqw;margin-top:2.4cqw}
 .dc__sign{min-width:0}
-.dc__sign img{display:block;height:calc(max(26px,6.4cqw) * var(--ss,1));width:auto;margin:0 0 -.6cqw;transform:translate(calc(var(--sx,0) * 100cqw / 856),calc(var(--sy,0) * 100cqw / 856))}
+.dc__sign img{display:block;height:calc(max(26px,6.4cqw) * var(--ss,1) * var(--sfit,1));width:auto;margin:0 0 -.6cqw;transform:translate(calc(var(--sx,0) * 100cqw / 856),calc(var(--sy,0) * 100cqw / 856))}
 .dc__sign b{display:block;border-top:1px solid var(--hair);padding-top:.8cqw;font-family:var(--dc-serif);font-weight:400;font-size:max(12px,2.3cqw);line-height:1.2}
 .dc__sign span{display:block;font-size:max(9.5px,1.6cqw);font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-top:.3cqw}
 .dc__ok{flex:none;display:inline-flex;align-items:center;gap:1cqw;padding:1cqw 2cqw;border-radius:99px;background:#0f6b35;color:#fff;font-size:max(10px,1.75cqw);font-weight:600;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
@@ -103,7 +103,7 @@
   .dc__val{font-size:max(14px,4.4cqw)}
   .dc[data-kind="caregiver"] .dc__val--id{white-space:nowrap;font-size:max(12px,3.9cqw);letter-spacing:-.01em}
   .dc__foot{grid-row:3;margin-top:3cqw}
-  .dc__sign img{height:calc(max(30px,10cqw) * var(--ss,1));transform:translate(calc(var(--sx,0) * 100cqw / 540),calc(var(--sy,0) * 100cqw / 540))}
+  .dc__sign img{height:calc(max(30px,10cqw) * var(--ss,1) * var(--sfit,1));transform:translate(calc(var(--sx,0) * 100cqw / 540),calc(var(--sy,0) * 100cqw / 540))}
   .dc__sign b{font-size:max(13px,3.8cqw)}
   .dc__sign span{font-size:max(10px,2.7cqw)}
   .dc__ok{font-size:max(10px,2.8cqw);padding:1.6cqw 3cqw}
@@ -155,7 +155,7 @@
 .dcm__base{position:absolute;left:6%;right:6%;bottom:7%;z-index:2}
 .dcm__base .dcm__footer{position:static}
 .dcm__sign{margin:0 0 2cqw}
-.dcm__sign img{display:block;height:calc(max(18px,4.6cqw) * var(--ss,1));width:auto;filter:brightness(0) invert(1);opacity:.9;margin:0 0 -.4cqw;transform:translate(calc(var(--sx,0) * 100cqw / 856),calc(var(--sy,0) * 100cqw / 856))}
+.dcm__sign img{display:block;height:calc(max(18px,4.6cqw) * var(--ss,1) * var(--sfit,1));width:auto;filter:brightness(0) invert(1);opacity:.9;margin:0 0 -.4cqw;transform:translate(calc(var(--sx,0) * 100cqw / 856),calc(var(--sy,0) * 100cqw / 856))}
 .dcm__sign b{display:block;font-weight:400;font-size:max(8px,1.3cqw);letter-spacing:.2cqw;text-transform:uppercase;color:#e7e7e5}
 .dcm__sign span{display:block;margin-top:.4cqw;font-size:max(7px,1.15cqw);letter-spacing:.2cqw;text-transform:uppercase;color:#969da5}
 .dc[data-kind="member"] .dcm__footer span{white-space:nowrap}
@@ -171,10 +171,18 @@
   .dcm__message p{font-size:calc(max(8px,1.6cqw) * var(--bfit,1));line-height:1.4}
   .dcm__message p + p{margin-top:.3cqw}
   .dcm__sign{margin-bottom:1.8cqw}
-  .dcm__sign img{height:calc(max(14px,4.6cqw) * var(--ss,1))}
+  .dcm__sign img{height:calc(max(14px,4.6cqw) * var(--ss,1) * var(--sfit,1))}
   .dcm__sign b{font-size:max(7px,1.3cqw)}
   .dcm__sign span{font-size:max(6.5px,1.15cqw);margin-top:.2cqw}
   .dc[data-kind="member"] .dc__back .dcm__footer{font-size:max(6.5px,1.25cqw)}
+}
+/* a small phone (16 Nov 2026: "card cannot look clumsy"): the back's logo
+   smaller and its message higher, so the signature keeps its size below it */
+@container (max-width:360px){
+  .dc[data-kind="member"] .dc__back .dcm__logo{width:16cqw}
+  .dcm__content{top:21%}
+  .dcm__message h2{margin-bottom:1cqw}
+  .dcm__message p{line-height:1.35}
 }
 
 /* the controls under the card */

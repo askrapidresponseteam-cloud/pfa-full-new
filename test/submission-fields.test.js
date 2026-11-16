@@ -94,7 +94,10 @@ const MARKUP = {
   'PFA-CMP': { cause: ['radio', 'cause'], format: ['radio', 'format'], goalType: ['radio', 'goalType'] },
   'PFA-SG': { offer: ['radio', 'offer'] },
   'PFA-PRV': { request: ['radio', 'request'] },
-  'PFA-U': { salutation: ['radio', 'salutation'], criteria: ['radio', 'criteria'] }
+  'PFA-U': { salutation: ['radio', 'salutation'], criteria: ['radio', 'criteria'] },
+  /* pet-health.html and events.html#podcast (16 Nov 2026) */
+  'PFA-MED': { role: ['radio', 'role'], animal: ['radio', 'animal'] },
+  'PFA-POD': { platform: ['select', 'podPlatform'] }
 };
 
 test('every list of choices the API enforces is the list the page offers', () => {

@@ -78,6 +78,8 @@ const ROUTES = {
   'assistant/receipt': './assistant/receipt.js',
   'live-chat': './live-chat.js',
   'admin/live-chat': './admin/live-chat.js',
+  'med-notes': './med-notes.js',
+  'admin/med-notes': './admin/med-notes.js',
 };
 
 // Static requires so Vercel's file tracer bundles every handler.
@@ -154,6 +156,8 @@ const LOADERS = {
   'assistant/receipt': () => require('../lib/routes/assistant/receipt.js'),
   'live-chat': () => require('../lib/routes/live-chat.js'),
   'admin/live-chat': () => require('../lib/routes/admin/live-chat.js'),
+  'med-notes': () => require('../lib/routes/med-notes.js'),
+  'admin/med-notes': () => require('../lib/routes/admin/med-notes.js'),
 };
 
 function routeKey(request) {

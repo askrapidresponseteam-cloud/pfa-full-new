@@ -107,7 +107,7 @@
       + attention(kind, st)
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
       + '<div class="wrap' + (spec.compact ? ' rg-compact' : '') + '"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + (spec.compact ? COMPACT[kind].head : spec.cols.map(function (c) { return c[0]; })).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + (spec.compact ? '<th><span class="rg-vh">Open</span></th>' : '<th>Shipping</th>') + '</tr></thead><tbody data-rg-body></tbody></table></div>'
-      + '<p class="rg-hint rg-foot">' + (spec.compact ? 'Open ' + (kind === 'membership' ? 'a member' : 'a caregiver') + ' for their details and to update shipping. Tick several to email them together. Green is shipped.' : 'Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete. Green rows are shipped.') + '</p>'
+      + '<p class="rg-hint rg-foot">' + (spec.compact ? 'Open ' + (kind === 'membership' ? 'a member' : 'a caregiver') + ' for their details, their digital card and shipping. Tick several to email them together. Green is shipped.' : 'Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete. Green rows are shipped.') + '</p>'
       + '<section class="rg-ref" aria-label="Sheet and numbering">'
       + '<h3>Sheet and numbering</h3>'
       + '<div data-rg-sheet>' + sheetHtml(kind, st.sheet) + '</div>'
@@ -385,6 +385,7 @@
       + '<section><h4>Address</h4>' + copyBtn(r.lines.join('\n')) + '</section>'
       + C.info(r)
       + '<section class="rg-shipbox"><h4>Shipping</h4>' + regShipHtml(kind, r) + '</section>'
+      + (window.PFADigitalCards && window.PFADigitalCards.regSlot ? window.PFADigitalCards.regSlot(kind, r) : '')
       + '</div><p class="rg-moreacts"><button type="button" class="rg-row" data-rg="row">Copy row</button>' + (r.email ? '<button type="button" class="rg-row" data-open-case="' + esc(r.id) + '" data-reply-case>Reply</button>' : '') + '</p></td></tr>';
   }
   (function () {
@@ -442,6 +443,7 @@
       : '<tr><td class="rg-empty" colspan="' + (spec.compact ? COMPACT[kind].head.length + 2 : spec.cols.length + 2) + '">' + (regState[kind].rows.length ? 'Nothing matches.' : 'No ' + spec.noun + ' yet.') + '</td></tr>';
     [].forEach.call(body.querySelectorAll('tr[data-rg-id]'), function (tr) { regSync(kind, tr); });
     regPickCount(kind);
+    if (window.PFADigitalCards && window.PFADigitalCards.regFill) window.PFADigitalCards.regFill(body);
   }
 
   /* the ticked lines that are ready, read from the screen where the line is

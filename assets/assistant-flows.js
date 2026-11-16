@@ -51,7 +51,11 @@
     liveJoined: { en: '{name} from PFA has joined.', hi: 'PFA से {name} जुड़ गए हैं।' },
     liveSlow: { en: 'No one has picked this up yet. You can keep waiting, or send your question to the help desk and PFA will reply by email.', hi: 'अभी तक किसी ने जवाब नहीं दिया है। आप इंतज़ार कर सकते हैं, या अपना सवाल हेल्प डेस्क को भेजें, PFA ईमेल से जवाब देगा।' },
     liveKeepWaiting: { en: 'Keep waiting', hi: 'इंतज़ार करें' },
+    endChat: { en: 'End chat', hi: 'चैट समाप्त करें' },
     liveStillWaiting: { en: 'Still waiting for someone at PFA.', hi: 'PFA में किसी का इंतज़ार कर रहे हैं।' },
+    liveGone: { en: '{name} has gone offline. Your messages are kept, and {name} will answer here when back. Or send your question to the help desk and PFA will reply by email.', hi: '{name} अभी ऑफ़लाइन हैं। आपके संदेश सुरक्षित हैं, और लौटने पर {name} यहीं जवाब देंगे। या अपना सवाल हेल्प डेस्क को भेजें, PFA ईमेल से जवाब देगा।' },
+    liveBack: { en: '{name} is back online.', hi: '{name} फिर से ऑनलाइन हैं।' },
+    liveTookOver: { en: '{name} from PFA is answering now.', hi: 'अब PFA से {name} जवाब दे रहे हैं।' },
     liveEnded: { en: '{name} has ended the chat. Thank you for writing to PFA.', hi: '{name} ने चैट समाप्त कर दी। PFA को लिखने के लिए धन्यवाद।' },
     liveClosed: { en: 'This chat has ended.', hi: 'यह चैट समाप्त हो गई है।' },
     liveYouEnded: { en: 'Chat ended. Thank you for writing to PFA.', hi: 'चैट समाप्त। PFA को लिखने के लिए धन्यवाद।' },
@@ -285,12 +289,14 @@
     jobs: { href: 'careers.html', title: { en: 'Jobs at PFA', hi: 'PFA में नौकरी' }, say: { en: 'Each role at PFA has its own questions, so applications are on the careers page.', hi: 'PFA में हर पद के अपने सवाल हैं, इसलिए आवेदन करियर पेज पर होते हैं।' } },
     shop: { href: 'shop.html', title: { en: 'The PFA shop', hi: 'PFA की दुकान' }, say: { en: 'Everything in the shop supports the animals. For an order you have placed, reply to its confirmation email, or ask me a question for the help desk.', hi: 'दुकान की हर चीज़ से जानवरों की मदद होती है। दिए गए ऑर्डर के लिए उसके पुष्टि ईमेल का जवाब दें, या हेल्प डेस्क के लिए मुझसे सवाल पूछें।' } },
     newunit: { href: 'units.html#apply', title: { en: 'Start a PFA unit', hi: 'नई PFA यूनिट' }, say: { en: 'A new unit needs seven board members and their papers, so it is applied for on the units page.', hi: 'नई यूनिट के लिए सात बोर्ड सदस्य और उनके कागज़ चाहिए, इसलिए आवेदन यूनिट पेज पर होता है।' } },
+    mednote: { href: 'pet-health.html#share', title: { en: 'Share a medical note', hi: 'मेडिकल नोट भेजें' }, say: { en: 'A medical note can come with a PDF or photographs, so it is sent from its own page. PFA reads it before it goes up.', hi: 'मेडिकल नोट के साथ PDF या फ़ोटो लग सकते हैं, इसलिए यह अपने पेज से भेजा जाता है। ऊपर लगाने से पहले PFA इसे पढ़ता है।' } },
+    podcast: { href: 'events.html#podcast', title: { en: 'A podcast with Maneka Gandhi', hi: 'मेनका गांधी के साथ पॉडकास्ट' }, say: { en: 'There are three a year, planned at least 60 days ahead. The application asks for one paragraph in your own words, so it is on the events page.', hi: 'साल में तीन होते हैं, कम से कम 60 दिन पहले तय। आवेदन में अपने शब्दों में एक पैराग्राफ़ लिखना होता है, इसलिए यह इवेंट पेज पर है।' } },
     interndash: { href: 'intern.html', title: { en: 'Intern dashboard', hi: 'इंटर्न डैशबोर्ड' }, say: { en: 'Interns sign in to the dashboard with their email, mobile and date of birth.', hi: 'इंटर्न अपने ईमेल, मोबाइल और जन्मतिथि से डैशबोर्ड में साइन इन करते हैं।' } }
   };
 
   /* what the menu offers, first the main ones, then More */
   var MENU = ['report', 'nearby', 'donate', 'volunteer', 'member', 'track'];
-  var MORE = ['receipt', 'internship', 'proof', 'helpdesk', 'adopt', 'caregiver', 'wallstory', 'event', 'sgacc', 'cinekind', 'campaign', 'legacy', 'csr', 'campus', 'verify', 'privacy', 'jobs', 'shop', 'newunit'];
+  var MORE = ['receipt', 'internship', 'proof', 'helpdesk', 'adopt', 'caregiver', 'wallstory', 'event', 'sgacc', 'cinekind', 'campaign', 'legacy', 'csr', 'campus', 'verify', 'privacy', 'jobs', 'shop', 'newunit', 'mednote', 'podcast'];
   var INFO = {
     adopt: { title: { en: 'Adopt an animal', hi: 'जानवर गोद लें' }, q: 'adopt adoption', topic: 'Adoption' },
     law: { title: { en: 'Animal law', hi: 'पशु कानून' }, q: 'law', topic: 'Animal law' }
@@ -369,7 +375,7 @@
   }
 
   var INTENT_TO = { report: 'report', nearby: 'nearby', donate: 'donate', member: 'member', volunteer: 'volunteer', internship: 'internship', caregiver: 'caregiver', track: 'track', receipt: 'receipt',
-    adopt: 'adopt', event: 'event', sgacc: 'sgacc', csr: 'csr', legacy: 'legacy', campaign: 'campaign', campus: 'campus', privacy: 'privacy', cinekind: 'cinekind', wall: 'wallstory', proof: 'proof', verify: 'verify', jobs: 'jobs', shop: 'shop', newunit: 'newunit', law: 'law', question: 'helpdesk' };
+    adopt: 'adopt', event: 'event', sgacc: 'sgacc', csr: 'csr', legacy: 'legacy', campaign: 'campaign', campus: 'campus', privacy: 'privacy', cinekind: 'cinekind', wall: 'wallstory', proof: 'proof', verify: 'verify', jobs: 'jobs', shop: 'shop', newunit: 'newunit', mednote: 'mednote', podcast: 'podcast', law: 'law', question: 'helpdesk' };
 
   function titleOf(id, lang) {
     var f = FLOWS[id] || PAGES[id] || INFO[id];
@@ -429,8 +435,9 @@
       var text = own || (lang() === 'hi' ? 'मैं PFA में किसी से बात करना चाहता/चाहती हूँ।' : 'I would like to talk to someone at PFA.');
       S.flow = ''; S.phase = 'live'; S.step = 0; S.data = {}; S.addr = null; S.editing = false;
       /* `said` is what they wrote themselves, for the help desk if it comes to that */
-      S.live = { state: 'starting', since: now(), seq: 0, said: own ? [own] : [], slowSaid: false, staff: '' };
-      return out([msg(t('liveConnecting', lang()))], { action: { id: newId('live'), type: 'live-start', text: text } });
+      S.live = { state: 'starting', since: now(), seq: 0, said: own ? [own] : [], slowSaid: false, staff: '', away: false };
+      var cid0 = cidOf();
+      return out([msg(t('liveConnecting', lang()))], { cid: first && !S.deskQuestion ? cid0 : '', action: { id: newId('live'), type: 'live-start', text: text, cid: cid0 } });
     }
     function liveEnd(lead) {
       var l = S.live || {};
@@ -455,8 +462,11 @@
       }
       if (s.charAt(0) === '#') return out([]);
       l.said = (l.said || []).concat([cleanLong(s)]).slice(-8);
-      return out([], { action: { id: newId('live'), type: 'live-send', text: s } });
+      var cid = cidOf();
+      return out([], { cid: cid, action: { id: newId('live'), type: 'live-send', text: s, cid: cid } });
     }
+    /* each message's own id: a send tried twice is one message */
+    function cidOf() { return 'v' + now().toString(36) + Math.random().toString(36).slice(2, 8); }
     /* what the page heard from the chat: started, refused, or news */
     function liveNews(ev) {
       var e = ev || {};
@@ -467,12 +477,19 @@
       if (e.type === 'failed') return out([msg(t('liveNotSent', lang()))]);
       if (e.type !== 'news') return out([]);
       var lines = [];
-      if (e.status !== 'waiting' && l.state === 'waiting' && e.staff) { l.state = 'open'; l.staff = e.staff; lines.push(msg(t('liveJoined', lang(), { name: e.staff }))); }
+      if (e.status !== 'waiting' && l.state === 'waiting' && e.staff) { l.state = 'open'; l.staff = e.staff; l.away = false; lines.push(msg(t('liveJoined', lang(), { name: e.staff }))); }
+      /* someone else took it over */
+      else if (e.status === 'open' && l.state === 'open' && e.staff && l.staff && e.staff !== l.staff) { l.staff = e.staff; l.away = false; lines.push(msg(t('liveTookOver', lang(), { name: e.staff }))); }
       (e.messages || []).forEach(function (m) {
         if (m.n <= l.seq) return;
         if (m.from === 'staff') lines.push(msg(m.text, { from: m.name || 'PFA' }));
       });
       l.seq = Math.max(l.seq, Number(e.seq) || 0);
+      /* the person answering went offline, or came back: said at once */
+      if (e.status === 'open' && l.state === 'open' && l.staff && e.status !== 'closed') {
+        if (e.staffOnline === false && !l.away) { l.away = true; lines.push(msg(t('liveGone', lang(), { name: l.staff }), { chips: [{ label: t('liveSendQuery', lang()), value: '#desk' }, { label: t('endChat', lang()), value: '#endlive' }] })); }
+        else if (e.staffOnline === true && l.away) { l.away = false; lines.push(msg(t('liveBack', lang(), { name: l.staff }))); }
+      }
       if (e.status === 'closed') {
         if (e.closedBy === 'visitor') { S.live = null; S.phase = 'menu'; return out(lines); }
         var ended = liveEnd(e.closedBy === 'staff' && l.staff ? t('liveEnded', lang(), { name: l.staff }) : t('liveClosed', lang()));

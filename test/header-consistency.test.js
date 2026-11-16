@@ -51,6 +51,7 @@ const NAV = [
   'library.html|Resources library',
   'academy.html|Academy',
   'behaviour.html|Behaviour, A to Z',               /* 11 Nov 2026 */
+  'pet-health.html|Medical notes',                  /* 16 Nov 2026 */
   'someone.html|Someone, not something',
   'fireworks.html|Fireworks and animals',          /* 10 Nov 2026 */
   'quiz.html|Test yourself',
@@ -65,7 +66,7 @@ const NAV = [
   'legacy.html|Leave a legacy',
   'csr.html|CSR partnerships',
   'wall.html|The Wall',
-  'events.html|Events',
+  'events.html|Events and podcasts',
   'cinekind.html|CineKind',
   'founder.html|About',
   'founder.html|The founder',
@@ -106,7 +107,7 @@ const EXPECTED = {
   'report.html':       ['Report cruelty',            'units.html'],
   'get-involved.html': ['Volunteer',                 'get-involved.html'],
   'cinekind.html':     ['CineKind',                  'get-involved.html'],
-  'events.html':       ['Events',                    'get-involved.html'],
+  'events.html':       ['Events and podcasts',       'get-involved.html'],
   'shop.html':         ['Shop',                      null],
   'careers.html':      ['Careers',                   'founder.html'],
   'caregiver-card.html': [null,                       'get-involved.html'], /* in the section, no longer a destination in it */
@@ -128,6 +129,7 @@ const EXPECTED = {
   'manekas-picks.html': ['Maneka’s Picks',            'founder.html'],
   'fireworks.html':    ['Fireworks and animals',     'laws.html'],
   'behaviour.html':    ['Behaviour, A to Z',         'laws.html'],
+  'pet-health.html':   ['Medical notes',             'laws.html'],
   'series.html':       [null,                        'laws.html'], /* closed preview, in no menu */
   'gifts.html':        ['Seasonal gifts',            'get-involved.html'],
   'privacy.html':      [null,                        null]

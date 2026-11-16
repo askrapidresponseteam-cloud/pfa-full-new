@@ -133,6 +133,7 @@
     input.setAttribute('aria-label', 'Your message');
     input.placeholder = 'Type here, in English or Hindi';
     input.addEventListener('input', grow);
+    input.addEventListener('input', typing);
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); submit(); }
     });
@@ -156,7 +157,13 @@
   /* ---- drawing messages ---- */
   function draw(m, who, live) {
     var div = el('div', 'pfa-asst__m pfa-asst__m--' + who);
-    if (who === 'me') { div.textContent = m.text; logEl.appendChild(div); return; }
+    if (who === 'me') {
+      div.appendChild(el('span', 'pfa-asst__said', m.text));
+      /* a message to a person at PFA: Sending, Sent, Seen, or Not sent (tap to send again) */
+      if (m.cid) { div.setAttribute('data-cid', m.cid); if (m.n) div.setAttribute('data-n', m.n); div.appendChild(el('span', 'pfa-asst__tick')); tick(div, m.st || 'sending'); }
+      logEl.appendChild(div);
+      return;
+    }
     /* a reply from a person at PFA says who wrote it */
     if (m.from) { div.className += ' pfa-asst__m--staff'; div.appendChild(el('p', 'pfa-asst__from', m.from + ', PFA')); }
     String(m.text || '').split('\n').forEach(function (line) { if (line) div.appendChild(el('p', '', line)); });
@@ -203,9 +210,9 @@
 
   function show(o, mine) {
     if (!o) return;
-    if (mine) { log.push({ who: 'me', text: mine }); }
+    if (mine) { log.push(o.cid ? { who: 'me', text: mine, cid: o.cid, st: 'sending' } : { who: 'me', text: mine }); }
     retire();
-    if (mine) draw({ text: mine }, 'me', false);
+    if (mine) draw({ text: mine, cid: o.cid, st: 'sending' }, 'me', false);
     var before = logEl.children.length;
     (o.messages || []).forEach(function (m, i) {
       log.push({ who: 'pfa', m: m });
@@ -240,17 +247,23 @@
     if (note) note.textContent = l === 'hi' ? 'आपकी पुष्टि के बिना कुछ नहीं भेजा जाता। अगर कोई जानवर खतरे में है, तो 112 पर कॉल करें।' : 'Nothing is sent until you confirm it. If an animal is in danger, call 112.';
   }
 
-  function paintLive() {
+  var lastLive = {};
+  function paintLive(p) {
     var st = session.state();
     var on = st.phase === 'live' && st.live;
     liveBar.hidden = !on;
     box.querySelector('[data-note]').hidden = Boolean(on);
-    if (!on) { stopLive(); return; }
+    if (!on) { stopLive(); lastLive = {}; return; }
+    if (p) lastLive = p;
     var hi = st.lang === 'hi';
-    if (st.live.staff) liveBar.setAttribute('data-on', ''); else liveBar.removeAttribute('data-on');
-    liveBar.firstChild.textContent = st.live.staff
-      ? (hi ? 'PFA से ' + st.live.staff + ' के साथ चैट' : 'Chatting with ' + st.live.staff + ' from PFA')
-      : (hi ? 'PFA में किसी का इंतज़ार' : 'Waiting for someone at PFA');
+    var name = st.live.staff;
+    var away = name && lastLive.staffOnline === false;
+    liveBar.setAttribute('data-s', !name ? 'wait' : away ? 'away' : 'on');
+    liveBar.firstChild.textContent = !name
+      ? (hi ? 'PFA में किसी का इंतज़ार' : 'Waiting for someone at PFA')
+      : away ? (hi ? name + ' अभी ऑफ़लाइन हैं' : name + ' is offline')
+        : lastLive.staffTyping ? (hi ? name + ' लिख रहे हैं…' : name + ' is typing…')
+          : (hi ? 'PFA से ' + name + ' के साथ चैट' : 'Chatting with ' + name + ' from PFA');
     liveBar.lastChild.textContent = hi ? 'चैट समाप्त करें' : 'End chat';
   }
 
@@ -401,62 +414,131 @@
     waitOff();
   }
 
-  /* ---- a person at PFA, live (lib/routes/live-chat.js) ---- */
+  /* ---- a person at PFA, live (lib/routes/live-chat.js) ----
+     Fast: every second while the chat is lively, every three when it is
+     quiet, every eight when the tab is not in view. Each message shows at
+     once with its state (Sending, Sent, Seen), is sent with its own id so a
+     second try is the same message, and can be sent again if it failed. The
+     other side's typing and whether they are online are on the bar. */
+  var liveActive = 0, typedAt = 0, liveInFlight = false;
   function liveOnline() { return online; }
   function checkOnline(force) {
-    if (!force && Date.now() - onlineAt < 20000) return;
+    if (!force && Date.now() - onlineAt < 15000) return;
     onlineAt = Date.now();
-    fetch('/api/live-chat', { headers: { Accept: 'application/json' } }).then(json).then(function (r) { online = Boolean(r.ok && r.p && r.p.online); }).catch(function () { online = false; });
+    fetch('/api/live-chat', { headers: { Accept: 'application/json' }, cache: 'no-store' }).then(json).then(function (r) { online = Boolean(r.ok && r.p && r.p.online); }).catch(function () { online = false; });
   }
   function post(body, keep) {
-    return fetch('/api/live-chat', { method: 'POST', keepalive: Boolean(keep), headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }).then(json);
+    return fetch('/api/live-chat', { method: 'POST', keepalive: Boolean(keep), cache: 'no-store', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }).then(json);
+  }
+  var TICK = { sending: ['Sending', ''], sent: ['✓', 'Sent'], seen: ['✓✓', 'Seen'], failed: ['Not sent. Tap to send again', ''] };
+  function tick(div, st) {
+    var tk = div.querySelector('.pfa-asst__tick');
+    if (!tk) return;
+    div.setAttribute('data-st', st);
+    var w = TICK[st] || TICK.sent;
+    tk.textContent = w[0];
+    if (w[1]) tk.setAttribute('aria-label', w[1]); else tk.removeAttribute('aria-label');
+  }
+  /* a message's state, on the page and in what the tab keeps */
+  function mark(cid, st, n) {
+    var div = logEl.querySelector('[data-cid="' + cid + '"]');
+    if (div) { tick(div, st); if (n) div.setAttribute('data-n', n); }
+    log.forEach(function (x) { if (x.cid === cid) { x.st = st; if (n) x.n = n; } });
+    store(!box.hidden);
+  }
+  function seenUpTo(n) {
+    if (!n) return;
+    var changed = false;
+    log.forEach(function (x) { if (x.cid && x.n && x.n <= n && x.st === 'sent') { x.st = 'seen'; changed = true; } });
+    Array.prototype.forEach.call(logEl.querySelectorAll('[data-cid][data-st="sent"]'), function (d) { if (Number(d.getAttribute('data-n')) <= n) tick(d, 'seen'); });
+    if (changed) store(!box.hidden);
   }
   function news(o) {
     if (!o || !o.messages || !o.messages.length) { if (o) store(!box.hidden); paintLive(); return; }
+    liveActive = Date.now();
     show(o, null);
     if (box.hidden) {
       var launch = doc.querySelector('.pfa-asst-launch');
       if (launch) launch.setAttribute('data-new', '');
     }
   }
+  function sendLive(cid, text) {
+    var l = session.state().live || {};
+    if (!l.id) return setTimeout(function () { sendLive(cid, text); }, 400);
+    liveActive = Date.now();
+    mark(cid, 'sending');
+    return post({ action: 'send', id: l.id, token: l.token, text: text, cid: cid }).then(function (r) {
+      if (r.ok && r.p && r.p.n) { mark(cid, 'sent', r.p.n); soon(); return; }
+      if (r.status === 409 || r.status === 404) { mark(cid, 'failed'); news(session.live({ type: 'news', status: 'closed', closedBy: 'gone', messages: [] })); return; }
+      mark(cid, 'failed');
+    }).catch(function () { mark(cid, 'failed'); });
+  }
   function liveAct(a) {
     if (a.type === 'live-start') {
-      return post({ action: 'start', text: a.text, page: (location.pathname.replace(/^\//, '') || 'index.html').slice(0, 120), lang: session.state().lang }).then(function (r) {
-        if (r.status === 201 && r.p.id) { news(session.live({ type: 'started', id: r.p.id, token: r.p.token, seq: r.p.seq })); return poll(); }
+      return post({ action: 'start', text: a.text, cid: a.cid, page: (location.pathname.replace(/^\//, '') || 'index.html').slice(0, 120), lang: session.state().lang }).then(function (r) {
+        if (r.status === 201 && r.p.id) {
+          if (a.cid) mark(a.cid, 'sent', r.p.n);
+          news(session.live({ type: 'started', id: r.p.id, token: r.p.token, seq: r.p.seq }));
+          liveActive = Date.now();
+          return poll();
+        }
         online = false;
+        if (a.cid) mark(a.cid, 'failed');
         news(session.live({ type: 'refused' }));
       }).catch(function () { online = false; news(session.live({ type: 'refused' })); });
     }
-    if (a.type === 'live-send') {
-      var l = session.state().live || {};
-      if (!l.id) return setTimeout(function () { liveAct(a); }, 600);
-      return post({ action: 'send', id: l.id, token: l.token, text: a.text }).then(function (r) {
-        if (!r.ok) news(session.live({ type: 'failed' }));
-        else { clearTimeout(liveTimer); liveTimer = setTimeout(poll, 1500); }
-      }).catch(function () { news(session.live({ type: 'failed' })); });
-    }
+    if (a.type === 'live-send') return sendLive(a.cid || ('v' + rand().slice(0, 12)), a.text);
     if (a.type === 'live-end') {
       stopLive();
       return post({ action: 'end', id: a.chat, token: a.token }, true).catch(function () { /* left either way */ });
     }
   }
-  /* every 3 seconds while the window is open, every 10 when it is not */
+  /* a message that did not go: tap it to send it again, as the same message */
+  doc.addEventListener('click', function (e) {
+    var d = e.target.closest && e.target.closest('.pfa-asst__m--me[data-st="failed"]');
+    if (!d || session.state().phase !== 'live') return;
+    var cid = d.getAttribute('data-cid');
+    var said = d.querySelector('.pfa-asst__said');
+    if (cid && said) sendLive(cid, said.textContent);
+  });
+  /* they are writing: said at most every three seconds */
+  function typing() {
+    var st = session && session.state();
+    if (!st || st.phase !== 'live' || !st.live || !st.live.id || !input.value.trim()) return;
+    if (Date.now() - typedAt < 3000) return;
+    typedAt = Date.now();
+    liveActive = Date.now();
+    post({ action: 'typing', id: st.live.id, token: st.live.token }).catch(function () {});
+  }
+  function soon() { clearTimeout(liveTimer); liveTimer = setTimeout(poll, 350); }
+  function every() {
+    if (doc.hidden) return 8000;
+    return Date.now() - liveActive < 60000 ? 1000 : 3000;
+  }
   function poll() {
     clearTimeout(liveTimer);
     var st = session.state();
     var l = st.live;
     if (st.phase !== 'live' || !l || !l.id) return;
-    fetch('/api/live-chat?id=' + encodeURIComponent(l.id) + '&token=' + encodeURIComponent(l.token) + '&after=' + (l.seq || 0), { headers: { Accept: 'application/json' } })
+    if (liveInFlight) { liveTimer = setTimeout(poll, 500); return; }
+    liveInFlight = true;
+    fetch('/api/live-chat?id=' + encodeURIComponent(l.id) + '&token=' + encodeURIComponent(l.token) + '&after=' + (l.seq || 0) + '&seen=' + (l.seq || 0), { headers: { Accept: 'application/json' }, cache: 'no-store' })
       .then(json).then(function (r) {
         if (r.status === 404) return news(session.live({ type: 'news', status: 'closed', closedBy: 'gone', messages: [] }));
-        if (r.ok) news(session.live(Object.assign({ type: 'news' }, r.p)));
+        if (!r.ok) return;
+        var p = r.p || {};
+        news(session.live(Object.assign({ type: 'news' }, p)));
+        seenUpTo(p.staffSeenN);
+        paintLive(p);
       }).catch(function () { /* tried again in a moment */ })
       .then(function () {
+        liveInFlight = false;
         if (session.state().phase !== 'live') return;
-        liveTimer = setTimeout(poll, box.hidden || doc.hidden ? 10000 : 3000);
+        liveTimer = setTimeout(poll, every());
       });
   }
   function stopLive() { clearTimeout(liveTimer); liveTimer = null; }
+  doc.addEventListener('visibilitychange', function () { if (!doc.hidden && session && session.state().phase === 'live') soon(); });
 
   var siteDocs = null;
   function siteText() {
@@ -512,7 +594,7 @@
     if (kept && kept.state) {
       session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline });
       log = kept.log || [];
-      log.forEach(function (x, i) { draw(x.who === 'me' ? { text: x.text } : x.m, x.who, i === log.length - 1); });
+      log.forEach(function (x, i) { draw(x.who === 'me' ? { text: x.text, cid: x.cid, n: x.n, st: x.st === 'sending' ? 'failed' : x.st } : x.m, x.who, i === log.length - 1); });
       /* a payment page opened and came back, or the tab was reloaded mid-send:
          the conversation goes on from the menu, never sending twice */
       if (kept.state.phase === 'waiting') show(session.tap('#menu'), null);

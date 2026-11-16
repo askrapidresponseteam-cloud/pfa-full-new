@@ -95,6 +95,8 @@ const FORMS = [
   ['legacy.html', 'Ask about a legacy', 'PFA-LEG', { interest: 'I am only exploring', contactBy: 'Email' }],
   ['campaign.html', 'Plan a campaign', 'PFA-CMP', { cause: 'Community dogs', format: 'A birthday or celebration', title: 'A birthday for the dogs', city: 'Udupi' }],
   ['privacy.html', 'Ask for my data', 'PFA-PRV', { request: 'A copy of what PFA holds about me' }],
+  ['pet-health.html', 'Share a medical note', 'PFA-MED', { animal: 'Dogs', title: 'Tick fever in dogs', summary: 'The signs, the blood test that confirms it, and when to go back to the vet.', role: 'Pet parent', credit: 'Asha Rao, Udupi', consent: 'Yes' }],
+  ['events.html', 'Apply for a podcast with Maneka Gandhi', 'PFA-POD', { topic: 'Street dogs and their feeders', pitch: 'A conversation with feeders from our town about how a colony of street dogs is sterilised, vaccinated and kept, and what changed in our lane once the neighbours were told the law. We want people who see a dog as a nuisance to hear it from those who look after them every night.', wantedDate: '2099-01-15', platform: 'YouTube', profile: 'https://www.youtube.com/@feeders', followers: '12k', ownWords: 'Yes' }],
   ['units.html', 'Apply for a new PFA unit', 'PFA-U', Object.assign({
     unitPlace: 'Kundapur', unitDistrict: 'Udupi', address: '12 Main Road, Koteshwara', city: 'Kundapur', district: 'Udupi',
     criteria: 'B. Rescue work', rescue1: 'Animal: Dog · Nature of the problem: Hit by a bus · Date: 3 Jan 2026 · Action taken: Treated and released',

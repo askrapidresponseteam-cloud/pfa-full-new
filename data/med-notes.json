@@ -1,0 +1,18 @@
+{
+  "about": "Medical notes PFA puts on pet-health.html itself (lib/med-notes.js). Notes sent through the page are kept in the admin panel, not here. Each can be taken off the site and put back from the panel, under Medical notes.",
+  "notes": [
+    {
+      "id": "diabetes-in-dogs",
+      "title": "Diabetes in dogs: what to do",
+      "summary": "Signs, the tests to ask for, insulin and its starting dose, food and feeding times, low sugar and when it is an emergency. One page, for owners and rescuers in India.",
+      "animal": "Dogs",
+      "role": "Pet parent",
+      "credit": "Sunny Raghvendra Singh, Dehradun",
+      "sources": "AAHA Diabetes Management Guidelines and veterinary sources",
+      "at": "2026-11-16",
+      "files": [
+        { "src": "media/med-notes/diabetes-in-dogs.pdf", "type": "application/pdf", "size": 71619, "label": "One page, PDF" }
+      ]
+    }
+  ]
+}

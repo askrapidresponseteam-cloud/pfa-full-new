@@ -66,7 +66,7 @@
 <title>Founder | People for Animals</title>
 <meta name="description" content="Maneka Sanjay Gandhi founded People for Animals and built it into India's largest animal welfare organisation.">
 <link rel="stylesheet" href="assets/theatre.css">
-<link rel="stylesheet" href="assets/chrome.css?v=2ddf9151a8">
+<link rel="stylesheet" href="assets/chrome.css?v=51161f2e6a">
 <style>
 :root{
   --paper:#fff;
@@ -352,6 +352,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .watch .eyebrow{color:rgba(17,17,17,.55);margin-bottom:16px}
 .watch h2{font-size:clamp(27px,3.6vw,56px);max-width:14ch}
 /* the way to her picks, on the head's other side (9 Nov 2026) */
+.watch__links{flex:0 1 440px;display:grid;gap:14px}
 .watch__picks{flex:0 1 440px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:6px 18px;min-height:44px;margin-top:8px;padding:0 0 10px;border-bottom:1px solid var(--ink);color:var(--ink)}
 .watch__picks .eyebrow{grid-column:1 / -1;margin:0}
 .watch__picks b{font-family:var(--display);font-weight:400;font-size:clamp(17px,1.5vw,22px);line-height:1.15;text-transform:uppercase;letter-spacing:.01em}
@@ -776,6 +777,7 @@ if (root.document && root.document.head) apply(read());
           <a href="library.html" data-nav="library.html">Resources library</a>
           <a href="academy.html" data-nav="academy.html">Academy</a>
           <a href="behaviour.html" data-nav="behaviour.html">Behaviour, A to Z</a>
+          <a href="pet-health.html" data-nav="pet-health.html">Medical notes</a>
           <a href="someone.html" data-nav="someone.html">Someone, not something</a>
           <a href="fireworks.html" data-nav="fireworks.html">Fireworks and animals</a>
           <a href="quiz.html" data-nav="quiz.html">Test yourself</a>
@@ -798,7 +800,7 @@ if (root.document && root.document.head) apply(read());
           <a href="csr.html" data-nav="csr.html">CSR partnerships</a>
           <span class="menu-sep" aria-hidden="true"></span>
           <a href="wall.html" data-nav="wall.html">The Wall</a>
-          <a href="events.html" data-nav="events.html">Events</a>
+          <a href="events.html" data-nav="events.html">Events and podcasts</a>
           <a href="cinekind.html" data-nav="cinekind.html">CineKind</a>
         </div>
       </div>
@@ -826,7 +828,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=4d2080c28a"></script>
+<script src="assets/chrome.js?v=5d0ae3c8e1"></script>
 <script src="assets/theatre.js"></script>
 <script src="assets/reels.js"></script>
 
@@ -888,7 +890,11 @@ if (root.document && root.document.head) apply(read());
         <h2 class="display">Her, in&nbsp;motion.</h2>
       </div>
       <!-- Her picks (9 Nov 2026): the films and the book she recommends, on their own page. -->
+      <div class="watch__links">
       <a class="watch__picks" href="manekas-picks.html"><span class="eyebrow">Her picks</span><b>Films and books she recommends</b><svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
+      <!-- a podcast with her (16 Nov 2026): three a year, applied for on the events page -->
+      <a class="watch__picks" href="events.html#podcast"><span class="eyebrow">A podcast with her</span><b>Three a year: apply</b><svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 6h13M9 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
+      </div>
     </div>
     <div class="vgrid" id="vgrid"></div>
     <p class="watch__stage display" id="vcap" aria-live="polite"></p>
@@ -1088,6 +1094,7 @@ if (root.document && root.document.head) apply(read());
         <li><a href="library.html">Resources library</a></li>
         <li><a href="academy.html">Academy</a></li>
         <li><a href="behaviour.html">Behaviour, A to Z</a></li>
+        <li><a href="pet-health.html">Medical notes</a></li>
         <li><a href="fireworks.html">Fireworks and animals</a></li>
         <li><a href="quiz.html">Test yourself</a></li>
       </ul>
@@ -1101,7 +1108,7 @@ if (root.document && root.document.head) apply(read());
         <li><a href="campus.html">PFA Campus</a></li>
         <li><a href="internship.html">Remote internship</a></li>
         <li><a href="wall.html">The Wall</a></li>
-        <li><a href="events.html">Events</a></li>
+        <li><a href="events.html">Events and podcasts</a></li>
         <li><a href="cinekind.html">CineKind</a></li>
       </ul>
     </nav>

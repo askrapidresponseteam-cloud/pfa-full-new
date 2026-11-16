@@ -772,6 +772,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="submissions">Submissions<span class="pip" id="pipWaiting" hidden>0</span></button>
       <button class="tab" type="button" data-tab="livechat">Live chat<span class="pip" id="pipLive" hidden>0</span></button>
       <button class="tab" type="button" data-tab="wall">The Wall<span class="pip" id="pipWall" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="mednotes">Medical notes<span class="pip" id="pipMed" hidden>0</span></button>
       <button class="tab" type="button" data-tab="membership">Members<span class="pip" id="pipMembers" hidden>0</span></button>
       <button class="tab" type="button" data-tab="caregivers">Caregivers<span class="pip" id="pipApps" hidden>0</span></button>
       <button class="tab" type="button" data-tab="volunteers">Volunteers</button>
@@ -1402,6 +1403,7 @@ window.addEventListener('unhandledrejection', function (event) {
     submissions: { title: 'Submissions',   module: 'submissions', needs: 'submissions' },
     livechat: { title: 'Live chat', module: 'livechat', needs: 'livechat' },
     wall:        { title: 'The Wall', module: 'wall', needs: 'submissions' },
+    mednotes: { title: 'Medical notes', module: 'mednotes', needs: 'mednotes' },
     volunteers:  { title: 'Volunteers',    module: 'volunteers',  needs: 'submissions' },
     employees:   { title: 'Job applicants', module: 'employees',  needs: 'submissions' },
     donations:   { title: 'Donations',     module: 'donations',   needs: 'payments' },
@@ -1549,6 +1551,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'certificates') return certificatesPane();
     if (tab === 'interns' || tab === 'shelters') return window.PFAInternship && window.PFAInternship.pane(tab);
     if (tab === 'wall') return window.PFAWall && window.PFAWall.pane();
+    if (tab === 'mednotes') return window.PFAMedNotes && window.PFAMedNotes.pane();
     if (tab === 'livechat') return window.PFALiveChat && window.PFALiveChat.pane();
     if (tab === 'employees') return window.PFAPeople && window.PFAPeople.pane();
     if (tab === 'website') return website();
@@ -6291,6 +6294,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-reports.js"></script>
 <script src="assets/admin-replies.js"></script>
 <script src="assets/admin-wall.js"></script>
+<script src="assets/admin-mednotes.js"></script>
 <script src="assets/admin-live-chat.js"></script>
 <script src="assets/admin-taxid.js"></script>
 <script>

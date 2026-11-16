@@ -97,6 +97,8 @@ const PANEL_ASSETS = [
   'assets/certificates/completion.webp', 'assets/certificates/frame.webp', 'assets/certificates/signature.png',
   /* the print masters the PDF is drawn on (12 Nov 2026) */
   'assets/certificates/completion-print.png', 'assets/certificates/frame-print.png', 'assets/certificates/signature-print.png',
+  /* the signature on a card online, drawn as lines so it stays sharp at any zoom (16 Nov 2026) */
+  'assets/certificates/signature.svg',
   /* The birthday card the panel draws (11 Nov 2026): its dahlias and its
      PFA mark; its Marcellus is above. */
   'media/birthday/card-flowers.jpg',
@@ -104,7 +106,9 @@ const PANEL_ASSETS = [
   /* the Old site members section's styles, out of admin.html (11 Nov 2026) */
   'assets/admin-oldmembers.css',
   /* a case full screen, Previous and Next (14 Nov 2026) */
-  'assets/admin-case-nav.css', 'assets/admin-case-nav.js'
+  'assets/admin-case-nav.css', 'assets/admin-case-nav.js',
+  /* medical notes for pet parents and caregivers (16 Nov 2026) */
+  'assets/admin-mednotes.js'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */
@@ -129,7 +133,7 @@ const FN_DIRS = ['api', 'lib'];
    "Cannot find module '../assets/field-rules.js'" and the panel reported that
    it could not reach /api/admin. checkRequires() below now stops the build if
    anything lib/ or api/ loads is missing from the bundle. */
-const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json', 'assets/unit-pages.json', 'assets/certificate.js'];
+const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json', 'assets/unit-pages.json', 'assets/certificate.js', 'data/med-notes.json'];
 
 function rmrf(dir) { fs.rmSync(dir, { recursive: true, force: true }); }
 

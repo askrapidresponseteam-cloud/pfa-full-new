@@ -127,6 +127,8 @@
     { id: 'jobs', w: ['job', 'jobs', 'career', 'careers', 'vacancy', 'vacancies', 'hiring', 'naukri', 'salary', 'नौकरी'], p: [] },
     { id: 'shop', w: ['shop', 'buy', 'purchase', 'tshirt', 't-shirt', 'merchandise', 'store', 'kharid', 'khareed', 'खरीद', 'दुकान'], p: [] },
     { id: 'newunit', w: [], p: ['new unit', 'start a unit', 'open a unit', 'unit kholna', 'own unit'] },
+    { id: 'mednote', w: [], p: ['medical note', 'share a note', 'health note', 'pet health', 'medical information'] },
+    { id: 'podcast', w: ['podcast', 'podcasts', 'पॉडकास्ट'], p: [] },
     { id: 'law', w: ['law', 'laws', 'legal', 'section', 'rights', 'act', 'court', 'kanoon', 'kanun', 'dhara', 'कानून', 'धारा'], p: [] },
     { id: 'question', w: ['question', 'query', 'ask', 'sawal', 'puchna', 'poochna', 'jankari', 'jaankari', 'सवाल', 'प्रश्न', 'जानकारी'], p: ['how do i', 'how to', 'what is', 'kaise kare'] },
     { id: 'greet', w: ['hi', 'hello', 'hey', 'namaste', 'namaskar', 'hii', 'helo', 'नमस्ते', 'नमस्कार'], p: ['good morning', 'good evening'] },

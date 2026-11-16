@@ -327,8 +327,8 @@ test('on every page, loaded only when opened, talking only to the site itself', 
 
 test('the audit: every form a visitor fills in on the site is in the chat or handed to its page, by name', () => {
   const inChat = Object.values(FL.FLOWS).map((f) => f.kind).filter(Boolean);
-  /* the two that stay on their pages, and why (see PAGES in assistant-flows.js) */
-  const onPage = { 'PFA-J': 'careers.html', 'PFA-U': 'units.html#apply' };
+  /* the ones that stay on their pages, and why (see PAGES in assistant-flows.js) */
+  const onPage = { 'PFA-J': 'careers.html', 'PFA-U': 'units.html#apply', 'PFA-MED': 'pet-health.html#share', 'PFA-POD': 'events.html#podcast' };
   for (const kind of Object.keys(FIELDS.KINDS)) {
     assert.ok(inChat.includes(kind) || onPage[kind], `${kind} (${FIELDS.KINDS[kind].page}) is reachable from the chat`);
   }

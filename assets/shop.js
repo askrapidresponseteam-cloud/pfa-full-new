@@ -176,6 +176,7 @@
       rm.addEventListener('click', function () { change(i, -l.qty); });
       bagList.appendChild(row);
     });
+    nextSteps();
     summary($('bagSum'));
     summary($('coSum'));
     toCheckout.disabled = !bag.length;
@@ -187,6 +188,32 @@
     if (bag[i].qty <= 0) bag.splice(i, 1);
     save();
     renderBag();
+  }
+
+  /* The next step stays on screen once something is in the bag (owner,
+     16 Nov 2026: "once added to cart.. the button goes off.. one has to
+     fiddle to find where the cart is.. and the next steps"). Under every
+     Add to bag whose piece is in the bag, and always on the closer look and
+     the feature once the bag has anything: how many are in it, and one
+     press to the bag and its checkout. It never fades. */
+  function nextSteps() {
+    var n = pieces();
+    [].forEach.call(document.querySelectorAll('form[data-buy]'), function (form) {
+      var id = form.getAttribute('data-for') || (form.closest('.item') && form.closest('.item').getAttribute('data-id'));
+      var mine = bag.some(function (l) { return l.id === id; });
+      var always = form.id === 'lookBuy' || form.id === 'featureBuy';
+      var line = form.querySelector('.item__next');
+      if (!n || !(mine || always)) { if (line) line.hidden = true; return; }
+      if (!line) {
+        line = el('button', 'item__next');
+        line.type = 'button';
+        line.addEventListener('click', function () { show(bagEl); });
+        form.appendChild(line);
+      }
+      line.hidden = false;
+      line.textContent = 'Go to bag (' + n + ') and checkout';
+      line.setAttribute('aria-label', 'Go to your bag, ' + n + (n === 1 ? ' piece' : ' pieces') + ', and check out');
+    });
   }
 
   var toast = $('toast'), toastText = $('toastText'), toastTimer = 0;
@@ -204,7 +231,7 @@
     toastText.textContent = 'Added: ' + p.name + ', ' + size;
     toast.classList.add('is-in');
     window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(function () { toast.classList.remove('is-in'); }, 3200);
+    toastTimer = window.setTimeout(function () { toast.classList.remove('is-in'); }, 6000);
   }
 
   document.addEventListener('submit', function (e) {
@@ -217,8 +244,8 @@
     var btn = form.querySelector('.item__add');
     if (btn) {
       btn.classList.add('is-done');
-      btn.textContent = 'Added';
-      window.setTimeout(function () { btn.classList.remove('is-done'); btn.textContent = 'Add to bag'; }, 1400);
+      btn.textContent = 'Added to bag';
+      window.setTimeout(function () { btn.classList.remove('is-done'); btn.textContent = 'Add another'; }, 1600);
     }
   });
 

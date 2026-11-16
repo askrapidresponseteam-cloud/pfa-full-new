@@ -149,8 +149,9 @@
   }
 
   /* The last look, then the server's reference, then the page's own done
-     panel. opts: form, kind, page, data() -> object, preview {title, send,
-     labels, extra}, button, status, done, doneRef, track (a link to fill). */
+     panel. opts: form, kind, page, data() -> object, photos() -> data URLs,
+     preview {title, send, labels, extra}, button, status, done, doneRef,
+     track (a link to fill). */
   function send(opts) {
     var form = opts.form;
     var status = opts.status;
@@ -176,7 +177,9 @@
         if (!confirmed) { busy = false; return; }
         var data = opts.data();
         if (button) { button.disabled = true; button.textContent = 'Sending…'; }
-        root.PFAForms.submit(opts.kind, data, { page: opts.page })
+        /* files, when the page takes them (pet-health.html: a PDF or photographs) */
+        var files = typeof opts.photos === 'function' ? opts.photos() : null;
+        root.PFAForms.submit(opts.kind, data, { page: opts.page, photos: files && files.length ? files : undefined })
           .then(function (reference) {
             form.hidden = true;
             if (opts.hideOnDone) opts.hideOnDone.forEach(function (el) { if (el) el.hidden = true; });

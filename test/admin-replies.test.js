@@ -33,7 +33,7 @@ test('one list: the record\'s own replies first, then the ones that fit anything
   assert.ok(R.list('PFA-SHP-2026-00001').some((x) => x[1] === 'Order being packed'));
   assert.ok(R.list('PFA-S-2026-00001').some((x) => x[1] === 'Ask for a YouTube or Vimeo link'));
   /* a kind with none of its own still has the general ones */
-  assert.equal(R.list('PFA-POD-2026-00001').map((x) => x[0]).join(), 'got,more,call,done');
+  assert.equal(R.list('PFA-LEG-2026-00001').map((x) => x[0]).join(), 'got,more,call,done');
   assert.match(R.options('PFA-CG-2026-00001'), /^<option value="">Start from a ready reply…<\/option><option value="cgprint">/);
   assert.equal(R.pick('PFA-CG-2026-00001', 'cgaddr')[1], 'Confirm the postal address');
   assert.equal(R.pick('PFA-MEM-2026-00001', 'cgaddr'), null);
@@ -41,7 +41,7 @@ test('one list: the record\'s own replies first, then the ones that fit anything
 
 test('every ready reply is plain, with no greeting or sign-off, and each blank is one the panel holds back', () => {
   const R = load();
-  const kinds = ['PFA-CG', 'PFA-MEM', 'PFA-SHP', 'PFA-DON', 'PFA-S', 'PFA-V', 'PFA-J', 'PFA-VI', 'PFA-VP', 'PFA-CR', 'PFA-A', 'PFA-EV', 'PFA-CSR', 'PFA-U', 'PFA-PRV', 'PFA-Q'];
+  const kinds = ['PFA-CG', 'PFA-MEM', 'PFA-SHP', 'PFA-DON', 'PFA-S', 'PFA-V', 'PFA-J', 'PFA-VI', 'PFA-VP', 'PFA-CR', 'PFA-A', 'PFA-EV', 'PFA-CSR', 'PFA-U', 'PFA-PRV', 'PFA-Q', 'PFA-POD', 'PFA-MED'];
   for (const k of kinds) {
     const keys = new Set();
     for (const [key, label, text] of R.list(k + '-2026-00001')) {
