@@ -78,6 +78,7 @@
       ct.today = d.today || '';
       ct.layout = d.layout || null;
       render(said);
+      seed();
     }).catch(function (e) { fail(node, e); });
   }
 
@@ -256,5 +257,20 @@
     }
   });
 
-  window.PFACertPane = { open: open, rows: function () { return ct.rows; }, data: data, draw: draw };
+  /* From an intern's record (16 Nov 2026): an internship certificate with
+     their name, email and dates already in, to check and issue. */
+  function prefill(p) {
+    ct.current = null; ct.kind = (p && p.kind) || 'internship'; ct.colour = ''; ct.seed = p || null;
+    if ($('#ctName')) { render(); seed(); }
+  }
+  function seed() {
+    var p = ct.seed;
+    ct.seed = null;
+    if (!p) return;
+    [['#ctName', p.name], ['#ctEmail', p.email], ['#ctFrom', p.startDate], ['#ctTo', p.endDate]].forEach(function (x) { var el = $(x[0]); if (el && x[1]) el.value = x[1]; });
+    draw();
+    var n = $('#ctName'); if (n) n.focus();
+  }
+
+  window.PFACertPane = { open: open, prefill: prefill, rows: function () { return ct.rows; }, data: data, draw: draw };
 }());

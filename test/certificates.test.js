@@ -118,11 +118,16 @@ test('wired: a module of its own, a route, closed to the browser, shipped with t
 
 test('the panel: a Certificates section that draws, issues, downloads and withdraws', () => {
   const html = read('admin.html');
-  /* Certificates sits under Internship in the rail since the portal (1 Nov 2026) */
-  assert.match(html, /<button class="tab" type="button" data-tab="internship">Internship/);
-  assert.match(html, /internship:\s+\{ title: 'Internship',\s+module: 'internship',\s+needs: 'internship', panes: \['internship', 'interns', 'shelters', 'certificates'\] \}/);
+  /* A section of its own (owner, 16 Nov 2026: "having all kinds of
+     certificates under internship is not sensible"): every kind, not under
+     Internship; an intern's record opens it with their details filled in */
+  assert.match(html, /<button class="tab" type="button" data-tab="certificates">Certificates<\/button>/);
+  assert.match(html, /internship:\s+\{ title: 'Internship',\s+module: 'internship',\s+needs: 'internship', panes: \['internship', 'interns', 'shelters'\] \}/);
+  assert.match(read('lib/admin-modules.js'), /key: 'certificates', label: 'Certificates'/);
+  assert.match(read('assets/admin-internship.js'), /data-ix-cert>Issue the certificate<\/button>/);
+  assert.match(read('assets/admin-internship.js'), /window\.PFACertPane\.prefill\(\{ kind: 'internship', name: who\.name, email: who\.email, startDate: who\.startsOn \|\| '', endDate: who\.endsOn \|\| '' \}\);\s+A\.show\('certificates'\);/);
   assert.match(html, /<script src="assets\/certificate\.js\?v=[a-f0-9]{10}"><\/script>/);
-  assert.match(html, /certificates: \{ title: 'Internship certificates', module: 'certificates', needs: 'certificates' \}/);
+  assert.match(html, /certificates: \{ title: 'Certificates', module: 'certificates', needs: 'certificates' \}/);
   /* the pane itself, in its own file since 15 Nov 2026 (the panel's weight ceiling) */
   assert.match(html, /<script src="assets\/admin-cert-pane\.js"><\/script>/);
   assert.match(html, /function certificatesPane\(said\) \{ return window\.PFACertPane \? window\.PFACertPane\.open\(said\) : undefined; \}/);

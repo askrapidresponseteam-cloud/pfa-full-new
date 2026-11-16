@@ -308,7 +308,8 @@ test('wired: the portal route and page, the panel’s two new parts, the Firebas
   for (const f of ['name', 'contact', 'phone', 'altPhone']) assert.match(sh, new RegExp(`field\\('${f}', [^)]*raw: true`), f);
   assert.match(sh, /' data-no-filter'/);
   const panel = read('admin.html');
-  assert.match(panel, /panes: \['internship', 'interns', 'shelters', 'certificates'\]/);
+  /* certificates left for a section of their own on 16 Nov 2026 */
+  assert.match(panel, /panes: \['internship', 'interns', 'shelters'\]/);
   assert.match(panel, /<script src="assets\/admin-internship\.js"><\/script>/);
   assert.match(panel, /<div class="pane" data-pane="interns" role="region" aria-label="Interns">/);
   assert.match(panel, /<div class="pane" data-pane="shelters" role="region" aria-label="Shelter directory">/);

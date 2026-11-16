@@ -1,3 +1,12 @@
+## v1.584
+
+- **Live chat with a person, from the site's chat.** Owner, 16 Nov 2026: "build a chat UI for admin side, where people can answer questions- when online.. i.e. if one asks for a person. and if the answer is not available in the site data", and "live chat works for main site user, only if someone from admin panel is online. else, ask the main site user to send a query".
+  - In the panel, a new Live chat section (its own module, so a super admin decides who answers). Switch on Available for chat, and while the panel is open visitors can reach you. New chats sound a short tone, show a count on the rail and in the tab title, and replying to a waiting chat takes it. A chat can be ended from either side; chats from the last 30 days stay readable under Ended.
+  - On the site, the chat hands over to a person when the visitor asks for one ("talk to a person", "kisi se baat karni hai") or when the site has no answer, and only while someone is available. Otherwise it asks them to send their question to the help desk, which answers by email. Replies show the person's first name, never their email. A chat carries on from page to page, and the chat button shows a dot when a reply arrives while it is closed.
+  - Free to run: no paid service or sockets, just the site's own server checked every few seconds. Someone stops counting as available 75 seconds after their panel closes, and a visitor gone 15 minutes is marked as left.
+- **Certificates are a section of their own.** Owner, 16 Nov 2026: "having all kinds of certificates under internship is not sensible". Every kind (internship, volunteer, participation, recognition, donor) is now under Certificates in the rail, not under Internship. Whoever had internship certificates keeps access. An intern whose tasks are all accepted has an Issue the certificate button that opens Certificates with their name, email and dates filled in.
+- **The admin invite email says how long the link lasts.** Owner, 16 Nov 2026, of "it works once and only for a little while": "sounds bad", and "be specific". It now reads: "For your security, this link can be used once and expires 1 hour after this email was sent."
+
 ## v1.583
 
 - **The Monday digest counts what came in, and goes to one more person.** Owner, 16 Nov 2026: "that can be confusing. instead. just have the count of things that came in that week..also have weekly report sent to gaurimaulekhi@gmail.com as well in cc".

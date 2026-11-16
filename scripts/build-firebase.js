@@ -82,7 +82,7 @@ const PANEL_ASSETS = [
   /* the card online, drawn in its studio to place the signature (15 Nov 2026) */
   'assets/digital-card.css', 'assets/digital-card.js', 'img/logo-dark.png',
   /* the viewer draws a PDF sent with a case with the site's own pdf.js (11 Nov 2026) */
-  'assets/vendor/pdfjs/pdf.min.js', 'assets/vendor/pdfjs/pdf.worker.min.js', 'assets/vendor/pdfjs/wasm/jbig2.wasm', 'assets/vendor/pdfjs/wasm/openjpeg.wasm', 'assets/vendor/pdfjs/wasm/qcms_bg.wasm', 'assets/vendor/pdfjs/LICENSE', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-taxid.js',
+  'assets/vendor/pdfjs/pdf.min.js', 'assets/vendor/pdfjs/pdf.worker.min.js', 'assets/vendor/pdfjs/wasm/jbig2.wasm', 'assets/vendor/pdfjs/wasm/openjpeg.wasm', 'assets/vendor/pdfjs/wasm/qcms_bg.wasm', 'assets/vendor/pdfjs/LICENSE', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-live-chat.js', 'assets/admin-taxid.js',
   'fonts/cinzel-latin-500.woff2',
   'fonts/cinzel-latin-600.woff2',
   'fonts/dm-sans-latin-400.woff2',

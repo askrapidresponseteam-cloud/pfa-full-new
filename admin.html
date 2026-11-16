@@ -605,7 +605,7 @@ details.fold[open] > summary{margin-bottom:8px}
 .ip-copy{width:100%;max-width:520px;height:34px;padding:0 8px;border:1px solid var(--line);font:inherit;font-size:12px;background:var(--paper)}
 #ipBPlan{width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;padding:10px;border:1px solid var(--line);background:var(--paper)}
 @media (max-width:700px){.ip-rev{grid-template-columns:minmax(0,1fr)}.ip-item__h{flex-direction:column}}
- /* internship certificates (31 Oct 2026) */
+ /* certificates (31 Oct 2026; every kind, 15 Nov) */
 .ct{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;max-width:1080px}
 .ct-fields{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:10px 14px}
 .ct-fields label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
@@ -755,6 +755,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="railgroup">
       <button class="tab" type="button" data-tab="overview">Overview</button>
       <button class="tab" type="button" data-tab="submissions">Submissions<span class="pip" id="pipWaiting" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="livechat">Live chat<span class="pip" id="pipLive" hidden>0</span></button>
       <button class="tab" type="button" data-tab="wall">The Wall<span class="pip" id="pipWall" hidden>0</span></button>
       <button class="tab" type="button" data-tab="membership">Members<span class="pip" id="pipMembers" hidden>0</span></button>
       <button class="tab" type="button" data-tab="caregivers">Caregivers<span class="pip" id="pipApps" hidden>0</span></button>
@@ -765,6 +766,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="birthdays">Birthdays<span class="pip" id="pipBirthdays" hidden>0</span></button>
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
+      <button class="tab" type="button" data-tab="certificates">Certificates</button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="gifts">Seasonal gifts</button>
       <button class="tab" type="button" data-tab="analytics">Analytics</button>
@@ -890,15 +892,15 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
          approve it, print the card. Filled by membershipPane(). -->
     <div class="pane" data-pane="membership" role="region" aria-label="Membership cards"><div class="loading">Reading the memberships&#8230;</div></div>
     <div class="pane" data-pane="shop" role="region" aria-label="Shop orders"><div class="loading">Reading the orders&#8230;</div></div>
-    <!-- Internship certificates (31 Oct 2026): type the name and dates, issue,
-         download. Filled by certificatesPane(); drawn by assets/certificate.js. -->
     <!-- The internship portal (1 Nov 2026): review proof, batches and their
          interns, issuing Intern IDs, the plan. Filled by internshipPane(). -->
     <div class="pane" data-pane="internship" role="region" aria-label="Internship"><div class="loading">Reading the internship&#8230;</div></div>
     <!-- every intern and the shelter directory (3 Nov 2026): assets/admin-internship.js -->
     <div class="pane" data-pane="interns" role="region" aria-label="Interns"><div class="loading">Reading the interns&#8230;</div></div>
     <div class="pane" data-pane="shelters" role="region" aria-label="Shelter directory"><div class="loading">Reading the shelter directory&#8230;</div></div>
-    <div class="pane" data-pane="certificates" role="region" aria-label="Internship certificates"><div class="loading">Reading the certificates&#8230;</div></div>
+    <!-- Certificates, every kind (16 Nov 2026: their own section, not under
+         Internship). Filled by certificatesPane(); drawn by assets/certificate.js. -->
+    <div class="pane" data-pane="certificates" role="region" aria-label="Certificates"><div class="loading">Reading the certificates&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
       <div class="tools">
@@ -1381,6 +1383,7 @@ window.addEventListener('unhandledrejection', function (event) {
   var TABS = {
     overview:    { title: 'Overview',      module: 'overview',    needs: 'overview' },
     submissions: { title: 'Submissions',   module: 'submissions', needs: 'submissions' },
+    livechat: { title: 'Live chat', module: 'livechat', needs: 'livechat' },
     wall:        { title: 'The Wall', module: 'wall', needs: 'submissions' },
     volunteers:  { title: 'Volunteers',    module: 'volunteers',  needs: 'submissions' },
     employees:   { title: 'Job applicants', module: 'employees',  needs: 'submissions' },
@@ -1392,10 +1395,10 @@ window.addEventListener('unhandledrejection', function (event) {
     memsheet:    { title: 'Membership register', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
     shop:        { title: 'Shop orders',   module: 'shop',        needs: 'shop' },
-    internship:  { title: 'Internship',    module: 'internship',  needs: 'internship', panes: ['internship', 'interns', 'shelters', 'certificates'] },
+    internship:  { title: 'Internship',    module: 'internship',  needs: 'internship', panes: ['internship', 'interns', 'shelters'] },
     interns:     { title: 'Interns',       module: 'internship',  needs: 'internship' },
     shelters:    { title: 'Shelter directory', module: 'internship', needs: 'internship' },
-    certificates: { title: 'Internship certificates', module: 'certificates', needs: 'certificates' },
+    certificates: { title: 'Certificates', module: 'certificates', needs: 'certificates' },
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
@@ -1445,7 +1448,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* A section folded into another keeps its name here, so an old link or an
      internal show('donations') lands on the section that now holds it. */
-  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', certificates: 'internship', interns: 'internship', shelters: 'internship' };
+  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', interns: 'internship', shelters: 'internship' };
   function panesOf(tab) { return (TABS[tab] || {}).panes || [tab]; }
   function paneAllowed(pane) {
     var spec = TABS[pane];
@@ -1494,6 +1497,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'certificates') return certificatesPane();
     if (tab === 'interns' || tab === 'shelters') return window.PFAInternship && window.PFAInternship.pane(tab);
     if (tab === 'wall') return window.PFAWall && window.PFAWall.pane();
+    if (tab === 'livechat') return window.PFALiveChat && window.PFALiveChat.pane();
     if (tab === 'employees') return window.PFAPeople && window.PFAPeople.pane();
     if (tab === 'website') return website();
     if (tab === 'gifts') return window.PFAGifts && window.PFAGifts.pane();
@@ -4268,7 +4272,9 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Download payments as CSV', line: 'Payments & donations', tab: 'payments', anchor: '#payCsv', words: 'csv export download spreadsheet excel' },
     { title: 'Caregivers', line: 'Colony caregivers, their cards and numbers', tab: 'caregivers', words: 'caregiver carer cards colony cct number' },
     { title: 'Members', line: 'Every member, their number and card', tab: 'membership', words: 'members membership number card register patron' },
-    { title: 'Internship', line: 'Interns given an ID, their work, shelters and certificates', tab: 'internship', words: 'interns internship shelters certificates batch' },
+    { title: 'Internship', line: 'Interns given an ID, their work and shelters', tab: 'internship', words: 'interns internship shelters batch' },
+    { title: 'Certificates', line: 'Internship, volunteer, participation, recognition and donor certificates', tab: 'certificates', words: 'certificates certificate internship completion volunteer appreciation participation camp event recognition award donor issue withdraw' },
+    { title: 'Live chat', line: 'Answer visitors on the site\u2019s chat', tab: 'livechat', words: 'live chat visitors online available talk person reply help desk' },
     { title: 'Job applicants', line: 'Applications from the careers page', tab: 'employees', words: 'jobs careers applicants applications hiring posts vacancies' },
     { title: 'Verify a card', line: 'The same answer the public check gives', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid' },
     { title: 'Print and post', line: 'Print approved cards and post them', tab: 'caregivers', anchor: '[data-pane="cards"]', words: 'issue print pdf bulk post posted cards' },
@@ -4623,6 +4629,7 @@ window.addEventListener('unhandledrejection', function (event) {
   });
   function replyWatch() {
     birthdayWatch();
+    if (can('livechat') && window.PFALiveChat) window.PFALiveChat.watch();
     photoWatch();
     if (!photoTimer && can('membership')) photoTimer = setInterval(photoWatch, 60000);
     if (!can('submissions')) return;
@@ -6226,6 +6233,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-reports.js"></script>
 <script src="assets/admin-replies.js"></script>
 <script src="assets/admin-wall.js"></script>
+<script src="assets/admin-live-chat.js"></script>
 <script src="assets/admin-taxid.js"></script>
 <script>
 /* Plain by default (21 Oct 2026): every .hint in the panel, drawn now or by

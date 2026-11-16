@@ -409,8 +409,30 @@
     return tokens(text).map(function (w) { return TO_ENGLISH[w] || w; }).filter(function (w) { return !HINGLISH_SET[w] || TO_ENGLISH[w]; }).join(' ');
   }
 
+  /* Asking for a person, not the assistant (owner, 16 Nov 2026: "if one
+     asks for a person"): "talk to a human", "kisi se baat karni hai",
+     "live chat". A single word ("human", "agent") counts only in a short
+     message that asks for nothing else, so "someone is beating a dog" or
+     "a person hit my dog" is never read as wanting a person. */
+  var PERSON_PHRASES = ['talk to a person', 'talk to person', 'talk to someone', 'talk to somebody', 'talk to a human', 'talk to human', 'talk to a real', 'talk with someone', 'talk with a person',
+    'speak to a person', 'speak to someone', 'speak to somebody', 'speak to a human', 'speak with someone', 'speak with a person', 'chat with someone', 'chat with a person', 'chat with a human',
+    'real person', 'real human', 'actual person', 'human being', 'live chat', 'live agent', 'live person', 'customer care', 'customer support', 'customer service', 'someone from pfa', 'somebody from pfa', 'person from pfa',
+    'connect me to', 'connect me with', 'transfer me', 'kisi se baat', 'kisi insaan', 'kisi insan', 'insaan se baat', 'insan se baat', 'aadmi se baat', 'admi se baat', 'vyakti se baat', 'staff se baat',
+    'किसी से बात', 'इंसान से बात', 'व्यक्ति से बात', 'किसी व्यक्ति', 'लाइव चैट'];
+  var PERSON_WORDS = ['human', 'agent', 'representative', 'executive', 'operator', 'person', 'insaan', 'insan', 'इंसान', 'व्यक्ति'];
+  function personOf(text) {
+    var s = normalise(text).replace(/[.!?]+$/, '');
+    var words = tokens(s);
+    if (!words.length) return false;
+    var flat = ' ' + words.join(' ') + ' ';
+    if (PERSON_PHRASES.some(function (k) { return flat.indexOf(' ' + k + ' ') > -1 || s.indexOf(k) > -1; })) return true;
+    if (words.length > 4) return false;
+    if (!words.some(function (w) { return PERSON_WORDS.indexOf(w) > -1; })) return false;
+    return !intentOf(text).some(function (x) { return x.id !== 'question' && x.id !== 'greet' && x.id !== 'thanks'; });
+  }
+
   return {
-    normalise: normalise, tokens: tokens, languageOf: languageOf, intentOf: intentOf, commandOf: commandOf,
+    normalise: normalise, tokens: tokens, languageOf: languageOf, intentOf: intentOf, commandOf: commandOf, personOf: personOf,
     emailOf: emailOf, mobileOf: mobileOf, pinOf: pinOf, referenceOf: referenceOf, amountOf: amountOf, dateOf: dateOf, ageOn: ageOn,
     nameOf: nameOf, yesNoOf: yesNoOf, animalOf: animalOf, urgencyOf: urgencyOf, choiceOf: choiceOf, entitiesOf: entitiesOf,
     searchText: searchText, editDistance: editDistance, countHits: countHits, INTENTS: INTENTS

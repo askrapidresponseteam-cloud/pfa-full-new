@@ -24,6 +24,15 @@
 .pfa-asst__m p + p{margin-top:8px}
 .pfa-asst__m--me{align-self:flex-end;max-width:86%;padding:10px 12px;background:#f2f1ef;white-space:pre-wrap}
 .pfa-asst__m--pfa{align-self:flex-start}
+/* a reply from a person at PFA: their name above, on a quiet panel */
+.pfa-asst__m--staff{max-width:86%;padding:10px 12px;background:#fff;border:1px solid #d6d4d0}
+.pfa-asst__m--staff .pfa-asst__from{margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6b6b6b}
+.pfa-asst__live{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px 10px}
+.pfa-asst__live[hidden]{display:none}
+.pfa-asst__live p{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;line-height:1.4;color:#111;overflow-wrap:anywhere}
+.pfa-asst__live p::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#b7791f}
+.pfa-asst__live[data-on] p::before{background:#1f7a3f}
+.pfa-asst__live button{flex:none;min-height:34px;padding:0 4px;border:0;background:none;color:#111;font-family:inherit;font-size:11px;font-weight:700;line-height:1;letter-spacing:.12em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 .pfa-asst__m dl{display:grid;grid-template-columns:minmax(90px,auto) minmax(0,1fr);gap:6px 14px;margin:10px 0 0;padding:10px 0 0;border-top:1px solid #e4e2df;font-size:14px}
 .pfa-asst__m dt{color:#6b6b6b;font-size:12px;line-height:1.4;padding-top:2px}
 .pfa-asst__m dd{margin:0;overflow-wrap:anywhere}

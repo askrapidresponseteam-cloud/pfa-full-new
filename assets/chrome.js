@@ -1719,7 +1719,7 @@
   if (document.documentElement.hasAttribute('data-no-assist')) return;
   var KEY = 'pfa.assist.v1';
   /* one fingerprint for the five files, written by npm run sync:chrome */
-  var ASSIST_V = '4e0990be24';
+  var ASSIST_V = '28955ae531';
   var FILES = ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/assistant.js'].map(function (f) { return f + '?v=' + ASSIST_V; });
   var loading = null;
 
@@ -1747,7 +1747,7 @@
   function mount() {
     if (document.querySelector('.pfa-asst-launch')) return;
     var css = document.createElement('style');
-    css.textContent = '.pfa-asst-launch{position:fixed;z-index:70;right:18px;bottom:calc(var(--tabbar,0px) + 18px);display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 18px;border:1px solid #111;background:#111;color:#fff;font:700 11px/1 var(--body,"Helvetica Neue",Helvetica,Arial,sans-serif);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 24px -14px rgba(0,0,0,.55)}@media (hover:hover){.pfa-asst-launch:hover{background:#fff;color:#111}}.pfa-asst-launch svg{width:18px;height:18px;flex:none}@media (max-width:900px){.pfa-asst-launch{right:14px;bottom:calc(var(--tabbar,0px) + 14px);width:48px;padding:0;justify-content:center}.pfa-asst-launch span{display:none}}body.in-flow .pfa-asst-launch{display:none}@media print{.pfa-asst-launch{display:none}}html[data-choice-assistant="off"] .pfa-asst-launch,html[data-choice-assistant="off"] .pfa-asst{display:none!important}';
+    css.textContent = '.pfa-asst-launch{position:fixed;z-index:70;right:18px;bottom:calc(var(--tabbar,0px) + 18px);display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 18px;border:1px solid #111;background:#111;color:#fff;font:700 11px/1 var(--body,"Helvetica Neue",Helvetica,Arial,sans-serif);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 24px -14px rgba(0,0,0,.55)}@media (hover:hover){.pfa-asst-launch:hover{background:#fff;color:#111}}.pfa-asst-launch svg{width:18px;height:18px;flex:none}.pfa-asst-launch[data-new]::after{content:"";position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:#c62828;border:2px solid #fff}@media (max-width:900px){.pfa-asst-launch{right:14px;bottom:calc(var(--tabbar,0px) + 14px);width:48px;padding:0;justify-content:center}.pfa-asst-launch span{display:none}}body.in-flow .pfa-asst-launch{display:none}@media print{.pfa-asst-launch{display:none}}html[data-choice-assistant="off"] .pfa-asst-launch,html[data-choice-assistant="off"] .pfa-asst{display:none!important}';
     document.head.appendChild(css);
     var b = document.createElement('button');
     b.type = 'button';
@@ -1763,7 +1763,8 @@
     document.body.appendChild(b);
     var kept = null;
     try { kept = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (_) { kept = null; }
-    if (kept && kept.open && !off()) load();
+    /* open, or in a chat with someone at PFA who may reply */
+    if (kept && (kept.open || (kept.state && kept.state.phase === 'live')) && !off()) load();
   }
   /* Hidden from the panel (Website, Page designs and features): the rule
      above hides the button and any open chat at once, and nothing loads. */

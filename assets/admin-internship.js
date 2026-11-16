@@ -191,7 +191,7 @@
         : (pl.state !== 'change' ? '<button class="ghost" type="button" data-ix="change">Ask them to work at another shelter</button>' : ''))
       : '<p class="note">They have not named a shelter yet. The portal asks them to before their hours begin.</p>') + '</section>';
 
-    out += '<section><h4>Certificate</h4>' + (d.certificate ? '<p>' + esc(d.certificate.number) + ', issued ' + esc(day(d.certificate.issuedOn)) + (d.certificate.emailedTo ? ', emailed to ' + esc(d.certificate.emailedTo) : '') + '</p>' : '<p class="note">' + ((r.progress || {}).complete ? 'Every task is accepted: issue it under Internship certificates.' : 'Issued once every task is accepted.') + '</p>') + '</section>';
+    out += '<section><h4>Certificate</h4>' + (d.certificate ? '<p>' + esc(d.certificate.number) + ', issued ' + esc(day(d.certificate.issuedOn)) + (d.certificate.emailedTo ? ', emailed to ' + esc(d.certificate.emailedTo) : '') + '</p>' : ((r.progress || {}).complete ? '<p class="note">Every task is accepted.</p><button class="ghost" type="button" data-ix-cert>Issue the certificate</button>' : '<p class="note">Issued once every task is accepted.</p>')) + '</section>';
     return out + '</div>';
   }
 
@@ -213,6 +213,13 @@
     if (f) { openFile(f.getAttribute('data-ix-file'), sayNode); return; }
     var sh = e.target.closest('[data-ix-shelter]');
     if (sh) { showShelter(sh.getAttribute('data-ix-shelter')); return; }
+    /* to Certificates, with this intern's name, email and dates filled in */
+    if (e.target.closest('[data-ix-cert]')) {
+      var who = IN.rows ? IN.rows.filter(function (x) { return x.internId === IN.open; })[0] : null;
+      if (who && window.PFACertPane && window.PFACertPane.prefill) window.PFACertPane.prefill({ kind: 'internship', name: who.name, email: who.email, startDate: who.startsOn || '', endDate: who.endsOn || '' });
+      A.show('certificates');
+      return;
+    }
     var b = e.target.closest('[data-ix]');
     if (b) {
       var what = b.getAttribute('data-ix');

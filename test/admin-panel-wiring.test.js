@@ -134,7 +134,8 @@ test('every section in the rail is one the module list knows', () => {
      employees: "they are people who applied") after Submissions,
      then the money, the shop, the website and the admins. Analytics (3 Nov
      2026: "how many visited which page") after the website. */
-  assert.deepEqual(tabs, ['overview', 'submissions', 'wall', 'membership', 'caregivers', 'volunteers', 'internship', 'employees', 'directory', 'birthdays', 'payments', 'shop', 'website', 'gifts', 'analytics', 'people', 'oldmembers'],
+  /* Live chat (16 Nov 2026) after Submissions: visitors waiting on a reply */
+  assert.deepEqual(tabs, ['overview', 'submissions', 'livechat', 'wall', 'membership', 'caregivers', 'volunteers', 'internship', 'employees', 'directory', 'birthdays', 'payments', 'shop', 'certificates', 'website', 'gifts', 'analytics', 'people', 'oldmembers'],
     'the rail is by people, then the rest, then the one kept apart');
   for (const [tab, label] of [['membership', 'Members'], ['caregivers', 'Caregivers'], ['internship', 'Internship'], ['employees', 'Job applicants'], ['people', 'Admins &amp; audit']]) {
     assert.match(panel, new RegExp(`data-tab="${tab}"[^>]*>${label}`), label);
@@ -147,7 +148,7 @@ test('every section in the rail is one the module list knows', () => {
     && /payments:[^}]*panes: \['payments', 'donations'\]/.test(script)
     && /people:[^}]*panes: \['people', 'audit'\]/.test(script);
   assert.ok(stacks, 'each merged tab names the panes it stacks');
-  assert.match(script, /HOMES = \{ donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', certificates: 'internship', interns: 'internship', shelters: 'internship' \}/,
+  assert.match(script, /HOMES = \{ donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', interns: 'internship', shelters: 'internship' \}/,
     'old section names still land on the section that holds them');
   const registry = script.slice(script.indexOf('var TABS = {'), script.indexOf('function can(module)'));
   for (const tab of tabs) {

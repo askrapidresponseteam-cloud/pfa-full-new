@@ -19,6 +19,9 @@
                        on the payment, never shown here)
      a PIN code        GET  /api/location-lookup?pin=
      a question        the site search already on the page (pfa-search.js)
+     a person          /api/live-chat (lib/routes/live-chat.js): offered only
+                       while someone in the panel is available; this page
+                       asks every few seconds for their replies
 
    The conversation is kept for this tab only (sessionStorage), so it
    carries on from page to page and is gone when the tab is closed.
@@ -38,6 +41,7 @@
   var log = [];
   var box, logEl, input, sendBtn, clipBtn, fileIn, langBtns;
   var busy = false;
+  var liveBar, liveTimer = null, online = false, onlineAt = 0;
   /* monthly giving is offered only while the panel has it on: the choice
      arrives with the rest of what the site shows (assets/site-visibility.js) */
   function monthly() {
@@ -100,6 +104,15 @@
     var note = el('p', 'pfa-asst__note', 'Nothing is sent until you confirm it. If an animal is in danger, call 112.');
     note.setAttribute('data-note', '');
     box.appendChild(note);
+    /* while chatting with a person: who with, and the way out */
+    liveBar = el('div', 'pfa-asst__live');
+    liveBar.hidden = true;
+    liveBar.appendChild(el('p', '', ''));
+    var endBtn = el('button', '', 'End chat');
+    endBtn.type = 'button';
+    endBtn.addEventListener('click', function () { say(endBtn.textContent, '#endlive', true); });
+    liveBar.appendChild(endBtn);
+    box.insertBefore(liveBar, note);
 
     var bar = el('form', 'pfa-asst__bar');
     bar.setAttribute('novalidate', '');
@@ -144,6 +157,8 @@
   function draw(m, who, live) {
     var div = el('div', 'pfa-asst__m pfa-asst__m--' + who);
     if (who === 'me') { div.textContent = m.text; logEl.appendChild(div); return; }
+    /* a reply from a person at PFA says who wrote it */
+    if (m.from) { div.className += ' pfa-asst__m--staff'; div.appendChild(el('p', 'pfa-asst__from', m.from + ', PFA')); }
     String(m.text || '').split('\n').forEach(function (line) { if (line) div.appendChild(el('p', '', line)); });
     if (m.list && m.list.length) {
       var dl = el('dl');
@@ -197,6 +212,7 @@
       draw(m, 'pfa', i === o.messages.length - 1);
     });
     paintLang(o.lang);
+    paintLive();
     clipBtn.hidden = !(o.input && o.input.type === 'photo');
     input.rows = o.input && o.input.type === 'long' ? 3 : 1;
     grow();
@@ -222,6 +238,20 @@
     sendBtn.textContent = l === 'hi' ? 'भेजें' : 'Send';
     var note = box.querySelector('[data-note]');
     if (note) note.textContent = l === 'hi' ? 'आपकी पुष्टि के बिना कुछ नहीं भेजा जाता। अगर कोई जानवर खतरे में है, तो 112 पर कॉल करें।' : 'Nothing is sent until you confirm it. If an animal is in danger, call 112.';
+  }
+
+  function paintLive() {
+    var st = session.state();
+    var on = st.phase === 'live' && st.live;
+    liveBar.hidden = !on;
+    box.querySelector('[data-note]').hidden = Boolean(on);
+    if (!on) { stopLive(); return; }
+    var hi = st.lang === 'hi';
+    if (st.live.staff) liveBar.setAttribute('data-on', ''); else liveBar.removeAttribute('data-on');
+    liveBar.firstChild.textContent = st.live.staff
+      ? (hi ? 'PFA से ' + st.live.staff + ' के साथ चैट' : 'Chatting with ' + st.live.staff + ' from PFA')
+      : (hi ? 'PFA में किसी का इंतज़ार' : 'Waiting for someone at PFA');
+    liveBar.lastChild.textContent = hi ? 'चैट समाप्त करें' : 'End chat';
   }
 
   function say(text, value, tapped) {
@@ -300,6 +330,7 @@
 
   function act(a) {
     if (a.type === 'pay') return pay(a);
+    if (/^live-/.test(a.type)) return liveAct(a);
     waitOn();
     var fail = function () { finish(a.id, { ok: false }); };
     if (a.type === 'pin') {
@@ -370,6 +401,63 @@
     waitOff();
   }
 
+  /* ---- a person at PFA, live (lib/routes/live-chat.js) ---- */
+  function liveOnline() { return online; }
+  function checkOnline(force) {
+    if (!force && Date.now() - onlineAt < 20000) return;
+    onlineAt = Date.now();
+    fetch('/api/live-chat', { headers: { Accept: 'application/json' } }).then(json).then(function (r) { online = Boolean(r.ok && r.p && r.p.online); }).catch(function () { online = false; });
+  }
+  function post(body, keep) {
+    return fetch('/api/live-chat', { method: 'POST', keepalive: Boolean(keep), headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) }).then(json);
+  }
+  function news(o) {
+    if (!o || !o.messages || !o.messages.length) { if (o) store(!box.hidden); paintLive(); return; }
+    show(o, null);
+    if (box.hidden) {
+      var launch = doc.querySelector('.pfa-asst-launch');
+      if (launch) launch.setAttribute('data-new', '');
+    }
+  }
+  function liveAct(a) {
+    if (a.type === 'live-start') {
+      return post({ action: 'start', text: a.text, page: (location.pathname.replace(/^\//, '') || 'index.html').slice(0, 120), lang: session.state().lang }).then(function (r) {
+        if (r.status === 201 && r.p.id) { news(session.live({ type: 'started', id: r.p.id, token: r.p.token, seq: r.p.seq })); return poll(); }
+        online = false;
+        news(session.live({ type: 'refused' }));
+      }).catch(function () { online = false; news(session.live({ type: 'refused' })); });
+    }
+    if (a.type === 'live-send') {
+      var l = session.state().live || {};
+      if (!l.id) return setTimeout(function () { liveAct(a); }, 600);
+      return post({ action: 'send', id: l.id, token: l.token, text: a.text }).then(function (r) {
+        if (!r.ok) news(session.live({ type: 'failed' }));
+        else { clearTimeout(liveTimer); liveTimer = setTimeout(poll, 1500); }
+      }).catch(function () { news(session.live({ type: 'failed' })); });
+    }
+    if (a.type === 'live-end') {
+      stopLive();
+      return post({ action: 'end', id: a.chat, token: a.token }, true).catch(function () { /* left either way */ });
+    }
+  }
+  /* every 3 seconds while the window is open, every 10 when it is not */
+  function poll() {
+    clearTimeout(liveTimer);
+    var st = session.state();
+    var l = st.live;
+    if (st.phase !== 'live' || !l || !l.id) return;
+    fetch('/api/live-chat?id=' + encodeURIComponent(l.id) + '&token=' + encodeURIComponent(l.token) + '&after=' + (l.seq || 0), { headers: { Accept: 'application/json' } })
+      .then(json).then(function (r) {
+        if (r.status === 404) return news(session.live({ type: 'news', status: 'closed', closedBy: 'gone', messages: [] }));
+        if (r.ok) news(session.live(Object.assign({ type: 'news' }, r.p)));
+      }).catch(function () { /* tried again in a moment */ })
+      .then(function () {
+        if (session.state().phase !== 'live') return;
+        liveTimer = setTimeout(poll, box.hidden || doc.hidden ? 10000 : 3000);
+      });
+  }
+  function stopLive() { clearTimeout(liveTimer); liveTimer = null; }
+
   var siteDocs = null;
   function siteText() {
     if (!siteDocs) {
@@ -403,8 +491,10 @@
   function open() {
     if (!box) start();
     box.hidden = false;
+    checkOnline(false);
     var launch = doc.querySelector('.pfa-asst-launch');
-    if (launch) launch.setAttribute('aria-expanded', 'true');
+    if (launch) { launch.setAttribute('aria-expanded', 'true'); launch.removeAttribute('data-new'); }
+    if (session.state().phase === 'live') poll();
     store(true);
     setTimeout(function () { input.focus({ preventScroll: true }); }, 30);
   }
@@ -420,16 +510,19 @@
     var kept = load();
     var lang = (doc.documentElement.getAttribute('lang') || '').indexOf('hi') === 0 ? 'hi' : 'en';
     if (kept && kept.state) {
-      session = FL.createSession({ state: kept.state, monthly: monthly });
+      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline });
       log = kept.log || [];
       log.forEach(function (x, i) { draw(x.who === 'me' ? { text: x.text } : x.m, x.who, i === log.length - 1); });
       /* a payment page opened and came back, or the tab was reloaded mid-send:
          the conversation goes on from the menu, never sending twice */
       if (kept.state.phase === 'waiting') show(session.tap('#menu'), null);
       paintLang(session.state().lang);
+      paintLive();
+      /* a chat with a person carries on from page to page */
+      if (kept.state.phase === 'live') { if (kept.state.live && kept.state.live.id) poll(); else show(session.tap('#endlive'), null); }
       logEl.scrollTop = logEl.scrollHeight;
     } else {
-      session = FL.createSession({ lang: lang, monthly: monthly });
+      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline });
       show(session.start(), null);
     }
   }
@@ -437,4 +530,7 @@
   window.PFAAssistant = { open: open, hide: hide, say: function (t) { open(); say(t, null, false); } };
   var kept = load();
   if (kept && kept.open) open();
+  /* closed, but someone at PFA may still reply: listen, and mark the button */
+  else if (kept && kept.state && kept.state.phase === 'live') start();
+  checkOnline(true);
 })();

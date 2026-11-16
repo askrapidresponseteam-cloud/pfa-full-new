@@ -42,6 +42,21 @@
     found: { en: 'This is what I found on the PFA site:', hi: 'PFA की वेबसाइट पर यह मिला:' },
     nothingFound: { en: 'I could not find that on the site.', hi: 'वेबसाइट पर यह नहीं मिला।' },
     askDesk: { en: 'Ask PFA\'s help desk', hi: 'PFA हेल्प डेस्क से पूछें' },
+    /* a person at PFA, live, only while someone in the panel is available
+       (owner, 16 Nov 2026); otherwise the help desk, by email */
+    liveChip: { en: 'Chat with someone at PFA', hi: 'PFA में किसी से चैट करें' },
+    liveConnecting: { en: 'Connecting you to someone at PFA. They will reply here, so keep this window open.', hi: 'आपको PFA में किसी से जोड़ रहे हैं। वे यहीं जवाब देंगे, इसलिए यह विंडो खुली रखें।' },
+    liveNoOne: { en: 'No one from PFA is on the chat right now. Send your question to the help desk and PFA will reply by email.', hi: 'अभी PFA से कोई चैट पर नहीं है। अपना सवाल हेल्प डेस्क को भेजें, PFA ईमेल से जवाब देगा।' },
+    liveSendQuery: { en: 'Send a question', hi: 'सवाल भेजें' },
+    liveJoined: { en: '{name} from PFA has joined.', hi: 'PFA से {name} जुड़ गए हैं।' },
+    liveSlow: { en: 'No one has picked this up yet. You can keep waiting, or send your question to the help desk and PFA will reply by email.', hi: 'अभी तक किसी ने जवाब नहीं दिया है। आप इंतज़ार कर सकते हैं, या अपना सवाल हेल्प डेस्क को भेजें, PFA ईमेल से जवाब देगा।' },
+    liveKeepWaiting: { en: 'Keep waiting', hi: 'इंतज़ार करें' },
+    liveStillWaiting: { en: 'Still waiting for someone at PFA.', hi: 'PFA में किसी का इंतज़ार कर रहे हैं।' },
+    liveEnded: { en: '{name} has ended the chat. Thank you for writing to PFA.', hi: '{name} ने चैट समाप्त कर दी। PFA को लिखने के लिए धन्यवाद।' },
+    liveClosed: { en: 'This chat has ended.', hi: 'यह चैट समाप्त हो गई है।' },
+    liveYouEnded: { en: 'Chat ended. Thank you for writing to PFA.', hi: 'चैट समाप्त। PFA को लिखने के लिए धन्यवाद।' },
+    liveNotSent: { en: 'That message did not go through. Send it again.', hi: 'यह संदेश नहीं गया। फिर से भेजें।' },
+    nothingLive: { en: 'The site does not say. Someone at PFA is on the chat now and can answer.', hi: 'वेबसाइट पर यह नहीं है। PFA में कोई अभी चैट पर है और जवाब दे सकता है।' },
     thanks: { en: 'Glad to help.', hi: 'मदद करके खुशी हुई।' },
     cancelled: { en: 'Stopped. Nothing was sent.', hi: 'रोक दिया। कुछ नहीं भेजा गया।' },
     skipWord: { en: 'Skip', hi: 'छोड़ें' },
@@ -371,6 +386,9 @@
     var photos = [];
     /* monthly giving, while the panel has it on (donate#monthly) */
     function monthlyOn() { try { return typeof o.monthly === 'function' ? Boolean(o.monthly()) : Boolean(o.monthly); } catch (_) { return false; } }
+    /* someone in the panel is available for a live chat (the page asks
+       /api/live-chat and answers here) */
+    function liveOn() { try { return typeof o.live === 'function' ? Boolean(o.live()) : Boolean(o.live); } catch (_) { return false; } }
 
     function lang() { return S.lang; }
     function out(messages, extra) {
@@ -393,7 +411,80 @@
       return out([msg(t(first ? 'hello' : 'menuAgain', lang()), { chips: chips })]);
     }
     function more() {
-      return out([msg(t('moreSay', lang()), { chips: MORE.map(function (id) { return chip(id, lang()); }) })]);
+      var chips = MORE.map(function (id) { return chip(id, lang()); });
+      if (liveOn()) chips.unshift({ label: t('liveChip', lang()), value: '#live' });
+      return out([msg(t('moreSay', lang()), { chips: chips })]);
+    }
+
+    /* ---- a person at PFA, live ---- */
+    function noOne() {
+      S.phase = 'menu'; S.flow = ''; S.live = null;
+      return out([msg(t('liveNoOne', lang()), { links: [{ label: lang() === 'hi' ? 'कॉल करें: +91 11 2081 8191' : 'Call +91 11 2081 8191', href: 'tel:+911120818191' }], chips: [{ label: t('liveSendQuery', lang()), value: '#desk' }, { label: t('menuChip', lang()), value: '#menu' }] })]);
+    }
+    /* the question goes as the first message: the one the site could not
+       answer, or what they just wrote */
+    function startLive(first) {
+      if (!liveOn()) return noOne();
+      var own = cleanLong(S.deskQuestion || first || '');
+      var text = own || (lang() === 'hi' ? 'मैं PFA में किसी से बात करना चाहता/चाहती हूँ।' : 'I would like to talk to someone at PFA.');
+      S.flow = ''; S.phase = 'live'; S.step = 0; S.data = {}; S.addr = null; S.editing = false;
+      /* `said` is what they wrote themselves, for the help desk if it comes to that */
+      S.live = { state: 'starting', since: now(), seq: 0, said: own ? [own] : [], slowSaid: false, staff: '' };
+      return out([msg(t('liveConnecting', lang()))], { action: { id: newId('live'), type: 'live-start', text: text } });
+    }
+    function liveEnd(lead) {
+      var l = S.live || {};
+      S.live = null; S.phase = 'menu'; S.flow = '';
+      var o2 = out([msg(lead || t('liveYouEnded', lang()), { chips: [{ label: t('menuChip', lang()), value: '#menu' }] })]);
+      if (l.id) o2.action = { id: newId('live'), type: 'live-end', chat: l.id, token: l.token };
+      return o2;
+    }
+    function hearLive(s, cmd) {
+      var l = S.live || {};
+      if (s === '#endlive' || cmd === 'cancel' || cmd === 'menu') return liveEnd();
+      if (s === '#wait') { l.slowSaid = true; return out([msg(t('liveStillWaiting', lang()))]); }
+      if (s === '#desk') {
+        /* to the help desk instead: everything they wrote, and the chat ends */
+        var q = (l.said || []).join('\n');
+        var end = l.id ? { id: newId('live'), type: 'live-end', chat: l.id, token: l.token } : null;
+        S.live = null; S.phase = 'menu';
+        S.deskQuestion = q; S.deskTopic = '';
+        var o3 = begin('helpdesk', q);
+        if (end && !o3.action) o3.action = end;
+        return o3;
+      }
+      if (s.charAt(0) === '#') return out([]);
+      l.said = (l.said || []).concat([cleanLong(s)]).slice(-8);
+      return out([], { action: { id: newId('live'), type: 'live-send', text: s } });
+    }
+    /* what the page heard from the chat: started, refused, or news */
+    function liveNews(ev) {
+      var e = ev || {};
+      var l = S.live;
+      if (!l || S.phase !== 'live') return out([]);
+      if (e.type === 'started') { l.id = e.id; l.token = e.token; l.state = 'waiting'; l.seq = Number(e.seq) || l.seq; return out([]); }
+      if (e.type === 'refused') return noOne();
+      if (e.type === 'failed') return out([msg(t('liveNotSent', lang()))]);
+      if (e.type !== 'news') return out([]);
+      var lines = [];
+      if (e.status !== 'waiting' && l.state === 'waiting' && e.staff) { l.state = 'open'; l.staff = e.staff; lines.push(msg(t('liveJoined', lang(), { name: e.staff }))); }
+      (e.messages || []).forEach(function (m) {
+        if (m.n <= l.seq) return;
+        if (m.from === 'staff') lines.push(msg(m.text, { from: m.name || 'PFA' }));
+      });
+      l.seq = Math.max(l.seq, Number(e.seq) || 0);
+      if (e.status === 'closed') {
+        if (e.closedBy === 'visitor') { S.live = null; S.phase = 'menu'; return out(lines); }
+        var ended = liveEnd(e.closedBy === 'staff' && l.staff ? t('liveEnded', lang(), { name: l.staff }) : t('liveClosed', lang()));
+        ended.action = null;
+        ended.messages = lines.concat(ended.messages);
+        return ended;
+      }
+      if (l.state === 'waiting' && !l.slowSaid && (e.online === false || now() - l.since > 3 * 60000)) {
+        l.slowSaid = true;
+        lines.push(msg(t('liveSlow', lang()), { chips: [{ label: t('liveKeepWaiting', lang()), value: '#wait' }, { label: t('liveSendQuery', lang()), value: '#desk' }] }));
+      }
+      return out(lines);
     }
 
     /* ---- starting something ---- */
@@ -968,7 +1059,9 @@
     function searchDone(r) {
       var best = (r.rows || [])[0];
       var chips = [];
-      chips.push({ label: t('askDesk', lang()), value: '#desk' });
+      /* not answered well enough? a person, if one is on; else the help desk */
+      var live = liveOn();
+      chips.push(live ? { label: t('liveChip', lang()), value: '#live' } : { label: t('askDesk', lang()), value: '#desk' });
       chips.push({ label: t('menuChip', lang()), value: '#menu' });
       /* the site's own sentence that answers it, word for word, and its page */
       var p = r.passage;
@@ -976,7 +1069,7 @@
       S.afterSearch = '';
       if (!(p && p.text && p.url) && then) return begin(then, S.deskQuestion || '');
       if (p && p.text && p.url) return out([msg(p.text, { links: [{ label: (lang() === 'hi' ? 'पूरा पढ़ें: ' : 'Read more: ') + p.title, href: String(p.url).replace(/^\//, '') }], chips: chips })]);
-      if (!best) return out([msg(t('nothingFound', lang()), { chips: chips })]);
+      if (!best) return out([msg(t(live ? 'nothingLive' : 'nothingFound', lang()), { chips: chips })]);
       return out([msg(best.desc || best.title, { links: [{ label: best.title, href: best.url }], chips: chips })]);
     }
     function answer(f) {
@@ -1001,6 +1094,13 @@
         if (!fa || !/^(long|choice|yesno|consent|multi)$/.test(fa.type) || !said || (S.addr && S.addr.step !== 'pin')) lg = '';
       }
       if (lg && !S.langChosen && s.charAt(0) !== '#' && s.charAt(0) !== '@') S.lang = lg;
+
+      /* a live chat: everything typed goes to the person at PFA */
+      if (S.phase === 'live') return hearLive(s, N.commandOf(s));
+      if (s === '#live') return startLive('');
+      /* asking for a person, from anywhere: a live chat if someone is on,
+         else the help desk (owner, 16 Nov 2026) */
+      if (!tapped && N.personOf(s)) { if (S.phase !== 'menu') { S.deskQuestion = ''; } return liveOn() ? startLive(s) : noOne(); }
 
       /* the page's own buttons */
       if (s === '#menu') return menu(false);
@@ -1104,6 +1204,7 @@
 
     return {
       start: function () { return menu(true); },
+      live: liveNews,
       hear: function (text) { return hear(text, false); },
       tap: function (value) { return hear(value, true); },
       done: done,

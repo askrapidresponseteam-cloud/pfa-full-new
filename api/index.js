@@ -76,6 +76,8 @@ const ROUTES = {
   'verify-card': './verify-card.js',
   'verify-certificate': './verify-certificate.js',
   'assistant/receipt': './assistant/receipt.js',
+  'live-chat': './live-chat.js',
+  'admin/live-chat': './admin/live-chat.js',
 };
 
 // Static requires so Vercel's file tracer bundles every handler.
@@ -150,6 +152,8 @@ const LOADERS = {
   'verify-card': () => require('../lib/routes/verify-card.js'),
   'verify-certificate': () => require('../lib/routes/verify-certificate.js'),
   'assistant/receipt': () => require('../lib/routes/assistant/receipt.js'),
+  'live-chat': () => require('../lib/routes/live-chat.js'),
+  'admin/live-chat': () => require('../lib/routes/admin/live-chat.js'),
 };
 
 function routeKey(request) {
