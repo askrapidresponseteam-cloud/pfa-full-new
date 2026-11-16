@@ -325,7 +325,7 @@ const FORMS = {
       "details": "Please send what you hold about my question from March"
     }
   },
-  /* pet-health.html (16 Nov 2026): a medical note, as the page sends it */
+  /* pet-health.html (16 Nov 2026): a care guide, as the page sends it */
   "PFA-MED": {
     "page": "pet-health.html",
     "data": {
@@ -352,6 +352,7 @@ const FORMS = {
   "PFA-POD": {
     "page": "events.html",
     "data": {
+      "concern": "Street and community animals",
       "topic": "Street dogs and their feeders",
       "pitch": "A conversation with feeders from our town about how a colony of street dogs is sterilised, vaccinated and kept, and what changed in our lane once the neighbours were told the law. We want people who see a dog as a nuisance to hear it from those who look after them every night.",
       "wantedDate": "2099-01-15",

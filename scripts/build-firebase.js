@@ -107,7 +107,7 @@ const PANEL_ASSETS = [
   'assets/admin-oldmembers.css',
   /* a case full screen, Previous and Next (14 Nov 2026) */
   'assets/admin-case-nav.css', 'assets/admin-case-nav.js',
-  /* medical notes for pet parents and caregivers (16 Nov 2026) */
+  /* care guides for pet parents and caregivers (16 Nov 2026) */
   'assets/admin-mednotes.js'
 ];
 

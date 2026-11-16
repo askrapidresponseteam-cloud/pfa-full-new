@@ -328,17 +328,13 @@
   {
    "id": "pet-health",
    "file": "pet-health.html",
-   "title": "Medical notes for pet parents and caregivers",
+   "title": "Care Guides for pet parents and caregivers",
    "group": "Learn",
-   "menu": "Medical notes",
+   "menu": "Care Guides",
    "modules": [
     {
      "id": "top",
-     "label": "Medical notes."
-    },
-    {
-     "id": "notes",
-     "label": "What others have learned."
+     "label": "Care Guides."
     },
     {
      "id": "share",
@@ -346,7 +342,7 @@
     },
     {
      "id": "edit",
-     "label": "Your note."
+     "label": "Your guide."
     }
    ]
   },
@@ -1670,8 +1666,11 @@
    "mourning": "repeat"
   },
   "pet-health": {
-   "phChips": "notes",
-   "phList": "notes",
+   "phChips": "top",
+   "phList": "top",
+   "note-pfa-diabetes-in-dogs": "top",
+   "phCoverPicked": "share",
+   "phCoverErr": "share",
    "phPicked": "share",
    "phFileErr": "share",
    "phRegBox": "share",
@@ -1682,6 +1681,8 @@
    "edStage": "edit",
    "edAsked": "edit",
    "edAskedText": "edit",
+   "edCoverPicked": "edit",
+   "edCoverErr": "edit",
    "edPicked": "edit",
    "edFileErr": "edit",
    "edStatus": "edit",

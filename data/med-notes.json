@@ -1,5 +1,5 @@
 {
-  "about": "Medical notes PFA puts on pet-health.html itself (lib/med-notes.js). Notes sent through the page are kept in the admin panel, not here. Each can be taken off the site and put back from the panel, under Medical notes.",
+  "about": "Care Guides PFA puts on pet-health.html itself (lib/med-notes.js). Guides sent through the page are kept in the admin panel, not here. Each can be taken off the site and put back from the panel, under Care Guides.",
   "notes": [
     {
       "id": "diabetes-in-dogs",
@@ -11,8 +11,14 @@
       "sources": "AAHA Diabetes Management Guidelines and veterinary sources",
       "at": "2026-11-16",
       "files": [
-        { "src": "media/med-notes/diabetes-in-dogs.pdf", "type": "application/pdf", "size": 71619, "label": "One page, PDF" }
-      ]
+        {
+          "src": "media/med-notes/diabetes-in-dogs.pdf",
+          "type": "application/pdf",
+          "size": 71619,
+          "label": "One page, PDF"
+        }
+      ],
+      "cover": "media/med-notes/diabetes-in-dogs-cover.webp"
     }
   ]
 }

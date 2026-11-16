@@ -1,4 +1,4 @@
-/* Medical notes in the panel (owner, 16 Nov 2026: "allow new submissions
+/* Care Guides in the panel (owner, 16 Nov 2026: "allow new submissions
    also, it needs to go to the admin, gandhim. and once approved, submitter
    will get an email confirming success. also admin should have option to
    send/ask for edit, update").
@@ -35,7 +35,7 @@
     node.className = 'pane';
     node.setAttribute('data-pane', 'mednotes');
     node.setAttribute('role', 'region');
-    node.setAttribute('aria-label', 'Medical notes');
+    node.setAttribute('aria-label', 'Care Guides');
     main.parentNode.insertBefore(node, main.nextSibling);
   }
 

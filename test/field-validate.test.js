@@ -249,7 +249,7 @@ const WIRED = ['report.html', 'ask.html', 'careers.html', 'wall.html', 'get-invo
   'cinekind.html',
   /* the microsites (9 Oct 2026) */
   'campus.html', 'sgacc.html', 'csr.html', 'legacy.html', 'campaign.html', 'privacy.html',
-  /* medical notes for pet parents and caregivers (16 Nov 2026) */
+  /* care guides for pet parents and caregivers (16 Nov 2026) */
   'pet-health.html',
   /* the objection to the draft lab animal rules (22 Oct 2026) */
   'lab-animal-rules.html',

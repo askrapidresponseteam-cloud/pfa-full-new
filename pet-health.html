@@ -62,11 +62,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>Medical notes for pet parents and caregivers | People for Animals</title>
+<title>Care Guides for pet parents and caregivers | People for Animals</title>
 <meta name="description" content="Plain guides to animal health for pet parents and caregivers, shared by owners, caregivers, vets and doctors and read by PFA. Read them, download them, or share your own.">
 <link rel="stylesheet" href="assets/chrome.css?v=51161f2e6a">
 <style>
-/* Medical notes for pet parents and caregivers (owner, 16 Nov 2026): notes sent by owners, caregivers, vets and doctors, read by PFA before they go up (lib/med-notes.js). The microsite kit (assets/micro.css) for the form. */
+/* Care Guides for pet parents and caregivers (owner, 16 Nov 2026): notes sent by owners, caregivers, vets and doctors, read by PFA before they go up (lib/med-notes.js). The microsite kit (assets/micro.css) for the form. */
 :root{
   --paper:#fff;
   --ink:#111;
@@ -126,20 +126,29 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
   *{transition:none!important;animation:none!important}
 }
 
-/* ---------- this page: medical notes for pet parents and caregivers (owner, 16 Nov 2026) ---------- */
-.ph-how{margin:0;padding:0;list-style:none;border-top:1px solid var(--ink);align-self:end;max-width:460px}
-.ph-how li{padding:16px 0;border-bottom:1px solid var(--line)}
-.ph-how b{display:block;font-family:var(--display);font-weight:400;font-size:clamp(20px,1.8vw,26px);line-height:1.1;text-transform:uppercase;letter-spacing:.01em}
-.ph-how span{display:block;margin-top:6px;font-size:14px;line-height:1.55;color:rgba(17,17,17,.72)}
-#notes{padding-top:clamp(40px,5vw,72px)}
-.ph-list{margin:0;padding:0;list-style:none;border-top:1px solid var(--ink);max-width:980px}
-.ph-note{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 32px;align-items:start;padding:24px 0;border-bottom:1px solid var(--line)}
-.ph-note h3{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(21px,2vw,28px);line-height:1.15;text-transform:uppercase;letter-spacing:.01em;overflow-wrap:anywhere}
-.ph-note__by{margin:8px 0 0;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);overflow-wrap:anywhere}
-.ph-note__sum{margin:10px 0 0;max-width:64ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.78);overflow-wrap:anywhere}
-.ph-note__acts{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end}
-.ph-note__acts .btn{min-height:44px;padding:0 22px}
-.ph-note__get{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:2px}
+/* ---------- this page: care guides for pet parents and caregivers (owner, 16 Nov 2026) ---------- */
+/* the guides: the first one large, its cover beside it; the rest in a grid under it */
+.ph-top{padding:calc(var(--ann) + var(--nav) + 32px) var(--gutter) var(--band)}
+.ph-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;margin:0 0 clamp(22px,2.6vw,36px);padding-bottom:16px;border-bottom:1px solid var(--ink)}
+.ph-head .eyebrow{margin:0 0 10px}
+.ph-head h1{font-size:clamp(28px,3vw,44px)}
+.ph-share{min-height:46px;padding:0 24px}
+.ph-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:clamp(28px,3vw,44px) clamp(20px,2.4vw,36px);margin:0;padding:0;list-style:none}
+.ph-card{display:flex;flex-direction:column;gap:14px;min-width:0}
+.ph-card--lead{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,min(340px,calc((100vh - var(--ann) - var(--nav) - 200px) * .667))) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:center}
+.ph-cover{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
+.ph-cover img{display:block;width:100%;height:auto;box-shadow:0 18px 40px -24px rgba(17,17,17,.55)}
+.ph-cover--plain{display:flex;align-items:flex-end;aspect-ratio:2 / 3;padding:22px;background:#f3f1ed;border:1px solid var(--line);text-align:left}
+.ph-cover--plain span{font-family:var(--display);font-size:clamp(22px,2vw,30px);line-height:1.08;text-transform:uppercase;color:var(--ink);overflow-wrap:anywhere}
+.ph-card__bd{display:grid;gap:12px;align-content:start;min-width:0}
+.ph-card__by{margin:0;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);overflow-wrap:anywhere}
+.ph-card__title{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,2vw,28px);line-height:1.12;text-transform:uppercase;letter-spacing:.01em;overflow-wrap:anywhere}
+.ph-card--lead .ph-card__title{font-size:clamp(30px,3.4vw,50px);line-height:1.04;text-wrap:balance}
+.ph-card__sum{margin:0;max-width:60ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.78);overflow-wrap:anywhere}
+.ph-card--lead .ph-card__sum{font-size:clamp(15px,1.2vw,18px)}
+.ph-card__acts{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin:6px 0 0}
+.ph-card__acts .btn{min-height:46px;padding:0 26px}
+.ph-card__get{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:2px}
 .ph-wait{padding:24px 0;font-size:14px;color:var(--muted)}
 .ph-fine{margin-top:22px}
 .ph-file input[type="file"]{padding:12px;font-size:13px;background:#fff}
@@ -169,8 +178,9 @@ dialog.ph-view::backdrop{background:rgba(17,17,17,.82)}
 .ph-view__text p + p{margin-top:12px;font-size:13px;color:var(--muted)}
 .ph-view__say{max-width:72ch;margin:24px auto;font-size:14px;line-height:1.6;text-align:center;color:var(--muted)}
 @media (max-width:720px){
-  .ph-note{grid-template-columns:minmax(0,1fr)}
-  .ph-note__acts{justify-content:flex-start}
+  .ph-top{padding:calc(var(--ann) + var(--nav) + 24px) 16px 56px}
+  .ph-card--lead{grid-template-columns:minmax(0,1fr)}
+  .ph-card--lead .ph-cover{max-width:260px}
   .ph-view__body{padding:8px}
 }
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
@@ -190,7 +200,7 @@ dialog.ph-view::backdrop{background:rgba(17,17,17,.82)}
   <meta property="og:site_name" content="People for Animals">
   <meta property="og:locale" content="en_IN">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Medical notes for pet parents and caregivers">
+  <meta property="og:title" content="Care Guides for pet parents and caregivers">
   <meta property="og:description" content="Plain guides to animal health for pet parents and caregivers, shared by owners, caregivers, vets and doctors and read by PFA. Read them, download them, or share your own.">
   <meta property="og:url" content="https://peopleforanimalsindia.org/pet-health">
   <meta property="og:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
@@ -199,10 +209,10 @@ dialog.ph-view::backdrop{background:rgba(17,17,17,.82)}
   <meta property="og:image:alt" content="A People for Animals caregiver with a rescued animal">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@pfaindia">
-  <meta name="twitter:title" content="Medical notes for pet parents and caregivers">
+  <meta name="twitter:title" content="Care Guides for pet parents and caregivers">
   <meta name="twitter:description" content="Plain guides to animal health for pet parents and caregivers, shared by owners, caregivers, vets and doctors and read by PFA. Read them, download them, or share your own.">
   <meta name="twitter:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://peopleforanimalsindia.org/"},{"@type":"ListItem","position":2,"name":"Medical notes for pet parents and caregivers","item":"https://peopleforanimalsindia.org/pet-health"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://peopleforanimalsindia.org/"},{"@type":"ListItem","position":2,"name":"Care Guides for pet parents and caregivers","item":"https://peopleforanimalsindia.org/pet-health"}]}</script>
   <!-- seo:end -->
 </head>
 <body>
@@ -417,7 +427,7 @@ if (root.document && root.document.head) apply(read());
           <a href="library.html" data-nav="library.html">Resources library</a>
           <a href="academy.html" data-nav="academy.html">Academy</a>
           <a href="behaviour.html" data-nav="behaviour.html">Behaviour, A to Z</a>
-          <a href="#top" data-nav="pet-health.html" class="current" aria-current="page">Medical notes</a>
+          <a href="#top" data-nav="pet-health.html" class="current" aria-current="page">Care Guides</a>
           <a href="someone.html" data-nav="someone.html">Someone, not something</a>
           <a href="fireworks.html" data-nav="fireworks.html">Fireworks and animals</a>
           <a href="quiz.html" data-nav="quiz.html">Test yourself</a>
@@ -468,52 +478,50 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=5d0ae3c8e1"></script>
+<script src="assets/chrome.js?v=4649242874"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
 <main>
-  <section class="hero m-hero m-hero--short" id="top">
-    <div class="m-hero__in">
+  <!-- The guides first (owner, 16 Nov 2026: "article has to come 1st when the
+       page opens"). PFA's own guide is written into the page, so it is there
+       before any script runs; the page's script then draws every published
+       guide from /api/med-notes in the same shape. -->
+  <section class="ph-top" id="top">
+    <div class="ph-head">
       <div>
         <p class="eyebrow pfa-kicker">For pet parents and caregivers</p>
-        <h1 class="pfa-title display">Medical notes.</h1>
-        <p class="lede">Plain guides to animal health, shared by pet parents, caregivers, vets and doctors, and read by PFA before they go up.</p>
-        <div class="m-hero__acts">
-          <a class="btn" href="#notes">Read the notes</a>
-          <a class="btn btn--light" href="#share">Share a note</a>
-        </div>
+        <h1 class="pfa-title display">Care Guides.</h1>
       </div>
-      <ul class="ph-how">
-        <li><b>Shared</b><span>by pet parents, caregivers, vets and doctors.</span></li>
-        <li><b>Read by PFA</b><span>before it goes up, with the name of who wrote it.</span></li>
-        <li><b>Free</b><span>to read here and to download.</span></li>
-      </ul>
+      <a class="btn btn--light ph-share" href="#share">Share a guide</a>
     </div>
+    <div class="m-chips" id="phChips" role="group" aria-label="Show guides about" hidden></div>
+    <ol class="ph-list" id="phList" aria-live="polite">
+      <li class="ph-card ph-card--lead" id="note-pfa-diabetes-in-dogs">
+        <button class="ph-cover" type="button" data-read="pfa-diabetes-in-dogs" aria-label="Read Diabetes in dogs: what to do"><img src="media/med-notes/diabetes-in-dogs-cover.webp" alt="Cover of Diabetes in dogs: what to do, by Sunny Raghvendra Singh" width="900" height="1347" loading="eager" decoding="async"></button>
+        <div class="ph-card__bd">
+          <p class="ph-card__by">Sunny Raghvendra Singh, Dehradun &middot; Pet parent &middot; Dogs</p>
+          <h2 class="ph-card__title">Diabetes in dogs: what to do</h2>
+          <p class="ph-card__sum">Signs, the tests to ask for, insulin and its starting dose, food and feeding times, low sugar and when it is an emergency. One page, for owners and rescuers in India.</p>
+          <p class="ph-card__acts"><button class="btn" type="button" data-read="pfa-diabetes-in-dogs">Read</button><a class="ph-card__get" href="media/med-notes/diabetes-in-dogs.pdf" download>Download <small>(70 KB)</small></a></p>
+        </div>
+      </li>
+    </ol>
+    <p class="m-fine ph-fine">Each guide is general information from someone who has been through it, read by PFA before it goes up. For your own animal, see a vet who can examine them. In an emergency, go to the nearest vet now.</p>
   </section>
 
-  <section class="band" id="notes">
+  <section class="band m-twin" id="share" data-flow data-flow-back="Care Guides">
     <div class="band__head">
-      <p class="eyebrow">The notes</p>
-      <h2 class="display">What others have learned.</h2>
-    </div>
-    <div class="m-chips" id="phChips" role="group" aria-label="Show notes about" hidden></div>
-    <ol class="ph-list" id="phList" aria-live="polite"><li class="ph-wait">Reading the notes&#8230;</li></ol>
-    <p class="m-fine ph-fine">Each note is general information from someone who has been through it, read by PFA before it goes up. For your own animal, see a vet who can examine them. In an emergency, go to the nearest vet now.</p>
-  </section>
-
-  <section class="band m-twin" id="share" data-flow data-flow-back="Medical notes">
-    <div class="band__head">
-      <p class="eyebrow">Share a note</p>
+      <p class="eyebrow">Share a guide</p>
       <h2 class="display">Three short steps.</h2>
-      <p>PFA reads every note before it goes up. You will get an email when it is published, or if anything needs changing first.</p>
+      <p>PFA reads every guide before it goes up. You will get an email when it is published, or if anything needs changing first.</p>
     </div>
     <div class="m-stage">
-      <ol class="m-tabs" aria-hidden="true"><li><span>01</span>The note</li><li><span>02</span>About you</li><li><span>03</span>Contact</li></ol>
+      <ol class="m-tabs" aria-hidden="true"><li><span>01</span>The guide</li><li><span>02</span>About you</li><li><span>03</span>Contact</li></ol>
       <div class="m-bar" aria-hidden="true"><span></span></div>
       <form class="m-form" id="phForm" novalidate data-address-own>
-        <div class="m-step" data-step="The note">
-          <h3>What is the note about?</h3>
+        <div class="m-step" data-step="The guide">
+          <h3>What is the guide about?</h3>
           <ul class="m-picks m-picks--compact" data-need="animal" data-say="Choose the animal it is about.">
             <li class="m-pick"><input type="radio" name="animal" id="a-dogs" value="Dogs"><label for="a-dogs"><b>Dogs</b></label></li>
             <li class="m-pick"><input type="radio" name="animal" id="a-cats" value="Cats"><label for="a-cats"><b>Cats</b></label></li>
@@ -524,16 +532,22 @@ if (root.document && root.document.head) apply(read());
             <li class="m-pick"><input type="radio" name="animal" id="a-other" value="Other animals"><label for="a-other"><b>Other animals</b></label></li>
           </ul>
           <p class="err" data-err-for="animal" hidden></p>
-          <div class="field"><label for="phTitle">Title</label><input id="phTitle" name="title" required maxlength="140" data-say="Give the note a title." placeholder="Tick fever in dogs: what to watch for"><p class="err" hidden></p></div>
-          <div class="field"><label for="phSummary">In a few lines <small>(shown with the title)</small></label><textarea id="phSummary" name="summary" required maxlength="240" data-say="Say in a few lines what the note covers." placeholder="The signs, the blood test that confirms it, the usual treatment and when to go back to the vet."></textarea><p class="err" hidden></p></div>
+          <div class="field"><label for="phTitle">Title</label><input id="phTitle" name="title" required maxlength="140" data-say="Give the guide a title." placeholder="Tick fever in dogs: what to watch for"><p class="err" hidden></p></div>
+          <div class="field"><label for="phSummary">In a few lines <small>(shown with the title)</small></label><textarea id="phSummary" name="summary" required maxlength="240" data-say="Say in a few lines what the guide covers." placeholder="The signs, the blood test that confirms it, the usual treatment and when to go back to the vet."></textarea><p class="err" hidden></p></div>
+          <div class="field ph-file">
+            <label for="phCover">A cover picture <small>(optional: it shows with your guide)</small></label>
+            <input id="phCover" type="file" accept="image/jpeg,image/png,image/webp">
+            <p class="ph-picked" id="phCoverPicked" hidden></p>
+            <p class="err" id="phCoverErr" hidden></p>
+          </div>
           <div class="field ph-file">
             <label for="phFile">Attach it <small>(a PDF, or up to 3 photographs; optional)</small></label>
             <input id="phFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple>
             <p class="ph-picked" id="phPicked" hidden></p>
             <p class="err" id="phFileErr" hidden></p>
           </div>
-          <details class="ph-more"><summary>Or type the whole note here</summary>
-            <div class="field"><label for="phText">The note <small>(optional if you attached it)</small></label><textarea id="phText" name="noteText" maxlength="8000" class="ph-long"></textarea><p class="err" hidden></p></div>
+          <details class="ph-more"><summary>Or type the whole guide here</summary>
+            <div class="field"><label for="phText">The guide <small>(optional if you attached it)</small></label><textarea id="phText" name="noteText" maxlength="8000" class="ph-long"></textarea><p class="err" hidden></p></div>
           </details>
         </div>
 
@@ -547,8 +561,8 @@ if (root.document && root.document.head) apply(read());
             <li class="m-pick"><input type="radio" name="role" id="r-else" value="Someone else"><label for="r-else"><b>Someone else</b></label></li>
           </ul>
           <p class="err" data-err-for="role" hidden></p>
-          <div class="field" id="phRegBox" hidden><label for="phReg">Registration number <small>(optional, shown with the note)</small></label><input id="phReg" name="regNo" maxlength="60" placeholder="Veterinary Council registration"><p class="err" hidden></p></div>
-          <div class="field"><label for="phCredit">Your name as it should appear</label><input id="phCredit" name="credit" required maxlength="120" data-say="Say how your name should appear with the note." placeholder="Dr. Asha Rao, Udupi"><p class="err" hidden></p></div>
+          <div class="field" id="phRegBox" hidden><label for="phReg">Registration number <small>(optional, shown with the guide)</small></label><input id="phReg" name="regNo" maxlength="60" placeholder="Veterinary Council registration"><p class="err" hidden></p></div>
+          <div class="field"><label for="phCredit">Your name as it should appear</label><input id="phCredit" name="credit" required maxlength="120" data-say="Say how your name should appear with the guide." placeholder="Dr. Asha Rao, Udupi"><p class="err" hidden></p></div>
           <div class="field"><label for="phSources">Based on <small>(optional)</small></label><input id="phSources" name="sources" maxlength="400" placeholder="Our vet's advice, the AAHA guidelines"><p class="err" hidden></p></div>
         </div>
 
@@ -569,7 +583,7 @@ if (root.document && root.document.head) apply(read());
         <div class="m-nav">
           <button class="back" type="button" data-back hidden>Back</button>
           <button class="btn" type="button" data-next>Continue</button>
-          <button class="btn" type="submit" data-send hidden>Send my note</button>
+          <button class="btn" type="submit" data-send hidden>Send my guide</button>
           <span class="clock" data-clock></span>
         </div>
       </form>
@@ -577,7 +591,7 @@ if (root.document && root.document.head) apply(read());
       <div class="m-done" id="done" hidden>
         <p class="eyebrow">Received</p>
         <p class="ref" id="doneRef"></p>
-        <p>PFA reads every note before it goes up. You will get an email when it is published, or if anything needs changing first.</p>
+        <p>PFA reads every guide before it goes up. You will get an email when it is published, or if anything needs changing first.</p>
         <div class="acts">
           <button class="btn btn--ghost" type="button" data-copy>Copy the number</button>
           <a class="btn btn--ghost" href="track.html" data-track>Follow it</a>
@@ -588,22 +602,28 @@ if (root.document && root.document.head) apply(read());
 
   <!-- reached only from the private link PFA emails when it asks for a change
        (pet-health.html#edit=..., lib/routes/med-notes.js) -->
-  <section class="band m-twin" id="edit" data-flow data-flow-back="Medical notes">
+  <section class="band m-twin" id="edit" data-flow data-flow-back="Care Guides">
     <div class="band__head">
-      <p class="eyebrow">Update your note</p>
-      <h2 class="display" id="edHead">Your note.</h2>
-      <p id="edLead">Opening your note&#8230;</p>
+      <p class="eyebrow">Update your guide</p>
+      <h2 class="display" id="edHead">Your guide.</h2>
+      <p id="edLead">Opening your guide&#8230;</p>
     </div>
     <div class="m-stage" id="edStage" hidden>
       <div class="ph-asked" id="edAsked" hidden><p class="eyebrow">What PFA asked</p><p id="edAskedText"></p></div>
-      <ol class="m-tabs" aria-hidden="true"><li><span>01</span>The note</li><li><span>02</span>About you</li></ol>
+      <ol class="m-tabs" aria-hidden="true"><li><span>01</span>The guide</li><li><span>02</span>About you</li></ol>
       <div class="m-bar" aria-hidden="true"><span></span></div>
       <form class="m-form" id="edForm" novalidate>
-        <div class="m-step" data-step="The note">
+        <div class="m-step" data-step="The guide">
           <div class="field"><label for="edAnimal">About</label><select id="edAnimal" name="animal" required data-say="Choose the animal it is about."><option value="">Choose one</option><option>Dogs</option><option>Cats</option><option>Cows and cattle</option><option>Birds</option><option>Horses and donkeys</option><option>Any animal</option><option>Other animals</option></select><p class="err" hidden></p></div>
-          <div class="field"><label for="edTitle">Title</label><input id="edTitle" name="title" required maxlength="140" data-say="Give the note a title."><p class="err" hidden></p></div>
-          <div class="field"><label for="edSummary">In a few lines</label><textarea id="edSummary" name="summary" required maxlength="240" data-say="Say in a few lines what the note covers."></textarea><p class="err" hidden></p></div>
-          <div class="field"><label for="edText">The note <small>(optional if it is in your file)</small></label><textarea id="edText" name="noteText" maxlength="8000" class="ph-long"></textarea><p class="err" hidden></p></div>
+          <div class="field"><label for="edTitle">Title</label><input id="edTitle" name="title" required maxlength="140" data-say="Give the guide a title."><p class="err" hidden></p></div>
+          <div class="field"><label for="edSummary">In a few lines</label><textarea id="edSummary" name="summary" required maxlength="240" data-say="Say in a few lines what the guide covers."></textarea><p class="err" hidden></p></div>
+          <div class="field"><label for="edText">The guide <small>(optional if it is in your file)</small></label><textarea id="edText" name="noteText" maxlength="8000" class="ph-long"></textarea><p class="err" hidden></p></div>
+          <div class="field ph-file">
+            <label for="edCover">A new cover picture <small>(optional)</small></label>
+            <input id="edCover" type="file" accept="image/jpeg,image/png,image/webp">
+            <p class="ph-picked" id="edCoverPicked" hidden></p>
+            <p class="err" id="edCoverErr" hidden></p>
+          </div>
           <div class="field ph-file">
             <label for="edFile">A new file <small>(optional: a PDF or up to 3 photographs, in place of the one you sent)</small></label>
             <input id="edFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple>
@@ -614,7 +634,7 @@ if (root.document && root.document.head) apply(read());
         <div class="m-step" data-step="About you">
           <div class="field"><label for="edRole">Who wrote it</label><select id="edRole" name="role" required data-say="Choose who you are."><option value="">Choose one</option><option>Pet parent</option><option>Caregiver or rescuer</option><option>Vet</option><option>Doctor</option><option>Someone else</option></select><p class="err" hidden></p></div>
           <div class="field"><label for="edReg">Registration number <small>(optional)</small></label><input id="edReg" name="regNo" maxlength="60"><p class="err" hidden></p></div>
-          <div class="field"><label for="edCredit">Your name as it should appear</label><input id="edCredit" name="credit" required maxlength="120" data-say="Say how your name should appear with the note."><p class="err" hidden></p></div>
+          <div class="field"><label for="edCredit">Your name as it should appear</label><input id="edCredit" name="credit" required maxlength="120" data-say="Say how your name should appear with the guide."><p class="err" hidden></p></div>
           <div class="field"><label for="edSources">Based on <small>(optional)</small></label><input id="edSources" name="sources" maxlength="400"><p class="err" hidden></p></div>
           <p class="status" id="edStatus" hidden></p>
         </div>
@@ -628,7 +648,7 @@ if (root.document && root.document.head) apply(read());
     <div class="m-done" id="edDone" hidden>
       <p class="eyebrow">Received</p>
       <p class="ref" id="edRef"></p>
-      <p>Thank you. PFA will read your note again, and you will get an email when it is published.</p>
+      <p>Thank you. PFA will read your guide again, and you will get an email when it is published.</p>
     </div>
   </section>
 
@@ -669,7 +689,7 @@ if (root.document && root.document.head) apply(read());
         <li><a href="library.html">Resources library</a></li>
         <li><a href="academy.html">Academy</a></li>
         <li><a href="behaviour.html">Behaviour, A to Z</a></li>
-        <li><a href="pet-health.html">Medical notes</a></li>
+        <li><a href="pet-health.html">Care Guides</a></li>
         <li><a href="fireworks.html">Fireworks and animals</a></li>
         <li><a href="quiz.html">Test yourself</a></li>
       </ul>
@@ -761,17 +781,24 @@ if (root.document && root.document.head) apply(read());
   var NOTES = [];
   function byLine(n) { return [n.credit, n.role, n.animal].filter(Boolean).join(' · '); }
   function sizeOf(b) { b = Number(b) || 0; return b ? (b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB') : ''; }
+  function cover(n) {
+    return n.cover
+      ? '<button class="ph-cover" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><img src="' + esc(n.cover) + '" alt="Cover of ' + esc(n.title) + '" loading="lazy" decoding="async"></button>'
+      : '<button class="ph-cover ph-cover--plain" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><span>' + esc(n.title) + '</span></button>';
+  }
+  /* the first guide shown is the lead: large, its cover beside it */
   function draw(filter) {
     var shown = NOTES.filter(function (n) { return !filter || n.animal === filter; });
-    if (!NOTES.length) { list.innerHTML = '<li class="ph-wait">The first notes are on their way. Share one below.</li>'; return; }
+    if (!NOTES.length) { list.innerHTML = '<li class="ph-wait">The first guides are on their way. Share one.</li>'; return; }
     list.innerHTML = shown.map(function (n, i) {
       var f = n.files && n.files[0];
-      return '<li class="ph-note" id="note-' + esc(n.id) + '"><div><h3>' + esc(n.title) + '</h3>'
-        + '<p class="ph-note__by">' + esc(byLine(n)) + '</p>'
-        + '<p class="ph-note__sum">' + esc(n.summary) + '</p></div>'
-        + '<div class="ph-note__acts"><button class="btn" type="button" data-read="' + esc(n.id) + '">Read</button>'
-        + (f ? '<a class="ph-note__get" href="' + esc(f.url) + '" download>Download' + (sizeOf(f.size) ? ' <small>(' + sizeOf(f.size) + ')</small>' : '') + '</a>' : '')
-        + '</div></li>';
+      return '<li class="ph-card' + (i === 0 ? ' ph-card--lead' : '') + '" id="note-' + esc(n.id) + '">' + cover(n)
+        + '<div class="ph-card__bd"><p class="ph-card__by">' + esc(byLine(n)) + '</p>'
+        + (i === 0 ? '<h2 class="ph-card__title">' : '<h3 class="ph-card__title">') + esc(n.title) + (i === 0 ? '</h2>' : '</h3>')
+        + '<p class="ph-card__sum">' + esc(n.summary) + '</p>'
+        + '<p class="ph-card__acts"><button class="btn" type="button" data-read="' + esc(n.id) + '">Read</button>'
+        + (f ? '<a class="ph-card__get" href="' + esc(f.url) + '" download>Download' + (sizeOf(f.size) ? ' <small>(' + sizeOf(f.size) + ')</small>' : '') + '</a>' : '')
+        + '</p></div></li>';
     }).join('');
   }
   function paintChips() {
@@ -802,7 +829,7 @@ if (root.document && root.document.head) apply(read());
   function own() {
     return fetch('data/med-notes.json').then(function (r) { return r.json(); }).then(function (d) {
       return (d.notes || []).map(function (s) {
-        return { id: 'pfa-' + s.id, title: s.title, summary: s.summary, text: s.text || '', animal: s.animal, role: s.role, credit: s.credit, sources: s.sources,
+        return { id: 'pfa-' + s.id, title: s.title, summary: s.summary, text: s.text || '', animal: s.animal, role: s.role, credit: s.credit, sources: s.sources, cover: s.cover ? '/' + String(s.cover).replace(/^\/+/, '') : '',
           files: (s.files || []).map(function (f) { return { url: '/' + String(f.src).replace(/^\/+/, ''), type: f.type, size: f.size }; }) };
       });
     });
@@ -858,10 +885,10 @@ if (root.document && root.document.head) apply(read());
     (n.files || []).forEach(function (file) {
       if (/pdf/i.test(file.type || '') || /\.pdf$/i.test(file.url)) {
         var box = document.createElement('div');
-        box.innerHTML = '<p class="ph-view__say">Opening the note&#8230;</p>';
+        box.innerHTML = '<p class="ph-view__say">Opening the guide&#8230;</p>';
         body.appendChild(box);
         drawPdf(file.url, body).then(function () { box.remove(); }).catch(function () {
-          box.innerHTML = '<p class="ph-view__say">This note could not be shown here. <a href="' + esc(file.url) + '" download>Download it</a> to read it.</p>';
+          box.innerHTML = '<p class="ph-view__say">This guide could not be shown here. <a href="' + esc(file.url) + '" download>Download it</a> to read it.</p>';
         });
       } else {
         var img = document.createElement('img');
@@ -915,14 +942,39 @@ if (root.document && root.document.head) apply(read());
     };
   }
 
-  /* ---------- share a note ---------- */
+  /* ---------- a cover picture: one image, made smaller in the browser ---------- */
+  function coverPick(input, out, errEl, picked) {
+    var st = { busy: false, url: '', name: '', error: '' };
+    function paint() {
+      picked.hidden = !st.url && !st.busy;
+      picked.innerHTML = st.busy ? 'Reading the picture&#8230;' : st.url ? 'Cover: ' + esc(st.name) + ' <button type="button" data-unpick>Remove</button>' : '';
+      errEl.textContent = st.error; errEl.hidden = !st.error;
+    }
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      st.error = ''; st.url = ''; st.name = '';
+      if (!f) { paint(); return; }
+      if (!/^image\/(jpeg|png|webp)$/i.test(f.type)) { st.error = 'Choose a JPEG, PNG or WebP picture.'; input.value = ''; paint(); return; }
+      st.busy = true; paint();
+      (window.PFAForms && window.PFAForms.shrink ? window.PFAForms.shrink(f, 1400, 0.86) : Promise.reject(new Error('Reload the page and try again.')))
+        .then(function (u) { st.url = u; st.name = f.name; })
+        .catch(function (e) { st.error = e.message || 'That picture could not be read.'; input.value = ''; })
+        .then(function () { st.busy = false; paint(); });
+    });
+    picked.addEventListener('click', function (e) { if (e.target.closest('[data-unpick]')) { input.value = ''; st.url = ''; st.name = ''; paint(); } });
+    out.url = function () { return st.url; };
+    out.check = function () { if (st.busy) { errEl.textContent = 'Wait a moment: the picture is still being read.'; errEl.hidden = false; return input; } return st.error ? input : null; };
+  }
+
+  /* ---------- share a guide ---------- */
   var form = $('#phForm');
   if (form) {
-    var att = {};
+    var att = {}, cov = {};
     files($('#phFile'), att, $('#phFileErr'), $('#phPicked'));
+    coverPick($('#phCover'), cov, $('#phCoverErr'), $('#phCoverPicked'));
     var reg = $('#phRegBox');
     form.addEventListener('change', function (e) { if (e.target.name === 'role') reg.hidden = !/^(Vet|Doctor)$/.test(M.picked(form, 'role')); });
-    var flow = M.steps(form, { check: function (i) { return i === 0 ? att.check() : null; } });
+    var flow = M.steps(form, { check: function (i) { return i === 0 ? (cov.check() || att.check()) : null; } });
     M.send({
       form: form,
       ready: flow.allOk,
@@ -933,8 +985,9 @@ if (root.document && root.document.head) apply(read());
       done: $('#done'),
       doneRef: $('#doneRef'),
       hideOnDone: [$('#share .m-tabs'), $('#share .m-bar')],
-      photos: att.files,
-      preview: { title: 'Check your note before it is sent', send: 'Send my note', labels: { animal: 'About', title: 'Title', summary: 'In a few lines', noteText: 'The note', role: 'You are', regNo: 'Registration number', credit: 'Shown as', sources: 'Based on' } },
+      /* the cover first, named so by the field below; then the guide itself */
+      photos: function () { var c = cov.url(); return (c ? [c] : []).concat(att.files()); },
+      preview: { title: 'Check your guide before it is sent', send: 'Send my guide', labels: { animal: 'About', title: 'Title', summary: 'In a few lines', noteText: 'The guide', cover: 'With a cover picture', role: 'You are', regNo: 'Registration number', credit: 'Shown as', sources: 'Based on' } },
       data: function () {
         var role = M.picked(form, 'role');
         return {
@@ -949,6 +1002,7 @@ if (root.document && root.document.head) apply(read());
           name: $('#name').value.trim(),
           mobile: M.digits($('#mobile').value),
           email: $('#email').value.trim(),
+          cover: cov.url() ? 'Yes' : '',
           consent: 'Yes'
         };
       }
@@ -959,9 +1013,10 @@ if (root.document && root.document.head) apply(read());
   var ed = $('#edForm');
   var tok = (/[#&]edit=([A-Za-z0-9_-]{43})/.exec(location.hash) || [])[1] || '';
   if (ed && tok) {
-    var edAtt = {};
+    var edAtt = {}, edCov = {};
     files($('#edFile'), edAtt, $('#edFileErr'), $('#edPicked'));
-    var edFlow = M.steps(ed, { check: function (i) { return i === 0 ? edAtt.check() : null; } });
+    coverPick($('#edCover'), edCov, $('#edCoverErr'), $('#edCoverPicked'));
+    var edFlow = M.steps(ed, { check: function (i) { return i === 0 ? (edCov.check() || edAtt.check()) : null; } });
     var lead = $('#edLead');
     var post = function (payload) {
       return fetch('/api/med-notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
@@ -969,7 +1024,7 @@ if (root.document && root.document.head) apply(read());
     };
     post({ t: tok, action: 'open' }).then(function (d) {
       var n = d.note || {};
-      $('#edHead').textContent = d.firstName ? d.firstName + ', your note.' : 'Your note.';
+      $('#edHead').textContent = d.firstName ? d.firstName + ', your guide.' : 'Your guide.';
       lead.textContent = 'Change what PFA asked for, then send it. Everything else stays as you sent it. The link works once.';
       if (d.asked) { $('#edAskedText').textContent = d.asked; $('#edAsked').hidden = false; }
       $('#edAnimal').value = n.animal || ''; $('#edTitle').value = n.title || ''; $('#edSummary').value = n.summary || '';
@@ -987,8 +1042,9 @@ if (root.document && root.document.head) apply(read());
       var st = $('#edStatus'); st.hidden = true;
       var note = {};
       ['animal', 'title', 'summary', 'noteText', 'role', 'regNo', 'credit', 'sources'].forEach(function (k) { var el = ed.querySelector('[name="' + k + '"]'); note[k] = el ? el.value.trim() : ''; });
-      var photos = edAtt.files();
-      post({ t: tok, action: 'send', note: note, photos: photos.length ? photos : undefined }).then(function (d) {
+      var c = edCov.url();
+      var photos = (c ? [c] : []).concat(edAtt.files());
+      post({ t: tok, action: 'send', note: note, cover: Boolean(c), photos: photos.length ? photos : undefined }).then(function (d) {
         $('#edStage').hidden = true; lead.hidden = true;
         $('#edRef').textContent = d.reference; $('#edDone').hidden = false;
         try { history.replaceState(null, '', '#edit'); } catch (_) {}
@@ -997,7 +1053,7 @@ if (root.document && root.document.head) apply(read());
       }).then(function () { busy = false; btn.disabled = false; btn.textContent = label; });
     });
   } else if (ed) {
-    $('#edLead').textContent = 'Open this from the link in PFA\'s email to update your note.';
+    $('#edLead').textContent = 'Open this from the link in PFA\'s email to update your guide.';
   }
 }());
 </script>

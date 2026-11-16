@@ -97,7 +97,7 @@ const MARKUP = {
   'PFA-U': { salutation: ['radio', 'salutation'], criteria: ['radio', 'criteria'] },
   /* pet-health.html and events.html#podcast (16 Nov 2026) */
   'PFA-MED': { role: ['radio', 'role'], animal: ['radio', 'animal'] },
-  'PFA-POD': { platform: ['select', 'podPlatform'] }
+  'PFA-POD': { platform: ['select', 'podPlatform'], concern: ['select', 'podConcern'] }
 };
 
 test('every list of choices the API enforces is the list the page offers', () => {

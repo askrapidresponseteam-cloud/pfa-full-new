@@ -196,7 +196,7 @@ test('A6 the table: every kind with stages can reach each of its stages from new
       if (s.key === 'new' || (kind === 'PFA-CG' && (s.key === 'approved' || s.key === 'revoked'))) continue;
       /* the membership card's steps are facts, reached only by their actions
          (owner, 26 Oct 2026): a link emailed, a photograph on file, a card */
-      /* and a medical note's (16 Nov 2026): a link emailed, the sender's
+      /* and a care guide's (16 Nov 2026): a link emailed, the sender's
          update on file, the note on the site */
       if ((kind === 'PFA-MEM' && ['photo-requested', 'photo-received', 'card-approved'].includes(s.key))
         || (kind === 'PFA-MED' && ['changes', 'updated', 'approved'].includes(s.key))) {

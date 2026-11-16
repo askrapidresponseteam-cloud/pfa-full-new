@@ -92,7 +92,7 @@
     ],
     'PFA-MED': [
       ['medsrc', 'Ask what it is based on', 'Thank you for sending your note to People for Animals. Before it goes on the website, please reply with what it is based on: [what is needed].'],
-      ['medno', 'Not for the website', 'Thank you for sending your note to People for Animals. We will not be putting it on the website, as the medical notes there need to be ones a vet would stand behind. It stays on record with us.']
+      ['medno', 'Not for the website', 'Thank you for sending your note to People for Animals. We will not be putting it on the website, as the care guides there need to be ones a vet would stand behind. It stays on record with us.']
     ]
   };
   var BLANKS = /\[(what is needed|number)\]/;

@@ -1,6 +1,6 @@
 'use strict';
 
-/* Medical notes for pet parents and caregivers (owner, 16 Nov 2026: "a pet
+/* Care Guides for pet parents and caregivers (owner, 16 Nov 2026: "a pet
    parents/caregiver's section, where you can find medical information sent
    by owners of animals/caregivers/vet/doctors. allow new submissions also,
    it needs to go to the admin, gandhim. and once approved, submitter will
@@ -102,14 +102,27 @@ async function sendNote(extra) {
 
 /* ---- the page ------------------------------------------------------------ */
 
-test('the page: the notes first; sharing one is closed until asked for, three steps, with the address; updating only by link', () => {
+test('the page: the guide first, with its cover; sharing one is closed until asked for, three steps, with the address; updating only by link', () => {
   const doc = new JSDOM(read('pet-health.html')).window.document;
-  assert.ok(doc.querySelector('main #notes #phList'), 'the notes are the first thing under the title');
+  /* owner, 16 Nov 2026: "article has to come 1st when the page opens" */
+  const first = doc.querySelector('main').firstElementChild;
+  assert.equal(first.id, 'top');
+  assert.equal(first.querySelector('h1').textContent, 'Care Guides.', 'called Care Guides');
+  const lead = first.querySelector('#phList > li.ph-card--lead');
+  assert.ok(lead, 'the first guide, large, is the first thing on the page, before any script runs');
+  assert.ok(!doc.querySelector('main .hero'), 'no panel of words above it');
+  const own = MED.seeds()[0];
+  assert.equal(lead.id, 'note-pfa-' + own.id);
+  assert.equal(lead.querySelector('.ph-card__title').textContent, own.title, 'the same as the data the server reads');
+  const img = lead.querySelector('.ph-cover img');
+  assert.equal(img.getAttribute('src'), own.cover, 'with its cover');
+  assert.ok(fs.existsSync(path.join(ROOT, own.cover)));
+  assert.equal(lead.querySelector('a[download]').getAttribute('href'), own.files[0].src);
   const share = doc.getElementById('share');
   assert.ok(share.hasAttribute('data-flow'), 'the form opens only when asked for');
   assert.ok(doc.querySelector('a[href="#share"]'), 'and something asks for it');
   const form = share.querySelector('form#phForm');
-  assert.deepEqual([...form.querySelectorAll('.m-step')].map((s) => s.getAttribute('data-step')), ['The note', 'About you', 'Contact']);
+  assert.deepEqual([...form.querySelectorAll('.m-step')].map((s) => s.getAttribute('data-step')), ['The guide', 'About you', 'Contact']);
   assert.ok(form.querySelector('fieldset[data-address][data-kind="PFA-MED"]'), 'the address block every form carries');
   assert.match(form.querySelector('#phFile').getAttribute('accept'), /application\/pdf/);
   for (const [name, n] of [['animal', 7], ['role', 5]]) assert.equal(form.querySelectorAll(`input[type="radio"][name="${name}"]`).length, n, name);
@@ -117,7 +130,7 @@ test('the page: the notes first; sharing one is closed until asked for, three st
   assert.ok(edit.hasAttribute('data-flow') && edit.querySelector('form#edForm'), 'the update form, opened by #edit=<link>');
   assert.match(read('pet-health.html'), /\/api\/med-notes/, 'the page reads the notes from the server');
   /* in the menu, under Learn, on every page */
-  assert.match(read('index.html'), /href="pet-health\.html"[^>]*>Medical notes</);
+  assert.match(read('index.html'), /href="pet-health\.html"[^>]*>Care Guides</);
 });
 
 test('PFA\'s own first note is the one-page guide the owner supplied, with its PDF', () => {
@@ -144,7 +157,7 @@ test('a note with a PDF: filed, confirmed to the sender, one copy to gandhim wit
   assert.equal(copies[0].reply_to, SENDER);
   assert.ok((copies[0].attachments || []).some((a) => a.content_type === 'application/pdf' && /\.pdf$/.test(a.filename)), 'the PDF goes with it');
   assert.equal(toSender().length, 1, 'the sender is told it arrived');
-  assert.match(toSender()[0].subject, /medical note/i);
+  assert.match(toSender()[0].subject, /care guide/i);
 
   const list = await call(publicRoute(), { method: 'GET' });
   assert.ok(!list.json.notes.some((n) => n.id === ref), 'not on the site before it is published');
@@ -173,7 +186,7 @@ test('published from the panel: on the site with its PDF, and the sender emailed
   assert.ok(note, 'on the site');
   assert.equal(note.credit, 'Dr. Asha Rao, Udupi');
   assert.equal(note.role, 'Vet');
-  assert.deepEqual(Object.keys(note).sort(), ['animal', 'at', 'credit', 'files', 'id', 'role', 'sources', 'summary', 'text', 'title'], 'nothing about the sender but the credit they chose');
+  assert.deepEqual(Object.keys(note).sort(), ['animal', 'at', 'cover', 'credit', 'files', 'id', 'role', 'sources', 'summary', 'text', 'title'], 'nothing about the sender but the credit they chose');
   assert.ok(!JSON.stringify(list.json).includes(SENDER) && !JSON.stringify(list.json).includes('9876543210'));
   assert.equal(note.files[0].type, 'application/pdf');
   const file = await call(publicRoute(), { method: 'GET', query: { ref, file: '1' } });
@@ -191,7 +204,7 @@ test('asked for changes: a private link, the note opened by it, the update taken
   assert.equal(asked.statusCode, 200, asked.raw);
   assert.equal(asked.json.row.status, 'changes');
   const letter = toSender()[0];
-  assert.match(letter.subject, /change to your medical note/i);
+  assert.match(letter.subject, /change to your care guide/i);
   assert.match(letter.text, /Please add which blood test confirms it\./);
   const token = (/#edit=([A-Za-z0-9_-]{43})/.exec(letter.text) || [])[1];
   assert.ok(token, 'the link is in the email');
@@ -272,6 +285,23 @@ test('PFA\'s own note can be taken off the site and put back from the panel', as
   assert.equal(panel.json.own[0].seed, 'diabetes-in-dogs');
 });
 
+test('a guide sent with a cover: the cover shows with it, the PDF is the guide', async () => {
+  const JPEG = 'data:image/jpeg;base64,' + fs.readFileSync(path.join(ROOT, 'media/cinekind-2026/reels/glimpse.jpg')).toString('base64');
+  const data = Object.assign({ animal: 'Cats', title: 'Kidney care for cats', summary: 'What the vet changed in her food, and how we got her to eat it.',
+    role: 'Pet parent', credit: 'Ravi Kumar, Mysuru', name: 'Ravi Kumar', mobile: '9876500011', email: SENDER, consent: 'Yes', cover: 'Yes' }, PLACE);
+  const res = await call(require('../lib/routes/pfa-submissions'), { body: { kind: 'PFA-MED', data, photos: [JPEG, PDF_URL], page: 'pet-health.html', clientRequestId: 'cov-1' } });
+  assert.equal(res.statusCode, 200, res.raw);
+  const ref = res.json.reference;
+  assert.equal(db.dump()[`submissions/${ref}/attachments/1`].label, 'Cover');
+  assert.equal(db.dump()[`submissions/${ref}/attachments/2`].contentType, 'application/pdf');
+  await call(admin(), { body: { reference: ref, action: 'publish' } });
+  const note = (await call(publicRoute(), { method: 'GET' })).json.notes.find((n) => n.id === ref);
+  assert.equal(note.cover, `/api/med-notes?ref=${ref}&file=1`);
+  assert.deepEqual(note.files.map((f) => f.type), ['application/pdf'], 'the cover is not part of the guide');
+  const pic = await call(publicRoute(), { method: 'GET', query: { ref, file: '1' } });
+  assert.equal(pic.headers['content-type'], 'image/jpeg');
+});
+
 test('a PDF only where a kind takes documents, one at a time, judged by its bytes', () => {
   const S = require('../lib/submissions');
   assert.equal(S.parsePhotos([PDF_URL], 3, 'PFA-MED').accepted[0].contentType, 'application/pdf');
@@ -283,9 +313,9 @@ test('a PDF only where a kind takes documents, one at a time, judged by its byte
 
 /* ---- the panel ------------------------------------------------------------- */
 
-test('the panel has Medical notes: its own section, list first, every action a press with a last look', () => {
+test('the panel has Care Guides: its own section, list first, every action a press with a last look', () => {
   const html = read('admin.html');
-  assert.match(html, /data-tab="mednotes">Medical notes/);
+  assert.match(html, /data-tab="mednotes">Care Guides/);
   assert.match(html, /<script src="assets\/admin-mednotes\.js"><\/script>/);
   const js = read('assets/admin-mednotes.js');
   for (const word of ['Publish', 'Edit', 'Ask for changes', 'Not for the site', 'Take off the site']) assert.ok(js.includes(word), word);

@@ -113,7 +113,7 @@
     { id: 'track', w: ['track', 'status', 'tracking', 'progress', 'update', 'स्थिति', 'स्टेटस'], p: ['where is my', 'kya hua', 'kahan tak', 'my application', 'my report'] },
     { id: 'receipt', w: ['receipt', 'receipts', 'invoice', 'rasid', 'raseed', 'रसीद'], p: ['tax receipt', '80g receipt'] },
     { id: 'adopt', w: ['adopt', 'adoption', 'adopting', 'god', 'apnana', 'गोद', 'अपना'], p: ['god lena', 'ghar dena'] },
-    { id: 'event', w: ['camp', 'camps', 'drive', 'event', 'session', 'talk', 'sterilisation', 'sterilization', 'vaccination', 'shivir', 'शिविर'], p: ['adoption drive', 'school session', 'vaccination camp'] },
+    { id: 'event', w: ['camp', 'camps', 'drive', 'event', 'events', 'session', 'talk', 'sterilisation', 'sterilization', 'vaccination', 'shivir', 'शिविर'], p: ['adoption drive', 'school session', 'vaccination camp', 'request an event', 'organise an event', 'organize an event', 'host an event', 'event in my area'] },
     { id: 'sgacc', w: ['sgacc', 'supplies'], p: ['sanjay gandhi', 'animal care centre', 'care centre', 'care center'] },
     { id: 'csr', w: ['csr', 'corporate', 'company'], p: ['our company'] },
     { id: 'legacy', w: ['legacy', 'bequest', 'will', 'vasiyat', 'wasiyat', 'वसीयत'], p: ['in my will'] },
@@ -126,10 +126,27 @@
     { id: 'verify', w: ['verify', 'verification', 'genuine', 'fake', 'asli', 'nakli', 'असली', 'नकली', 'सत्यापन'], p: ['check certificate', 'check a certificate', 'check this certificate', 'check a card', 'check this card', 'is this card', 'is this certificate', 'certificate real', 'certificate is real', 'card is real', 'card real'] },
     { id: 'jobs', w: ['job', 'jobs', 'career', 'careers', 'vacancy', 'vacancies', 'hiring', 'naukri', 'salary', 'नौकरी'], p: [] },
     { id: 'shop', w: ['shop', 'buy', 'purchase', 'tshirt', 't-shirt', 'merchandise', 'store', 'kharid', 'khareed', 'खरीद', 'दुकान'], p: [] },
-    { id: 'newunit', w: [], p: ['new unit', 'start a unit', 'open a unit', 'unit kholna', 'own unit'] },
-    { id: 'mednote', w: [], p: ['medical note', 'share a note', 'health note', 'pet health', 'medical information'] },
+    { id: 'newunit', w: [], p: ['new unit', 'start a unit', 'open a unit', 'unit kholna', 'own unit', 'new pfa unit', 'start a new unit', 'open a new unit'] },
+    { id: 'mednote', w: [], p: ['share a care guide', 'send a care guide', 'write a care guide', 'submit a care guide', 'share a guide', 'share a note', 'care guide', 'share my article', 'write an article'] },
     { id: 'podcast', w: ['podcast', 'podcasts', 'पॉडकास्ट'], p: [] },
+    /* the pages that are read (16 Nov 2026: every visible feature) */
+    { id: 'guides', w: ['diabetes', 'insulin', 'मधुमेह'], p: ['care guide', 'care guides', 'health guide', 'pet health', 'medical information', 'health article', 'pet care article', 'sugar in dogs'] },
+    { id: 'newsroom', w: ['newsroom', 'news'], p: ['latest news', 'news from pfa', 'pfa cases', 'cases pfa'] },
+    { id: 'achievements', w: ['achievements', 'achievement', 'uplabdhi', 'उपलब्धि'], p: ['what has pfa done', 'what pfa has done', 'pfa policies', 'policies and achievements'] },
+    { id: 'library', w: ['library', 'handbook', 'handbooks', 'manuals', 'pustakalay', 'पुस्तकालय'], p: ['resources library', 'policy brief', 'training manual'] },
+    { id: 'academy', w: ['academy', 'antibiotic', 'antibiotics', 'antivenom', 'prescription'], p: ['first aid', 'pratham upchar', 'प्राथमिक उपचार', 'animal medicine'] },
+    { id: 'behaviour', w: ['behaviour', 'behavior', 'barking', 'aggression', 'aggressive', 'vyavhar', 'व्यवहार'], p: ['why does my dog', 'why does my cat', 'dog keeps', 'cat keeps'] },
+    { id: 'someone', w: [], p: ['someone not something', 'animals we eat', 'farm animals feel', 'do hens feel', 'do pigs feel', 'do cows feel'] },
+    { id: 'fireworks', w: ['fireworks', 'firework', 'crackers', 'cracker', 'patakhe', 'pataka', 'पटाखे', 'पटाखा'], p: ['diwali dog', 'diwali animals'] },
+    { id: 'quiz', w: [], p: ['test yourself', 'animal quiz', 'take a quiz', 'farm animal quiz', 'quiz on farm animals'] },
+    { id: 'gifts', w: ['gifts', 'upahar', 'उपहार', 'deepawali', 'christmas'], p: ['seasonal gifts', 'seasonal gift', 'diwali gift', 'gift for someone', 'a gift for'] },
+    { id: 'founder', w: ['founder'], p: ['about maneka', 'about the founder', 'the founder page'] },
+    { id: 'picks', w: [], p: ['maneka picks', 'manekas picks', 'films she recommends', 'books she recommends', 'film recommendation', 'book recommendation'] },
+    { id: 'lawpage', w: [], p: ['what the law says', 'animal law page', 'laws page'] },
+    { id: 'unitlist', w: [], p: ['all units', 'list of units', 'pfa units', 'units list', 'every unit'] },
     { id: 'law', w: ['law', 'laws', 'legal', 'section', 'rights', 'act', 'court', 'kanoon', 'kanun', 'dhara', 'कानून', 'धारा'], p: [] },
+    /* asking PFA itself, by email (the help desk), not the site */
+    { id: 'desk', w: ['helpdesk'], p: ['i have a question', 'question for pfa', 'ask pfa', 'help desk', 'write to pfa', 'contact pfa', 'talk to pfa'] },
     { id: 'question', w: ['question', 'query', 'ask', 'sawal', 'puchna', 'poochna', 'jankari', 'jaankari', 'सवाल', 'प्रश्न', 'जानकारी'], p: ['how do i', 'how to', 'what is', 'kaise kare'] },
     { id: 'greet', w: ['hi', 'hello', 'hey', 'namaste', 'namaskar', 'hii', 'helo', 'नमस्ते', 'नमस्कार'], p: ['good morning', 'good evening'] },
     { id: 'thanks', w: ['thanks', 'thank', 'thanku', 'thx', 'dhanyavad', 'dhanyawad', 'shukriya', 'धन्यवाद', 'शुक्रिया'], p: [] }
@@ -177,6 +194,10 @@
       if (x.id === 'track' && out.length > 1) x.score += 1;
       /* checking a card or certificate is about checking it, whatever it is */
       if (x.id === 'verify' && out.length > 1) x.score += 2;
+      /* starting a unit is not looking for one */
+      if (x.id === 'newunit') x.score += 2;
+      /* writing to PFA is not a search of the site */
+      if (x.id === 'desk' && has('question')) x.score += 1;
       /* proof of an internship task is not a new application */
       if (x.id === 'proof' && has('internship')) x.score += 3;
       /* a certificate or card number is checked, not tracked */

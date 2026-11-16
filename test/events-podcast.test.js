@@ -20,6 +20,7 @@ const F = require('../lib/submission-fields');
 
 const ROOT = path.join(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+const form0 = (doc) => doc.getElementById('podForm');
 const text = (el) => (el ? el.textContent.replace(/\s+/g, ' ').trim() : '');
 
 test('the request says what an event comes with, and asks for it in those words', () => {
@@ -47,6 +48,9 @@ test('the podcast is on the events page, closed until asked for, with every rule
   assert.ok(doc.querySelector('.ev-head a[href="#podcast"]'), 'and is asked for from the top of the page');
   const head = text(pod.querySelector('.band__head'));
   assert.match(head, /Three a\s?year/);
+  assert.match(head, /each on animal welfare and the concerns animals face/);
+  assert.match(head, /On animal welfare/);
+  assert.ok(form0(doc).querySelector('#podConcern[required]'), 'the applicant says which animal welfare concern');
   assert.match(head, /at least 60 days/);
   assert.match(head, /PFA team approves/);
   assert.match(head, /one paragraph, in your own words/i);
@@ -68,6 +72,7 @@ test('the podcast is on the events page, closed until asked for, with every rule
 test('the server holds the 60 days, the paragraph and the follower count, whatever the page sent', () => {
   const day = (n) => new Date(Date.now() + 330 * 60000 + n * 86400000).toISOString().slice(0, 10);
   const base = {
+    concern: 'Street and community animals',
     topic: 'Street dogs and their feeders',
     pitch: 'A conversation with feeders from our town about how a colony of street dogs is sterilised, vaccinated and kept, and what changed in our lane once the neighbours were told the law. We want people who see a dog as a nuisance to hear it from those who look after them every night.',
     wantedDate: day(75), platform: 'YouTube', profile: 'https://www.youtube.com/@feeders', followers: '12k',
@@ -83,6 +88,8 @@ test('the server holds the 60 days, the paragraph and the follower count, whatev
   assert.equal(F.validate('PFA-POD', Object.assign({}, base, { pitch: 'word '.repeat(400) })).errors[0].field, 'pitch');
   assert.equal(F.validate('PFA-POD', Object.assign({}, base, { followers: 'lots' })).errors[0].field, 'followers');
   assert.equal(F.validate('PFA-POD', Object.assign({}, base, { platform: 'Twitter' })).errors[0].field, 'platform');
+  assert.equal(F.validate('PFA-POD', Object.assign({}, base, { concern: 'Cricket' })).errors[0].field, 'concern', 'only animal welfare');
+  assert.equal(F.validate('PFA-POD', Object.assign({}, base, { concern: '' })).errors[0].field, 'concern');
   assert.equal(F.followersOf('1.2M'), 1200000);
   assert.equal(F.followersOf('25,000'), 25000);
 });

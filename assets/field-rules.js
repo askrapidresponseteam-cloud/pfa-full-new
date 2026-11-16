@@ -673,7 +673,7 @@
         return null;
       }
     },
-    /* The text of a medical note (pet-health.html): a page or two, which
+    /* The text of a care guide (pet-health.html): a page or two, which
        is longer than any other answer on the site, so a rule of its own. */
     noteText: {
       filter: stripMarkup,
