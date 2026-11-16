@@ -12,7 +12,7 @@
    (assets/digital-card.js): matte black, the PFA logo for dark grounds
    and the tier across the top, Member, the name and the place on the
    left, and the member number and Member since along the foot, all in
-   Marcellus; no photograph ("i dont need this kinda display"). On the
+   Marcellus; the member's approved photograph framed on the right (16 Nov 2026). On the
    back, A voice for the voiceless., what the card is for, a QR code that
    checks the member number on the site, and the chairperson's signature
    just above the line.
@@ -75,6 +75,11 @@
     logo: { x: 51, y: 51, w: 233, h: 80 },
     tier: { right: 805, base: 97, size: 16, track: 0.24 },
     left: { x: 51, w: 640 },
+    /* the member's photograph, on the right (owner, 16 Nov 2026: "We can
+       still have photo appended on membership card (right side) - find the
+       place and position- state of the art class"): below the tier, clear
+       of the foot, 3:4 as the member framed it; the name keeps clear of it */
+    photo: { x: 594, y: 138, w: 211, h: 281, r: 12, nameW: 503 },
     label: { size: 14, track: 0.26 },
     name: { labelBase: 330, base: 382, size: 42, track: 0.01 },
     role: { base: 424, size: 15, track: 0.18 },
@@ -195,7 +200,7 @@
   function fitsName(name) {
     var ctx = probeCtx();
     font(ctx, SERIF, '400', L.name.size);
-    return measure(ctx, name, L.name.size, L.name.track) <= L.left.w;
+    return measure(ctx, name, L.name.size, L.name.track) <= L.photo.nameW;
   }
 
   /* A name that fits: whole if it does, else middle names to initials, else
@@ -269,8 +274,38 @@
     ctx.fillRect(L.pad, L.rule.y, REF.w - 2 * L.pad, 1.2);
   }
 
-  function front(ctx, card) {
+  function front(ctx, card, photo) {
     ground(ctx);
+    var withPhoto = Boolean(photo && photo.width);
+    var nameW = withPhoto ? L.photo.nameW : L.left.w;
+    if (withPhoto) {
+      var P = L.photo;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowBlur = 26;
+      ctx.shadowOffsetY = 10;
+      roundRect(ctx, P.x, P.y, P.w, P.h, P.r);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      roundRect(ctx, P.x, P.y, P.w, P.h, P.r);
+      ctx.clip();
+      /* the whole photograph, never cut to fit (29 Oct 2026) */
+      var scale = Math.min(P.w / photo.width, P.h / photo.height);
+      var pw = photo.width * scale;
+      var ph = photo.height * scale;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(photo, P.x + (P.w - pw) / 2, P.y + (P.h - ph) / 2, pw, ph);
+      ctx.restore();
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.lineWidth = 1.2;
+      roundRect(ctx, P.x + 0.6, P.y + 0.6, P.w - 1.2, P.h - 1.2, P.r);
+      ctx.stroke();
+      ctx.restore();
+    }
     logoAt(ctx, L.logo.x, L.logo.y, L.logo.w, L.logo.h);
     ctx.fillStyle = TIER;
     font(ctx, SERIF, '400', L.tier.size);
@@ -281,12 +316,12 @@
     tracked(ctx, 'MEMBER', L.left.x, L.name.labelBase, L.label.size, L.label.track, 'left');
     ctx.fillStyle = INK;
     var name = card.printName || card.name || '';
-    var size = fitSize(ctx, SERIF, '400', name, L.name.size, 30, L.name.track, L.left.w);
+    var size = fitSize(ctx, SERIF, '400', name, L.name.size, 30, L.name.track, nameW);
     tracked(ctx, name, L.left.x, L.name.base, size, L.name.track, 'left');
     var place = [card.district, card.state].filter(Boolean).join(', ').toUpperCase();
     if (place) {
       ctx.fillStyle = ROLE;
-      var ps = fitSize(ctx, SERIF, '400', place, L.role.size, 11, L.role.track, L.left.w);
+      var ps = fitSize(ctx, SERIF, '400', place, L.role.size, 11, L.role.track, nameW);
       tracked(ctx, place, L.left.x, L.role.base, ps, L.role.track, 'left');
     }
 
@@ -366,7 +401,7 @@
     ctx.clearRect(0, 0, REF.w, REF.h);
     ctx.save();
     if (o.rounded !== false) { roundRect(ctx, 0, 0, REF.w, REF.h, L.radius); ctx.clip(); }
-    if (side === 'back') back(ctx, card || {}); else front(ctx, card || {});
+    if (side === 'back') back(ctx, card || {}); else front(ctx, card || {}, o.photo || null);
     if (o.rounded !== false) {
       ctx.strokeStyle = 'rgba(255,255,255,0.14)';
       ctx.lineWidth = 2;

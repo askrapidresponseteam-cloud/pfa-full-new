@@ -91,13 +91,15 @@ test('orders, members, caregiver, volunteer, job and other forms are listed; don
   assert.equal(r.groups.find((g) => g.key === 'members').rows[0].status, 'Photo requested');
 });
 
-test('it goes to the forms inbox, copied to anushkapfacampus@gmail.com, once, with each person linked to their record', async () => {
+test('it goes to the forms inbox, copied to anushkapfacampus@gmail.com and gaurimaulekhi@gmail.com, once, with each person linked to their record', async () => {
   seed();
   const r = await WD.run({ db, nowMs: MON });
   assert.equal(r.state, 'sent', JSON.stringify(r));
   assert.equal(sent.length, 1);
   assert.equal(sent[0].to, 'gandhim@exmpls.sansad.in');
-  assert.equal(sent[0].cc, 'anushkapfacampus@gmail.com');
+  assert.equal(sent[0].cc, 'anushkapfacampus@gmail.com, gaurimaulekhi@gmail.com', 'copied to gaurimaulekhi@gmail.com too (owner, 16 Nov 2026)');
+  /* just the count of what came in (owner, 16 Nov 2026: "just have the count of things that came in that week") */
+  assert.doesNotMatch(sent[0].html + sent[0].text, /still new/i);
   assert.match(sent[0].subject, /^PFA this week: 26 Oct to 1 Nov 2026 \(7 new\)$/);
   assert.match(sent[0].html, /href="https:\/\/pfa-new-website\.web\.app\/admin\.html#case=PFA-V-2026-00031"/);
   assert.match(sent[0].html, /href="https:\/\/pfa-new-website\.web\.app\/admin\.html#case=PFA-SHP-ZX81QW22"/);
@@ -120,11 +122,11 @@ test('the copy list is fixed: a queued payload cannot add anyone', async () => {
   const row = Object.values(db.dump()).find((d) => d.template === 'weekly_digest');
   sent = [];
   await mail.deliver({ to: row.to, template: 'weekly_digest', payload: Object.assign({}, row.payload, { cc: ['someone@else.example'] }) });
-  assert.equal(sent[0].cc, 'anushkapfacampus@gmail.com');
+  assert.equal(sent[0].cc, 'anushkapfacampus@gmail.com, gaurimaulekhi@gmail.com');
   process.env.PFA_DIGEST_CC = 'a@pfa.test, b@pfa.test';
   sent = [];
   await mail.deliver({ to: row.to, template: 'weekly_digest', payload: row.payload });
-  assert.equal(sent[0].cc, 'a@pfa.test, b@pfa.test');
+  assert.equal(sent[0].cc, 'a@pfa.test, b@pfa.test, gaurimaulekhi@gmail.com', 'gaurimaulekhi@gmail.com always, whatever the setting names');
 });
 
 test('without mail it waits in the queue; a failed make is tried again next run', async () => {
@@ -153,7 +155,7 @@ test('the panel: eight weeks with their state, and send again (logged)', async (
   assert.equal(list.json.weeks.length, 8);
   assert.equal(list.json.weeks[0].week, '2026-11-02');
   assert.equal(list.json.weeks[0].digest.count, 7);
-  assert.deepEqual(list.json.recipients, { to: 'gandhim@exmpls.sansad.in', cc: ['anushkapfacampus@gmail.com'] });
+  assert.deepEqual(list.json.recipients, { to: 'gandhim@exmpls.sansad.in', cc: ['anushkapfacampus@gmail.com', 'gaurimaulekhi@gmail.com'] });
   const again = await call('POST', { body: { action: 'send', week: '2026-11-02' } });
   assert.equal(again.status, 200, JSON.stringify(again.json));
   assert.equal(sent.length, 2);

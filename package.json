@@ -9,7 +9,7 @@
   "scripts": {
     "test": "node --require ./test/_isolate-env.js --test test/*.test.js",
     "audit": "node scripts/audit-site.js",
-    "build:search": "node scripts/build-search-index.js && node scripts/build-site-modules.js",
+    "build:search": "node scripts/build-search-index.js && node scripts/build-site-modules.js && node scripts/build-answer-index.js",
     "build:site-modules": "node scripts/build-site-modules.js",
     "build:pieces": "node scripts/build-shop-pieces.js",
     "check:pieces": "node scripts/build-shop-pieces.js --check",

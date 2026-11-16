@@ -313,7 +313,7 @@ test('on every page, loaded only when opened, talking only to the site itself', 
   /* no outside service: every call goes to this site */
   const calls = [...all.matchAll(/fetch\(\s*'([^']+)'/g)].map((m) => m[1]);
   assert.ok(calls.length >= 4);
-  for (const c of calls) assert.match(c, /^\/api\//, c);
+  for (const c of calls) assert.match(c, /^\/api\/|^\/assets\/assistant-answers\.json$/, c);
   assert.doesNotMatch(all, /https?:\/\/(?!peopleforanimalsindia)[a-z0-9.-]+\.(?:com|ai|io|org|net)\/[a-z]/i, 'no outside address');
   assert.doesNotMatch(all, /[–—]/, 'no long dash');
   assert.match(read('assets/assistant.js'), /f\.action = '\/api\/payment\/create';/, 'payments through the site\'s own door to CCAvenue');
@@ -469,7 +469,7 @@ test('every straight answer is the site\'s own: each email, phone number, PIN co
   for (const words of ['4-T, DCM Building, 16 Barakhamba Road', 'Raja Garden, New Delhi 110027', 'Free to join', '16-17 need a parent', '80G']) assert.ok(site.includes(words), words);
   /* and the chat itself asks nothing of anywhere but the site */
   const ui = read('assets/assistant.js');
-  for (const c of [...ui.matchAll(/fetch\(\s*'([^']+)'/g)].map((m) => m[1])) assert.match(c, /^\/api\//, c);
+  for (const c of [...ui.matchAll(/fetch\(\s*'([^']+)'/g)].map((m) => m[1])) assert.match(c, /^\/api\/|^\/assets\/assistant-answers\.json$/, c);
 });
 
 /* Owner, 15 Nov 2026, of "ok" typed when the chat asked for a number and
@@ -505,4 +505,45 @@ test('a word in passing while a question waits: ok, thanks, hello, and "I don\'t
   assert.doesNotMatch(talk([{ tap: '#volunteer' }, 'ok']).o.messages[0].text, /^Sure\./);
   /* where yes or no is the question, ok is still yes */
   assert.equal(N.yesNoOf('ok'), true);
+});
+
+/* Owner, 16 Nov 2026, of answering open questions by searching the site's
+   own pages: "yes". An answer is a paragraph the site publishes, word for
+   word, with its page; a question the site does not speak to gets none. */
+test('an open question: answered in the site\'s own words, with its page, or not at all', () => {
+  const BUILD = require('../scripts/build-answer-index.js');
+  const ix = JSON.parse(read('assets/assistant-answers.json'));
+  assert.deepEqual(ix, BUILD.build(), 'run node scripts/build-answer-index.js');
+  assert.ok(ix.passages.length > 1000);
+  const docs = ix.passages.map((p) => ({ title: p.t, url: p.u, heading: p.h, text: p.x }));
+  const ask = (q) => FL.passageOf(q, docs);
+  const feed = ask('is it legal to feed street dogs');
+  assert.equal(feed.url, 'laws.html');
+  assert.match(feed.heading, /Is feeding community dogs legal\?/);
+  assert.ok(docs.some((d) => d.text.startsWith(feed.text.replace(/\u2026$/, ''))), 'word for word, from the site');
+  assert.match(ask('what is the punishment for killing a dog').heading, /killing or maiming a dog a crime/);
+  assert.match(ask('can rwa ban dogs in lift').heading, /RWA ban pets/);
+  assert.match(ask('is paracetamol safe for cats').text, /Paracetamol kills cats/);
+  for (const q of ['what is the weather today', 'who is the prime minister', 'cricket score']) assert.equal(ask(q), null, `${q}: not the site's to answer`);
+  /* the reply */
+  const t = talk(['why do dogs howl at night']);
+  const act = t.actions.find((a) => a.type === 'search');
+  assert.ok(act, 'an open question is looked up');
+  const done = t.s.done(act.id, { rows: [], passage: feed });
+  assert.equal(done.messages[0].text, feed.text);
+  assert.deepEqual(done.messages[0].links, [{ label: 'Read more: ' + feed.title, href: 'laws.html' }]);
+  assert.deepEqual(done.messages[0].chips.map((c) => c.value), ['#desk', '#menu'], 'and the help desk, if that does not answer it');
+  /* asked as a question, it is looked up first, even when it names a page's topic */
+  const legal = talk(['is it legal to feed street dogs']);
+  const look = legal.actions.find((a) => a.type === 'search');
+  assert.ok(look, 'looked up, not handed to the caregiver card page');
+  assert.equal(legal.s.done(look.id, { rows: [], passage: feed }).messages[0].text, feed.text);
+  const none = talk(['is it legal to feed street dogs']);
+  const look2 = none.actions.find((a) => a.type === 'search');
+  const page = none.s.done(look2.id, { rows: [] });
+  assert.match(page.messages.map((m) => m.text).join(' '), /colony caregiver card/i, 'with no paragraph to answer it, the page as before');
+  const js = read('assets/assistant.js');
+  assert.match(js, /fetch\('\/assets\/assistant-answers\.json'/, 'read from the site itself, once');
+  assert.match(read('package.json'), /node scripts\/build-answer-index\.js/, 'rebuilt with the search index');
+  assert.doesNotMatch(read('assets/assistant-flows.js'), /\(\?<[=!]/, 'no lookbehind: older Safari would not load the chat');
 });

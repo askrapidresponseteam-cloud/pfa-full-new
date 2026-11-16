@@ -25,6 +25,9 @@
   var REG = {
     caregiver: {
       pane: 'cgsheet', noun: 'applications', todo: 'Not shipped', done: 'Shipped', file: 'colony-cards',
+      /* the same simple register as the members' (owner, 16 Nov 2026: "this
+         also you can make like members") */
+      compact: true,
       cols: [
         ['Name', function (r) { return [[r.name]]; }, 'rg-name'],
         /* the caregiver's state number (3 Nov 2026), given as the application is filed (4 Nov 2026) */
@@ -95,13 +98,13 @@
       + '<button class="press" type="button" data-rg="mailpicked" disabled>Preview emails</button>'
       + '<button class="ghost" type="button" data-rg="copyall">Copy table</button>'
       + '<button class="ghost" type="button" data-rg="csv">Export to Excel</button>'
-      + '</div><p class="rg-hint">' + (spec.compact ? 'Open a member for their details and to update shipping. Tick several to email them together. Green is shipped.' : 'Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.') + '</p>'
+      + '</div><p class="rg-hint">' + (spec.compact ? 'Open ' + (kind === 'membership' ? 'a member' : 'a caregiver') + ' for their details and to update shipping. Tick several to email them together. Green is shipped.' : 'Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete, saves it, and shows the email before it goes. Tick several and Preview emails does the same for every ready line. Green rows are shipped.') + '</p>'
       + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
       + '<div data-rg-sheet>' + sheetHtml(kind, st.sheet) + '</div>'
       + (kind === 'membership' ? numbersHtml(st) : caregiverNews(st))
       + codesHtml(st)
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
-      + '<div class="wrap' + (spec.compact ? ' rg-compact' : '') + '"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + (spec.compact ? COMPACT_HEAD : spec.cols.map(function (c) { return c[0]; })).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + (spec.compact ? '<th><span class="rg-vh">Open</span></th>' : '<th>Shipping</th>') + '</tr></thead><tbody data-rg-body></tbody></table></div>';
+      + '<div class="wrap' + (spec.compact ? ' rg-compact' : '') + '"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + (spec.compact ? COMPACT[kind].head : spec.cols.map(function (c) { return c[0]; })).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + (spec.compact ? '<th><span class="rg-vh">Open</span></th>' : '<th>Shipping</th>') + '</tr></thead><tbody data-rg-body></tbody></table></div>';
     paintRegisterRows(kind);
   }
 
@@ -290,7 +293,26 @@
   function regRow(kind, id) { return regState[kind].rows.filter(function (x) { return x.id === id; })[0] || null; }
 
   /* ---- the compact register: a line a member, the rest under Open ---- */
-  var COMPACT_HEAD = ['Member', 'Place', 'Paid on', 'Shipping'];
+  /* what each register shows on its line, and under Open */
+  var COMPACT = {
+    membership: {
+      head: ['Member', 'Place', 'Paid on', 'Shipping'],
+      sub: function (r) { return [r.memberNo || 'Not numbered yet', String(r.type || '').replace(/\s*membership$/i, '')]; },
+      date: function (r) { return r.paidOn || ''; },
+      info: function (r) {
+        return '<section><h4>Membership</h4>' + copyBtn(r.memberNo || '', '', r.memberNo ? 'Member number ' + r.memberNo : '') + (r.paidOn ? '<span class="rg-sub">Paid on ' + esc(r.paidOn) + '</span>' : '') + (r.memberNoWas ? '<span class="rg-sub">Was ' + esc(r.memberNoWas) + '</span>' : '') + (r.numberHold ? '<span class="rg-sub">' + esc(r.numberHold) + '</span>' : '') + copyBtn(r.id, 'rg-sub') + '<span class="rg-sub">' + esc([r.type, r.amount].filter(Boolean).join(', ')) + '</span></section>';
+      }
+    },
+    caregiver: {
+      head: ['Caregiver', 'Place', 'Applied on', 'Shipping'],
+      sub: function (r) { return [r.caregiverNo || 'Not numbered yet', r.cardId ? 'Card ' + r.cardId : '']; },
+      date: function (r) { return r.appliedOn || ''; },
+      info: function (r) {
+        return '<section><h4>Caregiver</h4>' + copyBtn(r.caregiverNo || '', '', r.caregiverNo ? 'Caregiver number ' + r.caregiverNo : '') + (r.caregiverNoWas ? '<span class="rg-sub">Was ' + esc(r.caregiverNoWas) + '</span>' : '') + (r.numberHold ? '<span class="rg-sub">' + esc(r.numberHold) + '</span>' : '') + (r.numberNote ? '<span class="rg-sub">' + esc(r.numberNote) + '</span>' : '')
+          + copyBtn(r.id, 'rg-sub', 'Application ' + r.id) + (r.cardId ? copyBtn(r.cardId, 'rg-sub', 'Card ' + r.cardId) : '') + (r.appliedOn ? '<span class="rg-sub">Applied on ' + esc(r.appliedOn) + '</span>' : '') + '</section>';
+      }
+    }
+  };
   var regOpen = {};
   function copyBtn(v, cls, label) { return v ? '<button type="button" class="rg-c' + (cls ? ' ' + cls : '') + '" data-copy="' + esc(v) + '" title="Copy">' + esc(label || v) + '</button>' : ''; }
   function shipChip(r) {
@@ -300,20 +322,20 @@
   }
   function compactRowHtml(kind, r) {
     var open = Boolean(regOpen[kind + ':' + r.id]);
-    var type = String(r.type || '').replace(/\s*membership$/i, '');
+    var C = COMPACT[kind];
     var place = [r.district || r.city, r.state].filter(Boolean).join(', ');
     var more = 'rg-more-' + kind + '-' + String(r.id).replace(/[^A-Za-z0-9-]/g, '');
     return '<tr class="rg-sum' + (r.done ? ' rg-done' : '') + (open ? ' is-open' : '') + '" data-rg-sum="' + esc(r.id) + '">'
       + '<td class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pick" aria-label="Select ' + esc(r.name) + '"' + (regState[kind].picked[r.id] ? ' checked' : '') + '></label></td>'
-      + '<td><b class="rg-who">' + esc(r.name) + '</b><span class="rg-sub rg-one">' + esc([r.memberNo || 'Not numbered yet', type].filter(Boolean).join(' · ')) + '</span></td>'
+      + '<td><b class="rg-who">' + esc(r.name) + '</b><span class="rg-sub rg-one">' + esc(C.sub(r).filter(Boolean).join(' · ')) + '</span></td>'
       + '<td>' + esc(place) + '</td>'
-      + '<td class="rg-nw">' + esc(r.paidOn || '') + '</td>'
+      + '<td class="rg-nw">' + esc(C.date(r)) + '</td>'
       + '<td>' + shipChip(r) + '</td>'
       + '<td class="rg-nw"><button type="button" class="rg-row rg-open" data-rg="open" aria-expanded="' + open + '" aria-controls="' + more + '">' + (open ? 'Close' : 'Open') + '</button></td></tr>'
       + '<tr class="rg-more" id="' + more + '" data-rg-id="' + esc(r.id) + '"' + (open ? '' : ' hidden') + '><td></td><td colspan="5"><div class="rg-grid">'
       + '<section><h4>Contact</h4>' + copyBtn(r.mobile) + (r.altMobile ? copyBtn(r.altMobile, '', 'Other: ' + r.altMobile) : '') + copyBtn(r.email) + '</section>'
       + '<section><h4>Address</h4>' + copyBtn(r.lines.join('\n')) + '</section>'
-      + '<section><h4>Membership</h4>' + copyBtn(r.memberNo || '', '', r.memberNo ? 'Member number ' + r.memberNo : '') + (r.paidOn ? '<span class="rg-sub">Paid on ' + esc(r.paidOn) + '</span>' : '') + (r.memberNoWas ? '<span class="rg-sub">Was ' + esc(r.memberNoWas) + '</span>' : '') + (r.numberHold ? '<span class="rg-sub">' + esc(r.numberHold) + '</span>' : '') + copyBtn(r.id, 'rg-sub') + '<span class="rg-sub">' + esc([r.type, r.amount].filter(Boolean).join(', ')) + '</span></section>'
+      + C.info(r)
       + '<section class="rg-shipbox"><h4>Shipping</h4>' + regShipHtml(kind, r) + '</section>'
       + '</div><p class="rg-moreacts"><button type="button" class="rg-row" data-rg="row">Copy row</button>' + (r.email ? '<button type="button" class="rg-row" data-open-case="' + esc(r.id) + '" data-reply-case>Reply</button>' : '') + '</p></td></tr>';
   }
@@ -369,7 +391,7 @@
     var body = box.querySelector('[data-rg-body]');
     var rows = regRows(kind);
     body.innerHTML = rows.length ? rows.map(function (r) { return regRowHtml(kind, r); }).join('')
-      : '<tr><td class="rg-empty" colspan="' + (spec.compact ? COMPACT_HEAD.length + 2 : spec.cols.length + 2) + '">' + (regState[kind].rows.length ? 'Nothing matches.' : 'No ' + spec.noun + ' yet.') + '</td></tr>';
+      : '<tr><td class="rg-empty" colspan="' + (spec.compact ? COMPACT[kind].head.length + 2 : spec.cols.length + 2) + '">' + (regState[kind].rows.length ? 'Nothing matches.' : 'No ' + spec.noun + ' yet.') + '</td></tr>';
     [].forEach.call(body.querySelectorAll('tr[data-rg-id]'), function (tr) { regSync(kind, tr); });
     regPickCount(kind);
   }

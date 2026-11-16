@@ -1,3 +1,25 @@
+## v1.583
+
+- **The Monday digest counts what came in, and goes to one more person.** Owner, 16 Nov 2026: "that can be confusing. instead. just have the count of things that came in that week..also have weekly report sent to gaurimaulekhi@gmail.com as well in cc".
+  - The summary is each kind of thing and how many came in that week. Still new is gone from the email and from the panel's list of digests; each record's status now stays in its own table, as before.
+  - It still goes to the forms inbox, copied to anushkapfacampus@gmail.com and now gaurimaulekhi@gmail.com too, whatever the copy setting names.
+
+## v1.582
+
+- **The member's photograph on the membership card, framed on the right.** Owner, 16 Nov 2026: "We can still have photo appended on membership card (right side) - find the place and position- state of the art class".
+  - The photo step stays. Once a member's photograph is approved it is on the printed card and on the card online: on the right, below the tier and clear of the foot, 3:4 as the member framed it, the whole photograph, with rounded corners, a fine light edge and a soft shadow on the black. The name and the place keep clear of it.
+  - Approving a photograph puts the card online with it. A card issued before a photograph arrives goes online without one; issued again, a card keeps the photograph it has.
+- **The chat answers open questions in the site's own words.** Owner, 16 Nov 2026, of answering open questions by searching the site's own pages: "yes".
+  - A question the chat has no straight answer for is looked up in every paragraph of the site's public pages (assets/assistant-answers.json, rebuilt with the search index), and answered with the paragraph that answers it, word for word, with Read more and its page. "is it legal to feed street dogs" answers from Animal law in India; "my dog is scared of fireworks" from Behaviour, A to Z.
+  - A paragraph is given only when it carries most of what the question is about, names the animal asked about, and the question is about what the site covers. Anything else (the weather, a minister) gets the help desk instead, as before. Nothing comes from anywhere but the site.
+  - A question about a topic ("is it legal to...") is answered first; the page for that topic follows only when the site has no paragraph that answers it.
+
+## v1.581
+
+- **The caregivers' register is simple too.** Owner, 16 Nov 2026: "this also you can make like members".
+  - One short line a caregiver: the name with the caregiver number (and the card, once issued) under it, the place, the date applied, the shipping state as a coloured tag, and Open.
+  - Open shows the contact, the address, the caregiver's numbers and application, and the shipping form, with Copy row and Reply. Everything still copies with a click, and on a phone nothing scrolls sideways.
+
 ## v1.580
 
 - **Issue a card, and it is online at once.** Owner, 15 Nov 2026: "there should be option to issue the membership card. which should instantly create online link for verification. same for colony caregiver".

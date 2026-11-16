@@ -46,9 +46,15 @@
     var since = /^(\d{4})/.exec(String(d.issuedOn || ''));
     var place = [d.district, d.state].filter(Boolean).join(', ');
     var number = d.number || d.id;
+    /* the member's approved photograph, on the right (owner, 16 Nov 2026:
+       "We can still have photo appended on membership card (right side) -
+       find the place and position- state of the art class"): framed below
+       the tier, clear of the foot, in its own colours */
+    var photo = o.photo ? '<figure class="dcm__photo"><img src="' + esc(o.photo) + '" alt="' + esc(d.name) + '"></figure>' : '';
     return ''
-      + '<section class="dc__face dc__front" aria-label="Front">'
+      + '<section class="dc__face dc__front' + (photo ? ' dcm--photo' : '') + '" aria-label="Front">'
       + '<div class="dcm__brand">' + logo + '<span class="dcm__tier">' + esc((tier ? tier + ' ' : '') + 'Membership') + '</span></div>'
+      + photo
       + '<div class="dcm__details"><div class="dcm__label">Member</div><div class="dcm__name">' + esc(d.name) + '</div>' + (place ? '<div class="dcm__role">' + esc(place) + '</div>' : '') + '</div>'
       + '<div class="dcm__footer"><span>' + esc(number) + '</span>' + (since ? '<span>Member since&nbsp;&nbsp;' + since[1] + '</span>' : '') + '</div>'
       + (st.s === 'valid' ? '' : '<div class="dc__void"><span>' + esc(st.word.toUpperCase()) + '</span></div>')

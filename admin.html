@@ -2369,13 +2369,12 @@ window.addEventListener('unhandledrejection', function (event) {
       var rc = d.recipients || {};
       box.innerHTML = '<p class="fr-who">Every Monday, India time, to <b>' + esc(rc.to || '') + '</b>'
         + ((rc.cc || []).length ? ', copied to ' + esc(rc.cc.join(', ')) : '') + '. Each person links to their record here, where its status is moved along.</p>'
-        + '<div class="wrap"><table><thead><tr><th>Week</th><th class="num">Listed</th><th class="num">Still new</th><th>Email</th><th aria-label="Actions"></th></tr></thead><tbody>'
+        + '<div class="wrap"><table><thead><tr><th>Week</th><th class="num">Came in</th><th>Email</th><th aria-label="Actions"></th></tr></thead><tbody>'
         + (d.weeks || []).map(function (w) {
           var r = w.digest;
           var mail = r && r.email ? (FR_MAIL[r.email.status] || r.email.status) + (r.email.lastError && r.email.status !== 'sent' ? '<br><span class="note">' + esc(r.email.lastError) + '</span>' : '') : (r ? esc(r.state) : '<span class="note">Not made yet</span>');
           return '<tr data-week="' + esc(w.week) + '"><td><b>' + esc(w.label) + '</b></td>'
             + '<td class="num">' + (r ? esc(String(r.count)) : '') + '</td>'
-            + '<td class="num">' + (r ? esc(String(r.waiting)) : '') + '</td>'
             + '<td>' + mail + (r && r.error ? '<br><span class="note">' + esc(r.error) + '</span>' : '') + '</td>'
             + '<td><span class="fr-acts"><button class="ghost" type="button" data-wd="send">' + (r && r.state !== 'failed' ? 'Send again' : 'Send now') + '</button></span></td></tr>';
         }).join('') + '</tbody></table></div><p class="say" data-wd-say role="status" aria-live="polite"></p>';

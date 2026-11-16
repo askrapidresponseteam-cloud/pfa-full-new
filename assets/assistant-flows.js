@@ -970,6 +970,12 @@
       var chips = [];
       chips.push({ label: t('askDesk', lang()), value: '#desk' });
       chips.push({ label: t('menuChip', lang()), value: '#menu' });
+      /* the site's own sentence that answers it, word for word, and its page */
+      var p = r.passage;
+      var then = S.afterSearch;
+      S.afterSearch = '';
+      if (!(p && p.text && p.url) && then) return begin(then, S.deskQuestion || '');
+      if (p && p.text && p.url) return out([msg(p.text, { links: [{ label: (lang() === 'hi' ? 'पूरा पढ़ें: ' : 'Read more: ') + p.title, href: String(p.url).replace(/^\//, '') }], chips: chips })]);
       if (!best) return out([msg(t('nothingFound', lang()), { chips: chips })]);
       return out([msg(best.desc || best.title, { links: [{ label: best.title, href: best.url }], chips: chips })]);
     }
@@ -1065,6 +1071,13 @@
       /* a question: the site first, the help desk if that does not answer it */
       if (top.id === 'question') { S.deskQuestion = s; S.deskTopic = ''; return out([msg(t('looking', lang()))], { action: { id: newId('search'), type: 'search', q: N.searchText(s), question: s } }); }
       var go = INTENT_TO[top.id];
+      /* a question about something, not a wish to do it ("is it legal to
+         feed street dogs"): the site's own answer first, and the page for
+         it only if the site has no paragraph that answers it */
+      if (go && PAGES[go] && !FLOWS[go] && /^(is|are|can|could|should|does|do|did|what|why|how|when|where|who|which|will|would)\b|\?\s*$/i.test(N.normalise(s))) {
+        S.deskQuestion = s; S.deskTopic = ''; S.afterSearch = go;
+        return out([msg(t('looking', lang()))], { action: { id: newId('search'), type: 'search', q: N.searchText(s), question: s } });
+      }
       /* close calls between two: ask which */
       if (intents[1] && intents[1].score === top.score && INTENT_TO[intents[1].id] && intents[1].id !== 'nearby' && top.id !== 'report') {
         return out([msg(t('notSure', lang()), { chips: [chip(go, lang()), chip(INTENT_TO[intents[1].id], lang())] })]);
@@ -1138,5 +1151,111 @@
     });
   }
 
-  return { createSession: createSession, unitsNear: unitsNear, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
+  /* ---- an answer in the site's own words (owner, 16 Nov 2026, of answering
+     open questions by searching the site's own pages: "yes") ----
+     The sentence on the site that answers the question best, word for word,
+     with the page it is on. Nothing is written or guessed: the answer is a
+     sentence the site already publishes, or nothing. docs is what the site's
+     search index holds ([{ title, url, text }]); a sentence must carry most
+     of what the question is about, by weight (rarer words count for more),
+     and at least two of its words, or one when only one is asked about. */
+  var STOP = ' a an the is are was were be been am do does did i me my we our you your he she it they them this that these those to of for in on at by with from as or and but if so not no can could will would should may might must shall what which who whom whose when where why how there here about into over under than then also just only any all some more most very much many such own same tell know want need please pfa people animal animals india safe ok okay good bad best way ways help get give take make use used using one ';
+  function stemOf(w) {
+    w = String(w || '').toLowerCase();
+    if (w.length > 5 && /ies$/.test(w)) return w.slice(0, -3) + 'y';
+    if (w.length > 5 && /ing$/.test(w)) return w.slice(0, -3);
+    if (w.length > 3 && /s$/.test(w) && !/ss$/.test(w)) return w.slice(0, -1);
+    return w;
+  }
+  /* the same idea in the words the site uses */
+  var SAME = {
+    street: 'community', stray: 'community', strays: 'community', indie: 'community', indies: 'community',
+    feeding: 'feed', fed: 'feed', feeder: 'feed', feeders: 'feed',
+    killing: 'kill', killed: 'kill', kills: 'kill', murder: 'kill',
+    punishment: 'punish', penalty: 'punish', penalties: 'punish', jail: 'punish', fine: 'punish', fines: 'punish',
+    bitten: 'bite', bit: 'bite', biting: 'bite', bites: 'bite',
+    founded: 'founder', founding: 'founder',
+    scared: 'fear', afraid: 'fear', frightened: 'fear', anxious: 'fear', anxiety: 'fear', fearful: 'fear', terrified: 'fear', panic: 'fear', panicking: 'fear', phobia: 'fear',
+    puppy: 'dog', puppies: 'dog', pup: 'dog', pups: 'dog', kitten: 'cat', kittens: 'cat',
+    crackers: 'firework', firecrackers: 'firework', diwali: 'firework',
+    vet: 'veterinar', vets: 'veterinar', veterinary: 'veterinar', veterinarian: 'veterinar', doctor: 'veterinar',
+    rwa: 'resident', society: 'resident', apartment: 'resident', housing: 'resident',
+    hurt: 'injur', injured: 'injur', injury: 'injur', injuries: 'injur', wounded: 'injur',
+    donation: 'donat', donations: 'donat', donate: 'donat', donating: 'donat', donor: 'donat',
+    '80g': 'tax', exemption: 'tax', deduction: 'tax'
+  };
+  var SPLIT = { snakebite: ['snake', 'bite'], dogbite: ['dog', 'bite'], firstaid: ['first', 'aid'] };
+  function wordsOf(text) {
+    var out = [];
+    (String(text || '').toLowerCase().replace(/[\u2019']s\b/g, '').match(/[a-z0-9\u0900-\u097f]+/g) || []).forEach(function (w) {
+      (SPLIT[w] || [w]).forEach(function (x) {
+        if (x.length < 2 || STOP.indexOf(' ' + x + ' ') > -1) return;
+        out.push(SAME[x] || stemOf(x));
+      });
+    });
+    return out;
+  }
+  /* what the site is about: a question with none of these is not one the
+     site's words can answer (the weather, a minister, a match score) */
+  var TOPIC = /^(dog|cat|cow|bull|buffalo|calf|puppy|pupp|kitten|bird|pigeon|parrot|crow|monkey|horse|donkey|goat|sheep|pig|camel|elephant|snake|wildlife|pet|community|feed|kill|punish|cruelty|cruel|abuse|rescue|shelter|hospital|clinic|veterinar|medicine|vaccin|rabie|antibiotic|antivenom|first|aid|bite|injur|sterilis|steriliz|abc|neuter|spay|adopt|adoption|foster|law|legal|court|fir|police|complaint|report|resident|lift|founder|maneka|gandhi|member|membership|card|caregiver|colony|intern|internship|volunteer|donat|tax|receipt|certificate|fear|firework|behaviour|behavior|train|leash|unit|centre|center|sgacc|academy|quiz|shop|event|campaign|csr|legacy|cinekind|wall|privacy|career|job)$/;
+  function onTopic(terms) { return terms.some(function (w) { return TOPIC.test(w); }); }
+  /* an animal named in the question must be in the answer */
+  var KINDS = /^(dog|cat|cow|bull|buffalo|calf|bird|pigeon|parrot|crow|monkey|horse|donkey|goat|sheep|pig|camel|elephant|snake)$/;
+  /* a paragraph cut at a sentence once it is long, so the reply stays short;
+     the page has the rest */
+  function shortOf(text) {
+    var t = String(text || '').replace(/\s+/g, ' ').trim();
+    if (t.length <= 360) return t;
+    var parts = t.replace(/([.!?])\s+(?=[A-Z0-9\u20b9"'(])/g, '$1\u0001').split('\u0001');
+    var out = '';
+    for (var i = 0; i < parts.length; i += 1) { if (out && (out + ' ' + parts[i]).length > 360) break; out = out ? out + ' ' + parts[i] : parts[i]; }
+    return out.length > 420 ? out.slice(0, out.lastIndexOf(' ', 400)) + '\u2026' : out;
+  }
+  var passageCache = { docs: null, items: null, df: null };
+  /* docs: [{ title, url, heading, text }], the site's paragraphs
+     (assets/assistant-answers.json, scripts/build-answer-index.js) */
+  function passageOf(question, docs) {
+    var terms = wordsOf(question).filter(function (w, i, all) { return all.indexOf(w) === i; });
+    if (!terms.length || !docs || !docs.length || !onTopic(terms)) return null;
+    if (passageCache.docs !== docs) {
+      var df = {};
+      var items = docs.map(function (d) {
+        var w = wordsOf(d.text);
+        var h = wordsOf(d.heading);
+        w.concat(h).filter(function (x, i, all) { return all.indexOf(x) === i; }).forEach(function (x) { df[x] = (df[x] || 0) + 1; });
+        return { d: d, w: w, h: h };
+      });
+      passageCache = { docs: docs, items: items, df: df };
+    }
+    var n = passageCache.items.length || 1;
+    var idf = function (w) { return Math.log(1 + n / (1 + (passageCache.df[w] || 0))); };
+    var total = terms.reduce(function (a, w) { return a + idf(w); }, 0);
+    var need = Math.min(2, terms.length);
+    var best = null;
+    passageCache.items.forEach(function (it) {
+      var inText = terms.filter(function (w) { return it.w.indexOf(w) > -1; });
+      var inHead = terms.filter(function (w) { return it.h.indexOf(w) > -1; });
+      var hit = terms.filter(function (w) { return inText.indexOf(w) > -1 || inHead.indexOf(w) > -1; });
+      if (hit.length < need || !inText.length && !inHead.length) return;
+      var cover = hit.reduce(function (a, w) { return a + idf(w); }, 0) / total;
+      /* the words of the question in the paragraph itself, unless it answers
+         the question its heading asks */
+      var asked = /\?\s*$/.test(it.d.heading || '');
+      var textCover = inText.reduce(function (a, w) { return a + idf(w); }, 0) / total;
+      if (!asked && textCover < 0.75) return;
+      var named = terms.filter(function (w) { return KINDS.test(w); });
+      var general = it.w.indexOf('pet') > -1 || it.h.indexOf('pet') > -1 || it.w.indexOf('community') > -1 || it.h.indexOf('community') > -1;
+      if (named.length && !named.some(function (w) { return hit.indexOf(w) > -1; }) && !(general && named.some(function (w) { return /^(dog|cat)$/.test(w); }))) return;
+      var score = cover * 10 + (asked ? 3 : 0)
+        + inText.reduce(function (a, w) { return a + idf(w); }, 0) * 0.3
+        + inHead.reduce(function (a, w) { return a + idf(w); }, 0) * 0.5
+        - it.d.text.length / 3000;
+      if (!best || score > best.score) best = { score: score, it: it, cover: cover };
+    });
+    if (!best || best.cover < 0.75) return null;
+    var d = best.it.d;
+    return { text: shortOf(d.text), heading: d.heading || '', title: String(d.title || '').replace(/\s*\|\s*People for Animals\s*$/i, ''), url: d.url };
+  }
+
+  return { createSession: createSession, unitsNear: unitsNear, passageOf: passageOf, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
 }));

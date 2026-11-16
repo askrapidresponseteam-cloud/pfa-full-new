@@ -359,9 +359,25 @@
       try {
         if (window.PFASearch && a.q) rows = (window.PFASearch.search(a.q, { limit: 5 }).rows || []).map(function (r) { return { title: r.t, url: r.u, desc: r.d || '' }; });
       } catch (_) { rows = []; }
-      return setTimeout(function () { finish(a.id, { rows: rows }); }, 0);
+      /* the site's own words that answer it (16 Nov 2026): its paragraphs,
+         as scripts/build-answer-index.js gathers them, read once */
+      return siteText().then(function (docs) {
+        var passage = null;
+        try { passage = FL.passageOf([a.q, a.question].filter(Boolean).join(' '), docs); } catch (_) { passage = null; }
+        finish(a.id, { rows: rows, passage: passage });
+      }, function () { finish(a.id, { rows: rows }); });
     }
     waitOff();
+  }
+
+  var siteDocs = null;
+  function siteText() {
+    if (!siteDocs) {
+      siteDocs = fetch('/assets/assistant-answers.json', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (ix) {
+        return ((ix && ix.passages) || []).map(function (p) { return { title: p.t, url: p.u, heading: p.h, text: p.x }; });
+      }).catch(function () { siteDocs = null; return []; });
+    }
+    return siteDocs;
   }
 
   /* CCAvenue's own page, through the same door the site's buttons use */

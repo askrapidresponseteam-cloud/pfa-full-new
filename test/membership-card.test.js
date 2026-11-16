@@ -417,6 +417,9 @@ test('only the printed card is issued, by courier with a tracking number; no let
   assert.match(withLink.html, /Open your card/);
   const online = Object.values(db.dump()).filter((v) => v && v.kind === 'member' && /^PFA-MBR-/.test(v.id || ''));
   assert.equal(online.length, 1, 'approving put the card online');
+  /* with the member's approved photograph on it (owner, 16 Nov 2026: "We can
+     still have photo appended on membership card (right side)") */
+  assert.ok(online[0].photo && online[0].photo.contentType, 'the approved photograph is on the card online');
 });
 
 /* Owner, 26 Oct 2026: "still dont see card preview option". Every row in
@@ -448,6 +451,10 @@ test('the printed membership card: the owner\'s black template, in Marcellus, no
   assert.match(js, /var LOGO_SRC = 'img\/logo-dark\.png';/);
   assert.match(js, /\['PFA Card Marcellus', 'fonts\/marcellus-latin\.woff2', '400'\]/);
   assert.doesNotMatch(js, /Cinzel|'PHOTO'|brushed silver/i);
+  /* the member's photograph on the right, framed, the name kept clear of it (16 Nov 2026) */
+  assert.match(js, /photo: \{ x: 594, y: 138, w: 211, h: 281, r: 12, nameW: 503 \}/);
+  assert.match(js, /var scale = Math\.min\(P\.w \/ photo\.width, P\.h \/ photo\.height\);/, 'the whole photograph, never cut');
+  assert.match(js, /var nameW = withPhoto \? L\.photo\.nameW : L\.left\.w;/);
   assert.match(js, /'A voice for the voiceless\.'/);
   assert.match(js, /'If found, please return it to a PFA centre\.'/);
   assert.match(js, /'Non-transferable\. Any misuse will lead to its withdrawal\.'/);
@@ -462,7 +469,10 @@ test('the printed membership card: the owner\'s black template, in Marcellus, no
 test('the members register: one short line a member, the rest under Open', () => {
   const js = fs.readFileSync(path.join(ROOT, 'assets', 'admin-registers.js'), 'utf8');
   assert.match(js, /compact: true,/);
-  assert.match(js, /var COMPACT_HEAD = \['Member', 'Place', 'Paid on', 'Shipping'\];/);
+  assert.match(js, /head: \['Member', 'Place', 'Paid on', 'Shipping'\]/);
+  /* the caregivers' register the same way (owner, 16 Nov 2026: "this also you can make like members") */
+  assert.match(js, /head: \['Caregiver', 'Place', 'Applied on', 'Shipping'\]/);
+  assert.equal((js.match(/compact: true,/g) || []).length, 2, 'both registers');
   assert.match(js, /data-rg="open" aria-expanded="' \+ open \+ '" aria-controls="' \+ more \+ '">' \+ \(open \? 'Close' : 'Open'\)/);
   assert.match(js, /'<tr class="rg-more" id="' \+ more \+ '" data-rg-id="' \+ esc\(r\.id\) \+ '"' \+ \(open \? '' : ' hidden'\)/, 'details, shipping and the buttons only when opened');
   assert.match(js, /\.rg-compact table\{min-width:0!important;width:100%/, 'nothing scrolls sideways on a phone');
