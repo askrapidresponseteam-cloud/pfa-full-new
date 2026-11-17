@@ -149,6 +149,7 @@ const FORMS = {
   "PFA-EV": {
     "page": "events.html",
     "data": {
+      "date": "2099-01-15",
       "title": "An adoption drive",
       "name": "Asha Rao",
       "address": "House 14, Barakhamba Road, Connaught Place",

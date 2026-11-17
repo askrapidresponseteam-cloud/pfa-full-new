@@ -212,6 +212,17 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .wall-hero .actions{margin-top:36px}
 .wall-hero .btn--ghost{background:transparent;border-color:var(--ink);color:var(--ink)}
 .wall-hero .btn--ghost:hover{background:#fff;color:var(--ink)}
+/* what goes on the wall, and how to film and send yours (owner, 17 Nov
+   2026: "mention criteria of videos. and how to etc.") */
+.wall-lede{margin:22px 0 0;max-width:62ch;font-size:16px;line-height:1.6;color:var(--muted)}
+.wall-rules{list-style:none;margin:30px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 28px;border-top:1px solid var(--line)}
+.wall-rules li{display:grid;align-content:start;gap:6px;padding:18px 0 0}
+.wall-rules b{font-size:14px;line-height:1.35}
+.wall-rules span{font-size:14px;line-height:1.55;color:var(--muted)}
+.wall-hero .how{max-width:760px;margin-top:30px}
+.wall-hero .how .step p+p{max-width:62ch}
+@media (max-width:900px){.wall-rules{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}.wall-rules li{padding:18px 0 4px}}
+@media (max-width:560px){.wall-rules{grid-template-columns:1fr}.wall-rules li{padding:16px 0;border-bottom:1px solid var(--line)}.wall-rules li:last-child{border-bottom:0}}
 /* One rule, not two. The header carries a bottom border and the subnav
    carries its own, and when the subnav docks they land 51px apart with the
    links fenced between them: a doubled divider where the page only needs to
@@ -657,7 +668,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=c527086f57"></script>
+<script src="assets/chrome.js?v=676f4f3005"></script>
 <script src="assets/theatre.js"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
@@ -667,10 +678,27 @@ if (root.document && root.document.head) apply(read());
     <div class="hero__in">
       <p class="eyebrow pfa-kicker">A community film wall, reviewed, then published</p>
       <h1 class="pfa-title display">The&nbsp;Wall</h1>
+      <p class="wall-lede">Short films about animals, sent in by supporters and volunteers. An editor at PFA watches every one before it goes up under your name.</p>
+      <ul class="wall-rules" aria-label="What goes on the wall">
+        <li><b>About animals</b><span>Awareness, care, rescue and adoption stories, the law in plain words, or how a case was handled.</span></li>
+        <li><b>Long or short</b><span>Long form: over three minutes. Short form: under a minute.</span></li>
+        <li><b>Yours to share</b><span>You filmed it, or have the right to share it, on a public Instagram, Facebook, YouTube or Vimeo post.</span></li>
+        <li><b>Never on the wall</b><span>An animal being hurt, a rescue address, or a live case.</span></li>
+      </ul>
       <div class="actions">
         <a class="btn btn--light" href="#submit">Share your video</a>
         <a class="btn btn--ghost" href="#longform">Browse the wall</a>
       </div>
+      <details class="how">
+        <summary>How to film and send yours</summary>
+        <div class="steps">
+          <div class="step"><span>01</span><div><p>Film it</p><p>Hold the phone steady, in daylight, close enough to hear. Upright for a reel; sideways for anything longer.</p></div></div>
+          <div class="step"><span>02</span><div><p>Say what it is</p><p>Begin with where and when, and end with what happened to the animal afterwards.</p></div></div>
+          <div class="step"><span>03</span><div><p>Post it publicly</p><p>Put it on Instagram, Facebook, YouTube or Vimeo, open to everyone, so the wall can reach it.</p></div></div>
+          <div class="step"><span>04</span><div><p>Send the link</p><p>Press Share your video, paste the link, choose the wall and add the name to credit.</p></div></div>
+          <div class="step"><span>05</span><div><p>An editor watches it</p><p>Approved films go up under your name with a link to your post. <a href="ask.html">Ask us</a> to take yours down at any time.</p></div></div>
+        </div>
+      </details>
     </div>
   </section>
 

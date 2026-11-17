@@ -209,6 +209,8 @@
     guide: { type: 'yesno', must: true, link: 'intern-guide.html', label: { en: 'Read the two-page guide', hi: 'दो पेज की गाइड पढ़ी' }, ask: { en: 'Please read the two-page guide first (about five minutes): how you sign in, what each week asks and how you send your work. Have you read and understood it?', hi: 'पहले दो पेज की गाइड पढ़ें (लगभग पाँच मिनट): साइन इन कैसे करें, हर हफ़्ते क्या करना है और काम कैसे भेजें। क्या आपने इसे पढ़कर समझ लिया?' } },
     /* the smaller forms */
     eventTitle: { type: 'choice', key: 'title', options: O.eventTitle, label: { en: 'Asking for', hi: 'क्या चाहिए' }, ask: { en: 'What would you like PFA to come for?', hi: 'आप PFA को किस लिए बुलाना चाहते हैं?' } },
+    /* at least 30 days ahead, as on the page (owner, 17 Nov 2026) */
+    eventDate: { type: 'date', key: 'date', ahead: 30, label: { en: 'Date wanted', hi: 'तारीख' }, ask: { en: 'Which date would you like? At least 30 days from today, for example 20/01/2027.', hi: 'कौन-सी तारीख चाहिए? आज से कम से कम 30 दिन बाद, जैसे 20/01/2027।' } },
     eventNotes: { type: 'long', min: 2, key: 'notes', optional: true, label: { en: 'Details', hi: 'जानकारी' }, ask: { en: 'Where and when, and roughly how many people?', hi: 'कहाँ और कब, और लगभग कितने लोग?' } },
     offer: { type: 'choice', options: O.sgOffer, label: { en: 'How you would help', hi: 'आप कैसे मदद करेंगे' }, ask: { en: 'How would you like to help the Sanjay Gandhi Animal Care Centre?', hi: 'आप संजय गांधी एनिमल केयर सेंटर की कैसे मदद करना चाहेंगे?' } },
     sgNotes: { type: 'long', min: 2, key: 'notes', optional: true, label: { en: 'Details', hi: 'जानकारी' }, ask: { en: 'Anything the centre should know? What you would bring, or when you would come.', hi: 'सेंटर को और कुछ जानना चाहिए? आप क्या लाएँगे या कब आएँगे।' } },
@@ -260,7 +262,7 @@
       fields: ['areas', 'name', 'mobile', 'email', 'address', 'when', 'notes'] },
     internship: { kind: 'PFA-VI', title: { en: 'Remote internship', hi: 'रिमोट इंटर्नशिप' }, intro: { en: 'The eight-week remote internship starts as soon as you apply. A few questions.', hi: 'आठ हफ़्ते की रिमोट इंटर्नशिप आवेदन करते ही शुरू हो जाती है। कुछ सवाल।' },
       fields: ['name', 'dob', 'parent', 'mobile', 'email', 'address', 'why', 'work', 'guide'] },
-    event: { kind: 'PFA-EV', title: { en: 'Invite PFA to an event or camp', hi: 'PFA को कार्यक्रम या शिविर में बुलाएँ' }, fields: ['eventTitle', 'eventNotes', 'name', 'mobile', 'email', 'address'] },
+    event: { kind: 'PFA-EV', title: { en: 'Invite PFA to an event or camp', hi: 'PFA को कार्यक्रम या शिविर में बुलाएँ' }, fields: ['eventTitle', 'eventDate', 'eventNotes', 'name', 'mobile', 'email', 'address'] },
     sgacc: { kind: 'PFA-SG', title: { en: 'Help the Animal Care Centre', hi: 'एनिमल केयर सेंटर की मदद' }, fields: ['offer', 'sgNotes', 'name', 'mobile', 'email', 'address'] },
     cinekind: { kind: 'PFA-CK', title: { en: 'Nominate for CineKind', hi: 'सिनेकाइंड के लिए नामांकन' }, fields: ['nominee', 'category', 'ckWhy', 'name', 'email', 'mobileOpt', 'address'] },
     legacy: { kind: 'PFA-LEG', title: { en: 'A gift in your will', hi: 'वसीयत में दान' }, fields: ['interest', 'contactBy', 'name', 'email', 'mobileOpt', 'address'] },
@@ -896,6 +898,12 @@
         case 'date': {
           var d = N.dateOf(s);
           if (!d) return bad('Please give the date like 14/05/2004.', 'कृपया तारीख ऐसे लिखें: 14/05/2004।');
+          if (f.ahead) {
+            /* a date planned ahead: at least so many days from today in India */
+            var days = Math.round((Date.parse(d + 'T00:00:00Z') - Date.parse(new Date(now() + 330 * 60000).toISOString().slice(0, 10) + 'T00:00:00Z')) / 86400000);
+            if (!(days >= f.ahead)) return bad('Please choose a date at least ' + f.ahead + ' days from today.', 'कृपया आज से कम से कम ' + f.ahead + ' दिन बाद की तारीख चुनें।');
+            S.data[k] = d; break;
+          }
           var age = N.ageOn(d, now());
           if (age == null || age < 0 || age > 100) return bad('Please check the date.', 'कृपया तारीख जाँचें।');
           if (S.flow === 'internship' && age < 16) { S.flow = ''; S.phase = 'menu'; return out([msg(t('tooYoung', lang()), { chips: [{ label: t('menuChip', lang()), value: '#menu' }] })]); }

@@ -122,6 +122,7 @@ test('events.html: what the page sends is what the API asks for', () => {
   assert.equal(page.typeAddress('pincode', '57a6b2c2d2'), '576222', 'a letter reached the PIN box');
 
   page.set('evKind', 'An adoption drive');
+  page.set('evDate', new Date(Date.now() + 45 * 86400000).toISOString().slice(0, 10));
   page.set('evEmail', 'asha@example.com');
   page.address({ state: 'Karnataka', district: 'Udupi', address: 'Near the bus stand, Main Road' });
   page.set('evNotes', 'About forty animals are fed here.');

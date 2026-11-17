@@ -1,3 +1,13 @@
+## v1.602
+
+- **An event is asked for at least 30 days ahead.** Owner, 17 Nov 2026: "better if this is also planned at least 30 days in advance". Request an event lists **Apply 30 days ahead** with what each event comes with. The form now asks for **The date you would like**; the calendar starts 30 days from today and the line under it names that date. The server refuses an earlier date, as it does for the podcast's 60 days. The office sees it as Date wanted. The chat's Invite PFA to an event asks for the date too and holds the same 30 days.
+- **The Wall says what goes on it, and how to film and send yours.** Owner, 17 Nov 2026: "mention criteria of videos. and how to etc.". Under the title is one line on what the wall is, then four short rules:
+  - **About animals:** awareness, care, rescue and adoption stories, the law, or how a case was handled.
+  - **Long or short:** over three minutes, or under a minute.
+  - **Yours to share:** on a public Instagram, Facebook, YouTube or Vimeo post.
+  - **Never on the wall:** an animal being hurt, a rescue address, a live case.
+  - Under the buttons, **How to film and send yours** opens five steps: film it, say what it is, post it publicly, send the link, an editor watches it.
+
 ## v1.601
 
 - **Every card in Check the cards has its QR code, and a photograph can be added to either card.** Owner, 17 Nov 2026: "why no QR!", "also why no option to add photo for both. what is wrong with you. dont miss out features which were present".

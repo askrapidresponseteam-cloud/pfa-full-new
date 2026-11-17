@@ -90,7 +90,7 @@ test('a missing helper disables the form instead of leaving a dead button', () =
 
 test('what each form sends passes the server\u2019s own field rules', () => {
   const payloads = {
-    'PFA-EV': { title: 'An adoption drive', city: 'Udupi', address: 'Koteshwara ground',
+    'PFA-EV': { title: 'An adoption drive', date: '2099-01-15', city: 'Udupi', address: 'Koteshwara ground',
       name: 'Asha Rao', mobile: '9876543210', email: 'asha@example.com', notes: 'About 40 dogs' },
     'PFA-S': { url: 'https://www.youtube.com/watch?v=abc', title: 'long', name: 'Asha Rao',
       mobile: '9876543210', notes: 'Consent given.' },

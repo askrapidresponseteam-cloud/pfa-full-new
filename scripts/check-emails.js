@@ -85,7 +85,7 @@ const FORMS = [
   ['careers.html', 'Apply for a job', 'PFA-J', { city: 'Udupi', background: 'Ten years in rescue', zone: 'South', pfaMember: 'No', travel: 'Yes' }],
   ['wall.html', 'Send a film to The Wall', 'PFA-S', { url: 'https://youtu.be/abc123', wall: 'Short form, under a minute' }],
   ['get-involved.html', 'Volunteer', 'PFA-V', { city: 'Udupi', title: 'Volunteer: Rescue Operations' }],
-  ['events.html', 'Ask for an event', 'PFA-EV', { title: 'An adoption drive', city: 'Udupi' }],
+  ['events.html', 'Ask for an event', 'PFA-EV', { title: 'An adoption drive', date: '2099-01-15', city: 'Udupi' }],
   ['cinekind.html', 'Nominate for CineKind', 'PFA-CK', { nominee: 'A rescue documentary', category: 'A film or documentary', why: 'It changed how a town treats its dogs' }],
   ['internship.html', 'Apply for the remote internship', 'PFA-VI', { dob: '2005-03-10', age: '21', why: 'I feed twelve dogs on my street and want to do it properly.', guide: 'Read and understood' }],
   ['internship.html', 'Send internship proof', 'PFA-VP', { application: 'PFA-VI-2026-00001', task: 'An RTI to the municipality', what: 'Filed an RTI with Udupi City Municipal Council on dog sterilisation; acknowledgement UCMC/RTI/2026/118.', links: 'https://drive.google.com/drive/folders/abc' }],

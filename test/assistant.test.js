@@ -115,7 +115,7 @@ const SUBMIT_FLOWS = {
   helpdesk: ['#helpdesk', 'How do I get a street dog vaccinated in my area?', { tap: 'An animal I found or feed' }, 'Ravi Kumar', 'ravi@example.com', '#skip', ...ADDRESS],
   volunteer: ['#volunteer', { tap: 'Shelters' }, { tap: 'Hospitals' }, { tap: '#done' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, 'Weekends', '#skip'],
   internship: ['#internship', 'Asha Rao', '14/05/2004', '9876543210', 'asha@example.com', ...ADDRESS, 'I feed the dogs on my street and want to learn the law to help them.', '#skip', { tap: 'yes' }],
-  event: ['#event', { tap: 'A sterilisation or vaccination camp' }, '#skip', 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS],
+  event: ['#event', { tap: 'A sterilisation or vaccination camp' }, new Date(Date.now() + 45 * 86400000).toISOString().slice(0, 10), '#skip', 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS],
   sgacc: ['#sgacc', { tap: 'Supplies for the animals' }, '#skip', 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS],
   cinekind: ['#cinekind', 'The film Test Subject V', { tap: 'A film or documentary' }, 'It shows the truth about testing on animals.', 'Asha Rao', 'asha@example.com', '#skip', ...ADDRESS],
   legacy: ['#legacy', { tap: 'A sum of money' }, { tap: 'Phone' }, 'Asha Rao', 'asha@example.com', '9876543210', ...ADDRESS],

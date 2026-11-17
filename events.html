@@ -659,7 +659,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=c527086f57"></script>
+<script src="assets/chrome.js?v=676f4f3005"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -743,6 +743,7 @@ if (root.document && root.document.head) apply(read());
         <li><b>Maneka Gandhi joins live</b><span>She joins your event online, live, to speak with the organisers.</span></li>
         <li><b>A certificate for every organiser</b><span>Digitally verifiable: anyone can check it is genuine on this website.</span></li>
         <li><b>Certificates for everyone who takes part</b><span>A certificate of participation for each participant.</span></li>
+        <li><b>Apply 30 days ahead</b><span>Choose a date at least 30 days from today, so it can be planned well.</span></li>
       </ul>
       <p class="ev-only">Apply online through this website only. PFA does not take event requests anywhere else.</p>
     </div>
@@ -771,6 +772,14 @@ if (root.document && root.document.head) apply(read());
         <!-- where it would be held, whole (owner, 24 Oct 2026): assets/address.js -->
         <fieldset data-address data-kind="PFA-EV" data-legend="Where it would be held"></fieldset>
 
+        <!-- at least 30 days ahead (owner, 17 Nov 2026); the server holds the same rule -->
+        <div class="field">
+          <label for="evDate">The date you would like</label>
+          <input id="evDate" type="date" required>
+          <span class="hint" id="evDateHint">At least 30 days from today.</span>
+          <span class="error">Choose a date at least 30 days from today.</span>
+        </div>
+
         <div class="field">
           <label for="evPeople">About how many people will take part <span class="opt">(optional)</span></label>
           <input id="evPeople" type="text" inputmode="numeric" maxlength="6" placeholder="For the certificates, for example 60">
@@ -778,7 +787,7 @@ if (root.document && root.document.head) apply(read());
 
         <div class="field">
           <label for="evNotes">Anything else <span class="opt">(optional)</span></label>
-          <textarea id="evNotes" rows="3" maxlength="1200" placeholder="How many animals, who else is involved, dates that suit you"></textarea>
+          <textarea id="evNotes" rows="3" maxlength="1200" placeholder="How many animals, who else is involved, other dates that suit you"></textarea>
         </div>
       </div>
 
@@ -1198,15 +1207,30 @@ if (root.document && root.document.head) apply(read());
       if (f) f.classList.remove('is-bad');
     });
 
+    /* the earliest date: 30 days from today in India, as the server counts */
+    var evDate = $('#evDate');
+    var evDay = function (ms) { var d = new Date(ms); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2); };
+    var evEarliest = evDay(Date.now() + 330 * 60000 + 30 * 86400000);
+    if (evDate) {
+      evDate.min = evEarliest;
+      var evHint = $('#evDateHint');
+      if (evHint) evHint.textContent = 'At least 30 days from today: ' + new Date(evEarliest + 'T00:00:00Z').toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) + ' or later.';
+      form.addEventListener('pfa:step-check', function (e) {
+        if (e.detail && e.detail.step && e.detail.step.contains(evDate) && evDate.value && evDate.value < evEarliest && bad(evDate, true)) e.preventDefault();
+      });
+    }
+
     window.PFAForms.wire(form, {
       previewTitle: 'Check your request before it is sent',
       kind: 'PFA-EV',
+      previewLabels: { date: 'Date wanted' },
       sending: 'Sending\u2026',
       collect: function(){
         var kind = $('#evKind'), name = $('#evName'),
             mobile = $('#evMobile'), email = $('#evEmail'), notes = $('#evNotes');
         var errs = 0;
         errs += bad(kind, !kind.value) ? 1 : 0;
+        if (evDate) errs += bad(evDate, !evDate.value || evDate.value < evEarliest) ? 1 : 0;
         if (!window.PFAAddress || window.PFAAddress.check(form.querySelector('[data-address]'))) errs += 1;
         errs += bad(name, !name.value.trim()) ? 1 : 0;
         /* The same rule the server applies, so a number it will reject is
@@ -1220,6 +1244,7 @@ if (root.document && root.document.head) apply(read());
         }
         return {
           title: kind.value,
+          date: evDate ? evDate.value : '',
           people: ($('#evPeople') ? $('#evPeople').value.replace(/\D/g, '').slice(0, 6) : ''),
           name: name.value.trim(),
           mobile: mobile.value.replace(/\D/g, ''),

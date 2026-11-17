@@ -89,7 +89,7 @@ function valueFor(spec, field) {
   if (/^(url|link|profile)$/i.test(field)) return 'https://www.youtube.com/watch?v=LCwIbbSg-8E';
   /* the podcast (events.html#podcast): a date 60 days ahead or more, a
      paragraph, a follower count */
-  if (/^wantedDate$/.test(field)) return new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
+  if (/^(wantedDate|date)$/.test(field)) return new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
   if (/^followers$/.test(field)) return '12k';
   if (/^pitch$/.test(field)) return 'A conversation with feeders from our town about how a colony of street dogs is sterilised, vaccinated and kept, and what changed in our lane once the neighbours were told the law. We want people who see a dog as a nuisance to hear it from those who look after them every night.';
   if (/^(pincode)$/i.test(field)) return '110001';
