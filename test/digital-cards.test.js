@@ -390,7 +390,7 @@ test('the signature online is a vector: lines in the ink of the print master, sh
 test('signature size and position under Preview card; on a small screen it steps down only as far as it must', () => {
   const panel = read('assets/admin-digital-cards.js');
   assert.match(panel, /sigFold\(kind, 'dgr' \+ ref\.replace/);
-  assert.match(panel, /\.rg-dc__card > \.dc'\), function \(box\) \{/);
+  assert.match(panel, /\.rg-dc__card > \.dc, \.ccx \.dc\[data-kind="' \+ kind \+ '"\]'\), function \(box\) \{/);
   assert.match(panel, /box\._pfaFit\(\)/);
   const js = read('assets/digital-card.js');
   assert.match(js, /box\._pfaFit = fitAll;/);
@@ -568,4 +568,21 @@ test('a photograph added in the panel stays with the card: the card online, its 
   const html = read('admin.html');
   assert.match(html, /api\('\/api\/admin\/digital-cards\?kind=caregiver&preview=1&ref=' \+ encodeURIComponent\(row\.id\)\)/, 'Print and post prints it');
   assert.match(read('lib/routes/admin/membership.js'), /storedPhoto\(db, 'member', reference\)/, 'the printed membership card too');
+});
+
+/* Owner, 17 Nov 2026: "you havent given option to adjust pos and size of
+   sign on membership and catc cards". In Check the cards, under the large
+   card: Left / right, Up / down and Size, the card following as they move,
+   Save for every card; a colony caregiver card's printed card (the same
+   design) is saved with it. */
+test('the signature\'s size and place, in Check the cards, for both kinds of card', () => {
+  const cc = read('assets/admin-cardcheck.js');
+  assert.match(cc, /window\.PFADigitalCards\.sigFold\(K\[S\.kind\]\.api, 'ccx'\)/);
+  assert.match(cc, /card = Object\.assign\(\{\}, card, \{ sig: G\.sig\(card\.kind === 'member' \? 'member' : 'caregiver'\) \}\)/, 'drawn where it is being set');
+  const dg = read('assets/admin-digital-cards.js');
+  assert.match(dg, /window\.PFADigitalCards = \{ look: look, regSlot: regSlot, regFill: regFill, sigFold: sigFold, sig: at \};/);
+  assert.match(dg, /\.ccx \.dc\[data-kind="' \+ kind \+ '"\]/, 'the large card moves with the sliders');
+  assert.match(dg, /var both = pre === 'ccx' && kind === 'caregiver';/);
+  assert.match(dg, /body: \{ card: 'caregiver', x: l\.x, y: l\.y, s: l\.s \|\| 100 \}/, 'the printed caregiver card saved with it');
+  assert.match(dg, /'Size'|>Size</);
 });

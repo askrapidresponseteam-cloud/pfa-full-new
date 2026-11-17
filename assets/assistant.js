@@ -226,6 +226,7 @@
     reveal(logEl.children[before]);
     store(true);
     if (o.action) act(o.action);
+    if (o.miss) missed(o.miss);
   }
 
   /* The reply is read from its start. A reply taller than the window (the
@@ -401,14 +402,20 @@
     if (a.type === 'search') {
       var rows = [];
       try {
-        if (window.PFASearch && a.q) rows = (window.PFASearch.search(a.q, { limit: 5 }).rows || []).map(function (r) { return { title: r.t, url: r.u, desc: r.d || '' }; });
+        /* only pages that match: when nothing does, the search offers its
+           closest guesses, which are not an answer (17 Nov 2026: a name was
+           answered with Care Guides) */
+        var found = window.PFASearch && a.q ? window.PFASearch.search(a.q, { limit: 5 }) : null;
+        if (found && found.via !== 'closest') rows = (found.rows || []).map(function (r) { return { title: r.t, url: r.u, desc: r.d || '' }; });
       } catch (_) { rows = []; }
       /* the site's own words that answer it (16 Nov 2026): its paragraphs,
          as scripts/build-answer-index.js gathers them, read once */
-      return siteText().then(function (docs) {
+      return Promise.all([siteText(), publicPeople()]).then(function (got) {
         var passage = null;
-        try { passage = FL.passageOf([a.q, a.question].filter(Boolean).join(' '), docs); } catch (_) { passage = null; }
-        finish(a.id, { rows: rows, passage: passage });
+        var people = [];
+        try { passage = FL.passageOf([a.q, a.question].filter(Boolean).join(' '), got[0]); } catch (_) { passage = null; }
+        try { people = FL.peopleOf(a.question || a.q, got[1]); } catch (_) { people = []; }
+        finish(a.id, { rows: rows, passage: passage, people: people });
       }, function () { finish(a.id, { rows: rows }); });
     }
     waitOff();
@@ -541,6 +548,43 @@
   doc.addEventListener('visibilitychange', function () { if (!doc.hidden && session && session.state().phase === 'live') soon(); });
 
   var siteDocs = null;
+  /* What the chat could not answer, counted for the panel's Analytics
+     (17 Nov 2026): the words only; the server strips numbers, emails and
+     reference numbers before anything is kept (lib/analytics.js). */
+  function missed(q) {
+    try {
+      fetch('/api/analytics', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ p: location.pathname, q: String(q).slice(0, 200) }) }).catch(function () {});
+    } catch (_) { /* never in the visitor's way */ }
+  }
+
+  /* The names the site already shows, and only those (17 Nov 2026): who
+     wrote each Care Guide as they asked to be credited, whose film is on
+     The Wall, who runs each unit. Read once, from the same public answers
+     the pages use; no reporter, member, caregiver or donor is ever in it. */
+  var peopleList = null;
+  function publicPeople() {
+    if (peopleList) return peopleList;
+    var get = function (url) { return fetch(url, { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
+    peopleList = Promise.all([
+      get('/api/med-notes').then(function (d) { return d && Array.isArray(d.notes) ? d : get('/data/med-notes.json').then(function (o) { return { notes: ((o && o.notes) || []).map(function (n) { return Object.assign({}, n, { id: 'pfa-' + n.id }); }) }; }); }),
+      get('/api/wall')
+    ]).then(function (got) {
+      var list = [];
+      ((got[0] && got[0].notes) || []).forEach(function (n) {
+        var parts = String(n.credit || '').split(',');
+        if (parts[0].trim()) list.push({ name: parts[0].trim(), place: parts.slice(1).join(',').trim(), kind: 'guide', title: n.title, href: 'pet-health.html#note=' + encodeURIComponent(n.id) });
+      });
+      ((got[1] && got[1].films) || []).forEach(function (f) {
+        if (f.credit) list.push({ name: f.credit, place: '', kind: 'film', title: f.title, href: 'wall.html#' + (f.wall === 'short' ? 'shortform' : 'longform') });
+      });
+      (window.PFA_ASSIST_UNITS || []).forEach(function (u) {
+        if (u.p) list.push({ name: u.p, place: [u.c, u.s].filter(Boolean).join(', '), kind: 'unit', title: 'PFA ' + u.c, href: u.u });
+      });
+      return list;
+    }).catch(function () { peopleList = null; return []; });
+    return peopleList;
+  }
+
   function siteText() {
     if (!siteDocs) {
       siteDocs = fetch('/assets/assistant-answers.json', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (ix) {

@@ -137,17 +137,23 @@
     pre = pre || 'dgs';
     var l = at(kind);
     var changed = l.x !== sigSaved[kind].x || l.y !== sigSaved[kind].y || (l.s || 100) !== sigSaved[kind].s;
-    return '<details class="fold ct-sig" data-dgsig-fold="' + kind + '"' + (pre === 'dgs' ? '' : ' data-dgsig-here') + '><summary>' + (pre === 'dgs' ? 'Signature position online' : 'Signature size and position') + '</summary><div class="ct-sig__body">'
+    /* in Check the cards (17 Nov 2026: "you havent given option to adjust
+       pos and size of sign on membership and catc cards"): the card it moves
+       is the large one beside it; a colony caregiver card's printed card is
+       the same design, so the one setting is saved for both */
+    var both = pre === 'ccx' && kind === 'caregiver';
+    return '<details class="fold ct-sig" data-dgsig-fold="' + kind + '"' + (pre === 'dgs' ? '' : ' data-dgsig-here') + (both ? ' data-dgsig-both' : '') + '><summary>' + (pre === 'dgs' ? 'Signature position online' : 'Signature size and position') + '</summary><div class="ct-sig__body">'
       + (pre === 'dgs' ? '<div class="dg__peek" data-dg-peek="' + kind + '"></div>' : '')
       + sigRow(kind, 'x', 'Left / right', RANGE.x, l.x, pre)
       + sigRow(kind, 'y', 'Up / down', RANGE.y, l.y, pre)
       + '<div class="ct-sig__row"><label for="' + pre + kind + 'sR">Size</label>'
       + '<input id="' + pre + kind + 'sR" type="range" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + (l.s || 100) + '" data-dgsig="' + kind + '" data-axis="s" aria-label="Size">'
       + '<span class="ct-sig__num"><input id="' + pre + kind + 'sN" type="number" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + (l.s || 100) + '" data-dgsig="' + kind + '" data-axis="s" aria-label="Size, in per cent"> %</span></div>'
-      + '<div class="ct-sig__acts"><button class="press" type="button" data-dgsig-act="save" data-kind="' + kind + '"' + (changed ? '' : ' disabled') + '>Save for every card online</button>'
+      + '<div class="ct-sig__acts"><button class="press" type="button" data-dgsig-act="save" data-kind="' + kind + '"' + (changed ? '' : ' disabled') + '>' + (both ? 'Save for every card' : 'Save for every card online') + '</button>'
       + '<button class="ghost" type="button" data-dgsig-act="reset" data-kind="' + kind + '">Reset</button>'
       + '<p class="say" data-dgsig-say="' + kind + '" role="status" aria-live="polite"></p></div>'
-      + '<p class="ct-sig__note">Smt. Maneka Sanjay Gandhi\u2019s signature on every ' + (kind === 'member' ? 'membership card' : 'colony caregiver card') + ' online, the card above following as you move it. Right and down are more, left and up are less. The printed card keeps its own.</p>'
+      + '<p class="ct-sig__note">Smt. Maneka Sanjay Gandhi\u2019s signature on every ' + (kind === 'member' ? 'membership card' : 'colony caregiver card') + (both ? ', online and printed' : ' online') + ', the card ' + (pre === 'ccx' ? 'beside it' : 'above') + ' following as you move it. Right and down are more, left and up are less; Size makes it larger or smaller. '
+      + (both ? '' : kind === 'member' ? 'The printed membership card has its own, under Preview card in Members\u2019 To do.' : 'The printed card keeps its own.') + '</p>'
       + '</div></details>';
   }
 
@@ -195,7 +201,7 @@
      under a register's Preview card */
   function sigPaint(kind) {
     var l = at(kind);
-    Array.prototype.forEach.call(document.querySelectorAll('[data-dg-peek="' + kind + '"], .rg-dc[data-dgr-kind="' + kind + '"] .rg-dc__card > .dc'), function (box) {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-dg-peek="' + kind + '"], .rg-dc[data-dgr-kind="' + kind + '"] .rg-dc__card > .dc, .ccx .dc[data-kind="' + kind + '"]'), function (box) {
       box.style.setProperty('--sx', String(l.x)); box.style.setProperty('--sy', String(l.y)); box.style.setProperty('--ss', String((l.s || 100) / 100));
       if (typeof box._pfaFit === 'function') box._pfaFit();
     });
@@ -229,11 +235,20 @@
     var l = at(kind);
     b.disabled = true;
     A.say(say, 'Saving\u2026', '');
+    var both = Boolean(b.closest('[data-dgsig-both]'));
     A.api('/api/admin/card-signature', { method: 'POST', body: { card: SIG[kind], x: l.x, y: l.y, s: l.s || 100 } }).then(function (r) {
+      /* and the printed colony caregiver card, the same design */
+      if (!both) return r;
+      return A.api('/api/admin/card-signature', { method: 'POST', body: { card: 'caregiver', x: l.x, y: l.y, s: l.s || 100 } }).then(function () {
+        var C = window.PFACaregiverCard;
+        if (C && C.setSignature) C.setSignature({ x: l.x, y: l.y, s: l.s || 100 });
+        return r;
+      });
+    }).then(function (r) {
       sigSaved[kind] = { x: r.layout.x, y: r.layout.y, s: sizeOf(r.layout.s) };
       sigNow[kind] = null;
       sigApply(kind);
-      A.say(say, 'Saved. Every ' + (kind === 'member' ? 'membership card' : 'colony caregiver card') + ' online shows the signature here from now on.', 'good');
+      A.say(say, 'Saved. Every ' + (kind === 'member' ? 'membership card' : 'colony caregiver card') + (both ? ', online and printed,' : ' online') + ' has the signature here from now on.', 'good');
     }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be saved.', 'bad'); });
   });
   /* a studio closed without saving: the saved place back */
@@ -473,5 +488,5 @@
     + '@media (max-width:560px){.rg-dc__peek{padding:12px}}';
   document.head.appendChild(regStyle);
 
-  window.PFADigitalCards = { look: look, regSlot: regSlot, regFill: regFill };
+  window.PFADigitalCards = { look: look, regSlot: regSlot, regFill: regFill, sigFold: sigFold, sig: at };
 }());

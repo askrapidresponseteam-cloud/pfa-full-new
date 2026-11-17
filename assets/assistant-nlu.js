@@ -126,7 +126,7 @@
     { id: 'verify', w: ['verify', 'verification', 'genuine', 'fake', 'asli', 'nakli', 'असली', 'नकली', 'सत्यापन'], p: ['check certificate', 'check a certificate', 'check this certificate', 'check a card', 'check this card', 'is this card', 'is this certificate', 'certificate real', 'certificate is real', 'card is real', 'card real'] },
     { id: 'jobs', w: ['job', 'jobs', 'career', 'careers', 'vacancy', 'vacancies', 'hiring', 'naukri', 'salary', 'नौकरी'], p: [] },
     { id: 'shop', w: ['shop', 'buy', 'purchase', 'tshirt', 't-shirt', 'merchandise', 'store', 'kharid', 'khareed', 'खरीद', 'दुकान'], p: [] },
-    { id: 'newunit', w: [], p: ['new unit', 'start a unit', 'open a unit', 'unit kholna', 'own unit', 'new pfa unit', 'start a new unit', 'open a new unit'] },
+    { id: 'newunit', w: [], p: ['new unit', 'start a unit', 'open a unit', 'unit kholna', 'own unit', 'new pfa unit', 'start a new unit', 'open a new unit', 'start a pfa unit', 'open a pfa unit', 'set up a unit', 'set up a pfa unit', 'unit in my city', 'unit in my town', 'unit in my district'] },
     { id: 'mednote', w: [], p: ['share a care guide', 'send a care guide', 'write a care guide', 'submit a care guide', 'share a guide', 'submit your guide', 'submit my guide', 'share a note', 'care guide', 'share my article', 'write an article'] },
     { id: 'podcast', w: ['podcast', 'podcasts', 'पॉडकास्ट'], p: [] },
     /* the pages that are read (16 Nov 2026: every visible feature) */

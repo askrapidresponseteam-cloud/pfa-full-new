@@ -41,6 +41,18 @@
     notSure: { en: 'I did not quite follow. Choose one of these, or say it another way.', hi: 'मैं ठीक से समझ नहीं पाया। इनमें से चुनें, या दूसरे शब्दों में लिखें।' },
     found: { en: 'This is what I found on the PFA site:', hi: 'PFA की वेबसाइट पर यह मिला:' },
     nothingFound: { en: 'I could not find that on the site.', hi: 'वेबसाइट पर यह नहीं मिला।' },
+    /* a word the site does not know, perhaps a name or a place (17 Nov 2026,
+       "raghavendra" answered with Care Guides) */
+    nameOrPlace: { en: 'I could not find "{word}" on the site. Is it your name, a place, or someone who reported something?', hi: 'वेबसाइट पर "{word}" नहीं मिला। क्या यह आपका नाम है, या कोई जगह?' },
+    myName: { en: 'It is my name', hi: 'यह मेरा नाम है' },
+    /* a name: someone who reported is followed by their reference, never looked up by name */
+    iReported: { en: 'Follow a report I made', hi: 'मेरी शिकायत की स्थिति' },
+    notWho: { en: 'Not who I meant', hi: 'मेरा मतलब यह नहीं था' },
+    whoIsIt: { en: 'Who is "{word}"? I can only find people the PFA site names publicly, so tell me which of these it is.', hi: '"{word}" कौन हैं? मैं सिर्फ़ उन्हीं लोगों को ढूँढ सकता हूँ जिनका नाम PFA की वेबसाइट पर है, इसलिए बताइए इनमें से क्या है।' },
+    manyPeople: { en: 'More than one person on the PFA site matches "{word}":', hi: 'PFA की वेबसाइट पर "{word}" से एक से ज़्यादा लोग मिलते हैं:' },
+    noMore: { en: 'That is everything the PFA site has from {name}.', hi: 'PFA की वेबसाइट पर {name} का बस इतना ही है।' },
+    nearPlace: { en: 'Find PFA near {word}', hi: '{word} के पास PFA' },
+    hiName: { en: 'Hello {name}. How can I help?', hi: 'नमस्ते {name}। मैं कैसे मदद करूँ?' },
     askDesk: { en: 'Ask PFA\'s help desk', hi: 'PFA हेल्प डेस्क से पूछें' },
     /* a person at PFA, live, only while someone in the panel is available
        (owner, 16 Nov 2026); otherwise the help desk, by email */
@@ -540,6 +552,11 @@
       if (id !== 'helpdesk' || !firstText) S.data = {};
       if (id === 'helpdesk' && firstText) S.data = { question: cleanLong(firstText) };
       if (firstText) prefill(firstText);
+      /* what they told me earlier: their name, or the place they asked about */
+      var keys = f.fields.map(function (k) { return keyOf(k); });
+      if (S.knownName && keys.indexOf('name') > -1 && !S.data.name) S.data.name = S.knownName;
+      if (S.placeHint && keys.indexOf('place') > -1 && !S.data.place) S.data.place = S.placeHint;
+      S.placeHint = '';
       var lead = [];
       if (f.intro) lead.push(msg(L(f.intro, lang())));
       if (f.urgent && (S.data.urgency === 'Happening now' || !S.data.urgency)) lead.push(msg(t('urgent', lang())));
@@ -1182,14 +1199,56 @@
       chips.push(live ? { label: t('liveChip', lang()), value: '#live' } : { label: t('askDesk', lang()), value: '#desk' });
       chips.push({ label: t('menuChip', lang()), value: '#menu' });
       /* the site's own sentence that answers it, word for word, and its page */
+      /* a person the site names: what they did, by name, with links */
+      if (r.people && r.people.length) { S.afterSearch = ''; return peopleSaid(r.people, S.deskQuestion || ''); }
       var p = r.passage;
       var then = S.afterSearch;
       S.afterSearch = '';
       if (!(p && p.text && p.url) && then) return begin(then, S.deskQuestion || '');
       if (p && p.text && p.url) return out([msg(p.text, { links: [{ label: (lang() === 'hi' ? 'पूरा पढ़ें: ' : 'Read more: ') + p.title, href: String(p.url).replace(/^\//, '') }], chips: chips })]);
-      if (!best) return out([msg(t(live ? 'nothingLive' : 'nothingFound', lang()), { chips: chips })]);
+      /* a name and a page that does not carry it is not an answer: the
+         nearest page is a guess (17 Nov 2026, "raghavendra" answered with
+         Care Guides) */
+      var nm = nameLike(S.deskQuestion || '');
+      if (best && nm && !N.normalise([best.title, best.desc, best.url].join(' ')).split(/[^a-z]+/).some(function (w) { return nm.toLowerCase().split(' ').some(function (x) { return sameName(x, w); }); })) best = null;
+      if (!best) {
+        var word = nm;
+        /* what it could not answer, for the panel's Analytics */
+        if (word) return Object.assign(whoIs(word, chips), { miss: S.deskQuestion || word });
+        return out([msg(t(live ? 'nothingLive' : 'nothingFound', lang()), { chips: chips })], { miss: S.deskQuestion || '' });
+      }
       return out([msg(best.desc || best.title, { links: [{ label: best.title, href: best.url }], chips: chips })]);
     }
+    /* who a name is, when the site names no one by it: one question, with
+       the ways it could go; a reporter follows their report by its number */
+    function whoIs(word, chips) {
+      S.guess = word;
+      return out([msg(t('nameOrPlace', lang(), { word: word }), { chips: [{ label: t('myName', lang()), value: '#iam' }, { label: t('iReported', lang()), value: '#track' }, { label: t('nearPlace', lang(), { word: word }), value: '#nearhere' }, { label: t('askDesk', lang()), value: '#desk' }].concat((chips || []).filter(function (c) { return c.value !== '#desk'; })) })]);
+    }
+    var KIND_SAY = {
+      guide: { en: function (n) { return n === 1 ? 'wrote a Care Guide on the PFA site' : 'wrote ' + n + ' Care Guides on the PFA site'; }, hi: function (n) { return n === 1 ? 'ने PFA की वेबसाइट पर एक देखभाल गाइड लिखी है' : 'ने PFA की वेबसाइट पर ' + n + ' देखभाल गाइड लिखी हैं'; } },
+      film: { en: function (n) { return n === 1 ? 'has a film on The Wall' : 'has ' + n + ' films on The Wall'; }, hi: function (n) { return n === 1 ? 'की एक फ़िल्म The Wall पर है' : 'की ' + n + ' फ़िल्में The Wall पर हैं'; } },
+      unit: { en: function (n, w) { return 'runs PFA ' + w.title.replace(/^PFA\s*/, '') + (w.place ? ' (' + w.place + ')' : ''); }, hi: function (n, w) { return 'PFA ' + w.title.replace(/^PFA\s*/, '') + (w.place ? ' (' + w.place + ')' : '') + ' चलाते हैं'; } }
+    };
+    function aboutPerson(p) {
+      var kinds = ['guide', 'film', 'unit'].filter(function (k) { return p.works.some(function (w) { return w.kind === k; }); });
+      var parts = kinds.map(function (k) { var ws = p.works.filter(function (w) { return w.kind === k; }); return KIND_SAY[k][lang() === 'hi' ? 'hi' : 'en'](ws.length, ws[0]); });
+      return p.name + (p.place && !kinds.every(function (k) { return k === 'unit'; }) ? ', ' + p.place + ',' : '') + ' ' + parts.join(lang() === 'hi' ? ', और ' : ', and ') + '.';
+    }
+    function peopleSaid(people, question) {
+      S.phase = 'menu'; S.flow = '';
+      var chips = [{ label: t('notWho', lang()), value: '#notwho' }, { label: t('menuChip', lang()), value: '#menu' }];
+      S.guess = nameLike(question) || String(question || '').trim().slice(0, 40);
+      if (people.length === 1) {
+        var p = people[0];
+        /* remembered, so "what else did he write" is about them */
+        S.lastPerson = p;
+        return out([msg(aboutPerson(p), { links: p.works.slice(0, 6).map(function (w) { return { label: w.title, href: w.href }; }), chips: chips })]);
+      }
+      S.lastPerson = null;
+      return out([msg(t('manyPeople', lang(), { word: S.guess }), { links: people.map(function (p) { var w = p.works[0]; return { label: p.name + ': ' + w.title, href: w.href }; }), chips: chips })]);
+    }
+
     function answer(f) {
       S.phase = 'menu'; S.flow = '';
       var chips = (f.chip ? [chip(f.chip, lang())] : []).concat([{ label: t('menuChip', lang()), value: '#menu' }]);
@@ -1234,6 +1293,10 @@
         if (topic) { S.data.topic = topic; o1 = ask([]); o1.messages.unshift(msg(L(FLOWS.helpdesk.intro, lang()))); }
         return o1;
       }
+      /* a word the site did not know: their name, or a place (searchDone) */
+      if (s === '#iam' && S.guess) { S.knownName = S.guess; S.guess = ''; var hi = menu(false); hi.messages.unshift(msg(t('hiName', lang(), { name: S.knownName }))); return hi; }
+      if (s === '#notwho') return whoIs(S.guess || '', [{ label: t('menuChip', lang()), value: '#menu' }]);
+      if (s === '#nearhere' && S.guess) { S.placeHint = S.guess; S.guess = ''; return begin('nearby', ''); }
       if (s === '#switch' && S.offerSwitch) { var to = S.offerSwitch; S.offerSwitch = ''; return begin(to, S.switchText || ''); }
       if (s === '#stay') { S.offerSwitch = ''; return ask([]); }
       if (s.charAt(0) === '#' && s.length > 1 && s !== '#skip' && s !== '#done' && s !== '#send' && s !== '#change') return begin(s.slice(1), '');
@@ -1275,6 +1338,11 @@
       }
       if (S.phase === 'waiting') return out([msg(t('looking', lang()))]);
 
+      /* the person just named: "what else did he write", "his other guides" */
+      if (S.lastPerson && /\b(he|she|him|her|his|hers|they|them|their|this person|same person|more by|anything else by)\b|(उन्होंने|उनकी|उनके|उनका)/i.test(s) && N.tokens(s).length <= 10) {
+        var lp = S.lastPerson;
+        return out([msg(aboutPerson(lp) + ' ' + t('noMore', lang(), { name: lp.name }), { links: lp.works.map(function (w) { return { label: w.title, href: w.href }; }), chips: [{ label: t('menuChip', lang()), value: '#menu' }] })]);
+      }
       /* free text at the menu: what do they want? */
       var intents = N.intentOf(s);
       var top = intents[0];
@@ -1302,7 +1370,7 @@
         return out([msg(t('notSure', lang()), { chips: [chip(go, lang()), chip(INTENT_TO[intents[1].id], lang())] })]);
       }
       if (go) return begin(go, s);
-      return out([msg(t('notSure', lang()), { chips: MENU.map(function (id) { return chip(id, lang()); }) })]);
+      return out([msg(t('notSure', lang()), { chips: MENU.map(function (id) { return chip(id, lang()); }) })], { miss: s });
     }
 
     /* photographs chosen in the page, already shrunk to data URLs */
@@ -1434,6 +1502,86 @@
   var passageCache = { docs: null, items: null, df: null };
   /* docs: [{ title, url, heading, text }], the site's paragraphs
      (assets/assistant-answers.json, scripts/build-answer-index.js) */
+  /* one to three plain words the site does not know: a name or a place,
+     not a question (17 Nov 2026). Not a jumble of letters. */
+  function nameLike(text) {
+    var words = String(text || '').trim().split(/\s+/).filter(Boolean);
+    if (!words.length || words.length > 3) return '';
+    var ok = words.every(function (w) {
+      if (/^[\u0900-\u097F]{2,}$/.test(w)) return true;
+      var l = w.toLowerCase();
+      return /^[a-z]{3,20}$/.test(l) && /[aeiou]/.test(l) && !/[^aeiouy]{4,}/.test(l) && (l.match(/[aeiou]/g) || []).length / l.length >= 0.25;
+    });
+    return ok ? words.map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(' ') : '';
+  }
+
+  /* ---- people the site already shows (17 Nov 2026) --------------------
+     Owner: "raghavendra was actually the author, but it could have been the
+     reporters name as well". A name typed into the chat is matched only
+     against names the site publishes: who wrote a Care Guide (as they asked
+     to be credited), whose film is on The Wall, who runs a PFA unit. Never a
+     reporter, member, caregiver or donor: they are not in the list, and the
+     chat never looks anyone up by name. Spellings that differ by a letter
+     or a vowel are the same name (Raghavendra, Raghvendra), as an entity
+     extractor would take them, and every word typed must match. */
+  var TITLES = /^(dr|smt|shri|sri|mr|mrs|ms|miss|prof|adv|er|late)$/;
+  var WHO_WORDS = ' who whom whose is was are the a an of by wrote write writes written writer author authored guide guides care film films video videos made make makes filmed unit runs run running head heads in charge contact pfa about tell me information details this that did does do what name named person someone called sent shared on wall ';
+  function nameTokens(name) {
+    return String(name || '').toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(function (w) { return w.length >= 3 && !TITLES.test(w); });
+  }
+  function editsApart(a, b) {
+    var row = [];
+    for (var j = 0; j <= b.length; j++) row[j] = j;
+    for (var i = 1; i <= a.length; i++) {
+      var prev = row[0]; row[0] = i;
+      for (var k = 1; k <= b.length; k++) { var keep = row[k]; row[k] = Math.min(row[k] + 1, row[k - 1] + 1, prev + (a[i - 1] === b[k - 1] ? 0 : 1)); prev = keep; }
+    }
+    return row[b.length];
+  }
+  function sameName(a, b) {
+    if (a === b) return true;
+    if (a.length < 4 || b.length < 4 || a.charAt(0) !== b.charAt(0)) return false;
+    var bones = function (w) { return w.replace(/h/g, '').replace(/[aeiouy]/g, '').replace(/(.)\1+/g, '$1'); };
+    if (Math.min(a.length, b.length) >= 5 && bones(a) === bones(b)) return true;
+    return editsApart(a, b) <= (Math.min(a.length, b.length) >= 8 ? 2 : 1);
+  }
+  /* people: [{ name, place, kind: 'guide'|'film'|'unit', title, href }],
+     one line for each thing they did; answered gathered by person */
+  function peopleOf(question, people) {
+    var q = String(question || '');
+    var asking = /\b(who|whom|whose|wrote|written|writer|author|filmed|made by|runs|in charge)\b/i.test(q);
+    /* a few words, letters only, may be a name ('singh' has too few vowels for nameLike) */
+    var short = /^\s*[a-z.\s]{2,60}$/i.test(q) && q.trim().split(/\s+/).length <= 4;
+    if (!short && !asking) return [];
+    var words = nameTokens(q).filter(function (w) { return WHO_WORDS.indexOf(' ' + w + ' ') < 0; });
+    var byName = {};
+    (people || []).forEach(function (p) {
+      var toks = nameTokens(p.name);
+      if (!toks.length) return;
+      var key = toks.join(' ');
+      if (!byName[key]) byName[key] = { name: String(p.name).trim(), place: p.place || '', toks: toks, works: [] };
+      if (!byName[key].place && p.place) byName[key].place = p.place;
+      byName[key].works.push({ kind: p.kind, title: p.title, href: p.href, place: p.place || '' });
+    });
+    var all = Object.keys(byName).map(function (k) { return byName[k]; });
+    var hits = [];
+    if (words.length) {
+      hits = all.filter(function (h) { return words.every(function (w) { return h.toks.some(function (t) { return sameName(w, t); }); }); });
+    }
+    /* "who wrote the guide on diabetes": by what they made */
+    if (!hits.length && asking) {
+      var want = wordsOf(q);
+      hits = all.filter(function (h) {
+        return h.works.some(function (w) {
+          var tw = wordsOf(w.title);
+          var got = want.filter(function (x) { return tw.indexOf(x) > -1; }).length;
+          return got >= 1 && got >= Math.min(2, want.length);
+        });
+      });
+    }
+    return hits.slice(0, 6).map(function (h) { return { name: h.name, place: h.place, works: h.works }; });
+  }
+
   function passageOf(question, docs) {
     var terms = wordsOf(question).filter(function (w, i, all) { return all.indexOf(w) === i; });
     if (!terms.length || !docs || !docs.length || !onTopic(terms)) return null;
@@ -1477,5 +1625,5 @@
     return { text: shortOf(d.text), heading: d.heading || '', title: String(d.title || '').replace(/\s*\|\s*People for Animals\s*$/i, ''), url: d.url };
   }
 
-  return { createSession: createSession, unitsNear: unitsNear, passageOf: passageOf, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
+  return { createSession: createSession, unitsNear: unitsNear, passageOf: passageOf, nameLike: nameLike, peopleOf: peopleOf, sameName: sameName, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
 }));

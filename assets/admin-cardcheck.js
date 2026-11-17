@@ -86,6 +86,10 @@
     '.ccx :is(.ghost,.press){text-transform:none;letter-spacing:0}',
     '.ccx__pic{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 0}.ccx__pic .ghost{min-height:52px;padding:0 22px;font-size:16px}.ccx .checks:empty{display:none}',
     '.ccx__all-acts{display:flex;flex-wrap:wrap;gap:12px}',
+    '.ccx__sig{margin:18px 0 0;max-width:560px}.ccx__sig .ct-sig__note{font-size:14px;line-height:1.55}',
+    /* large and plain, as the rest of this screen: the name above its slider */
+    '.ccx__sig summary{font-size:16px;min-height:44px}.ccx__sig .ct-sig__row{grid-template-columns:minmax(0,1fr) 200px;gap:6px 16px;margin:0 0 12px}.ccx__sig .ct-sig__row label{grid-column:1 / -1;font-size:15px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink)}',
+    '.ccx__sig .ct-sig__num{display:flex;align-items:center;gap:8px;font-size:14px;white-space:nowrap}.ccx__sig .ct-sig__num input{width:76px;height:44px;font-size:16px}.ccx__sig .ct-sig__acts .press,.ccx__sig .ct-sig__acts .ghost{min-height:48px;padding:0 20px;font-size:15px}',
     '.mq-bar b{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;background:var(--ink);color:var(--paper);font-size:12px;font-weight:400}',
     '@media (max-width:760px){.mq-bar{width:100%}.mq-bar button{flex:1 1 auto}}',
     '@media (max-width:760px){[data-pane="membership"] :is(table,tbody,tr,td){display:block}[data-pane="membership"] thead{display:none}[data-pane="membership"] tr{position:relative;padding:12px 12px 12px 48px;border-bottom:1px solid var(--line)}[data-pane="membership"] td{padding:3px 0;border:0}[data-pane="membership"] td.mq-pick{position:absolute;left:12px;top:12px}[data-pane="membership"] .mq-do{text-align:left;white-space:normal;padding-top:10px}[data-pane="membership"] .mq-slots,[data-pane="membership"] .mq-courier{justify-content:flex-start}[data-pane="membership"] .wrap{overflow:visible}}'
@@ -166,6 +170,9 @@
   }
   function draw(box, card, photo) {
     return needCard().then(function (D) {
+      /* the signature where it is being set now, saved or not */
+      var G = window.PFADigitalCards;
+      if (G && G.sig) card = Object.assign({}, card, { sig: G.sig(card.kind === 'member' ? 'member' : 'caregiver') });
       D.render(box, card, { root: '', photo: photo || '', controls: false });
     });
   }
@@ -177,7 +184,9 @@
     if (!item) { body.innerHTML = '<p class="ccx__count">There are no cards to check here yet.</p>'; return; }
     var notYet = !item.issued;
     body.innerHTML = '<p class="ccx__count">Card <b>' + (S.at + 1) + '</b> of ' + S.items.length + '</p>'
-      + '<div class="ccx__one"><div class="ccx__card"><div class="dc" data-ccx-card><div class="ccx__wait">Drawing the card…</div></div><p class="ccx__tip">This is the card as its holder sees it. Tap it to see the back.</p></div>'
+      + '<div class="ccx__one"><div class="ccx__card"><div class="dc" data-ccx-card><div class="ccx__wait">Drawing the card…</div></div><p class="ccx__tip">This is the card as its holder sees it. Tap it to see the back.</p>'
+      /* the signature's size and place, for every card of this kind (17 Nov 2026) */
+      + (window.PFADigitalCards && window.PFADigitalCards.sigFold ? '<div class="ccx__sig">' + window.PFADigitalCards.sigFold(K[S.kind].api, 'ccx') + '</div>' : '') + '</div>'
       + '<form class="ccx__fix" novalidate>'
       + '<p class="ccx__now" data-ccx-now>' + nowLine(item) + '</p>'
       + '<label>Name on the card<input name="name" autocomplete="off" maxlength="60" value="' + esc(item.name || '') + '"></label>'
@@ -193,6 +202,9 @@
       + '<p class="ccx__say" data-ccx-say role="status" aria-live="polite"></p>'
       + '<div class="ccx__go" data-ccx-go>' + goHtml(item) + '</div><div class="ccx__life" data-ccx-life></div></form></div>';
     var box = body.querySelector('[data-ccx-card]');
+    /* the signature's fold stays open from card to card */
+    var sf = body.querySelector('.ccx__sig details');
+    if (sf) { sf.open = Boolean(S.sigOpen); sf.addEventListener('toggle', function () { S.sigOpen = sf.open; }); }
     dataOf(item).then(function (d) {
       if (S.items[S.at] !== item || S.view !== 'one') return;
       /* the boxes start from what the card carries */
