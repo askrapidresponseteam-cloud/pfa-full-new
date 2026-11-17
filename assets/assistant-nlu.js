@@ -127,7 +127,7 @@
     { id: 'jobs', w: ['job', 'jobs', 'career', 'careers', 'vacancy', 'vacancies', 'hiring', 'naukri', 'salary', 'नौकरी'], p: [] },
     { id: 'shop', w: ['shop', 'buy', 'purchase', 'tshirt', 't-shirt', 'merchandise', 'store', 'kharid', 'khareed', 'खरीद', 'दुकान'], p: [] },
     { id: 'newunit', w: [], p: ['new unit', 'start a unit', 'open a unit', 'unit kholna', 'own unit', 'new pfa unit', 'start a new unit', 'open a new unit'] },
-    { id: 'mednote', w: [], p: ['share a care guide', 'send a care guide', 'write a care guide', 'submit a care guide', 'share a guide', 'share a note', 'care guide', 'share my article', 'write an article'] },
+    { id: 'mednote', w: [], p: ['share a care guide', 'send a care guide', 'write a care guide', 'submit a care guide', 'share a guide', 'submit your guide', 'submit my guide', 'share a note', 'care guide', 'share my article', 'write an article'] },
     { id: 'podcast', w: ['podcast', 'podcasts', 'पॉडकास्ट'], p: [] },
     /* the pages that are read (16 Nov 2026: every visible feature) */
     { id: 'guides', w: ['diabetes', 'insulin', 'मधुमेह'], p: ['care guide', 'care guides', 'health guide', 'pet health', 'medical information', 'health article', 'pet care article', 'sugar in dogs'] },

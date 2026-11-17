@@ -33,6 +33,7 @@ tar -cf - \
   --exclude='./functions/node_modules' --exclude='./functions/api' \
   --exclude='./functions/lib' --exclude='./functions/assets' \
   --exclude='./functions/product.html' --exclude='./functions/.env' \
+  --exclude='./functions/data' --exclude='./functions/fonts' --exclude='./functions/media' \
   --exclude='./.DS_Store' \
   --exclude='./resources' --exclude='./media/site/campaign' \
   --exclude='./media/site/campus' --exclude='./media/site/sgacc' \

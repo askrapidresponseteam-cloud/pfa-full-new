@@ -132,7 +132,13 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .ph-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;margin:0 0 clamp(22px,2.6vw,36px);padding-bottom:16px;border-bottom:1px solid var(--ink)}
 .ph-head .eyebrow{margin:0 0 10px}
 .ph-head h1{font-size:clamp(28px,3vw,44px)}
+.ph-ask{display:grid;justify-items:end;gap:8px;max-width:340px}
+.ph-ask p{margin:0;font-size:13px;line-height:1.5;color:var(--muted);text-align:right}
 .ph-share{min-height:46px;padding:0 24px}
+.ph-about{margin:16px 0 0}
+.ph-about ul{margin:0;padding:0 0 0 18px;display:grid;gap:6px;font-size:14px;line-height:1.55}
+.ph-about p{margin:12px 0 18px;font-size:13px;line-height:1.5;color:var(--muted)}
+@media (max-width:700px){.ph-ask{justify-items:start;max-width:none}.ph-ask p{text-align:left}}
 .ph-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:clamp(28px,3vw,44px) clamp(20px,2.4vw,36px);margin:0;padding:0;list-style:none}
 .ph-card{display:flex;flex-direction:column;gap:14px;min-width:0}
 .ph-card--lead{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,min(340px,calc((100vh - var(--ann) - var(--nav) - 200px) * .667))) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:center}
@@ -478,7 +484,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=4649242874"></script>
+<script src="assets/chrome.js?v=93b3632112"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -493,7 +499,12 @@ if (root.document && root.document.head) apply(read());
         <p class="eyebrow pfa-kicker">For pet parents and caregivers</p>
         <h1 class="pfa-title display">Care Guides.</h1>
       </div>
-      <a class="btn btn--light ph-share" href="#share">Share a guide</a>
+      <!-- owner, 17 Nov 2026: "instead of share a guide, call it submit yours
+           or something like that..add a note on what it should be about" -->
+      <div class="ph-ask">
+        <a class="btn btn--light ph-share" href="#share">Submit your guide</a>
+        <p>Cared for an animal through an illness, an injury or old age? Write what helped, for the next person facing it.</p>
+      </div>
     </div>
     <div class="m-chips" id="phChips" role="group" aria-label="Show guides about" hidden></div>
     <ol class="ph-list" id="phList" aria-live="polite">
@@ -512,9 +523,18 @@ if (root.document && root.document.head) apply(read());
 
   <section class="band m-twin" id="share" data-flow data-flow-back="Care Guides">
     <div class="band__head">
-      <p class="eyebrow">Share a guide</p>
+      <p class="eyebrow">Submit your guide</p>
       <h2 class="display">Three short steps.</h2>
-      <p>PFA reads every guide before it goes up. You will get an email when it is published, or if anything needs changing first.</p>
+      <p>One problem you have seen an animal through, told so that someone facing it now knows what to do. PFA reads every guide before it goes up, and emails you when it is published or if anything needs changing first.</p>
+      <details class="ph-more ph-about"><summary>What a guide can be about</summary>
+        <ul>
+          <li>An illness or injury: the signs, what the vet found, the treatment and the care at home.</li>
+          <li>First aid until a vet can be reached, and when it is an emergency.</li>
+          <li>Feeding, recovery after surgery or sterilisation, living with a disability, or caring for an old animal.</li>
+          <li>Street and community animals: what worked for the ones you look after.</li>
+        </ul>
+        <p>Not for selling anything, a clinic&rsquo;s advertisement, or a question about your own animal: for that, see a vet.</p>
+      </details>
     </div>
     <div class="m-stage">
       <ol class="m-tabs" aria-hidden="true"><li><span>01</span>The guide</li><li><span>02</span>About you</li><li><span>03</span>Contact</li></ol>
@@ -966,7 +986,7 @@ if (root.document && root.document.head) apply(read());
     out.check = function () { if (st.busy) { errEl.textContent = 'Wait a moment: the picture is still being read.'; errEl.hidden = false; return input; } return st.error ? input : null; };
   }
 
-  /* ---------- share a guide ---------- */
+  /* ---------- submit your guide ---------- */
   var form = $('#phForm');
   if (form) {
     var att = {}, cov = {};

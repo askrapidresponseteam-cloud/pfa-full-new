@@ -3,8 +3,16 @@
    birthday reminder stuff").
 
    One page, top down: whose birthday it is today, each with their card to
-   download, their wish to copy, and how to reach them; then the next 30
-   days, folded; then the card itself, for any name. The reminder is
+   download, their wish to copy, how to reach them, and whether their card
+   has been emailed; then the next 30 days, folded; then the card itself,
+   for any name.
+
+   The card is emailed by itself between 6 and 7 in the morning, India time,
+   on the day (owner, 17 Nov 2026: "automatically trigger the birthday
+   greetings between 6-7 A.M on that special day"; lib/birthday-greetings.js).
+   Each of today's rows says where theirs stands, and Email the card sends it
+   now when the morning was missed. Whoever gave no email is said so, to be
+   sent the card on WhatsApp. The reminder is
    admin.html's: the count on the rail and a notice on every page while
    today's birthdays are unopened (PFABirthdays.watch).
 
@@ -29,6 +37,7 @@
     '.bd-who{min-width:0}.bd-who b{display:block;font-size:15px;overflow-wrap:anywhere}',
     '.bd-who .detail{display:block;margin-top:4px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}',
     '.bd-who a{color:inherit}',
+    '.bd-sent{display:block;margin-top:6px;font-size:12px;line-height:1.5;color:var(--ink)}.bd-sent[data-tone="wait"]{color:var(--muted)}.bd-sent[data-tone="bad"]{color:#b42318}',
     '.bd-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}',
     '.bd-acts button{width:auto;margin:0;min-height:36px;padding:0 14px;font-size:12px}',
     '.bd-when{display:inline-block;min-width:96px;font-variant-numeric:tabular-nums}',
@@ -59,16 +68,39 @@
     return 'Dear ' + first(p.name) + ', a very happy birthday from all of us at People for Animals. The world is kinder because of you. Wishing you joy, today and always. Warm regards, Maneka Sanjay Gandhi';
   }
   function phone(m) { return m ? m.slice(0, 5) + ' ' + m.slice(5) : ''; }
+  function clock(iso) {
+    var t = Date.parse(iso || '');
+    if (!isFinite(t)) return '';
+    var d = new Date(t + 330 * 60000);
+    var h = d.getUTCHours(); var m = d.getUTCMinutes();
+    return (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + (h < 12 ? ' am' : ' pm');
+  }
+  /* where today's emailed card stands: [words, tone, can it be sent now] */
+  function sent(p) {
+    var g = p.greeting || {};
+    var past = B.data && B.data.greetings && B.data.greetings.past;
+    var on = !(B.data && B.data.greetings && B.data.greetings.on === false);
+    if (g.state === 'no-email') return ['No email address: send the card on WhatsApp.', 'wait', false];
+    if (g.state === 'sent') return ['Card emailed' + (clock(g.at) ? ' at ' + clock(g.at) : '') + '.', '', false];
+    if (g.state === 'queued') return ['Card emailing: waiting for the mail server, it is tried again every ten minutes.', 'wait', false];
+    if (g.state === 'failed') return ['The card could not be emailed: the mail server refused it. Download it and send it by hand.', 'bad', false];
+    if (!on) return ['Not emailed: the morning email is switched off on this server.', 'wait', true];
+    return past ? ['Not emailed this morning.', 'bad', true] : ['The card is emailed by itself between 6 and 7 am.', 'wait', true];
+  }
 
   function row(p, today) {
     var how = [p.turns > 0 ? 'Turns ' + p.turns : '', (p.categories || []).join(', '), [p.district, p.state].filter(Boolean).join(', ')].filter(Boolean).join(' \u00b7 ');
+    var state = today ? sent(p) : null;
     var reach = [p.mobile ? '<a href="tel:+91' + esc(p.mobile) + '">' + esc(phone(p.mobile)) + '</a>' : '', p.email ? '<a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a>' : ''].filter(Boolean).join(' \u00b7 ');
     return '<li class="bd-row" data-bd-id="' + esc(p.id) + '"><div class="bd-who">'
       + (today ? '' : '<span class="detail bd-when">' + esc(dayWords(p.day)) + (p.inDays === 1 ? ', tomorrow' : ', in ' + p.inDays + ' days') + '</span>')
       + '<b>' + esc(p.name || 'No name given') + '</b>'
       + (how ? '<span class="detail">' + esc(how) + '</span>' : '')
-      + (reach ? '<span class="detail">' + reach + '</span>' : '') + '</div>'
-      + '<div class="bd-acts"><button class="ghost" type="button" data-bd="show">See card</button><button class="press" type="button" data-bd="download">Download card</button><button class="ghost" type="button" data-bd="wish">Copy wish</button></div></li>';
+      + (reach ? '<span class="detail">' + reach + '</span>' : '')
+      + (state ? '<span class="bd-sent" role="status"' + (state[1] ? ' data-tone="' + state[1] + '"' : '') + '>' + esc(state[0]) + '</span>' : '')
+      + (!today && !p.email ? '<span class="detail">No email address, so the card is not emailed on the day.</span>' : '') + '</div>'
+      + '<div class="bd-acts">' + (state && state[2] ? '<button class="press" type="button" data-bd="email">Email the card</button>' : '')
+      + '<button class="ghost" type="button" data-bd="show">See card</button><button class="' + (state && state[2] ? 'ghost' : 'press') + '" type="button" data-bd="download">Download card</button><button class="ghost" type="button" data-bd="wish">Copy wish</button></div></li>';
   }
 
   function paint() {
@@ -79,7 +111,7 @@
     var soon = d.upcoming || [];
     var out = [];
     out.push('<p class="bd-line"><b>' + (today.length ? today.length + (today.length === 1 ? ' birthday today' : ' birthdays today') : 'No birthdays today') + '</b>, ' + esc(dayWords(d.today)) + '. '
-      + (d.withDate || 0) + (d.withDate === 1 ? ' person has' : ' people have') + ' given a date of birth, on the donation, membership or internship forms.</p>');
+      + (d.withDate || 0) + (d.withDate === 1 ? ' person has' : ' people have') + ' given a date of birth, on the donation, membership or internship forms. Each is emailed their card by itself between 6 and 7 am on the day.</p>');
     out.push('<p class="bd-h">Today</p>');
     if (today.length) out.push('<ul class="bd-list">' + today.map(function (p) { return row(p, true); }).join('') + '</ul>');
     else out.push('<p class="bd-empty">' + (soon[0] ? 'The next is ' + esc(soon[0].name || 'someone') + '&rsquo;s, on ' + esc(dayWords(soon[0].day)) + '.' : 'No birthdays in the next ' + (d.ahead || 30) + ' days.') + '</p>');
@@ -126,6 +158,21 @@
     }, function (e) { say(e.message, true); }).then(function () { B.busy = false; });
   }
 
+  /* the morning's email, now (lib/routes/admin/birthdays.js POST send) */
+  function email(p, b) {
+    if (B.busy) return;
+    B.busy = true; b.disabled = true;
+    var line = b.closest('[data-bd-id]') && b.closest('[data-bd-id]').querySelector('.bd-sent');
+    if (line) { line.textContent = 'Emailing the card\u2026'; line.setAttribute('data-tone', 'wait'); }
+    A.api('/api/admin/birthdays', { method: 'POST', body: { action: 'send', key: p.key } }).then(function (r) {
+      p.greeting = r.greeting || { state: r.state };
+      paint();
+    }, function (e) {
+      b.disabled = false;
+      if (line) { line.textContent = (e && e.message) || 'The card could not be emailed just now.'; line.setAttribute('data-tone', 'bad'); }
+    }).then(function () { B.busy = false; });
+  }
+
   function copy(text) {
     var done = function () { say('The wish is copied: paste it into WhatsApp or an email.'); };
     if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(done, function () { say('Copying was not allowed here.', true); });
@@ -156,6 +203,7 @@
       var p = personOf(b);
       if (!p) return;
       if (what === 'download') return download(p.name);
+      if (what === 'email') return email(p, b);
       if (what === 'wish') return copy(wish(p));
       if (what === 'show') {
         var input = $('#bdName');
@@ -202,9 +250,13 @@
     var text = $('#bdayNoteText');
     if (!note || !text) return;
     if (!today.length || wasSeen()) { note.hidden = true; return; }
+    var mailed = today.filter(function (p) { return p.greeting && p.greeting.state === 'sent'; }).length;
+    var after = mailed === today.length ? (today.length === 1 ? ' Their card was emailed this morning.' : ' Their cards were emailed this morning.')
+      : mailed ? ' ' + mailed + ' of their cards were emailed this morning; see who is left.'
+      : (today.length === 1 ? ' Their card is ready.' : ' Their cards are ready.');
     text.innerHTML = today.length === 1
-      ? 'It is <b>' + esc(today[0].name || 'someone') + '</b>&rsquo;s birthday today' + (today[0].turns > 0 ? ' (' + today[0].turns + ')' : '') + '. Their card is ready to send.'
-      : '<b>' + today.length + ' birthdays today</b>, including ' + esc(today[0].name || 'someone') + '. Their cards are ready to send.';
+      ? 'It is <b>' + esc(today[0].name || 'someone') + '</b>&rsquo;s birthday today' + (today[0].turns > 0 ? ' (' + today[0].turns + ')' : '') + '.' + after
+      : '<b>' + today.length + ' birthdays today</b>, including ' + esc(today[0].name || 'someone') + '.' + after;
     note.hidden = false;
   }
   function watch() {

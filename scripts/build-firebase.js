@@ -133,7 +133,11 @@ const FN_DIRS = ['api', 'lib'];
    "Cannot find module '../assets/field-rules.js'" and the panel reported that
    it could not reach /api/admin. checkRequires() below now stops the build if
    anything lib/ or api/ loads is missing from the bundle. */
-const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json', 'assets/unit-pages.json', 'assets/certificate.js', 'data/med-notes.json'];
+/* The last six: the birthday card drawn on the server for the 6 am greeting
+   (17 Nov 2026, lib/birthday-card.js): its script, its picture and fonts. */
+const FN_FILES = ['product.html', 'assets/field-rules.js', 'assets/india-districts.js', 'assets/card-print.js', 'assets/site-modules.json', 'assets/unit-pages.json', 'assets/certificate.js', 'data/med-notes.json',
+  'assets/birthday-card.js', 'media/birthday/card-flowers.jpg', 'media/birthday/card-logo.png',
+  'fonts/marcellus-latin.woff2', 'fonts/marcellus-latin-ext.woff2', 'fonts/noto-serif-devanagari-400.woff2'];
 
 function rmrf(dir) { fs.rmSync(dir, { recursive: true, force: true }); }
 
@@ -240,6 +244,30 @@ function checkPanel() {
   return { missing, optional };
 }
 
+/* Every deploy reaches the panel at once (owner, 17 Nov 2026, the morning
+   after v1.593 went up, with a screenshot of the Birthdays section still
+   drawn by the day before's script: "still not fixed . wtf"). admin.html is
+   never cached, but the scripts it loads are kept an hour and then served
+   stale for up to a day while the browser fetches the new one in the
+   background, so a deploy could take a day to be seen. Each script and
+   stylesheet admin.html names is asked for with the build's number on it
+   (assets/admin-birthdays.js?v=v1.594), so a new build is a new address and
+   is fetched the first time the panel opens. Only the copy served from
+   public/ is changed; the tree's admin.html stays as it is. */
+function buildNumber() {
+  const m = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/<meta name="pfa-build" content="([^"]+)"/);
+  return m ? m[1] : String(Date.now());
+}
+function stampAssets(file) {
+  const full = path.join(PUBLIC, file);
+  if (!fs.existsSync(full)) return 0;
+  const v = encodeURIComponent(buildNumber());
+  let n = 0;
+  const out = fs.readFileSync(full, 'utf8').replace(/(<script\b[^>]*?\bsrc="|<link\b[^>]*?\bhref=")((?:assets|img|fonts)\/[^"?#]+\.(?:js|css))"/g, (m, a, b) => { n += 1; return `${a}${b}?v=${v}"`; });
+  fs.writeFileSync(full, out);
+  return n;
+}
+
 /* ---- the budget ------------------------------------------------------- */
 function dirBytes(dir) {
   let total = 0;
@@ -297,7 +325,7 @@ function build(opts = {}) {
   } else {
     for (const file of PANEL_PAGES) {
       if (NEVER.has(file)) continue;
-      if (copyFileInto(file)) pages += 1;
+      if (copyFileInto(file)) { pages += 1; stampAssets(file); }
     }
     for (const file of PANEL_ASSETS) {
       if (copyFileInto(file)) assets += 1;

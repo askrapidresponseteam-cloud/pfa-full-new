@@ -280,7 +280,11 @@ test('Option 1: the photograph\'s effects, as jjettas.com\'s hero: decorative, a
 
 test('Option 1: at rest the visor carries the film\'s still the same way, once it is on this site', () => {
   assert.equal(doc.querySelectorAll('[data-lens-still]').length, 1);
-  assert.match(css1, /\.mp-room\.has-still \.mp-lens,\.mp-room\.is-playing \.mp-lens\{opacity:1\}/, 'until then the photograph\'s own glass is seen');
+  assert.match(css1, /\.mp-room\.has-photo\.has-still \.mp-lens,\.mp-room\.has-photo\.is-playing \.mp-lens\{opacity:1\}/, 'until then the photograph\'s own glass is seen');
+  /* owner, 17 Nov 2026: "the specs border is not clean": never the frame
+     over a photograph still arriving, never a half-drawn photograph */
+  assert.match(css1, /\.mp-photo\{opacity:0;transition:opacity \.6s ease\}/);
+  assert.match(html, /function whole\(\)\{[\s\S]*?ph\.decode\(\)\.then\(shown, shown\)[\s\S]*?room\.classList\.add\('has-photo'\)|room\.classList\.add\('has-photo'\)[\s\S]*?ph\.decode\(\)\.then\(shown, shown\)/);
   assert.match(html, /probe\.onload = function \(\) \{\n\s*if \(FILMS\[cur\]\.poster !== url\) return;/);
 });
 

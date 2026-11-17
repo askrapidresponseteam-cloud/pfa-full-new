@@ -11,8 +11,10 @@
      - the words are laid out together, with the same rhythm between them
        whatever the name: a short name no longer leaves the space kept for a
        three-line one empty. The block sits in the middle of the paper, below
-       the mark, and every line is kept inside the paper's own outline, which
-       narrows near the bottom where the flowers overlap it;
+       the mark, and every line, descenders included, is kept inside the
+       paper as the picture shows it, with a margin of paper all round, so
+       no petal touches a letter (owner, 17 Nov 2026: "maneka sanjay gandhi
+       is getting clipped by flower");
      - it is drawn on a canvas at the template's size (1122 x 1402), so what
        is previewed is exactly the PNG that is saved.
 
@@ -33,25 +35,49 @@
   var CX = 561;                       /* the template's centre line, under the mark */
   var LOGO = { x: 474, y: 474, w: 174, h: 117 };
   var TOP = LOGO.y + LOGO.h + 12;     /* the words start below the mark, clear of it */
-  var BOTTOM = 948;                   /* and end above the flowers at the foot */
+  var BOTTOM = 918;                   /* and end clear above the petals at the foot */
+  var CLEAR = 20;                     /* the least paper kept round every line */
   var INK = '#241b17';
   var FACE = 'Marcellus, "Noto Serif", Georgia, "Times New Roman", serif';
   var IMAGES = { flowers: '/media/birthday/card-flowers.jpg', logo: '/media/birthday/card-logo.png' };
   var FONTS = ['/fonts/marcellus-latin.woff2', '/fonts/marcellus-latin-ext.woff2'];
   var MAX_LETTERS = 160;
 
-  /* The paper's width at a height, inside a margin: measured from the
-     flowers image, it is 635 wide to y 860 and narrows to the bottom tip. */
-  function widthAt(y) {
-    var pts = [[860, 560], [900, 380], [940, 300], [960, 270]];
-    if (y <= pts[0][0]) return pts[0][1];
-    for (var i = 1; i < pts.length; i += 1) {
-      if (y <= pts[i][0]) {
-        var a = pts[i - 1]; var b = pts[i];
-        return a[1] + (b[1] - a[1]) * (y - a[0]) / (b[0] - a[0]);
+  /* The paper, read from the flowers picture itself: for every row, the
+     run of paper either side of the centre line. The petals curl in over
+     the paper unevenly, so a line is checked against the picture, not a
+     guessed outline: its whole box, ascenders to descenders, with CLEAR
+     pixels of paper round it on every side. */
+  var paper = null;
+  function readPaper(img) {
+    var c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    var g = c.getContext('2d');
+    g.drawImage(img, 0, 0, W, H);
+    var px = g.getImageData(0, 0, W, H).data;
+    var isPaper = function (x, y) { var i = (y * W + x) * 4; return px[i] + px[i + 1] + px[i + 2] > 560; };
+    var left = new Int16Array(H); var right = new Int16Array(H);
+    for (var y = 0; y < H; y += 1) {
+      var l = CX; var r = CX;
+      if (isPaper(CX, y)) {
+        while (l > 0 && isPaper(l - 1, y)) l -= 1;
+        while (r < W - 1 && isPaper(r + 1, y)) r += 1;
       }
+      left[y] = l; right[y] = r;
     }
-    return pts[pts.length - 1][1];
+    return { left: left, right: right };
+  }
+  function fits(ctx, text, size, base) {
+    var m = ctx.measureText(text);
+    var half = m.width / 2 + CLEAR;
+    var up = m.actualBoundingBoxAscent || size * 0.8;
+    var down = m.actualBoundingBoxDescent || size * 0.25;
+    var y0 = Math.max(0, Math.floor(base - up - CLEAR));
+    var y1 = Math.min(H - 1, Math.ceil(base + down + CLEAR));
+    for (var y = y0; y <= y1; y += 1) {
+      if (CX - half < paper.left[y] || CX + half > paper.right[y]) return false;
+    }
+    return true;
   }
 
   var ready = null;
@@ -73,6 +99,7 @@
       });
     };
     ready = Promise.all([image(IMAGES.flowers), image(IMAGES.logo), fonts]).then(function (x) {
+      paper = readPaper(x[0]);
       return { flowers: x[0], logo: x[1] };
     });
     ready.catch(function () { ready = null; });
@@ -141,7 +168,7 @@
       y += l[2];
       var base = y + l[1] * 0.92;   /* Marcellus sits its letters this far into the line */
       ctx.font = l[1] + 'px ' + FACE;
-      if (ctx.measureText(l[0]).width > widthAt(base)) return null;
+      if (!fits(ctx, l[0], l[1], base)) return null;
       placed.push({ text: l[0], size: l[1], y: base });
       y += l[1] * LEAD;
     }
@@ -158,6 +185,9 @@
     var scale;
     for (scale = 1; scale >= 0.8; scale -= 0.02) for (size = 36; size >= 24; size -= 1) tries.push([size, scale]);
     for (size = 23; size >= 16; size -= 1) for (scale = 1; scale >= 0.8; scale -= 0.02) tries.push([size, scale]);
+    /* the biggest name as it is seen first; of two the same, the one that
+       keeps the rest of the card nearer its own size */
+    tries.sort(function (a, b) { return (b[0] * b[1] - a[0] * a[1]) || (b[1] - a[1]); });
     if (!name) tries = [[0, 1], [0, 0.9]];
     for (var i = 0; i < tries.length; i += 1) {
       var rows = name ? wrap(ctx, name, tries[i][0]) : [];

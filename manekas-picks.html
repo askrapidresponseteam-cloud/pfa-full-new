@@ -259,7 +259,15 @@ html[data-choice-opening="1"] .mp-lens{position:absolute;z-index:3;left:35.1708%
 html[data-choice-opening="1"] .mp-lens__glass{position:absolute;inset:0;overflow:hidden;isolation:isolate;
   -webkit-mask-image:url("media/picks/visor-mask.png");mask-image:url("media/picks/visor-mask.png");
   -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
-html[data-choice-opening="1"] .mp-room.has-still .mp-lens,html[data-choice-opening="1"] .mp-room.is-playing .mp-lens{opacity:1}
+/* The glasses only over the whole photograph (owner, 17 Nov 2026: "the
+   specs border is not clean. have clean border"). The frame is the
+   photograph's own pixels, so it is seamless on her face; laid over a
+   photograph still arriving, it stood alone on the wall with its ragged
+   outline showing, under a face cut off halfway. So her photograph shows
+   only once it has loaded and decoded whole, and the glasses with it. */
+html[data-choice-opening="1"] .mp-photo{opacity:0;transition:opacity .6s ease}
+html[data-choice-opening="1"] .mp-room.has-photo .mp-photo{opacity:1}
+html[data-choice-opening="1"] .mp-room.has-photo.has-still .mp-lens,html[data-choice-opening="1"] .mp-room.has-photo.is-playing .mp-lens{opacity:1}
 /* the film fills the visor, as the video does in a jjettas lens: 16:9 as
    wide as the visor and centred (the visor is 3.13 wide for 1), graded to
    the amber glass */
@@ -692,7 +700,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=4649242874"></script>
+<script src="assets/chrome.js?v=93b3632112"></script>
 
 <main>
   <!-- The opening, Option 1 or Option 2 as the panel chooses (11 Nov 2026).
@@ -716,7 +724,7 @@ if (root.document && root.document.head) apply(read());
        <div class="mp-type__row mp-type__row--back"><div class="mp-type__track"><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span><span>Picks</span></div></div>
      </div>
      <div class="mp-scene">
-      <img class="mp-photo" src="media/picks/portrait-visor.jpg" width="2576" height="2113" alt="Smt. Maneka Sanjay Gandhi in amber glasses, a black and white photograph" loading="lazy" decoding="async">
+      <img class="mp-photo" src="media/picks/portrait-visor.jpg" width="2576" height="2113" alt="Smt. Maneka Sanjay Gandhi in amber glasses, a black and white photograph" loading="lazy" decoding="async" fetchpriority="high">
       <!-- The visor, as jjettas.com does its lens (owner, 10 Nov 2026: "how is
            it being done in this. you need to do the same ... implement
            ditto", then "not even 1 pixel should flow out", then this
@@ -1079,6 +1087,17 @@ if (root.document && root.document.head) apply(read());
     var now = $('mpNow'), play = $('mpPlay'), sound = $('mpSound'), next = $('mpNext'), full = $('mpFull'), stop = $('mpStop');
     if (!room) return { halt: function () {} };
     var cur = 0, lens = null;
+
+    /* her photograph, and the glasses on it, shown once it is whole: never
+       half drawn, never the frame without her face under it */
+    (function whole(){
+      var ph = room.querySelector('.mp-photo');
+      if (!ph) return;
+      var done = false;
+      function shown(){ if (!done) { done = true; room.classList.add('has-photo'); } }
+      function ready(){ if (!ph.naturalWidth) return; if (ph.decode) ph.decode().then(shown, shown); else shown(); }
+      if (ph.complete) ready(); else ph.addEventListener('load', ready);
+    }());
 
     /* the picture leans a little toward the pointer, the type behind her
        further, as jjettas.com's hero does; still when motion is reduced */

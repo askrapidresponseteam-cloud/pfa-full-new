@@ -49,7 +49,7 @@ test('India\'s day decides, and 29 February is kept on 28 February in other year
 test('its own route, behind the People directory\'s module', () => {
   assert.equal(api._private.ROUTES['admin/birthdays'], './admin/birthdays.js');
   assert.match(read('api/index.js'), /'admin\/birthdays': \(\) => require\('\.\.\/lib\/routes\/admin\/birthdays\.js'\)/);
-  assert.match(read('lib/routes/admin/birthdays.js'), /requireAdmin\(request, response, 'directory'\)/);
+  assert.match(read('lib/routes/admin/birthdays.js'), /: await requireAdmin\(request, response, 'directory'\)/);
 });
 
 test('in the panel: a Birthdays tab with today\'s count, a notice on every page, and the pane', () => {
@@ -79,7 +79,16 @@ test('the card: the template\'s picture and words, all in Marcellus, laid out to
   assert.doesNotMatch(card, /italic|Georgia, serif'\);/i, 'no other face for the words');
   for (const words of ['Happy Birthday', 'The world is kinder', 'because of you.', 'Wishing you joy, today and always.', 'Warm regards,', 'Maneka Sanjay Gandhi']) assert.ok(card.includes(`'${words}'`), words);
   assert.match(card, /var y = TOP \+ \(BOTTOM - TOP - h\) \/ 2;/, 'the block centred in the space it has');
-  assert.match(card, /if \(ctx\.measureText\(l\[0\]\)\.width > widthAt\(base\)\) return null;/, 'every line inside the paper at its height');
+  assert.match(card, /if \(!fits\(ctx, l\[0\], l\[1\], base\)\) return null;/, 'every line inside the paper at its height');
+  /* owner, 17 Nov 2026: "maneka sanjay gandhi is getting clipped by flower".
+     Each line is checked against the paper as the picture shows it, its whole
+     box, descenders included, with paper kept clear all round. */
+  assert.match(card, /paper = readPaper\(x\[0\]\);/, 'the paper read from the flowers picture');
+  assert.match(card, /var down = m\.actualBoundingBoxDescent \|\| size \* 0\.25;/, 'descenders count');
+  assert.match(card, /var CLEAR = (\d+);/);
+  assert.ok(Number(card.match(/var CLEAR = (\d+);/)[1]) >= 16, 'a clear margin of paper round every line');
+  assert.ok(Number(card.match(/var BOTTOM = (\d+);/)[1]) <= 920, 'the words end well above the petals at the foot');
+  assert.doesNotMatch(card, /widthAt/, 'no guessed outline left');
   assert.match(card, /throw new RangeError\('Use a name of 160 letters or fewer\.'\)/);
   assert.doesNotMatch(card + read('assets/admin-birthdays.js'), /[–—]/);
 });
