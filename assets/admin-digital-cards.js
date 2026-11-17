@@ -337,7 +337,7 @@
     var head = '<h4>Digital card</h4>';
     if (!r.cardId) {
       return '<div class="rg-dc">' + head + '<p class="dg__now">' + (kind === 'member'
-        ? 'No card on the register yet. Approve the photograph in Photos and cards first; the card is then online and its link emailed.'
+        ? 'Not issued yet. Press Preview and issue on this member\u2019s line: you see the card, can correct the name, and issue it. It is then online and its link emailed.'
         : 'No card yet. Approve the application in To decide first; the card is then online and its link emailed.') + '</p></div>';
     }
     return '<div class="rg-dc" data-dgr-kind="' + kind + '" data-dgr-ref="' + esc(ref) + '">' + head

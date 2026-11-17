@@ -184,3 +184,21 @@ test('the panel: Email this report beside Download the list; the box in its own 
   assert.match(js, /action: 'period', month: p\.month \|\| '', from: p\.from \|\| '', dateTo: p\.dateTo \|\| '', purpose: p\.purpose/);
   assert.match(js, /the payments inboxes are copied/);
 });
+
+/* Owner, 17 Nov 2026, Send the report failing with "That could not be done
+   just now": the queued email carried reportMonth: undefined, and Firestore
+   refuses a write holding an undefined value. Nothing written here holds
+   one, and the live client drops any that slips through. */
+test('nothing undefined is written: Firestore would refuse the whole write', async () => {
+  seed();
+  const r = await call('POST', { body: { action: 'period', month: '2026-11', recipients: [PAY[0]] } });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  const holes = [];
+  const walk = (v, at) => {
+    if (v === undefined) { holes.push(at); return; }
+    if (v && typeof v === 'object' && !Buffer.isBuffer(v) && !(v instanceof Uint8Array)) for (const k of Object.keys(v)) walk(v[k], `${at}.${k}`);
+  };
+  for (const [k, v] of Object.entries(db.dump())) if (/^(caregiverEmails|finance_report_sends)\//.test(k)) walk(v, k);
+  assert.deepEqual(holes, []);
+  assert.match(read('lib/firebase.js'), /firestore\.settings\(\{ ignoreUndefinedProperties: true \}\)/);
+});

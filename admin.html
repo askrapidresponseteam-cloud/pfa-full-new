@@ -2962,6 +2962,15 @@ window.addEventListener('unhandledrejection', function (event) {
     var C = window.PFACaregiverCard;
     if (!C || !$('#cardPreview')) return;
     var data = caseCardData(c);
+    /* the new style, as the holder sees it online (17 Nov 2026) */
+    var front = $('#cardPreview canvas[data-side="front"]');
+    if (window.PFACardCheck && front) {
+      var back = $('#cardPreview canvas[data-side="back"]');
+      if (back) { back.hidden = true; back.style.display = 'none'; }
+      window.PFACardCheck.inPlaceOf(front, { kind: 'caregiver', name: data.printName || data.name, number: data.cardId || 'PFA-CCT-', district: data.district, state: data.state, photo: data.photo })
+        .catch(function (e) { var n = $('#previewNote'); if (n) n.textContent = 'The card could not be drawn: ' + ((e && e.message) || ''); });
+      return;
+    }
     C.loadAssets().then(function (assets) {
       return C.hydrate(data).then(function (full) {
         ['front', 'back'].forEach(function (side) {
@@ -5811,9 +5820,17 @@ window.addEventListener('unhandledrejection', function (event) {
     var canvas = node && node.querySelector('[data-ap-card]');
     if (!canvas || !window.PFACaregiverCard) return;
     var C = window.PFACaregiverCard;
+    /* the card in its new style, as the holder will see it online (owner,
+       17 Nov 2026: "where is the new style colony caregiver card. still see
+       the old style!"); the printed card is drawn under Print and post */
     var paint = function () {
+      var d = apCardData(row, issued);
+      if (window.PFACardCheck) {
+        window.PFACardCheck.inPlaceOf(canvas, { kind: 'caregiver', name: d.printName || d.name, number: d.cardId || 'PFA-CCT-', district: d.district, state: d.state, validUntil: issued && issued.validUntil ? issued.validUntil : '', photo: d.photo }).catch(function () {});
+        return;
+      }
       C.loadAssets().then(function (assets) {
-        return C.hydrate(apCardData(row, issued)).then(function (full) {
+        return C.hydrate(d).then(function (full) {
           C.draw(canvas, 'front', full, assets, Math.min(340, canvas.parentNode.clientWidth || 340), window.devicePixelRatio || 2);
         });
       }).catch(function () {});
@@ -6295,6 +6312,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-cert-layout.js"></script>
 <script src="assets/admin-cert-pane.js"></script>
 <script src="assets/admin-digital-cards.js"></script>
+<script src="assets/admin-cardcheck.js"></script>
 <script src="assets/admin-intern-time.js"></script>
 <script src="assets/admin-case-nav.js"></script>
 <script src="assets/admin-analytics.js"></script>

@@ -767,6 +767,82 @@
       return out([msg(lead), question(f)]);
     }
 
+    /* ---- an answer to another question (owner, 17 Nov 2026, with the chat
+       asking "Which animal?" a second time after a mobile number was typed:
+       "chat should be smart. when mobile number is entered- bot should
+       understand") ----
+       A mobile number or an email typed while something else is asked is
+       heard as what it is: kept for the form's own mobile or email question
+       (which is then not asked), said back in a line, and the question put
+       again. With a choice, a yes or no, or a name in the same message
+       ("dog, 98450 12345"), both are taken. Typed where a few words or a
+       description are asked, a number is left where it is: it may be
+       someone else's (who is doing it, a neighbour to call). */
+    var FILLER = {};
+    ['my', 'mine', 'me', 'our', 'the', 'is', 'its', 'it', 's', 'here', 'this', 'that', 'number', 'num', 'nbr', 'mobile', 'mob', 'phone', 'ph', 'cell', 'contact', 'whatsapp', 'call', 'on', 'at', 'email', 'e', 'mail', 'id', 'address', 'and', 'mera', 'meri', 'mere', 'hai', 'ka', 'ki', 'ye', 'yeh', 'nambar', 'aur',
+      'नंबर', 'नम्बर', 'मोबाइल', 'फ़ोन', 'फोन', 'मेरा', 'मेरी', 'है', 'ईमेल', 'यह', 'ये', 'और'].forEach(function (w) { FILLER[w] = true; });
+    function wordsLeft(text) {
+      return N.normalise(text).split(/[^\p{L}\p{M}\p{N}]+/u).filter(function (w) { return w && !FILLER[w]; });
+    }
+    function stripContacts(text) {
+      return String(text || '')
+        .replace(/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/gi, ' ')
+        .replace(/(?:\+?91[\s\-]?|\b0)?[6-9](?:[\s\-]?\d){9}(?!\d)/g, ' ');
+    }
+    function groupMobile(m) { return m.slice(0, 5) + ' ' + m.slice(5); }
+    function targetOf(kind) {
+      var types = kind === 'mobile' ? ['mobile', 'contact'] : ['email', 'contact'];
+      var ids = fieldIds();
+      var all = FLOWS[S.flow].fields;
+      var pick = ids.filter(function (x) { return types.indexOf(F[x].type) > -1; })[0] || all.filter(function (x) { return types.indexOf(F[x].type) > -1; })[0];
+      return pick || '';
+    }
+    function elsewhere(text, f) {
+      /* a few words or a description may be about someone else (who is
+         doing it, a landmark), so a number there is theirs to keep */
+      if (!f || /^(contact|text|long|photos)$/.test(f.type)) return null;
+      if (f.type === 'address' && S.addr && S.addr.step !== 'pin') return null;
+      var raw = String(text || '').trim();
+      /* the one the question asks for is its answer, not a value elsewhere */
+      var mob = f.type === 'mobile' ? '' : N.mobileOf(raw);
+      var mail = f.type === 'email' ? '' : N.emailOf(raw);
+      if (!mob && !mail) return null;
+      if ((f.type === 'mobile' && N.mobileOf(raw)) || (f.type === 'email' && N.emailOf(raw))) return null;
+      var rest = stripContacts(raw);
+      var left = wordsLeft(rest).join(' ');
+      var split = /^(choice|yesno|multi|name)$/.test(f.type);
+      if (left && !split) return null;
+      var hi = lang() === 'hi';
+      var said = [];
+      [['mobile', mob], ['email', mail]].forEach(function (pair) {
+        var kind = pair[0]; var v = pair[1];
+        if (!v) return;
+        var shownV = kind === 'mobile' ? groupMobile(v) : v;
+        var id = targetOf(kind);
+        if (!id) {
+          said.push(kind === 'mobile'
+            ? (hi ? shownV + ' मोबाइल नंबर लगता है, पर यहाँ उसकी ज़रूरत नहीं है।' : shownV + ' looks like a mobile number, but this does not need one.')
+            : (hi ? shownV + ' ईमेल लगता है, पर यहाँ उसकी ज़रूरत नहीं है।' : shownV + ' looks like an email, but this does not need one.'));
+          return;
+        }
+        var k = keyOf(id);
+        var was = S.data[k];
+        S.data[k] = v;
+        if (was && was === v) said.push(hi ? 'यह ' + (kind === 'mobile' ? 'नंबर' : 'ईमेल') + ' मेरे पास पहले से है।' : 'I already have that ' + (kind === 'mobile' ? 'number' : 'email') + '.');
+        else if (was) said.push(kind === 'mobile' ? (hi ? 'आपका मोबाइल नंबर बदलकर ' + shownV + ' कर दिया।' : 'I have changed your mobile number to ' + shownV + '.') : (hi ? 'आपका ईमेल बदलकर ' + shownV + ' कर दिया।' : 'I have changed your email to ' + shownV + '.'));
+        else said.push(kind === 'mobile' ? (hi ? 'धन्यवाद, आपका मोबाइल नंबर मिल गया: ' + shownV + '।' : 'Thank you, I have your mobile number: ' + shownV + '.') : (hi ? 'धन्यवाद, आपका ईमेल मिल गया: ' + shownV + '।' : 'Thank you, I have your email: ' + shownV + '.'));
+      });
+      var note = msg(said.join(' '));
+      /* the rest of the message, if any, answers the question asked */
+      if (left && split) {
+        var r = hearField(f.type === 'name' ? rest.replace(/[\s,;:.\-]+$/, '').replace(/\s+/g, ' ').trim() : left);
+        r.messages = [note].concat(r.messages || []);
+        return r;
+      }
+      if (f.type === 'address') return askAddress([note]);
+      return out([note, question(f)]);
+    }
+
     /* ---- hearing an answer to the question asked ---- */
     function hearField(text) {
       var f = fieldNow();
@@ -1175,6 +1251,7 @@
           }
         }
         if (!tapped && f) { var said2 = aside(s, f); if (said2) return said2; }
+        if (!tapped && f) { var other = elsewhere(s, f); if (other) return other; }
         return hearField(s);
       }
       if (S.phase === 'summary') {

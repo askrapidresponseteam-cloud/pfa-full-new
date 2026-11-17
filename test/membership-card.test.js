@@ -482,15 +482,16 @@ test('the members register: one short line a member, the rest under Open', () =>
    issuance!". Each line of the members register says whether its card is
    online, and issues it from there; the line above says how many are
    online and issues the rest in one go. */
-test('the members register: a Digital card column, Issue card on the line, Issue all above', () => {
+test('the members register: a Digital card column, Preview and issue on the line, Check the cards and Issue all above', () => {
   const js = fs.readFileSync(path.join(ROOT, 'assets', 'admin-registers.js'), 'utf8');
-  assert.match(js, /if \(r\.online === 'online'\) return '<span class="rg-chip rg-chip--live">Online<\/span>';/);
-  assert.match(js, /data-dc-issue="' \+ esc\(r\.id\) \+ '">Issue card<\/button>/);
+  assert.match(js, /<span class="rg-chip rg-chip--live">Online<\/span>' \+ pv/);
+  assert.match(js, /data-cc-open="' \+ esc\(r\.id\) \+ '">Preview and issue<\/button>/, 'where is preview option!');
+  assert.match(js, /data-cc-open="' \+ esc\(r\.id\) \+ '">Preview<\/button>/);
   assert.match(js, /data-go-cards="review">Approve photo<\/button>/);
-  assert.match(js, /api\('\/api\/admin\/membership', \{ method: 'POST', body: \{ action: 'issue', reference: r\.id \} \}\)/, 'the same Issue card as Photos and cards');
-  assert.match(js, /data-dc-issue-all>Issue ' \+ left/);
+  assert.match(js, /data-cc-all="' \+ kind \+ '">Check the cards \(' \+ cards \+ '\)<\/button>/, 'both registers');
+  assert.match(js, /data-dc-issue-all>Issue all ' \+ left \+ ' now<\/button>/);
   assert.match(js, /window\.confirm\('Issue ' \+ all\.length/, 'issuing many asks first');
-  assert.match(js, /<b>Digital cards: ' \+ on \+ ' of ' \+ rows\.length \+ ' online\.<\/b>/);
+  assert.match(js, /<b>Membership cards: ' \+ on \+ ' of ' \+ rows\.length \+ ' online\.<\/b>/);
   const reg = fs.readFileSync(path.join(ROOT, 'lib', 'routes', 'admin', 'registers.js'), 'utf8');
   assert.match(reg, /online: r\.cardId \? onlineOf\(online, 'member', doc\.id\) : '',/);
   assert.match(reg, /cardQueue: r\.queue \|\| '',/);

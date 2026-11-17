@@ -108,7 +108,9 @@ const PANEL_ASSETS = [
   /* a case full screen, Previous and Next (14 Nov 2026) */
   'assets/admin-case-nav.css', 'assets/admin-case-nav.js',
   /* care guides for pet parents and caregivers (16 Nov 2026) */
-  'assets/admin-mednotes.js'
+  'assets/admin-mednotes.js',
+  /* Check the cards: preview and correct cards, one by one or all at once (17 Nov 2026) */
+  'assets/admin-cardcheck.js'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */

@@ -58,6 +58,9 @@ async function seed() {
   await db.collection('memberCards').doc('PFA-MEM-2026-00004').set({ cardId: 'KA 2399', reference: 'PFA-MEM-2026-00004', name: 'Asha Rao', printName: 'Asha Rao', tierLabel: 'Golden', district: 'Udupi', state: 'Karnataka', validUntil: '2027-11-09', lifetime: false, approvedAt: '2026-11-10T08:00:00.000Z', status: 'active' });
   await db.collection('submissions').doc('PFA-MEM-2026-00004').set({ kind: 'PFA-MEM', fields: { name: 'Asha Rao', email: 'asha@example.com', mobile: '9000000001' } });
 }
+async function withCard() {
+  await db.collection('submissions').doc('PFA-MEM-2026-00004').set({ kind: 'PFA-MEM', fields: { name: 'Asha Rao', email: 'asha@example.com', mobile: '9000000001' }, memberCard: { cardId: 'KA 2399', printName: 'Asha Rao' } });
+}
 
 test('a caregiver card online: its own number is its address; issued with its photograph, logged and emailed', async () => {
   await seed();
@@ -404,4 +407,69 @@ test('the registers: a Digital card part under Open on Members and Caregivers li
   assert.match(dc, /data-dgr="preview">Preview card</);
   assert.match(dc, />' \+ \(live \? 'Update and email again' : 'Issue digital card'\) \+ '</);
   assert.match(dc, /regSlot: regSlot, regFill: regFill/);
+});
+
+/* Owner, 17 Nov 2026: "there should be an easy way to preview and correct
+   both caregiver and membership cards. easy way to do it in 1 go and also
+   to do 1 by 1.. keep it super simple. people of age 70 should be able to
+   do it easily". */
+test('a card corrected: the name, district and state on the register\'s card; a card online is brought up to date, quietly', async () => {
+  await seed();
+  const first = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004' });
+  const id = first.json.digital.id;
+  mails.length = 0; rows.length = 0;
+  const r = await admin('POST', { action: 'correct', kind: 'member', ref: 'PFA-MEM-2026-00004', name: 'Asha  Rao Shetty', district: 'Udupi', state: 'Karnataka' });
+  assert.equal(r.statusCode, 200, JSON.stringify(r.json));
+  assert.equal(r.json.changed, true);
+  const card = db.dump()['memberCards/PFA-MEM-2026-00004'];
+  assert.equal(card.printName, 'Asha Rao Shetty', 'spaces tidied');
+  assert.equal(db.dump()[`digitalCards/${id}`].name, 'Asha Rao Shetty', 'the card online shows it at once');
+  assert.equal(mails.length, 0, 'no second email for a correction');
+  assert.match(rows[0].detail, /name now Asha Rao Shetty/);
+  assert.equal(db.dump()['submissions/PFA-MEM-2026-00004'].memberCard, undefined, 'a membership with no card on it is left alone');
+  /* the same again: nothing changed, nothing logged */
+  rows.length = 0;
+  const same = await admin('POST', { action: 'correct', kind: 'member', ref: 'PFA-MEM-2026-00004', name: 'Asha Rao Shetty', district: 'Udupi', state: 'Karnataka' });
+  assert.equal(same.json.changed, false);
+  assert.equal(rows.length, 0);
+  /* the membership's copy of its card, which the printed card is drawn from */
+  await withCard();
+  await admin('POST', { action: 'correct', kind: 'member', ref: 'PFA-MEM-2026-00004', name: 'Asha R. Shetty', district: 'Udupi', state: 'Karnataka' });
+  const sub = db.dump()['submissions/PFA-MEM-2026-00004'];
+  assert.equal(sub.memberCard.printName, 'Asha R. Shetty');
+  assert.equal(sub.fields.name, 'Asha Rao', 'what the member wrote is never changed');
+  /* a caregiver card's district and state */
+  const asked = [];
+  const cg = await admin('POST', { action: 'correct', kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', name: 'Ravi Kumar', district: 'Dakshina Kannada', state: 'Karnataka' }, asked);
+  assert.equal(cg.statusCode, 200, JSON.stringify(cg.json));
+  assert.deepEqual(asked, ['caregivers'], 'by whoever has Caregivers');
+  assert.equal(db.dump()['caretakerCards/PFA-CCT-AB2CD3EF'].district, 'Dakshina Kannada');
+  /* a name the card cannot print; a membership with no card yet */
+  assert.equal((await admin('POST', { action: 'correct', kind: 'member', ref: 'PFA-MEM-2026-00004', name: 'Asha <b>' })).statusCode, 422);
+  const none = await admin('POST', { action: 'correct', kind: 'member', ref: 'PFA-MEM-2026-00099', name: 'Someone' });
+  assert.equal(none.statusCode, 404);
+  assert.match(none.json.message, /Press Issue card/);
+});
+
+test('Check the cards: one by one and all at once, in large type, the card in its new style', () => {
+  const js = read('assets/admin-cardcheck.js');
+  assert.match(js, /data-ccx-view="one" aria-pressed="true">One by one<\/button><button type="button" data-ccx-view="all" aria-pressed="false">All at once<\/button>/);
+  assert.match(js, /<label>Name on the card<input name="name"/);
+  assert.match(js, /<label>District<input name="district"/);
+  assert.match(js, /<label>State<input name="state"/);
+  assert.match(js, /'Save and go to the next card'/);
+  assert.match(js, /data-ccx="issue">Issue this card<\/button>/);
+  assert.match(js, /data-ccx="issue-all">Issue the ' \+ waiting\.length/);
+  assert.match(js, /data-ccx-change="' \+ i \+ '">Change<\/button>/);
+  assert.match(js, /\.ccx__fix input\{height:56px;[^}]*font-size:20px/, 'large boxes and type');
+  assert.match(js, /\.ccx__go button\{min-height:60px/, 'large buttons');
+  assert.match(js, /body: \{ action: 'correct', kind: K\[S\.kind\]\.api, ref: item\.ref, name: t\.name, district: t\.district, state: t\.state \}/);
+  assert.match(js, /body: \{ action: 'issue', reference: item\.ref, printName: t\.name \}/, 'issued with the name as typed');
+  assert.match(js, /D\.render\(box, card, \{ root: '', photo: photo \|\| '', controls: false \}\)/, 'the new-style card');
+  assert.doesNotMatch(js, /[–—]/);
+  const html = read('admin.html');
+  assert.match(html, /<script src="assets\/admin-digital-cards\.js"><\/script>\n<script src="assets\/admin-cardcheck\.js"><\/script>/);
+  assert.match(html, /window\.PFACardCheck\.inPlaceOf\(canvas, \{ kind: 'caregiver'/, 'To decide shows the new style');
+  assert.match(html, /window\.PFACardCheck\.inPlaceOf\(front, \{ kind: 'caregiver'/, 'a case\'s own preview too');
+  assert.match(read('scripts/build-firebase.js'), /'assets\/admin-cardcheck\.js'/);
 });

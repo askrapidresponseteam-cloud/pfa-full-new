@@ -381,23 +381,56 @@
      photograph has arrived says Approve photo instead, so the photograph is
      on the card. */
   function dcCell(kind, r) {
-    if (r.online === 'online') return '<span class="rg-chip rg-chip--live">Online</span>';
-    if (r.cardId) return '<span class="rg-chip">' + (r.online === 'withdrawn' ? 'Withdrawn' : 'Not online') + '</span><span class="rg-sub rg-one">Open, then Issue online</span>';
+    var pv = '<button type="button" class="rg-row rg-dcgo" data-cc-open="' + esc(r.id) + '">Preview</button>';
+    if (r.online === 'online') return '<span class="rg-dcpair"><span class="rg-chip rg-chip--live">Online</span>' + pv + '</span>';
+    if (r.cardId) return '<span class="rg-dcpair"><span class="rg-chip">' + (r.online === 'withdrawn' ? 'Withdrawn' : 'Not online') + '</span>' + pv + '</span>';
     if (kind !== 'membership') return '<span class="rg-sub">No card yet</span>';
     if (r.cardQueue === 'review') return '<button type="button" class="rg-row rg-dcgo is-due" data-go-cards="review">Approve photo</button>';
-    if (/^(request|lapsed|waiting)$/.test(r.cardQueue)) return '<button type="button" class="rg-row rg-dcgo is-due" data-dc-issue="' + esc(r.id) + '">Issue card</button>';
+    if (/^(request|lapsed|waiting)$/.test(r.cardQueue)) return '<button type="button" class="rg-row rg-dcgo is-due" data-cc-open="' + esc(r.id) + '">Preview and issue</button>';
     return '<span class="rg-sub">No card yet</span>';
   }
+  /* the cards Check the cards goes through, in the register's order: every
+     card there is, and for members, every one that can be issued now */
+  function ccItems(kind) {
+    return regState[kind].rows.filter(function (r) {
+      return r.cardId || (kind === 'membership' && /^(request|lapsed|waiting)$/.test(r.cardQueue));
+    }).map(function (r) {
+      return kind === 'membership'
+        ? { ref: r.id, row: r.id, issued: Boolean(r.cardId), online: r.online === 'online', name: r.name, number: r.cardId || r.memberNo, district: r.district, state: r.state, tier: r.type }
+        : { ref: r.cardId, row: r.id, issued: true, online: r.online === 'online', name: r.name, number: r.cardId, district: r.district, state: r.state };
+    });
+  }
+  function ccOpen(kind, rowId, view) {
+    if (!window.PFACardCheck) return;
+    var items = ccItems(kind);
+    var start = Math.max(0, items.map(function (x) { return x.row; }).indexOf(rowId));
+    var touched = false;
+    window.PFACardCheck.onClose(function () { if (touched) paintRegister(kind); });
+    window.PFACardCheck.open({ kind: kind === 'membership' ? 'member' : 'caregiver', items: items, start: start, view: view || 'one', changed: function (item, d) {
+      touched = true;
+      var r = regRow(kind, item.row);
+      if (!r) return;
+      if (kind === 'membership' && item.issued && !r.cardId) { r.cardId = (d && d.card && d.card.cardId) || item.ref; r.cardQueue = 'approved'; }
+      if (item.online) r.online = 'online';
+    } });
+  }
   function issuable(rows) { return rows.filter(function (r) { return !r.cardId && /^(request|lapsed|waiting)$/.test(r.cardQueue); }); }
-  /* above the members: how many cards are online, and the next step for the rest */
+  /* above the register: how many cards are online, Check the cards, and
+     for members the next step for the rest */
   function dcLine(kind, rows) {
-    if (kind !== 'membership' || !rows.length) return '';
+    if (!rows.length) return '';
     var on = rows.filter(function (r) { return r.online === 'online'; }).length;
+    var cards = ccItems(kind).length;
+    var check = cards ? '<button type="button" class="press" data-cc-all="' + kind + '">Check the cards (' + cards + ')</button>' : '';
+    if (kind !== 'membership') {
+      return '<div class="rg-dcline" data-dc-line><p><b>Colony caregiver cards: ' + on + ' of ' + cards + ' online.</b> Check the cards shows each one as its holder sees it, to correct the name, district or state, one by one or all at once.</p>'
+        + '<p class="rg-dcline__acts">' + check + '</p></div>';
+    }
     var left = issuable(rows).length;
     var review = rows.filter(function (r) { return !r.cardId && r.cardQueue === 'review'; }).length;
-    return '<div class="rg-dcline" data-dc-line><p><b>Digital cards: ' + on + ' of ' + rows.length + ' online.</b> Issue card puts a member&rsquo;s card online at its own address and emails them the link, at once. No photograph is needed; one that has arrived is approved onto the card.</p>'
-      + '<p class="rg-dcline__acts">' + (review ? '<button type="button" class="press" data-go-cards="review">Approve ' + review + (review === 1 ? ' photo' : ' photos') + '</button>' : '')
-      + (left ? '<button type="button" class="' + (review ? 'ghost' : 'press') + '" data-dc-issue-all>Issue ' + left + (left === 1 ? ' card' : ' cards') + '</button>' : '') + '</p>'
+    return '<div class="rg-dcline" data-dc-line><p><b>Membership cards: ' + on + ' of ' + rows.length + ' online.</b> Check the cards shows each one as the member sees it: correct the name, then issue it. Issuing puts the card online and emails the member the link. No photograph is needed.</p>'
+      + '<p class="rg-dcline__acts">' + check + (review ? '<button type="button" class="ghost" data-go-cards="review">Approve ' + review + (review === 1 ? ' photo' : ' photos') + '</button>' : '')
+      + (left ? '<button type="button" class="ghost" data-dc-issue-all>Issue all ' + left + ' now</button>' : '') + '</p>'
       + '<p class="rg-say" data-dc-say role="status" aria-live="polite"></p></div>';
   }
   function issueOne(r) {
@@ -414,8 +447,10 @@
     if (s && msg) say(s, msg, tone);
   }
   document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('[data-go-cards],[data-dc-issue],[data-dc-issue-all]');
+    var b = e.target.closest && e.target.closest('[data-go-cards],[data-dc-issue],[data-dc-issue-all],[data-cc-open],[data-cc-all]');
     if (!b) return;
+    if (b.hasAttribute('data-cc-open')) { var tr = b.closest('[data-rg-sum]'); var pane = b.closest('[data-pane]'); ccOpen(pane && pane.getAttribute('data-pane') === 'cgsheet' ? 'caregiver' : 'membership', b.getAttribute('data-cc-open') || (tr && tr.getAttribute('data-rg-sum'))); return; }
+    if (b.hasAttribute('data-cc-all')) { ccOpen(b.getAttribute('data-cc-all'), '', 'one'); return; }
     if (b.hasAttribute('data-go-cards')) { if (A.cards) A.cards(b.getAttribute('data-go-cards')); return; }
     if (b.hasAttribute('data-dc-issue')) {
       var r = regRow('membership', b.getAttribute('data-dc-issue'));
@@ -471,6 +506,7 @@
       + '.rg-dcline [data-dc-say]{flex:1 1 100%!important;margin:0;color:var(--ink)}.rg-dcline [data-dc-say]:empty{display:none}'
       + '.rg-dcgo{white-space:nowrap}.rg-dcgo.is-due{background:var(--ink);color:#fff;border-color:var(--ink)}'
       + '.rg-chip--live{border-color:var(--ink);color:var(--ink);font-weight:600}'
+      + '.rg-dcpair{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}'
       + '.rg-dcm{display:none}'
       + '.rg-compact .rg-who{display:block;font-weight:600}'
       + '.rg-compact .rg-one{display:block;margin-top:2px}'
