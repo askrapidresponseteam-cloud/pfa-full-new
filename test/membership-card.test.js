@@ -520,9 +520,9 @@ test('Issue card: no photograph needed, the card and its online link at once, an
 });
 
 /* Owner, 17 Nov 2026: "where is revoke card", "alignment is not okay". In
-   Photos and cards: Revoke card for a card online, Issue it again for one
-   revoked; and every line's buttons in the same three columns. */
-test('Photos and cards: Revoke card and Issue it again, and the buttons in three fixed columns', () => {
+   Members' To do and Print and post: Revoke card for a card online, Issue it
+   again for one revoked; and every line's buttons in the same three columns. */
+test('Members\' lists: Revoke card and Issue it again, and the buttons in three fixed columns', () => {
   const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
   assert.match(html, /second = '<button class="ghost mq-revoke" type="button" data-mq-life="revoke"' \+ who \+ '>Revoke card<\/button>';/);
   assert.match(html, /second = '<button class="ghost" type="button" data-mq-life="reissue"' \+ who \+ '>Issue it again<\/button>';/);
@@ -536,4 +536,38 @@ test('Photos and cards: Revoke card and Issue it again, and the buttons in three
   assert.match(route, /r\.online = o \? o\.state : ''; r\.digitalId = o \? o\.id : '';/);
   const reg = fs.readFileSync(path.join(ROOT, 'assets', 'admin-registers.js'), 'utf8');
   assert.match(reg, /data-cc-revoke="' \+ esc\(r\.id\) \+ '">Revoke<\/button>/, 'on the register line too, for both registers');
+});
+
+/* Owner, 17 Nov 2026: "why is the members section so diff from colony
+   caregiver.. the current UI is super fucking inconsistent.. and confusing to
+   follow..revamp section by section. BUT THE CORE IS SIMPLICITY YET NOT
+   TRADING OF OF ANY FEATUR". Members and Caregivers: the same four parts, by
+   the same names, each opening the same way, and nothing lost. */
+test('Members and Caregivers read alike: Register, To do, Print and post, Find a card', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
+  assert.match(html, /caregivers:[^}]*panes: \['cgsheet', 'apply', 'cards', 'verify'\]/);
+  assert.match(html, /membership:[^}]*panes: \['memsheet', 'membership', 'memprint', 'verify'\]/);
+  assert.match(html, /memprint: \{ title: 'Print and post', module: 'membership', needs: 'membership' \}/);
+  /* Members' views, split between To do and Print and post; every one kept */
+  const mq = html.slice(html.indexOf('  var MQ = {'), html.indexOf("  var mqView = 'ask';"));
+  for (const [key, g, label] of [['ask', 1, 'Ask for photo'], ['waiting', 1, 'Waiting'], ['review', 1, 'To approve'], ['approved', 2, 'To print'], ['dispatch', 2, 'To post']]) {
+    assert.match(mq, new RegExp(`${key}:\\s+\\{ g: ${g}, label: '${label}'`), label);
+  }
+  assert.doesNotMatch(mq, /all:/, 'every membership is the Register');
+  assert.match(html, /show\('membership', MQ\[mqView\]\.g === 2 \? 'memprint' : 'membership'\);/, 'a view asked for from anywhere opens in its part');
+  /* each part opens with the register's own control */
+  assert.match(html, /'<div class="rg-seg mq-bar" role="group" aria-label="Show">' \+ keys\.map/);
+  assert.match(html, /'<div class="rg-seg mq-bar" role="group" aria-label="Show" id="cardSteps">'/);
+  assert.match(html, /'<div class="rg-seg mq-bar"><b>To decide '/);
+  assert.doesNotMatch(html, /<h3>Print and post<\/h3>|<h3>Verify a card<\/h3>|class="mq-tab"/, 'no second heading under the part\'s own name');
+  /* Find a card: one box for either card; the card studio's list under it in Caregivers */
+  assert.match(html, /<div class="pane" data-pane="verify" role="region" aria-label="Find a card">/);
+  assert.ok(html.indexOf('data-pane="verify" role') < html.indexOf('<div class="pane" data-pane="caregivers">'), 'the box above the list');
+  assert.match(html, /'caregivers\.verify': \['verify', 'caregivers'\]/);
+  assert.match(html, /data-studio="' \+ esc\(data\.cardId\) \+ '">Open card studio<\/button>/);
+  assert.match(html, /data-vf-reg="' \+ \(data\.kind === 'member' \? 'mem' : 'cg'\) \+ '">Show in the register<\/button>/);
+  assert.match(html, /data\.status === 'revoked' \? 'Revoked'/, 'a revoked card says so');
+  const cc = fs.readFileSync(path.join(ROOT, 'assets', 'admin-cardcheck.js'), 'utf8');
+  assert.match(cc, /\.rg\) :is\(\.ghost,\.press\)\{[^}]*text-transform:none/, 'the register\'s buttons in every part');
+  assert.match(cc, /\[data-pane="membership"\] thead\{display:none\}/, 'on a phone each line stands as a card');
 });

@@ -60,7 +60,7 @@ test('the panel: a notice on every page with Review now, and a quiet refresh', (
   assert.match(html, /function photoWatch\(\)/);
   assert.match(html, /api\('\/api\/admin\/membership\?queue=review'\)/);
   assert.match(html, /sent their photograph for the membership card/);
-  assert.match(html, /mqView = 'review';[\s\S]{0,120}show\('membership', 'membership'\)/, 'Review now opens To approve, in Photos and cards');
+  assert.match(html, /mqView = 'review';[\s\S]{0,120}show\('membership', 'membership'\)/, 'Review now opens To approve, in To do');
   assert.match(html, /function membershipQuiet\(\)/);
   assert.match(html, /photoTimer = setInterval\(photoWatch, 60000\)/, 'looks every minute');
   assert.match(html, /n > photoSeen && current === 'membership'\) membershipQuiet\(\)/, 'the open page updates when a photograph arrives');

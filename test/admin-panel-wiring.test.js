@@ -144,12 +144,15 @@ test('every section in the rail is one the module list knows', () => {
   /* Applications to decide joined Colony cards, first, on 24 Oct 2026; the
      registers (the office's sheets, 2 Nov 2026) went above everything in
      Colony cards and Membership cards */
-  const stacks = /caregivers:[^}]*panes: \['cgsheet', 'apply', 'caregivers', 'verify', 'cards'\]/.test(script)
-    && /membership:[^}]*panes: \['memsheet', 'membership'\]/.test(script)
+  /* Members and Caregivers have the same four parts, in the same order (17
+     Nov 2026: "why is the members section so diff from colony caregiver"):
+     Register, To do, Print and post, Find a card */
+  const stacks = /caregivers:[^}]*panes: \['cgsheet', 'apply', 'cards', 'verify'\]/.test(script)
+    && /membership:[^}]*panes: \['memsheet', 'membership', 'memprint', 'verify'\]/.test(script)
     && /payments:[^}]*panes: \['payments', 'donations'\]/.test(script)
     && /people:[^}]*panes: \['people', 'audit'\]/.test(script);
   assert.ok(stacks, 'each merged tab names the panes it stacks');
-  assert.match(script, /HOMES = \{ donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', interns: 'internship', shelters: 'internship' \}/,
+  assert.match(script, /HOMES = \{ memprint: 'membership', donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', interns: 'internship', shelters: 'internship' \}/,
     'old section names still land on the section that holds them');
   const registry = script.slice(script.indexOf('var TABS = {'), script.indexOf('function can(module)'));
   for (const tab of tabs) {

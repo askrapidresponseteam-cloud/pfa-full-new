@@ -16,12 +16,13 @@ test('a section in parts shows one part at a time, chosen from a switch under it
   const html = read('admin.html');
   assert.match(html, /<nav class="subnav" id="subnav" aria-label="In this section" hidden><\/nav>/);
   assert.ok(html.indexOf('id="subnav"') < html.indexOf('id="replyAlert"'), 'the switch sits right under the title');
-  assert.match(html, /var SUBNAME = \{ cgsheet: 'Register', apply: 'To decide', caregivers: 'Card studio', verify: 'Verify a card', cards: 'Print and post', memsheet: 'Register', membership: 'Photos and cards',/);
+  /* Members and Caregivers: the same four parts, by the same names (17 Nov 2026) */
+  assert.match(html, /var SUBNAME = \{ cgsheet: 'Register', apply: 'To do', verify: 'Find a card', cards: 'Print and post', memsheet: 'Register', membership: 'To do', memprint: 'Print and post',/);
   assert.match(html, /function show\(tab, part\) \{/);
-  assert.match(html, /if \(live\.length > 1\) live = \[sub\];/, 'only the part chosen is drawn');
+  assert.match(html, /if \(live\.length > 1\) live = \(\{ 'membership\.memprint': \['membership'\], 'caregivers\.verify': \['verify', 'caregivers'\] \}\[tab \+ '\.' \+ sub\] \|\| \[sub\]\)\.filter\(paneAllowed\);/, 'only the part chosen is drawn');
   assert.match(html, /var want = part \|\| \(asked !== tab \? asked : ''\) \|\| subOf\[tab\];/, 'an old name opens its part; otherwise the last used');
   assert.match(html, /show\('membership', 'membership'\);/, 'Review now opens the photographs');
-  assert.match(html, /show\('caregivers', 'caregivers'\);/, 'a card found opens the card studio');
+  assert.match(html, /if \(r\.type === 'card'\) \{ show\('caregivers', 'verify'\); \$\('#vfQ'\)\.value = r\.id; return verify\(\); \}/, 'a card found opens Find a card, the card studio under it');
   assert.match(html, /\.main\[data-sub\] \.pane::before\{content:none!important\}/, 'no stacked headings once there is a switch');
   /* the font and colours are the panel's own */
   assert.doesNotMatch(html.slice(html.indexOf('.subnav{'), html.indexOf('.main[data-sub]')), /font-family|#(?!fff\b)[0-9a-f]{3,6}\b/i, "the rail pip's own black and white only");

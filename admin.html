@@ -63,8 +63,6 @@ button{font:inherit;color:inherit}
 
 /* the small uppercase label, lifted from the site footer */
 .lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
-.ap-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:0 0 10px}
-.ap-head .lab{margin:0}
 .ttl{font-family:var(--display);font-weight:400;letter-spacing:.01em;margin:0}
 
 /* ---------- sign in ---------- */
@@ -155,16 +153,12 @@ button{font:inherit;color:inherit}
 .pane[data-live] ~ .pane[data-live]{border-top:1px solid var(--line);padding-top:30px}
 .pane[data-live]:has(~ .pane[data-live]){padding-bottom:34px}
 .pane[data-pane="donations"]::before{content:"Donations"}
-.pane[data-pane="verify"]::before{content:"Verify a card"}
-.pane[data-pane="cards"]::before{content:"Print and post"}
-.pane[data-pane="apply"]::before{content:"Applications to decide"}
 .pane[data-pane="audit"]::before{content:"History"}
 .pane[data-pane="interns"]::before{content:"Interns"}.pane[data-pane="shelters"]::before{content:"Shelter directory"}
 .pane[data-pane="interns"]::before,.pane[data-pane="shelters"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
-.pane[data-pane="donations"]::before,.pane[data-pane="verify"]::before,.pane[data-pane="cards"]::before,.pane[data-pane="apply"]::before,.pane[data-pane="audit"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.pane[data-pane="donations"]::before,.pane[data-pane="audit"]::before{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
 /* The registers (2 Nov 2026): the colony cards and the members, laid out as
    the office's own sheets are, every item one click to copy */
-.pane[data-pane="caregivers"]::before{content:"Card studio";display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
 .rg-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 10px}
 .rg-tools input{flex:1 1 240px;min-width:0;height:38px;padding:0 12px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;color:var(--ink)}
 .rg-tools input:focus-visible{outline:none;border-color:var(--ink)}
@@ -542,11 +536,6 @@ details.fold[open] > summary{margin-bottom:8px}
 @media (max-width:760px){.ap,.ap[data-done]{grid-template-columns:1fr}}
 
 /* ---------- membership cards (26 Oct 2026) ---------- */
-.mq-bar{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);width:max-content;max-width:100%;margin:0 0 14px}
-.mq-tab{background:var(--paper);border:0;border-right:1px solid var(--line);padding:0 14px;min-height:40px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
-.mq-tab:last-child{border-right:0}
-.mq-tab[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.mq-n{font-variant-numeric:tabular-nums;font-weight:700}
 .mq-acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .mq-acts .press{width:auto;padding:0 18px;min-height:38px}
 .mq-pick{width:36px}
@@ -668,7 +657,6 @@ details.fold[open] > summary{margin-bottom:8px}
 .mq-courier .press{width:auto;padding:0 16px;min-height:38px}
 /* the card's own rounded corners, not a white square behind them */
 [data-pane="membership"] .ap canvas,#memberView canvas{border:0;background:none;border-radius:3.74%/5.93%}
-@media (max-width:760px){.mq-bar{width:100%}.mq-tab{flex:1 1 auto;justify-content:center}}
 
 /* ---------- website: what the public site shows ---------- */
 /* A pair of the panel's own ghost buttons joined into one control: the state
@@ -886,30 +874,23 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <!-- the shipping letters, before they go: one card each (filled by regPreview()) -->
     <dialog class="rgm" id="rgMail" aria-label="Check the emails before they go"></dialog>
 
-    <div class="pane" data-pane="apply" role="region" aria-label="Applications to decide"><div class="loading">Reading the applications&#8230;</div></div>
+    <div class="pane" data-pane="apply" role="region" aria-label="To do"><div class="loading">Reading the applications&#8230;</div></div>
+
+    <div class="pane" data-pane="verify" role="region" aria-label="Find a card">
+      <p class="hint">Type the number on any card, colony caregiver or member. You see what the public check says, and can open the card.</p>
+      <div class="tools">
+        <input type="search" id="vfQ" placeholder="Card number, e.g. PFA-CCT-4K2M8QRT or KNT 2036" aria-label="Card number">
+        <button class="ghost" type="button" id="vfGo">Find</button>
+      </div>
+      <div id="vfOut"></div>
+    </div>
 
     <div class="pane" data-pane="caregivers">
-      <div class="tools">
-        <input type="search" id="cgQ" placeholder="Card number, e.g. PFA-CCT-4K2M8QRT" aria-label="Find a card">
-        <button class="ghost" type="button" id="cgGo">Find</button>
-        <button class="ghost" type="button" id="cgClear">Clear</button>
-      </div>
+      <input type="hidden" id="cgQ">
       <div class="wrap"><table><thead><tr>
         <th>Card</th><th>Name</th><th>Issued</th><th>Valid to</th><th>Printed</th><th>State</th><th aria-label="Card studio"></th>
       </tr></thead><tbody id="cgRows"></tbody></table></div>
       <div class="more"><button class="ghost" type="button" id="cgMore" hidden>Load more</button></div>
-    </div>
-
-    <div class="pane" data-pane="verify" role="region" aria-label="Verify a card">
-      <div class="panel">
-        <h3>Verify a card</h3>
-        <p class="hint">Type any card number. The answer is the same one the public check gives.</p>
-        <div class="tools">
-          <input type="search" id="vfQ" placeholder="PFA-CCT-4K2M8QRT" aria-label="Card number">
-          <button class="ghost" type="button" id="vfGo">Check</button>
-        </div>
-        <div id="vfOut"></div>
-      </div>
     </div>
 
     <div class="pane" data-pane="cards" role="region" aria-label="Print and post"><div class="loading">Reading the register&#8230;</div></div>
@@ -1416,10 +1397,11 @@ window.addEventListener('unhandledrejection', function (event) {
     volunteers:  { title: 'Volunteers',    module: 'volunteers',  needs: 'submissions' },
     employees:   { title: 'Job applicants', module: 'employees',  needs: 'submissions' },
     donations:   { title: 'Donations',     module: 'donations',   needs: 'payments' },
-    caregivers:  { title: 'Caregivers',    module: 'caregivers',  needs: 'caregivers', panes: ['cgsheet', 'apply', 'caregivers', 'verify', 'cards'] },
+    caregivers:  { title: 'Caregivers',    module: 'caregivers',  needs: 'caregivers', panes: ['cgsheet', 'apply', 'cards', 'verify'] },
     cgsheet:     { title: 'Colony card register', module: 'caregivers', needs: 'caregivers' },
     apply:       { title: 'Applications to decide', module: 'caregivers', needs: 'caregivers' },
-    membership:  { title: 'Members',       module: 'membership', needs: 'membership', panes: ['memsheet', 'membership'] },
+    membership:  { title: 'Members',       module: 'membership', needs: 'membership', panes: ['memsheet', 'membership', 'memprint', 'verify'] },
+    memprint: { title: 'Print and post', module: 'membership', needs: 'membership' },
     memsheet:    { title: 'Membership register', module: 'membership', needs: 'membership' },
     payments:    { title: 'Payments & donations', module: 'payments', needs: 'payments', panes: ['payments', 'donations'] },
     shop:        { title: 'Shop orders',   module: 'shop',        needs: 'shop' },
@@ -1476,7 +1458,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* A section folded into another keeps its name here, so an old link or an
      internal show('donations') lands on the section that now holds it. */
-  var HOMES = { donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', interns: 'internship', shelters: 'internship' };
+  var HOMES = { memprint: 'membership', donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', interns: 'internship', shelters: 'internship' };
   function panesOf(tab) { return (TABS[tab] || {}).panes || [tab]; }
   function paneAllowed(pane) {
     var spec = TABS[pane];
@@ -1484,7 +1466,7 @@ window.addEventListener('unhandledrejection', function (event) {
   }
   /* the parts of a section, by name in its switch, and which rail count
      belongs to which part */
-  var SUBNAME = { cgsheet: 'Register', apply: 'To decide', caregivers: 'Card studio', verify: 'Verify a card', cards: 'Print and post', memsheet: 'Register', membership: 'Photos and cards', payments: 'Payments', donations: 'Donations', internship: 'Batches and review', interns: 'Interns', shelters: 'Shelters', people: 'Admins', audit: 'History' };
+  var SUBNAME = { cgsheet: 'Register', apply: 'To do', verify: 'Find a card', cards: 'Print and post', memsheet: 'Register', membership: 'To do', memprint: 'Print and post', payments: 'Payments', donations: 'Donations', internship: 'Batches and review', interns: 'Interns', shelters: 'Shelters', people: 'Admins', audit: 'History' };
   var SUBPIP = { apply: 'pipApps', membership: 'pipMembers', internship: 'pipIntern' };
   var subOf = {};
   function show(tab, part) {
@@ -1506,7 +1488,11 @@ window.addEventListener('unhandledrejection', function (event) {
     var sub = live.indexOf(want) !== -1 ? want : live[0];
     subOf[tab] = sub;
     paintSubnav(tab, live, sub);
-    if (live.length > 1) live = [sub];
+    /* Members and Caregivers have the same four parts (17 Nov 2026): Print
+       and post for members is Members' own list at its print views, and Find
+       a card for caregivers carries the card studio's list under it */
+    if (live.length > 1) live = ({ 'membership.memprint': ['membership'], 'caregivers.verify': ['verify', 'caregivers'] }[tab + '.' + sub] || [sub]).filter(paneAllowed);
+    if (live[0] === 'membership' && mqPart !== (sub === 'memprint' ? 2 : 1)) { mqPart = sub === 'memprint' ? 2 : 1; if (loaded.membership) mqRender(); }
     $$('.tab').forEach(function (b) {
       if (b.getAttribute('data-tab') === tab) { b.setAttribute('aria-current', 'page'); } else { b.removeAttribute('aria-current'); }
     });
@@ -2646,7 +2632,7 @@ window.addEventListener('unhandledrejection', function (event) {
           + '<td>' + (can('cards') && (r.cardId || r.id) ? '<button class="ghost" type="button" data-studio="' + esc(r.cardId || r.id) + '">Open</button>' : '') + '</td></tr>';
       }).join(''));
       cgCursor = data.cursor || null;
-      $('#cgMore').hidden = !cgCursor || Boolean(q);
+      $('#cgMore').hidden = !cgCursor || data.done || Boolean(q);
     }).catch(function (e) {
       body.innerHTML = '<tr><td colspan="7"><div class="empty"><b>Nothing to show</b>' + esc(e.message) + '</div></td></tr>';
     });
@@ -2896,6 +2882,9 @@ window.addEventListener('unhandledrejection', function (event) {
   function verify() {
     var q = $('#vfQ').value.trim().toUpperCase();
     var out = $('#vfOut');
+    /* Find a card (17 Nov 2026): the one box also narrows the card studio's list under it */
+    $('#cgQ').value = q;
+    if (current === 'caregivers' && loaded.caregivers) caregivers(true);
     if (!q) { out.innerHTML = ''; return; }
     out.innerHTML = '<div class="loading">Checking\u2026</div>';
     /* The check answers one question - is this card real, and is it still
@@ -2910,7 +2899,7 @@ window.addEventListener('unhandledrejection', function (event) {
       }
       var answer = data.status === 'valid' ? 'Valid today'
         : data.status === 'expired' ? 'On record, but expired'
-          : 'On record, with no validity date';
+          : data.status === 'revoked' ? 'Revoked' : 'On record, with no validity date';
       out.innerHTML = '<dl class="kv">'
         + '<dt>Card</dt><dd>' + esc(data.cardId || q) + '</dd>'
         + '<dt>Answer</dt><dd><span class="flag" data-s="' + (data.valid ? 'handled' : 'spam') + '">'
@@ -2918,7 +2907,8 @@ window.addEventListener('unhandledrejection', function (event) {
         + (data.name ? '<dt>Held by</dt><dd>' + esc(data.name) + '</dd>' : '')
         + (data.issuedOn ? '<dt>Issued</dt><dd>' + esc(when(data.issuedOn)) + '</dd>' : '')
         + (data.validUntil ? '<dt>Valid to</dt><dd>' + esc(when(data.validUntil)) + '</dd>' : '')
-        + '</dl>';
+        + '</dl><div class="tools">' + (data.kind === 'caregiver' && can('cards') ? '<button class="ghost" type="button" data-studio="' + esc(data.cardId) + '">Open card studio</button>' : '')
+        + '<button class="ghost" type="button" data-vf-reg="' + (data.kind === 'member' ? 'mem' : 'cg') + '">Show in the register</button></div>';
     }).catch(function () {
       out.innerHTML = '<div class="empty"><b>No answer</b>The check could not be reached.</div>';
     });
@@ -3781,13 +3771,23 @@ window.addEventListener('unhandledrejection', function (event) {
       URL.revokeObjectURL(url);
     });
   });
-  on('#cgGo', 'click', function () { caregivers(true); });
-  on('#cgClear', 'click', function () { $('#cgQ').value = ''; caregivers(true); });
   on('#cgMore', 'click', function () { caregivers(false); });
   on('#auGo', 'click', function () { auditLog(true); });
   on('#auClear', 'click', function () { $('#auQ').value = ''; auditLog(true); });
   on('#auMore', 'click', function () { auditLog(false); });
   on('#vfGo', 'click', verify);
+  /* Show in the register: that section's register, found by the number */
+  on('#vfOut', 'click', function (e) {
+    var b = e.target.closest('[data-vf-reg]');
+    if (!b) return;
+    var k = b.getAttribute('data-vf-reg') + 'sheet';
+    var q = $('#vfQ').value.trim();
+    show(k === 'memsheet' ? 'membership' : 'caregivers', k);
+    (function find(n) {
+      var i = $('[data-pane="' + k + '"] [data-rg="q"]');
+      if (i) { i.value = q; i.dispatchEvent(new Event('input', { bubbles: true })); } else if (n) setTimeout(function () { find(n - 1); }, 200);
+    })(25);
+  });
   on('#vfQ', 'keydown', function (e) { if (e.key === 'Enter') verify(); });
 
   /* ---- one search for everything (owner, 8 Oct 2026) ---------------------
@@ -4353,9 +4353,9 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Certificates', line: 'Internship, volunteer, participation, recognition and donor certificates', tab: 'certificates', words: 'certificates certificate internship completion volunteer appreciation participation camp event recognition award donor issue withdraw' },
     { title: 'Live chat', line: 'Answer visitors on the site\u2019s chat', tab: 'livechat', words: 'live chat visitors online available talk person reply help desk' },
     { title: 'Job applicants', line: 'Applications from the careers page', tab: 'employees', words: 'jobs careers applicants applications hiring posts vacancies' },
-    { title: 'Verify a card', line: 'The same answer the public check gives', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid' },
+    { title: 'Find a card', line: 'Any card by its number: the public check, the card studio, the register', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid find' },
     { title: 'Print and post', line: 'Print approved cards and post them', tab: 'caregivers', anchor: '[data-pane="cards"]', words: 'issue print pdf bulk post posted cards' },
-    { title: 'Card studio', line: 'A card front and back, actual size, PDF, A4 and PNG', tab: 'caregivers', anchor: '[data-pane="caregivers"]', words: 'card studio preview front back print pdf png a4 paper actual size photo' },
+    { title: 'Card studio', line: 'A card front and back, actual size, PDF, A4 and PNG', tab: 'caregivers', anchor: '#vfQ', words: 'card studio preview front back print pdf png a4 paper actual size photo' },
     { title: 'Website', line: 'Show or hide pages and sections', tab: 'website', words: 'website visibility visible hidden hide show pages sections public site' },
     { title: 'Old site members', line: 'The old website\u2019s membership list, kept apart', tab: 'oldmembers', words: 'old site members membership list legacy previous earlier website joined before workbook excel' },
     { title: 'Admins & audit', line: 'Who can use the panel, and what they did', tab: 'people', words: 'people staff admins accounts access permissions invite roles add person user login password team' },
@@ -4531,7 +4531,7 @@ window.addEventListener('unhandledrejection', function (event) {
       if ($('#payWhen')) { $('#payWhen').value = ''; $('#payRange').hidden = true; }
       return payments(true);
     }
-    if (r.type === 'card') { show('caregivers', 'caregivers'); $('#cgQ').value = r.id; return caregivers(true); }
+    if (r.type === 'card') { show('caregivers', 'verify'); $('#vfQ').value = r.id; return verify(); }
     if (r.type === 'email') { show('overview'); return gsWait('#mailbox', gsLand); }
     if (r.type === 'audit') {
       show('people');
@@ -4688,12 +4688,12 @@ window.addEventListener('unhandledrejection', function (event) {
       photoSeen = n;
     }).catch(function () { /* the next look tries again */ });
   }
-  /* Photos and cards at one of its views, from anywhere in the panel (the
+  /* Members' To do or Print and post at one of its views, from anywhere (the
      Members register's Digital card column, 17 Nov 2026) */
   function goCards(view) {
     mqView = MQ[view] ? view : 'ask';
     var fresh = !loaded.membership;
-    show('membership', 'membership');
+    show('membership', MQ[mqView].g === 2 ? 'memprint' : 'membership');
     if (!fresh) membershipPane();
   }
   on('#photoNoteGo', 'click', function () {
@@ -4926,14 +4926,15 @@ window.addEventListener('unhandledrejection', function (event) {
      here (assets/member-card.js) and never sent to the member. */
 
   var MQ = {
-    ask:      { label: 'Ask for photo',  queues: ['request', 'lapsed'], hint: 'Paid members with no photograph yet. Tick and press Email photo link: each gets a private link, valid for 14 days, to send their photograph.' },
-    waiting:  { label: 'Waiting',        queues: ['waiting'],           hint: 'A link has gone and the member has not used it yet. Send a new link if they lost it; the old one stops working. The moment a photograph arrives the member moves to To approve by itself, and you are told by email and on this panel.' },
-    review:   { label: 'To approve',     queues: ['review'],            hint: 'Photographs that have arrived. Preview the actual card, front and back, then Approve, or ask for another photograph and say why. Approving puts the card online at its own address and emails the member the link; the printed card follows by courier.' },
-    approved: { label: 'To print',       queues: ['approved'],          hint: 'Approved cards, each already online with its link emailed to the member. Preview, print on the card printer, then mark them printed.' },
-    dispatch: { label: 'To dispatch',    queues: ['printed'],           hint: 'Printed cards. Hand each to the courier, then type the courier and its tracking number and press Dispatched. The member is emailed the courier and tracking number.' },
-    all:      { label: 'All',            queues: null,                  hint: 'Every membership, and where its card stands.' }
+    ask:      { g: 1, label: 'Ask for photo', queues: ['request', 'lapsed'], hint: 'Paid members with no photograph yet. Issue card puts the card online now; Email photo link asks for a photograph first (the link lasts 14 days).' },
+    waiting:  { g: 1, label: 'Waiting',       queues: ['waiting'],           hint: 'A photo link has gone and is not used yet. Send a new link if it was lost. When a photograph arrives the member moves to To approve by itself.' },
+    review:   { g: 1, label: 'To approve',    queues: ['review'],            hint: 'Photographs that have arrived. Preview the card, then approve it or ask for another photograph. Approving puts the card online and emails the member the link.' },
+    approved: { g: 2, label: 'To print',      queues: ['approved'],          hint: 'Cards online and ready to print. Tick, print, then mark them printed.' },
+    dispatch: { g: 2, label: 'To post',       queues: ['printed'],           hint: 'Printed cards. Type the courier and the tracking number, then press Posted. The member is emailed both.' }
   };
   var mqView = 'ask';
+  var mqPart = 1;
+  var mqMail = true;
   var mqRows = [];
   var mqCounts = {};
   var mqDetail = {};
@@ -4950,14 +4951,11 @@ window.addEventListener('unhandledrejection', function (event) {
   }
 
   function mqCount(view) {
-    var spec = MQ[view];
-    if (!spec.queues) return mqRows.length;
-    return spec.queues.reduce(function (n, q) { return n + (Number(mqCounts[q]) || 0); }, 0);
+    return MQ[view].queues.reduce(function (n, q) { return n + (Number(mqCounts[q]) || 0); }, 0);
   }
 
   function mqIn(view) {
-    var spec = MQ[view];
-    return mqRows.filter(function (r) { return !spec.queues || spec.queues.indexOf(r.queue) !== -1; });
+    return mqRows.filter(function (r) { return MQ[view].queues.indexOf(r.queue) !== -1; });
   }
 
   function dayOf(iso) {
@@ -4973,7 +4971,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (r.online === 'revoked') return 'Revoked: its page says it is no longer valid';
     if (r.queue === 'approved') return 'Approved ' + dayOf(r.approvedAt) + ', not printed' + (r.online === 'online' ? '; online' : '');
     if (r.queue === 'printed') return 'Printed ' + dayOf(r.printedAt) + ', to hand to the courier';
-    if (r.queue === 'dispatched' && r.dispatchedAt) return 'Dispatched ' + dayOf(r.dispatchedAt) + ' by ' + r.courier + ', ' + r.trackingNumber;
+    if (r.queue === 'dispatched' && r.dispatchedAt) return 'Posted ' + dayOf(r.dispatchedAt) + ' by ' + r.courier + ', ' + r.trackingNumber;
     return r.queueLabel || '';
   }
 
@@ -5225,8 +5223,8 @@ window.addEventListener('unhandledrejection', function (event) {
     var rows = so.rows.filter(function (r) { return so.view === 'all' || r.stage === so.view; });
     var next = so.next ? soRow(so.next) : null;
     var empty = { 'to-ship': 'Every paid order has been shipped.', shipped: 'Nothing has been shipped yet.', all: 'No paid shop orders yet.' };
-    node.innerHTML = '<div class="tools"><div class="mq-bar" role="group" aria-label="Where the orders stand">'
-      + Object.keys(SO_VIEWS).map(function (k) { return '<button type="button" class="mq-tab" data-so-view="' + k + '" aria-pressed="' + (k === so.view) + '">' + esc(SO_VIEWS[k]) + (k !== 'all' ? ' <span class="mq-n">' + count[k] + '</span>' : '') + '</button>'; }).join('')
+    node.innerHTML = '<div class="tools"><div class="rg-seg mq-bar" role="group" aria-label="Where the orders stand">'
+      + Object.keys(SO_VIEWS).map(function (k) { return '<button type="button" data-so-view="' + k + '" aria-pressed="' + (k === so.view) + '">' + esc(SO_VIEWS[k]) + (k !== 'all' ? ' ' + count[k] : '') + '</button>'; }).join('')
       + '</div><span data-sr-slot></span></div>'
       + (so.mailOn ? '' : '<p class="say" data-tone="bad">Email is not set up on the server. Shipping emails are queued and will go once it is.</p>')
       + (next && next.shipment && !(next.shippedEmail && next.shippedEmail.trackingNumber === next.shipment.trackingNumber && next.shippedEmail.state !== 'unsent' && next.shippedEmail.state !== 'failed')
@@ -5359,15 +5357,13 @@ window.addEventListener('unhandledrejection', function (event) {
 
   function mqRender(data) {
     var node = $('[data-pane="membership"]');
-    var tabs = Object.keys(MQ).map(function (key) {
-      var n = mqCount(key);
-      return '<button type="button" class="mq-tab" data-mq-view="' + key + '" aria-pressed="' + (key === mqView ? 'true' : 'false') + '">'
-        + esc(MQ[key].label) + (key !== 'all' ? ' <span class="mq-n">' + n + '</span>' : '') + '</button>';
-    }).join('');
-    var mailNote = data && data.mailConfigured === false
-      ? '<p class="say" data-tone="bad">Email is not set up on the server. Links are queued and will go once it is.</p>' : '';
-    node.innerHTML = '<div class="mq-bar" role="group" aria-label="Where the cards stand">' + tabs + '</div>'
-      + mailNote
+    if (data && 'mailConfigured' in data) mqMail = data.mailConfigured !== false;
+    var keys = Object.keys(MQ).filter(function (k) { return MQ[k].g === mqPart; });
+    if (keys.indexOf(mqView) === -1) mqView = keys[0];
+    node.innerHTML = '<div class="rg-seg mq-bar" role="group" aria-label="Show">' + keys.map(function (key) {
+      return '<button type="button" data-mq-view="' + key + '" aria-pressed="' + (key === mqView) + '">' + esc(MQ[key].label) + ' ' + mqCount(key) + '</button>';
+    }).join('') + '</div>'
+      + (mqMail ? '' : '<p class="say" data-tone="bad">Email is not set up on the server. Links are queued and will go once it is.</p>')
       + '<p class="hint">' + esc(MQ[mqView].hint) + '</p>'
       + '<div data-mq-body></div>'
       + '<p class="say" data-mq-say role="status" aria-live="polite"></p>';
@@ -5378,12 +5374,12 @@ window.addEventListener('unhandledrejection', function (event) {
     var body = $('[data-pane="membership"] [data-mq-body]');
     var rows = mqIn(mqView);
     if (!rows.length) {
-      var empty = { ask: 'Every member has been asked for a photograph.', waiting: 'No links are waiting to be used.', review: 'No photographs are waiting for approval.', approved: 'Every approved card has been printed.', dispatch: 'Every printed card has gone by courier.', all: 'There are no memberships yet.' };
+      var empty = { ask: 'Every member has been asked for a photograph.', waiting: 'No links are waiting to be used.', review: 'No photographs are waiting for approval.', approved: 'Every approved card has been printed.', dispatch: 'Every printed card has gone by courier.' };
       body.innerHTML = '<div class="empty"><b>Nothing here</b>' + esc(empty[mqView]) + '</div>';
       return;
     }
     if (mqView === 'review') { body.innerHTML = '<div class="apq">' + rows.map(mqReviewItem).join('') + '</div>'; rows.forEach(mqLoadReview); return; }
-    var pick = mqView !== 'all' && mqView !== 'dispatch';
+    var pick = mqView !== 'dispatch';
     var bulk = mqView === 'approved'
       ? '<button class="press" type="button" data-mq="print" disabled>Print selected</button><button class="ghost" type="button" data-mq="printed" disabled>Mark selected as printed</button>'
       : '<button class="press" type="button" data-mq="send" disabled>Email photo link to selected</button>';
@@ -5401,7 +5397,7 @@ window.addEventListener('unhandledrejection', function (event) {
     else if (r.queue === 'review') act = '<button class="ghost" type="button" data-mq="go-review">Review</button>';
     else if (r.queue === 'printed') act = '<span class="mq-courier"><input type="text" data-mq-courier maxlength="60" placeholder="Courier" aria-label="Courier for ' + esc(r.reference) + '">'
       + '<input type="text" data-mq-tracking maxlength="40" placeholder="Tracking number" aria-label="Tracking number for ' + esc(r.reference) + '">'
-      + '<button class="press" type="button" data-mq="dispatch">Dispatched</button></span>';
+      + '<button class="press" type="button" data-mq="dispatch">Posted</button></span>';
     /* The actual card, front and back, can be previewed on every row, from
        the first day (owner, 26 Oct 2026: "still dont see card preview
        option"). Before the photograph arrives the photo window says PHOTO;
@@ -5641,7 +5637,7 @@ window.addEventListener('unhandledrejection', function (event) {
     button.disabled = true;
     api('/api/admin/membership', { method: 'POST', body: { action: 'dispatched', reference: r.reference, courier: courier, trackingNumber: tracking } }).then(function (data) {
       return membershipPane().then(function () {
-        mqSay(r.reference + ' dispatched by ' + courier + ' (' + tracking.toUpperCase() + ').' + (data.emailed ? ' The member was emailed the tracking number.' : (data.mailNote ? ' ' + data.mailNote : '')), 'good');
+        mqSay(r.reference + ' posted by ' + courier + ' (' + tracking.toUpperCase() + ').' + (data.emailed ? ' The member was emailed the tracking number.' : (data.mailNote ? ' ' + data.mailNote : '')), 'good');
       });
     }).catch(function (e) { button.disabled = false; mqSay(e.message, 'bad'); });
   }
@@ -5660,7 +5656,7 @@ window.addEventListener('unhandledrejection', function (event) {
     var b = e.target.closest && e.target.closest('[data-pane="membership"] [data-mq], [data-pane="membership"] [data-mq-view]');
     if (!b) return;
     var view = b.getAttribute('data-mq-view');
-    if (view) { mqView = view; mqRender({}); return; }
+    if (view) { mqView = view; mqRender(); return; }
     var what = b.getAttribute('data-mq');
     var tr = b.closest('tr');
     var node = b.closest('.ap');
@@ -5672,7 +5668,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (!r) return;
     if (what === 'open') { showCase(r.reference); return; }
     if (what === 'send-one') { mqSend([r.reference], b); return; }
-    if (what === 'go-review') { mqView = 'review'; mqRender({}); return; }
+    if (what === 'go-review') { mqView = 'review'; mqRender(); return; }
     if (what === 'view') { mqStudio(r.reference); return; }
     if (what === 'issue') {
       b.disabled = true;
@@ -5737,7 +5733,6 @@ window.addEventListener('unhandledrejection', function (event) {
   /* folded until someone asks (owner, 2 Nov 2026: "u can hide this by
      default. only if one clicks show, expand and show"); stays open for the
      rest of the visit once opened */
-  var apOpen = false;
   var apPhotos = {};
 
   function applicationsPane() {
@@ -5747,22 +5742,18 @@ window.addEventListener('unhandledrejection', function (event) {
     return api('/api/admin/applications').then(function (data) {
       apRows = data.rows || [];
       setApPip(apRows.length);
-      if (!apRows.length) {
-        node.innerHTML = '<div class="empty"><b>Nothing to decide</b>Every paid application has been issued or answered.</div>';
-        return;
-      }
-      node.innerHTML = '<div class="ap-head"><p class="lab">' + apRows.length + (apRows.length === 1 ? ' application' : ' applications') + ' waiting · ' + (data.ready || 0) + ' ready to issue</p>'
-        + '<button class="ghost" type="button" data-ap-toggle aria-expanded="' + apOpen + '" aria-controls="apList">' + (apOpen ? 'Hide' : 'Show') + '</button></div>'
-        + '<div id="apList"' + (apOpen ? '' : ' hidden') + '>'
-        + '<p class="hint">Oldest first. Look at the photograph and the checks, then Issue or Reject. Issue gives the card its number, puts it online at its own address and emails the applicant the link; the printed card then waits under Print and post. Reject closes the application as Not issued and emails the applicant why.</p>'
-        + '<div class="apq">' + apRows.map(apItem).join('') + '</div></div>';
+      /* the same control and words as Members' To do (17 Nov 2026) */
+      node.innerHTML = '<div class="rg-seg mq-bar"><b>To decide ' + apRows.length + '</b></div>'
+        + (apRows.length ? '<p class="hint">Oldest first; ' + (data.ready || 0) + ' ready to issue. Look at the photograph and the checks, then Issue card or Reject. Issuing puts the card online and emails the applicant the link; the printed card then waits in Print and post. Reject emails the applicant why.</p>'
+          + '<div id="apList"><div class="apq">' + apRows.map(apItem).join('') + '</div></div>'
+          : '<div class="empty"><b>Nothing here</b>Every paid application has been issued or answered.</div>');
       apRows.forEach(function (row) {
         var item = apNode(row.reference);
         var input = item && item.querySelector('[data-print]');
         if (input) checkPrint(input, item.querySelector('[data-print-say]'), item.querySelector('[data-ap="issue"]'));
       });
       /* the cards are drawn when they are shown: a hidden one has no width */
-      if (apOpen) apRows.forEach(function (row) { drawAp(row); });
+      apRows.forEach(function (row) { drawAp(row); });
     }).catch(function (e) { fail(node, e); });
   }
 
@@ -5930,17 +5921,7 @@ window.addEventListener('unhandledrejection', function (event) {
     checkPrint(input, node.querySelector('[data-print-say]'), node.querySelector('[data-ap="issue"]'));
     if (row) drawAp(row);
   });
-  document.addEventListener('click', function (e) {
-    var t = e.target.closest && e.target.closest('[data-pane="apply"] [data-ap-toggle]');
-    if (!t) return;
-    var list = $('#apList');
-    if (!list) return;
-    apOpen = list.hidden;
-    list.hidden = !apOpen;
-    t.setAttribute('aria-expanded', String(apOpen));
-    t.textContent = apOpen ? 'Hide' : 'Show';
-    if (apOpen) apRows.forEach(function (row) { drawAp(row); });
-  });
+
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-pane="apply"] [data-ap]');
     if (!b) return;
@@ -6057,11 +6038,11 @@ window.addEventListener('unhandledrejection', function (event) {
     api('/api/admin/cards?type=caregiver&filter=' + cardFilter).then(function (data) {
       sheet = data.rows || [];
       if (kept) { paint(); say($('#cardSay'), kept.text, kept.tone); return; }
-      node.innerHTML = '<div class="panel"><h3>Print and post</h3>'
-        + '<p class="hint">Each holder already has their card online, its link emailed when it was issued; the printed card goes by post. Tick cards, Download PDF for the card printer and Mark as printed; once they are in the post, Mark as posted, and each holder is emailed that the card is on its way. Download addresses gives the envelope labels. Cards approved from an application carry the applicant’s photograph; for older cards, match photographs from your own folder.</p>'
-        + '<div class="tabs" id="cardSteps">' + CARD_STEPS.map(function (s) {
-          return '<button type="button" data-step="' + s[0] + '" aria-pressed="' + (cardFilter === s[0]) + '">' + s[1] + '</button>';
+      /* laid out as Members' Print and post: the views, a line on what to do, the buttons, the cards */
+      node.innerHTML = '<div class="rg-seg mq-bar" role="group" aria-label="Show" id="cardSteps">' + CARD_STEPS.map(function (s) {
+          return '<button type="button" data-step="' + s[0] + '" aria-pressed="' + (cardFilter === s[0]) + '">' + s[1] + (cardFilter === s[0] ? ' ' + (data.total || 0) : '') + '</button>';
         }).join('') + '</div>'
+        + '<p class="hint">Every card here is already online. Tick cards, make the PDF for the card printer, then Mark as printed; once posted, Mark as posted and each holder is emailed. Download addresses gives the envelope labels. Older cards with no photograph: match photographs from a folder.</p>'
         + '<div class="tools">'
         + '<input type="file" id="cardPhotos" class="pick" accept="image/*" multiple>'
         + '<button class="ghost" type="button" id="cardPick">Match photographs from a folder</button>'
@@ -6071,9 +6052,12 @@ window.addEventListener('unhandledrejection', function (event) {
         + '<button class="ghost" type="button" id="cardLabels">Download addresses</button>'
         + '<button class="ghost" type="button" id="cardPrinted">Mark as printed</button>'
         + '<button class="ghost" type="button" id="cardPosted">Mark as posted</button>'
-        + '</div><p class="say" id="cardSay" role="status" aria-live="polite"></p></div>'
+        + '</div><p class="say" id="cardSay" role="status" aria-live="polite"></p>'
         + '<div class="sheet" id="cardSheet"></div>';
       paint();
+      CARD_STEPS.forEach(function (t) {
+        if (t[0] !== cardFilter) api('/api/admin/cards?type=caregiver&filter=' + t[0]).then(function (d) { var x = $('#cardSteps [data-step="' + t[0] + '"]'); if (x) x.textContent = t[1] + ' ' + (d.total || 0); }).catch(function () {});
+      });
       $$('#cardSteps button').forEach(function (b) {
         b.addEventListener('click', function () { cardFilter = b.getAttribute('data-step'); cardsPane(); });
       });
@@ -6356,7 +6340,8 @@ window.addEventListener('unhandledrejection', function (event) {
   }
   var n = 0;
   function fold(hint) {
-    if (hint.hasAttribute('data-folded')) return;
+    /* gone already: a list drawn twice in a row */
+    if (hint.hasAttribute('data-folded') || !hint.parentNode) return;
     hint.setAttribute('data-folded', '');
     if (!hint.id) { n += 1; hint.id = 'hint' + n; }
     hint.classList.add('is-folded');

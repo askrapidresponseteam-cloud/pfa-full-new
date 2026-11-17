@@ -273,8 +273,8 @@ test('the panel: each register first in its tab, every item copies, a row pastes
   assert.match(page, /window\.PFAAdmin = \{ \$: \$, esc: esc, say: say, api: api, token: token, on: on, show: function \(t, p\) \{ show\(t, p\); \}, showCase: function \(r\) \{ return showCase\(r\); \}, cards: function \(v\) \{ goCards\(v\); \}, refresh: function \(\) \{ fill\(current, true\); \}, certificates: function \(\) \{ return window\.PFACertPane \? window\.PFACertPane\.rows\(\) : \[\]; \}, fail: function \(n, e\) \{ fail\(n, e\); \}, dayOf: function \(iso\) \{ return dayOf\(iso\); \} \};/);
   assert.match(page, /<\/script>\n<script src="assets\/admin-registers\.js"><\/script>/);
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-registers\.js'/, 'the Firebase panel carries it');
-  assert.match(admin, /caregivers:\s+\{ title: 'Caregivers',\s+module: 'caregivers',\s+needs: 'caregivers', panes: \['cgsheet', 'apply', 'caregivers', 'verify', 'cards'\] \}/);
-  assert.match(admin, /membership:\s+\{ title: 'Members',\s+module: 'membership', needs: 'membership', panes: \['memsheet', 'membership'\] \}/);
+  assert.match(admin, /caregivers:\s+\{ title: 'Caregivers',\s+module: 'caregivers',\s+needs: 'caregivers', panes: \['cgsheet', 'apply', 'cards', 'verify'\] \}/);
+  assert.match(admin, /membership:\s+\{ title: 'Members',\s+module: 'membership', needs: 'membership', panes: \['memsheet', 'membership', 'memprint', 'verify'\] \}/);
   assert.ok(admin.indexOf('data-pane="cgsheet"') < admin.indexOf('data-pane="apply" role'), 'the register comes before the applications');
   assert.match(admin, /if \(tab === 'cgsheet'\) return window\.PFARegisters && window\.PFARegisters\.pane\('caregiver'\);/);
   assert.match(admin, /if \(tab === 'memsheet'\) return window\.PFARegisters && window\.PFARegisters\.pane\('membership'\);/);

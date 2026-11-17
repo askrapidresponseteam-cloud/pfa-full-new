@@ -74,7 +74,18 @@
     '.ccx__who b{font-size:17px;overflow-wrap:anywhere}.ccx__who small{display:block;font-size:14px;color:var(--muted);font-weight:400}',
     '.ccx__who button{min-height:48px;padding:0 20px;font-size:16px;width:auto;margin:0;flex:none}',
     '.ccx__wait{display:grid;place-items:center;aspect-ratio:85.6/54;border:1px dashed var(--line);color:var(--muted);font-size:15px}',
-    '@media (max-width:860px){.ccx__one{grid-template-columns:minmax(0,1fr)}.ccx__bar h2{font-size:21px;flex:1 1 0;min-width:0}.ccx__shut{order:2}.ccx__views{order:3;flex:1 1 100%}.ccx__views button{flex:1 1 50%}}'
+    '@media (max-width:860px){.ccx__one{grid-template-columns:minmax(0,1fr)}.ccx__bar h2{font-size:21px;flex:1 1 0;min-width:0}.ccx__shut{order:2}.ccx__views{order:3;flex:1 1 100%}.ccx__views button{flex:1 1 50%}}',
+    /* Members and Caregivers read alike (17 Nov 2026: "why is the members
+       section so diff from colony caregiver"): the same four parts, each
+       opening with the register's own control, the register's buttons, and
+       on a phone each line of a list stands as a card, nothing off screen */
+    '.mq-bar{display:flex;flex-wrap:wrap;width:max-content;max-width:100%;margin:0 0 14px}',
+    ':is([data-pane="apply"],[data-pane="cards"],[data-pane="membership"],[data-pane="verify"],[data-pane="caregivers"],.rg) :is(.ghost,.press){display:inline-flex;align-items:center;justify-content:center;width:auto;height:auto;min-height:38px;padding:0 14px;font-size:13px;letter-spacing:0;text-transform:none}',
+    '.main[data-sub] .pane[data-pane="caregivers"]::before{content:"Every card"!important;display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}',
+    '[data-pane="verify"] .tools input{flex:0 1 440px}',
+    '.mq-bar b{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;background:var(--ink);color:var(--paper);font-size:12px;font-weight:400}',
+    '@media (max-width:760px){.mq-bar{width:100%}.mq-bar button{flex:1 1 auto}}',
+    '@media (max-width:760px){[data-pane="membership"] :is(table,tbody,tr,td){display:block}[data-pane="membership"] thead{display:none}[data-pane="membership"] tr{position:relative;padding:12px 12px 12px 48px;border-bottom:1px solid var(--line)}[data-pane="membership"] td{padding:3px 0;border:0}[data-pane="membership"] td.mq-pick{position:absolute;left:12px;top:12px}[data-pane="membership"] .mq-do{text-align:left;white-space:normal;padding-top:10px}[data-pane="membership"] .mq-slots,[data-pane="membership"] .mq-courier{justify-content:flex-start}[data-pane="membership"] .wrap{overflow:visible}}'
   ].join('');
   document.head.appendChild(style);
 

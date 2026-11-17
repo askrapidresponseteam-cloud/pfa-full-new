@@ -242,16 +242,15 @@ test('with no email on the application, Reject still closes it and says to call'
 test('the panel puts Issue and Reject on every waiting application, and in the drawer, with the name the card prints', () => {
   const fs = require('node:fs'); const path = require('node:path');
   const html = fs.readFileSync(path.join(__dirname, '..', 'admin.html'), 'utf8');
-  assert.match(html, /<div class="pane" data-pane="apply" role="region" aria-label="Applications to decide">/);
-  /* first of the working steps in Colony cards; the register (the office's
-     sheet, 2 Nov 2026) is above them all */
-  assert.match(html, /caregivers:[^}]*panes: \['cgsheet', 'apply', 'caregivers', 'verify', 'cards'\]/, 'first in Colony cards, after the register');
-  /* folded until asked (owner, 2 Nov 2026: "u can hide this by default. only
-     if one clicks show, expand and show"): the count stays in sight */
-  assert.match(html, /var apOpen = false;/);
-  assert.match(html, /<button class="ghost" type="button" data-ap-toggle aria-expanded="' \+ apOpen \+ '" aria-controls="apList">' \+ \(apOpen \? 'Hide' : 'Show'\)/);
-  assert.match(html, /'<div id="apList"' \+ \(apOpen \? '' : ' hidden'\) \+ '>'/);
-  assert.match(html, /if \(apOpen\) apRows\.forEach\(function \(row\) \{ drawAp\(row\); \}\);/, 'the cards are drawn when shown');
+  assert.match(html, /<div class="pane" data-pane="apply" role="region" aria-label="To do">/);
+  /* To do, after the register, as in Members (17 Nov 2026) */
+  assert.match(html, /caregivers:[^}]*panes: \['cgsheet', 'apply', 'cards', 'verify'\]/, 'second in Caregivers, after the register');
+  /* its own part now, so it opens shown: the part is the click that shows it
+     (it was folded behind Show while it stood under the register, 2 Nov 2026) */
+  assert.doesNotMatch(html, /data-ap-toggle|apOpen/);
+  assert.match(html, /'<div class="rg-seg mq-bar"><b>To decide ' \+ apRows\.length \+ '<\/b><\/div>'/, 'the count in sight, as Members show theirs');
+  assert.match(html, /'<div id="apList"><div class="apq">'/);
+  assert.match(html, /\n {6}apRows\.forEach\(function \(row\) \{ drawAp\(row\); \}\);/, 'the cards are drawn');
   assert.match(html, /data-ap="issue"[\s\S]{0,200}>Issue card<\/button>/);
   assert.match(html, /data-ap="reject">Reject<\/button>/);
   assert.match(html, /id="caseApprove" style="width:auto">Issue card<\/button>\s*<button class="ghost danger" type="button" id="caseReject">Reject<\/button>/);
