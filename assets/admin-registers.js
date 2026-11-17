@@ -405,7 +405,7 @@
     }).map(function (r) {
       var a = kind === 'membership' ? null : appOf(r);
       return kind === 'membership'
-        ? { ref: r.id, row: r.id, issued: Boolean(r.cardId), online: r.online === 'online', revoked: r.online === 'withdrawn', name: r.name, number: r.cardId || r.memberNo, district: r.district, state: r.state, tier: r.type }
+        ? { ref: r.id, row: r.id, issued: Boolean(r.cardId), online: r.online === 'online', revoked: r.online === 'withdrawn', name: r.name, number: r.cardId || r.memberNo, district: r.district, state: r.state, tier: r.type, queue: r.cardQueue }
         : a
           ? { ref: r.id, row: r.id, issued: false, name: a.printName || r.name, number: a.cardNumber || '', district: a.district || r.district, state: a.state || r.state, checks: a.checks || [], ready: Boolean(a.ready) }
           : { ref: r.cardId, row: r.id, issued: true, online: r.online === 'online', revoked: r.online === 'withdrawn', name: r.name, number: r.cardId, district: r.district, state: r.state };

@@ -349,7 +349,7 @@ test('from a register: Preview card draws it with the kept photograph and saves 
   const p = await admin('GET', { kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', preview: '1' });
   assert.equal(p.statusCode, 200, JSON.stringify(p.json));
   assert.equal(p.json.card.name, 'Ravi Kumar');
-  assert.equal(p.json.card.url, '', 'not online yet: no address, so no QR code');
+  assert.match(p.json.card.url, /\/card\?id=PFA-CCT-AB2CD3EF$/, 'not online yet: the QR code of the address it will have (17 Nov 2026: "why no QR!")');
   assert.equal(p.json.online, null);
   assert.match(p.json.photo, /^data:image\/jpeg;base64,/);
   assert.equal((await db.collection('digitalCards').doc('PFA-CCT-AB2CD3EF').get()).exists, false, 'a preview saves nothing');
@@ -528,4 +528,44 @@ test('no photograph: a portrait in the card\'s own colours, on both cards and th
   const printed = read('assets/caregiver-card.js');
   assert.doesNotMatch(printed, /fillText\('PHOTO'/, 'never the word PHOTO in the frame');
   assert.match(printed, /if \(!data\.photoImage\) throw new Error\('This card has no photograph, so it is not printed\./, 'and still never printed without one');
+});
+
+/* Owner, 17 Nov 2026, of a card not issued yet in Check the cards: "why no
+   QR!", and "also why no option to add photo for both ... dont miss out
+   features which were present" (the card studio had Use a photograph from
+   this computer). */
+test('every card preview carries the QR code of its address, before it is issued too', async () => {
+  await seed();
+  const cg = await admin('GET', { kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', preview: '1' });
+  assert.match(cg.json.card.url, /\/card\?id=PFA-CCT-AB2CD3EF$/, 'not online yet: the address it will have');
+  const ahead = await admin('GET', { kind: 'member', ref: 'PFA-MEM-2026-00004', address: '1' });
+  const id = /PFA-MBR-[A-HJ-NP-Z2-9]{8}$/.exec(ahead.json.url)[0];
+  const again = await admin('GET', { kind: 'member', ref: 'PFA-MEM-2026-00004', address: '1' });
+  assert.equal(again.json.url, ahead.json.url, 'the same address every time it is previewed');
+  assert.equal((await admin('GET', { kind: 'member', ref: 'PFA-MEM-2026-00004', preview: '1' })).json.card.url, ahead.json.url);
+  const r = await admin('POST', { action: 'issue', kind: 'member', ref: 'PFA-MEM-2026-00004', email: false });
+  assert.equal(r.statusCode, 200, JSON.stringify(r.json));
+  assert.equal(r.json.digital.id, id, 'issued at the address its preview showed');
+  assert.match((await admin('GET', { kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', address: '1' })).json.url, /PFA-CCT-AB2CD3EF$/);
+  assert.match(read('firestore.rules'), /match \/digitalCardIds\/\{id\}\s+\{ allow read, write: if false; \}/);
+});
+
+test('a photograph added in the panel stays with the card: the card online, its preview and the printed card', async () => {
+  await seed();
+  assert.equal(await DC.storedPhoto(db, 'caregiver', 'PFA-CCT-AB2CD3EF'), null, 'none sent with an application');
+  const r = await admin('POST', { action: 'issue', kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', photo: JPEG, email: false });
+  assert.equal(r.statusCode, 200, JSON.stringify(r.json));
+  const kept = await DC.storedPhoto(db, 'caregiver', 'PFA-CCT-AB2CD3EF');
+  assert.ok(kept && kept.type === 'image/jpeg', 'kept with the card online');
+  assert.match((await admin('GET', { kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', preview: '1' })).json.photo, /^data:image\/jpeg;base64,/, 'Preview draws it');
+  const cc = read('assets/admin-cardcheck.js');
+  assert.match(cc, /data-ccx="photo">' \+ \(item\.photo \? 'Change the photograph' : 'Add a photograph'\)/, 'for either card');
+  assert.match(cc, /body: \{ action: 'issue', kind: K\[S\.kind\]\.api, ref: item\.ref, photo: url, email: false \}/, 'online at once for a card online');
+  assert.match(cc, /function photoAfter\(item, d\)/, 'and on a card issued here');
+  assert.match(cc, /c\.key === 'photo' && item\.photo \? \{ level: 'ok', text: 'Photograph added here' \}/, 'a photograph added answers a missing one');
+  assert.match(cc, /'&address=1&ref='/, 'the QR code on a card not issued yet');
+  assert.match(cc, /js\.src = 'assets\/digital-card\.js' \+ tag;/, 'this build\'s copy of the card, never an old one');
+  const html = read('admin.html');
+  assert.match(html, /api\('\/api\/admin\/digital-cards\?kind=caregiver&preview=1&ref=' \+ encodeURIComponent\(row\.id\)\)/, 'Print and post prints it');
+  assert.match(read('lib/routes/admin/membership.js'), /storedPhoto\(db, 'member', reference\)/, 'the printed membership card too');
 });

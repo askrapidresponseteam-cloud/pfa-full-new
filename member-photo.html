@@ -509,12 +509,12 @@ if (root.document && root.document.head) apply(read());
         <p class="mp-lead">Drag to place your face in the frame. Use the slider to zoom.</p>
         <div class="mp-editor" id="mpEditor"></div>
         <input type="file" id="mpFile" accept="image/jpeg,image/png,image/webp" aria-label="Choose your photograph" hidden>
-        <label class="mp-consent"><input type="checkbox" id="mpConsent"> <span>This is a photograph of me, and PFA may print it on my membership card.</span></label>
+        <label class="mp-consent"><input type="checkbox" id="mpConsent"> <span id="mpConsentText">This is a photograph of me, and PFA may print it on my membership card.</span></label>
         <div class="mp-acts">
           <button class="btn" type="button" id="mpSend" disabled>Send photograph</button>
           <button class="btn btn--light" type="button" id="mpChange">Choose another</button>
         </div>
-        <p class="mp-fine">Used only to print your card, and kept with your membership record.</p>
+        <p class="mp-fine" id="mpFine">Used only to print your card, and kept with your membership record.</p>
       </div>
 
       <!-- 3. Done. -->
@@ -688,8 +688,13 @@ if (root.document && root.document.head) apply(read());
     var p = res.p;
     tell('');
     $('#mpHi').textContent = p.firstName ? 'Hello ' + p.firstName + '.' : 'Hello.';
-    $('#mpLead').textContent = 'PFA needs one photograph of you for your ' + String(p.membership || 'membership').toLowerCase()
-      + ' card. This link works until ' + when(p.expiresAt) + '.';
+    /* a colony caregiver's link too (17 Nov 2026): the same page, its own card named */
+    var card = p.kind === 'caregiver' ? (p.card || 'colony caregiver card') : String(p.membership || 'membership').toLowerCase() + ' card';
+    $('#mpLead').textContent = 'PFA needs one photograph of you for your ' + card + '. This link works until ' + when(p.expiresAt) + '.';
+    if (p.kind === 'caregiver') {
+      $('#mpConsentText').textContent = 'This is a photograph of me, and PFA may print it on my colony caregiver card.';
+      $('#mpFine').textContent = 'Used only for your card, and kept with your application.';
+    }
     if (p.retake && p.reasons && p.reasons.length) {
       var list = $('#mpReasons');
       p.reasons.forEach(function (r) { var li = document.createElement('li'); li.textContent = r; list.appendChild(li); });

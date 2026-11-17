@@ -84,6 +84,8 @@
     '.main[data-sub] .pane[data-pane="caregivers"]::before{content:"Every card"!important;display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}',
     '[data-pane="verify"] .tools input{flex:0 1 440px}',
     '.ccx :is(.ghost,.press){text-transform:none;letter-spacing:0}',
+    '.ccx__pic{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 0}.ccx__pic .ghost{min-height:52px;padding:0 22px;font-size:16px}.ccx .checks:empty{display:none}',
+    '.ccx__all-acts{display:flex;flex-wrap:wrap;gap:12px}',
     '.mq-bar b{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;background:var(--ink);color:var(--paper);font-size:12px;font-weight:400}',
     '@media (max-width:760px){.mq-bar{width:100%}.mq-bar button{flex:1 1 auto}}',
     '@media (max-width:760px){[data-pane="membership"] :is(table,tbody,tr,td){display:block}[data-pane="membership"] thead{display:none}[data-pane="membership"] tr{position:relative;padding:12px 12px 12px 48px;border-bottom:1px solid var(--line)}[data-pane="membership"] td{padding:3px 0;border:0}[data-pane="membership"] td.mq-pick{position:absolute;left:12px;top:12px}[data-pane="membership"] .mq-do{text-align:left;white-space:normal;padding-top:10px}[data-pane="membership"] .mq-slots,[data-pane="membership"] .mq-courier{justify-content:flex-start}[data-pane="membership"] .wrap{overflow:visible}}'
@@ -95,12 +97,17 @@
   function needCard() {
     if (window.PFADigitalCard) return Promise.resolve(window.PFADigitalCard);
     if (loading) return loading;
+    /* this build's copy, never one the browser kept from before (17 Nov
+       2026: the photograph frame and the QR code missing on screen) */
+    var me = document.querySelector('script[src*="admin-cardcheck.js"]');
+    var v = me && /\?v=([^&]+)/.exec(me.getAttribute('src') || '');
+    var tag = v ? '?v=' + v[1] : '?v=' + Date.now();
     loading = new Promise(function (ok, no) {
       if (!document.querySelector('link[href^="assets/digital-card.css"]')) {
-        var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'assets/digital-card.css'; document.head.appendChild(css);
+        var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'assets/digital-card.css' + tag; document.head.appendChild(css);
       }
       var js = document.createElement('script');
-      js.src = 'assets/digital-card.js';
+      js.src = 'assets/digital-card.js' + tag;
       js.onload = function () { if (window.PFADigitalCard) ok(window.PFADigitalCard); else no(new Error('card')); };
       js.onerror = function () { loading = null; no(new Error('card')); };
       document.head.appendChild(js);
@@ -128,6 +135,7 @@
     root.addEventListener('click', onClick);
     root.addEventListener('submit', function (e) { e.preventDefault(); saveAndNext(); });
     root.addEventListener('input', function (e) { if (e.target && e.target.closest('.ccx__fix')) livePreview(); });
+    root.addEventListener('change', function (e) { if (e.target && e.target.hasAttribute('data-ccx-file')) { var f = e.target.files && e.target.files[0]; e.target.value = ''; pickedPhoto(f); } });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && root && !root.hidden) close(); });
     return root;
   }
@@ -145,7 +153,9 @@
         var b64 = a && (a.data || a.bytes);
         return b64 ? 'data:' + (a.contentType || 'image/jpeg') + ';base64,' + b64 : '';
       }).catch(function () { return ''; });
-      return face.then(function (photo) { d.photo = photo; S.cache[key] = d; return d; });
+      /* the QR code of the address the card will have (17 Nov 2026: "why no QR!") */
+      var where = A.api('/api/admin/digital-cards?kind=' + K[S.kind].api + '&address=1&ref=' + encodeURIComponent(S.kind === 'caregiver' ? item.number : item.ref)).then(function (r) { return r.url || ''; }).catch(function () { return ''; });
+      return Promise.all([face, where]).then(function (x) { d.photo = x[0]; d.card.url = x[1]; S.cache[key] = d; return d; });
     }
     return A.api('/api/admin/digital-cards?kind=' + K[S.kind].api + '&ref=' + encodeURIComponent(item.ref) + '&preview=1').then(function (r) {
       var c = Object.assign({}, r.card || {}, { kind: S.kind, standing: 'valid', valid: true });
@@ -166,7 +176,6 @@
     var item = S.items[S.at];
     if (!item) { body.innerHTML = '<p class="ccx__count">There are no cards to check here yet.</p>'; return; }
     var notYet = !item.issued;
-    var blocked = notYet && S.kind === 'caregiver' && !item.ready;
     body.innerHTML = '<p class="ccx__count">Card <b>' + (S.at + 1) + '</b> of ' + S.items.length + '</p>'
       + '<div class="ccx__one"><div class="ccx__card"><div class="dc" data-ccx-card><div class="ccx__wait">Drawing the card…</div></div><p class="ccx__tip">This is the card as its holder sees it. Tap it to see the back.</p></div>'
       + '<form class="ccx__fix" novalidate>'
@@ -174,15 +183,15 @@
       + '<label>Name on the card<input name="name" autocomplete="off" maxlength="60" value="' + esc(item.name || '') + '"></label>'
       + '<label>District<input name="district" autocomplete="off" maxlength="60" value="' + esc(item.district || '') + '"' + (notYet ? ' readonly' : '') + '></label>'
       + '<label>State<input name="state" autocomplete="off" maxlength="40" value="' + esc(item.state || '') + '"' + (notYet ? ' readonly' : '') + '></label>'
+      /* a photograph for either card, from this computer (as the card studio
+         had: owner, 17 Nov 2026, "why no option to add photo for both") */
+      + '<p class="ccx__pic"><button type="button" class="ghost" data-ccx="photo">' + (item.photo ? 'Change the photograph' : 'Add a photograph') + '</button>'
+      + (askable(item) ? '<button type="button" class="ghost" data-ccx="ask">Ask for a photograph</button>' : '')
+      + '<input type="file" accept="image/png,image/jpeg,image/webp" data-ccx-file hidden aria-label="A photograph for this card, from this computer"></p>'
       /* a caregiver's checks, as To do shows them: red stops the card */
-      + (notYet && item.checks ? '<ul class="checks">' + item.checks.map(function (c) { return '<li data-l="' + esc(c.level) + '">' + esc(c.text) + '</li>'; }).join('') + '</ul>' : '')
+      + '<ul class="checks" data-ccx-checks>' + checksHtml(item) + '</ul>'
       + '<p class="ccx__say" data-ccx-say role="status" aria-live="polite"></p>'
-      + '<div class="ccx__go">'
-      + (blocked ? '<button type="button" class="press" data-ccx="case">Open the application</button>'
-        : notYet ? '<button type="button" class="press" data-ccx="issue">Issue this card</button>' : '<button type="submit" class="press" data-ccx="save">Next card</button>')
-      + (S.at > 0 ? '<button type="button" class="ghost" data-ccx="prev">Previous</button>' : '')
-      + (notYet && S.at < S.items.length - 1 ? '<button type="button" class="ghost" data-ccx="next">Skip to the next</button>' : '')
-      + '</div><div class="ccx__life" data-ccx-life></div></form></div>';
+      + '<div class="ccx__go" data-ccx-go>' + goHtml(item) + '</div><div class="ccx__life" data-ccx-life></div></form></div>';
     var box = body.querySelector('[data-ccx-card]');
     dataOf(item).then(function (d) {
       if (S.items[S.at] !== item || S.view !== 'one') return;
@@ -193,6 +202,8 @@
         f.name.value = item.name; f.district.value = item.district || ''; f.state.value = item.state || '';
       }
       body._data = d;
+      var pb = body.querySelector('[data-ccx="photo"]');
+      if (pb && d.photo) pb.textContent = 'Change the photograph';
       if (d.online) { item.online = d.online.standing !== 'withdrawn'; item.revoked = d.online.standing === 'withdrawn'; item.revokedOn = d.online.withdrawnOn || ''; }
       life(item);
       livePreview();
@@ -200,8 +211,106 @@
     var first = body.querySelector('input[name="name"]');
     if (first) first.focus({ preventScroll: true });
   }
+  /* red stops a caregiver's card; a photograph added here answers the red
+     for a missing one */
+  function checksOf(item) {
+    return (item.checks || []).map(function (c) { return c.key === 'photo' && item.photo ? { level: 'ok', text: 'Photograph added here' } : c; });
+  }
+  function blockedOf(item) { return !item.issued && S.kind === 'caregiver' && checksOf(item).some(function (c) { return c.level === 'stop'; }); }
+  function checksHtml(item) {
+    return item.issued ? '' : checksOf(item).map(function (c) { return '<li data-l="' + esc(c.level) + '">' + esc(c.text) + '</li>'; }).join('');
+  }
+  function goHtml(item) {
+    return (blockedOf(item) ? '<button type="button" class="press" data-ccx="case">Open the application</button>'
+      : !item.issued ? '<button type="button" class="press" data-ccx="issue">Issue this card</button>' : '<button type="submit" class="press" data-ccx="save">Next card</button>')
+      + (S.at > 0 ? '<button type="button" class="ghost" data-ccx="prev">Previous</button>' : '')
+      + (!item.issued && S.at < S.items.length - 1 ? '<button type="button" class="ghost" data-ccx="next">Skip to the next</button>' : '');
+  }
+  /* the photograph chosen: on the card at once; online at once for a card
+     that is online; for one not issued, it goes on when it is issued */
+  function jpegOf(file) {
+    return new Promise(function (ok, no) {
+      var url = URL.createObjectURL(file);
+      var im = new Image();
+      im.onload = function () {
+        var k = Math.min(1, 600 / im.width, 800 / im.height);
+        var c = document.createElement('canvas');
+        c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+        var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        ok(c.toDataURL('image/jpeg', 0.88));
+      };
+      im.onerror = function () { URL.revokeObjectURL(url); no(new Error('That file could not be opened as a picture.')); };
+      im.src = url;
+    });
+  }
+  function pickedPhoto(file) {
+    var item = S.items[S.at];
+    var body = root.querySelector('[data-ccx-body]');
+    var d = body && body._data;
+    if (!file || !item || !d) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 12e6) { say('Choose a JPG, PNG or WebP picture.', 'bad'); return; }
+    jpegOf(file).then(function (url) {
+      item.photo = url; d.photo = url;
+      root.querySelector('[data-ccx="photo"]').textContent = 'Change the photograph';
+      root.querySelector('[data-ccx-checks]').innerHTML = checksHtml(item);
+      root.querySelector('[data-ccx-go]').innerHTML = goHtml(item);
+      var line = root.querySelector('[data-ccx-now]');
+      if (line) line.textContent = nowLine(item);
+      livePreview();
+      if (!item.issued) { say('The photograph goes on the card when you issue it.', 'good'); return; }
+      if (!item.online) { say('The photograph goes on the card when it is put online again.', 'good'); return; }
+      S.busy = true;
+      say('Saving the photograph…');
+      A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'issue', kind: K[S.kind].api, ref: item.ref, photo: url, email: false } }).then(function () {
+        S.busy = false;
+        if (S.changed) S.changed(item);
+        say('Photograph saved. The card online shows it now, and the printed card carries it.', 'good');
+      }, function (e) { S.busy = false; say((e && e.message) || 'The photograph could not be saved just now.', 'bad'); });
+    }, function (e) { say(e.message, 'bad'); });
+  }
+  /* Ask for a photograph (owner, 17 Nov 2026: "option to ask for photo
+     should be there. for each and for all at once"): the holder is emailed
+     a private link to send it. A member before the card is issued; a colony
+     caregiver at any time (a card already online takes the photograph at
+     once). */
+  function askable(item) { return S.kind === 'caregiver' || !item.issued; }
+  function askRef(item) { return S.kind === 'caregiver' ? item.row : item.ref; }
+  function noPhoto(item) {
+    if (item.photo) return false;
+    var c = S.cache[S.kind + ':' + item.ref];
+    if (c) return !c.photo;
+    return S.kind === 'member' ? !item.issued : (item.checks || []).some(function (x) { return x.key === 'photo' && x.level === 'stop'; });
+  }
+  function askFor(list, b) {
+    if (!list.length || S.busy) return;
+    var one = list.length === 1;
+    if (!window.confirm(one ? 'Email ' + (list[0].name || 'this holder') + ' a private link to send their photograph?\n\nThe link works for 14 days, once. A new link replaces any sent before.'
+      : 'Email ' + list.length + ' people a private link each to send their photograph?\n\nEach link works for 14 days, once. A new link replaces any sent before.')) return;
+    S.busy = true; if (b) b.disabled = true;
+    say('Sending ' + (one ? 'the link' : list.length + ' links') + '…');
+    A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'ask-photo', kind: K[S.kind].api, refs: list.map(askRef) } }).then(function (r) {
+      S.busy = false; if (b) b.disabled = false;
+      var rs = r.results || [];
+      var ok = rs.filter(function (x) { return x.ok; });
+      var bad = rs.filter(function (x) { return !x.ok; });
+      var queued = ok.filter(function (x) { return !x.emailed; }).length;
+      say((ok.length ? (one ? 'Link sent to ' + (ok[0].to || 'them') + '.' : ok.length + ' links sent.') + (queued ? ' ' + (ok[0].mailNote || 'Email is not set up on the server; the letters are queued.') : '') : '')
+        + (bad.length ? ' Not sent: ' + bad.map(function (x) { var it = list.filter(function (y) { return askRef(y) === x.reference; })[0]; return ((it && it.name) || x.reference) + ' (' + (x.message || 'refused') + ')'; }).join(', ') + '.' : ''), bad.length ? 'bad' : 'good');
+    }, function (e) { S.busy = false; if (b) b.disabled = false; say((e && e.message) || 'The links could not be sent just now.', 'bad'); });
+  }
+
+  /* after issuing: the photograph added here, put on the card online */
+  function photoAfter(item, d) {
+    if (!item.photo) return Promise.resolve(d);
+    return A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'issue', kind: K[S.kind].api, ref: item.ref, photo: item.photo, email: !d.digital } }).then(function (r) {
+      if (r.digital) d.digital = r.digital;
+      if (r.emailed) d.emailed = true;
+      return d;
+    }, function () { return d; });
+  }
   function nowLine(item) {
-    if (!item.issued && S.kind === 'caregiver' && !item.ready) return 'Not issued yet. Fix what is in red first.';
+    if (blockedOf(item)) return 'Not issued yet. Fix what is in red first' + (checksOf(item).some(function (c) { return c.level === 'stop' && /photograph/i.test(c.text); }) ? ', or add a photograph here.' : '.');
     if (!item.issued) return 'Not issued yet. Check the name' + (S.kind === 'caregiver' ? ' and the photograph' : '') + ', then press Issue this card.';
     if (item.revoked) return 'Revoked' + (item.revokedOn ? ' on ' + longDay(item.revokedOn) : '') + '. Its page says it is no longer valid.';
     return item.online ? 'Issued and online. A correction shows on it at once.' : 'Issued, not online.';
@@ -244,7 +353,7 @@
     if (!item || S.busy) return;
     S.busy = true;
     say('Putting it online…');
-    A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'issue', kind: K[S.kind].api, ref: item.ref, email: false } }).then(function (r) {
+    A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'issue', kind: K[S.kind].api, ref: item.ref, photo: item.photo || undefined, email: false } }).then(function (r) {
       if (d) d.online = r.digital;
       item.online = true; item.revoked = false;
       if (S.changed) S.changed(item);
@@ -309,7 +418,7 @@
     if (!t.name) { say('Type the name to print on the card.', 'bad'); return; }
     S.busy = true;
     say('Issuing the card…');
-    issueCall(item, t.name).then(function (d) {
+    issueCall(item, t.name).then(function (d) { return photoAfter(item, d); }).then(function (d) {
       item.issued = true; item.online = Boolean(d.digital); item.name = t.name;
       if (d.card && d.card.cardId) item.number = d.card.cardId;
       delete S.cache[S.kind + ':' + item.ref];
@@ -332,25 +441,28 @@
       return d;
     });
   }
-  function waitingOf() { return S.items.filter(function (x) { return !x.issued && (S.kind === 'member' || x.ready); }); }
+  function waitingOf() { return S.items.filter(function (x) { return !x.issued && !blockedOf(x); }); }
 
   /* ---- all at once ---- */
   function all() {
     var body = root.querySelector('[data-ccx-body]');
     var waiting = waitingOf();
+    var asks = S.items.filter(function (x) { return askable(x) && noPhoto(x); });
     body.innerHTML = '<div class="ccx__all-head"><p>Every card, as its holder sees it. Press <b>Change</b> under any card to correct it.</p>'
-      + (waiting.length ? '<button type="button" class="press" data-ccx="issue-all">Issue the ' + waiting.length + (waiting.length === 1 ? ' card' : ' cards') + ' not issued yet</button>' : '') + '</div>'
+      + '<span class="ccx__all-acts">' + (asks.length ? '<button type="button" class="ghost" data-ccx="ask-all">Ask ' + asks.length + ' without a photograph for one</button>' : '')
+      + (waiting.length ? '<button type="button" class="press" data-ccx="issue-all">Issue the ' + waiting.length + (waiting.length === 1 ? ' card' : ' cards') + ' not issued yet</button>' : '') + '</span></div>'
       + '<p class="ccx__say" data-ccx-say role="status" aria-live="polite"></p>'
       + '<ul class="ccx__grid">' + S.items.map(function (x, i) {
         return '<li><div class="dc" data-ccx-tile="' + i + '"><div class="ccx__wait">Drawing…</div></div>'
-          + '<div class="ccx__who"><span><b>' + esc(x.name || '') + '</b><small>' + esc(!x.issued ? (S.kind === 'caregiver' && !x.ready ? 'Not issued yet: fix it first' : 'Not issued yet') : x.revoked ? 'Revoked' : x.online ? 'Online' : 'Issued') + '</small></span>'
+          + '<div class="ccx__who"><span><b>' + esc(x.name || '') + '</b><small>' + esc(!x.issued ? (blockedOf(x) ? 'Not issued yet: fix it first' : 'Not issued yet') : x.revoked ? 'Revoked' : x.online ? 'Online' : 'Issued') + '</small></span>'
           + '<button type="button" class="ghost" data-ccx-change="' + i + '">Change</button></div></li>';
       }).join('') + '</ul>';
     /* drawn one after another, so a long list does not ask for every
        photograph at once */
     var i = 0;
     (function next() {
-      if (S.view !== 'all' || i >= S.items.length) return;
+      if (S.view !== 'all') return;
+      if (i >= S.items.length) { askCount(body); return; }
       var n = i; i += 1;
       var tile = body.querySelector('[data-ccx-tile="' + n + '"]');
       dataOf(S.items[n]).then(function (d) {
@@ -358,6 +470,15 @@
         return tile ? draw(tile, Object.assign({}, d.card, { standing: gone ? 'withdrawn' : 'valid', valid: !gone }), gone ? '' : d.photo) : null;
       }).catch(function () { if (tile) tile.innerHTML = '<div class="ccx__wait">Not drawn</div>'; }).then(next);
     }());
+  }
+  /* once every card is drawn, who has no photograph is known for certain */
+  function askCount(body) {
+    var n = S.items.filter(function (x) { return askable(x) && noPhoto(x); }).length;
+    var acts = body.querySelector('.ccx__all-acts');
+    var b = body.querySelector('[data-ccx="ask-all"]');
+    if (!n) { if (b) b.remove(); return; }
+    if (!b && acts) { b = document.createElement('button'); b.type = 'button'; b.className = 'ghost'; b.setAttribute('data-ccx', 'ask-all'); acts.insertBefore(b, acts.firstChild); }
+    if (b) b.textContent = 'Ask ' + n + ' without a photograph for one';
   }
   function issueAll(b) {
     var list = waitingOf();
@@ -375,7 +496,7 @@
       }
       var item = list[k];
       say('Issuing ' + (k + 1) + ' of ' + list.length + ': ' + (item.name || item.ref) + '…');
-      issueCall(item, item.name).then(function (d) {
+      issueCall(item, item.name).then(function (d) { return photoAfter(item, d); }).then(function (d) {
         item.issued = true; item.online = Boolean(d.digital);
         if (d.card && d.card.cardId) item.number = d.card.cardId;
         delete S.cache[S.kind + ':' + item.ref];
@@ -401,6 +522,9 @@
     if (what === 'next') return move(1);
     if (what === 'issue') return issueNow();
     if (what === 'issue-all') return issueAll(b);
+    if (what === 'photo') { root.querySelector('[data-ccx-file]').click(); return; }
+    if (what === 'ask') return askFor([S.items[S.at]], b);
+    if (what === 'ask-all') return askFor(S.items.filter(function (x) { return askable(x) && noPhoto(x); }), b);
     if (what === 'case') { var ref = (S.items[S.at] || {}).ref; close(); if (ref && A.showCase) A.showCase(ref); return; }
     if (what === 'revoke') return revoke();
     if (what === 'restore') return restore();

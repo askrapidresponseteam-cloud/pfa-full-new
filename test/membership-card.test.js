@@ -588,7 +588,7 @@ test('the caregivers register issues as the members register does', () => {
   assert.match(cc, /A\.api\('\/api\/admin\/case', \{ method: 'POST', body: \{ reference: item\.ref, action: 'approve', printName: name \} \}\)/);
   assert.match(cc, /'\/api\/admin\/attachment\?reference=' \+ encodeURIComponent\(item\.ref\) \+ '&n=1'/, 'the preview carries the photograph sent');
   assert.match(cc, /data-ccx="case">Open the application<\/button>/, 'red checks: fix the application first');
-  assert.match(cc, /<ul class="checks">/);
+  assert.match(cc, /<ul class="checks" data-ccx-checks>/);
   const css = fs.readFileSync(path.join(ROOT, 'assets', 'digital-card.css'), 'utf8');
   assert.match(css, /\.dc__grid>:only-child \.dc__val--id\{white-space:nowrap\}/, 'a card number never breaks');
 });

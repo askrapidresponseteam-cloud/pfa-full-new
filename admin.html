@@ -5777,6 +5777,7 @@ window.addEventListener('unhandledrejection', function (event) {
           + '<button class="ghost danger" type="button" data-ap="reject">Reject</button>'
         : '<span class="hint">Deciding needs the Submissions section as well.</span>')
       + '<button class="ghost" type="button" data-ap="open">Open the application</button>'
+      + ((row.checks || []).some(function (c) { return c.key === 'photo' && c.level === 'stop'; }) ? '<button class="ghost" type="button" data-ap="ask">Ask for a photograph</button>' : '')
       + '</div>'
       + '<div class="rejectbox" data-reject hidden></div>'
       + '<details><summary>Details</summary><dl>'
@@ -5937,6 +5938,16 @@ window.addEventListener('unhandledrejection', function (event) {
       return;
     }
     if (what === 'issue') { apIssue(row, node); return; }
+    /* a private link to send it (lib/caregiver-photo.js, 17 Nov 2026) */
+    if (what === 'ask') {
+      if (!window.confirm('Email ' + (row.name || 'the applicant') + ' a private link to send their photograph?\n\nIt works for 14 days, once.')) return;
+      b.disabled = true;
+      api('/api/admin/digital-cards', { method: 'POST', body: { action: 'ask-photo', kind: 'caregiver', refs: [row.reference] } }).then(function (r) {
+        var x = (r.results || [])[0] || {};
+        say(node.querySelector('[data-say]'), x.ok ? 'Link sent to ' + x.to + '.' + (x.emailed ? '' : ' ' + (x.mailNote || '')) : x.message, x.ok ? 'good' : 'bad');
+      }).catch(function (err) { say(node.querySelector('[data-say]'), err.message, 'bad'); }).then(function () { b.disabled = false; });
+      return;
+    }
     if (what === 'pdf' || what === 'png') { apDownload(row, node, what); return; }
     if (what === 'reject') {
       var box = node.querySelector('[data-reject]');
@@ -6162,14 +6173,12 @@ window.addEventListener('unhandledrejection', function (event) {
   function cardPhoto(row) {
     var held = photos.get(row.id) || photos.get('app:' + row.applicationRef);
     if (held) return Promise.resolve(held);
-    if (!row.applicationRef) return Promise.resolve('');
-    var key = 'app:' + row.applicationRef;
+    var key = 'app:' + (row.applicationRef || row.id);
     if (!photoAsks[key]) {
-      photoAsks[key] = api('/api/admin/attachment?reference=' + encodeURIComponent(row.applicationRef) + '&n=1').then(function (data) {
-        var b64 = data && (data.data || data.bytes);
-        if (!b64) return '';
-        var url = 'data:' + (data.contentType || 'image/jpeg') + ';base64,' + b64;
-        photos.set(key, url);
+      /* the application's photograph, or one added in Check the cards (17 Nov 2026) */
+      photoAsks[key] = api('/api/admin/digital-cards?kind=caregiver&preview=1&ref=' + encodeURIComponent(row.id)).then(function (data) {
+        var url = (data && data.photo) || '';
+        if (url) photos.set(key, url);
         return url;
       }).catch(function () { delete photoAsks[key]; return ''; });
     }

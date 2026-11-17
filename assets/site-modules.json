@@ -1841,6 +1841,7 @@
    "mpReasons": "photo",
    "mpFrame": "photo",
    "mpEditor": "photo",
+   "mpFine": "photo",
    "mpDone": "photo",
    "mpRef": "photo"
   },

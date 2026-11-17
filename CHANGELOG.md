@@ -1,3 +1,20 @@
+## v1.601
+
+- **Every card in Check the cards has its QR code, and a photograph can be added to either card.** Owner, 17 Nov 2026: "why no QR!", "also why no option to add photo for both. what is wrong with you. dont miss out features which were present".
+  - **QR code:** the back of every card now carries the QR code of its own address, before it is issued too. A colony caregiver card's address is its number. A membership's address is chosen the first time its card is previewed, and the card is then issued at that same address, so the QR code seen before issuing is the one it keeps.
+  - **Add a photograph:** under the three boxes, for both kinds of card, as the card studio's "Use a photograph from this computer" did. The picture is on the card at once.
+    - For a card that is online, it is saved straight away.
+    - For a card not issued yet, it goes on when you press Issue this card. A caregiver held back only by "No photograph" can then be issued here: the red line turns green as "Photograph added here".
+    - For a card that has been revoked, it goes on when the card is put online again.
+  - A photograph added in the panel stays with the card. The card online shows it, Preview shows it, Print and post prints it on the colony caregiver card, and the printed membership card carries it when the member sent none.
+  - Check the cards now always loads this build's copy of the card's look, never an old one kept by the browser, which is why the photograph frame and the QR code could be missing on screen.
+- **Ask for a photograph, for each card and for all at once, members and colony caregivers alike.** Owner, 17 Nov 2026: "option to ask for photo should be there. for each and for all at once".
+  - **Check the cards, one by one:** **Ask for a photograph** sits beside Add a photograph. It emails the holder a private link that works once, for 14 days, and replaces any link sent before.
+  - **All at once:** **Ask N without a photograph for one** sends a link to everyone whose card has no photograph. The count is exact once every card is drawn.
+  - **Caregivers' To do:** an application with no photograph has **Ask for a photograph** beside Open the application.
+  - **Colony caregivers** now get the same link members get, on the same page, naming their colony caregiver card. What they send becomes the card's photograph, the one Issue, Preview and the printed card use. A photograph sent with the application before is kept beside it, never overwritten. A card already online shows it at once, though a revoked card stays revoked. They are emailed a receipt. The application's status is not touched.
+  - **Members** are asked as before, with Email photo link in To do, now also from Check the cards. A membership whose card is already issued is not sent a link; Add a photograph puts one on its card.
+
 ## v1.600
 
 - **The Caregivers register issues cards the way the Members register does.** Owner, 17 Nov 2026, with the two registers side by side: "still dont look the same! rows. and issuing etc". Every caregiver waiting for a card now has **Preview and issue** on their line, where it used to say "No card yet". It opens Check the cards on that person's card, drawn with the photograph they sent, with the same three boxes and **Issue this card**. Issuing gives the card its number, puts it online and emails the caregiver, just as To do does.
