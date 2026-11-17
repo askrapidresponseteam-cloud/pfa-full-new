@@ -83,6 +83,7 @@
     ':is([data-pane="apply"],[data-pane="cards"],[data-pane="membership"],[data-pane="verify"],[data-pane="caregivers"],.rg) :is(.ghost,.press){display:inline-flex;align-items:center;justify-content:center;width:auto;height:auto;min-height:38px;padding:0 14px;font-size:13px;letter-spacing:0;text-transform:none}',
     '.main[data-sub] .pane[data-pane="caregivers"]::before{content:"Every card"!important;display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}',
     '[data-pane="verify"] .tools input{flex:0 1 440px}',
+    '.ccx :is(.ghost,.press){text-transform:none;letter-spacing:0}',
     '.mq-bar b{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;background:var(--ink);color:var(--paper);font-size:12px;font-weight:400}',
     '@media (max-width:760px){.mq-bar{width:100%}.mq-bar button{flex:1 1 auto}}',
     '@media (max-width:760px){[data-pane="membership"] :is(table,tbody,tr,td){display:block}[data-pane="membership"] thead{display:none}[data-pane="membership"] tr{position:relative;padding:12px 12px 12px 48px;border-bottom:1px solid var(--line)}[data-pane="membership"] td{padding:3px 0;border:0}[data-pane="membership"] td.mq-pick{position:absolute;left:12px;top:12px}[data-pane="membership"] .mq-do{text-align:left;white-space:normal;padding-top:10px}[data-pane="membership"] .mq-slots,[data-pane="membership"] .mq-courier{justify-content:flex-start}[data-pane="membership"] .wrap{overflow:visible}}'
@@ -139,8 +140,12 @@
     if (S.cache[key]) return Promise.resolve(S.cache[key]);
     if (!item.issued) {
       var d = { card: { kind: S.kind, name: item.name, number: item.number, district: item.district, state: item.state, tier: item.tier, validUntil: '', lifetime: false, standing: 'valid', valid: true, url: '' }, photo: '' };
-      S.cache[key] = d;
-      return Promise.resolve(d);
+      /* a caregiver's card carries the photograph sent with the application */
+      var face = S.kind !== 'caregiver' ? Promise.resolve('') : A.api('/api/admin/attachment?reference=' + encodeURIComponent(item.ref) + '&n=1').then(function (a) {
+        var b64 = a && (a.data || a.bytes);
+        return b64 ? 'data:' + (a.contentType || 'image/jpeg') + ';base64,' + b64 : '';
+      }).catch(function () { return ''; });
+      return face.then(function (photo) { d.photo = photo; S.cache[key] = d; return d; });
     }
     return A.api('/api/admin/digital-cards?kind=' + K[S.kind].api + '&ref=' + encodeURIComponent(item.ref) + '&preview=1').then(function (r) {
       var c = Object.assign({}, r.card || {}, { kind: S.kind, standing: 'valid', valid: true });
@@ -160,8 +165,8 @@
     var body = root.querySelector('[data-ccx-body]');
     var item = S.items[S.at];
     if (!item) { body.innerHTML = '<p class="ccx__count">There are no cards to check here yet.</p>'; return; }
-    var member = S.kind === 'member';
-    var notYet = member && !item.issued;
+    var notYet = !item.issued;
+    var blocked = notYet && S.kind === 'caregiver' && !item.ready;
     body.innerHTML = '<p class="ccx__count">Card <b>' + (S.at + 1) + '</b> of ' + S.items.length + '</p>'
       + '<div class="ccx__one"><div class="ccx__card"><div class="dc" data-ccx-card><div class="ccx__wait">Drawing the card…</div></div><p class="ccx__tip">This is the card as its holder sees it. Tap it to see the back.</p></div>'
       + '<form class="ccx__fix" novalidate>'
@@ -169,9 +174,12 @@
       + '<label>Name on the card<input name="name" autocomplete="off" maxlength="60" value="' + esc(item.name || '') + '"></label>'
       + '<label>District<input name="district" autocomplete="off" maxlength="60" value="' + esc(item.district || '') + '"' + (notYet ? ' readonly' : '') + '></label>'
       + '<label>State<input name="state" autocomplete="off" maxlength="40" value="' + esc(item.state || '') + '"' + (notYet ? ' readonly' : '') + '></label>'
+      /* a caregiver's checks, as To do shows them: red stops the card */
+      + (notYet && item.checks ? '<ul class="checks">' + item.checks.map(function (c) { return '<li data-l="' + esc(c.level) + '">' + esc(c.text) + '</li>'; }).join('') + '</ul>' : '')
       + '<p class="ccx__say" data-ccx-say role="status" aria-live="polite"></p>'
       + '<div class="ccx__go">'
-      + (notYet ? '<button type="button" class="press" data-ccx="issue">Issue this card</button>' : '<button type="submit" class="press" data-ccx="save">Next card</button>')
+      + (blocked ? '<button type="button" class="press" data-ccx="case">Open the application</button>'
+        : notYet ? '<button type="button" class="press" data-ccx="issue">Issue this card</button>' : '<button type="submit" class="press" data-ccx="save">Next card</button>')
       + (S.at > 0 ? '<button type="button" class="ghost" data-ccx="prev">Previous</button>' : '')
       + (notYet && S.at < S.items.length - 1 ? '<button type="button" class="ghost" data-ccx="next">Skip to the next</button>' : '')
       + '</div><div class="ccx__life" data-ccx-life></div></form></div>';
@@ -193,7 +201,8 @@
     if (first) first.focus({ preventScroll: true });
   }
   function nowLine(item) {
-    if (S.kind === 'member' && !item.issued) return 'Not issued yet. Check the name, then press Issue this card.';
+    if (!item.issued && S.kind === 'caregiver' && !item.ready) return 'Not issued yet. Fix what is in red first.';
+    if (!item.issued) return 'Not issued yet. Check the name' + (S.kind === 'caregiver' ? ' and the photograph' : '') + ', then press Issue this card.';
     if (item.revoked) return 'Revoked' + (item.revokedOn ? ' on ' + longDay(item.revokedOn) : '') + '. Its page says it is no longer valid.';
     return item.online ? 'Issued and online. A correction shows on it at once.' : 'Issued, not online.';
   }
@@ -205,7 +214,7 @@
     var line = root.querySelector('[data-ccx-now]');
     if (line) line.textContent = nowLine(item);
     if (!slot) return;
-    if (S.kind === 'member' && !item.issued) { slot.innerHTML = ''; return; }
+    if (!item.issued) { slot.innerHTML = ''; return; }
     slot.innerHTML = item.online
       ? '<button type="button" class="ghost ccx__revoke" data-ccx="revoke">Revoke this card</button>'
       : '<button type="button" class="ghost" data-ccx="restore">' + (item.revoked ? 'Issue it again' : 'Put it online') + '</button>';
@@ -300,27 +309,41 @@
     if (!t.name) { say('Type the name to print on the card.', 'bad'); return; }
     S.busy = true;
     say('Issuing the card…');
-    A.api('/api/admin/membership', { method: 'POST', body: { action: 'issue', reference: item.ref, printName: t.name } }).then(function (d) {
+    issueCall(item, t.name).then(function (d) {
       item.issued = true; item.online = Boolean(d.digital); item.name = t.name;
       if (d.card && d.card.cardId) item.number = d.card.cardId;
       delete S.cache[S.kind + ':' + item.ref];
       if (S.changed) S.changed(item, d);
       S.busy = false;
-      var line = 'Issued' + (d.digital ? ' and online' : '') + (d.emailed ? '; the member was emailed the link.' : '.');
+      var line = 'Issued' + (d.digital ? ' and online' : '') + (d.emailed ? '; the ' + (S.kind === 'member' ? 'member' : 'caregiver') + ' was emailed.' : '.');
       if (S.at < S.items.length - 1) { move(1); say(line + ' Here is the next card.', 'good'); } else { one(); say(line, 'good'); }
     }, function (e) { S.busy = false; say((e && e.message) || 'The card could not be issued just now.', 'bad'); });
   }
 
+  /* Issue a card: a membership by its own route, a caregiver's by deciding
+     the application (lib/routes/admin/case.js approve, as To do does); the
+     caregiver's card is then known by its card number */
+  function issueCall(item, name) {
+    if (S.kind === 'member') return A.api('/api/admin/membership', { method: 'POST', body: { action: 'issue', reference: item.ref, printName: name } });
+    return A.api('/api/admin/case', { method: 'POST', body: { reference: item.ref, action: 'approve', printName: name } }).then(function (d) {
+      d.card = { cardId: d.cardId };
+      delete S.cache[S.kind + ':' + item.ref];
+      item.ref = d.cardId;
+      return d;
+    });
+  }
+  function waitingOf() { return S.items.filter(function (x) { return !x.issued && (S.kind === 'member' || x.ready); }); }
+
   /* ---- all at once ---- */
   function all() {
     var body = root.querySelector('[data-ccx-body]');
-    var waiting = S.items.filter(function (x) { return S.kind === 'member' && !x.issued; });
+    var waiting = waitingOf();
     body.innerHTML = '<div class="ccx__all-head"><p>Every card, as its holder sees it. Press <b>Change</b> under any card to correct it.</p>'
       + (waiting.length ? '<button type="button" class="press" data-ccx="issue-all">Issue the ' + waiting.length + (waiting.length === 1 ? ' card' : ' cards') + ' not issued yet</button>' : '') + '</div>'
       + '<p class="ccx__say" data-ccx-say role="status" aria-live="polite"></p>'
       + '<ul class="ccx__grid">' + S.items.map(function (x, i) {
         return '<li><div class="dc" data-ccx-tile="' + i + '"><div class="ccx__wait">Drawing…</div></div>'
-          + '<div class="ccx__who"><span><b>' + esc(x.name || '') + '</b><small>' + esc(S.kind === 'member' && !x.issued ? 'Not issued yet' : x.revoked ? 'Revoked' : x.online ? 'Online' : 'Issued') + '</small></span>'
+          + '<div class="ccx__who"><span><b>' + esc(x.name || '') + '</b><small>' + esc(!x.issued ? (S.kind === 'caregiver' && !x.ready ? 'Not issued yet: fix it first' : 'Not issued yet') : x.revoked ? 'Revoked' : x.online ? 'Online' : 'Issued') + '</small></span>'
           + '<button type="button" class="ghost" data-ccx-change="' + i + '">Change</button></div></li>';
       }).join('') + '</ul>';
     /* drawn one after another, so a long list does not ask for every
@@ -337,9 +360,10 @@
     }());
   }
   function issueAll(b) {
-    var list = S.items.filter(function (x) { return S.kind === 'member' && !x.issued; });
+    var list = waitingOf();
     if (!list.length || S.busy) return;
-    if (!window.confirm('Issue ' + list.length + (list.length === 1 ? ' membership card' : ' membership cards') + ' now, with the names as they are shown?\n\nEach is put online at its own address, and every member with an email address is emailed their link.')) return;
+    var noun = S.kind === 'member' ? 'membership card' : 'colony caregiver card';
+    if (!window.confirm('Issue ' + list.length + ' ' + noun + (list.length === 1 ? '' : 's') + ' now, with the names as they are shown?\n\nEach is put online at its own address, and everyone with an email address is emailed.')) return;
     S.busy = true; b.disabled = true;
     var done = 0; var failed = [];
     (function next(k) {
@@ -351,7 +375,7 @@
       }
       var item = list[k];
       say('Issuing ' + (k + 1) + ' of ' + list.length + ': ' + (item.name || item.ref) + '…');
-      A.api('/api/admin/membership', { method: 'POST', body: { action: 'issue', reference: item.ref, printName: item.name } }).then(function (d) {
+      issueCall(item, item.name).then(function (d) {
         item.issued = true; item.online = Boolean(d.digital);
         if (d.card && d.card.cardId) item.number = d.card.cardId;
         delete S.cache[S.kind + ':' + item.ref];
@@ -377,6 +401,7 @@
     if (what === 'next') return move(1);
     if (what === 'issue') return issueNow();
     if (what === 'issue-all') return issueAll(b);
+    if (what === 'case') { var ref = (S.items[S.at] || {}).ref; close(); if (ref && A.showCase) A.showCase(ref); return; }
     if (what === 'revoke') return revoke();
     if (what === 'restore') return restore();
   }

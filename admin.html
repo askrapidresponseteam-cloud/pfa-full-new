@@ -1159,7 +1159,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* what assets/admin-registers.js uses of this script (2 Nov 2026: moved
      out to keep this page under the page-weight ceiling) */
-  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t, p) { show(t, p); }, showCase: function (r) { return showCase(r); }, cards: function (v) { goCards(v); }, refresh: function () { fill(current, true); }, certificates: function () { return window.PFACertPane ? window.PFACertPane.rows() : []; }, fail: function (n, e) { fail(n, e); }, dayOf: function (iso) { return dayOf(iso); } };
+  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t, p) { show(t, p); }, showCase: function (r) { return showCase(r); }, cards: function (v) { goCards(v); }, refresh: function () { fill(current, true); }, stale: function (p) { loaded[p] = false; }, certificates: function () { return window.PFACertPane ? window.PFACertPane.rows() : []; }, fail: function (n, e) { fail(n, e); }, dayOf: function (iso) { return dayOf(iso); } };
 
   var KEY = window.PFA_FIREBASE_API_KEY || '';
   var IDENTITY = 'https://identitytoolkit.googleapis.com/v1/accounts:';

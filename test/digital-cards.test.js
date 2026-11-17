@@ -464,7 +464,8 @@ test('Check the cards: one by one and all at once, in large type, the card in it
   assert.match(js, /\.ccx__fix input\{height:56px;[^}]*font-size:20px/, 'large boxes and type');
   assert.match(js, /\.ccx__go button\{min-height:60px/, 'large buttons');
   assert.match(js, /body: \{ action: 'correct', kind: K\[S\.kind\]\.api, ref: item\.ref, name: t\.name, district: t\.district, state: t\.state \}/);
-  assert.match(js, /body: \{ action: 'issue', reference: item\.ref, printName: t\.name \}/, 'issued with the name as typed');
+  assert.match(js, /body: \{ action: 'issue', reference: item\.ref, printName: name \}/, 'issued with the name as typed');
+  assert.match(js, /issueCall\(item, t\.name\)/);
   assert.match(js, /D\.render\(box, card, \{ root: '', photo: photo \|\| '', controls: false \}\)/, 'the new-style card');
   assert.doesNotMatch(js, /[–—]/);
   const html = read('admin.html');

@@ -1,3 +1,13 @@
+## v1.600
+
+- **The Caregivers register issues cards the way the Members register does.** Owner, 17 Nov 2026, with the two registers side by side: "still dont look the same! rows. and issuing etc". Every caregiver waiting for a card now has **Preview and issue** on their line, where it used to say "No card yet". It opens Check the cards on that person's card, drawn with the photograph they sent, with the same three boxes and **Issue this card**. Issuing gives the card its number, puts it online and emails the caregiver, just as To do does.
+  - If something is in red (no photograph, no full postal address, the mobile already holds a card), the checks are listed under the boxes and the button is **Open the application** instead, so it can be fixed first.
+  - The line above the list now reads the same in both registers: "Colony caregiver cards: 1 of 19 online", **Check the cards (N)** (every card and every one waiting), **Fix N applications first** (in place of the members' Approve N photos), and **Issue all N now** for the ones ready.
+  - Check the cards, All at once, issues every caregiver card that is ready, as it does for members.
+  - After issuing from the register, To do's count goes down at once, and To do and Print and post read again when next opened.
+  - Check the cards uses plain sentence-case buttons, like the rest of both sections.
+  - A card number on its own (before a card has a Valid until date) stays on one line instead of breaking in two.
+
 ## v1.599
 
 - **Members and Caregivers now work the same way.** Owner, 17 Nov 2026: "why is the members section so diff from colony caregiver.. the current UI is super fucking inconsistent.. and confusing to follow..revamp section by section. BUT THE CORE IS SIMPLICITY YET NOT TRADING OF OF ANY FEATUR". Both sections have the same four parts, with the same names and in the same order: **Register, To do, Print and post, Find a card**. Each part opens the same way: the register's own row of choices with their counts, one line on what to do (under the i), then the buttons, then the list. Buttons in both sections, the registers included, are the register's plain ones in sentence case.

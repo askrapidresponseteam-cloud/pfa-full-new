@@ -488,9 +488,9 @@ test('the members register: a Digital card column, Preview and issue on the line
   assert.match(js, /data-cc-open="' \+ esc\(r\.id\) \+ '">Preview<\/button>/);
   assert.match(js, /data-go-cards="review">Approve photo<\/button>/);
   assert.match(js, /data-cc-all="' \+ kind \+ '">Check the cards \(' \+ cards \+ '\)<\/button>/, 'both registers');
-  assert.match(js, /data-dc-issue-all>Issue all ' \+ left \+ ' now<\/button>/);
+  assert.match(js, /data-dc-issue-all="' \+ kind \+ '">Issue all ' \+ left \+ ' now<\/button>/, 'both registers');
   assert.match(js, /window\.confirm\('Issue ' \+ all\.length/, 'issuing many asks first');
-  assert.match(js, /<b>Membership cards: ' \+ on \+ ' of ' \+ rows\.length \+ ' online\.<\/b>/);
+  assert.match(js, /<b>' \+ \(mem \? 'Membership cards' : 'Colony caregiver cards'\) \+ ': ' \+ on \+ ' of ' \+ rows\.length \+ ' online\.<\/b>/, 'the same line in both registers');
   const reg = fs.readFileSync(path.join(ROOT, 'lib', 'routes', 'admin', 'registers.js'), 'utf8');
   assert.match(reg, /online: r\.cardId \? onlineOf\(online, 'member', doc\.id\) : '',/);
   assert.match(reg, /cardQueue: r\.queue \|\| '',/);
@@ -570,4 +570,25 @@ test('Members and Caregivers read alike: Register, To do, Print and post, Find a
   const cc = fs.readFileSync(path.join(ROOT, 'assets', 'admin-cardcheck.js'), 'utf8');
   assert.match(cc, /\.rg\) :is\(\.ghost,\.press\)\{[^}]*text-transform:none/, 'the register\'s buttons in every part');
   assert.match(cc, /\[data-pane="membership"\] thead\{display:none\}/, 'on a phone each line stands as a card');
+});
+
+/* Owner, 17 Nov 2026, with the two registers side by side: "still dont look
+   the same! rows. and issuing etc". A caregiver waiting for a card has
+   Preview and issue on its line, as a member does, and is issued from
+   Check the cards; the line above has Check the cards, Issue all and what
+   has to be fixed first, as the members' has. */
+test('the caregivers register issues as the members register does', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'assets', 'admin-registers.js'), 'utf8');
+  assert.match(js, /if \(kind !== 'membership'\) return appOf\(r\) \? '<button type="button" class="rg-row rg-dcgo is-due" data-cc-open="' \+ esc\(r\.id\) \+ '">Preview and issue<\/button>'/);
+  assert.match(js, /api\('\/api\/admin\/applications'\)/, 'the waiting applications and their checks');
+  assert.match(js, /data-go-todo>Fix ' \+ due/, 'what must be fixed first, as Approve photo for members');
+  assert.match(js, /api\('\/api\/admin\/case', \{ method: 'POST', body: \{ reference: r\.id, action: 'approve', printName: a\.printName \|\| r\.name \} \}\)/, 'Issue all decides each ready application');
+  assert.match(js, /A\.stale\('apply'\); A\.stale\('cards'\);/, 'To do and Print and post read again');
+  const cc = fs.readFileSync(path.join(ROOT, 'assets', 'admin-cardcheck.js'), 'utf8');
+  assert.match(cc, /A\.api\('\/api\/admin\/case', \{ method: 'POST', body: \{ reference: item\.ref, action: 'approve', printName: name \} \}\)/);
+  assert.match(cc, /'\/api\/admin\/attachment\?reference=' \+ encodeURIComponent\(item\.ref\) \+ '&n=1'/, 'the preview carries the photograph sent');
+  assert.match(cc, /data-ccx="case">Open the application<\/button>/, 'red checks: fix the application first');
+  assert.match(cc, /<ul class="checks">/);
+  const css = fs.readFileSync(path.join(ROOT, 'assets', 'digital-card.css'), 'utf8');
+  assert.match(css, /\.dc__grid>:only-child \.dc__val--id\{white-space:nowrap\}/, 'a card number never breaks');
 });

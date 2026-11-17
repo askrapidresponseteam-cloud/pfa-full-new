@@ -55,6 +55,9 @@
 .dc__place{display:block;margin:1cqw 0 0;font-size:max(12px,calc(2.6cqw * var(--fit,1)));font-weight:500;color:var(--soft);line-height:1.3}
 .dc__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.2cqw 3.5cqw;margin-top:3.6cqw}
 .dc__val{display:block;margin-top:.35cqw;font-size:max(13px,2.8cqw);font-weight:500;line-height:1.25;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+/* a card number on its own (no date yet, before issue) takes the whole row and never breaks */
+.dc__grid>:only-child{grid-column:1/-1}
+.dc__grid>:only-child .dc__val--id{white-space:nowrap}
 .dc__photo{grid-column:2;grid-row:2;align-self:center;aspect-ratio:3/4;width:100%;border-radius:2.4cqw;overflow:hidden;background:rgba(255,255,255,.6);border:max(2px,.45cqw) solid #fff;box-shadow:0 0 0 1px rgba(11,31,58,.14),0 10px 24px -12px rgba(0,0,0,.4)}
 .dc__photo img{display:block;width:100%;height:100%;object-fit:cover}
 .dc__photo i{display:grid;place-items:center;height:100%;font-style:normal;font-size:max(10px,1.8cqw);letter-spacing:.2em;color:var(--soft)}

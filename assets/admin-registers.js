@@ -61,7 +61,13 @@
     var spec = REG[kind];
     var box = $('[data-pane="' + spec.pane + '"]');
     if (!box) return Promise.resolve();
-    return api('/api/admin/registers?kind=' + kind).then(function (d) {
+    /* the caregivers waiting for a card, with their checks, so their lines
+       read as the members' do: Preview and issue (17 Nov 2026) */
+    var waiting = kind === 'caregiver' ? api('/api/admin/applications').catch(function () { return { rows: [] }; }) : Promise.resolve({ rows: [] });
+    return Promise.all([api('/api/admin/registers?kind=' + kind), waiting]).then(function (both) {
+      var d = both[0];
+      regState[kind].apps = {};
+      (both[1].rows || []).forEach(function (a) { regState[kind].apps[a.reference] = a; });
       regState[kind].rows = d.rows || [];
       regState[kind].numbers = d.numbers || null;
       regState[kind].codes = d.codes || [];
@@ -384,20 +390,25 @@
     var pv = '<button type="button" class="rg-row rg-dcgo" data-cc-open="' + esc(r.id) + '">Preview</button>';
     if (r.online === 'online') return '<span class="rg-dcpair"><span class="rg-chip rg-chip--live">Online</span>' + pv + '<button type="button" class="rg-row rg-dcgo rg-revoke" data-cc-revoke="' + esc(r.id) + '">Revoke</button></span>';
     if (r.cardId) return '<span class="rg-dcpair"><span class="rg-chip">' + (r.online === 'withdrawn' ? 'Revoked' : 'Not online') + '</span>' + pv + '</span>';
-    if (kind !== 'membership') return '<span class="rg-sub">No card yet</span>';
+    if (kind !== 'membership') return appOf(r) ? '<button type="button" class="rg-row rg-dcgo is-due" data-cc-open="' + esc(r.id) + '">Preview and issue</button>' : '<span class="rg-sub">No card yet</span>';
     if (r.cardQueue === 'review') return '<button type="button" class="rg-row rg-dcgo is-due" data-go-cards="review">Approve photo</button>';
     if (/^(request|lapsed|waiting)$/.test(r.cardQueue)) return '<button type="button" class="rg-row rg-dcgo is-due" data-cc-open="' + esc(r.id) + '">Preview and issue</button>';
     return '<span class="rg-sub">No card yet</span>';
   }
   /* the cards Check the cards goes through, in the register's order: every
      card there is, and for members, every one that can be issued now */
+  /* a caregiver's application waiting for its card (To do), with its checks */
+  function appOf(r) { return !r.cardId && regState.caregiver.apps ? regState.caregiver.apps[r.id] || null : null; }
   function ccItems(kind) {
     return regState[kind].rows.filter(function (r) {
-      return r.cardId || (kind === 'membership' && /^(request|lapsed|waiting)$/.test(r.cardQueue));
+      return r.cardId || (kind === 'membership' ? /^(request|lapsed|waiting)$/.test(r.cardQueue) : Boolean(appOf(r)));
     }).map(function (r) {
+      var a = kind === 'membership' ? null : appOf(r);
       return kind === 'membership'
         ? { ref: r.id, row: r.id, issued: Boolean(r.cardId), online: r.online === 'online', revoked: r.online === 'withdrawn', name: r.name, number: r.cardId || r.memberNo, district: r.district, state: r.state, tier: r.type }
-        : { ref: r.cardId, row: r.id, issued: true, online: r.online === 'online', revoked: r.online === 'withdrawn', name: r.name, number: r.cardId, district: r.district, state: r.state };
+        : a
+          ? { ref: r.id, row: r.id, issued: false, name: a.printName || r.name, number: a.cardNumber || '', district: a.district || r.district, state: a.state || r.state, checks: a.checks || [], ready: Boolean(a.ready) }
+          : { ref: r.cardId, row: r.id, issued: true, online: r.online === 'online', revoked: r.online === 'withdrawn', name: r.name, number: r.cardId, district: r.district, state: r.state };
     });
   }
   function ccOpen(kind, rowId, view) {
@@ -410,27 +421,42 @@
       touched = true;
       var r = regRow(kind, item.row);
       if (!r) return;
-      if (kind === 'membership' && item.issued && !r.cardId) { r.cardId = (d && d.card && d.card.cardId) || item.ref; r.cardQueue = 'approved'; }
+      if (item.issued && !r.cardId) { r.cardId = (d && d.card && d.card.cardId) || item.ref; r.cardQueue = 'approved'; }
+      if (kind === 'caregiver' && d && d.cardId) issuedFrom(r);
       r.online = item.revoked ? 'withdrawn' : item.online ? 'online' : r.online;
     } });
   }
-  function issuable(rows) { return rows.filter(function (r) { return !r.cardId && /^(request|lapsed|waiting)$/.test(r.cardQueue); }); }
+  /* a caregiver's card issued here: off To do, its count down by one, and
+     To do and Print and post read again when next opened */
+  function issuedFrom(r) {
+    if (regState.caregiver.apps) delete regState.caregiver.apps[r.id];
+    var pip = document.getElementById('pipApps');
+    if (pip) { var n = Math.max(0, (Number(pip.textContent) || 0) - 1); pip.textContent = n; pip.hidden = !n; }
+    if (A.stale) { A.stale('apply'); A.stale('cards'); }
+  }
+  function issuable(rows, kind) {
+    return rows.filter(function (r) { return kind === 'caregiver' ? Boolean(appOf(r) && appOf(r).ready) : !r.cardId && /^(request|lapsed|waiting)$/.test(r.cardQueue); });
+  }
   /* above the register: how many cards are online, Check the cards, and
      for members the next step for the rest */
   function dcLine(kind, rows) {
     if (!rows.length) return '';
+    var mem = kind === 'membership';
+    var who = mem ? 'member' : 'caregiver';
     var on = rows.filter(function (r) { return r.online === 'online'; }).length;
     var cards = ccItems(kind).length;
     var check = cards ? '<button type="button" class="press" data-cc-all="' + kind + '">Check the cards (' + cards + ')</button>' : '';
-    if (kind !== 'membership') {
-      return '<div class="rg-dcline" data-dc-line><p><b>Colony caregiver cards: ' + on + ' of ' + cards + ' online.</b> Check the cards shows each one as its holder sees it, to correct the name, district or state, one by one or all at once.</p>'
-        + '<p class="rg-dcline__acts">' + check + '</p></div>';
-    }
-    var left = issuable(rows).length;
-    var review = rows.filter(function (r) { return !r.cardId && r.cardQueue === 'review'; }).length;
-    return '<div class="rg-dcline" data-dc-line><p><b>Membership cards: ' + on + ' of ' + rows.length + ' online.</b> Check the cards shows each one as the member sees it: correct the name, then issue it. Issuing puts the card online and emails the member the link. No photograph is needed.</p>'
-      + '<p class="rg-dcline__acts">' + check + (review ? '<button type="button" class="ghost" data-go-cards="review">Approve ' + review + (review === 1 ? ' photo' : ' photos') + '</button>' : '')
-      + (left ? '<button type="button" class="ghost" data-dc-issue-all>Issue all ' + left + ' now</button>' : '') + '</p>'
+    var left = issuable(rows, kind).length;
+    /* what has to happen before a card can go: a member's photograph to
+       approve, or a caregiver's application to fix (both in To do) */
+    var due = mem ? rows.filter(function (r) { return !r.cardId && r.cardQueue === 'review'; }).length
+      : rows.filter(function (r) { return appOf(r) && !appOf(r).ready; }).length;
+    var dueBtn = !due ? '' : mem ? '<button type="button" class="ghost" data-go-cards="review">Approve ' + due + (due === 1 ? ' photo' : ' photos') + '</button>'
+      : '<button type="button" class="ghost" data-go-todo>Fix ' + due + (due === 1 ? ' application' : ' applications') + ' first</button>';
+    return '<div class="rg-dcline" data-dc-line><p><b>' + (mem ? 'Membership cards' : 'Colony caregiver cards') + ': ' + on + ' of ' + rows.length + ' online.</b> Check the cards shows each one as the ' + who + ' sees it: correct the name, then issue it. Issuing puts the card online and emails the ' + who + ' the link. '
+      + (mem ? 'No photograph is needed.' : 'The card carries the photograph sent with the application.') + '</p>'
+      + '<p class="rg-dcline__acts">' + check + dueBtn
+      + (left ? '<button type="button" class="ghost" data-dc-issue-all="' + kind + '">Issue all ' + left + ' now</button>' : '') + '</p>'
       + '<p class="rg-say" data-dc-say role="status" aria-live="polite"></p></div>';
   }
   /* Revoke, straight from the line (owner, 17 Nov 2026: "where is revoke
@@ -460,26 +486,32 @@
     });
   }
 
-  function issueOne(r) {
-    return api('/api/admin/membership', { method: 'POST', body: { action: 'issue', reference: r.id } }).then(function (d) {
+  function issueOne(r, kind) {
+    var a = kind === 'caregiver' ? appOf(r) : null;
+    var call = a
+      ? api('/api/admin/case', { method: 'POST', body: { reference: r.id, action: 'approve', printName: a.printName || r.name } }).then(function (d) { d.card = { cardId: d.cardId }; return d; })
+      : api('/api/admin/membership', { method: 'POST', body: { action: 'issue', reference: r.id } });
+    return call.then(function (d) {
+      if (a) issuedFrom(r);
       r.cardId = (d.card && d.card.cardId) || r.id;
       r.online = d.digital ? 'online' : '';
       r.cardQueue = 'approved';
       return d;
     });
   }
-  function dcRepaint(msg, tone) {
-    paintRegister('membership');
-    var s = $('[data-pane="memsheet"] [data-dc-say]');
+  function dcRepaint(msg, tone, kind) {
+    paintRegister(kind || 'membership');
+    var s = $('[data-pane="' + REG[kind || 'membership'].pane + '"] [data-dc-say]');
     if (s && msg) say(s, msg, tone);
   }
   document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('[data-go-cards],[data-dc-issue],[data-dc-issue-all],[data-cc-open],[data-cc-all],[data-cc-revoke]');
+    var b = e.target.closest && e.target.closest('[data-go-cards],[data-go-todo],[data-dc-issue],[data-dc-issue-all],[data-cc-open],[data-cc-all],[data-cc-revoke]');
     if (!b) return;
     if (b.hasAttribute('data-cc-open')) { var tr = b.closest('[data-rg-sum]'); var pane = b.closest('[data-pane]'); ccOpen(pane && pane.getAttribute('data-pane') === 'cgsheet' ? 'caregiver' : 'membership', b.getAttribute('data-cc-open') || (tr && tr.getAttribute('data-rg-sum'))); return; }
     if (b.hasAttribute('data-cc-all')) { ccOpen(b.getAttribute('data-cc-all'), '', 'one'); return; }
     if (b.hasAttribute('data-cc-revoke')) { revokeLine(b); return; }
     if (b.hasAttribute('data-go-cards')) { if (A.cards) A.cards(b.getAttribute('data-go-cards')); return; }
+    if (b.hasAttribute('data-go-todo')) { A.show('caregivers', 'apply'); return; }
     if (b.hasAttribute('data-dc-issue')) {
       var r = regRow('membership', b.getAttribute('data-dc-issue'));
       if (!r) return;
@@ -490,16 +522,18 @@
       }, function (err) { b.disabled = false; b.textContent = 'Issue card'; dcRepaint(err.message || 'The card could not be issued just now.', 'bad'); });
       return;
     }
-    var all = issuable(regState.membership.rows);
+    var kind = b.getAttribute('data-dc-issue-all') === 'caregiver' ? 'caregiver' : 'membership';
+    var all = issuable(regState[kind].rows, kind);
     if (!all.length) return;
-    if (!window.confirm('Issue ' + all.length + (all.length === 1 ? ' membership card' : ' membership cards') + ' now?\n\nEach is given its number and put online at its own address, and every member with an email address is emailed their link. This cannot be undone in one step.')) return;
+    var noun = kind === 'caregiver' ? 'colony caregiver card' : 'membership card';
+    if (!window.confirm('Issue ' + all.length + ' ' + noun + (all.length === 1 ? '' : 's') + ' now?\n\nEach is given its number and put online at its own address, and everyone with an email address is emailed. This cannot be undone in one step.')) return;
     b.disabled = true;
     var done = 0; var failed = [];
-    var say1 = $('[data-pane="memsheet"] [data-dc-say]');
+    var say1 = $('[data-pane="' + REG[kind].pane + '"] [data-dc-say]');
     (function next(i) {
-      if (i >= all.length) { dcRepaint(done + (done === 1 ? ' card' : ' cards') + ' issued and online.' + (failed.length ? ' Not issued: ' + failed.join(', ') + '.' : ''), failed.length ? 'bad' : 'good'); return; }
+      if (i >= all.length) { dcRepaint(done + (done === 1 ? ' card' : ' cards') + ' issued and online.' + (failed.length ? ' Not issued: ' + failed.join(', ') + '.' : ''), failed.length ? 'bad' : 'good', kind); return; }
       if (say1) say(say1, 'Issuing ' + (i + 1) + ' of ' + all.length + ': ' + (all[i].name || all[i].id) + '\u2026');
-      issueOne(all[i]).then(function () { done += 1; }, function (err) { failed.push((all[i].name || all[i].id) + ' (' + (err.message || 'failed') + ')'); }).then(function () { next(i + 1); });
+      issueOne(all[i], kind).then(function () { done += 1; }, function (err) { failed.push((all[i].name || all[i].id) + ' (' + (err.message || 'failed') + ')'); }).then(function () { next(i + 1); });
     }(0));
   });
 
