@@ -14,6 +14,10 @@
                   you type. Save and go to the next card, or Next card when
                   nothing changed; Previous to go back. A membership with no
                   card yet has Issue this card instead, with the name typed.
+     Revoke       a card issued and online can be revoked here (owner, 17
+                  Nov 2026: "there should be option to revoke as well",
+                  "for both membership and colony caregiver"): its page then
+                  says it is no longer valid. Issue it again brings it back.
      All at once  every card at once, each with its name and a Change
                   button that opens it one by one; for memberships, Issue
                   every card not yet issued.
@@ -54,6 +58,9 @@
     '.ccx__fix input[readonly]{border-color:var(--line);background:var(--paper,#fafafa);color:var(--muted)}',
     '.ccx__say{margin:0;min-height:24px;font-size:17px;line-height:1.5;overflow-wrap:anywhere}.ccx__say[data-tone="bad"]{color:#b42318}.ccx__say[data-tone="good"]{color:#1f6b3a}',
     '.ccx__go{display:flex;flex-wrap:wrap;gap:12px}',
+    '.ccx__life{padding-top:16px;border-top:1px solid var(--line)}.ccx__life:empty{display:none}',
+    '.ccx__life button{min-height:56px;padding:0 24px;font-size:16px;width:auto;margin:0}',
+    '.ccx__revoke{color:#b42318;border-color:#b42318}',
     '.ccx__go button{min-height:60px;padding:0 26px;font-size:17px;width:auto;margin:0}',
     '.ccx__go .press{flex:1 1 260px}',
     '.ccx__all-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin:0 0 20px}',
@@ -147,7 +154,7 @@
     body.innerHTML = '<p class="ccx__count">Card <b>' + (S.at + 1) + '</b> of ' + S.items.length + '</p>'
       + '<div class="ccx__one"><div class="ccx__card"><div class="dc" data-ccx-card><div class="ccx__wait">Drawing the card…</div></div><p class="ccx__tip">This is the card as its holder sees it. Tap it to see the back.</p></div>'
       + '<form class="ccx__fix" novalidate>'
-      + '<p class="ccx__now">' + (notYet ? 'Not issued yet. Check the name, then press Issue this card.' : item.online ? 'Issued and online. A correction shows on it at once.' : 'Issued.') + '</p>'
+      + '<p class="ccx__now" data-ccx-now>' + nowLine(item) + '</p>'
       + '<label>Name on the card<input name="name" autocomplete="off" maxlength="60" value="' + esc(item.name || '') + '"></label>'
       + '<label>District<input name="district" autocomplete="off" maxlength="60" value="' + esc(item.district || '') + '"' + (notYet ? ' readonly' : '') + '></label>'
       + '<label>State<input name="state" autocomplete="off" maxlength="40" value="' + esc(item.state || '') + '"' + (notYet ? ' readonly' : '') + '></label>'
@@ -156,7 +163,7 @@
       + (notYet ? '<button type="button" class="press" data-ccx="issue">Issue this card</button>' : '<button type="submit" class="press" data-ccx="save">Next card</button>')
       + (S.at > 0 ? '<button type="button" class="ghost" data-ccx="prev">Previous</button>' : '')
       + (notYet && S.at < S.items.length - 1 ? '<button type="button" class="ghost" data-ccx="next">Skip to the next</button>' : '')
-      + '</div></form></div>';
+      + '</div><div class="ccx__life" data-ccx-life></div></form></div>';
     var box = body.querySelector('[data-ccx-card]');
     dataOf(item).then(function (d) {
       if (S.items[S.at] !== item || S.view !== 'one') return;
@@ -167,10 +174,65 @@
         f.name.value = item.name; f.district.value = item.district || ''; f.state.value = item.state || '';
       }
       body._data = d;
+      if (d.online) { item.online = d.online.standing !== 'withdrawn'; item.revoked = d.online.standing === 'withdrawn'; item.revokedOn = d.online.withdrawnOn || ''; }
+      life(item);
       livePreview();
     }).catch(function (e) { box.innerHTML = '<div class="ccx__wait">' + esc((e && e.message) || 'The card could not be drawn just now.') + '</div>'; });
     var first = body.querySelector('input[name="name"]');
     if (first) first.focus({ preventScroll: true });
+  }
+  function nowLine(item) {
+    if (S.kind === 'member' && !item.issued) return 'Not issued yet. Check the name, then press Issue this card.';
+    if (item.revoked) return 'Revoked' + (item.revokedOn ? ' on ' + longDay(item.revokedOn) : '') + '. Its page says it is no longer valid.';
+    return item.online ? 'Issued and online. A correction shows on it at once.' : 'Issued, not online.';
+  }
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function longDay(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || '')); return m ? Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1] : ''; }
+  /* Revoke, or Issue it again, under the boxes */
+  function life(item) {
+    var slot = root.querySelector('[data-ccx-life]');
+    var line = root.querySelector('[data-ccx-now]');
+    if (line) line.textContent = nowLine(item);
+    if (!slot) return;
+    if (S.kind === 'member' && !item.issued) { slot.innerHTML = ''; return; }
+    slot.innerHTML = item.online
+      ? '<button type="button" class="ghost ccx__revoke" data-ccx="revoke">Revoke this card</button>'
+      : '<button type="button" class="ghost" data-ccx="restore">' + (item.revoked ? 'Issue it again' : 'Put it online') + '</button>';
+  }
+  function revoke() {
+    var item = S.items[S.at];
+    var body = root.querySelector('[data-ccx-body]');
+    var d = body && body._data;
+    if (!item || !d || !d.online || !d.online.id || S.busy) return;
+    if (!window.confirm('Revoke the card of ' + (item.name || 'this holder') + '?\n\nIts page will say it is no longer valid' + (S.kind === 'caregiver' ? ', and its photograph is no longer shown' : '') + '. You can issue it again later.')) return;
+    S.busy = true;
+    say('Revoking…');
+    A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'withdraw', kind: K[S.kind].api, id: d.online.id } }).then(function (r) {
+      d.online = r.digital || Object.assign({}, d.online, { standing: 'withdrawn' });
+      item.online = false; item.revoked = true; item.revokedOn = (r.digital && r.digital.withdrawnOn) || '';
+      if (S.changed) S.changed(item);
+      S.busy = false;
+      life(item);
+      livePreview();
+      say('Revoked. Its page now says it is no longer valid.', 'good');
+    }, function (e) { S.busy = false; say((e && e.message) || 'That could not be revoked just now.', 'bad'); });
+  }
+  function restore() {
+    var item = S.items[S.at];
+    var body = root.querySelector('[data-ccx-body]');
+    var d = body && body._data;
+    if (!item || S.busy) return;
+    S.busy = true;
+    say('Putting it online…');
+    A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'issue', kind: K[S.kind].api, ref: item.ref, email: false } }).then(function (r) {
+      if (d) d.online = r.digital;
+      item.online = true; item.revoked = false;
+      if (S.changed) S.changed(item);
+      S.busy = false;
+      life(item);
+      livePreview();
+      say('It is online again and valid.', 'good');
+    }, function (e) { S.busy = false; say((e && e.message) || 'That could not be done just now.', 'bad'); });
   }
   function typed() {
     var f = root.querySelector('.ccx__fix');
@@ -186,7 +248,8 @@
     var box = body && body.querySelector('[data-ccx-card]');
     var t = typed();
     if (!d || !box || !t) return;
-    draw(box, Object.assign({}, d.card, { name: t.name || ' ', district: t.district, state: t.state }), d.photo);
+    var it = S.items[S.at] || {};
+    draw(box, Object.assign({}, d.card, { name: t.name || ' ', district: t.district, state: t.state, standing: it.revoked ? 'withdrawn' : 'valid', valid: !it.revoked }), it.revoked ? '' : d.photo);
     var go = root.querySelector('[data-ccx="save"]');
     if (go) go.textContent = dirty() ? 'Save and go to the next card' : (S.at < S.items.length - 1 ? 'Next card' : 'Done');
   }
@@ -246,7 +309,7 @@
       + '<p class="ccx__say" data-ccx-say role="status" aria-live="polite"></p>'
       + '<ul class="ccx__grid">' + S.items.map(function (x, i) {
         return '<li><div class="dc" data-ccx-tile="' + i + '"><div class="ccx__wait">Drawing…</div></div>'
-          + '<div class="ccx__who"><span><b>' + esc(x.name || '') + '</b><small>' + esc(S.kind === 'member' && !x.issued ? 'Not issued yet' : x.online ? 'Online' : 'Issued') + '</small></span>'
+          + '<div class="ccx__who"><span><b>' + esc(x.name || '') + '</b><small>' + esc(S.kind === 'member' && !x.issued ? 'Not issued yet' : x.revoked ? 'Revoked' : x.online ? 'Online' : 'Issued') + '</small></span>'
           + '<button type="button" class="ghost" data-ccx-change="' + i + '">Change</button></div></li>';
       }).join('') + '</ul>';
     /* drawn one after another, so a long list does not ask for every
@@ -256,7 +319,10 @@
       if (S.view !== 'all' || i >= S.items.length) return;
       var n = i; i += 1;
       var tile = body.querySelector('[data-ccx-tile="' + n + '"]');
-      dataOf(S.items[n]).then(function (d) { return tile ? draw(tile, d.card, d.photo) : null; }).catch(function () { if (tile) tile.innerHTML = '<div class="ccx__wait">Not drawn</div>'; }).then(next);
+      dataOf(S.items[n]).then(function (d) {
+        var gone = S.items[n].revoked || (d.online && d.online.standing === 'withdrawn');
+        return tile ? draw(tile, Object.assign({}, d.card, { standing: gone ? 'withdrawn' : 'valid', valid: !gone }), gone ? '' : d.photo) : null;
+      }).catch(function () { if (tile) tile.innerHTML = '<div class="ccx__wait">Not drawn</div>'; }).then(next);
     }());
   }
   function issueAll(b) {
@@ -300,6 +366,8 @@
     if (what === 'next') return move(1);
     if (what === 'issue') return issueNow();
     if (what === 'issue-all') return issueAll(b);
+    if (what === 'revoke') return revoke();
+    if (what === 'restore') return restore();
   }
 
   var opener = null;
@@ -339,6 +407,28 @@
     var card = Object.assign({ standing: 'valid', valid: true, url: '' }, data, { photo: undefined });
     return draw(box, card, data.photo || '');
   }
+
+  /* Photos and cards (admin.html mqRow): Revoke card and Issue it again on
+     a membership's line, kept here so admin.html stays under its ceiling */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-pane="membership"] [data-mq-life]');
+    if (!b) return;
+    var what = b.getAttribute('data-mq-life');
+    var name = b.getAttribute('data-name') || b.getAttribute('data-ref');
+    var line = document.querySelector('[data-pane="membership"] [data-mq-say]');
+    var tell = function (text, tone) { if (line) A.say(line, text, tone); };
+    if (what === 'revoke') {
+      if (!b.getAttribute('data-id')) return;
+      if (!window.confirm('Revoke the membership card of ' + name + '?\n\nIts page will say it is no longer valid. You can issue it again later.')) return;
+    }
+    b.disabled = true;
+    var body = what === 'revoke' ? { action: 'withdraw', kind: 'member', id: b.getAttribute('data-id') } : { action: 'issue', kind: 'member', ref: b.getAttribute('data-ref'), email: false };
+    A.api('/api/admin/digital-cards', { method: 'POST', body: body }).then(function () {
+      var done = what === 'revoke' ? name + '\u2019s card is revoked. Its page now says it is no longer valid.' : name + '\u2019s card is online and valid again.';
+      if (A.refresh) A.refresh();
+      setTimeout(function () { tell(done, 'good'); }, 600);
+    }, function (err) { b.disabled = false; tell((err && err.message) || 'That could not be done just now.', 'bad'); });
+  });
 
   window.PFACardCheck = { open: open, close: close, inPlaceOf: inPlaceOf, onClose: function (f) { S.closed = f; } };
 })();

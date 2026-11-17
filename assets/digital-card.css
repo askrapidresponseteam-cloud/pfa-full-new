@@ -201,3 +201,11 @@
    printed"): printed, the page shows the line that says so instead */
 .dc__noprint{display:none}
 @media print{.dc__stage,.dc__acts,.dc__hint{display:none!important}.dc__noprint{display:block;margin:0;padding:16px;border:1px solid #111;font:500 14px/1.5 var(--dc-sans);color:#111;text-align:center}}
+
+/* No photograph yet: a portrait in the card's own colours, so the frame is
+   never empty (owner, 17 Nov 2026). The colony caregiver card's in soft
+   navy on its light ground; the membership card's in warm grey on black. */
+.dc__nophoto{display:grid;place-items:end center;height:100%;background:linear-gradient(180deg,#eef4fc 0%,#d9e6f6 100%)}
+.dc__nophoto .dc__sitter{width:78%;height:auto;fill:#9fb4cf}
+.dcm__photo--none{display:grid;place-items:end center;background:linear-gradient(180deg,#26272a 0%,#16171a 100%)}
+.dcm__photo--none .dc__sitter{width:78%;height:auto;fill:#4a4c52}

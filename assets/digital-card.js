@@ -18,6 +18,12 @@
   function longDate(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || '')); return m ? Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1] : ''; }
   var CHECK = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M4.6 8.3l2.2 2.2 4.6-4.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var CROSS = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M5.3 5.3l5.4 5.4M10.7 5.3l-5.4 5.4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  /* where there is no photograph yet: a portrait in the card's own colours,
+     never an empty frame (owner, 17 Nov 2026: "There should be a photo
+     placeholder that doesn't look empty when no photo is uploaded. If a
+     photo is uploaded, display it; otherwise, keep the default design as
+     is. same applies to caregiver card as well as membership") */
+  var SITTER = '<svg class="dc__sitter" viewBox="0 0 60 80" aria-hidden="true" focusable="false"><circle cx="30" cy="29" r="12.5"/><path d="M5 80c0-15.5 11.2-25.5 25-25.5S55 64.5 55 80z"/></svg>';
   var TURN = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 0 1 9.6-3.6M13.5 8a5.5 5.5 0 0 1-9.6 3.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12.6 1.8v2.9H9.7M3.4 14.2v-2.9h2.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* the QR code of the card's address, as an SVG of whole modules */
@@ -50,7 +56,7 @@
        "We can still have photo appended on membership card (right side) -
        find the place and position- state of the art class"): framed below
        the tier, clear of the foot, in its own colours */
-    var photo = o.photo ? '<figure class="dcm__photo"><img src="' + esc(o.photo) + '" alt="' + esc(d.name) + '"></figure>' : '';
+    var photo = '<figure class="dcm__photo' + (o.photo ? '' : ' dcm__photo--none') + '">' + (o.photo ? '<img src="' + esc(o.photo) + '" alt="' + esc(d.name) + '">' : SITTER) + '</figure>';
     return ''
       + '<section class="dc__face dc__front' + (photo ? ' dcm--photo' : '') + '" aria-label="Front">'
       + '<div class="dcm__brand">' + logo + '<span class="dcm__tier">' + esc((tier ? tier + ' ' : '') + 'Membership') + '</span></div>'
@@ -76,7 +82,7 @@
 
   function state(d) {
     var s = d.standing || 'valid';
-    return { s: s, word: s === 'valid' ? 'Verified' : s === 'expired' ? 'Expired' : 'Withdrawn' };
+    return { s: s, word: s === 'valid' ? 'Verified' : s === 'expired' ? 'Expired' : 'Revoked' };
   }
 
   function render(box, data, opts) {
@@ -98,7 +104,7 @@
       ['Valid until', until]
     ].filter(function (c) { return c[1]; });
     var logo = '<span class="dc__logo"><img src="' + esc(base) + 'media/member-card-logo.png" alt="People for Animals" width="386" height="259"></span>';
-    var photo = o.photo ? '<img src="' + esc(o.photo) + '" alt="' + esc(d.name) + '">' : '<i>PHOTO</i>';
+    var photo = o.photo ? '<img src="' + esc(o.photo) + '" alt="' + esc(d.name) + '">' : '<span class="dc__nophoto">' + SITTER + '</span>';
 
     box.className = 'dc';
     box.setAttribute('data-kind', member ? 'member' : 'caregiver');

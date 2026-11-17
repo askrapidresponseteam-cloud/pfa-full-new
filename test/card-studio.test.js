@@ -51,10 +51,10 @@ test('the photograph is fitted whole inside its box, in its own proportions, and
     assert.ok(close(fit.x - well.x, well.x + well.w - fit.x - fit.w) && close(fit.y - well.y, well.y + well.h - fit.y - fit.h), `${why}: centred`);
   }
   /* and the box sits inside the photograph's border, clear of it */
-  assert.ok(well.w < 179.328 && well.h < 203.359);
+  assert.ok(well.w < 192 && well.h < 256, 'inside the white frame of the new-style card (17 Nov 2026)');
   const source = fs.readFileSync(path.join(ROOT, 'assets', 'caregiver-card.js'), 'utf8');
   const front = source.slice(source.indexOf('function drawFront('), source.indexOf('function drawBack('));
-  assert.doesNotMatch(front, /coverDraw|\.clip\(\)/, 'the front never crops: no cover fit, no clipping');
+  assert.doesNotMatch(front, /coverDraw|\.clip\(\)/, 'the front never crops: no cover fit, no clipping of the photograph');
   assert.match(front, /fitWhole\(data\.photoImage, well\)/);
 });
 

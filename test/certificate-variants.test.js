@@ -159,7 +159,7 @@ test('the cards: the signature above the line, moved by the studio, saved for ev
     assert.match(js, /setSignature: setSignature/);
   }
   assert.match(read('assets/caregiver-card.js'), /var shh = SIG_BOX\.h \* sigAt\.s \/ 100;\n {6}var sw = shh \* SIG_BOX\.aspect;/, 'at the size the studio set (owner, 15 Nov 2026)');
-  assert.match(read('assets/caregiver-card.js'), /ctx\.drawImage\(data\.signatureImage, P\.v\(L\.centre - sw \/ 2 \+ sigAt\.x\), P\.v\(L\.sign\.y - SIG_BOX\.gap - shh \+ sigAt\.y\)/);
+  assert.match(read('assets/caregiver-card.js'), /ctx\.drawImage\(data\.signatureImage, P\.v\(sg\.x \+ 6 \+ sigAt\.x\), P\.v\(sg\.line - SIG_BOX\.gap - shh \+ sigAt\.y\)/);
   const admin = read('admin.html');
   assert.match(admin, /<div data-sig-card="caregiver"><\/div>/);
   assert.match(admin, /<div data-sig-card="member"><\/div>/);

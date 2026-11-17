@@ -473,3 +473,58 @@ test('Check the cards: one by one and all at once, in large type, the card in it
   assert.match(html, /window\.PFACardCheck\.inPlaceOf\(front, \{ kind: 'caregiver'/, 'a case\'s own preview too');
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-cardcheck\.js'/);
 });
+
+/* Owner, 17 Nov 2026: "there should be option to revoke as well", "for both
+   membership and colony caregiver". */
+test('Revoke, for both kinds: in Check the cards, under Open, and in the card studio; the card says Revoked', async () => {
+  await seed();
+  for (const [kind, ref] of [['member', 'PFA-MEM-2026-00004'], ['caregiver', 'PFA-CCT-AB2CD3EF']]) {
+    const on = await admin('POST', { action: 'issue', kind, ref, photo: JPEG });
+    const id = on.json.digital.id;
+    const asked = [];
+    const r = await admin('POST', { action: 'withdraw', kind, id }, asked);
+    assert.equal(r.statusCode, 200);
+    assert.deepEqual(asked, [kind === 'member' ? 'membership' : 'caregivers']);
+    assert.equal(r.json.digital.standing, 'withdrawn');
+    assert.equal((await open({ id })).json.standing, 'withdrawn', 'its page says so');
+    /* issued again with no photograph sent: the one it has online stays */
+    const back = await admin('POST', { action: 'issue', kind, ref, email: false });
+    assert.equal(back.statusCode, 200, JSON.stringify(back.json));
+    assert.equal(back.json.digital.standing, 'valid', 'issued again, valid again');
+  }
+  /* a revoked card corrected stays revoked */
+  const live = await admin('GET', { kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF' });
+  await admin('POST', { action: 'withdraw', kind: 'caregiver', id: live.json.digital.id });
+  await admin('POST', { action: 'correct', kind: 'caregiver', ref: 'PFA-CCT-AB2CD3EF', name: 'Ravi K. Kumar', district: 'Udupi', state: 'Karnataka' });
+  assert.equal((await open({ id: 'PFA-CCT-AB2CD3EF' })).json.standing, 'withdrawn');
+  const cc = read('assets/admin-cardcheck.js');
+  assert.match(cc, /data-ccx="revoke">Revoke this card<\/button>/);
+  assert.match(cc, /data-ccx="restore">' \+ \(item\.revoked \? 'Issue it again' : 'Put it online'\)/);
+  assert.match(cc, /body: \{ action: 'withdraw', kind: K\[S\.kind\]\.api, id: d\.online\.id \}/);
+  assert.match(cc, /window\.confirm\('Revoke the card of '/, 'asked first');
+  const dg = read('assets/admin-digital-cards.js');
+  assert.match(dg, /data-dgr="revoke">Revoke<\/button>/, 'under Open in both registers');
+  assert.match(dg, /data-dg="withdraw" data-kind="' \+ kind \+ '">Revoke<\/button>/, 'in the card studio');
+  assert.doesNotMatch(dg, />Withdraw</);
+  assert.match(read('assets/digital-card.js'), /: 'Revoked' \};/, 'the card itself says Revoked');
+  assert.match(read('card.html'), /People for Animals revoked this '/);
+  assert.match(read('assets/admin-registers.js'), /\(r\.online === 'withdrawn' \? 'Revoked' : 'Not online'\)/);
+});
+
+/* Owner, 17 Nov 2026: "There should be a photo placeholder that doesn't look
+   empty when no photo is uploaded. If a photo is uploaded, display it;
+   otherwise, keep the default design as is. same applies to caregiver card
+   as well as membership". */
+test('no photograph: a portrait in the card\'s own colours, on both cards and the printed caregiver card; a photograph shows itself', () => {
+  const js = read('assets/digital-card.js');
+  assert.match(js, /var SITTER = '<svg class="dc__sitter" viewBox="0 0 60 80"/);
+  assert.match(js, /'<figure class="dcm__photo' \+ \(o\.photo \? '' : ' dcm__photo--none'\) \+ '">' \+ \(o\.photo \? '<img src="' \+ esc\(o\.photo\)/, 'the membership card');
+  assert.match(js, /: '<span class="dc__nophoto">' \+ SITTER \+ '<\/span>';/, 'the colony caregiver card');
+  assert.doesNotMatch(js, /<i>PHOTO<\/i>/);
+  const css = read('assets/digital-card.css');
+  assert.match(css, /\.dc__nophoto \.dc__sitter\{width:78%;height:auto;fill:#9fb4cf\}/);
+  assert.match(css, /\.dcm__photo--none \.dc__sitter\{width:78%;height:auto;fill:#4a4c52\}/);
+  const printed = read('assets/caregiver-card.js');
+  assert.doesNotMatch(printed, /fillText\('PHOTO'/, 'never the word PHOTO in the frame');
+  assert.match(printed, /if \(!data\.photoImage\) throw new Error\('This card has no photograph, so it is not printed\./, 'and still never printed without one');
+});

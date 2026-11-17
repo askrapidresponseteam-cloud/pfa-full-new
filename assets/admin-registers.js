@@ -382,8 +382,8 @@
      on the card. */
   function dcCell(kind, r) {
     var pv = '<button type="button" class="rg-row rg-dcgo" data-cc-open="' + esc(r.id) + '">Preview</button>';
-    if (r.online === 'online') return '<span class="rg-dcpair"><span class="rg-chip rg-chip--live">Online</span>' + pv + '</span>';
-    if (r.cardId) return '<span class="rg-dcpair"><span class="rg-chip">' + (r.online === 'withdrawn' ? 'Withdrawn' : 'Not online') + '</span>' + pv + '</span>';
+    if (r.online === 'online') return '<span class="rg-dcpair"><span class="rg-chip rg-chip--live">Online</span>' + pv + '<button type="button" class="rg-row rg-dcgo rg-revoke" data-cc-revoke="' + esc(r.id) + '">Revoke</button></span>';
+    if (r.cardId) return '<span class="rg-dcpair"><span class="rg-chip">' + (r.online === 'withdrawn' ? 'Revoked' : 'Not online') + '</span>' + pv + '</span>';
     if (kind !== 'membership') return '<span class="rg-sub">No card yet</span>';
     if (r.cardQueue === 'review') return '<button type="button" class="rg-row rg-dcgo is-due" data-go-cards="review">Approve photo</button>';
     if (/^(request|lapsed|waiting)$/.test(r.cardQueue)) return '<button type="button" class="rg-row rg-dcgo is-due" data-cc-open="' + esc(r.id) + '">Preview and issue</button>';
@@ -396,8 +396,8 @@
       return r.cardId || (kind === 'membership' && /^(request|lapsed|waiting)$/.test(r.cardQueue));
     }).map(function (r) {
       return kind === 'membership'
-        ? { ref: r.id, row: r.id, issued: Boolean(r.cardId), online: r.online === 'online', name: r.name, number: r.cardId || r.memberNo, district: r.district, state: r.state, tier: r.type }
-        : { ref: r.cardId, row: r.id, issued: true, online: r.online === 'online', name: r.name, number: r.cardId, district: r.district, state: r.state };
+        ? { ref: r.id, row: r.id, issued: Boolean(r.cardId), online: r.online === 'online', revoked: r.online === 'withdrawn', name: r.name, number: r.cardId || r.memberNo, district: r.district, state: r.state, tier: r.type }
+        : { ref: r.cardId, row: r.id, issued: true, online: r.online === 'online', revoked: r.online === 'withdrawn', name: r.name, number: r.cardId, district: r.district, state: r.state };
     });
   }
   function ccOpen(kind, rowId, view) {
@@ -411,7 +411,7 @@
       var r = regRow(kind, item.row);
       if (!r) return;
       if (kind === 'membership' && item.issued && !r.cardId) { r.cardId = (d && d.card && d.card.cardId) || item.ref; r.cardQueue = 'approved'; }
-      if (item.online) r.online = 'online';
+      r.online = item.revoked ? 'withdrawn' : item.online ? 'online' : r.online;
     } });
   }
   function issuable(rows) { return rows.filter(function (r) { return !r.cardId && /^(request|lapsed|waiting)$/.test(r.cardQueue); }); }
@@ -433,6 +433,33 @@
       + (left ? '<button type="button" class="ghost" data-dc-issue-all>Issue all ' + left + ' now</button>' : '') + '</p>'
       + '<p class="rg-say" data-dc-say role="status" aria-live="polite"></p></div>';
   }
+  /* Revoke, straight from the line (owner, 17 Nov 2026: "where is revoke
+     card"): asked first; the line then says Revoked */
+  function revokeLine(b) {
+    var pane = b.closest('[data-pane]');
+    var kind = pane && pane.getAttribute('data-pane') === 'cgsheet' ? 'caregiver' : 'membership';
+    var r = regRow(kind, b.getAttribute('data-cc-revoke'));
+    if (!r) return;
+    var api_kind = kind === 'membership' ? 'member' : 'caregiver';
+    var ref = kind === 'membership' ? r.id : r.cardId;
+    if (!window.confirm('Revoke the ' + (kind === 'membership' ? 'membership card' : 'colony caregiver card') + ' of ' + (r.name || ref) + '?\n\nIts page will say it is no longer valid. You can issue it again later from Preview.')) return;
+    b.disabled = true; b.textContent = 'Revoking\u2026';
+    api('/api/admin/digital-cards?kind=' + api_kind + '&ref=' + encodeURIComponent(ref)).then(function (d) {
+      if (!d.digital || !d.digital.id) throw new Error('This card is not online, so there is nothing to revoke.');
+      return api('/api/admin/digital-cards', { method: 'POST', body: { action: 'withdraw', kind: api_kind, id: d.digital.id } });
+    }).then(function () {
+      r.online = 'withdrawn';
+      var cell = b.closest('td');
+      if (cell) cell.innerHTML = dcCell(kind, r);
+      var ok = pane && pane.querySelector('[data-rg-say]');
+      if (ok) say(ok, (r.name || ref) + '\u2019s card is revoked. Its page now says it is no longer valid.', 'good');
+    }, function (err) {
+      b.disabled = false; b.textContent = 'Revoke';
+      var bad = pane && pane.querySelector('[data-rg-say]');
+      if (bad) say(bad, (err && err.message) || 'That could not be revoked just now.', 'bad');
+    });
+  }
+
   function issueOne(r) {
     return api('/api/admin/membership', { method: 'POST', body: { action: 'issue', reference: r.id } }).then(function (d) {
       r.cardId = (d.card && d.card.cardId) || r.id;
@@ -447,10 +474,11 @@
     if (s && msg) say(s, msg, tone);
   }
   document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('[data-go-cards],[data-dc-issue],[data-dc-issue-all],[data-cc-open],[data-cc-all]');
+    var b = e.target.closest && e.target.closest('[data-go-cards],[data-dc-issue],[data-dc-issue-all],[data-cc-open],[data-cc-all],[data-cc-revoke]');
     if (!b) return;
     if (b.hasAttribute('data-cc-open')) { var tr = b.closest('[data-rg-sum]'); var pane = b.closest('[data-pane]'); ccOpen(pane && pane.getAttribute('data-pane') === 'cgsheet' ? 'caregiver' : 'membership', b.getAttribute('data-cc-open') || (tr && tr.getAttribute('data-rg-sum'))); return; }
     if (b.hasAttribute('data-cc-all')) { ccOpen(b.getAttribute('data-cc-all'), '', 'one'); return; }
+    if (b.hasAttribute('data-cc-revoke')) { revokeLine(b); return; }
     if (b.hasAttribute('data-go-cards')) { if (A.cards) A.cards(b.getAttribute('data-go-cards')); return; }
     if (b.hasAttribute('data-dc-issue')) {
       var r = regRow('membership', b.getAttribute('data-dc-issue'));
@@ -507,6 +535,7 @@
       + '.rg-dcgo{white-space:nowrap}.rg-dcgo.is-due{background:var(--ink);color:#fff;border-color:var(--ink)}'
       + '.rg-chip--live{border-color:var(--ink);color:var(--ink);font-weight:600}'
       + '.rg-dcpair{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}'
+      + '.rg-revoke{color:#b42318;border-color:#b42318}'
       + '.rg-dcm{display:none}'
       + '.rg-compact .rg-who{display:block;font-weight:600}'
       + '.rg-compact .rg-one{display:block;margin-top:2px}'
@@ -842,5 +871,14 @@
     });
   });
 
-  window.PFARegisters = { pane: registerPane };
+  /* a card revoked under Open: its line says so at once */
+  function revoked(kind, ref) {
+    var regKind = kind === 'member' ? 'membership' : 'caregiver';
+    var r = regState[regKind].rows.filter(function (x) { return kind === 'member' ? x.id === ref : x.cardId === ref; })[0];
+    if (!r) return;
+    r.online = 'withdrawn';
+    var line = document.querySelector('[data-pane="' + REG[regKind].pane + '"] [data-rg-sum="' + r.id + '"] td:nth-child(5)');
+    if (line) line.innerHTML = dcCell(regKind, r);
+  }
+  window.PFARegisters = { pane: registerPane, revoked: revoked };
 }());

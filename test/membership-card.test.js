@@ -430,8 +430,7 @@ test('every membership row offers Preview card, before and after the photograph'
   const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.html'), 'utf8');
   const row = html.slice(html.indexOf("function mqRow(r, pick) {"), html.indexOf("function mqRowOf("));
   assert.match(row, /var preview = '<button class="ghost" type="button" data-mq="view">Preview card<\/button>';/);
-  assert.match(row, /act = act && r\.queue !== 'printed' \? '<span class="mq-btns">' \+ \(\/data-mq="issue"\/\.test\(preview\) \? preview\.replace\(/);
-  assert.match(row, /: act \? act \+ '<span class="mq-btns mq-btns--under">' \+ preview \+ '<\/span>' : preview;/);
+  assert.match(row, /var slots = '<span class="mq-slots">' \+ \(first \|\| '<span><\/span>'\) \+ \(second \|\| '<span><\/span>'\) \+ preview \+ '<\/span>';/, 'Preview card on every line, in its own column');
   assert.doesNotMatch(row, /else if \(r\.cardId\) act =/, 'no longer only once a card exists');
   /* the card has no photograph window since 15 Nov 2026 (the owner's black template) */
   assert.match(html, /'As it will print once approved\.'/);
@@ -516,6 +515,25 @@ test('Issue card: no photograph needed, the card and its online link at once, an
   assert.equal(letter.payload.cardUrl, r.body.digital.url, 'the member is sent the link');
   assert.equal((await admin({ action: 'issue', reference: REF })).statusCode, 409, 'one card a membership');
   const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
-  assert.match(html, /preview = '<button class="press" type="button" data-mq="issue">Issue card<\/button>' \+ preview;/);
+  assert.match(html, /var first = \/\^\(request\|lapsed\|waiting\|review\)\$\/\.test\(r\.queue\) \? '<button class="press" type="button" data-mq="issue">Issue card<\/button>' : '';/);
   assert.match(html, /body: \{ action: 'issue', reference: r\.reference \}/);
+});
+
+/* Owner, 17 Nov 2026: "where is revoke card", "alignment is not okay". In
+   Photos and cards: Revoke card for a card online, Issue it again for one
+   revoked; and every line's buttons in the same three columns. */
+test('Photos and cards: Revoke card and Issue it again, and the buttons in three fixed columns', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
+  assert.match(html, /second = '<button class="ghost mq-revoke" type="button" data-mq-life="revoke"' \+ who \+ '>Revoke card<\/button>';/);
+  assert.match(html, /second = '<button class="ghost" type="button" data-mq-life="reissue"' \+ who \+ '>Issue it again<\/button>';/);
+  assert.match(html, /var slots = '<span class="mq-slots">' \+ \(first \|\| '<span><\/span>'\) \+ \(second \|\| '<span><\/span>'\) \+ preview \+ '<\/span>';/, 'an empty slot keeps the columns');
+  assert.match(html, /\.mq-slots\{display:inline-grid;font-size:11px;grid-template-columns:9\.6em 14\.4em 11\.2em;/);
+  assert.match(html, /\[data-pane="membership"\] \.linky\{display:inline-block;text-align:left;/, 'the reference under the name, at the name\'s left edge');
+  const cc = fs.readFileSync(path.join(ROOT, 'assets', 'admin-cardcheck.js'), 'utf8');
+  assert.match(cc, /\{ action: 'withdraw', kind: 'member', id: b\.getAttribute\('data-id'\) \}/);
+  assert.match(cc, /window\.confirm\('Revoke the membership card of '/);
+  const route = fs.readFileSync(path.join(ROOT, 'lib', 'routes', 'admin', 'membership.js'), 'utf8');
+  assert.match(route, /r\.online = o \? o\.state : ''; r\.digitalId = o \? o\.id : '';/);
+  const reg = fs.readFileSync(path.join(ROOT, 'assets', 'admin-registers.js'), 'utf8');
+  assert.match(reg, /data-cc-revoke="' \+ esc\(r\.id\) \+ '">Revoke<\/button>/, 'on the register line too, for both registers');
 });

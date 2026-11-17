@@ -87,7 +87,7 @@
     if (!card) { slot.innerHTML = ''; return; }
     var d = now[kind];
     var line = !d ? 'Not online yet. Issue it online to give it its own address and email the holder the link.'
-      : d.standing === 'withdrawn' ? 'Withdrawn online' + (d.withdrawnOn ? ' on ' + esc(day(d.withdrawnOn)) : '') + '. Issue it online again to bring it back.'
+      : d.standing === 'withdrawn' ? 'Revoked' + (d.withdrawnOn ? ' on ' + esc(day(d.withdrawnOn)) : '') + ': its page says it is no longer valid. Issue it online again to bring it back.'
       : 'Online at <a href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">' + esc(String(d.url).replace(/^https?:\/\//, '')) + '</a>' + (d.standing === 'expired' ? ' (expired)' : '') + '.';
     var live = d && d.standing !== 'withdrawn';
     var was = slot.querySelector('[data-dgsig-fold]');
@@ -95,7 +95,7 @@
     slot.innerHTML = '<div class="dg"><div class="dg__h"><b>Card online</b></div>'
       + '<p class="dg__now">' + line + '</p>'
       + '<div class="dg__acts"><button class="press" type="button" data-dg="issue" data-kind="' + kind + '">' + (live ? 'Update online and email' : 'Issue online and email') + '</button>'
-      + (live ? '<a class="ghost" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">Open</a><button class="ghost" type="button" data-dg="copy" data-kind="' + kind + '">Copy link</button><button class="ghost" type="button" data-dg="withdraw" data-kind="' + kind + '">Withdraw</button>' : '')
+      + (live ? '<a class="ghost" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">Open</a><button class="ghost" type="button" data-dg="copy" data-kind="' + kind + '">Copy link</button><button class="ghost" type="button" data-dg="withdraw" data-kind="' + kind + '">Revoke</button>' : '')
       + '<p class="say" data-dg-say="' + kind + '" role="status" aria-live="polite"></p></div>'
       + sigFold(kind) + '</div>';
     if (said) A.say(slot.querySelector('[data-dg-say]'), said.text, said.tone);
@@ -296,12 +296,12 @@
       return;
     }
     if (what === 'withdraw' && now[kind]) {
-      if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Withdraw it: press again'; return; }
+      if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Revoke it: press again'; return; }
       b.disabled = true;
       A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'withdraw', kind: kind, id: now[kind].id } }).then(function (r) {
         now[kind] = r.digital;
-        paint(kind, { text: 'Withdrawn. The address now says the card is no longer valid.', tone: 'good' });
-      }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be withdrawn.', 'bad'); });
+        paint(kind, { text: 'Revoked. The card\u2019s page now says it is no longer valid.', tone: 'good' });
+      }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be revoked.', 'bad'); });
     }
   });
 
@@ -311,7 +311,9 @@
      card: whether the card is online, Preview card (front and back, with
      the photograph kept on the server, nothing saved), and Issue digital
      card, which gives it its address and emails the holder the link; once
-     online, Open and Copy link. Withdrawing stays in the card studio. */
+     online, Open, Copy link and Revoke (owner, 17 Nov 2026: "there should
+     be option to revoke as well", "for both membership and colony
+     caregiver"). */
   var regNow = {};
   var regLook = {};
   function regKey(kind, ref) { return kind + ':' + ref; }
@@ -319,7 +321,7 @@
     var d = regNow[regKey(kind, ref)];
     if (d === undefined) return 'Checking whether it is online…';
     if (!d) return 'Not online yet. Issuing gives the card its own address and emails the holder the link.';
-    if (d.standing === 'withdrawn') return 'Withdrawn online' + (d.withdrawnOn ? ' on ' + esc(day(d.withdrawnOn)) : '') + '. Issue it again to bring it back.';
+    if (d.standing === 'withdrawn') return 'Revoked' + (d.withdrawnOn ? ' on ' + esc(day(d.withdrawnOn)) : '') + ': its page says it is no longer valid. Issue it again to bring it back.';
     return 'Online at <a href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">' + esc(String(d.url).replace(/^https?:\/\//, '')) + '</a>' + (d.standing === 'expired' ? ' (expired)' : '') + '.';
   }
   function regActs(kind, ref) {
@@ -327,7 +329,7 @@
     var live = d && d.standing !== 'withdrawn';
     return '<button class="ghost" type="button" data-dgr="preview">Preview card</button>'
       + '<button class="press" type="button" data-dgr="issue"' + (d === undefined ? ' disabled' : '') + '>' + (live ? 'Update and email again' : 'Issue digital card') + '</button>'
-      + (live ? '<a class="ghost" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">Open</a><button class="ghost" type="button" data-dgr="copy">Copy link</button>' : '');
+      + (live ? '<a class="ghost" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">Open</a><button class="ghost" type="button" data-dgr="copy">Copy link</button><button class="ghost" type="button" data-dgr="revoke">Revoke</button>' : '');
   }
   /* what a register line carries: kind is 'membership' or 'caregiver', the
      card's reference the membership's or the colony caregiver card's number */
@@ -387,6 +389,19 @@
       var ok = function () { A.say(say, 'Link copied.', 'good'); };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(d.url).then(ok, function () { window.prompt('Copy this link', d.url); });
       else window.prompt('Copy this link', d.url);
+      return;
+    }
+    if (what === 'revoke') {
+      var cur = regNow[regKey(kind, ref)];
+      if (!cur || !cur.id) return;
+      if (!window.confirm('Revoke this ' + (kind === 'member' ? 'membership card' : 'colony caregiver card') + '?\n\nIts page will say it is no longer valid, and its photograph is no longer shown. You can issue it again later.')) return;
+      b.disabled = true;
+      A.api('/api/admin/digital-cards', { method: 'POST', body: { action: 'withdraw', kind: kind, id: cur.id } }).then(function (r) {
+        regNow[regKey(kind, ref)] = r.digital;
+        regPaint(kind, ref);
+        A.say(say, 'Revoked. The card\u2019s page now says it is no longer valid.', 'good');
+        if (window.PFARegisters && window.PFARegisters.revoked) window.PFARegisters.revoked(kind, ref);
+      }).catch(function (err) { b.disabled = false; A.say(say, (err && err.message) || 'That could not be revoked.', 'bad'); });
       return;
     }
     if (what === 'hide') { peekBox.hidden = true; peekBox.innerHTML = ''; return; }
