@@ -1169,7 +1169,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* what assets/admin-registers.js uses of this script (2 Nov 2026: moved
      out to keep this page under the page-weight ceiling) */
-  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t, p) { show(t, p); }, showCase: function (r) { return showCase(r); }, refresh: function () { fill(current, true); }, certificates: function () { return window.PFACertPane ? window.PFACertPane.rows() : []; }, fail: function (n, e) { fail(n, e); }, dayOf: function (iso) { return dayOf(iso); } };
+  window.PFAAdmin = { $: $, esc: esc, say: say, api: api, token: token, on: on, show: function (t, p) { show(t, p); }, showCase: function (r) { return showCase(r); }, cards: function (v) { goCards(v); }, refresh: function () { fill(current, true); }, certificates: function () { return window.PFACertPane ? window.PFACertPane.rows() : []; }, fail: function (n, e) { fail(n, e); }, dayOf: function (iso) { return dayOf(iso); } };
 
   var KEY = window.PFA_FIREBASE_API_KEY || '';
   var IDENTITY = 'https://identitytoolkit.googleapis.com/v1/accounts:';
@@ -4670,6 +4670,14 @@ window.addEventListener('unhandledrejection', function (event) {
       photoSeen = n;
     }).catch(function () { /* the next look tries again */ });
   }
+  /* Photos and cards at one of its views, from anywhere in the panel (the
+     Members register's Digital card column, 17 Nov 2026) */
+  function goCards(view) {
+    mqView = MQ[view] ? view : 'ask';
+    var fresh = !loaded.membership;
+    show('membership', 'membership');
+    if (!fresh) membershipPane();
+  }
   on('#photoNoteGo', 'click', function () {
     mqView = 'review';
     $('#photoNote').hidden = true;
@@ -4902,9 +4910,9 @@ window.addEventListener('unhandledrejection', function (event) {
   var MQ = {
     ask:      { label: 'Ask for photo',  queues: ['request', 'lapsed'], hint: 'Paid members with no photograph yet. Tick and press Email photo link: each gets a private link, valid for 14 days, to send their photograph.' },
     waiting:  { label: 'Waiting',        queues: ['waiting'],           hint: 'A link has gone and the member has not used it yet. Send a new link if they lost it; the old one stops working. The moment a photograph arrives the member moves to To approve by itself, and you are told by email and on this panel.' },
-    review:   { label: 'To approve',     queues: ['review'],            hint: 'Photographs that have arrived. Preview the actual card, front and back, then Approve, or ask for another photograph and say why. Approving sends the member no copy of the card.' },
-    approved: { label: 'To print',       queues: ['approved'],          hint: 'Approved cards. Preview, print on the card printer, then mark them printed. Nothing is ever sent to the member digitally: the printed card is the only copy.' },
-    dispatch: { label: 'To dispatch',    queues: ['printed'],           hint: 'Printed cards. Hand each to the courier, then type the courier and its tracking number and press Dispatched. The member is emailed only the courier and tracking number, never the card.' },
+    review:   { label: 'To approve',     queues: ['review'],            hint: 'Photographs that have arrived. Preview the actual card, front and back, then Approve, or ask for another photograph and say why. Approving puts the card online at its own address and emails the member the link; the printed card follows by courier.' },
+    approved: { label: 'To print',       queues: ['approved'],          hint: 'Approved cards, each already online with its link emailed to the member. Preview, print on the card printer, then mark them printed.' },
+    dispatch: { label: 'To dispatch',    queues: ['printed'],           hint: 'Printed cards. Hand each to the courier, then type the courier and its tracking number and press Dispatched. The member is emailed the courier and tracking number.' },
     all:      { label: 'All',            queues: null,                  hint: 'Every membership, and where its card stands.' }
   };
   var mqView = 'ask';
@@ -5721,7 +5729,7 @@ window.addEventListener('unhandledrejection', function (event) {
       node.innerHTML = '<div class="ap-head"><p class="lab">' + apRows.length + (apRows.length === 1 ? ' application' : ' applications') + ' waiting · ' + (data.ready || 0) + ' ready to issue</p>'
         + '<button class="ghost" type="button" data-ap-toggle aria-expanded="' + apOpen + '" aria-controls="apList">' + (apOpen ? 'Hide' : 'Show') + '</button></div>'
         + '<div id="apList"' + (apOpen ? '' : ' hidden') + '>'
-        + '<p class="hint">Oldest first. Look at the photograph and the checks, then Issue or Reject. Issue gives the card its number and tells the applicant it is approved and will be posted; the card then waits under Print and post. Only the printed card goes to the applicant: they are never sent or shown the card. Reject closes the application as Not issued and emails the applicant why.</p>'
+        + '<p class="hint">Oldest first. Look at the photograph and the checks, then Issue or Reject. Issue gives the card its number, puts it online at its own address and emails the applicant the link; the printed card then waits under Print and post. Reject closes the application as Not issued and emails the applicant why.</p>'
         + '<div class="apq">' + apRows.map(apItem).join('') + '</div></div>';
       apRows.forEach(function (row) {
         var item = apNode(row.reference);
@@ -6017,7 +6025,7 @@ window.addEventListener('unhandledrejection', function (event) {
       sheet = data.rows || [];
       if (kept) { paint(); say($('#cardSay'), kept.text, kept.tone); return; }
       node.innerHTML = '<div class="panel"><h3>Print and post</h3>'
-        + '<p class="hint">Only the printed card goes to the holder, by post: they are never sent or shown the card. Tick cards, Download PDF for the card printer and Mark as printed; once they are in the post, Mark as posted, and each holder is emailed that the card is on its way. Download addresses gives the envelope labels. Cards approved from an application carry the applicant’s photograph; for older cards, match photographs from your own folder.</p>'
+        + '<p class="hint">Each holder already has their card online, its link emailed when it was issued; the printed card goes by post. Tick cards, Download PDF for the card printer and Mark as printed; once they are in the post, Mark as posted, and each holder is emailed that the card is on its way. Download addresses gives the envelope labels. Cards approved from an application carry the applicant’s photograph; for older cards, match photographs from your own folder.</p>'
         + '<div class="tabs" id="cardSteps">' + CARD_STEPS.map(function (s) {
           return '<button type="button" data-step="' + s[0] + '" aria-pressed="' + (cardFilter === s[0]) + '">' + s[1] + '</button>';
         }).join('') + '</div>'

@@ -105,6 +105,7 @@
       + '</div>'
       + '<datalist id="rgCouriers-' + kind + '">' + COURIERS.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('') + '</datalist>'
       + attention(kind, st)
+      + dcLine(kind, all)
       + '<p class="rg-say" data-rg-say role="status" aria-live="polite"></p>'
       + '<div class="wrap' + (spec.compact ? ' rg-compact' : '') + '"><table><thead><tr><th class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pickall" aria-label="Select every line shown"></label></th>' + (spec.compact ? COMPACT[kind].head : spec.cols.map(function (c) { return c[0]; })).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + (spec.compact ? '<th><span class="rg-vh">Open</span></th>' : '<th>Shipping</th>') + '</tr></thead><tbody data-rg-body></tbody></table></div>'
       + '<p class="rg-hint rg-foot">' + (spec.compact ? 'Open ' + (kind === 'membership' ? 'a member' : 'a caregiver') + ' for their details, their digital card and shipping. Tick several to email them together. Green is shipped.' : 'Click any item to copy it. Set the status, the courier and the tracking number; Preview email lights up when the line is complete. Green rows are shipped.') + '</p>'
@@ -344,7 +345,7 @@
   /* what each register shows on its line, and under Open */
   var COMPACT = {
     membership: {
-      head: ['Member', 'Place', 'Paid on', 'Shipping'],
+      head: ['Member', 'Place', 'Paid on', 'Digital card', 'Shipping'],
       sub: function (r) { return [r.memberNo || 'Not numbered yet', String(r.type || '').replace(/\s*membership$/i, '')]; },
       date: function (r) { return r.paidOn || ''; },
       info: function (r) {
@@ -352,7 +353,7 @@
       }
     },
     caregiver: {
-      head: ['Caregiver', 'Place', 'Applied on', 'Shipping'],
+      head: ['Caregiver', 'Place', 'Applied on', 'Digital card', 'Shipping'],
       sub: function (r) { return [r.caregiverNo || 'Not numbered yet', r.cardId ? 'Card ' + r.cardId : '']; },
       date: function (r) { return r.appliedOn || ''; },
       info: function (r) {
@@ -368,6 +369,77 @@
     return '<span class="rg-chip' + (r.done ? ' rg-chip--done' : r.ship ? ' rg-chip--on' : '') + '">' + esc(label) + '</span>'
       + (r.courier || r.tracking ? '<span class="rg-sub rg-one">' + esc([r.courier, r.tracking].filter(Boolean).join(' ')) + '</span>' : '');
   }
+  /* The digital card on each line (owner, 17 Nov 2026: "where the fuck is
+     membership card- digital issuance!"). A card goes online by itself, and
+     its link is emailed, when the member's photograph is approved (or the
+     caregiver's application): the line says Online, or what is still to do,
+     with the button that does it. */
+  /* A membership with no card yet is issued from its line: Issue card gives
+     it its number, puts it online at its own address and emails the member
+     the link, at once, with no photograph needed (lib/routes/admin/
+     membership.js, the same Issue card as in Photos and cards). One whose
+     photograph has arrived says Approve photo instead, so the photograph is
+     on the card. */
+  function dcCell(kind, r) {
+    if (r.online === 'online') return '<span class="rg-chip rg-chip--live">Online</span>';
+    if (r.cardId) return '<span class="rg-chip">' + (r.online === 'withdrawn' ? 'Withdrawn' : 'Not online') + '</span><span class="rg-sub rg-one">Open, then Issue online</span>';
+    if (kind !== 'membership') return '<span class="rg-sub">No card yet</span>';
+    if (r.cardQueue === 'review') return '<button type="button" class="rg-row rg-dcgo is-due" data-go-cards="review">Approve photo</button>';
+    if (/^(request|lapsed|waiting)$/.test(r.cardQueue)) return '<button type="button" class="rg-row rg-dcgo is-due" data-dc-issue="' + esc(r.id) + '">Issue card</button>';
+    return '<span class="rg-sub">No card yet</span>';
+  }
+  function issuable(rows) { return rows.filter(function (r) { return !r.cardId && /^(request|lapsed|waiting)$/.test(r.cardQueue); }); }
+  /* above the members: how many cards are online, and the next step for the rest */
+  function dcLine(kind, rows) {
+    if (kind !== 'membership' || !rows.length) return '';
+    var on = rows.filter(function (r) { return r.online === 'online'; }).length;
+    var left = issuable(rows).length;
+    var review = rows.filter(function (r) { return !r.cardId && r.cardQueue === 'review'; }).length;
+    return '<div class="rg-dcline" data-dc-line><p><b>Digital cards: ' + on + ' of ' + rows.length + ' online.</b> Issue card puts a member&rsquo;s card online at its own address and emails them the link, at once. No photograph is needed; one that has arrived is approved onto the card.</p>'
+      + '<p class="rg-dcline__acts">' + (review ? '<button type="button" class="press" data-go-cards="review">Approve ' + review + (review === 1 ? ' photo' : ' photos') + '</button>' : '')
+      + (left ? '<button type="button" class="' + (review ? 'ghost' : 'press') + '" data-dc-issue-all>Issue ' + left + (left === 1 ? ' card' : ' cards') + '</button>' : '') + '</p>'
+      + '<p class="rg-say" data-dc-say role="status" aria-live="polite"></p></div>';
+  }
+  function issueOne(r) {
+    return api('/api/admin/membership', { method: 'POST', body: { action: 'issue', reference: r.id } }).then(function (d) {
+      r.cardId = (d.card && d.card.cardId) || r.id;
+      r.online = d.digital ? 'online' : '';
+      r.cardQueue = 'approved';
+      return d;
+    });
+  }
+  function dcRepaint(msg, tone) {
+    paintRegister('membership');
+    var s = $('[data-pane="memsheet"] [data-dc-say]');
+    if (s && msg) say(s, msg, tone);
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-go-cards],[data-dc-issue],[data-dc-issue-all]');
+    if (!b) return;
+    if (b.hasAttribute('data-go-cards')) { if (A.cards) A.cards(b.getAttribute('data-go-cards')); return; }
+    if (b.hasAttribute('data-dc-issue')) {
+      var r = regRow('membership', b.getAttribute('data-dc-issue'));
+      if (!r) return;
+      if (!window.confirm('Issue the membership card to ' + (r.name || r.id) + '?\n\nIt is given its number and put online at its own address now' + (r.email ? ', and ' + r.email + ' is emailed the link.' : '. There is no email address, so no link is sent.'))) return;
+      b.disabled = true; b.textContent = 'Issuing\u2026';
+      issueOne(r).then(function (d) {
+        dcRepaint((r.name || r.id) + ': card ' + r.cardId + (d.digital ? ' is online' : ' is issued, not online yet') + (d.emailed ? ', and the link was emailed.' : '.' + (d.mailNote ? ' ' + d.mailNote : '')), 'good');
+      }, function (err) { b.disabled = false; b.textContent = 'Issue card'; dcRepaint(err.message || 'The card could not be issued just now.', 'bad'); });
+      return;
+    }
+    var all = issuable(regState.membership.rows);
+    if (!all.length) return;
+    if (!window.confirm('Issue ' + all.length + (all.length === 1 ? ' membership card' : ' membership cards') + ' now?\n\nEach is given its number and put online at its own address, and every member with an email address is emailed their link. This cannot be undone in one step.')) return;
+    b.disabled = true;
+    var done = 0; var failed = [];
+    var say1 = $('[data-pane="memsheet"] [data-dc-say]');
+    (function next(i) {
+      if (i >= all.length) { dcRepaint(done + (done === 1 ? ' card' : ' cards') + ' issued and online.' + (failed.length ? ' Not issued: ' + failed.join(', ') + '.' : ''), failed.length ? 'bad' : 'good'); return; }
+      if (say1) say(say1, 'Issuing ' + (i + 1) + ' of ' + all.length + ': ' + (all[i].name || all[i].id) + '\u2026');
+      issueOne(all[i]).then(function () { done += 1; }, function (err) { failed.push((all[i].name || all[i].id) + ' (' + (err.message || 'failed') + ')'); }).then(function () { next(i + 1); });
+    }(0));
+  });
+
   function compactRowHtml(kind, r) {
     var open = Boolean(regOpen[kind + ':' + r.id]);
     var C = COMPACT[kind];
@@ -375,9 +447,10 @@
     var more = 'rg-more-' + kind + '-' + String(r.id).replace(/[^A-Za-z0-9-]/g, '');
     return '<tr class="rg-sum' + (r.done ? ' rg-done' : '') + (open ? ' is-open' : '') + '" data-rg-sum="' + esc(r.id) + '">'
       + '<td class="rg-nw"><label class="rg-pick"><input type="checkbox" data-rg="pick" aria-label="Select ' + esc(r.name) + '"' + (regState[kind].picked[r.id] ? ' checked' : '') + '></label></td>'
-      + '<td><b class="rg-who">' + esc(r.name) + '</b><span class="rg-sub rg-one">' + esc(C.sub(r).filter(Boolean).join(' · ')) + '</span></td>'
+      + '<td><b class="rg-who">' + esc(r.name) + '</b><span class="rg-sub rg-one">' + esc(C.sub(r).filter(Boolean).join(' · ')) + '</span><span class="rg-dcm">' + dcCell(kind, r) + '</span></td>'
       + '<td>' + esc(place) + '</td>'
       + '<td class="rg-nw">' + esc(C.date(r)) + '</td>'
+      + '<td class="rg-nw">' + dcCell(kind, r) + '</td>'
       + '<td>' + shipChip(r) + '</td>'
       + '<td class="rg-nw"><button type="button" class="rg-row rg-open" data-rg="open" aria-expanded="' + open + '" aria-controls="' + more + '">' + (open ? 'Close' : 'Open') + '</button></td></tr>'
       + '<tr class="rg-more" id="' + more + '" data-rg-id="' + esc(r.id) + '"' + (open ? '' : ' hidden') + '><td></td><td colspan="5"><div class="rg-grid">'
@@ -391,6 +464,14 @@
   (function () {
     var css = document.createElement('style');
     css.textContent = '.rg-compact tr.rg-sum td{vertical-align:middle;padding-top:12px;padding-bottom:12px}'
+      + '.rg-dcline{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;margin:0 0 14px;padding:12px 16px;border:1px solid var(--line)}'
+      + '.rg-dcline p{margin:0;font-size:13px;line-height:1.55;color:var(--muted);flex:1 1 420px;min-width:0;overflow-wrap:anywhere}.rg-dcline b{color:var(--ink)}'
+      + '.rg-dcline__acts{display:flex;flex-wrap:wrap;gap:8px;flex:0 0 auto!important}.rg-dcline__acts button{width:auto;margin:0;min-height:40px;padding:0 16px}'
+      + '.rg-dcline__acts button{white-space:normal;text-align:center;max-width:100%}'
+      + '.rg-dcline [data-dc-say]{flex:1 1 100%!important;margin:0;color:var(--ink)}.rg-dcline [data-dc-say]:empty{display:none}'
+      + '.rg-dcgo{white-space:nowrap}.rg-dcgo.is-due{background:var(--ink);color:#fff;border-color:var(--ink)}'
+      + '.rg-chip--live{border-color:var(--ink);color:var(--ink);font-weight:600}'
+      + '.rg-dcm{display:none}'
       + '.rg-compact .rg-who{display:block;font-weight:600}'
       + '.rg-compact .rg-one{display:block;margin-top:2px}'
       + '.rg-compact th:last-child,.rg-compact td:last-child{position:static;box-shadow:none}'
@@ -412,7 +493,10 @@
       /* a phone: the line is the member, their shipping and Open; place and
          date are in the details; nothing scrolls sideways */
       + '@media (max-width:700px){.rg-compact table{min-width:0!important;width:100%;table-layout:auto}'
-      + '.rg-compact th:nth-child(3),.rg-compact th:nth-child(4),.rg-compact tr.rg-sum td:nth-child(3),.rg-compact tr.rg-sum td:nth-child(4){display:none}'
+      + '.rg-compact th:nth-child(3),.rg-compact th:nth-child(4),.rg-compact th:nth-child(5),.rg-compact tr.rg-sum td:nth-child(3),.rg-compact tr.rg-sum td:nth-child(4),.rg-compact tr.rg-sum td:nth-child(5){display:none}'
+      /* the digital card under the name, on a phone */
+      + '.rg-dcm{display:block;margin-top:8px}.rg-dcm .rg-dcgo{white-space:normal;text-align:left}'
+      + '.rg-dcline__acts{flex:1 1 100%!important}.rg-dcline__acts button{flex:1 1 100%}'
       + '.rg-compact tr.rg-more>td:first-child{display:none}.rg-compact tr.rg-more>td{padding:0 8px 14px}'
       + '.rg-compact .rg-grid{grid-template-columns:1fr;gap:14px}.rg-compact .rg-chip{white-space:normal}'
       + '.rg-compact tr.rg-sum td{padding-left:12px;padding-right:12px}}';

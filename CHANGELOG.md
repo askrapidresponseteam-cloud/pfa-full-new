@@ -1,3 +1,12 @@
+## v1.595
+
+- **Digital membership cards, issued from the Members register.** Owner, 17 Nov 2026: "where the fuck is membership card- digital issuance!". Issuing was there, but out of sight: under Open on each line, or in Photos and cards. Now:
+  - **A Digital card column** on every line of the register: Online, or an Issue card button. Issue card gives the card its number, puts it online at its own address and emails the member the link, at once; no photograph is needed (the same Issue card as in Photos and cards). A member whose photograph has arrived shows Approve photo instead, so the photograph is on the card.
+  - **A line above the register:** "Digital cards: 1 of 26 online", with Issue 24 cards (one press, asked to confirm first, each member emailed their link) and Approve 1 photo.
+  - On a phone the card's state sits under the member's name.
+  - The caregivers' register has the same column (Online, or Not online with Issue online under Open).
+  - Photos and cards and the caregiver card pages no longer say the card is never sent digitally: they say it goes online and its link is emailed when it is issued.
+
 ## v1.594
 
 - **A deploy reaches the admin panel at once.** Owner, 17 Nov 2026, with the Birthdays section still showing the old card and no emailed-card line the morning after v1.593: "still not fixed . wtf", "where is the option to send the greetings". The panel page is never cached, but the scripts it loads were kept by the browser for an hour and then served stale for up to a day, so the panel ran the day before's Birthdays script. The admin.html that the deploy puts on Firebase now asks for every script and stylesheet with the build number on it (assets/admin-birthdays.js?v=v1.594), so each deploy is fetched the first time the panel opens.

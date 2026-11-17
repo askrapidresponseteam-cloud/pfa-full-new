@@ -469,13 +469,35 @@ test('the printed membership card: the owner\'s black template, in Marcellus, no
 test('the members register: one short line a member, the rest under Open', () => {
   const js = fs.readFileSync(path.join(ROOT, 'assets', 'admin-registers.js'), 'utf8');
   assert.match(js, /compact: true,/);
-  assert.match(js, /head: \['Member', 'Place', 'Paid on', 'Shipping'\]/);
+  assert.match(js, /head: \['Member', 'Place', 'Paid on', 'Digital card', 'Shipping'\]/);
   /* the caregivers' register the same way (owner, 16 Nov 2026: "this also you can make like members") */
-  assert.match(js, /head: \['Caregiver', 'Place', 'Applied on', 'Shipping'\]/);
+  assert.match(js, /head: \['Caregiver', 'Place', 'Applied on', 'Digital card', 'Shipping'\]/);
   assert.equal((js.match(/compact: true,/g) || []).length, 2, 'both registers');
   assert.match(js, /data-rg="open" aria-expanded="' \+ open \+ '" aria-controls="' \+ more \+ '">' \+ \(open \? 'Close' : 'Open'\)/);
   assert.match(js, /'<tr class="rg-more" id="' \+ more \+ '" data-rg-id="' \+ esc\(r\.id\) \+ '"' \+ \(open \? '' : ' hidden'\)/, 'details, shipping and the buttons only when opened');
   assert.match(js, /\.rg-compact table\{min-width:0!important;width:100%/, 'nothing scrolls sideways on a phone');
+});
+
+/* Owner, 17 Nov 2026: "where the fuck is membership card- digital
+   issuance!". Each line of the members register says whether its card is
+   online, and issues it from there; the line above says how many are
+   online and issues the rest in one go. */
+test('the members register: a Digital card column, Issue card on the line, Issue all above', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'assets', 'admin-registers.js'), 'utf8');
+  assert.match(js, /if \(r\.online === 'online'\) return '<span class="rg-chip rg-chip--live">Online<\/span>';/);
+  assert.match(js, /data-dc-issue="' \+ esc\(r\.id\) \+ '">Issue card<\/button>/);
+  assert.match(js, /data-go-cards="review">Approve photo<\/button>/);
+  assert.match(js, /api\('\/api\/admin\/membership', \{ method: 'POST', body: \{ action: 'issue', reference: r\.id \} \}\)/, 'the same Issue card as Photos and cards');
+  assert.match(js, /data-dc-issue-all>Issue ' \+ left/);
+  assert.match(js, /window\.confirm\('Issue ' \+ all\.length/, 'issuing many asks first');
+  assert.match(js, /<b>Digital cards: ' \+ on \+ ' of ' \+ rows\.length \+ ' online\.<\/b>/);
+  const reg = fs.readFileSync(path.join(ROOT, 'lib', 'routes', 'admin', 'registers.js'), 'utf8');
+  assert.match(reg, /online: r\.cardId \? onlineOf\(online, 'member', doc\.id\) : '',/);
+  assert.match(reg, /cardQueue: r\.queue \|\| '',/);
+  assert.match(reg, /db\.collection\('digitalCards'\)\.get\(\)/, 'one read for the whole register');
+  const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
+  assert.doesNotMatch(html, /Approving sends the member no copy of the card|Nothing is ever sent to the member digitally|they are never sent or shown the card/, 'no hint says the card is never sent');
+  assert.match(html, /cards: function \(v\) \{ goCards\(v\); \}/);
 });
 
 /* Owner, 15 Nov 2026: "there should be option to issue the membership card.
