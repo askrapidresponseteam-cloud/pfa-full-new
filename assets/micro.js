@@ -127,6 +127,11 @@
       if (e.key !== 'Enter' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
       if (at < list.length - 1) { e.preventDefault(); if (next) next.click(); }
     });
+    /* the preview's "Change it" on a field of an earlier step (assets/form-preview.js) */
+    form.addEventListener('pfa:reveal', function (e) {
+      var i = list.indexOf(e.target.closest ? e.target.closest('.m-step') : null);
+      if (i >= 0 && i !== at) { at = i; paint(false); }
+    });
     form.addEventListener('input', function (e) { if (e.target.closest('.field')) flag(e.target, ''); });
     form.addEventListener('change', function (e) {
       var name = e.target.getAttribute('name');

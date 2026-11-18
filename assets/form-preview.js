@@ -205,6 +205,31 @@
     };
   }
 
+  /* A date of birth under 18 is asked about first (owner, 18 Nov 2026:
+     "someone entered 2026 as dob 12 nov.. that is like a week ago.. for
+     those whose age is below 18.. show popup asking if dob is right?").
+     The date picker opens on this year, so a slip leaves a baby's age. */
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function birthOf(form, today) {
+    var field = form.querySelector('input[autocomplete="bday"], input[type="date"][name="dob"]');
+    var m = field && /^(\d{4})-(\d{2})-(\d{2})$/.exec(field.value || '');
+    if (!m) return null;
+    var y = +m[1]; var mo = +m[2]; var d = +m[3];
+    var born = new Date(y, mo - 1, d);
+    if (born.getFullYear() !== y || born.getMonth() !== mo - 1 || born.getDate() !== d) return null;
+    var t = today || new Date();
+    var now = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+    if (born > now) return null;
+    var years = now.getFullYear() - y - ((now.getMonth() + 1 < mo || (now.getMonth() + 1 === mo && now.getDate() < d)) ? 1 : 0);
+    if (years >= 18) return null;
+    var days = Math.round((now - born) / 86400000);
+    var months = (now.getFullYear() - y) * 12 + now.getMonth() - (mo - 1) - (now.getDate() < d ? 1 : 0);
+    var age = years >= 1 ? years + (years === 1 ? ' year old' : ' years old')
+      : months >= 1 ? months + (months === 1 ? ' month old' : ' months old')
+        : days === 0 ? 'born today' : days + (days === 1 ? ' day old' : ' days old');
+    return { field: field, shown: d + ' ' + MONTHS[mo - 1] + ' ' + y, years: years, age: age };
+  }
+
   function el(tag, attrs, children) {
     var node = document.createElement(tag);
     Object.keys(attrs || {}).forEach(function (key) {
@@ -274,6 +299,9 @@
     var rows = rowsOf(form, opts);
     var contact = contactOf(form, opts);
     var twoSteps = Boolean(contact.email || contact.mobile);
+    var birth = birthOf(form);
+    var total = (birth ? 1 : 0) + 1 + (twoSteps ? 1 : 0);
+    var stepOf = function (n) { return 'Step ' + n + ' of ' + total; };
     var before = document.activeElement;
     var submitButton = form.querySelector('[type="submit"], button:not([type="button"])');
     var root = document.documentElement;
@@ -302,6 +330,9 @@
         root.style.overflow = overflow;
         open = false;
         var target = focusTo || (result ? null : (before && before !== document.body && before.focus ? before : submitButton));
+        /* a field on an earlier step of a stepped form: the page opens that
+           step first (assets/micro.js, get-involved.html), or focus is lost */
+        if (focusTo && typeof CustomEvent === 'function') { try { focusTo.dispatchEvent(new CustomEvent('pfa:reveal', { bubbles: true })); } catch (e) {} }
         if (target && typeof target.focus === 'function') { try { target.focus(); } catch (e) {} }
         resolve(result);
       }
@@ -334,7 +365,7 @@
       }
 
       function stepOne() {
-        frame(twoSteps ? 'Step 1 of 2' : 'Before you send', opts.title || 'Check everything before it is sent',
+        frame(total > 1 ? stepOf(birth ? 2 : 1) : 'Before you send', opts.title || 'Check everything before it is sent',
           'This is what PFA will receive. If anything is not right, go back and change it.');
         var list = el('dl', { className: 'pfa-pv__rows' });
         rows.forEach(function (row) {
@@ -353,7 +384,7 @@
            asked about what they gave, and told that email is then the only way. */
         var mobileGiven = Boolean(contact.mobile && String(contact.mobile.value || '').trim());
         var both = Boolean(contact.email && mobileGiven);
-        frame('Step 2 of 2', both ? 'Are your email and mobile number right?' : (contact.email ? 'Is your email address right?' : 'Is your mobile number right?'),
+        frame(stepOf(total), both ? 'Are your email and mobile number right?' : (contact.email ? 'Is your email address right?' : 'Is your mobile number right?'),
           both ? 'Your confirmation email goes to this address, and PFA uses these details to get back to you. If one is wrong, nothing reaches you.'
             : 'Your confirmation goes here, and PFA uses it to get back to you. If it is wrong, nothing reaches you.');
         var body = el('div', { className: 'pfa-pv__body' });
@@ -415,14 +446,30 @@
         actions(change, send);
       }
 
+      function stepBirth() {
+        frame(stepOf(1), 'Is your date of birth right?',
+          'The date you chose makes you under 18. Check it was not picked by mistake.');
+        var box = el('div', { className: 'pfa-pv__c', 'data-birth': '' }, [
+          el('span', { className: 'pfa-pv__k', text: 'Date of birth' }),
+          el('span', { className: 'pfa-pv__v', text: birth.shown }),
+          el('p', { className: 'pfa-pv__note', text: birth.years < 1 ? 'That makes you ' + birth.age + '.' : 'That makes you ' + birth.age + ' today.' })
+        ]);
+        panel.appendChild(el('div', { className: 'pfa-pv__body' }, [el('div', { className: 'pfa-pv__contact' }, [box])]));
+        var change = el('button', { type: 'button', className: 'pfa-pv__back', text: 'Change it' });
+        var right = el('button', { type: 'button', className: 'pfa-pv__go', text: 'Yes, it is right' });
+        change.addEventListener('click', function () { finish(false, birth.field); });
+        right.addEventListener('click', stepOne);
+        actions(change, right);
+      }
+
       shell.addEventListener('cancel', function (event) { event.preventDefault(); finish(false); });
       document.addEventListener('keydown', onKey, true);
       document.body.appendChild(shell);
       root.style.overflow = 'hidden';
       if (native) { try { shell.showModal(); } catch (e) { shell.setAttribute('open', ''); } }
-      stepOne();
+      if (birth) stepBirth(); else stepOne();
     });
   }
 
-  window.PFAPreview = { confirm: confirm, rowsOf: rowsOf, suggestEmail: suggestEmail, formatMobile: formatMobile };
+  window.PFAPreview = { confirm: confirm, rowsOf: rowsOf, suggestEmail: suggestEmail, formatMobile: formatMobile, birthOf: birthOf };
 })();

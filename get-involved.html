@@ -1368,6 +1368,11 @@ if (root.document && root.document.head) apply(read());
       if (stepOk()) go(at + 1, true);
     }, true);
     section.addEventListener('gi:reset', function(){ go(0, false); });
+    /* the preview's "Change it" on a field of an earlier step (assets/form-preview.js) */
+    form.addEventListener('pfa:reveal', function(e){
+      var i = steps.indexOf(e.target.closest ? e.target.closest('.gi__step') : null);
+      if (i >= 0 && i !== at) go(i, false);
+    });
     paint(false);
   }
   [].forEach.call(document.querySelectorAll('.gi__section'), stepper);

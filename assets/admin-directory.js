@@ -182,7 +182,16 @@
       if (!document.body.contains(box)) return;
       var map = L.map(box, { scrollWheelZoom: true, worldCopyJump: false });
       D.map = map;
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+      /* OpenStreetMap turns away a map image that does not say which site
+         asked for it (its tile policy; owner's screenshot, 18 Nov 2026:
+         "Access blocked" on every square). The panel sends no referrer at
+         all (admin.html), so the map's images alone say the site's name:
+         the origin only, never the panel's page or anything after it. */
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        referrerPolicy: 'strict-origin',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+      }).addTo(map);
       var spots = {};
       rows.forEach(function (p) {
         if (!p.at) return;

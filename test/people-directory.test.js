@@ -204,7 +204,11 @@ test('the Map: each person at their PIN code, else their district, from India Po
   assert.match(js, /data-dr-mapshow/, 'a dot can show its people in the list');
   assert.match(js, /assets\/vendor\/leaflet\/leaflet\.js/, 'Leaflet is the site’s own copy');
   assert.ok(!/unpkg|cdnjs|jsdelivr/.test(js), 'no other site serves the map’s code');
-  assert.match(js, /OpenStreetMap contributors/, 'the map’s makers are credited');
+  assert.match(js, /OpenStreetMap<\/a> contributors/, 'the map’s makers are credited');
+  /* 18 Nov 2026: OpenStreetMap blocked every square, as the panel sends no
+     referrer; its images, and only they, name the site */
+  assert.match(js, /referrerPolicy: 'strict-origin'/);
+  assert.match(read('admin.html'), /<meta name="referrer" content="no-referrer">/, 'the rest of the panel still names nothing');
   for (const f of ['leaflet.js', 'leaflet.css', 'LICENSE.txt']) assert.ok(fs.existsSync(path.join(ROOT, 'assets/vendor/leaflet', f)), f);
   const build = read('scripts/build-firebase.js');
   assert.match(build, /'assets\/vendor\/leaflet\/leaflet\.js'/, 'the Firebase panel carries it');

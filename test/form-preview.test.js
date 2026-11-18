@@ -281,3 +281,68 @@ test('a section that is switched off is not listed, even through form="..."', ()
   p.$('#extra').disabled = false;
   assert.deepEqual(labels(), ['Full name', 'The occasion', 'Who it is for'], 'and all of it once the section is on');
 });
+
+/* Owner, 18 Nov 2026: "someone entered 2026 as dob 12 nov.. that is like a
+   week ago.. for those whose age is below 18.. show popup asking if dob is
+   right?" */
+const DOB_FORM = (dob) => `
+  <form id="f">
+    <div data-step="one" class="m-step"><div class="field"><label for="name">Your name</label><input id="name" name="name" value="Aaron"></div>
+    <div class="field"><label for="dob">Date of birth <span class="opt">(optional)</span></label><input id="dob" name="dob" type="date" autocomplete="bday" value="${dob}"></div></div>
+    <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" value="aaron@example.com"></div>
+    <button type="submit">Send</button>
+  </form>`;
+const isoDaysAgo = (days, years = 0) => { const t = new Date(); const d = new Date(t.getFullYear() - years, t.getMonth(), t.getDate() - days); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
+test('a date of birth under 18 is asked about first; Change it goes back to that field, on its own step', async () => {
+  const p = boot({ html: DOB_FORM(isoDaysAgo(6)) });
+  let result;
+  let revealed = 0;
+  p.$('#f').addEventListener('pfa:reveal', (e) => { if (e.target === p.$('#dob')) revealed += 1; });
+  p.w.PFAPreview.confirm(p.form, { send: 'Send' }).then((r) => { result = r; });
+  assert.match(p.$('.pfa-pv__step').textContent, /Step 1 of 3/);
+  assert.equal(p.$('.pfa-pv__title').textContent, 'Is your date of birth right?');
+  assert.match(p.$('[data-birth]').textContent, /That makes you 6 days old\./);
+  click(p, button(p, 'Change it'));
+  await tick();
+  assert.equal(result, false, 'nothing is sent');
+  assert.equal(p.d.activeElement, p.$('#dob'), 'the date of birth, ready to change');
+  assert.equal(revealed, 1, 'the page is told to open the step it is on');
+
+  const q = boot({ html: DOB_FORM(isoDaysAgo(0, 17)) });
+  q.w.PFAPreview.confirm(q.form, { send: 'Send' });
+  assert.match(q.$('[data-birth]').textContent, /That makes you 17 years old today\./);
+  click(q, button(q, 'Yes, it is right'));
+  assert.match(q.$('.pfa-pv__step').textContent, /Step 2 of 3/, 'then everything, as before');
+  assert.ok(button(q, 'Continue'));
+  click(q, button(q, 'Continue'));
+  assert.match(q.$('.pfa-pv__step').textContent, /Step 3 of 3/);
+});
+
+test('18 and over, no date, or a date not yet come: no question about it', () => {
+  for (const dob of [isoDaysAgo(0, 18), isoDaysAgo(0, 40), '', isoDaysAgo(-3)]) {
+    const p = boot({ html: DOB_FORM(dob) });
+    p.w.PFAPreview.confirm(p.form, { send: 'Send' });
+    assert.ok(!p.$('[data-birth]'), `${dob || 'none'}: not asked`);
+    assert.match(p.$('.pfa-pv__step').textContent, /Step 1 of 2/);
+  }
+  const w = boot().w;
+  const born = (v) => { const f = w.document.createElement('form'); f.innerHTML = `<input type="date" name="dob" value="${v}">`; return w.PFAPreview.birthOf(f, new Date(2026, 10, 18)); };
+  assert.equal(born('2026-11-12').age, '6 days old');
+  assert.equal(born('2026-11-18').age, 'born today');
+  assert.equal(born('2026-09-01').age, '2 months old');
+  assert.equal(born('2025-11-18').age, '1 year old');
+  assert.equal(born('2009-01-02').age, '17 years old');
+  assert.equal(born('2008-11-18'), null, '18 today');
+  assert.equal(born('2026-02-30'), null, 'not a real day');
+});
+
+test('every form with a date of birth uses the preview, and its steps open for Change it', () => {
+  for (const page of ['donate.html', 'get-involved.html', 'internship.html']) {
+    const html = read(page);
+    assert.match(html, /autocomplete="bday"/, page);
+    assert.match(html, /assets\/form-preview\.js/, `${page} loads the preview`);
+  }
+  assert.match(read('assets/micro.js'), /'pfa:reveal'/, 'the internship steps');
+  assert.match(read('get-involved.html'), /'pfa:reveal'/, 'the membership steps');
+});

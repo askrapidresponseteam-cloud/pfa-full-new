@@ -1,3 +1,9 @@
+## v1.607
+
+- **A date of birth under 18 is asked about before anything is sent.** Owner, 18 Nov 2026: "someone entered 2026 as dob 12 nov.. that is like a week ago.. for those whose age is below 18.. show popup asking if dob is right?". The date picker opens on this year, so one slip gives a baby's age. Now, on Become a member, Donate and the internship application, a date that makes someone under 18 opens **Is your date of birth right?** first. It shows the date, and "That makes you 6 days old" (or 3 months, or 17 years). **Yes, it is right** goes on to the usual check of everything and of the email and mobile. **Change it** goes straight back to the date of birth, opening the step of the form it is on. 18 and over is not asked.
+  - The person already in the directory with 12 Nov 2026 keeps it. This only stops new slips.
+- **The People directory's Map shows the map again.** Owner, 18 Nov 2026, a screenshot of every square reading "Access blocked". OpenStreetMap turns away map images that do not say which site asked for them, and the panel deliberately sends no page address anywhere. Now only the map's images say the site's name (https://pfa-new-website.web.app/), never the panel's page; everything else on the panel still sends nothing. The credit links to OpenStreetMap's copyright page, as its policy asks.
+
 ## v1.606
 
 - **The People directory has a Map.** Owner, 18 Nov 2026: "can you give map view". Beside the state and district filters is **List | Map**. The map shows the same people as the list, with the same category, state, district and search filters.
