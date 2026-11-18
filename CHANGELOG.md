@@ -1,3 +1,16 @@
+## v1.606
+
+- **The People directory has a Map.** Owner, 18 Nov 2026: "can you give map view". Beside the state and district filters is **List | Map**. The map shows the same people as the list, with the same category, state, district and search filters.
+  - **Each dot is a PIN code.** It grows bigger where more people share one. Someone who gave a district but no PIN is a paler dot at the district's middle. A line above the map says how many are not on it because they gave neither.
+  - **Tap a dot** to see who is there: their names, categories and a phone number to call. **Show them in the list** opens the list filtered to that PIN or district.
+  - **Where a PIN is** comes from India Post's own directory of post offices, the same source the site already uses to read a state and district from a PIN. It is built into the site as lib/pin-places.json.gz (147 KB, 19,550 PIN codes and every district except Lakshadweep's islands) by scripts/build-pin-places.js. No address is sent anywhere to be placed.
+  - **The map** is Leaflet, served from the site itself (assets/vendor/leaflet, BSD licence), over OpenStreetMap's free map, which is credited in the corner, the same as RRT's map. The site's security policy now allows OpenStreetMap's map images. **Download for Excel** is unchanged.
+- Also in this build, from v1.605: Tender Paws is bought on Amazon.
+
+## v1.605
+
+- **Tender Paws is bought on Amazon.** Owner, 18 Nov 2026. On Maneka's Picks, Tender Paws by Balvant Singh now has **Buy on Amazon**, opening https://www.amazon.in/dp/B0HKQ4L8MD in a new tab, the same as the other two books. It no longer links to tenderpaws.nz. The cover stays the one you sent.
+
 ## v1.604
 
 - **The signature's size and position, in Check the cards, for both kinds of card.** Owner, 17 Nov 2026: "you havent given option to adjust pos and size of sign on membership and catc cards". The controls were only in the old card studio, which Check the cards replaced. Under the large card there is now **Signature size and position**, in large type: Left / right, Up / down and Size, each a slider with its number. The card beside it moves as they move, and **Save for every card** applies it to every card of that kind, with Reset to go back. A colony caregiver card's printed card is the same design, so the one setting is saved for both, online and printed. A membership card's setting is for the card online; the printed membership card keeps its own, under Preview card in Members' To do. Every change is in the audit log, as before. The fold stays open from one card to the next.

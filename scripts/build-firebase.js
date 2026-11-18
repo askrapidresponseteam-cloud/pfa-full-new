@@ -81,6 +81,8 @@ const PANEL_ASSETS = [
   'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-site-designs.js', 'assets/admin-viewer.js', 'assets/admin-cert-layout.js', 'assets/admin-cert-pane.js', 'assets/admin-digital-cards.js', 'assets/admin-intern-time.js',
   /* the card online, drawn in its studio to place the signature (15 Nov 2026) */
   'assets/digital-card.css', 'assets/digital-card.js', 'img/logo-dark.png',
+  /* the People directory's Map (18 Nov 2026): Leaflet, served from the site */
+  'assets/vendor/leaflet/leaflet.js', 'assets/vendor/leaflet/leaflet.css', 'assets/vendor/leaflet/LICENSE.txt',
   /* the viewer draws a PDF sent with a case with the site's own pdf.js (11 Nov 2026) */
   'assets/vendor/pdfjs/pdf.min.js', 'assets/vendor/pdfjs/pdf.worker.min.js', 'assets/vendor/pdfjs/wasm/jbig2.wasm', 'assets/vendor/pdfjs/wasm/openjpeg.wasm', 'assets/vendor/pdfjs/wasm/qcms_bg.wasm', 'assets/vendor/pdfjs/LICENSE', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-live-chat.js', 'assets/admin-taxid.js',
   'fonts/cinzel-latin-500.woff2',

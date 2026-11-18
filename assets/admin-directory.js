@@ -34,11 +34,16 @@
     '.dr-tel a{color:inherit;text-decoration:none;white-space:nowrap}',
     '.dr-pin{color:var(--muted)}',
     '.dr-bday{white-space:nowrap}',
+    /* the Map (18 Nov 2026) */
+    '.dr-view{display:inline-flex;border:1px solid var(--line)}.dr-view button{min-height:38px;padding:0 16px;border:0;border-right:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;color:var(--muted);cursor:pointer}.dr-view button:last-child{border-right:0}.dr-view button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}',
+    '.dr-map{height:min(70vh,620px);min-height:380px;border:1px solid var(--line);background:#e9eef3;position:relative;z-index:0}',
+    '.dr-pop{font:13px/1.45 var(--sans,inherit);min-width:220px;max-width:300px}.dr-pop h4{margin:0 0 6px;font-size:13px;font-weight:700}.dr-pop ul{list-style:none;margin:0 0 8px;padding:0;max-height:220px;overflow:auto}.dr-pop li{padding:5px 0;border-top:1px solid #eee}.dr-pop li small{display:block;color:#666}.leaflet-container .dr-pop a{color:inherit}',
+    '.dr-pop button{min-height:34px;padding:0 12px;border:1px solid #111;background:#111;color:#fff;font:inherit;font-size:12px;cursor:pointer}',
     '@media (max-width:700px){.dr-table thead{display:none}.dr-table,.dr-table tbody,.dr-table tr,.dr-table td{display:block;width:100%}.dr-table tr{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 4px;padding:14px;border-bottom:1px solid var(--line)}.dr-table td{padding:0;border:0;grid-column:1 / -1}.dr-table td:nth-child(3){order:-2;font-size:15px}.dr-table td[data-place]{order:-1;grid-column:auto;color:var(--muted);font-size:12px}.dr-table td:nth-child(1)::after{content:","}.dr-table td[data-bday]::before{content:"Birthday ";color:var(--muted)}.dr-table td[data-bday=""]{display:none}.dr-addr{min-width:0}.dr-wrap{overflow:visible}}'
   ].join('');
   document.head.appendChild(style);
 
-  var D = { data: null, cat: '', state: '', district: '', q: '', shown: 200 };
+  var D = { data: null, cat: '', state: '', district: '', q: '', shown: 200, view: 'list', map: null };
   var PAGE = 200;
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -107,10 +112,18 @@
     out.push('<div class="dr-tools"><input type="search" data-dr="q" placeholder="Find a name, phone, email, address or PIN" aria-label="Find a person" value="' + esc(D.q) + '">'
       + '<select data-dr="state" aria-label="State">' + options(states, D.state, 'Every state') + '</select>'
       + '<select data-dr="district" aria-label="District">' + options(districts, D.district, D.state ? 'Every district' : 'Every district') + '</select>'
+      + '<span class="dr-view" role="group" aria-label="Show as"><button type="button" data-dr-view="list" aria-pressed="' + String(D.view === 'list') + '">List</button><button type="button" data-dr-view="map" aria-pressed="' + String(D.view === 'map') + '">Map</button></span>'
       + '<button class="ghost" type="button" data-dr="csv">Download for Excel</button></div>');
-    out.push('<p class="dr-line" role="status">' + (rows.length === people.length ? 'Showing everyone.' : 'Showing <b>' + rows.length + '</b> of ' + people.length + '.') + ' A state or district marked * was read from the PIN code.</p>');
+    var on = rows.filter(function (p) { return p.at; });
+    out.push('<p class="dr-line" role="status">' + (rows.length === people.length ? 'Showing everyone.' : 'Showing <b>' + rows.length + '</b> of ' + people.length + '.')
+      + (D.view === 'map'
+        ? (on.length === rows.length ? '' : ' ' + (rows.length - on.length) + ' gave no PIN or district, so are not on the map.') + ' Each dot is a PIN code, bigger where more people share it; a pale dot is a district, for someone with no PIN. Tap a dot to see who.'
+        : ' A state or district marked * was read from the PIN code.') + '</p>');
+    if (D.map) { try { D.map.remove(); } catch (_) { /* gone with the page */ } D.map = null; }
     if (!rows.length) {
       out.push('<div class="empty"><b>No one matches</b>Clear a filter or the search to see more.</div>');
+    } else if (D.view === 'map') {
+      out.push('<div class="dr-map" id="drMap" role="region" aria-label="Map of the people shown"></div>');
     } else {
       out.push('<div class="wrap dr-wrap"><table class="dr-table"><thead><tr><th>State</th><th>District</th><th>Name</th><th>Address</th><th>Phone</th><th>Birthday</th><th>Category</th></tr></thead><tbody>');
       rows.slice(0, D.shown).forEach(function (p) {
@@ -133,11 +146,71 @@
       if (rows.length > D.shown) out.push('<div class="more"><button class="ghost" type="button" data-dr="more">Show ' + Math.min(PAGE, rows.length - D.shown) + ' more of ' + (rows.length - D.shown) + '</button></div>');
     }
     n.innerHTML = out.join('');
+    if (D.view === 'map' && rows.length) drawMap(rows);
     if (focus) {
       var f = n.querySelector(focus);
       if (f) { f.focus(); if (f.setSelectionRange && f.value) f.setSelectionRange(f.value.length, f.value.length); }
     }
     A.say($('#paneNote'), people.length + (people.length === 1 ? ' person' : ' people'));
+  }
+
+  /* ---- the Map (owner, 18 Nov 2026: "can you give map view") ----------
+     Leaflet, served from the site, over OpenStreetMap's map, as RRT's own
+     map. Each person is at their PIN code's place (India Post's directory,
+     lib/pin-places.js), or their district's middle when they gave no PIN;
+     no address goes anywhere to be placed. */
+  var leaflet = null;
+  function needLeaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (leaflet) return leaflet;
+    var me = document.querySelector('script[src*="admin-directory.js"]');
+    var v = me && /\?v=([^&]+)/.exec(me.getAttribute('src') || '');
+    var tag = v ? '?v=' + v[1] : '';
+    leaflet = new Promise(function (ok, no) {
+      var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'assets/vendor/leaflet/leaflet.css' + tag; document.head.appendChild(css);
+      var js = document.createElement('script'); js.src = 'assets/vendor/leaflet/leaflet.js' + tag;
+      js.onload = function () { if (window.L) ok(window.L); else no(new Error('map')); };
+      js.onerror = function () { leaflet = null; no(new Error('map')); };
+      document.head.appendChild(js);
+    });
+    return leaflet;
+  }
+  function drawMap(rows) {
+    var box = document.getElementById('drMap');
+    if (!box) return;
+    needLeaflet().then(function (L) {
+      if (!document.body.contains(box)) return;
+      var map = L.map(box, { scrollWheelZoom: true, worldCopyJump: false });
+      D.map = map;
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+      var spots = {};
+      rows.forEach(function (p) {
+        if (!p.at) return;
+        var k = p.at[0] + ',' + p.at[1];
+        (spots[k] || (spots[k] = { at: p.at, by: p.atBy, people: [] })).people.push(p);
+      });
+      var all = [];
+      Object.keys(spots).forEach(function (k) {
+        var s = spots[k];
+        var n = s.people.length;
+        var first = s.people[0];
+        var where = (s.by === 'pin' ? 'PIN ' + first.pin + ', ' : '') + [first.district, first.state].filter(Boolean).join(', ');
+        var dot = L.circleMarker(s.at, { radius: Math.min(22, 6 + 3 * Math.sqrt(n - 1)), color: '#ffffff', weight: 2, fillColor: '#c62828', fillOpacity: s.by === 'pin' ? 0.9 : 0.45 });
+        dot.bindTooltip(n === 1 ? esc(first.name || 'No name given') : n + ' people');
+        dot.bindPopup('<div class="dr-pop"><h4>' + esc(where) + ' \u00b7 ' + n + (n === 1 ? ' person' : ' people') + '</h4><ul>'
+          + s.people.slice(0, 12).map(function (p) {
+            return '<li><b>' + esc(p.name || 'No name given') + '</b><small>' + esc(p.categories.map(label).join(', ')) + (p.mobile ? ' \u00b7 <a href="tel:+91' + esc(p.mobile) + '">' + esc(phone(p.mobile)) + '</a>' : '') + '</small></li>';
+          }).join('') + (n > 12 ? '<li><small>and ' + (n - 12) + ' more</small></li>' : '') + '</ul>'
+          + '<button type="button" data-dr-mapshow="' + esc(s.by === 'pin' ? 'pin:' + first.pin : 'district:' + (first.state || '') + '|' + (first.district || '')) + '">Show ' + (n === 1 ? 'them' : 'these ' + n) + ' in the list</button></div>', { maxWidth: 320 });
+        dot.on('popupopen', function () { dot.closeTooltip(); });
+        dot.addTo(map);
+        all.push(s.at);
+      });
+      if (all.length) map.fitBounds(all, { padding: [30, 30], maxZoom: 12 });
+      else map.setView([22.5, 80], 5);
+    }).catch(function () {
+      box.innerHTML = '<div class="empty"><b>The map could not be loaded</b>Check the connection and press Map again.</div>';
+    });
   }
 
   function download(b) {
@@ -169,8 +242,17 @@
     if (!n || wired) return;
     wired = true;
     n.addEventListener('click', function (e) {
-      var b = e.target && e.target.closest ? e.target.closest('[data-dr-cat],[data-dr="csv"],[data-dr="more"]') : null;
+      var b = e.target && e.target.closest ? e.target.closest('[data-dr-cat],[data-dr="csv"],[data-dr="more"],[data-dr-view],[data-dr-mapshow]') : null;
       if (!b) return;
+      if (b.hasAttribute('data-dr-view')) { D.view = b.getAttribute('data-dr-view'); D.shown = PAGE; return paint('[data-dr-view="' + D.view + '"]'); }
+      /* from a dot: who is there, in the list */
+      if (b.hasAttribute('data-dr-mapshow')) {
+        var w = b.getAttribute('data-dr-mapshow');
+        if (w.indexOf('pin:') === 0) D.q = w.slice(4);
+        else { var sd = w.slice(9).split('|'); D.state = sd[0]; D.district = sd[1] || ''; }
+        D.view = 'list'; D.shown = PAGE;
+        return paint();
+      }
       if (b.hasAttribute('data-dr-cat')) { D.cat = b.getAttribute('data-dr-cat'); D.shown = PAGE; return paint('[data-dr-cat="' + D.cat + '"]'); }
       if (b.getAttribute('data-dr') === 'more') { D.shown += PAGE; return paint(); }
       return download(b);

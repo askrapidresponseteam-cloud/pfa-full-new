@@ -177,3 +177,37 @@ test('wired into the panel, the API and the bundle', () => {
   assert.doesNotMatch(js + read('lib/people-directory.js') + read('lib/routes/admin/directory.js'), /[–—]/);
   assert.doesNotMatch(read('lib/people-directory.js'), /oldMembers|old-members/, 'the old website\'s members stay apart');
 });
+
+/* ---- the Map (owner, 18 Nov 2026: "can you give map view") ---------- */
+test('the Map: each person at their PIN code, else their district, from India Post’s own directory', async () => {
+  const PLACES = require('../lib/pin-places');
+  const pin = PLACES.placeOf({ pin: '576101', state: 'Karnataka', district: 'Udupi' });
+  assert.equal(pin.by, 'pin');
+  assert.ok(Math.abs(pin.at[0] - 13.34) < 0.1 && Math.abs(pin.at[1] - 74.75) < 0.1, 'Udupi town is where Udupi is');
+  const district = PLACES.placeOf({ state: 'Karnataka', district: 'Mysuru' });
+  assert.equal(district.by, 'district', 'no PIN: the district, by the name the directory shows');
+  assert.ok(Math.abs(district.at[0] - 12.3) < 0.6 && Math.abs(district.at[1] - 76.6) < 0.6);
+  assert.equal(PLACES.placeOf({ name: 'Kiran S' }), null, 'nothing given, not on the map');
+
+  await seed();
+  const res = await call({ token: 'test-admin' });
+  const by = Object.fromEntries(res.json.people.map((p) => [p.name, p]));
+  assert.equal(by['Asha Rao'].atBy, 'pin');
+  assert.equal(by['Dr. Naveen Kumar'].atBy, 'pin');
+  assert.ok(!by['Kiran S'].at, 'no PIN and no district: off the map, and the panel says how many');
+  const csv = await call({ token: 'test-admin', url: '/api/admin/directory?format=csv' });
+  assert.ok(!/13\.3\d\d/.test(csv.raw), 'the download is unchanged: no map points in it');
+
+  const js = read('assets/admin-directory.js');
+  assert.match(js, /data-dr-view="list"/);
+  assert.match(js, /data-dr-view="map"/);
+  assert.match(js, /data-dr-mapshow/, 'a dot can show its people in the list');
+  assert.match(js, /assets\/vendor\/leaflet\/leaflet\.js/, 'Leaflet is the site’s own copy');
+  assert.ok(!/unpkg|cdnjs|jsdelivr/.test(js), 'no other site serves the map’s code');
+  assert.match(js, /OpenStreetMap contributors/, 'the map’s makers are credited');
+  for (const f of ['leaflet.js', 'leaflet.css', 'LICENSE.txt']) assert.ok(fs.existsSync(path.join(ROOT, 'assets/vendor/leaflet', f)), f);
+  const build = read('scripts/build-firebase.js');
+  assert.match(build, /'assets\/vendor\/leaflet\/leaflet\.js'/, 'the Firebase panel carries it');
+  for (const f of ['firebase.json', 'vercel.json']) assert.match(read(f), /img-src [^;]* https:\/\/tile\.openstreetmap\.org /, f + ' lets the map’s tiles in');
+  assert.ok(fs.existsSync(path.join(ROOT, 'lib/pin-places.json.gz')));
+});

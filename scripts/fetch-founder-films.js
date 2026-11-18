@@ -207,10 +207,9 @@ const BOOKS = [
   { title: 'Orange Dogs', out: path.join(ROOT, 'media', 'picks', 'orange-dogs-cover.jpg'),
     image: 'https://m.media-amazon.com/images/I/61kNcVt0D5L.jpg', link: 'https://www.amazon.in/dp/9334516496' },
   /* Tender Paws (owner, 13 Nov 2026: "need to add this book to maneka's
-     picks page"). Not on Amazon; sold from its own site, tenderpaws.nz. Its
-     cover is the one the owner sent, kept in the repository, so there is
-     nothing to fetch. */
-  { title: 'Tender Paws', out: path.join(ROOT, 'media', 'picks', 'tender-paws-cover.jpg'), kept: true }
+     picks page"), bought on Amazon.in (18 Nov 2026). Its cover is the one
+     the owner sent, kept in the repository, so there is nothing to fetch. */
+  { title: 'Tender Paws', out: path.join(ROOT, 'media', 'picks', 'tender-paws-cover.jpg'), kept: true, link: 'https://www.amazon.in/dp/B0HKQ4L8MD' }
 ];
 const BOOK = BOOKS[0];
 const BROWSER = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';

@@ -55,12 +55,12 @@ test('each film links to the service it streams on, and the book to Amazon', () 
     assert.equal(play.getAttribute('data-film'), String(i), 'a tile is a button that opens the theatre');
   });
   /* three books (owner, 10 Nov 2026: "add orange dogs - book"; 13 Nov 2026:
-     Tender Paws), the two on Amazon with Buy on Amazon, Tender Paws from its own site */
+     Tender Paws; 18 Nov 2026: its Amazon.in link), each with Buy on Amazon */
   const books = [...doc.querySelectorAll('#book .mp-bk')];
   assert.deepEqual(books.map((b) => b.querySelector('h3').textContent), ['Animals', 'Orange Dogs', 'Tender Paws']);
   assert.deepEqual(books.map((b) => b.querySelector('a.btn').getAttribute('href')),
-    ['https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1', 'https://www.amazon.in/dp/9334516496', 'https://tenderpaws.nz/']);
-  assert.deepEqual(books.map((b) => b.querySelector('a.btn').textContent.trim()), ['Buy on Amazon', 'Buy on Amazon', 'Get the book']);
+    ['https://www.amazon.in/Animals-Raghu-Rai/dp/9373070878?th=1', 'https://www.amazon.in/dp/9334516496', 'https://www.amazon.in/dp/B0HKQ4L8MD']);
+  assert.deepEqual(books.map((b) => b.querySelector('a.btn').textContent.trim()), ['Buy on Amazon', 'Buy on Amazon', 'Buy on Amazon']);
   for (const b of books) {
     const buy = b.querySelector('a.btn');
     assert.equal(buy.getAttribute('target'), '_blank');
