@@ -9,7 +9,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/sabyasachi-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/sabyasachi-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/sabyasachi-x-pfa-front-studio.webp"
+   ]
   },
   {
    "id": "26",
@@ -19,7 +22,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/1745704396-studio.webp"
+   "image": "media/shop/v4/1745704396-studio.webp",
+   "images": [
+    "media/shop/v4/1745704396-studio.webp"
+   ]
   },
   {
    "id": "21",
@@ -29,7 +35,13 @@
    "price": 350,
    "listPrice": 450,
    "available": true,
-   "image": "media/shop/v4/t-shirt-red-front-studio.webp"
+   "image": "media/shop/v4/t-shirt-red-front-studio.webp",
+   "images": [
+    "media/shop/v4/t-shirt-red-front-studio.webp",
+    "media/shop/v4/t-shirt-yellow-front.webp",
+    "media/shop/v4/t-shirt-white-front-studio.webp",
+    "media/shop/v4/t-shirt-pink-front-studio.webp"
+   ]
   },
   {
    "id": "27",
@@ -39,7 +51,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/1745706391-studio.webp"
+   "image": "media/shop/v4/1745706391-studio.webp",
+   "images": [
+    "media/shop/v4/1745706391-studio.webp"
+   ]
   },
   {
    "id": "29",
@@ -49,7 +64,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/rocky-star-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/rocky-star-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/rocky-star-x-pfa-front-studio.webp"
+   ]
   },
   {
    "id": "30",
@@ -59,7 +77,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/geisha-designs-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/geisha-designs-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/geisha-designs-x-pfa-front-studio.webp"
+   ]
   },
   {
    "id": "31",
@@ -69,7 +90,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/muzaffar-ali-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/muzaffar-ali-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/muzaffar-ali-x-pfa-front-studio.webp"
+   ]
   },
   {
    "id": "32",
@@ -79,7 +103,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/nida-mahmood-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/nida-mahmood-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/nida-mahmood-x-pfa-front-studio.webp"
+   ]
   },
   {
    "id": "33",
@@ -89,7 +116,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/j-j-valaya-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/j-j-valaya-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/j-j-valaya-x-pfa-front-studio.webp"
+   ]
   },
   {
    "id": "34",
@@ -99,7 +129,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/gaurav-gupta-x-pfa-charcoal-front-studio.webp"
+   "image": "media/shop/v4/gaurav-gupta-x-pfa-charcoal-front-studio.webp",
+   "images": [
+    "media/shop/v4/gaurav-gupta-x-pfa-charcoal-front-studio.webp"
+   ]
   },
   {
    "id": "35",
@@ -109,7 +142,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/monisha-jaisingh-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/monisha-jaisingh-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/monisha-jaisingh-x-pfa-front-studio.webp"
+   ]
   },
   {
    "id": "36",
@@ -119,7 +155,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/varun-bahl-x-pfa-design-2-front-studio.webp"
+   "image": "media/shop/v4/varun-bahl-x-pfa-design-2-front-studio.webp",
+   "images": [
+    "media/shop/v4/varun-bahl-x-pfa-design-2-front-studio.webp"
+   ]
   },
   {
    "id": "37",
@@ -129,7 +168,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/raw-mango-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/raw-mango-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/raw-mango-x-pfa-front-studio.webp"
+   ]
   },
   {
    "id": "38",
@@ -139,7 +181,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/1745705914-studio.webp"
+   "image": "media/shop/v4/1745705914-studio.webp",
+   "images": [
+    "media/shop/v4/1745705914-studio.webp"
+   ]
   },
   {
    "id": "39",
@@ -149,7 +194,10 @@
    "price": 2500,
    "listPrice": 5000,
    "available": true,
-   "image": "media/shop/v4/ashima-singh-x-pfa-front-studio.webp"
+   "image": "media/shop/v4/ashima-singh-x-pfa-front-studio.webp",
+   "images": [
+    "media/shop/v4/ashima-singh-x-pfa-front-studio.webp"
+   ]
   }
  ]
 }

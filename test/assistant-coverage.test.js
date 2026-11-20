@@ -62,7 +62,8 @@ const WAYS = {
   'careers.html': ['jobs at pfa', { link: 'careers.html' }],
   'ask.html': ['I have a question for pfa', { flow: 'helpdesk' }],
   'donate.html': ['I want to donate 500', { flow: 'donate' }],
-  'shop.html': ['buy a pfa t-shirt from the shop', { link: 'shop.html' }]
+  /* the shop opens in the chat itself (20 Nov 2026): its pieces are read first */
+  'shop.html': ['buy a pfa t-shirt from the shop', { action: 'shop-pieces' }]
 };
 
 /* offerings that are not a page of the menu */
@@ -79,6 +80,7 @@ const MORE = [
 
 function holds(href, [said, want]) {
   const r = reply(said);
+  if (want.action) return assert.equal(r.action && r.action.type, want.action, `"${said}" (${href}) should ${want.action}; got "${r.text.slice(0, 120)}"`);
   if (want.flow) assert.equal(r.flow, want.flow, `"${said}" (${href}) should start ${want.flow}; got "${r.text.slice(0, 120)}"`);
   else assert.ok(r.links.includes(want.link), `"${said}" (${href}) should link ${want.link}; got ${JSON.stringify(r.links)}: "${r.text.slice(0, 120)}"`);
 }

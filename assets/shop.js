@@ -183,6 +183,19 @@
     $('coPay').textContent = bag.length ? 'Pay ' + rupees(total() + SHIPPING) + ' securely' : 'Pay securely';
     if (!bag.length && !checkout.hidden) showBag();
   }
+  /* The chat's shop uses this same bag (assets/assistant.js, 20 Nov 2026):
+     what it adds or takes out shows here at once, and so does a change made
+     on the shop page in another tab. */
+  function reload() {
+    var fresh = [];
+    try { fresh = JSON.parse(window.localStorage.getItem(KEY) || '[]') || []; } catch (err) { return; }
+    bag = fresh.filter(function (l) { return l && byId[l.id] && (l.size === 'L' || l.size === 'XL') && l.qty > 0; })
+      .map(function (l) { return { id: l.id, size: l.size, qty: Math.min(Math.floor(l.qty), MAX_QTY) }; });
+    renderBag();
+  }
+  window.addEventListener('pfa:bag', reload);
+  window.addEventListener('storage', function (e) { if (e.key === KEY) reload(); });
+
   function change(i, by) {
     bag[i].qty += by;
     if (bag[i].qty <= 0) bag.splice(i, 1);

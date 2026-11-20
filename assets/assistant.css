@@ -40,7 +40,7 @@
 .pfa-asst__m--me[data-st="failed"]{cursor:pointer;outline:1px solid #e3b4b0}
 .pfa-asst__m--me[data-st="failed"] .pfa-asst__tick{color:#a3251f}
 .pfa-asst__live button{flex:none;min-height:34px;padding:0 4px;border:0;background:none;color:#111;font-family:inherit;font-size:11px;font-weight:700;line-height:1;letter-spacing:.12em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
-.pfa-asst__m dl{display:grid;grid-template-columns:minmax(90px,auto) minmax(0,1fr);gap:6px 14px;margin:10px 0 0;padding:10px 0 0;border-top:1px solid #e4e2df;font-size:14px}
+.pfa-asst__m dl{display:grid;grid-template-columns:fit-content(48%) minmax(0,1fr);gap:6px 14px;margin:10px 0 0;padding:10px 0 0;border-top:1px solid #e4e2df;font-size:14px}
 .pfa-asst__m dt{color:#6b6b6b;font-size:12px;line-height:1.4;padding-top:2px}
 .pfa-asst__m dd{margin:0;overflow-wrap:anywhere}
 .pfa-asst__links{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:10px}
@@ -62,3 +62,48 @@
 .pfa-asst__clip svg{width:18px;height:18px}
 .pfa-asst__note{margin:0;padding:0 16px 10px;font-size:12px;line-height:1.5;color:#6b6b6b}
 .pfa-asst :focus-visible{outline:2px solid #111;outline-offset:2px}
+/* the shop, in the chat (20 Nov 2026): a row of pieces to swipe, a closer
+   look, and the bag; square, black on white, like the rest of the window */
+.pfa-asst__m--wide{align-self:stretch;width:100%}
+.pfa-asst__cards{display:flex;gap:10px;margin:12px -16px 0;padding:0 16px 6px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:thin}
+.pfa-asst__card{flex:0 0 172px;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;border:1px solid #e4e2df;padding:0 0 10px}
+.pfa-asst__pic{display:block;width:100%;aspect-ratio:4/5;padding:0;border:0;background:#f2f1ef;cursor:zoom-in}
+.pfa-asst__pic img{display:block;width:100%;height:100%;object-fit:contain}
+.pfa-asst__card .pfa-asst__name,.pfa-asst__card .pfa-asst__price,.pfa-asst__card .pfa-asst__inbag,.pfa-asst__card .pfa-asst__buy{margin:0 10px}
+.pfa-asst__m .pfa-asst__name{margin-top:0;font-size:14px;font-weight:700;line-height:1.35}
+.pfa-asst__m .pfa-asst__price{margin-top:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:14px}
+.pfa-asst__price s{color:#6b6b6b;font-size:12px}
+.pfa-asst__m .pfa-asst__inbag,.pfa-asst__m .pfa-asst__by{margin-top:0;color:#6b6b6b;font-size:12px;line-height:1.45}
+.pfa-asst__buy{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+.pfa-asst__sizes{display:flex;gap:6px}
+.pfa-asst__sizes button{flex:1 1 0;min-height:36px;padding:0 8px;border:1px solid #d6d4d0;background:#fff;color:#111;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.pfa-asst__sizes button[aria-pressed="true"]{border-color:#111;background:#111;color:#fff}
+.pfa-asst__sizes.is-ask button{border-color:#111}
+.pfa-asst__add{min-height:40px;padding:0 10px;border:1px solid #111;background:#111;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+@media (hover:hover){.pfa-asst__add:hover{background:#333}}
+.pfa-asst__look{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.pfa-asst__lookimg{display:block;width:100%;max-height:340px;object-fit:contain;background:#f2f1ef}
+.pfa-asst__thumbs{display:flex;gap:6px;overflow-x:auto}
+.pfa-asst__thumbs button{flex:0 0 56px;height:70px;padding:0;border:1px solid #e4e2df;background:#f2f1ef;cursor:pointer}
+.pfa-asst__thumbs button[aria-current="true"]{border-color:#111}
+.pfa-asst__thumbs img{width:100%;height:100%;object-fit:contain}
+.pfa-asst__look .pfa-asst__buy{margin-top:4px}
+.pfa-asst__more{align-self:flex-start;color:#111;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:4px}
+.pfa-asst__bag{margin-top:12px;border-top:1px solid #111}
+.pfa-asst__bag ul{list-style:none;margin:0;padding:0}
+.pfa-asst__bag li{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid #e4e2df}
+.pfa-asst__bag li img{width:56px;height:70px;object-fit:contain;background:#f2f1ef}
+.pfa-asst__bagmid{display:flex;flex-direction:column;gap:4px;min-width:0}
+.pfa-asst__line{font-size:14px;white-space:nowrap}
+.pfa-asst__qty{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}
+.pfa-asst__qty button{min-width:36px;min-height:36px;padding:0 8px;border:1px solid #d6d4d0;background:#fff;color:#111;font-family:inherit;font-size:15px;font-weight:600;line-height:1;cursor:pointer}
+.pfa-asst__qty span{min-width:24px;text-align:center;font-size:14px;font-weight:700}
+.pfa-asst__qty .pfa-asst__rm{margin-left:6px;border:0;padding:0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px}
+.pfa-asst__qty button:disabled,.pfa-asst__bag button:disabled{opacity:.4;cursor:default}
+.pfa-asst__bag dl{margin:10px 0 0;padding:0;border:0;display:block}
+.pfa-asst__bag dl div{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
+.pfa-asst__bag dl dt{font-size:13px;padding:0}
+.pfa-asst__bag dl .is-total{margin-top:4px;padding-top:8px;border-top:1px solid #e4e2df;font-weight:700}
+.pfa-asst__bag dl .is-total dt{color:#111;font-size:14px}
+.pfa-asst__qty .pfa-asst__less{background:linear-gradient(currentColor,currentColor) center/10px 2px no-repeat,#fff}
+.pfa-asst__qty .pfa-asst__plus{background:linear-gradient(currentColor,currentColor) center/10px 2px no-repeat,linear-gradient(currentColor,currentColor) center/2px 10px no-repeat,#fff}

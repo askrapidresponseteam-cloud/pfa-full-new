@@ -126,7 +126,32 @@
     cardGood: { en: '{name} holds a genuine colony caregiver card, {no}, valid until {until}.', hi: '{name} के पास असली कॉलोनी केयरगिवर कार्ड {no} है, {until} तक मान्य।' },
     cardOld: { en: '{name} holds colony caregiver card {no}, but it expired on {until}.', hi: '{name} के पास कॉलोनी केयरगिवर कार्ड {no} है, पर यह {until} को समाप्त हो गया।' },
     verifyNone: { en: 'PFA has no certificate or card with that number. Check it against the one you were shown.', hi: 'इस नंबर का कोई प्रमाणपत्र या कार्ड PFA के पास नहीं है। दिखाए गए नंबर से मिलाकर देखें।' },
-    verifyPage: { en: 'Open the check', hi: 'जाँच खोलें' }
+    verifyPage: { en: 'Open the check', hi: 'जाँच खोलें' },
+    /* the shop, in the chat (20 Nov 2026) */
+    shopHello: { en: 'The PFA shop. Every piece supports the animals. Pick a size and add it to your bag; tap a photograph for a closer look.', hi: 'PFA की दुकान। हर चीज़ से जानवरों की मदद होती है। साइज़ चुनें और बैग में जोड़ें; पास से देखने के लिए फ़ोटो पर टैप करें।' },
+    shopAdded: { en: 'Added to your bag: {what}.', hi: 'बैग में जुड़ गया: {what}।' },
+    shopBagTitle: { en: 'Your bag', hi: 'आपका बैग' },
+    shopEmpty: { en: 'Your bag is empty. Pick something from the shop.', hi: 'आपका बैग खाली है। दुकान से कुछ चुनें।' },
+    shopBagChip: { en: 'Your bag ({n})', hi: 'आपका बैग ({n})' },
+    shopSeeAll: { en: 'See the shop', hi: 'दुकान देखें' },
+    shopCheckout: { en: 'Checkout, {amount}', hi: 'चेकआउट, {amount}' },
+    shopWhichSize: { en: 'Which size? The pieces come in {sizes}.', hi: 'कौन सा साइज़? ये {sizes} में आते हैं।' },
+    shopMax: { en: 'That is the most of one piece in one size an order takes ({n}). For more, call PFA on +91 99533 13319.', hi: 'एक ऑर्डर में एक साइज़ की यही सबसे ज़्यादा संख्या है ({n})। ज़्यादा के लिए PFA को +91 99533 13319 पर कॉल करें।' },
+    shopGone: { en: 'That piece is no longer in the shop.', hi: 'यह चीज़ अब दुकान में नहीं है।' },
+    shopRemoved: { en: 'Taken out of your bag: {what}.', hi: 'बैग से हटाया: {what}।' },
+    shopEmptied: { en: 'Your bag is empty now.', hi: 'आपका बैग अब खाली है।' },
+    shopEmptyChip: { en: 'Empty the bag', hi: 'बैग खाली करें' },
+    shopPricing: { en: 'Checking your bag with the shop: prices and what is left in each size.', hi: 'दुकान से आपका बैग जाँच रहा हूँ: दाम और हर साइज़ में कितने बचे हैं।' },
+    shopDelivery: { en: 'Delivery anywhere in India', hi: 'पूरे भारत में डिलीवरी' },
+    shopTotal: { en: 'Total', hi: 'कुल' },
+    shopEditBag: { en: 'Change the bag', hi: 'बैग बदलें' },
+    shopPayNote: { en: 'You pay on CCAvenue, by card, UPI or net banking; PFA never sees those details. Your order confirmation comes to your email.', hi: 'भुगतान CCAvenue पर होगा, कार्ड, UPI या नेट बैंकिंग से; PFA वह जानकारी कभी नहीं देखता। ऑर्डर की पुष्टि आपके ईमेल पर आएगी।' },
+    shopDown: { en: 'The shop could not be opened in the chat just now. It is on its own page.', hi: 'दुकान अभी चैट में नहीं खुल पाई। यह अपने पेज पर है।' },
+    shopAtDispatch: { en: 'colour chosen for you at dispatch', hi: 'रंग भेजते समय आपके लिए चुना जाएगा' },
+    shopOpenPage: { en: 'Open the shop page', hi: 'दुकान का पेज खोलें' },
+    shopOpening: { en: 'Opening the shop.', hi: 'दुकान खुल रही है।' },
+    shopPay: { en: 'Pay {amount} on CCAvenue', hi: 'CCAvenue पर {amount} चुकाएँ' },
+    shopPaying: { en: 'Opening CCAvenue\'s secure payment page. You pay there; PFA never sees your card or UPI details. Your order confirmation comes by email.', hi: 'CCAvenue का सुरक्षित भुगतान पेज खुल रहा है। भुगतान वहीं होगा; PFA आपके कार्ड या UPI की जानकारी कभी नहीं देखता। ऑर्डर की पुष्टि ईमेल पर आएगी।' }
   };
 
   function t(key, lang, vars) {
@@ -293,7 +318,11 @@
     verify: { look: 'verify', title: { en: 'Check a certificate or card', hi: 'प्रमाणपत्र या कार्ड जाँचें' }, intro: { en: 'Anyone can check whether a PFA internship certificate or colony caregiver card is genuine.', hi: 'कोई भी जाँच सकता है कि PFA का इंटर्नशिप प्रमाणपत्र या कॉलोनी केयरगिवर कार्ड असली है या नहीं।' }, fields: ['certno'] },
     track: { look: 'track', title: { en: 'Follow an application or report', hi: 'आवेदन या रिपोर्ट की स्थिति' }, fields: ['reference', 'contact'] },
     receipt: { look: 'receipt', title: { en: 'Get a receipt', hi: 'रसीद पाएँ' }, intro: { en: 'I will send the receipt again to the email on the payment. It carries the link for the 80G tax receipt too. To find it, I need the email and mobile you paid with.', hi: 'मैं रसीद उसी ईमेल पर दोबारा भेजूँगा जो भुगतान पर दिया था। उसी में 80G कर रसीद का लिंक भी है। ढूँढने के लिए भुगतान वाला ईमेल और मोबाइल चाहिए।' }, fields: ['email', 'mobile'] },
-    nearby: { look: 'nearby', title: { en: 'Find help near me', hi: 'पास में मदद' }, fields: ['place'] }
+    nearby: { look: 'nearby', title: { en: 'Find help near me', hi: 'पास में मदद' }, fields: ['place'] },
+    /* the bag, paid for: who it is for and where it goes, then the bag
+       priced by the shop itself, then CCAvenue (20 Nov 2026) */
+    shopco: { pay: 'shop', title: { en: 'Your shop order', hi: 'आपका दुकान ऑर्डर' }, intro: { en: 'Who it is for and where it goes, then a last look at your order, then CCAvenue\'s secure page.', hi: 'किसके लिए और कहाँ भेजना है, फिर ऑर्डर पर आखिरी नज़र, फिर CCAvenue का सुरक्षित पेज।' },
+      fields: ['name', 'mobile', 'email', 'address'] }
   };
 
   /* Offerings finished on their own page, because of what they ask for
@@ -444,6 +473,7 @@
     /* ---- the menu ---- */
     function menu(first) {
       S.flow = ''; S.phase = 'menu'; S.step = 0; S.data = {}; S.addr = null; S.editing = false; S.pending = null; S.photosAsked = false; photos = [];
+      S.shopping = false; S.shopQuote = null;
       var chips = MENU.map(function (id) { return chip(id, lang()); }).concat([{ label: t('more', lang()), value: '#more' }]);
       return out([msg(t(first ? 'hello' : 'menuAgain', lang()), { chips: chips })]);
     }
@@ -537,6 +567,7 @@
 
     /* ---- starting something ---- */
     function begin(id, firstText) {
+      if (id === 'shop') return shopStart(firstText || '');
       if (PAGES[id]) {
         var p = PAGES[id];
         return out([msg(L(p.say, lang()), { links: [{ label: L(p.title, lang()), href: p.href }], chips: [{ label: t('menuChip', lang()), value: '#menu' }] })]);
@@ -1079,6 +1110,7 @@
       S.phase = 'summary'; S.editing = false;
       var flow = FLOWS[S.flow];
       if (flow.look) return lookUp();
+      if (flow.pay === 'shop') return shopSummary(lead, flow);
       var rows = fieldIds().filter(function (id) { return F[id].type !== 'consent'; }).map(function (id) { return [L(F[id].label, lang()), shown(id)]; });
       var go = flow.pay ? t(S.flow === 'donate' && S.data.frequency === 'monthly' && monthlyOn() ? 'payMonthly' : 'payNow', lang(), { amount: '₹' + Number(payAmount()).toLocaleString('en-IN') }) : t('send', lang());
       var chips = [{ label: go, value: '#send' }, { label: t('change', lang()), value: '#change' }, { label: t('cancel', lang()), value: '#cancel' }];
@@ -1091,6 +1123,7 @@
       ]));
     }
     function payAmount() {
+      if (S.flow === 'shopco') return S.shopQuote ? S.shopQuote.total : 0;
       if (S.flow === 'member') { var tier = O.tier.filter(function (x) { return x.value === S.data.tier; })[0]; return tier ? tier.amount : 0; }
       return Number(S.data.amount || 0);
     }
@@ -1147,6 +1180,7 @@
     function send() {
       var flow = FLOWS[S.flow];
       S.phase = 'waiting';
+      if (flow.pay === 'shop') return shopPay();
       if (flow.pay) {
         var fields = { type: flow.pay, currency: 'inr', name: S.data.name, mobile: S.data.mobile, email: S.data.email,
           address: S.data.address, house: S.data.house, street: S.data.street, pincode: S.data.pincode, city: S.data.city, state: S.data.state, district: S.data.district, terms: 'yes' };
@@ -1171,6 +1205,256 @@
     }
 
     /* the page reports back */
+    /* ---- the shop, in the chat (owner, 20 Nov 2026: "make chatbot show
+       shop items within the chat interface and add items to cart and
+       checkout and pay.. show preview as well. enterprise grade") ----
+       The pieces come from /api/shop/pieces, which reads lib/shop.js, the
+       one place a price is trusted. The bag is the shop page's own bag
+       (o.bag: the page keeps it in localStorage), so a piece added here is
+       in the bag on shop.html and the other way round. Before paying, the
+       bag is priced by the shop again (prices, and what is left of each
+       size), and that is the total shown and the total CCAvenue takes:
+       /api/shop/checkout prices it once more from the same list. */
+    var memBag = [];
+    var SHOP_FRESH_MS = 30 * 60000;
+    function shopMaxQty() { return (S.shop && S.shop.maxQty) || 10; }
+    function shopMaxLines() { return (S.shop && S.shop.maxLines) || 20; }
+    function cleanBag(b) {
+      var one = {}, kept = [];
+      (Array.isArray(b) ? b : []).forEach(function (l) {
+        if (!l || !l.id || (l.size !== 'L' && l.size !== 'XL')) return;
+        var q = Math.floor(Number(l.qty) || 0);
+        if (q < 1) return;
+        var k = String(l.id) + ':' + l.size;
+        if (one[k]) { one[k].qty = Math.min(one[k].qty + q, shopMaxQty()); return; }
+        one[k] = { id: String(l.id), size: l.size, qty: Math.min(q, shopMaxQty()) };
+        kept.push(one[k]);
+      });
+      return kept;
+    }
+    function bagGet() {
+      try { return cleanBag(o.bag && typeof o.bag.get === 'function' ? o.bag.get() : memBag); } catch (_) { return cleanBag(memBag); }
+    }
+    function bagSet(b) {
+      memBag = cleanBag(b);
+      try { if (o.bag && typeof o.bag.set === 'function') o.bag.set(memBag.slice()); } catch (_) { /* this visit only */ }
+      S.shopQuote = null;
+    }
+    function rs(n) { return '₹' + Number(n || 0).toLocaleString('en-IN'); }
+    function piece(id) { return ((S.shop && S.shop.pieces) || []).filter(function (p) { return p.id === String(id); })[0] || null; }
+    function pieces() { return (S.shop && S.shop.pieces) || []; }
+    function lineName(p, size) { return p.name + ', ' + (lang() === 'hi' ? 'साइज़ ' : 'size ') + size + (p.atDispatch ? ', ' + t('shopAtDispatch', lang()) : ''); }
+    function bagCount() { return bagGet().reduce(function (n, l) { return n + l.qty; }, 0); }
+    function bagChip() { return { label: t('shopBagChip', lang(), { n: bagCount() }), value: '#bag' }; }
+
+    /* the pieces, read once in a while; [next] is what to do once they are here */
+    function shopNeeds(next) {
+      if (S.shop && S.shop.pieces && S.shop.pieces.length && now() - (S.shop.at || 0) < SHOP_FRESH_MS) return null;
+      S.shopNext = next; S.phase = 'waiting';
+      return out([msg(t('shopOpening', lang()))], { action: { id: newId('shop-pieces'), type: 'shop-pieces' } });
+    }
+    function shopPiecesDone(r) {
+      S.phase = 'menu';
+      var next = S.shopNext || 'shelf';
+      S.shopNext = '';
+      if (!r || !r.ok || !r.pieces || !r.pieces.length) {
+        if (S.shop && S.shop.pieces && S.shop.pieces.length) S.shop.at = now();
+        else return out([msg(t('shopDown', lang()), { links: [{ label: t('shopOpenPage', lang()), href: 'shop.html' }], chips: [{ label: t('menuChip', lang()), value: '#menu' }] })]);
+      } else {
+        S.shop = { pieces: r.pieces, shipping: Number(r.shipping) || 0, maxQty: Number(r.maxQty) || 10, maxLines: Number(r.maxLines) || 20, at: now() };
+      }
+      var m = /^(add|look|text|check|bag):?(.*)$/.exec(next);
+      if (!m || m[1] === 'shelf') return shopShelf([]);
+      if (m[1] === 'bag') return shopBag([]);
+      if (m[1] === 'check') return shopCheckout();
+      if (m[1] === 'look') return shopLook(m[2], []);
+      if (m[1] === 'add') { var a = m[2].split(':'); return shopAdd(a[0], a[1] || '', Number(a[2]) || 1); }
+      return shopText(m[2]) || shopShelf([]);
+    }
+
+    function shopStart(firstText) {
+      S.shopping = true; S.phase = 'menu';
+      var wait = shopNeeds(firstText ? 'text:' + firstText : 'shelf');
+      if (wait) return wait;
+      return (firstText && shopText(firstText)) || shopShelf([]);
+    }
+    function cardOf(p) {
+      var inBag = bagGet().filter(function (l) { return l.id === p.id; }).reduce(function (n, l) { return n + l.qty; }, 0);
+      return { id: p.id, name: p.name, designer: p.designer, price: p.price, was: p.was || 0, image: p.image, sizes: p.sizes, atDispatch: Boolean(p.atDispatch), inBag: inBag };
+    }
+    function shopShelf(lead) {
+      S.shopping = true;
+      var chips = [];
+      if (bagCount()) chips.push(bagChip());
+      chips.push({ label: t('menuChip', lang()), value: '#menu' });
+      return out((lead || []).concat([msg(t('shopHello', lang()), { cards: pieces().map(cardOf), links: [{ label: t('shopOpenPage', lang()), href: 'shop.html' }], chips: chips })]));
+    }
+    function shopLook(id, lead) {
+      var p = piece(id);
+      if (!p) return shopShelf([msg(t('shopGone', lang()))]);
+      S.shopping = true;
+      var said = p.name + ', ' + rs(p.price) + (p.was ? (lang() === 'hi' ? ' (पहले ' + rs(p.was) + ')' : ' (was ' + rs(p.was) + ')') : '') + '.';
+      var chips = [];
+      if (bagCount()) chips.push(bagChip());
+      chips.push({ label: t('shopSeeAll', lang()), value: '#shop' }, { label: t('menuChip', lang()), value: '#menu' });
+      return out((lead || []).concat([msg(said, {
+        look: { id: p.id, name: p.name, designer: p.designer, price: p.price, was: p.was || 0, images: (p.images && p.images.length ? p.images : [p.image]).filter(Boolean), sizes: p.sizes, atDispatch: Boolean(p.atDispatch), href: p.href || 'shop.html' },
+        chips: chips
+      })]));
+    }
+    function shopAdd(id, size, qty) {
+      var wait = shopNeeds('add:' + id + ':' + (size || '') + ':' + (qty || 1));
+      if (wait) return wait;
+      var p = piece(id);
+      if (!p) return shopShelf([msg(t('shopGone', lang()))]);
+      size = String(size || '').toUpperCase();
+      if (p.sizes.indexOf(size) < 0) return shopLook(p.id, [msg(t('shopWhichSize', lang(), { sizes: p.sizes.join(lang() === 'hi' ? ' या ' : ' or ') }))]);
+      var bag = bagGet();
+      var line = bag.filter(function (l) { return l.id === p.id && l.size === size; })[0];
+      if (!line && bag.length >= shopMaxLines()) return shopBag([msg(t('shopMax', lang(), { n: shopMaxLines() }))]);
+      if (line && line.qty >= shopMaxQty()) return shopBag([msg(t('shopMax', lang(), { n: shopMaxQty() }))]);
+      var add = Math.max(1, Math.min(Math.floor(qty) || 1, shopMaxQty()));
+      if (line) line.qty = Math.min(line.qty + add, shopMaxQty());
+      else bag.push({ id: p.id, size: size, qty: add });
+      bagSet(bag);
+      return shopBag([msg(t('shopAdded', lang(), { what: (add > 1 ? add + ' x ' : '') + lineName(p, size) }))]);
+    }
+    function shopChange(id, size, by) {
+      var bag = bagGet();
+      var p = piece(id);
+      var line = bag.filter(function (l) { return l.id === String(id) && l.size === size; })[0];
+      if (!line) return shopBag([]);
+      if (by > 0 && line.qty >= shopMaxQty()) return shopBag([msg(t('shopMax', lang(), { n: shopMaxQty() }))]);
+      line.qty += by;
+      var lead = [];
+      if (line.qty < 1) {
+        bag = bag.filter(function (l) { return l !== line; });
+        if (p) lead.push(msg(t('shopRemoved', lang(), { what: lineName(p, size) })));
+      }
+      bagSet(bag);
+      return shopBag(lead);
+    }
+    function shopBag(lead) {
+      var wait = shopNeeds('bag');
+      if (wait) return wait;
+      S.shopping = true;
+      if (S.phase === 'summary' || S.phase === 'change') S.phase = 'menu';
+      var bag = bagGet();
+      /* a piece no longer in the shop leaves the bag, and is said */
+      var gone = bag.filter(function (l) { return !piece(l.id); });
+      if (gone.length) { bag = bag.filter(function (l) { return piece(l.id); }); bagSet(bag); lead = (lead || []).concat([msg(t('shopGone', lang()))]); }
+      if (!bag.length) {
+        return out((lead || []).concat([msg(t('shopEmpty', lang()), { chips: [{ label: t('shopSeeAll', lang()), value: '#shop' }, { label: t('menuChip', lang()), value: '#menu' }] })]));
+      }
+      var lines = bag.map(function (l) {
+        var p = piece(l.id);
+        return { id: p.id, size: l.size, qty: l.qty, name: p.name, image: p.image, unit: p.price, lineTotal: p.price * l.qty, atDispatch: Boolean(p.atDispatch) };
+      });
+      var subtotal = lines.reduce(function (n, l) { return n + l.lineTotal; }, 0);
+      var shipping = (S.shop && S.shop.shipping) || 0;
+      var chips = [
+        { label: t('shopCheckout', lang(), { amount: rs(subtotal + shipping) }), value: '#shopcheck' },
+        { label: t('shopSeeAll', lang()), value: '#shop' },
+        { label: t('shopEmptyChip', lang()), value: '#bagempty' },
+        { label: t('menuChip', lang()), value: '#menu' }
+      ];
+      return out((lead || []).concat([msg(t('shopBagTitle', lang()), {
+        bag: { lines: lines, subtotal: subtotal, shipping: shipping, total: subtotal + shipping, maxQty: shopMaxQty(), deliveryLabel: t('shopDelivery', lang()), totalLabel: t('shopTotal', lang()) },
+        chips: chips
+      })]));
+    }
+    function shopCheckout() {
+      var wait = shopNeeds('check');
+      if (wait) return wait;
+      if (!bagGet().length) return shopBag([]);
+      /* back from changing the bag, with the details already given: the last look */
+      if (S.flow === 'shopco' && S.data.name && S.data.address) return summary([]);
+      return begin('shopco', '');
+    }
+    /* a shop line, said in words: "add the sabyasachi tee in XL", "2 logo tees L", "my bag", "checkout" */
+    function shopText(text) {
+      /* one tee or two: "tees", "shirts" read as the piece */
+      var n = (' ' + N.normalise(text || '').replace(/-/g, ' ') + ' ').replace(/ (tee|shirt|tshirt|piece)s /g, ' $1 ');
+      var p = pieceIn(n);
+      if (!p) {
+        if (/ (checkout|check out|pay|place (the |my )?order|buy now) /.test(n) && bagGet().length) return shopCheckout();
+        if (/ (bag|cart|basket|trolley) /.test(n)) return shopBag([]);
+        return null;
+      }
+      var size = / (xl|x l|extra large|xtra large|double l) /.test(n) ? 'XL' : / (l|large|size l) /.test(n) ? 'L' : '';
+      var q = / ([1-9]|10) (x |pieces? |tees? |t shirts? |shirts? )?/.exec(n);
+      var qty = q ? Number(q[1]) : 1;
+      if (size) return shopAdd(p.id, size, qty);
+      return shopLook(p.id, []);
+    }
+    function pieceIn(n) {
+      var best = null, bestScore = 0;
+      pieces().forEach(function (p) {
+        var name = ' ' + N.normalise(p.name.replace(/\bx pfa\b/i, '')).replace(/-/g, ' ') + ' ';
+        var words = name.trim().split(/\s+/).filter(function (w) { return w.length > 2 && w !== 'pfa'; });
+        var hit = words.filter(function (w) { return n.indexOf(' ' + w + ' ') > -1; }).length;
+        var score = hit === words.length && words.length ? 10 + hit : 0;
+        /* the logo tee, asked for by what it is */
+        if (!score && p.kind === 'essentials' && / (logo|plain|basic|pfa|pfa logo) (tee|t shirt|tshirt|shirt) /.test(n)) score = 5;
+        if (score > bestScore) { best = p; bestScore = score; }
+      });
+      return best;
+    }
+    /* the buttons in a card, a closer look or the bag */
+    function shopCmd(s) {
+      var m = /^@shop:(add|look|qty|rm):([^:]+)(?::(L|XL|))?(?::(-?\d+))?$/.exec(s);
+      if (!m) return shopShelf([]);
+      var wait = shopNeeds(m[1] === 'add' ? 'add:' + m[2] + ':' + (m[3] || '') + ':1' : m[1] === 'look' ? 'look:' + m[2] : 'bag');
+      if (wait) return wait;
+      if (m[1] === 'add') return shopAdd(m[2], m[3] || '', 1);
+      if (m[1] === 'look') return shopLook(m[2], []);
+      if (m[1] === 'rm') { var l = bagGet().filter(function (x) { return x.id === m[2] && x.size === m[3]; })[0]; return shopChange(m[2], m[3], -(l ? l.qty : 0)); }
+      return shopChange(m[2], m[3], Number(m[4]) || 0);
+    }
+    /* the bag priced by the shop, then the last look */
+    function shopQuoteDone(r) {
+      if (r && r.ok && Array.isArray(r.lines)) {
+        S.shopQuote = { key: JSON.stringify(bagGet()), at: now(), lines: r.lines, subtotal: r.subtotal, shipping: r.shipping, total: r.total };
+        return summary([]);
+      }
+      S.phase = 'menu';
+      return shopBag([msg((r && r.message) || t('tryLater', lang()))]);
+    }
+    function shopSummary(lead, flow) {
+      var key = JSON.stringify(bagGet());
+      var q = S.shopQuote;
+      if (!q || q.key !== key || now() - q.at > 120000) {
+        if (!bagGet().length) { S.phase = 'menu'; return shopBag(lead); }
+        S.phase = 'waiting';
+        return out((lead || []).concat([msg(t('shopPricing', lang()))]), { action: { id: newId('shop-quote'), type: 'shop-quote', items: bagGet() } });
+      }
+      var rows = q.lines.map(function (l) {
+        var p = piece(l.id);
+        return [(l.qty > 1 ? l.qty + ' x ' : '') + (p ? lineName(p, l.size) : l.name + ', ' + l.size), rs(l.lineTotal)];
+      }).concat([[t('shopDelivery', lang()), rs(q.shipping)], [t('shopTotal', lang()), rs(q.total)]])
+        .concat(fieldIds().map(function (id) { return [L(F[id].label, lang()), shown(id)]; }));
+      var chips = [
+        { label: t('shopPay', lang(), { amount: rs(q.total) }), value: '#send' },
+        { label: t('shopEditBag', lang()), value: '#bag' },
+        { label: t('change', lang()), value: '#change' },
+        { label: t('cancel', lang()), value: '#cancel' }
+      ];
+      return out((lead || []).concat([
+        msg(t('checkTitle', lang()) + ' ' + L(flow.title, lang()), { list: rows }),
+        msg(t('shopPayNote', lang()), { chips: chips })
+      ]));
+    }
+    function shopPay() {
+      var bag = bagGet();
+      var d = S.data;
+      var fields = {
+        items: JSON.stringify(bag.map(function (l) { return { id: l.id, size: l.size, qty: l.qty }; })),
+        name: d.name, mobile: d.mobile, email: d.email,
+        house: d.house, street: d.street, address: d.address, city: d.city, district: d.district, state: d.state, pincode: d.pincode
+      };
+      return out([msg(t('shopPaying', lang()))], { action: { id: newId('pay'), type: 'shop-pay', fields: fields } });
+    }
+
     function done(id, result) {
       if (!S.pending || id !== S.pending) return out([]);
       var type = S.pendingType;
@@ -1178,6 +1462,8 @@
       var r = result || {};
       if (type === 'pin') return addressDone(r);
       if (type === 'search') return searchDone(r);
+      if (type === 'shop-pieces') return shopPiecesDone(r);
+      if (type === 'shop-quote') return shopQuoteDone(r);
       var flow = FLOWS[S.flow] || {};
       var after = [{ label: t('menuChip', lang()), value: '#menu' }];
       if (flow.look === 'track') {
@@ -1348,6 +1634,11 @@
       /* the page's own buttons */
       if (s === '#menu') return menu(false);
       if (s === '#more') return more();
+      /* the shop's buttons, from wherever they were tapped */
+      if (s.indexOf('@shop:') === 0) return shopCmd(s);
+      if (s === '#bag') return shopBag([]);
+      if (s === '#shopcheck') return shopCheckout();
+      if (s === '#bagempty') { bagSet([]); return shopBag([msg(t('shopEmptied', lang()))]); }
       if (s === '#cancel') { var was = S.phase !== 'menu'; var c1 = menu(false); if (was) c1.messages.unshift(msg(t('cancelled', lang()))); return c1; }
       if (s === '#change' && S.phase === 'summary') return changeMenu();
       if (s === '#send' && S.phase === 'summary') return send();
@@ -1410,6 +1701,8 @@
         var lp = S.lastPerson;
         return out([msg(aboutPerson(lp) + ' ' + t('noMore', lang(), { name: lp.name }), { links: lp.works.map(function (w) { return { label: w.title, href: w.href }; }), chips: [{ label: t('menuChip', lang()), value: '#menu' }] })]);
       }
+      /* while shopping: a piece, a size, the bag or checkout, in words */
+      if (S.shopping && S.shop) { var shopSaid = shopText(s); if (shopSaid) return shopSaid; }
       /* free text at the menu: what do they want? */
       var intents = N.intentOf(s);
       var top = intents[0];

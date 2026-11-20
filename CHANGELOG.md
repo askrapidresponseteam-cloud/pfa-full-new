@@ -1,3 +1,14 @@
+## v1.611
+
+- **Shop inside the chat: see the pieces, add to the bag, check out and pay, without leaving the chat.** Owner, 20 Nov 2026: "make chatbot show shop items within the chat interface and add items to cart and checkout and pay.. show preview as well. enterprise grade".
+  - **The pieces as cards** you swipe through: photograph, name, price and the price it was, sizes L and XL, and Add. Saying "shop", "buy a t-shirt" or "add 2 logo tees L" works too; "gaurav gupta charcoal XL" adds that exact piece.
+  - **A closer look**: tap a photograph for the large picture (and the others, when a piece has more), the designer, the price, the sizes and Add, with a link to the piece on the shop page.
+  - **The bag in the chat**: each line with its photograph, size, price, one more, one fewer and Remove, then pieces, delivery and the total. **It is the shop page's own bag**: add in the chat and it is in the bag on shop.html, at once, and the other way round.
+  - **Checkout**: name, mobile, email and the delivery address with the same PIN, town, house and street checks as every form. Then the bag is **priced by the shop itself** (lib/shop.js, the one place a price is trusted) with each size's stock checked, and the last look shows every line, delivery, the total and the address, with Pay, Change the bag, Change something and Cancel.
+  - **Paying** posts the order to the shop's own checkout (/api/shop/checkout), which prices it once more, reserves the stock and opens CCAvenue's own page, exactly as the shop page does. No amount is sent from the browser. The bag is emptied by the confirmation page once paid.
+  - New: /api/shop/pieces (the pieces, and a bag priced). If the shop cannot be read, the chat offers the shop page instead.
+- Also in this build, from v1.610: Overview and Payments show the same money, and keep themselves current.
+
 ## v1.610
 
 - **Overview and Payments show the same money, always.** Owner, 20 Nov 2026: "something wrong with pfa site donation calc ... in 1 it says 340. in another 229 ... everything needs to be realtime and perfectly calculated". Overview said ₹1,45,229 from 135 payments, which was the last 30 days; Payments said ₹1,45,340 from 136, which is all time. The one payment between them (₹111) is more than 30 days old. Two periods, two different sums of the same payments, side by side: now there is one.

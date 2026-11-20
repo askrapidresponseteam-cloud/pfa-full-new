@@ -18,6 +18,10 @@
      a receipt         POST /api/assistant/receipt (sent again to the email
                        on the payment, never shown here)
      a PIN code        GET  /api/location-lookup?pin=
+     the shop          GET  /api/shop/pieces (what is on sale), POST it the
+                       bag to price it before paying, then a form posted to
+                       /api/shop/checkout, which opens CCAvenue's own page,
+                       exactly as the shop page's own checkout does
      a question        the site search already on the page (pfa-search.js)
      a person          /api/live-chat (lib/routes/live-chat.js): offered only
                        while someone in the panel is available; this page
@@ -47,6 +51,18 @@
   function monthly() {
     try { var v = window.PFA_VISIBILITY && window.PFA_VISIBILITY.state(); return Boolean(v && v.choices && v.choices['donate#monthly'] === 'on'); } catch (_) { return false; }
   }
+
+  /* The shop page's own bag (assets/shop.js, localStorage 'pfa-shop-bag'):
+     a piece added in the chat is in the bag on shop.html, and the other way
+     round. The shop page is told at once when the chat changes it. */
+  var BAG_KEY = 'pfa-shop-bag';
+  var shopBag = {
+    get: function () { try { return JSON.parse(localStorage.getItem(BAG_KEY) || '[]') || []; } catch (_) { return []; } },
+    set: function (list) {
+      try { localStorage.setItem(BAG_KEY, JSON.stringify(list || [])); } catch (_) { /* this visit only */ }
+      try { window.dispatchEvent(new CustomEvent('pfa:bag', { detail: { from: 'assistant' } })); } catch (_) { /* old browser */ }
+    }
+  };
 
   function store(open) {
     try { sessionStorage.setItem(KEY, JSON.stringify({ state: session.state(), log: log.slice(-MAX_LOG), open: open })); } catch (_) { /* storage off or full */ }
@@ -184,6 +200,10 @@
       });
       div.appendChild(links);
     }
+    if ((m.cards && m.cards.length) || m.look || m.bag) div.className += ' pfa-asst__m--wide';
+    if (m.cards && m.cards.length) div.appendChild(shopCards(m.cards));
+    if (m.look) div.appendChild(shopLook(m.look));
+    if (m.bag) div.appendChild(shopBagView(m.bag, live));
     if (live && m.chips && m.chips.length) {
       var chips = el('div', 'pfa-asst__chips');
       m.chips.forEach(function (c) {
@@ -203,9 +223,157 @@
     logEl.appendChild(div);
   }
 
-  /* the earlier messages' buttons stand down once there is a newer one */
+  /* the earlier messages' buttons stand down once there is a newer one
+     (a bag's own buttons too: only the newest bag is the bag) */
   function retire() {
-    Array.prototype.forEach.call(logEl.querySelectorAll('.pfa-asst__chips button'), function (b) { b.disabled = true; });
+    Array.prototype.forEach.call(logEl.querySelectorAll('.pfa-asst__chips button, .pfa-asst__bag button'), function (b) { b.disabled = true; });
+  }
+
+  /* ---- the shop, drawn in the chat (20 Nov 2026) ---- */
+  function rupees(n) { return '\u20b9' + Number(n || 0).toLocaleString('en-IN'); }
+  function img(src, alt, cls) {
+    var i = el('img', cls);
+    i.src = /^(?:https?:|\/)/.test(src) ? src : '/' + src;
+    i.alt = alt || '';
+    i.loading = 'lazy';
+    i.decoding = 'async';
+    return i;
+  }
+  function price(p, was) {
+    var w = el('p', 'pfa-asst__price');
+    w.appendChild(el('b', '', rupees(p)));
+    if (was && was > p) { var s = el('s', '', rupees(was)); s.setAttribute('aria-label', 'was ' + rupees(was)); w.appendChild(s); }
+    return w;
+  }
+  /* one size at a time, as a pair of buttons; the Add button carries it */
+  function sizePick(item, onPick) {
+    var row = el('div', 'pfa-asst__sizes');
+    row.setAttribute('role', 'group');
+    row.setAttribute('aria-label', 'Size');
+    var chosen = item.sizes.length === 1 ? item.sizes[0] : '';
+    item.sizes.forEach(function (sz) {
+      var b = el('button', '', sz);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(sz === chosen));
+      b.addEventListener('click', function () {
+        chosen = sz;
+        Array.prototype.forEach.call(row.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        onPick(sz);
+      });
+      row.appendChild(b);
+    });
+    onPick(chosen);
+    return row;
+  }
+  function addButton(item) {
+    var size = '';
+    var wrap = el('div', 'pfa-asst__buy');
+    var add = el('button', 'pfa-asst__add', 'Add to bag');
+    add.type = 'button';
+    var picker = sizePick(item, function (sz) { size = sz; add.textContent = sz ? 'Add, size ' + sz : 'Add to bag'; });
+    add.addEventListener('click', function () {
+      if (busy) return;
+      if (!size) { picker.classList.add('is-ask'); var first = picker.querySelector('button'); if (first) first.focus(); return; }
+      picker.classList.remove('is-ask');
+      say('Add ' + item.name + ', size ' + size, '@shop:add:' + item.id + ':' + size, true);
+    });
+    wrap.appendChild(picker);
+    wrap.appendChild(add);
+    return wrap;
+  }
+  function shopCards(cards) {
+    var row = el('div', 'pfa-asst__cards');
+    row.setAttribute('role', 'list');
+    cards.forEach(function (c) {
+      var card = el('div', 'pfa-asst__card');
+      card.setAttribute('role', 'listitem');
+      var look = el('button', 'pfa-asst__pic');
+      look.type = 'button';
+      look.setAttribute('aria-label', 'A closer look at ' + c.name);
+      look.appendChild(img(c.image, c.name));
+      look.addEventListener('click', function () { if (!busy) say(c.name, '@shop:look:' + c.id, true); });
+      card.appendChild(look);
+      card.appendChild(el('p', 'pfa-asst__name', c.name));
+      card.appendChild(price(c.price, c.was));
+      if (c.inBag) card.appendChild(el('p', 'pfa-asst__inbag', c.inBag + ' in your bag'));
+      card.appendChild(addButton(c));
+      row.appendChild(card);
+    });
+    return row;
+  }
+  function shopLook(p) {
+    var box = el('div', 'pfa-asst__look');
+    var main = img(p.images[0], p.name, 'pfa-asst__lookimg');
+    box.appendChild(main);
+    if (p.images.length > 1) {
+      var thumbs = el('div', 'pfa-asst__thumbs');
+      p.images.forEach(function (src, i) {
+        var b = el('button');
+        b.type = 'button';
+        b.setAttribute('aria-label', 'Photograph ' + (i + 1) + ' of ' + p.images.length);
+        b.setAttribute('aria-current', String(i === 0));
+        b.appendChild(img(src, ''));
+        b.addEventListener('click', function () {
+          main.src = /^(?:https?:|\/)/.test(src) ? src : '/' + src;
+          Array.prototype.forEach.call(thumbs.children, function (x) { x.setAttribute('aria-current', String(x === b)); });
+        });
+        thumbs.appendChild(b);
+      });
+      box.appendChild(thumbs);
+    }
+    box.appendChild(el('p', 'pfa-asst__name', p.name));
+    if (p.designer) box.appendChild(el('p', 'pfa-asst__by', 'By ' + p.designer));
+    box.appendChild(price(p.price, p.was));
+    if (p.atDispatch) box.appendChild(el('p', 'pfa-asst__by', 'Colour chosen for you at dispatch, from what is on the shelf.'));
+    box.appendChild(addButton(p));
+    var page = el('a', 'pfa-asst__more', 'See it on the shop page');
+    page.href = '/' + String(p.href || 'shop.html').replace(/^\//, '');
+    page.addEventListener('click', function () { store(true); });
+    box.appendChild(page);
+    return box;
+  }
+  function shopBagView(b, live) {
+    var box = el('div', 'pfa-asst__bag');
+    var list = el('ul');
+    b.lines.forEach(function (l) {
+      var li = el('li');
+      li.appendChild(img(l.image, ''));
+      var mid = el('div', 'pfa-asst__bagmid');
+      mid.appendChild(el('p', 'pfa-asst__name', l.name));
+      mid.appendChild(el('p', 'pfa-asst__by', 'Size ' + l.size + (l.atDispatch ? ', colour chosen at dispatch' : '') + ' \u00b7 ' + rupees(l.unit) + ' each'));
+      var qty = el('div', 'pfa-asst__qty');
+      var minus = el('button', 'pfa-asst__less', '');
+      minus.type = 'button';
+      minus.setAttribute('aria-label', 'One fewer ' + l.name + ', size ' + l.size);
+      var n = el('span', '', String(l.qty));
+      n.setAttribute('aria-label', l.qty + ' in the bag');
+      var plus = el('button', 'pfa-asst__plus', '');
+      plus.type = 'button';
+      plus.setAttribute('aria-label', 'One more ' + l.name + ', size ' + l.size);
+      plus.disabled = !live || l.qty >= b.maxQty;
+      minus.disabled = !live;
+      var rm = el('button', 'pfa-asst__rm', 'Remove');
+      rm.type = 'button';
+      rm.disabled = !live;
+      minus.addEventListener('click', function () { if (!busy) say(l.qty > 1 ? 'One fewer ' + l.name : 'Remove ' + l.name, '@shop:qty:' + l.id + ':' + l.size + ':-1', true); });
+      plus.addEventListener('click', function () { if (!busy) say('One more ' + l.name, '@shop:qty:' + l.id + ':' + l.size + ':1', true); });
+      rm.addEventListener('click', function () { if (!busy) say('Remove ' + l.name + ', size ' + l.size, '@shop:rm:' + l.id + ':' + l.size, true); });
+      qty.appendChild(minus); qty.appendChild(n); qty.appendChild(plus); qty.appendChild(rm);
+      mid.appendChild(qty);
+      li.appendChild(mid);
+      li.appendChild(el('b', 'pfa-asst__line', rupees(l.lineTotal)));
+      list.appendChild(li);
+    });
+    box.appendChild(list);
+    var dl = el('dl');
+    [[b.lines.reduce(function (s2, l) { return s2 + l.qty; }, 0) === 1 ? '1 piece' : b.lines.reduce(function (s2, l) { return s2 + l.qty; }, 0) + ' pieces', rupees(b.subtotal)], [b.deliveryLabel, rupees(b.shipping)], [b.totalLabel, rupees(b.total)]].forEach(function (r, i) {
+      var d = el('div', i === 2 ? 'is-total' : '');
+      d.appendChild(el('dt', '', r[0]));
+      d.appendChild(el('dd', '', r[1]));
+      dl.appendChild(d);
+    });
+    box.appendChild(dl);
+    return box;
   }
 
   function show(o, mine) {
@@ -344,9 +512,21 @@
 
   function act(a) {
     if (a.type === 'pay') return pay(a);
+    if (a.type === 'shop-pay') return pay(a, '/api/shop/checkout');
     if (/^live-/.test(a.type)) return liveAct(a);
     waitOn();
     var fail = function () { finish(a.id, { ok: false }); };
+    if (a.type === 'shop-pieces') {
+      return fetch('/api/shop/pieces', { headers: { Accept: 'application/json' } }).then(json).then(function (r) {
+        finish(a.id, r.ok ? Object.assign({ ok: true }, r.p) : { ok: false });
+      }).catch(function () { finish(a.id, { ok: false }); });
+    }
+    if (a.type === 'shop-quote') {
+      return fetch('/api/shop/pieces', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ items: a.items }) })
+        .then(json).then(function (r) {
+          finish(a.id, r.ok ? Object.assign({ ok: true }, r.p) : { ok: false, message: (r.p && r.p.message) || '' });
+        }).catch(function () { finish(a.id, { ok: false }); });
+    }
     if (a.type === 'pin') {
       return pinPlace(a.pin).then(function (r) {
         if (r.status === 404 || r.status === 400) return finish(a.id, { bad: true });
@@ -595,10 +775,10 @@
   }
 
   /* CCAvenue's own page, through the same door the site's buttons use */
-  function pay(a) {
+  function pay(a, to) {
     var f = doc.createElement('form');
     f.method = 'post';
-    f.action = '/api/payment/create';
+    f.action = to || '/api/payment/create';
     f.hidden = true;
     var fields = Object.assign({}, a.fields, { client_ref: 'assistant-' + rand() });
     Object.keys(fields).forEach(function (k) {
@@ -636,7 +816,7 @@
     var kept = load();
     var lang = (doc.documentElement.getAttribute('lang') || '').indexOf('hi') === 0 ? 'hi' : 'en';
     if (kept && kept.state) {
-      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline });
+      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline, bag: shopBag });
       log = kept.log || [];
       log.forEach(function (x, i) { draw(x.who === 'me' ? { text: x.text, cid: x.cid, n: x.n, st: x.st === 'sending' ? 'failed' : x.st } : x.m, x.who, i === log.length - 1); });
       /* a payment page opened and came back, or the tab was reloaded mid-send:
@@ -648,7 +828,7 @@
       if (kept.state.phase === 'live') { if (kept.state.live && kept.state.live.id) poll(); else show(session.tap('#endlive'), null); }
       logEl.scrollTop = logEl.scrollHeight;
     } else {
-      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline });
+      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline, bag: shopBag });
       show(session.start(), null);
     }
   }

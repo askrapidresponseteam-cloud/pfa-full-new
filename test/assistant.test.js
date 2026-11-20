@@ -316,7 +316,8 @@ test('on every page, loaded only when opened, talking only to the site itself', 
   for (const c of calls) assert.match(c, /^\/api\/|^\/assets\/assistant-answers\.json$/, c);
   assert.doesNotMatch(all, /https?:\/\/(?!peopleforanimalsindia)[a-z0-9.-]+\.(?:com|ai|io|org|net)\/[a-z]/i, 'no outside address');
   assert.doesNotMatch(all, /[–—]/, 'no long dash');
-  assert.match(read('assets/assistant.js'), /f\.action = '\/api\/payment\/create';/, 'payments through the site\'s own door to CCAvenue');
+  assert.match(read('assets/assistant.js'), /f\.action = to \|\| '\/api\/payment\/create';/, 'payments through the site\'s own door to CCAvenue');
+  assert.match(read('assets/assistant.js'), /pay\(a, '\/api\/shop\/checkout'\)/, 'and a shop order through the shop\'s own checkout (20 Nov 2026)');
   /* every page that has the chrome has the button, through chrome.js */
   for (const page of ['index.html', 'report.html', 'donate.html', 'units/agra.html']) assert.match(read(page), /assets\/chrome\.js\?v=/, page);
 });
