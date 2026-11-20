@@ -130,7 +130,8 @@ test('the public check and the email say what it is for', async () => {
   assert.equal(v.statusCode, 200);
   assert.deepEqual([v.json.kind, v.json.kindLabel, v.json.title, v.json.about, v.json.colour], ['participation', 'Participation', 'Certificate of Participation', 'Vaccination camp, Udupi, 9 November 2026', 'blue']);
   const page = read('verify-certificate.html');
-  assert.match(page, /var NUMBER = \/\^PFA-\(INT\|VOL\|PAR\|REC\|DNR\)-\[A-HJ-NP-Z2-9\]\{8\}\$\/;/);
+  /* and a letter, PFA-LET- (20 Nov 2026, test/letters.test.js) */
+  assert.match(page, /var NUMBER = \/\^PFA-\(INT\|VOL\|PAR\|REC\|DNR\|LET\)-\[A-HJ-NP-Z2-9\]\{8\}\$\/;/);
   assert.match(read('certificate.html'), /record = \{ kind: d\.kind \|\| 'internship', colour: d\.colour, line: d\.line, date: d\.date,/);
   const letter = MAIL.TEMPLATES.internship_certificate({ kind: 'participation', name: 'Ravi Kumar', number: n, line: 'Vaccination camp, Udupi', date: '2026-11-09', issuedOn: '2026-11-15' });
   assert.equal(letter.subject, `Your PFA certificate of participation - ${n}`);

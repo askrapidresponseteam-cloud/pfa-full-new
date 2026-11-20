@@ -47,9 +47,9 @@ async function make(letter, number) {
 const SOHAN = { id: 'P00002', name: 'Sohan Ashok Banasode', email: 'sohan@example.com', mobile: '6361825963', address: 'House No 10, Shantinagar, Athani 591304', district: 'Belagavi (Belgaum)', state: 'Karnataka', pin: '591304', categories: ['member'], otherEmails: [] };
 const RAYA = { id: 'P00001', name: 'Raya Shah', email: 'raya@example.com', mobile: '9876500000', address: '4 Temple Road, Udupi 576101', district: 'Udupi', state: 'Karnataka', pin: '576101', categories: ['donor'], otherEmails: [] };
 
-function appreciation(person) {
+function appreciation(person, amount = '₹5,000') {
   const t = L.TEMPLATES.appreciation;
-  return { kind: 'appreciation', date: '2026-11-20', recipient: L.recipientOf(person), subject: t.subject, salutation: t.salutation, body: t.body.split('[Name]').join(person.name), closing: t.closing, person: { id: person.id, name: person.name, email: person.email }, email: person.email };
+  return { kind: 'appreciation', date: '2026-11-20', recipient: L.recipientOf(person), subject: t.subject, salutation: t.salutation, body: t.body.split('[Name]').join(person.name).split('[Amount]').join(amount), closing: t.closing, person: { id: person.id, name: person.name, email: person.email }, email: person.email, amount };
 }
 
 test('the person chosen: their name and address on the letter, the district and state when the address lacks them', () => {
@@ -75,28 +75,30 @@ test('a blank left in it is refused on issue, never on preview: [Name] means nob
 
 test('the letter: the studio\'s layout in Arial\'s widths, bold where asked, the rupee and an Indian script drawn', async () => {
   const v = L.check(Object.assign(appreciation(RAYA), { body: appreciation(RAYA).body + '\n\nA gift of ₹5,000 from आशा.' }), NOW, true).values;
-  const out = await make(v, 'PFA/LET/2026/00007');
+  const out = await make(v, 'PFA-LET-K7M2Q9XA');
   assert.equal(out.bytes.subarray(0, 5).toString('latin1'), '%PDF-');
-  assert.match(out.all, /Ref: PFA\/LET\/2026\/00007/);
+  assert.match(out.all, /Ref: PFA-LET-K7M2Q9XA/);
   assert.match(out.all, /20 November 2026/);
   assert.match(out.all, /Raya Shah/);
   assert.match(out.all, /4 Temple Road, Udupi 576101/);
   assert.match(out.all, /CERTIFICATE OF APPRECIATION/);
+  assert.match(out.all, /contribution of ₹5,000 to/, 'how much they gave');
   const fonts = new Set(out.drawn.map((d) => d.font));
   assert.ok([...fonts].some((f) => /LiberationSans-Bold/.test(f)) && [...fonts].some((f) => /^LiberationSans$|LiberationSans(?!-)/.test(f)), 'Liberation Sans, Arial\'s widths');
   assert.ok(out.drawn.some((d) => d.text === 'Animals' && /Bold/.test(d.font)), 'People for Animals in bold');
   assert.ok(out.drawn.some((d) => d.text.startsWith(',') && !/Bold/.test(d.font)), 'and the comma straight after it, no space before');
   assert.ok(out.drawn.some((d) => d.text === '₹' && /Noto/.test(d.font)), 'the rupee sign');
   assert.ok(out.drawn.some((d) => /आशा/.test(d.text) && /Devanagari/.test(d.font)), 'a name in Hindi, in its own font');
-  assert.match(out.all, /peopleforanimalsindia\.org/);
-  assert.match(out.all, /1 \/ \d/);
+  /* owner, 20 Nov 2026: "dont need this", of the foot */
+  assert.ok(!out.drawn.some((d) => d.text === 'peopleforanimalsindia.org'), 'no site address at the foot');
+  assert.doesNotMatch(out.all, /\d \/ \d/, 'no page number');
   assert.equal(out.images.length, 3 * 1 + (out.pages - 1), 'letterhead on each page, the signature and the seal once');
 });
 
 test('the letterhead, the signature and the seal: each sized and placed as set, within limits; off when unticked', async () => {
   const base = L.check(appreciation(RAYA), NOW, true).values;
-  const plain = await make(base, 'PFA/LET/2026/00001');
-  const moved = await make(Object.assign({}, base, { layout: { headSize: 60, headX: 10, headY: 5, sigSize: 50, sigX: 20, sigY: -5, sealSize: 30, sealX: -40, sealY: 8 } }), 'PFA/LET/2026/00001');
+  const plain = await make(base, 'PFA-LET-ABCDEF22');
+  const moved = await make(Object.assign({}, base, { layout: { headSize: 60, headX: 10, headY: 5, sigSize: 50, sigX: 20, sigY: -5, sealSize: 30, sealX: -40, sealY: 8 } }), 'PFA-LET-ABCDEF22');
   const MM = 72 / 25.4;
   const [h0, s0, z0] = plain.images;
   const [h1, s1, z1] = moved.images;
@@ -107,8 +109,12 @@ test('the letterhead, the signature and the seal: each sized and placed as set, 
   assert.ok(Math.abs(s0.w - 75 * MM) < 0.5 && Math.abs(s1.w - 50 * MM) < 0.5, 'the signature 75 mm, then 50');
   assert.ok(Math.abs((s1.x - s0.x) - 20 * MM) < 0.5, 'the signature 20 mm in');
   assert.ok(Math.abs(z0.w - 43 * MM) < 0.5 && Math.abs(z1.w - 30 * MM) < 0.5, 'the seal 43 mm, then 30');
-  assert.deepEqual(L.layoutOf({ headSize: 500, sigX: -9, sealSize: 'x' }), Object.assign(L.layoutOf({}), { headSize: 100, sigX: 0 }), 'held within the limits');
-  const bare = await make(Object.assign({}, base, { signed: false, sealed: false }), 'PFA/LET/2026/00001');
+  assert.deepEqual(L.layoutOf({ headSize: 500, sigX: -40, sealX: 40, sealSize: 'x' }), Object.assign(L.layoutOf({}), { headSize: 100, sigX: -16, sealX: 16 }), 'held within the limits: 3 mm off the paper\'s edge');
+  /* owner, 20 Nov 2026: "there should be option to move this further left" */
+  const left = await make(Object.assign({}, base, { layout: { sigX: -16, sealX: 16 } }), 'PFA-LET-ABCDEF22');
+  assert.ok(Math.abs(left.images[1].x - 3 * MM) < 0.5, 'the signature can sit 3 mm from the left edge, left of the text');
+  assert.ok(Math.abs(left.images[2].x + left.images[2].w - (210 - 3) * MM) < 0.5, 'the seal 3 mm from the right edge');
+  const bare = await make(Object.assign({}, base, { signed: false, sealed: false }), 'PFA-LET-ABCDEF22');
   assert.equal(bare.images.length, 1, 'only the letterhead');
   assert.match(bare.all, /Maneka Sanjay Gandhi/, 'her name, typed, in place of the signature');
 });
@@ -116,10 +122,10 @@ test('the letterhead, the signature and the seal: each sized and placed as set, 
 test('a long letter runs on: the letterhead and "Continued" on each page, the signature kept with its closing words', async () => {
   const v = L.check(appreciation(RAYA), NOW, true).values;
   const long = Object.assign({}, v, { body: Array(6).fill(v.body).join('\n\n') });
-  const out = await make(long, 'PFA/LET/2026/00003');
+  const out = await make(long, 'PFA-LET-K7M2Q9XB');
   assert.ok(out.pages >= 3);
   assert.equal(out.drawn.filter((d) => /Continued/.test(d.text)).length, out.pages - 1);
-  assert.ok(out.drawn.some((d) => d.text === `${out.pages} / ${out.pages}`));
+  assert.ok(!out.drawn.some((d) => d.text === `${out.pages} / ${out.pages}`), 'and no page numbers');
 });
 
 /* ---- the route --------------------------------------------------------- */
@@ -133,10 +139,12 @@ function harness() {
   const delivered = [];
   const guarded = [];
   let who = { uid: 'u1', email: 'office@pfa.test', name: 'Office', role: 'super' };
+  let n = 1;
   const handler = ROUTE.createHandler({
     getDb: () => db,
     requireAdmin: async (req, res, module) => { guarded.push(module); return who; },
     now: () => NOW,
+    makeNumber: () => `PFA-LET-ABCDEF2${++n}`,
     readPeople: async () => [RAYA, SOHAN],
     fileStore: {
       put: async (p, bytes) => { files.set(p, Buffer.from(bytes)); return { storage: 'test', path: p }; },
@@ -178,7 +186,7 @@ test('the route: its own module; people found with their address and email; the 
   assert.deepEqual((await h.call('GET', { query: { people: '' } })).json.people, []);
 });
 
-test('preview, then issue: the next reference of the year, the record and the PDF kept as issued, all in the audit log', async () => {
+test('preview, then issue: a reference at random, the record and the PDF kept as issued, all in the audit log', async () => {
   const h = harness();
   const pv = await h.call('POST', { body: { action: 'preview', letter: appreciation(RAYA) } });
   assert.equal(pv.statusCode, 200);
@@ -188,25 +196,25 @@ test('preview, then issue: the next reference of the year, the record and the PD
 
   const one = await h.call('POST', { body: { action: 'issue', letter: appreciation(RAYA) } });
   assert.equal(one.statusCode, 200, JSON.stringify(one.json));
-  assert.equal(one.json.letter.number, 'PFA/LET/2026/00001');
+  assert.equal(one.json.letter.number, 'PFA-LET-ABCDEF22');
   assert.equal(one.json.letter.email, 'raya@example.com', 'the person\'s email, ready');
   const two = await h.call('POST', { body: { action: 'issue', letter: appreciation(SOHAN) } });
-  assert.equal(two.json.letter.number, 'PFA/LET/2026/00002');
-  const rec = (await h.db.collection('letters').doc('PFA-LET-2026-00001').get()).data();
+  assert.equal(two.json.letter.number, 'PFA-LET-ABCDEF23');
+  const rec = (await h.db.collection('letters').doc('PFA-LET-ABCDEF22').get()).data();
   assert.equal(rec.recipient, 'Raya Shah\n4 Temple Road, Udupi 576101\nKarnataka', 'the district not said twice');
   assert.deepEqual(rec.layout, L.layoutOf({}));
   assert.equal(rec.issuedBy.email, 'office@pfa.test');
-  const kept = h.files.get('letters/PFA-LET-2026-00001.pdf');
+  const kept = h.files.get('letters/PFA-LET-ABCDEF22.pdf');
   assert.ok(kept && kept.equals(Buffer.from(one.json.pdf, 'base64')), 'the PDF kept is the one issued');
   assert.equal(rec.pdf.sha256, crypto.createHash('sha256').update(kept).digest('hex'));
-  const dl = await h.call('GET', { query: { number: 'PFA/LET/2026/00001', format: 'pdf' } });
+  const dl = await h.call('GET', { query: { number: 'PFA-LET-ABCDEF22', format: 'pdf' } });
   assert.equal(dl.headers['content-type'], 'application/pdf');
   assert.ok(Buffer.from(dl.raw).equals(kept), 'downloaded as issued');
-  assert.match(dl.headers['content-disposition'], /PFA-letter-PFA-LET-2026-00001\.pdf/);
+  assert.match(dl.headers['content-disposition'], /PFA-letter-PFA-LET-ABCDEF22\.pdf/);
   const log = (await h.db.collection('adminAudit').get()).docs.map((d) => d.data()).filter((a) => a.module === 'letters').map((a) => a.action);
   assert.deepEqual(log.sort(), ['letter-downloaded', 'letter-issued', 'letter-issued']);
   const listed = (await h.call('GET')).json.letters.map((l) => l.number);
-  assert.deepEqual(listed, ['PFA/LET/2026/00002', 'PFA/LET/2026/00001']);
+  assert.deepEqual(listed, ['PFA-LET-ABCDEF23', 'PFA-LET-ABCDEF22']);
 });
 
 test('nothing is issued with a blank in it, nor longer than the most pages, and no reference is used up by a refusal', async () => {
@@ -220,28 +228,28 @@ test('nothing is issued with a blank in it, nor longer than the most pages, and 
   assert.equal(long.statusCode, 422);
   assert.match(long.json.message, /pages; the most is 6/);
   const ok = await h.call('POST', { body: { action: 'issue', letter: appreciation(RAYA) } });
-  assert.equal(ok.json.letter.number, 'PFA/LET/2026/00001', 'the first number, still');
+  assert.equal(ok.json.letter.number, 'PFA-LET-ABCDEF22', 'no reference used up by the refusals');
 });
 
 test('emailed with its PDF, to the person\'s email or another; the email seen first; a withdrawn letter is never sent', async () => {
   const h = harness();
   await h.call('POST', { body: { action: 'issue', letter: appreciation(RAYA) } });
-  const seen = await h.call('POST', { body: { action: 'mail', number: 'PFA/LET/2026/00001' } });
+  const seen = await h.call('POST', { body: { action: 'mail', number: 'PFA-LET-ABCDEF22' } });
   assert.equal(seen.json.to, 'raya@example.com', 'fetched from the person');
-  assert.match(seen.json.subject, /Your PFA certificate of appreciation - PFA\/LET\/2026\/00001/);
+  assert.match(seen.json.subject, /Your PFA certificate of appreciation - PFA-LET-ABCDEF22/);
   assert.equal(h.queued.length, 0, 'seeing it sends nothing');
-  const sent = await h.call('POST', { body: { action: 'email', number: 'PFA/LET/2026/00001', email: 'Raya.S@Example.com' } });
+  const sent = await h.call('POST', { body: { action: 'email', number: 'PFA-LET-ABCDEF22', email: 'Raya.S@Example.com' } });
   assert.equal(sent.json.state, 'sent');
   assert.equal(sent.json.to, 'raya.s@example.com');
   assert.equal(h.delivered[0].template, 'pfa_letter');
-  assert.equal(h.delivered[0].payload.number, 'PFA/LET/2026/00001');
+  assert.equal(h.delivered[0].payload.number, 'PFA-LET-ABCDEF22');
   assert.equal(sent.json.letter.sent.to, 'raya.s@example.com');
-  const off = await h.call('POST', { body: { action: 'withdraw', number: 'PFA/LET/2026/00001', reason: 'Wrong name' } });
+  const off = await h.call('POST', { body: { action: 'withdraw', number: 'PFA-LET-ABCDEF22', reason: 'Wrong name' } });
   assert.equal(off.json.letter.withdrawn, true);
-  const again = await h.call('POST', { body: { action: 'email', number: 'PFA/LET/2026/00001' } });
+  const again = await h.call('POST', { body: { action: 'email', number: 'PFA-LET-ABCDEF22' } });
   assert.equal(again.statusCode, 409);
   assert.match(again.json.message, /withdrawn letter is not sent/);
-  assert.equal((await h.call('POST', { body: { action: 'withdraw', number: 'PFA/LET/2026/00001', reason: 'x' } })).statusCode, 422);
+  assert.equal((await h.call('POST', { body: { action: 'withdraw', number: 'PFA-LET-ABCDEF22', reason: 'x' } })).statusCode, 422);
 });
 
 test('the email carries the letter as issued, read from where it was kept', async () => {
@@ -271,8 +279,125 @@ test('the signature, the seal and the letterhead are never public; the panel has
   assert.ok(require('../lib/admin-modules').MODULE_KEYS.includes('letters'));
   const js = read('assets/admin-letters.js');
   assert.match(js, /'\/api\/admin\/letters\?people=' \+ encodeURIComponent/, 'the person found in the People directory');
-  assert.match(js, /field\('recipient'\)\.value = p\.recipient \|\| p\.name;/, 'their address on the letter');
+  assert.match(js, /field\('recipient'\)\.value = addressFor\(p\);/, 'their address on the letter');
   assert.match(js, /field\('email'\)\.value = p\.email \|\| '';/, 'their email, fetched');
   assert.match(js, /split\('\[Name\]'\)\.join\(p\.name\)/, 'their name in it');
   assert.doesNotMatch(js + read('lib/letters.js') + read('lib/routes/admin/letters.js'), /[–—]/, 'no long dash');
+});
+
+/* owner, 20 Nov 2026: "amount isnt there in the body" */
+test('the certificate says how much: [Amount] in the letter, filled from their donation or typed, never issued blank', async () => {
+  assert.match(L.TEMPLATES.appreciation.body, /your generous contribution of \[Amount\] to \*\*People for Animals\*\*/);
+  assert.deepEqual([L.moneyOf(5000, 'inr'), L.moneyOf(1250000, 'INR'), L.moneyOf(2500.5, 'inr'), L.moneyOf(25, 'usd'), L.moneyOf(0, 'inr')], ['₹5,000', '₹12,50,000', '₹2,500.50', 'US$25', '']);
+  const t = L.TEMPLATES.appreciation;
+  const blank = L.check({ kind: 'appreciation', subject: t.subject, body: t.body.split('[Name]').join('Raya Shah'), closing: t.closing, recipient: 'Raya Shah' }, NOW, true);
+  assert.deepEqual([blank.ok, blank.field], [false, 'amount']);
+  assert.match(blank.message, /Choose their donation or type the amount: \[Amount\] is still in the letter\./);
+  const ok = L.check(Object.assign(appreciation(RAYA), { donation: 'pfa-don-2026-00041' }), NOW, true);
+  assert.deepEqual([ok.values.amount, ok.values.donation], ['₹5,000', 'PFA-DON-2026-00041'], 'kept with the letter, and which donation it came from');
+  assert.equal(L.check(Object.assign(appreciation(RAYA), { donation: 'anything' }), NOW, true).values.donation, undefined);
+});
+
+test('a donor found in the People directory comes with their paid donations, newest first; the issued letter keeps the amount', async () => {
+  const h = harness();
+  const RAYA_DONOR = Object.assign({}, RAYA, { records: [{ id: 'PFA-DON-2026-00041', category: 'donor' }, { id: 'PFA-DON-2026-00044', category: 'donor' }, { id: 'PFA-DON-2026-00045', category: 'donor' }, { id: 'PFA-MEM-2026-00034', category: 'member' }] });
+  await h.db.collection('submissions').doc('PFA-DON-2026-00041').set({ kind: 'PFA-DON', fields: { cause: 'Where it is needed most' }, payment: { amount: 5000, currency: 'inr', paidAt: '2026-11-12T05:00:00.000Z' } });
+  await h.db.collection('submissions').doc('PFA-DON-2026-00044').set({ kind: 'PFA-DON', fields: { cause: 'Animal ambulance' }, gift: { to: 'Ravi Kumar' }, payment: { amount: 2500, currency: 'inr', paidAt: '2026-11-18T05:00:00.000Z' } });
+  await h.db.collection('submissions').doc('PFA-DON-2026-00045').set({ kind: 'PFA-DON', fields: {}, payment: {} });
+  const handler = ROUTE.createHandler({ getDb: () => h.db, requireAdmin: async () => ({ uid: 'u1', email: 'o@pfa.test' }), now: () => NOW, readPeople: async () => [RAYA_DONOR, SOHAN] });
+  ROUTE._private.resetPeople();
+  const out = await new Promise((resolve) => {
+    const res = { statusCode: 200, setHeader() {}, end(raw) { resolve(JSON.parse(String(raw))); } };
+    handler({ method: 'GET', query: { people: 'raya' }, headers: {} }, res);
+  });
+  const p = out.people[0];
+  assert.deepEqual(p.donations.map((d) => [d.reference, d.money, d.giftTo]), [['PFA-DON-2026-00044', '₹2,500', 'Ravi Kumar'], ['PFA-DON-2026-00041', '₹5,000', '']], 'paid ones only, newest first');
+  assert.equal(p.records, undefined, 'the records themselves stay on the server');
+  const issued = await h.call('POST', { body: { action: 'issue', letter: Object.assign(appreciation(RAYA, '₹2,500'), { donation: 'PFA-DON-2026-00044' }) } });
+  const rec = (await h.db.collection('letters').doc('PFA-LET-ABCDEF22').get()).data();
+  assert.deepEqual([rec.amount, rec.donation], ['₹2,500', 'PFA-DON-2026-00044']);
+  assert.equal(issued.statusCode, 200);
+  const js = read('assets/admin-letters.js');
+  assert.match(js, /var d = \(p\.donations \|\| \[\]\)\[0\];\n    S\.donation = d \? d\.reference : '';\n    amountBox\(\);\n    setAmount\(d \? d\.money : ''\);/, 'their newest donation, chosen for them');
+  assert.match(js, /if \(t\.hasAttribute\('data-ls-money'\)\) return setAmount\(moneyTyped\(t\.value\)\);/, 'a typed amount goes in when it is finished, not a keystroke at a time');
+});
+
+/* owner, 20 Nov 2026: "ref number to not be in a sequence and cannot be
+   guessable. this also should have a publicly verifiable link. link should
+   just shw to who the letter has been issued, when and for what. not the
+   actual letter." */
+test('references are random, from 32 characters, never in a sequence, never one already given', async () => {
+  const seen = new Set();
+  for (let i = 0; i < 400; i += 1) {
+    const n = L.newNumber();
+    assert.match(n, /^PFA-LET-[A-HJ-NP-Z2-9]{8}$/);
+    seen.add(n);
+  }
+  assert.equal(seen.size, 400, 'no two alike');
+  const db = memoryFirestore();
+  require('../lib/firebase')._setDbForTests(db);
+  await db.collection('letters').doc('PFA-LET-TAKEN222').set({ number: 'PFA-LET-TAKEN222' });
+  const offers = ['PFA-LET-TAKEN222', 'not-a-number', 'PFA-LET-FRESH333'];
+  const handler = ROUTE.createHandler({ getDb: () => db, requireAdmin: async () => ({ uid: 'u', email: 'o@pfa.test' }), now: () => NOW, makeNumber: () => offers.shift(), fileStore: { put: async () => ({ bytes: Buffer.alloc(1) }), read: async () => null } });
+  const out = await new Promise((resolve) => {
+    const res = { statusCode: 200, setHeader() {}, end(raw) { resolve(JSON.parse(String(raw))); } };
+    handler({ method: 'POST', body: { action: 'issue', letter: appreciation(RAYA) }, headers: {} }, res);
+  });
+  assert.equal(out.letter.number, 'PFA-LET-FRESH333', 'past the one already given');
+  assert.equal(out.letter.verifyUrl, 'https://peopleforanimalsindia.org/verify-certificate?n=PFA-LET-FRESH333');
+  assert.equal((await db.collection('letters').doc('PFA-LET-TAKEN222').get()).data().name, undefined, 'the other untouched');
+});
+
+test('the public check: who it is to, when and what for, and whether it stands; never the letter, the address, the amount or the email', async () => {
+  const h = harness();
+  const issued = await h.call('POST', { body: { action: 'issue', letter: appreciation(RAYA) } });
+  const number = issued.json.letter.number;
+  const VERIFY = require('../lib/routes/verify-certificate').createHandler({ getDb: () => h.db });
+  const ask = (n) => new Promise((resolve) => {
+    const out = { statusCode: 200 };
+    const res = { get statusCode() { return out.statusCode; }, set statusCode(v) { out.statusCode = v; }, setHeader() {}, end(raw) { out.json = JSON.parse(String(raw)); resolve(out); } };
+    VERIFY({ method: 'GET', query: { n }, headers: {} }, res);
+  });
+  const ok = await ask(number.toLowerCase());
+  assert.equal(ok.statusCode, 200);
+  assert.deepEqual(ok.json, { found: true, letter: true, genuine: true, number, kindLabel: 'Certificate of appreciation', about: '', name: 'Raya Shah', issuedOn: '2026-11-20', withdrawn: false, withdrawnOn: '' });
+  const said = JSON.stringify(ok.json);
+  for (const never of ['Temple Road', '576101', '₹5,000', 'raya@example.com', 'grateful recognition']) assert.ok(!said.includes(never), `never ${never}`);
+  await h.call('POST', { body: { action: 'withdraw', number, reason: 'Issued in error' } });
+  const off = await ask(number);
+  assert.deepEqual([off.json.genuine, off.json.withdrawn, off.json.withdrawnOn], [false, true, '2026-11-20']);
+  assert.ok(!JSON.stringify(off.json).includes('Issued in error'), 'not why');
+  assert.equal((await ask('PFA-LET-ZZZZZZZZ')).statusCode, 404);
+  assert.equal((await ask('PFA/LET/2026/00001')).statusCode, 400, 'the first letters, in a sequence, are not in the public check');
+  const page = read('verify-certificate.html');
+  assert.match(page, /var NUMBER = \/\^PFA-\(INT\|VOL\|PAR\|REC\|DNR\|LET\)-\[A-HJ-NP-Z2-9\]\{8\}\$\/;/);
+  assert.match(page, /function showLetter\(d\)\{[\s\S]*\$\('#cName'\)\.textContent = d\.name;[\s\S]*'<dt>What it is<\/dt>[\s\S]*'<dt>Issued on<\/dt>/, 'to whom, what for, when');
+  assert.match(page, /The letter itself is with the person it was written to\./, 'and the letter is not shown');
+});
+
+test('the email carries the public check, the letter only its reference; the address alone when the letter names them', async () => {
+  const v = L.check(appreciation(RAYA), NOW, true).values;
+  const out = await make(v, 'PFA-LET-ABCDEF22');
+  /* owner, 20 Nov 2026: "check if genuine line is not to be included in the letter itself" */
+  assert.match(out.all, /Ref: PFA-LET-ABCDEF22/, 'the reference, which the check page asks for');
+  assert.doesNotMatch(out.all, /Check it is genuine|verify-certificate/, 'no check line on the letter');
+  assert.doesNotMatch(out.bytes.toString('latin1'), /\/URI/, 'nor a link');
+  const mail = require('../lib/caregiver-mail').render('pfa_letter', { name: 'Raya Shah', number: 'PFA-LET-ABCDEF22', kind: 'appreciation', subject: 'CERTIFICATE OF APPRECIATION', dateWords: '20 November 2026', verifyUrl: L.verifyUrl('PFA-LET-ABCDEF22') });
+  assert.match(mail.text, /Anyone can check it is genuine: https:\/\/peopleforanimalsindia\.org\/verify-certificate\?n=PFA-LET-ABCDEF22/);
+  assert.match(mail.html, /Check it is genuine/);
+  /* owner, 20 Nov 2026: "name need not be here. just the address. since name is there next in the letter" */
+  assert.equal(L.recipientOf(RAYA, false), '4 Temple Road, Udupi 576101\nKarnataka');
+  const h = harness();
+  const p = (await h.call('GET', { query: { people: 'raya' } })).json.people[0];
+  assert.deepEqual([p.addressBlock, p.recipient.split('\n')[0]], ['4 Temple Road, Udupi 576101\nKarnataka', 'Raya Shah']);
+  const js = read('assets/admin-letters.js');
+  assert.match(js, /function addressFor\(p\) \{ return namesThem\(S\.shownName\) \? \(p\.addressBlock \|\| ''\) : \(p\.recipient \|\| p\.name\); \}/, 'the address alone where the letter names them, the name too where it does not');
+});
+
+/* owner, 20 Nov 2026: "remove this from the letter", of the letterhead's
+   "E-mail : pplforanimals@nic.in" */
+test('the letterhead ends at the address and telephone line: no email line', () => {
+  const png = fs.readFileSync(path.join(ROOT, 'lib/letter-art/letterhead.png'));
+  assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1672, 553], 'cut below the address line');
+  assert.match(read('lib/letters.js'), /letterhead: 1672 \/ 553,/, 'and drawn at that shape, not stretched');
 });

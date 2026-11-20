@@ -551,8 +551,8 @@ if (root.document && root.document.head) apply(read());
        nothing else on the record. -->
   <section class="hero" id="top">
     <div class="hero__in">
-      <p class="eyebrow pfa-kicker">Certificates and cards</p>
-      <h1 class="pfa-title display">Check a certificate or card.</h1>
+      <p class="eyebrow pfa-kicker">Certificates, letters and cards</p>
+      <h1 class="pfa-title display">Check a certificate, letter or card.</h1>
     </div>
   </section>
 
@@ -560,9 +560,9 @@ if (root.document && root.document.head) apply(read());
     <div class="track">
       <form class="tform" id="certForm" novalidate>
         <div class="field">
-          <label for="cNum">Certificate or card number</label>
+          <label for="cNum">Certificate, letter or card number</label>
           <input id="cNum" name="number" type="text" autocomplete="off" spellcheck="false" placeholder="PFA-INT-XXXXXXXX" required>
-          <span class="hint">On a certificate, at its foot. On a colony caregiver card, its card number (PFA-CCT-...). On a membership card, the member number (such as KA 2399), or PFA-MBR-... from a card online.</span>
+          <span class="hint">On a certificate, at its foot. On a letter from PFA, its reference (PFA-LET-...). On a colony caregiver card, its card number (PFA-CCT-...). On a membership card, the member number (such as KA 2399), or PFA-MBR-... from a card online.</span>
         </div>
         <button class="btn" type="submit" id="cGo">Check it</button>
       </form>
@@ -697,11 +697,26 @@ if (root.document && root.document.head) apply(read());
   var form = $('#certForm'), input = $('#cNum'), say = $('#cSay'), card = $('#cCard'), go = $('#cGo');
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   /* every purpose's number (15 Nov 2026): PFA-INT-, PFA-VOL-, PFA-PAR-, PFA-REC-, PFA-DNR- */
-  var NUMBER = /^PFA-(INT|VOL|PAR|REC|DNR)-[A-HJ-NP-Z2-9]{8}$/;
+  /* and a letter on PFA's letterhead (20 Nov 2026): PFA-LET- */
+  var NUMBER = /^PFA-(INT|VOL|PAR|REC|DNR|LET)-[A-HJ-NP-Z2-9]{8}$/;
   function esc(v){ return String(v == null ? '' : v).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function long(iso){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '')); return m ? Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1] : ''; }
   function tell(text, state){ say.hidden = !text; say.textContent = text || ''; say.setAttribute('data-state', state || ''); }
+  /* a letter: who it was issued to, when and for what; never the letter */
+  function showLetter(d){
+    card.hidden = false;
+    card.setAttribute('data-state', d.genuine ? 'good' : 'bad');
+    $('#cKind').textContent = d.genuine ? 'Genuine: a letter issued by People for Animals' : 'Withdrawn by People for Animals';
+    $('#cName').textContent = d.name;
+    $('#cFacts').innerHTML = '<dt>Reference</dt><dd>' + esc(d.number) + '</dd>'
+      + '<dt>What it is</dt><dd>' + esc(d.kindLabel) + '</dd>'
+      + (d.about ? '<dt>For</dt><dd>' + esc(d.about) + '</dd>' : '')
+      + '<dt>Issued on</dt><dd>' + esc(long(d.issuedOn)) + '</dd>'
+      + (d.withdrawn ? '<dt>Withdrawn on</dt><dd>' + esc(long(d.withdrawnOn)) + '</dd>' : '');
+    $('#cNext').textContent = d.genuine ? 'The name, the reference and the date should match the letter exactly. The letter itself is with the person it was written to.' : 'This letter is no longer valid.';
+  }
   function show(d){
+    if (d.letter) return showLetter(d);
     card.hidden = false;
     card.setAttribute('data-state', d.genuine ? 'good' : 'bad');
     $('#cKind').textContent = d.genuine ? 'Genuine: issued by People for Animals' : 'Withdrawn by People for Animals';
@@ -747,7 +762,7 @@ if (root.document && root.document.head) apply(read());
     if (CARD.test(n)) { input.value = n; checkCard(n); return; }
     var printed = PRINTED.exec(String(raw || '').trim().toUpperCase());
     if (printed && !/^PFA/.test(n)) { input.value = printed[1] + ' ' + printed[2]; checkCard(printed[1] + ' ' + printed[2]); return; }
-    if (!NUMBER.test(n)) { tell('That is not a PFA certificate or card number. A certificate reads like PFA-INT-XXXXXXXX, a caregiver card PFA-CCT-XXXXXXXX, a membership card KA 2399.', 'bad'); input.focus(); return; }
+    if (!NUMBER.test(n)) { tell('That is not a PFA certificate, letter or card number. A certificate reads like PFA-INT-XXXXXXXX, a letter PFA-LET-XXXXXXXX, a caregiver card PFA-CCT-XXXXXXXX, a membership card KA 2399.', 'bad'); input.focus(); return; }
     input.value = n;
     go.disabled = true;
     tell('Checking...');
@@ -756,7 +771,7 @@ if (root.document && root.document.head) apply(read());
     }).then(function(x){
       go.disabled = false;
       if (x.status === 200 && x.d.found) { tell(''); show(x.d); return; }
-      if (x.status === 404) { tell('PFA has not issued a certificate with that number. Check each character against the certificate.', 'bad'); return; }
+      if (x.status === 404) { tell(/^PFA-LET-/.test(n) ? 'PFA has not issued a letter with that reference. Check each character against the letter.' : 'PFA has not issued a certificate with that number. Check each character against the certificate.', 'bad'); return; }
       tell(x.d.message || 'That could not be checked just now. Try again.', 'bad');
     }).catch(function(){ go.disabled = false; tell('That could not be checked just now. Check your connection and try again.', 'bad'); });
   }

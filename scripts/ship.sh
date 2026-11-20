@@ -213,8 +213,26 @@ KEEP_PATHS=(resources media/site/campaign media/site/campus media/site/sgacc tes
 # first call is a no-op there, and the deletions only materialise against
 # GitHub at the reset. With GitHub unreachable this does nothing, and then the
 # push fails too, so nothing can be deleted remotely either way.
+# Where GitHub is. A copy with none of GitHub's history fetches only GitHub's
+# latest commit and its folders, not every file ever committed (owner's ship
+# of 20 Nov 2026 sat for minutes under "Pushing" reading all of it on a slow
+# line). Files are fetched later only if one is needed. Placing the release on
+# top and pushing need no more than this.
+fetch_github() {
+  # no remote yet (a fresh `git init` before the push step adds it): nothing to read
+  git remote get-url origin >/dev/null 2>&1 || return 1
+  if git rev-parse -q --verify origin/main >/dev/null 2>&1; then
+    git fetch -q origin main 2>/dev/null
+    return
+  fi
+  echo "  reading where GitHub is (its latest commit only, not every file: quick)"
+  git config remote.origin.promisor true
+  git config remote.origin.partialclonefilter blob:none
+  git fetch --filter=blob:none --depth=1 --progress origin main
+}
+
 keep_protected() {
-  git rev-parse -q --verify origin/main >/dev/null 2>&1 || git fetch -q origin main 2>/dev/null || return 0
+  git rev-parse -q --verify origin/main >/dev/null 2>&1 || fetch_github 2>/dev/null || return 0
   local rescued
   rescued="$(git diff --cached --diff-filter=D -z --name-only -- "${KEEP_PATHS[@]}" 2>/dev/null | tr -d -c '\0' | wc -c | tr -d ' ')"
   [ "${rescued:-0}" -gt 0 ] || return 0
@@ -265,6 +283,16 @@ else
   mkdir -p "$LIVE"
   rsync -a --exclude '.git' --exclude 'node_modules' "${BUILT_EXCLUDES[@]}" "${KEEP_EXCLUDES[@]}" "$NEW"/ "$LIVE"/
 fi
+# The content the zip does not carry (resources/, the reels, the campaign
+# photographs) was fetched into the release above. A tree without it takes it
+# from there: otherwise the guard below sees GitHub's copies as deletions and
+# reads them all back from GitHub before the push, minutes on a slow line
+# (owner's ship of 20 Nov 2026, from a fresh tree).
+for p in "${KEEP_PATHS[@]}"; do
+  [ -e "$NEW/$p" ] || continue
+  mkdir -p "$LIVE/$(dirname "$p")"
+  rsync -a "$NEW/$p" "$LIVE/$(dirname "$p")/"
+done
 cd "$LIVE"
 
 step "Installing dependencies"
@@ -327,7 +355,7 @@ git branch -M main
 # GitHub's history is kept, not overwritten. Tried three times, in case
 # something lands on GitHub in between.
 on_top_of_github() {
-  git fetch -q origin main 2>/dev/null || return 0   # nothing on GitHub yet
+  fetch_github || return 0   # nothing on GitHub yet
   if git merge-base --is-ancestor origin/main HEAD 2>/dev/null; then return 0; fi
   echo "  GitHub has commits this copy does not; placing this release on top of them"
   git reset -q --soft origin/main

@@ -141,7 +141,7 @@ test('every card is checked online: a caregiver card, a membership card online, 
   } finally { firebase._setDbForTests(null); }
   const page = read('verify-certificate.html');
   assert.match(page, /fetch\('\/api\/verify-card\?id=' \+ encodeURIComponent\(n\)/);
-  assert.match(page, /Check a certificate or card\./);
+  assert.match(page, /Check a certificate, letter or card\./);
 });
 
 test('the page: front and back, turned over by a tap, Enter or the button; sky blue for a caregiver, the owner\'s matte black for a member', () => {

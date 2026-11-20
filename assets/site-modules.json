@@ -1044,7 +1044,7 @@
    "modules": [
     {
      "id": "top",
-     "label": "Check a certificate or card."
+     "label": "Check a certificate, letter or card."
     },
     {
      "id": "check",

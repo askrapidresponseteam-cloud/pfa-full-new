@@ -1,3 +1,21 @@
+## v1.615
+
+- **The certificate of appreciation says how much was given.** Owner, 20 Nov 2026: "amount isnt there in the body". It now reads "your generous contribution of ₹5,000 to People for Animals".
+  - Choose a donor in the Letter studio and their paid donations come with them, newest first, each with its amount, date and number (a gift says who it was for). The newest goes in at once; choose another, all of them added up, or type an amount (5000 becomes ₹5,000).
+  - Someone with no donation on file is said to have none: type the amount, or take it out of the letter. A certificate is never issued with [Amount] still in it.
+  - The issued letter keeps the amount and which donation it came from, and the audit log says both.
+  - The person's address in the studio now reads as it does on the letter, the district and state not said twice.
+- **Letter references cannot be guessed, and anyone can check a letter is genuine.** Owner, 20 Nov 2026: "ref number to not be in a sequence and cannot be guessable. this also should have a publicly verifiable link. link should just shw to who the letter has been issued, when and for what. not the actual letter."
+  - A letter's reference is now PFA-LET- and eight characters at random (PFA-LET-K7M2Q9XA), as the certificates' numbers: none can be worked out from another.
+  - The email has a "Check it is genuine" button, and the panel links each letter to its check; the letter itself carries only its reference ("check if genuine line is not to be included in the letter itself"). The check page (Check a certificate, letter or card) shows who it was issued to, what it is and for, the day it was issued, and whether it has been withdrawn. Never the letter, the address, an amount or an email, and not why a letter was withdrawn.
+  - The letters issued earlier today keep their PFA/LET/2026/... references and stay in the list; they are not in the public check.
+- **The letter: no footer, the address without the name, the signature further left.** Owner, 20 Nov 2026.
+  - The site address and page number at the foot of each page are gone ("dont need this").
+  - Where the letter names the person in its words, the address block is the address alone ("name need not be here. just the address. since name is there next in the letter"); a letter that names them nowhere else, such as one to an authority, keeps the name above the address.
+  - The letterhead no longer carries "E-mail : pplforanimals@nic.in": it ends at the address and telephone line ("remove this from the letter").
+  - The signature moves left of the text, to 3 mm from the paper's edge ("there should be option to move this further left"); the seal likewise to the right.
+- **Deploying from a fresh folder no longer sits silent for minutes.** On 20 Nov the deploy, from a Desktop without PFA_Website, read all of GitHub's history (558 MB) and then downloaded the library PDFs and film reels again before pushing. Now it reads only GitHub's latest commit (under a second), and takes the library and reels from the release folder, where they already are.
+
 ## v1.614
 
 - **Letter studio in the admin panel.** Letters and certificates of appreciation on PFA letterhead, signed by Maneka Sanjay Gandhi and sealed, issued from the panel (owner, 20 Nov 2026, from PFA-Letter-Studio.html). Under Certificates, as its own section; who may use it is its own permission ("Letter studio" on the Admins page), since it signs in her name.

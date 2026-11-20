@@ -284,7 +284,11 @@ test('shipping from a zip cannot delete what the zip does not carry', () => {
 
   /* every rsync, not just the one that deletes: the backup should not copy
      302 MB onto the Desktop either */
-  const rsyncs = ship.split('\n').filter((l) => l.trim().startsWith('rsync -a'));
+  /* bar one (20 Nov 2026): the copy of that very content from the release into
+     the tree, which adds and never deletes */
+  const fill = 'rsync -a "$NEW/$p" "$LIVE/$(dirname "$p")/"';
+  assert.ok(ship.includes(fill) && !/--delete/.test(fill), 'the content copied in from the release, never with --delete');
+  const rsyncs = ship.split('\n').filter((l) => l.trim().startsWith('rsync -a') && l.trim() !== fill);
   assert.equal(rsyncs.length, 3, 'ship.sh has three rsync invocations; a new one needs the same guard');
   for (const r of rsyncs) {
     assert.ok(r.includes('"${KEEP_EXCLUDES[@]}"'), `an rsync without the guard: ${r.trim().slice(0, 80)}`);
@@ -330,9 +334,10 @@ test('everything KEEP_EXCLUDES names is really in the repository', whenResources
 function keepGuard() {
   /* the function itself, cut from the script, so these tests run the real
      guard and not a copy that can drift */
-  const from = ship.indexOf('keep_protected() {');
-  assert.ok(from > 0, 'keep_protected is where it was');
-  const to = ship.indexOf('\n}', from);
+  /* with fetch_github, just above it, which it and the push step use (20 Nov 2026) */
+  const from = ship.indexOf('fetch_github() {');
+  assert.ok(from > 0 && ship.indexOf('keep_protected() {') > from, 'fetch_github, then keep_protected, where they were');
+  const to = ship.indexOf('\n}', ship.indexOf('keep_protected() {'));
   assert.ok(to > from, 'and whole');
   return ship.slice(from, to + 2);
 }
@@ -530,4 +535,24 @@ test('every folder the zip leaves out is put back: from the live tree, and from 
     if (!rel.includes('*')) { assert.ok(fs.existsSync(path.join(tree, rel)), `${rel} is in the tree`); continue; }
     assert.ok(fs.readdirSync(path.join(tree, path.dirname(rel))).some((f) => f.endsWith(path.extname(rel))), `${rel} matches something`);
   }
+});
+
+/* 20 Nov 2026: a ship from a fresh copy sat for minutes under "Pushing" while
+   it read GitHub's whole history; it now reads only GitHub's latest commit. */
+test('a copy with none of GitHub\'s history reads only GitHub\'s latest commit, then places the release on top', () => {
+  const ship = fs.readFileSync(path.join(ROOT, 'scripts/ship.sh'), 'utf8');
+  assert.match(ship, /fetch_github\(\) \{[\s\S]*git config remote\.origin\.promisor true\n  git config remote\.origin\.partialclonefilter blob:none\n  git fetch --filter=blob:none --depth=1 --progress origin main\n\}/);
+  assert.match(ship, /keep_protected\(\) \{\n  git rev-parse -q --verify origin\/main >\/dev\/null 2>&1 \|\| fetch_github 2>\/dev\/null \|\| return 0/, 'the guard before pushing fetches the same way');
+  assert.match(ship, /on_top_of_github\(\) \{\n  fetch_github \|\| return 0/);
+  assert.doesNotMatch(ship, /git fetch (?:-q )?origin main 2>\/dev\/null \|\| return 0/, 'never the whole history');
+});
+
+/* 20 Nov 2026: a fresh tree was made without the content the zip does not
+   carry, so the guard read all of it back from GitHub before the push. */
+test('the tree takes the content the zip does not carry from the release, never back from GitHub', () => {
+  const ship = fs.readFileSync(path.join(ROOT, 'scripts/ship.sh'), 'utf8');
+  const made = ship.indexOf('step "No tree at $LIVE yet, creating it"');
+  const copy = ship.indexOf('for p in "${KEEP_PATHS[@]}"; do\n  [ -e "$NEW/$p" ] || continue\n  mkdir -p "$LIVE/$(dirname "$p")"\n  rsync -a "$NEW/$p" "$LIVE/$(dirname "$p")/"\ndone');
+  assert.ok(made > 0 && copy > made, 'after the tree is made or updated');
+  assert.ok(copy < ship.indexOf('step "Committing"'), 'and before anything is committed');
 });

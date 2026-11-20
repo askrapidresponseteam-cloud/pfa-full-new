@@ -38,6 +38,7 @@
     '.ls-form textarea{resize:vertical;min-height:84px}.ls-form textarea[name=body]{min-height:260px}',
     '.ls-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}',
     '.ls-k{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}',
+    '[data-ls-amount]{display:grid;gap:14px}[data-ls-amount]:empty{display:none}',
     '.ls-find{position:relative}',
     '.ls-hits{display:grid;border:1px solid var(--line);border-top:0;max-height:320px;overflow:auto;background:var(--paper,#fff)}',
     '.ls-hit{display:grid;gap:3px;text-align:left;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:none;font:inherit;color:var(--ink);cursor:pointer}',
@@ -64,7 +65,7 @@
   ].join('');
   document.head.appendChild(style);
 
-  var S = { setup: null, letters: [], person: null, shownName: '', timer: 0, ask: 0, issued: null, places: null };
+  var S = { setup: null, letters: [], person: null, shownName: '', shownAmount: '', donation: '', timer: 0, ask: 0, issued: null, places: null };
 
   function pane() { return $('[data-pane="letters"]'); }
   function day(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || '')); return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : ''; }
@@ -95,6 +96,8 @@
     var v = draft || { kind: t.kind, date: S.setup.today, recipient: '', subject: t.subject, salutation: t.salutation, body: t.body, closing: t.closing, signed: true, sealed: true, email: '' };
     S.person = (draft && draft.person) || null;
     S.shownName = (draft && draft.shownName) || '';
+    S.shownAmount = (draft && draft.shownAmount) || '';
+    S.donation = (draft && draft.donation) || '';
     var box = $('[data-ls-form]');
     var P = S.places;
     var range = function (k) {
@@ -103,6 +106,7 @@
     };
     box.innerHTML = '<span class="ls-k">Who it is for</span>'
       + '<div data-ls-who></div>'
+      + '<div data-ls-amount></div>'
       + '<label>Kind of letter<select name="kind">' + S.setup.templates.map(function (x) { return '<option value="' + esc(x.kind) + '"' + (x.kind === v.kind ? ' selected' : '') + '>' + esc(x.label) + '</option>'; }).join('') + '</select></label>'
       + '<label>Date on the letter<input type="date" name="date" value="' + esc(v.date || S.setup.today) + '"></label>'
       + '<label>Name and address on the letter<textarea name="recipient" rows="4" maxlength="600" placeholder="Choose the person above, or write their name and address">' + esc(v.recipient) + '</textarea></label>'
@@ -123,6 +127,7 @@
       + '<div data-ls-issue></div>'
       + '<p class="rg-say" data-ls-say role="status" aria-live="polite"></p>';
     who();
+    amountBox();
     issueBox();
   }
 
@@ -134,17 +139,20 @@
     return {
       kind: get('kind'), date: get('date'), recipient: get('recipient'), subject: get('subject'), salutation: get('salutation'),
       body: get('body'), closing: get('closing'), signed: field('signed').checked, sealed: field('sealed').checked, layout: layout,
-      email: get('email').trim(), person: S.person ? { id: S.person.id, name: S.person.name, email: S.person.email, mobile: S.person.mobile } : null
+      email: get('email').trim(), person: S.person ? { id: S.person.id, name: S.person.name, email: S.person.email, mobile: S.person.mobile } : null,
+      amount: S.shownAmount, donation: S.donation === 'all' ? '' : S.donation
     };
   }
-  function keepDraft() { var v = values(); v.person = S.person; v.shownName = S.shownName; store(DRAFT, v); store(PLACES, v.layout); }
+  function keepDraft() { var v = values(); v.person = S.person; v.shownName = S.shownName; v.shownAmount = S.shownAmount; store(DRAFT, v); store(PLACES, v.layout); }
 
   /* ---- who it is for: the People directory ------------------------------- */
   function who() {
     var box = $('[data-ls-who]');
     if (S.person) {
       var p = S.person;
-      box.innerHTML = '<div class="ls-who"><p><b>' + esc(p.name) + '</b><br>' + esc([p.address, [p.district, p.state].filter(Boolean).join(', ')].filter(Boolean).join(', ')) + (p.email ? '<br>' + esc(p.email) : '<br><span class="ls-off">No email on file</span>') + '</p><button class="ghost" type="button" data-ls="change">Change</button></div>';
+      /* the address as the letter has it, the district and state not said twice */
+      var lines = String(p.recipient || '').split('\n').slice(1).filter(Boolean);
+      box.innerHTML = '<div class="ls-who"><p><b>' + esc(p.name) + '</b><br>' + (lines.length ? lines.map(esc).join('<br>') : '<span class="ls-off">No address on file</span>') + (p.email ? '<br>' + esc(p.email) : '<br><span class="ls-off">No email on file</span>') + '</p><button class="ghost" type="button" data-ls="change">Change</button></div>';
       return;
     }
     box.innerHTML = '<div class="ls-find"><label>Find them in the People directory<input type="search" data-ls-find placeholder="Name, email, phone or PIN" autocomplete="off"></label><div class="ls-hits" data-ls-hits hidden></div></div>';
@@ -167,9 +175,17 @@
       }).catch(function (e) { if (mine === findAsk) { hits.hidden = false; hits.innerHTML = '<p class="ls-hit"><span>' + esc(e.message) + '</span></p>'; } });
     }, 250);
   }
+  /* does the letter name them in its words ([Name], or the name put in)? Then
+     the address goes on alone (owner, 20 Nov 2026: "name need not be here.
+     just the address. since name is there next in the letter") */
+  function namesThem(name) {
+    var text = ['salutation', 'body', 'subject', 'closing'].map(function (n) { var el = field(n); return el ? el.value : ''; }).join(' ');
+    return text.indexOf('[Name]') !== -1 || Boolean(name && text.indexOf(name) !== -1);
+  }
+  function addressFor(p) { return namesThem(S.shownName) ? (p.addressBlock || '') : (p.recipient || p.name); }
   function pick(p) {
     S.person = p;
-    field('recipient').value = p.recipient || p.name;
+    field('recipient').value = addressFor(p);
     field('email').value = p.email || '';
     /* their name where the letter says [Name], or where the last one chosen was */
     ['salutation', 'body', 'subject', 'closing'].forEach(function (n) {
@@ -180,6 +196,57 @@
     });
     S.shownName = p.name;
     who();
+    var d = (p.donations || [])[0];
+    S.donation = d ? d.reference : '';
+    amountBox();
+    setAmount(d ? d.money : '');
+  }
+
+  /* ---- the amount: from their donations, or typed ------------------------
+     (owner, 20 Nov 2026: "amount isnt there in the body"). It goes into the
+     letter where it says [Amount], or where the last amount chosen was. */
+  function needsAmount() {
+    var text = ['body', 'subject', 'closing'].map(function (n) { var el = field(n); return el ? el.value : ''; }).join(' ');
+    return text.indexOf('[Amount]') !== -1 || (S.shownAmount && text.indexOf(S.shownAmount) !== -1);
+  }
+  function longDay(iso) { var d = new Date(iso || ''); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function amountBox() {
+    var box = $('[data-ls-amount]');
+    if (!box) return;
+    if (!needsAmount()) { box.innerHTML = ''; return; }
+    var list = (S.person && S.person.donations) || [];
+    var inr = list.filter(function (d) { return d.currency === 'inr'; });
+    var total = inr.reduce(function (n, d) { return n + d.amount; }, 0);
+    var totalMoney = '₹' + total.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    var opts = list.map(function (d) {
+      return '<option value="' + esc(d.reference) + '"' + (d.reference === S.donation ? ' selected' : '') + '>' + esc(d.money + ', ' + longDay(d.at) + (d.giftTo ? ', a gift for ' + d.giftTo : '') + ' (' + d.reference + ')') + '</option>';
+    });
+    if (inr.length > 1) opts.push('<option value="all"' + (S.donation === 'all' ? ' selected' : '') + '>' + esc('All ' + inr.length + ' donations: ' + totalMoney) + '</option>');
+    opts.push('<option value=""' + (!S.donation ? ' selected' : '') + '>Another amount, typed below</option>');
+    box.innerHTML = (list.length ? '<label>Their donation<select data-ls-donation>' + opts.join('') + '</select></label>'
+      : (S.person ? '<p class="ls-off" style="font-size:12px;margin:0">No donation on file for ' + esc(S.person.name) + '. Type the amount, or take the amount out of the letter.</p>' : ''))
+      + '<label>Amount on the letter<input data-ls-money maxlength="40" value="' + esc(S.shownAmount) + '" placeholder="For example ₹5,000"></label>';
+    box.setAttribute('data-total', totalMoney);
+  }
+  /* 5000 or 5,000 is rupees: ₹5,000; anything else is kept as typed */
+  function moneyTyped(raw) {
+    var v = String(raw || '').trim();
+    if (/^\d[\d,]*(\.\d{1,2})?$/.test(v)) { var n = Number(v.replace(/,/g, '')); if (n > 0) return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
+    return v;
+  }
+  function setAmount(value) {
+    var v = String(value || '').trim();
+    ['body', 'subject', 'closing'].forEach(function (n) {
+      var el = field(n);
+      if (!el) return;
+      var text = el.value;
+      if (S.shownAmount) text = text.split(S.shownAmount).join(v || '[Amount]');
+      if (v) text = text.split('[Amount]').join(v);
+      el.value = text;
+    });
+    S.shownAmount = v;
+    var input = $('[data-ls-money]');
+    if (input && input.value !== v) input.value = v;
     changed();
   }
 
@@ -239,7 +306,8 @@
     if (!box) return;
     if (S.issued) {
       var l = S.issued;
-      box.innerHTML = '<div class="ls-done"><p><b>Issued: ' + esc(l.number) + '</b>, to ' + esc(l.name) + '.</p>'
+      box.innerHTML = '<div class="ls-done"><p><b>Issued: ' + esc(l.number) + '</b>, to ' + esc(l.name) + '.'
+        + (l.verifyUrl ? ' Anyone can check it is genuine at <a href="' + esc(l.verifyUrl) + '" target="_blank" rel="noopener">its public check</a>: who it is to, when and what for, never the letter.' : '') + '</p>'
         + '<div class="ls-acts"><button class="press" type="button" data-ls-pdf="' + esc(l.number) + '">Download the PDF</button>'
         + '<button class="ghost" type="button" data-ls-mail="' + esc(l.number) + '">Email it' + (l.email ? ' to ' + esc(l.email) : '') + '</button>'
         + '<button class="ghost" type="button" data-ls="new">Write another</button></div></div>';
@@ -267,7 +335,8 @@
     }).catch(function (e) {
       btn.disabled = false; btn.removeAttribute('data-sure'); btn.textContent = 'Issue the letter';
       say($('[data-ls-say]'), e.message, 'bad');
-      var bad = e && e.data && e.data.field ? field(e.data.field === 'person' ? 'recipient' : e.data.field) : null;
+      var f = e && e.data && e.data.field;
+      var bad = f === 'amount' ? $('[data-ls-money]') : f ? field(f === 'person' ? 'recipient' : f) : null;
       if (bad && bad.focus) bad.focus();
     });
   }
@@ -340,7 +409,7 @@
     box.innerHTML = '<table class="ls-table"><thead><tr><th>Reference</th><th>To</th><th>Subject</th><th>Dated</th><th>Emailed</th><th></th></tr></thead><tbody>'
       + S.letters.map(function (l) {
         var sent = l.sent ? (l.sent.state === 'sent' ? 'Sent to ' : 'Queued for ') + l.sent.to + ', ' + day(l.sent.at) : 'Not yet';
-        return '<tr' + (l.withdrawn ? ' class="ls-off"' : '') + '><td>' + esc(l.number) + '</td><td>' + esc(l.name) + '</td><td>' + esc(l.subject) + '</td><td>' + esc(day(l.date)) + '</td><td>' + esc(l.withdrawn ? 'Withdrawn: ' + l.withdrawnReason : sent) + '</td>'
+        return '<tr' + (l.withdrawn ? ' class="ls-off"' : '') + '><td>' + (l.verifyUrl ? '<a href="' + esc(l.verifyUrl) + '" target="_blank" rel="noopener" title="Its public check">' + esc(l.number) + '</a>' : esc(l.number)) + '</td><td>' + esc(l.name) + '</td><td>' + esc(l.subject) + '</td><td>' + esc(day(l.date)) + '</td><td>' + esc(l.withdrawn ? 'Withdrawn: ' + l.withdrawnReason : sent) + '</td>'
           + '<td><div class="ls-acts"><button class="ghost" type="button" data-ls-pdf="' + esc(l.number) + '">PDF</button>'
           + (l.withdrawn ? '' : '<button class="ghost" type="button" data-ls-mail="' + esc(l.number) + '">Email</button><button class="ghost" type="button" data-ls-off="' + esc(l.number) + '">Withdraw</button>')
           + '</div></td></tr>';
@@ -362,14 +431,30 @@
     var t = e.target;
     if (!t.closest || !t.closest('[data-pane="letters"]')) return;
     if (t.hasAttribute('data-ls-find')) return find(t.value);
+    /* the amount goes into the letter when it is finished (change), never
+       a keystroke at a time: "2" on its way to "2500" would match any 2 */
+    if (t.hasAttribute('data-ls-money')) { S.donation = ''; var sel = $('[data-ls-donation]'); if (sel) sel.value = ''; return undefined; }
     if (t.type === 'range') { var spec = S.setup.layout[t.name]; var out = $('[data-ls-out="' + t.name + '"]'); if (out && spec) out.textContent = t.value + ' ' + spec.unit; }
     if (t.closest('[data-ls-form]')) changed();
+    /* [Amount] typed into the letter, or taken out of it */
+    if (/^(body|subject|closing)$/.test(t.name) && Boolean($('[data-ls-money]')) !== needsAmount()) amountBox();
   });
   document.addEventListener('change', function (e) {
     var t = e.target;
     if (!t.closest || !t.closest('[data-pane="letters"]')) return;
+    if (t.hasAttribute('data-ls-money')) return setAmount(moneyTyped(t.value));
+    if (t.hasAttribute('data-ls-donation')) {
+      S.donation = t.value;
+      var chosen = ((S.person && S.person.donations) || []).filter(function (d) { return d.reference === t.value; })[0];
+      if (chosen) return setAmount(chosen.money);
+      if (t.value === 'all') return setAmount($('[data-ls-amount]').getAttribute('data-total'));
+      var typed = $('[data-ls-money]'); if (typed) typed.focus();
+      return undefined;
+    }
     if (t.name === 'kind') {
       var tp = template(t.value);
+      var was = field('recipient').value;
+      var auto = S.person && (was === S.person.addressBlock || was === S.person.recipient);
       var body = field('body');
       var name = S.person ? S.person.name : '';
       var fill = function (s) { return name ? String(s || '').split('[Name]').join(name) : String(s || ''); };
@@ -377,6 +462,9 @@
       field('salutation').value = fill(tp.salutation);
       body.value = fill(tp.body);
       field('closing').value = fill(tp.closing);
+      if (S.shownAmount) { var amt = S.shownAmount; ['body', 'subject', 'closing'].forEach(function (n) { field(n).value = field(n).value.split('[Amount]').join(amt); }); }
+      if (auto) field('recipient').value = addressFor(S.person);
+      amountBox();
       changed();
     }
     if (t.type === 'checkbox' && t.closest('[data-ls-form]')) changed();
@@ -391,7 +479,7 @@
     var what = b.getAttribute('data-ls');
     if (what === 'change') { S.person = null; who(); var f = $('[data-ls-find]'); if (f) f.focus(); keepDraft(); return; }
     if (what === 'issue') return issue(b);
-    if (what === 'new') { S.issued = null; S.person = null; S.shownName = ''; store(DRAFT, null); form(null); preview(true); return; }
+    if (what === 'new') { S.issued = null; S.person = null; S.shownName = ''; S.shownAmount = ''; S.donation = ''; store(DRAFT, null); form(null); preview(true); return; }
     if (what === 'places') {
       var d = placesDefault();
       Object.keys(d).forEach(function (k) { var el = field(k); if (el) { el.value = d[k]; var out = $('[data-ls-out="' + k + '"]'); if (out) out.textContent = d[k] + ' ' + S.setup.layout[k].unit; } });
