@@ -1,5 +1,12 @@
 {
-  "about": "Care Guides PFA puts on pet-health.html itself (lib/med-notes.js). Guides sent through the page are kept in the admin panel, not here. Each can be taken off the site and put back from the panel, under Care Guides.",
+  "about": "Care Guides PFA puts on pet-health.html itself (lib/med-notes.js). Guides sent through the page are kept in the admin panel, not here. Each can be taken off the site and put back from the panel, under Care Guides. A guide with a series is shown in that series, in its part order.",
+  "series": [
+    {
+      "id": "diabetes",
+      "name": "Living with diabetes",
+      "intro": "Start with the condition. Follow with the tools used to monitor it."
+    }
+  ],
   "notes": [
     {
       "id": "diabetes-in-dogs",
@@ -10,6 +17,8 @@
       "credit": "Sunny Raghvendra Singh, Dehradun",
       "sources": "AAHA Diabetes Management Guidelines and veterinary sources",
       "at": "2026-11-16",
+      "series": "diabetes",
+      "part": 1,
       "files": [
         {
           "src": "media/med-notes/diabetes-in-dogs.pdf",
@@ -19,6 +28,27 @@
         }
       ],
       "cover": "media/med-notes/diabetes-in-dogs-cover.webp"
+    },
+    {
+      "id": "glucose-meters-for-dogs",
+      "title": "Glucose meters for dogs",
+      "summary": "A comparison of dog-calibrated meters and continuous monitors, where they are sold, their listed prices and the author’s findings on availability in India.",
+      "animal": "Dogs",
+      "role": "Pet parent",
+      "credit": "Sunny Raghvendra Singh, Dehradun",
+      "sources": "the author’s comparison, prices checked 19 November 2026",
+      "at": "2026-11-19",
+      "series": "diabetes",
+      "part": 2,
+      "files": [
+        {
+          "src": "media/med-notes/glucose-meters-for-dogs.pdf",
+          "type": "application/pdf",
+          "size": 4719,
+          "label": "One page, PDF"
+        }
+      ],
+      "cover": "media/med-notes/glucose-meters-for-dogs-cover.webp"
     }
   ]
 }

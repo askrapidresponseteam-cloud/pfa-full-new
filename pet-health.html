@@ -127,9 +127,9 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 }
 
 /* ---------- this page: care guides for pet parents and caregivers (owner, 16 Nov 2026) ---------- */
-/* the guides: the first one large, its cover beside it; the rest in a grid under it */
+/* the guides, straight under the title (owner, 20 Nov 2026: "we dont need unnecessary scroll. and cut straight to the set of articles"): grouped in their series, two to a row */
 .ph-top{padding:calc(var(--ann) + var(--nav) + 32px) var(--gutter) var(--band)}
-.ph-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;margin:0 0 clamp(22px,2.6vw,36px);padding-bottom:16px;border-bottom:1px solid var(--ink)}
+.ph-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;margin:0 0 clamp(18px,2vw,26px);padding-bottom:16px;border-bottom:1px solid var(--ink)}
 .ph-head .eyebrow{margin:0 0 10px}
 .ph-head h1{font-size:clamp(28px,3vw,44px)}
 .ph-ask{display:grid;justify-items:end;gap:8px;max-width:340px}
@@ -139,21 +139,28 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .ph-about ul{margin:0;padding:0 0 0 18px;display:grid;gap:6px;font-size:14px;line-height:1.55}
 .ph-about p{margin:12px 0 18px;font-size:13px;line-height:1.5;color:var(--muted)}
 @media (max-width:700px){.ph-ask{justify-items:start;max-width:none}.ph-ask p{text-align:left}}
-.ph-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:clamp(28px,3vw,44px) clamp(20px,2.4vw,36px);margin:0;padding:0;list-style:none}
-.ph-card{display:flex;flex-direction:column;gap:14px;min-width:0}
-.ph-card--lead{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,min(340px,calc((100vh - var(--ann) - var(--nav) - 200px) * .667))) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:center}
+.ph-list{display:grid;gap:clamp(36px,4vw,56px);margin:0;padding:0;list-style:none}
+/* one line only, the title's (owner, 20 Nov 2026: "2 lines. blue and black look odd"); a later series is set off by a light one */
+.ph-series{min-width:0}
+.ph-series + .ph-series{border-top:1px solid var(--line);padding-top:clamp(16px,1.8vw,22px)}
+.ph-series__head{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;flex-wrap:wrap;margin:0 0 6px}
+.ph-series__head h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(24px,2.4vw,34px);line-height:1.2;color:var(--ink);overflow-wrap:anywhere}
+.ph-series__count{font-size:14px;color:var(--muted);white-space:nowrap}
+.ph-series__intro{margin:0 0 clamp(18px,2vw,24px);max-width:65ch;font-size:15px;line-height:1.6;color:var(--muted)}
+.ph-guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(24px,2.6vw,36px);margin:0;padding:0;list-style:none}
+.ph-card{display:grid;grid-template-columns:minmax(0,44%) minmax(0,1fr);gap:clamp(16px,1.7vw,24px);align-items:start;min-width:0}
 .ph-cover{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
 .ph-cover img{display:block;width:100%;height:auto;box-shadow:0 18px 40px -24px rgba(17,17,17,.55)}
 .ph-cover--plain{display:flex;align-items:flex-end;aspect-ratio:2 / 3;padding:22px;background:#f3f1ed;border:1px solid var(--line);text-align:left}
 .ph-cover--plain span{font-family:var(--display);font-size:clamp(22px,2vw,30px);line-height:1.08;text-transform:uppercase;color:var(--ink);overflow-wrap:anywhere}
-.ph-card__bd{display:grid;gap:12px;align-content:start;min-width:0}
-.ph-card__by{margin:0;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);overflow-wrap:anywhere}
-.ph-card__title{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,2vw,28px);line-height:1.12;text-transform:uppercase;letter-spacing:.01em;overflow-wrap:anywhere}
-.ph-card--lead .ph-card__title{font-size:clamp(30px,3.4vw,50px);line-height:1.04;text-wrap:balance}
+.ph-card__bd{display:grid;gap:10px;align-content:start;min-width:0}
+.ph-card__part{margin:0;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0876aa}
+.ph-card__by{margin:0;font-size:13px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+.ph-card__title{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(22px,2.1vw,30px);line-height:1.15;color:var(--ink);overflow-wrap:anywhere;text-wrap:balance}
 .ph-card__sum{margin:0;max-width:60ch;font-size:15px;line-height:1.65;color:rgba(17,17,17,.78);overflow-wrap:anywhere}
-.ph-card--lead .ph-card__sum{font-size:clamp(15px,1.2vw,18px)}
 .ph-card__acts{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin:6px 0 0}
-.ph-card__acts .btn{min-height:46px;padding:0 26px}
+.ph-card__acts .btn{min-height:46px;padding:0 26px;background:#16b6ff;border-color:#16b6ff;color:#00121b}
+.ph-card__acts .btn:hover,.ph-card__acts .btn:focus-visible{background:#0fa3e6;border-color:#0fa3e6;color:#00121b}
 .ph-card__get{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:2px}
 .ph-wait{padding:24px 0;font-size:14px;color:var(--muted)}
 .ph-fine{margin-top:22px}
@@ -178,16 +185,44 @@ dialog.ph-view::backdrop{background:rgba(17,17,17,.82)}
 .ph-view__acts{display:flex;align-items:center;gap:16px;flex:none}
 .ph-view__acts a{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:2px}
 .ph-view__body{flex:1;overflow:auto;background:#f3f1ed;padding:16px}
-.ph-view__body canvas,.ph-view__body img{display:block;width:100%;height:auto;margin:0 auto 16px;max-width:900px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.ph-view__body canvas,.ph-view__body img{display:block;width:100%;height:auto;margin:0 auto 16px;max-width:900px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12)}.ph-view__body canvas.is-wide{min-width:820px}
 .ph-view__text{max-width:72ch;margin:0 auto 16px;padding:22px 24px;background:#fff;font-size:15px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
 .ph-view__text p{margin:0}
 .ph-view__text p + p{margin-top:12px;font-size:13px;color:var(--muted)}
 .ph-view__say{max-width:72ch;margin:24px auto;font-size:14px;line-height:1.6;text-align:center;color:var(--muted)}
+/* every guide's parts share the row's lines, so Read guide is at the same level for all
+   (owner, 20 Nov 2026: "read guide button should be at the same level.. for all"): the cover
+   runs down the side, the words take one line each, and the last line, flexible, takes up
+   whatever the cover is taller by */
+@supports (grid-template-rows:subgrid){
+  .ph-guides{row-gap:0;grid-auto-rows:auto auto auto auto auto 1fr}
+  .ph-card{grid-row:span 6;grid-template-rows:subgrid;row-gap:10px;margin-bottom:clamp(24px,2.6vw,36px)}
+  .ph-card > .ph-cover{grid-column:1;grid-row:1 / -1;align-self:start}
+  .ph-card__bd{display:contents}
+  .ph-card__bd > *{grid-column:2;min-width:0}
+  .ph-card__acts{align-self:start}
+}
+@media (max-width:1000px) and (min-width:721px){.ph-guides{grid-template-columns:minmax(0,1fr)}.ph-card{grid-template-columns:minmax(0,260px) minmax(0,1fr)}}
+@media (max-width:340px){.ph-guides{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:720px){
   .ph-top{padding:calc(var(--ann) + var(--nav) + 24px) 16px 56px}
-  .ph-card--lead{grid-template-columns:minmax(0,1fr)}
-  .ph-card--lead .ph-cover{max-width:260px}
+  .ph-guides{gap:22px 14px}
+  .ph-card{display:flex;flex-direction:column;gap:12px}
+  .ph-card__bd{gap:8px}
+  .ph-card__title{font-size:19px}
+  .ph-card__sum{font-size:14px;line-height:1.6}
+  .ph-card__acts{flex-direction:column;align-items:stretch;gap:12px}
+  .ph-card__acts .btn{padding:0 10px;justify-content:center}
+  .ph-card__get{align-self:flex-start}
   .ph-view__body{padding:8px}
+}
+@media (max-width:720px){
+  @supports (grid-template-rows:subgrid){
+    .ph-guides{grid-auto-rows:auto}
+    .ph-card{display:grid;grid-template-columns:minmax(0,1fr);row-gap:8px;margin-bottom:22px}
+    .ph-card > .ph-cover{grid-row:1;margin-bottom:4px}
+    .ph-card__bd > *{grid-column:1}
+  }
 }
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
@@ -508,14 +543,31 @@ if (root.document && root.document.head) apply(read());
     </div>
     <div class="m-chips" id="phChips" role="group" aria-label="Show guides about" hidden></div>
     <ol class="ph-list" id="phList" aria-live="polite">
-      <li class="ph-card ph-card--lead" id="note-pfa-diabetes-in-dogs">
-        <button class="ph-cover" type="button" data-read="pfa-diabetes-in-dogs" aria-label="Read Diabetes in dogs: what to do"><img src="media/med-notes/diabetes-in-dogs-cover.webp" alt="Cover of Diabetes in dogs: what to do, by Sunny Raghvendra Singh" width="900" height="1347" loading="eager" decoding="async"></button>
-        <div class="ph-card__bd">
-          <p class="ph-card__by">Sunny Raghvendra Singh, Dehradun &middot; Pet parent &middot; Dogs</p>
-          <h2 class="ph-card__title">Diabetes in dogs: what to do</h2>
-          <p class="ph-card__sum">Signs, the tests to ask for, insulin and its starting dose, food and feeding times, low sugar and when it is an emergency. One page, for owners and rescuers in India.</p>
-          <p class="ph-card__acts"><button class="btn" type="button" data-read="pfa-diabetes-in-dogs">Read</button><a class="ph-card__get" href="media/med-notes/diabetes-in-dogs.pdf" download>Download <small>(70 KB)</small></a></p>
-        </div>
+      <li class="ph-series" id="series-diabetes">
+        <div class="ph-series__head"><h2>Living with diabetes</h2><span class="ph-series__count">2 guides</span></div>
+        <p class="ph-series__intro">Start with the condition. Follow with the tools used to monitor it.</p>
+        <ol class="ph-guides">
+          <li class="ph-card" id="note-pfa-diabetes-in-dogs">
+            <button class="ph-cover" type="button" data-read="pfa-diabetes-in-dogs" aria-label="Read Diabetes in dogs: what to do"><img src="media/med-notes/diabetes-in-dogs-cover.webp" alt="Cover of Diabetes in dogs: what to do" width="900" height="1347" loading="eager" decoding="async"></button>
+            <div class="ph-card__bd">
+              <p class="ph-card__part">Guide 01</p>
+              <h3 class="ph-card__title">Diabetes in dogs: what to do</h3>
+              <p class="ph-card__by">Sunny Raghvendra Singh, Dehradun &middot; Pet parent</p>
+              <p class="ph-card__sum">Signs, the tests to ask for, insulin and its starting dose, food and feeding times, low sugar and when it is an emergency. One page, for owners and rescuers in India.</p>
+              <p class="ph-card__acts"><button class="btn" type="button" data-read="pfa-diabetes-in-dogs">Read guide</button><a class="ph-card__get" href="media/med-notes/diabetes-in-dogs.pdf" download>Download PDF <small>(70 KB)</small></a></p>
+            </div>
+          </li>
+          <li class="ph-card" id="note-pfa-glucose-meters-for-dogs">
+            <button class="ph-cover" type="button" data-read="pfa-glucose-meters-for-dogs" aria-label="Read Glucose meters for dogs"><img src="media/med-notes/glucose-meters-for-dogs-cover.webp" alt="Cover of Glucose meters for dogs" width="900" height="1347" loading="eager" decoding="async"></button>
+            <div class="ph-card__bd">
+              <p class="ph-card__part">Guide 02</p>
+              <h3 class="ph-card__title">Glucose meters for dogs</h3>
+              <p class="ph-card__by">Sunny Raghvendra Singh, Dehradun &middot; Pet parent</p>
+              <p class="ph-card__sum">A comparison of dog-calibrated meters and continuous monitors, where they are sold, their listed prices and the author’s findings on availability in India.</p>
+              <p class="ph-card__acts"><button class="btn" type="button" data-read="pfa-glucose-meters-for-dogs">Read guide</button><a class="ph-card__get" href="media/med-notes/glucose-meters-for-dogs.pdf" download>Download PDF <small>(5 KB)</small></a></p>
+            </div>
+          </li>
+        </ol>
       </li>
     </ol>
     <p class="m-fine ph-fine">Each guide is general information from someone who has been through it, read by PFA before it goes up. For your own animal, see a vet who can examine them. In an emergency, go to the nearest vet now.</p>
@@ -799,26 +851,47 @@ if (root.document && root.document.head) apply(read());
   var list = $('#phList');
   var chips = $('#phChips');
   var NOTES = [];
-  function byLine(n) { return [n.credit, n.role, n.animal].filter(Boolean).join(' · '); }
   function sizeOf(b) { b = Number(b) || 0; return b ? (b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB') : ''; }
-  function cover(n) {
+  function cover(n, eager) {
     return n.cover
-      ? '<button class="ph-cover" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><img src="' + esc(n.cover) + '" alt="Cover of ' + esc(n.title) + '" loading="lazy" decoding="async"></button>'
+      ? '<button class="ph-cover" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><img src="' + esc(n.cover) + '" alt="Cover of ' + esc(n.title) + '" width="900" height="1347" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></button>'
       : '<button class="ph-cover ph-cover--plain" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><span>' + esc(n.title) + '</span></button>';
   }
-  /* the first guide shown is the lead: large, its cover beside it */
+  /* the guides in their series (data/med-notes.json), each series in part order; a guide in no
+     series is with the others about the same animal. Series first, then the rest, newest first. */
+  var SERIES = [];
+  function two(n) { return n < 10 ? '0' + n : String(n); }
+  function card(n, eager) {
+    var f = n.files && n.files[0];
+    var isPdf = f && (/pdf/i.test(f.type || '') || /\.pdf$/i.test(f.url));
+    return '<li class="ph-card" id="note-' + esc(n.id) + '">' + cover(n, eager)
+      + '<div class="ph-card__bd"><p class="ph-card__part">' + (n.series && n.part ? 'Guide ' + two(n.part) : 'Care guide') + '</p>'
+      + '<h3 class="ph-card__title">' + esc(n.title) + '</h3>'
+      + '<p class="ph-card__by">' + esc([n.credit, n.role].filter(Boolean).join(' · ')) + '</p>'
+      + '<p class="ph-card__sum">' + esc(n.summary) + '</p>'
+      + '<p class="ph-card__acts"><button class="btn" type="button" data-read="' + esc(n.id) + '">Read guide</button>'
+      + (f ? '<a class="ph-card__get" href="' + esc(f.url) + '" download>Download' + (isPdf ? ' PDF' : '') + (sizeOf(f.size) ? ' <small>(' + sizeOf(f.size) + ')</small>' : '') + '</a>' : '')
+      + '</p></div></li>';
+  }
   function draw(filter) {
-    var shown = NOTES.filter(function (n) { return !filter || n.animal === filter; });
     if (!NOTES.length) { list.innerHTML = '<li class="ph-wait">The first guides are on their way. Share one.</li>'; return; }
-    list.innerHTML = shown.map(function (n, i) {
-      var f = n.files && n.files[0];
-      return '<li class="ph-card' + (i === 0 ? ' ph-card--lead' : '') + '" id="note-' + esc(n.id) + '">' + cover(n)
-        + '<div class="ph-card__bd"><p class="ph-card__by">' + esc(byLine(n)) + '</p>'
-        + (i === 0 ? '<h2 class="ph-card__title">' : '<h3 class="ph-card__title">') + esc(n.title) + (i === 0 ? '</h2>' : '</h3>')
-        + '<p class="ph-card__sum">' + esc(n.summary) + '</p>'
-        + '<p class="ph-card__acts"><button class="btn" type="button" data-read="' + esc(n.id) + '">Read</button>'
-        + (f ? '<a class="ph-card__get" href="' + esc(f.url) + '" download>Download' + (sizeOf(f.size) ? ' <small>(' + sizeOf(f.size) + ')</small>' : '') + '</a>' : '')
-        + '</p></div></li>';
+    var groups = [], at = {};
+    NOTES.filter(function (n) { return !filter || n.animal === filter; }).forEach(function (n) {
+      var s = n.series ? SERIES.filter(function (x) { return x.id === n.series; })[0] : null;
+      var key = s ? 's:' + s.id : 'a:' + (n.animal || '');
+      if (!at[key]) { at[key] = { s: s, animal: n.animal || '', notes: [] }; groups.push(at[key]); }
+      at[key].notes.push(n);
+    });
+    groups.sort(function (a, b) { return (a.s ? 0 : 1) - (b.s ? 0 : 1); });
+    var first = true;
+    list.innerHTML = groups.map(function (g) {
+      if (g.s) g.notes.sort(function (a, b) { return (a.part || 99) - (b.part || 99); });
+      var name = g.s ? g.s.name : g.animal ? 'Guides about ' + g.animal.toLowerCase() : 'More guides';
+      var intro = g.s ? g.s.intro : 'From pet parents, caregivers and vets who have been through it.';
+      return '<li class="ph-series" id="series-' + esc(g.s ? g.s.id : (g.animal || 'more').toLowerCase()) + '">'
+        + '<div class="ph-series__head"><h2>' + esc(name) + '</h2><span class="ph-series__count">' + g.notes.length + (g.notes.length === 1 ? ' guide' : ' guides') + '</span></div>'
+        + (intro ? '<p class="ph-series__intro">' + esc(intro) + '</p>' : '')
+        + '<ol class="ph-guides">' + g.notes.map(function (n) { var e = first; first = false; return card(n, e); }).join('') + '</ol></li>';
     }).join('');
   }
   function paintChips() {
@@ -848,15 +921,16 @@ if (root.document && root.document.head) apply(read());
   /* if the server cannot be reached, PFA's own notes still show */
   function own() {
     return fetch('data/med-notes.json').then(function (r) { return r.json(); }).then(function (d) {
+      SERIES = Array.isArray(d.series) ? d.series : [];
       return (d.notes || []).map(function (s) {
-        return { id: 'pfa-' + s.id, title: s.title, summary: s.summary, text: s.text || '', animal: s.animal, role: s.role, credit: s.credit, sources: s.sources, cover: s.cover ? '/' + String(s.cover).replace(/^\/+/, '') : '',
+        return { id: 'pfa-' + s.id, title: s.title, summary: s.summary, text: s.text || '', animal: s.animal, role: s.role, credit: s.credit, sources: s.sources, series: s.series || '', part: Number(s.part) || 0, cover: s.cover ? '/' + String(s.cover).replace(/^\/+/, '') : '',
           files: (s.files || []).map(function (f) { return { url: '/' + String(f.src).replace(/^\/+/, ''), type: f.type, size: f.size }; }) };
       });
     });
   }
   fetch('/api/med-notes', { headers: { Accept: 'application/json' } })
     .then(function (r) { if (!r.ok) throw new Error('read'); return r.json(); })
-    .then(function (d) { if (!d || !Array.isArray(d.notes)) throw new Error('read'); return d.notes; })
+    .then(function (d) { if (!d || !Array.isArray(d.notes)) throw new Error('read'); SERIES = Array.isArray(d.series) ? d.series : []; return d.notes; })
     .catch(function () { return own().catch(function () { return []; }); })
     .then(loaded);
 
@@ -879,10 +953,13 @@ if (root.document && root.document.head) apply(read());
         (function (n) {
           chain = chain.then(function () { return doc.getPage(n); }).then(function (page) {
             var base = page.getViewport({ scale: 1 });
-            var vp = page.getViewport({ scale: (width / base.width) * ratio });
+            /* a landscape page (a table, say) keeps a readable size on a phone and scrolls sideways */
+            var wide = base.width > base.height;
+            var vp = page.getViewport({ scale: ((wide ? Math.max(width, 820) : width) / base.width) * ratio });
             var c = document.createElement('canvas');
             c.width = Math.round(vp.width); c.height = Math.round(vp.height);
             c.setAttribute('aria-label', 'Page ' + n + ' of ' + doc.numPages);
+            if (wide) c.className = 'is-wide';
             into.appendChild(c);
             return page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
           });

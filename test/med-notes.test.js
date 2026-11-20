@@ -108,8 +108,11 @@ test('the page: the guide first, with its cover; sharing one is closed until ask
   const first = doc.querySelector('main').firstElementChild;
   assert.equal(first.id, 'top');
   assert.equal(first.querySelector('h1').textContent, 'Care Guides.', 'called Care Guides');
-  const lead = first.querySelector('#phList > li.ph-card--lead');
-  assert.ok(lead, 'the first guide, large, is the first thing on the page, before any script runs');
+  /* owner, 20 Nov 2026: "we dont need unnecessary scroll. and cut straight to the set of articles" */
+  const lead = first.querySelector('#phList > li.ph-series .ph-guides > li.ph-card');
+  assert.ok(lead, 'the guides, in their series, are the first thing under the title, before any script runs');
+  assert.equal(first.querySelector('.ph-head').nextElementSibling.id, 'phChips', 'nothing between the title and the guides');
+  assert.ok(!doc.querySelector('.cg-feature, #cgSearch, #cgOrder, #cgFilters'), 'no featured panel, tabs, search or sort above them');
   assert.ok(!doc.querySelector('main .hero'), 'no panel of words above it');
   const own = MED.seeds()[0];
   assert.equal(lead.id, 'note-pfa-' + own.id);
@@ -195,6 +198,8 @@ test('published from the panel: on the site with its PDF, and the sender emailed
   assert.ok(Buffer.isBuffer(file.body) && file.body.equals(PDF));
   /* PFA's own note is listed too */
   assert.ok(list.json.notes.some((n) => n.id === 'pfa-diabetes-in-dogs'));
+  assert.deepEqual(list.json.series, [{ id: 'diabetes', name: 'Living with diabetes', intro: 'Start with the condition. Follow with the tools used to monitor it.' }], 'with the series they are shown in');
+  assert.deepEqual(list.json.notes.filter((n) => n.series === 'diabetes').map((n) => [n.id, n.part]), [['pfa-diabetes-in-dogs', 1], ['pfa-glucose-meters-for-dogs', 2]]);
 });
 
 test('asked for changes: a private link, the note opened by it, the update taken once, the old version kept, gandhim given the update', async () => {
@@ -322,4 +327,50 @@ test('the panel has Care Guides: its own section, list first, every action a pre
   assert.ok(require('../lib/admin-modules').MODULE_KEYS.includes('mednotes'));
   assert.ok(read('scripts/build-firebase.js').includes("'assets/admin-mednotes.js'"), 'shipped with the panel');
   assert.ok(read('scripts/build-firebase.js').includes("'data/med-notes.json'"), 'and the notes PFA put up, for the function');
+});
+
+/* width and height of a WebP (VP8, VP8L or VP8X), read from its header */
+function imageSize(file) {
+  const b = fs.readFileSync(file);
+  const kind = b.toString('latin1', 12, 16);
+  if (kind === 'VP8X') return [1 + b.readUIntLE(24, 3), 1 + b.readUIntLE(27, 3)];
+  if (kind === 'VP8L') { const n = b.readUInt32LE(21); return [1 + (n & 0x3fff), 1 + ((n >> 14) & 0x3fff)]; }
+  return [b.readUInt16LE(26) & 0x3fff, b.readUInt16LE(28) & 0x3fff];
+}
+
+/* owner, 20 Nov 2026: the second guide from the same author, "Glucose meters
+   for dogs: none sold in India", a one-page landscape table */
+test('the glucose meters guide: on the page before any script, with its PDF, its cover and its true size; a wide page stays readable on a phone', () => {
+  MED._resetSeeds();
+  const g = MED.seeds().find((s) => s.id === 'glucose-meters-for-dogs');
+  assert.ok(g, 'in data/med-notes.json');
+  assert.equal(g.title, 'Glucose meters for dogs');
+  assert.deepEqual([MED.seeds()[0].series, MED.seeds()[0].part, g.series, g.part], ['diabetes', 1, 'diabetes', 2], 'one series, in order');
+  assert.deepEqual(MED.series().map((x) => x.name), ['Living with diabetes']);
+  const file = path.join(ROOT, g.files[0].src);
+  assert.equal(fs.readFileSync(file).subarray(0, 5).toString('latin1'), '%PDF-');
+  assert.equal(fs.statSync(file).size, g.files[0].size);
+  assert.ok(fs.existsSync(path.join(ROOT, g.cover)));
+  assert.equal(MED.seeds()[0].id, 'diabetes-in-dogs', 'the diabetes guide still leads');
+  const html = read('pet-health.html');
+  const doc = new JSDOM(html).window.document;
+  const card = doc.getElementById('note-pfa-glucose-meters-for-dogs');
+  assert.ok(card && card.closest('#series-diabetes'), 'in the diabetes series');
+  assert.equal(card.querySelector('.ph-card__part').textContent, 'Guide 02', 'the second guide of it');
+  assert.equal(card.querySelector('.ph-card__title').textContent, g.title);
+  assert.equal(card.querySelector('.ph-cover img').getAttribute('src'), g.cover);
+  assert.equal(card.querySelector('a[download]').getAttribute('href'), g.files[0].src);
+  assert.match(html, /var wide = base\.width > base\.height;/, 'a landscape page is drawn at a readable width');
+  assert.match(html, /\.ph-view__body canvas\.is-wide\{min-width:820px\}/, 'and scrolls sideways on a phone');
+  /* owner, 20 Nov 2026: "the cover of the 2nd article should be of the same dimension" */
+  const [a, b] = [MED.seeds()[0].cover, g.cover].map((c) => imageSize(path.join(ROOT, c)));
+  assert.deepEqual(b, a, 'the same picture size as the first');
+  assert.equal(card.querySelector('.ph-cover img').getAttribute('height'), String(b[1]));
+  assert.match(html, /\.ph-guides\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/, 'two to a row, so the covers are the same size');
+  /* owner, 20 Nov 2026: "2 lines. blue and black look odd.. also read guide button should be at the same level.. for all" */
+  assert.match(html, /\.ph-series\{min-width:0\}/, 'no line over the series: the title\'s line is the only one');
+  assert.doesNotMatch(html, /^\.ph-series\{[^}]*border-top/m, 'not blue over black');
+  assert.doesNotMatch(html, /border-top:2px solid #16b6ff/, 'no blue line at all');
+  assert.match(html, /@supports \(grid-template-rows:subgrid\)\{\n  \.ph-guides\{row-gap:0;grid-auto-rows:auto auto auto auto auto 1fr\}/, 'each guide\'s parts on the row\'s shared lines');
+  assert.match(html, /\.ph-card\{grid-row:span 6;grid-template-rows:subgrid;/, 'so Read guide is at the same level for all');
 });

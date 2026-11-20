@@ -908,6 +908,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <!-- Certificates, every kind (16 Nov 2026: their own section, not under
          Internship). Filled by certificatesPane(); drawn by assets/certificate.js. -->
     <div class="pane" data-pane="certificates" role="region" aria-label="Certificates"><div class="loading">Reading the certificates&#8230;</div></div>
+    <div class="pane" data-pane="letters" role="region" aria-label="Letter studio"><div class="loading">Opening the Letter studio&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
       <!-- one line (16 Nov 2026): find, the three filters, Export; each applies as it changes -->
@@ -1143,17 +1144,8 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/member-card.js"></script>
 <script src="assets/certificate.js?v=3b5a7e2025"></script>
 <script>
-/* The panel.
-
-   Sign-in mints a Firebase ID token straight from Google's Identity Toolkit
-   REST endpoint, so no third-party script has to load before someone can get
-   in. Every call to /api/admin/* carries that token as a bearer header; the
-   server re-reads the account's claims, so a permission taken away on the
-   People page is gone from the next request, not the next hour.
-
-   Nothing here decides what an administrator may see. The rail hides what an
-   account does not carry, but the API refuses it as well - a hidden link is
-   not a locked door. */
+/* The panel. Sign-in is Google's Identity Toolkit REST; every /api/admin
+   call carries the token, and the server checks the account's access. */
 (function () {
   'use strict';
 
@@ -1408,7 +1400,8 @@ window.addEventListener('unhandledrejection', function (event) {
     internship:  { title: 'Internship',    module: 'internship',  needs: 'internship', panes: ['internship', 'interns', 'shelters'] },
     interns:     { title: 'Interns',       module: 'internship',  needs: 'internship' },
     shelters:    { title: 'Shelter directory', module: 'internship', needs: 'internship' },
-    certificates: { title: 'Certificates', module: 'certificates', needs: 'certificates' },
+    certificates: { title: 'Certificates', module: 'certificates', needs: 'certificates', panes: ['certificates', 'letters'] },
+    letters: { title: 'Letter studio', module: 'letters', needs: 'letters' },
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
@@ -1458,7 +1451,7 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* A section folded into another keeps its name here, so an old link or an
      internal show('donations') lands on the section that now holds it. */
-  var HOMES = { memprint: 'membership', donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', interns: 'internship', shelters: 'internship' };
+  var HOMES = { memprint: 'membership', donations: 'payments', cards: 'caregivers', verify: 'caregivers', apply: 'caregivers', cgsheet: 'caregivers', memsheet: 'membership', audit: 'people', interns: 'internship', shelters: 'internship', letters: 'certificates' };
   function panesOf(tab) { return (TABS[tab] || {}).panes || [tab]; }
   function paneAllowed(pane) {
     var spec = TABS[pane];
@@ -1466,7 +1459,7 @@ window.addEventListener('unhandledrejection', function (event) {
   }
   /* the parts of a section, by name in its switch, and which rail count
      belongs to which part */
-  var SUBNAME = { cgsheet: 'Register', apply: 'To do', verify: 'Find a card', cards: 'Print and post', memsheet: 'Register', membership: 'To do', memprint: 'Print and post', payments: 'Payments', donations: 'Donations', internship: 'Batches and review', interns: 'Interns', shelters: 'Shelters', people: 'Admins', audit: 'History' };
+  var SUBNAME = { cgsheet: 'Register', apply: 'To do', verify: 'Find a card', cards: 'Print and post', memsheet: 'Register', membership: 'To do', memprint: 'Print and post', payments: 'Payments', donations: 'Donations', internship: 'Batches and review', interns: 'Interns', shelters: 'Shelters', people: 'Admins', audit: 'History', certificates: 'Certificates', letters: 'Letter studio' };
   var SUBPIP = { apply: 'pipApps', membership: 'pipMembers', internship: 'pipIntern' };
   var subOf = {};
   function show(tab, part) {
@@ -1544,6 +1537,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'shop') return shopPane();
     if (tab === 'internship') return internshipPane();
     if (tab === 'certificates') return certificatesPane();
+    if (tab === 'letters') return window.PFALetters && window.PFALetters.pane();
     if (tab === 'interns' || tab === 'shelters') return window.PFAInternship && window.PFAInternship.pane(tab);
     if (tab === 'wall') return window.PFAWall && window.PFAWall.pane();
     if (tab === 'mednotes') return window.PFAMedNotes && window.PFAMedNotes.pane();
@@ -6332,6 +6326,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-replies.js"></script>
 <script src="assets/admin-wall.js"></script>
 <script src="assets/admin-mednotes.js"></script>
+<script src="assets/admin-letters.js"></script>
 <script src="assets/admin-live-chat.js"></script>
 <script src="assets/admin-taxid.js"></script>
 <script>

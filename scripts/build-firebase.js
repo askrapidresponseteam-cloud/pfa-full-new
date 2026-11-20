@@ -112,7 +112,9 @@ const PANEL_ASSETS = [
   /* care guides for pet parents and caregivers (16 Nov 2026) */
   'assets/admin-mednotes.js',
   /* Check the cards: preview and correct cards, one by one or all at once (17 Nov 2026) */
-  'assets/admin-cardcheck.js'
+  'assets/admin-cardcheck.js',
+  /* the Letter studio: letters and certificates on letterhead (20 Nov 2026) */
+  'assets/admin-letters.js'
 ];
 
 /* ---- the whole site, for --full only ----------------------------------- */

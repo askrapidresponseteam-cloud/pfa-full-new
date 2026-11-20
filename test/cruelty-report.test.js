@@ -166,7 +166,8 @@ test('Indian scripts are drawn in their own Noto font; a character no font has (
   assert.deepEqual(runs('help 😢 now').map((x) => x.text), ['help now'], 'one space where the emoji was');
   assert.deepEqual(runs('Asha', true).map((x) => x.key), ['latinBold']);
   for (const f of fs.readdirSync(path.join(ROOT, 'lib/report-fonts')).filter((x) => x.endsWith('.woff'))) {
-    assert.ok(read('lib/cruelty-report.js').includes(`'report-fonts', '${f}'`), `${f} is named in full, so the bundlers carry it`);
+    /* named in lib/pdf-fonts.js since 20 Nov 2026, shared with the letters */
+    assert.ok(read('lib/pdf-fonts.js').includes(`'report-fonts', '${f}'`), `${f} is named in full, so the bundlers carry it`);
   }
   assert.ok(fs.existsSync(path.join(ROOT, 'lib/report-fonts/OFL.txt')), 'the fonts\' licence travels with them');
 });

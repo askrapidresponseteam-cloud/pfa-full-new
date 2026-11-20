@@ -1,3 +1,30 @@
+## v1.614
+
+- **Letter studio in the admin panel.** Letters and certificates of appreciation on PFA letterhead, signed by Maneka Sanjay Gandhi and sealed, issued from the panel (owner, 20 Nov 2026, from PFA-Letter-Studio.html). Under Certificates, as its own section; who may use it is its own permission ("Letter studio" on the Admins page), since it signs in her name.
+  - **Choose the person** from the People directory by name, email, phone or PIN: their name and address go on the letter, their name goes into it where it says [Name], and their email is filled in to send to. Or write any name and address.
+  - **Four starting letters**, from the studio: a certificate of appreciation, a general letter, a request for support, a letter to an authority. Every word can be changed; select words and make them bold.
+  - **The letterhead, the signature and the seal: each sized and moved**, left and right, up and down; the signature and the seal can each be left off. The places you last used are kept for the next letter.
+  - **Set in Arial's measure**: Liberation Sans, made with exactly Arial's widths (Arial itself may not be shipped with a website). The rupee sign and a name written in Hindi, Kannada or any Indian script print correctly.
+  - **The preview is the letter itself**: the PDF the server makes, so what you see is what is issued. A long letter runs on to further pages, the letterhead on each.
+  - **Issue** gives it the next reference of the year (PFA/LET/2026/00001), keeps it exactly as issued, and writes the audit log. A letter with a blank still in it, such as [Name], is not issued.
+  - **Download the PDF, email it** (the email is shown before it goes, the PDF attached), **or withdraw it**; a withdrawn letter is never emailed. Every issued letter is listed with whether it was sent.
+  - The signature, the seal and the letterhead are kept where the public site can never serve them; they reach a browser only inside a letter made for someone allowed to make one.
+- **Care Guides: one line, and Read guide level for all.** The blue line over the series is gone; the black line under the title is the only one (owner: "2 lines. blue and black look odd"). Every guide's label, title, author, summary and buttons sit on the same lines as the guide beside it, so Read guide is at the same level for all, on a computer and on a phone.
+- **Care Guides: straight to the guides.** No featured panel, tabs, search or second "share" block above them: under the title comes the series, "Living with diabetes", Guide 01 and Guide 02 side by side (owner: "we dont need unnecessary scroll. and cut straight to the set of articles"). On a computer both guides are on the first screen. The glucose meters guide now reads "Glucose meters for dogs", with the summary from the owner's page.
+- Also in this build: v1.613 (both covers the same size), v1.612 (the glucose meters guide, wide pages on a phone) and v1.611 (the shop inside the chat).
+
+## v1.613
+
+- **Both Care Guides now look the same: same cover size, same layout.** Owner, 20 Nov 2026: "the cover of the 2nd article should be of the same dimension". The glucose meters guide is laid out exactly as the diabetes guide, with the same cover width, title and text sizes, on every screen, and its cover picture is now the same size (900 by 1347). From four guides after the first, they sit in the grid.
+- Also in this build: the glucose meters guide and readable wide pages on a phone (v1.612), and the shop inside the chat (v1.611).
+
+## v1.612
+
+- **New Care Guide: glucose meters for dogs, none sold in India.** By Sunny Raghvendra Singh, Dehradun (owner, 20 Nov 2026). A one-page table of 16 blood sugar meters and monitors made for dogs: maker, type, where each is sold, the price, and that none has an Indian distributor. Prices as checked on 19 November 2026. It sits under the diabetes guide on pet-health.html with its cover, Read and Download, and the chat finds it like every guide.
+- **Wide pages read properly on a phone.** A landscape page, such as this table, is now drawn at a readable size in the guide reader and scrolls sideways, instead of shrinking to a third of the screen.
+- **No empty space beside a lone guide.** When only one or two guides follow the lead, each runs across the row with its cover beside it; from four on, they sit in the grid.
+- Also in this build, from v1.611: the shop inside the chat.
+
 ## v1.611
 
 - **Shop inside the chat: see the pieces, add to the bag, check out and pay, without leaving the chat.** Owner, 20 Nov 2026: "make chatbot show shop items within the chat interface and add items to cart and checkout and pay.. show preview as well. enterprise grade".

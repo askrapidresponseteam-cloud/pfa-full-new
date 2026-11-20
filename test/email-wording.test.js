@@ -113,6 +113,8 @@ const CASES = {
   'a care guide sent back for a change': ['med_note_changes', 'person', { ...base, name: 'Asha Rao', reference: 'PFA-MED-2026-00001', title: 'Tick fever in dogs', text: 'Please add which test confirms it.\nAnd the source of the dose.', uploadUrl: `${site}/pet-health.html#edit=abc`, expiresAt: '2026-11-30T09:10:00Z' }],
   'a care guide updated by its sender': ['med_note_update_received', 'person', { ...base, name: 'Asha Rao', reference: 'PFA-MED-2026-00001', title: 'Tick fever in dogs', receivedAt: '2026-11-17T09:10:00Z' }],
   'the updated care guide, to PFA': ['submission_forward', 'pfa', { ...base, reference: 'PFA-MED-2026-00001', kind: 'PFA-MED', kindLabel: 'Care guide', name: 'Asha Rao', email: 'asha@example.com', page: 'pet-health.html', followUp: 'update-1', rows: [{ label: 'Title', value: 'Tick fever in dogs' }] }],
+  'a certificate of appreciation on letterhead': ['pfa_letter', 'person', { ...base, name: 'Raya Shah', number: 'PFA/LET/2026/00001', kind: 'appreciation', subject: 'CERTIFICATE OF APPRECIATION', dateWords: '20 November 2026' }],
+  'a letter on letterhead': ['pfa_letter', 'person', { ...base, name: 'Ravi Kumar', number: 'PFA/LET/2026/00002', kind: 'support', subject: 'Request for support for animal welfare', dateWords: '20 November 2026' }],
   'a birthday card, emailed at 6 am': ['birthday_greeting', 'person', { ...base, name: 'Darshan Singh Rawat', day: '2026-11-17', turns: 63 }],
   'a test from the panel': ['inbox_test', 'pfa', { ...base, at: '2026-10-21T09:10:00Z', from: 'People for Animals <info@peopleforanimalsindia.org>', by: 'karthik.dhanya11@gmail.com', covers: 'payments' }]
 };
