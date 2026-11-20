@@ -547,3 +547,39 @@ test('an open question: answered in the site\'s own words, with its page, or not
   assert.match(read('package.json'), /node scripts\/build-answer-index\.js/, 'rebuilt with the search index');
   assert.doesNotMatch(read('assets/assistant-flows.js'), /\(\?<[=!]/, 'no lookbehind: older Safari would not load the chat');
 });
+
+/* Owner, 18 Nov 2026, a screenshot of "ok", "ok", "done" each answered with
+   the same sentence, then "That does not look like a PFA number": "chatbot
+   still doesnt sound smart". */
+test('never the same line twice: a second "ok", "done", and a second wrong number each get something new and a way out', () => {
+  const lines = (r) => r.said.slice(2).map((o) => o.messages.map((m) => m.text).join(' '));
+  const r = talk([{ tap: '#track' }, 'ok', 'ok', 'done', 'abc', 'xyz', 'qq', 'zz']);
+  const said = lines(r);
+  for (let i = 1; i < said.length; i++) assert.notEqual(said[i], said[i - 1], 'no reply straight after itself:\n' + said.join('\n'));
+  assert.equal(new Set(said.slice(0, 6)).size, 6, 'the first six all different');
+  assert.match(said[0], /^Sure\. Type the number/);
+  assert.match(said[1], /^No rush\./, 'the second ok');
+  assert.match(said[2], /^No number has reached me yet\. Copy it from PFA.s email/, '"done": they think they gave it');
+  for (const o of r.said.slice(3)) {
+    const chips = o.messages[o.messages.length - 1].chips || [];
+    assert.deepEqual(chips.map((c) => c.value), ['#nonumber', '#helpdesk', '#menu'], 'a way out, every time from the second miss');
+  }
+  assert.match(said[3], /does not look like a PFA number\. .*If you cannot find it, choose below\./);
+  /* the way out */
+  const out1 = talk([{ tap: '#track' }, 'ok', 'ok', { tap: '#nonumber' }]);
+  assert.match(out1.o.messages[0].text, /email PFA sent you/);
+  /* and the number still taken when it comes */
+  const late = talk([{ tap: '#track' }, 'ok', 'ok', 'done', 'PFA-CR-2026-00012', 'ravi@example.com']);
+  assert.equal(late.o.action.reference, 'PFA-CR-2026-00012');
+  /* a first "ok" is as before */
+  assert.match(talk([{ tap: '#track' }, 'ok']).o.messages[0].text, /^Sure\. Type the number/);
+  /* a name asked twice: not the same line either */
+  const name = lines(talk([{ tap: '#internship' }, 'ok', 'ok']));
+  assert.notEqual(name[0], name[1]);
+  assert.match(name[1], /^No rush\. Whenever you are ready\. What is your full name\?/);
+  const oks = lines(talk([{ tap: '#track' }, 'ok', 'ok', 'ok', 'ok']));
+  for (let i = 1; i < oks.length; i++) assert.notEqual(oks[i], oks[i - 1], oks.join('\n'));
+  /* in Hindi too */
+  const hi = lines(talk([{ tap: '#track' }, 'ठीक है', 'ठीक है', 'हो गया'], { lang: 'hi' }));
+  assert.equal(new Set(hi).size, 3, hi.join('\n'));
+});

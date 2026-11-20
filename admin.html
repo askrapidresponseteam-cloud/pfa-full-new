@@ -315,7 +315,7 @@ td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pend__list{margin-top:12px}
 .pend__list summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;list-style:none}
 .pend__list summary::-webkit-details-marker{display:none}
-/* drawn, not typed (owner, 28 Oct 2026: "+mark isnt perfectly centered. fix it"): a typed + sits where the font puts it, and turning the whole square 45 degrees made it a diamond. Two 1px bars in an odd-sized box land on whole pixels, dead centre; open, two diagonals drawn about the same centre make the x, and the box itself never turns. */
+/* drawn, not typed (owner, 28 Oct 2026: "+mark isnt perfectly centered"): two 1px bars in an odd-sized box land dead centre; open, two diagonals make the x and the box never turns. */
 .pend__list summary::before{content:"";flex:none;box-sizing:border-box;width:21px;height:21px;border:1px solid var(--line,#ddd);background:linear-gradient(currentColor,currentColor) center/9px 1px no-repeat,linear-gradient(currentColor,currentColor) center/1px 9px no-repeat}
 .pend__list[open] summary::before{background:linear-gradient(45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/9px 9px no-repeat,linear-gradient(-45deg,transparent calc(50% - .6px),currentColor calc(50% - .6px),currentColor calc(50% + .6px),transparent calc(50% + .6px)) center/9px 9px no-repeat}
 .pend__list[open] summary{margin-bottom:10px}
@@ -1598,7 +1598,7 @@ window.addEventListener('unhandledrejection', function (event) {
       var vw = ((m.byKind || {})['PFA-V'] || {}).waiting || 0;
       var vols = can('volunteers') && stat('volunteers', vw, vw === 1 ? 'volunteer waiting' : 'volunteers waiting');
       if (vols) cells.push(cell('volunteers', 'volunteers', 'data-module="volunteers">' + vols + '</button>'));
-      var pay = can('payments') && stat('payments', money((m.revenue30d || {}).inr), 'received in 30 days', (c.paymentsPaid || 0) + ((c.paymentsPaid || 0) === 1 ? ' payment' : ' payments'));
+      var pay = can('payments') && stat('payments', money(c.paidAllInr) + (c.paidAllUsd ? ' + ' + money(c.paidAllUsd, 'USD') : ''), 'received in all', (c.paidAllCount || 0) + (c.paidAllCount === 1 ? ' payment' : ' payments'));
       if (pay) cells.push(cell('payments', 'payments', 'data-module="payments">' + pay + '</button>'));
       /* one money tile: donations alone only for someone who cannot see Payments */
       var gave = !pay && can('donations') && stat('donations', money(((m.payments || {}).byType || {}).donate ? m.payments.byType.donate.inr : 0), 'given in 30 days', ((((m.payments || {}).byType || {}).donate || {}).count || 0) + ' donations');
@@ -2148,13 +2148,14 @@ window.addEventListener('unhandledrejection', function (event) {
     if ($('#payQ') && $('#payQ').value.trim()) url += '&q=' + encodeURIComponent($('#payQ').value.trim());
     var when = $('#payWhen') ? $('#payWhen').value : '';
     if (/^\d{4}-\d{2}$/.test(when)) url += '&month=' + when;
+    if (when === 'd30') url += '&from=' + new Date(Date.now() - 2592e6).toISOString();
     if (when === 'range') {
       if ($('#payFrom').value) url += '&from=' + $('#payFrom').value;
       if ($('#payTo').value) url += '&to=' + $('#payTo').value;
     }
     return url;
   }
-  /* this month and the eleven before it, India time, then Choose dates */
+  /* Last 30 days (as Overview), this month and the eleven before it, India time, then Choose dates */
   (function () {
     var sel = $('#payWhen');
     if (!sel) return;
@@ -2166,7 +2167,7 @@ window.addEventListener('unhandledrejection', function (event) {
       html += '<option value="' + y + '-' + String(m + 1).padStart(2, '0') + '">' + MON[m] + ' ' + y + '</option>';
       m -= 1; if (m < 0) { m = 11; y -= 1; }
     }
-    sel.insertAdjacentHTML('beforeend', html + '<option value="range">Choose dates\u2026</option>');
+    sel.insertAdjacentHTML('beforeend', '<option value="d30">Last 30 days</option>' + html + '<option value="range">Choose dates\u2026</option>');
   })();
   function payWhenLabel() {
     var sel = $('#payWhen');
@@ -6311,6 +6312,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-registers.js"></script>
 <script src="assets/admin-internship.js"></script>
 <script src="assets/admin-payreport.js"></script>
+<script src="assets/admin-live.js"></script>
 <script src="assets/admin-people.js"></script>
 <script src="assets/admin-gifts.js"></script>
 <script src="assets/admin-directory.js"></script>

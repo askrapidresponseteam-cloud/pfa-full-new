@@ -276,3 +276,38 @@ test('payments: the period’s total, purpose by purpose, held in view above the
   assert.match(html, /if \(data\.summary\) paySummary\(data\.summary, data\.capped\);/, 'drawn from the first page, kept while more load');
   assert.match(html, /\(capped \? 'At least ' : ''\)/, 'a total from a capped scan says so');
 });
+
+/* Owner, 20 Nov 2026, Overview's "₹1,45,229 received in 30 days · 135
+   payments" beside Payments' "All time ₹1,45,340 · 136": "something wrong
+   with pfa site donation calc". Both were right, over different periods,
+   and Payments could not show Overview's. Now Payments has Last 30 days,
+   counted to the minute exactly as Overview counts it, and Overview's
+   money tile opens Payments on it. */
+test('payments: Last 30 days is Overview\'s own 30 days, to the minute', async () => {
+  current = strictWithPayments();
+  const from = new Date(NOW - 30 * DAY).toISOString();
+  const res = await get({ type: 'payments', status: 'paid', from, limit: '50' });
+  const since = NOW - 30 * DAY;
+  const expected = Object.values(transactions).filter((t) => t.status === 'success' && t.createdAt.toMillis() >= since);
+  assert.equal(res.body.summary.paidCount, expected.length);
+  assert.equal(res.body.summary.paidInr, expected.filter((t) => t.currency !== 'USD').reduce((s, t) => s + t.amount, 0));
+  const all = await get({ type: 'payments', status: 'paid', limit: '50' });
+  assert.ok(all.body.summary.paidCount > res.body.summary.paidCount, 'all time is more: the payments before the 30 days');
+
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.html'), 'utf8');
+  assert.match(html, /<option value="d30">Last 30 days<\/option>/, 'Payments offers the same period');
+  assert.match(html, /if \(when === 'd30'\) url \+= '&from=' \+ new Date\(Date\.now\(\) - 2592e6\)\.toISOString\(\);/, '30 x 24 hours, as Overview');
+  /* Overview's money tile is all time, summed by the very code Payments uses */
+  const R = require('../lib/routes/admin/records');
+  const total = await R.paidAllTime(current);
+  assert.equal(total.inr, all.body.summary.paidInr);
+  assert.equal(total.usd, all.body.summary.paidUsd);
+  assert.equal(total.count, all.body.summary.paidCount);
+  assert.match(require('fs').readFileSync(require('path').join(__dirname, '..', 'lib/routes/admin/metrics.js'), 'utf8'), /paidAllInr: paidAll \? paidAll\.inr/);
+  assert.match(html, /stat\('payments', money\(c\.paidAllInr\)/, 'the tile shows that total');
+  const live = require('fs').readFileSync(require('path').join(__dirname, '..', 'assets/admin-live.js'), 'utf8');
+  assert.match(live, /EVERY_MS = 30 \* 1000/, 'and keeps itself current');
+  assert.match(html, /<script src="assets\/admin-live\.js"><\/script>/);
+  assert.equal(2592e6, 30 * DAY);
+  assert.match(require('fs').readFileSync(require('path').join(__dirname, '..', 'lib/routes/admin/metrics.js'), 'utf8'), /const since30 = nowMs - WINDOW_DAYS \* DAY_MS;/);
+});

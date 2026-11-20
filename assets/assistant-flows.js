@@ -765,22 +765,69 @@
     var THANKS = /^(thanks|thank you|thank u|thanku|thx|ty|dhanyavad|dhanyawad|shukriya|धन्यवाद|शुक्रिया)( (so much|a lot|ji))?$/;
     var HELLO = /^(hi|hii|hello|hey|namaste|namaskar|नमस्ते|नमस्कार)$/;
     var LOST = /^(no|nope|nahi|nahin|na|no number|i (don'?t|do not|dont) have( it| one| the number)?|(don'?t|dont|do not) have( it| one| the number)?|(i )?lost( it)?|(i )?forgot( it)?|(i )?(don'?t|dont|do not) know|no idea|not sure|pata nahi|pta nahi|nahi pata|nahi hai|mere paas nahi( hai)?|नहीं|नहीं है|पता नहीं|नहीं पता|मेरे पास नहीं है)$/;
+    /* ---- not the same line twice (owner, 18 Nov 2026, a screenshot of
+       "ok", "ok", "done" each answered with the same sentence, then "That
+       does not look like a PFA number": "chatbot still doesnt sound
+       smart") ----
+       Misses on one question are counted. The first gets the usual line;
+       from the second the chat says something new and offers a way out:
+       for a number, "I don't have the number", the help desk, or something
+       else; for anything else, skip (when it may be left) or something
+       else. "done", "sent" or "I typed it" where a number is wanted is
+       heard as someone who thinks they gave it, and told nothing came. */
+    var DONE = /^(done|did it|i did|i have|sent|sent it|typed|typed it|entered|entered it|given|gave it|already (sent|typed|gave|given|entered)( it)?|i (already )?(sent|typed|gave|entered) it|here|there|check|see|ho gaya|hogaya|ho gya|de diya|diya|bhej diya|likh diya|हो गया|दे दिया|भेज दिया|लिख दिया)$/;
+    function missed(f) {
+      var key = (S.flow || '') + '|' + (f && f.id) + '|' + S.step;
+      if (!S.miss || S.miss.key !== key) S.miss = { key: key, n: 0 };
+      S.miss.n += 1;
+      return S.miss.n;
+    }
+    function isNumberField(f) { return !!f && (f.type === 'reference' || f.type === 'certno'); }
+    function wayOut(f) {
+      var hi = lang() === 'hi';
+      if (isNumberField(f)) {
+        var c = [{ label: hi ? 'मेरे पास नंबर नहीं है' : 'I don\'t have the number', value: '#nonumber' }];
+        if (f.type === 'reference') c.push({ label: hi ? 'PFA की हेल्प डेस्क से पूछें' : 'Ask PFA\'s help desk', value: '#helpdesk' });
+        return c.concat([{ label: t('menuChip', lang()), value: '#menu' }]);
+      }
+      return (f && f.optional ? [{ label: t('skipWord', lang()), value: '#skip' }] : []).concat([{ label: t('menuChip', lang()), value: '#menu' }]);
+    }
+    function lostNumber(f) {
+      var hi = lang() === 'hi';
+      var where = f.type === 'reference'
+        ? (hi ? 'कोई बात नहीं। यह नंबर उस ईमेल में है जो PFA ने आपको भेजते समय भेजा था। न मिले, तो आप PFA की हेल्प डेस्क से पूछ सकते हैं।' : 'That is all right. The number is in the email PFA sent you when you sent it in. If you cannot find it, you can ask PFA\'s help desk instead.')
+        : (hi ? 'कोई बात नहीं। नंबर प्रमाणपत्र या कार्ड पर छपा है, और उस ईमेल में है जिसके साथ वह आया था।' : 'That is all right. The number is printed on the certificate or card, and in the email it came with.');
+      var chips = f.type === 'reference' ? [{ label: hi ? 'PFA की हेल्प डेस्क से पूछें' : 'Ask PFA\'s help desk', value: '#helpdesk' }, { label: t('menuChip', lang()), value: '#menu' }] : [{ label: t('menuChip', lang()), value: '#menu' }];
+      return out([msg(where, { chips: chips })]);
+    }
+
     function aside(text, f) {
       if (/^(yesno|consent|choice|multi|photos|address)$/.test(f.type) || (S.addr && S.addr.step !== 'pin')) return null;
       var n = N.normalise(text).replace(/[.!?,]+$/, '').replace(/\s+/g, ' ').trim();
       var hi = lang() === 'hi';
       var numberAsked = f.type === 'reference' || f.type === 'certno';
-      if (numberAsked && LOST.test(n)) {
-        var where = f.type === 'reference'
-          ? (hi ? 'कोई बात नहीं। यह नंबर उस ईमेल में है जो PFA ने आपको भेजते समय भेजा था। न मिले, तो आप PFA की हेल्प डेस्क से पूछ सकते हैं।' : 'That is all right. The number is in the email PFA sent you when you sent it in. If you cannot find it, you can ask PFA\'s help desk instead.')
-          : (hi ? 'कोई बात नहीं। नंबर प्रमाणपत्र या कार्ड पर छपा है, और उस ईमेल में है जिसके साथ वह आया था।' : 'That is all right. The number is printed on the certificate or card, and in the email it came with.');
-        var chips = f.type === 'reference' ? [{ label: titleOf('helpdesk', lang()), value: '#helpdesk' }, { label: t('menuChip', lang()), value: '#menu' }] : [{ label: t('menuChip', lang()), value: '#menu' }];
-        return out([msg(where, { chips: chips })]);
+      if (numberAsked && LOST.test(n)) return lostNumber(f);
+      /* they think they gave it */
+      if (numberAsked && DONE.test(n)) {
+        missed(f);
+        return out([msg(hi ? 'अभी तक मुझे कोई नंबर नहीं मिला। PFA के ईमेल से नंबर कॉपी करके यहाँ लिखें, जैसे ' + (f.type === 'reference' ? 'PFA-CR-2026-00012' : 'PFA-INT-AB2CD3EF') + '।'
+          : 'No number has reached me yet. Copy it from PFA\'s email and paste it here. It reads like ' + (f.type === 'reference' ? 'PFA-CR-2026-00012.' : 'PFA-INT-AB2CD3EF.'), { chips: wayOut(f) })]);
       }
       var lead = THANKS.test(n) ? (hi ? 'आपका स्वागत है।' : 'You are welcome.')
         : HELLO.test(n) ? (hi ? 'नमस्ते।' : 'Hello.')
         : ACK.test(n) ? (hi ? 'ठीक है।' : 'Sure.') : '';
       if (!lead) return null;
+      /* the same word again: no rush, and a way out, never the same line */
+      if (!THANKS.test(n) && !HELLO.test(n) && missed(f) >= 2) {
+        var calm = hi ? ['कोई जल्दी नहीं।', 'मैं यहीं हूँ।'] : ['No rush.', 'I am still here.'];
+        var lead2 = S.miss.calm === calm[0] ? calm[1] : calm[0];
+        S.miss.calm = lead2;
+        if (numberAsked) return out([msg(lead2 + ' ' + (hi ? 'नंबर मिलते ही यहाँ लिख दें। न मिल रहा हो, तो नीचे से चुनें।' : 'Paste the number whenever you find it. If you cannot find it, choose below.'), { chips: wayOut(f) })]);
+        var again = question(f);
+        again.text = lead2 + ' ' + (hi ? 'जब तैयार हों। ' : 'Whenever you are ready. ') + again.text;
+        if (!again.chips) again.chips = wayOut(f);
+        return out([again]);
+      }
       if (f.type === 'reference') return out([msg(lead + ' ' + (hi ? 'जब तैयार हों, नंबर लिखें। यह उस ईमेल में है जो PFA ने भेजा था, जैसे PFA-CR-2026-00012।' : 'Type the number when you have it. It is in the email PFA sent you, and reads like PFA-CR-2026-00012.'))]);
       if (f.type === 'certno') return out([msg(lead + ' ' + (hi ? 'जब तैयार हों, नंबर लिखें, जैसे PFA-INT-AB2CD3EF या PFA-CCT-AB2CD3EF।' : 'Type the number when you have it. It reads like PFA-INT-AB2CD3EF or PFA-CCT-AB2CD3EF.'))]);
       return out([msg(lead), question(f)]);
@@ -869,7 +916,25 @@
       var k = keyOf(f.id);
       var s = String(text || '').trim();
       if (f.type === 'address') return hearAddress(s);
-      var bad = function (en, hi) { return out([msg(lang() === 'hi' ? hi : en)].concat(f.type === 'choice' || f.type === 'yesno' || f.type === 'consent' || f.type === 'multi' || f.type === 'amount' ? [question(f)] : [])); };
+      var bad = function (en, hi) {
+        var withQ = f.type === 'choice' || f.type === 'yesno' || f.type === 'consent' || f.type === 'multi' || f.type === 'amount';
+        if (!withQ && missed(f) >= 2) {
+          var more = isNumberField(f) ? (lang() === 'hi' ? ' न मिल रहा हो, तो नीचे से चुनें।' : ' If you cannot find it, choose below.') : '';
+          var line = (lang() === 'hi' ? hi : en) + more;
+          /* the same miss again: said differently */
+          var rest = line.replace(/^That does not look like a PFA number\. /, '').replace(/^यह PFA नंबर नहीं लगता। /, '');
+          var said = S.miss.said || '';
+          if (said) {
+            var a = (lang() === 'hi' ? 'यह भी सही नहीं है। ' : 'That is not it either. ') + rest;
+            var b = (lang() === 'hi' ? 'अब भी सही नहीं है। ' : 'Still not right. ') + rest;
+            line = said === a ? b : a;
+          }
+          S.miss.said = line;
+          return out([msg(line, { chips: wayOut(f) })]);
+        }
+        return bad1(en, hi);
+      };
+      var bad1 = function (en, hi) { return out([msg(lang() === 'hi' ? hi : en)].concat(f.type === 'choice' || f.type === 'yesno' || f.type === 'consent' || f.type === 'multi' || f.type === 'amount' ? [question(f)] : [])); };
       switch (f.type) {
         case 'name': {
           var n = N.nameOf(s, true);
@@ -970,6 +1035,7 @@
         }
       }
       S.step += 1;
+      S.miss = null;
       return ask([]);
     }
 
@@ -1299,6 +1365,7 @@
       if (s === '#nearhere' && S.guess) { S.placeHint = S.guess; S.guess = ''; return begin('nearby', ''); }
       if (s === '#switch' && S.offerSwitch) { var to = S.offerSwitch; S.offerSwitch = ''; return begin(to, S.switchText || ''); }
       if (s === '#stay') { S.offerSwitch = ''; return ask([]); }
+      if (s === '#nonumber' && S.phase === 'ask' && isNumberField(fieldNow())) return lostNumber(fieldNow());
       if (s.charAt(0) === '#' && s.length > 1 && s !== '#skip' && s !== '#done' && s !== '#send' && s !== '#change') return begin(s.slice(1), '');
 
       var cmd = N.commandOf(s);

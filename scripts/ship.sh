@@ -427,6 +427,7 @@ step "Deploying the admin panel and the API to Firebase"
 FB_LOG="$(mktemp)"
 deploy_firebase() {
   node scripts/build-firebase.js \
+    && node scripts/rrt-referral-key.js \
     && node scripts/firebase-secrets.js \
     && npm --prefix functions install --no-audit --no-fund --silent \
     && npx --yes firebase-tools deploy --only functions,hosting --project "$PROJECT" 2>&1 | tee "$FB_LOG"

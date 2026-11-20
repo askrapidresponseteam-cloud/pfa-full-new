@@ -613,7 +613,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=b058271cbc"></script>
+<script src="assets/chrome.js?v=9f965170b2"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -707,13 +707,13 @@ if (root.document && root.document.head) apply(read());
         <p class="tile__h">Your RRT link</p>
         <div class="rrt">
           <div class="rrt__link">
-            <p class="tile__p">Share this link. Anyone who opens it and finishes registering on the RRT app is counted for you.</p>
+            <p class="tile__p">Share this link. It opens an invite page where they give the mobile number they will join with, then get the RRT app. When that number registers on the app, it counts for you.</p>
             <div class="rrt__url" id="dbLink"></div>
             <div class="rrt__acts">
               <button class="btn" type="button" id="dbShare">Share</button>
               <button class="btn btn--light" type="button" id="dbCopy">Copy link</button>
             </div>
-            <p class="tile__p">Or ask them to type your code <b id="dbCode"></b> when they register.</p>
+            <p class="tile__p">Your code is <b id="dbCode"></b>, the end of your link.</p>
           </div>
           <div class="rrt__link">
             <div class="count"><b id="dbReg">0</b><span class="tile__p" id="dbRegOf">registered</span></div>
@@ -721,7 +721,7 @@ if (root.document && root.document.head) apply(read());
             <div class="nums">
               <div><b id="dbClicks">0</b><span>opened your link</span></div>
               <div><b id="dbStore">0</b><span>went to the store</span></div>
-              <div><b id="dbOpens">0</b><span>opened the app</span></div>
+              <div><b id="dbOpens">0</b><span>gave their number</span></div>
             </div>
             <p class="tile__p" id="dbRrtWhen"></p>
           </div>
@@ -729,10 +729,9 @@ if (root.document && root.document.head) apply(read());
         <details class="fold">
           <summary>What counts, and why</summary>
           <ul>
-            <li>Only a finished registration on the RRT app counts toward your target. Opening your link, visiting the store or opening the app are shown so you can see where people stop; they are never counted as joins.</li>
-            <li>On Android, the Play Store passes your code to the app when it is installed from your link, and a phone that already has the app opens it straight from the link.</li>
-            <li>On an iPhone, the App Store does not pass a code on. Ask them to type your code when they register.</li>
-            <li>A registration is credited once, to one code, and never moved. Your own number is never counted for you. You never see who registered.</li>
+            <li>Only a finished registration on the RRT app counts toward your target. Opening your link, going to the store and giving a number are shown so you can see where people stop; they are never counted as joins.</li>
+            <li>A join is the number given on your invite page registering on the RRT app for the first time, on Android or iPhone alike. Ask them to register with that same number.</li>
+            <li>Someone already on the RRT, a second phone or a reinstall is not a new join. A number counts once, for the first link it was given on. Your own number is never counted for you. You never see who joined.</li>
           </ul>
         </details>
       </div>

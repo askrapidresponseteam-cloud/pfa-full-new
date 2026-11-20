@@ -1,3 +1,25 @@
+## v1.610
+
+- **Overview and Payments show the same money, always.** Owner, 20 Nov 2026: "something wrong with pfa site donation calc ... in 1 it says 340. in another 229 ... everything needs to be realtime and perfectly calculated". Overview said ₹1,45,229 from 135 payments, which was the last 30 days; Payments said ₹1,45,340 from 136, which is all time. The one payment between them (₹111) is more than 30 days old. Two periods, two different sums of the same payments, side by side: now there is one.
+  - **Overview's money tile is now all time**, "received in all", and its figure is worked out by the very code that totals Payments (lib/routes/admin/records.js paidAllTime), so the amount and the count are always the same on both screens. A payment in dollars is shown beside the rupees, as on Payments.
+  - **Live:** Overview reads everything again every 30 seconds while the panel is open, and at once when you come back to the tab or the window (assets/admin-live.js). Payments does the same while it is at its top and nothing is being typed, so a list you are reading never jumps.
+  - **Payments has Last 30 days** too, first in the When list, counted to the minute as the dashboard's 30-day charts count it.
+
+## v1.609
+
+- **Each intern's RRT link now works end to end.** Owner, 19 Nov 2026: "where is the unique link. everything seems the same". The link was always on each intern's own dashboard (rapid-response.in/r/their code, with Share and Copy), but the RRT had nothing behind it, so it led nowhere and no join was ever counted. RRT 2.30.0 r7 adds the invite page and the counting; this build matches the words to it.
+  - **The public task** now says each intern's own invite link is on their intern dashboard once their internship starts, and that a person counts once their number registers on the RRT app.
+  - **The dashboard** says what the link does: an invite page where the person gives the mobile number they will join with, then gets the app; when that number registers, it counts. The third count is now **gave their number** (it said "opened the app", which the RRT cannot see). The line asking people to type a code is gone: the RRT app has no box for one. The code is shown as the end of the link.
+  - **The key between the two:** PFA's deploy now sets the panel's PFA_RRT_REFERRAL_SECRET from the key the RRT's deploy saves in Desktop > Keys and Secrets (scripts/rrt-referral-key.js). Never printed. The public site's dashboard shows the counts as connected once the panel has read them in the last two days, so Vercel needs no key of its own.
+
+## v1.608
+
+- **The chat never says the same line twice in a row, and offers a way out.** Owner, 18 Nov 2026, a screenshot of "ok", "ok" and "done" each answered with the same sentence, then "That does not look like a PFA number": "chatbot still doesnt sound smart".
+  - **A second "ok"** while the chat waits for a number gets "No rush. Paste the number whenever you find it", with **I don't have the number**, **Ask PFA's help desk** and **Something else**. A third gets "I am still here." For a name or another answer it is "No rush. Whenever you are ready." and the question.
+  - **"done", "sent", "I typed it", "ho gaya"** where a number is wanted is heard as someone who thinks they gave it: "No number has reached me yet. Copy it from PFA's email and paste it here."
+  - **A second wrong answer** says how to get out of it, with the same buttons; the next ones are said differently ("That is not it either", "Still not right"). The first miss is as before.
+  - **I don't have the number** says where it is and offers the help desk. A number typed at any point is still taken.
+
 ## v1.607
 
 - **A date of birth under 18 is asked about before anything is sent.** Owner, 18 Nov 2026: "someone entered 2026 as dob 12 nov.. that is like a week ago.. for those whose age is below 18.. show popup asking if dob is right?". The date picker opens on this year, so one slip gives a baby's age. Now, on Become a member, Donate and the internship application, a date that makes someone under 18 opens **Is your date of birth right?** first. It shows the date, and "That makes you 6 days old" (or 3 months, or 17 years). **Yes, it is right** goes on to the usual check of everything and of the email and mobile. **Change it** goes straight back to the date of birth, opening the step of the form it is on. 18 and over is not asked.
