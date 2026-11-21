@@ -52,18 +52,19 @@ test.afterEach(() => {
 
 const readPeople = async () => PEOPLE;
 
-test('only between 6:00 and 6:59 in the morning, India time, and never when switched off', async () => {
-  for (const t of ['05:59', '07:00', '12:00', '23:30']) {
+/* owner, 21 Nov 2026: "automatically trigger the happy birthday card between 8-9 A.M on the birthday" */
+test('only between 8:00 and 8:59 in the morning, India time, and never when switched off', async () => {
+  for (const t of ['06:02', '07:59', '09:00', '12:00', '23:30']) {
     assert.deepEqual(await G.run({ db, nowMs: at(t), readPeople }), { state: 'not-due' }, t);
   }
   assert.equal(sent.length, 0);
   process.env.PFA_BIRTHDAY_GREETINGS = 'off';
-  assert.deepEqual(await G.run({ db, nowMs: at('06:05'), readPeople }), { state: 'not-due' });
+  assert.deepEqual(await G.run({ db, nowMs: at('08:05'), readPeople }), { state: 'not-due' });
   assert.equal(sent.length, 0);
 });
 
-test('at 6, today\'s birthdays are emailed their card once; the runs after find the day done', async () => {
-  const first = await G.run({ db, nowMs: at('06:02'), readPeople });
+test('at 8, today\'s birthdays are emailed their card once; the runs after find the day done', async () => {
+  const first = await G.run({ db, nowMs: at('08:02'), readPeople });
   assert.equal(first.state, 'ran');
   assert.equal(first.count, 2, 'only today\'s birthdays');
   assert.equal(first.sent, 1);
@@ -82,11 +83,11 @@ test('at 6, today\'s birthdays are emailed their card once; the runs after find 
   assert.deepEqual([jpeg.width, jpeg.height], [1122, 1402], 'the card at its own size');
   assert.doesNotMatch(m.html + m.text + m.subject, /[–—]/);
 
-  const again = await G.run({ db, nowMs: at('06:12'), readPeople });
+  const again = await G.run({ db, nowMs: at('08:12'), readPeople });
   assert.equal(again.state, 'done');
   /* even with the day's marker gone, the queue's key refuses a second card */
   await db.collection('counters').doc('birthdayGreetings').delete();
-  const third = await G.run({ db, nowMs: at('06:40'), readPeople });
+  const third = await G.run({ db, nowMs: at('08:40'), readPeople });
   assert.equal(third.state, 'ran');
   assert.equal(sent.length, 1, 'one card each, however many runs');
   assert.deepEqual(await G.statusOf(db, PEOPLE[0], '2026-11-17').then((s) => s.state), 'sent');
@@ -118,7 +119,7 @@ test('the panel: each of today\'s rows says where its card stands, and Email the
   const deps = { requireAdmin: async () => ({ email: 'karthik@pfa.test' }), readPeople, now: () => at('09:30'), getDb: () => db };
   const got = await call(route, {}, deps);
   assert.equal(got.statusCode, 200);
-  assert.deepEqual(got.json.greetings, { hour: 6, on: true, past: true });
+  assert.deepEqual(got.json.greetings, { hour: 8, on: true, past: true });
   const darshan = got.json.people.find((p) => p.name === 'Darshan Singh Rawat');
   assert.deepEqual(darshan.greeting, { state: 'none' }, 'the morning was missed');
   assert.equal(got.json.people.find((p) => p.name === 'Asha Rao').greeting.state, 'no-email');
@@ -172,13 +173,14 @@ test('the panel shows the morning email\'s state and an Email the card button', 
   const js = read('assets/admin-birthdays.js');
   assert.match(js, /data-bd="email">Email the card<\/button>/);
   assert.match(js, /A\.api\('\/api\/admin\/birthdays', \{ method: 'POST', body: \{ action: 'send', key: p\.key \} \}\)/);
-  assert.match(js, /Each is emailed their card by itself between 6 and 7 am on the day\./);
+  assert.match(js, /Each is emailed their card by itself ' \+ window_\(\) \+ ' on the day\./, 'the hour the server sends at');
+  assert.equal(require('../lib/birthday-greetings').HOUR, 8, 'between 8 and 9');
   assert.match(js, /No email address: send the card on WhatsApp\./);
   assert.doesNotMatch(js, /[–—]/);
   /* drawn in a page, for one of today's in each state */
   const dom = new JSDOM('<div id="paneNote"></div><div data-pane="birthdays"></div><div id="bdayNote" hidden><p id="bdayNoteText"></p></div><div id="pipBirthdays"></div>', { runScripts: 'outside-only' });
   const w = dom.window;
-  const data = { today: '2026-11-17', withDate: 3, ahead: 30, greetings: { hour: 6, on: true, past: true }, upcoming: [],
+  const data = { today: '2026-11-17', withDate: 3, ahead: 30, greetings: { hour: 8, on: true, past: true }, upcoming: [],
     people: [
       { id: 'P1', key: 'k1', name: 'Darshan Singh Rawat', email: 'd@example.com', day: '2026-11-17', inDays: 0, turns: 63, categories: ['Donor'], greeting: { state: 'sent', at: '2026-11-17T00:34:00Z' } },
       { id: 'P2', key: 'k2', name: 'Asha Rao', email: '', day: '2026-11-17', inDays: 0, turns: 36, categories: ['Donor'], greeting: { state: 'no-email' } },
@@ -196,4 +198,58 @@ test('the panel shows the morning email\'s state and an Email the card button', 
     assert.equal(rows[1].querySelector('[data-bd="email"]'), null);
     assert.ok(rows[2].querySelector('[data-bd="email"]'));
   });
+});
+
+/* owner, 21 Nov 2026: "also maintain the list of to who it has been sent. and have standard filters" */
+test('the cards sent: every one kept, newest first, filtered by period, status, how and words; the CSV logged', async () => {
+  /* the morning sends Darshan's card by itself, and the panel sends one by hand */
+  await G.run({ db, nowMs: at('08:02'), readPeople });
+  const route = require('../lib/routes/admin/birthdays');
+  const earlier = (id, o) => db.collection('caregiverEmails').doc(id).set(Object.assign({ template: 'birthday_greeting' }, o));
+  await earlier('old1', { to: 'ravi@example.com', payload: { name: 'Ravi Kumar', day: '2026-10-21', turns: 40, by: 'karthik@pfa.test' }, status: 'sent', sentAt: '2026-10-21T09:12:00.000Z' });
+  await earlier('old2', { to: 'gone@example.com', payload: { name: 'Old Address', day: '2026-11-02', turns: 52, by: 'schedule' }, status: 'failed', updatedAt: '2026-11-02T02:40:00.000Z' });
+  await db.collection('caregiverEmails').doc('other').set({ template: 'membership_welcome', to: 'x@example.com', payload: { name: 'Not a birthday' }, status: 'sent' });
+  const deps = { requireAdmin: async () => ({ email: 'karthik@pfa.test', uid: 'u1' }), readPeople, now: () => at('10:00'), getDb: () => db };
+  const ask = (query) => new Promise((resolve, reject) => {
+    const out = { statusCode: 200, headers: {} };
+    const response = {
+      get statusCode() { return out.statusCode; }, set statusCode(v) { out.statusCode = v; },
+      setHeader(n, v) { out.headers[String(n).toLowerCase()] = v; },
+      end(raw) { out.raw = Buffer.isBuffer(raw) ? raw.toString('utf8') : String(raw || ''); try { out.json = JSON.parse(out.raw); } catch (_) { out.json = null; } resolve(out); }
+    };
+    Promise.resolve(route({ method: 'GET', url: '/api/admin/birthdays', query: Object.assign({ sent: '1' }, query), headers: { host: 'pfa.test' } }, response, deps)).catch(reject);
+  });
+  const all = await ask({});
+  assert.equal(all.statusCode, 200);
+  assert.deepEqual(all.json.rows.map((r) => [r.day, r.name, r.state, r.how]), [
+    ['2026-11-17', 'Darshan Singh Rawat', 'sent', 'auto'],
+    ['2026-11-02', 'Old Address', 'failed', 'auto'],
+    ['2026-10-21', 'Ravi Kumar', 'sent', 'panel']
+  ], 'every birthday card, newest first, and nothing else');
+  assert.equal(all.json.rows[0].email, 'darshan@example.com');
+  assert.equal(all.json.rows[0].turns, 63);
+  assert.equal(all.json.rows[2].by, 'karthik@pfa.test');
+  const names = async (q) => (await ask(q)).json.rows.map((r) => r.name);
+  assert.deepEqual(await names({ from: '2026-11-01', to: '2026-11-30' }), ['Darshan Singh Rawat', 'Old Address'], 'a period');
+  assert.deepEqual(await names({ state: 'failed' }), ['Old Address'], 'a status');
+  assert.deepEqual(await names({ how: 'panel' }), ['Ravi Kumar'], 'sent from the panel');
+  assert.deepEqual(await names({ q: 'DARSHAN rawat' }), ['Darshan Singh Rawat'], 'words, any case');
+  assert.deepEqual(await names({ q: 'ravi@example' }), ['Ravi Kumar'], 'an email');
+  const filtered = await ask({ from: '2026-11-01', to: '2026-11-30' });
+  assert.deepEqual([filtered.json.count, filtered.json.total], [2, 3]);
+  const csv = await ask({ state: 'sent', format: 'csv' });
+  assert.match(csv.headers['content-type'], /text\/csv/);
+  assert.match(csv.headers['content-disposition'], /PFA-birthday-cards-sent-2026-11-17\.csv/);
+  const lines = csv.raw.replace(/^\ufeff/, '').trim().split('\r\n');
+  assert.equal(lines[0], 'Birthday,Name,Email,Turned,Status,At,How');
+  /* the test database stamps sentAt with the real clock; the line after has a set time */
+  assert.match(lines[1], /^2026-11-17,Darshan Singh Rawat,darshan@example\.com,63,Sent,\d{4}-\d{2}-\d{2} \d{2}:\d{2} IST,Automatically$/, 'India time');
+  assert.equal(lines[2], '2026-10-21,Ravi Kumar,ravi@example.com,40,Sent,2026-10-21 14:42 IST,From the panel by karthik@pfa.test');
+  assert.equal(lines.length, 3, 'only what the filter shows');
+  const log = (await db.collection('adminAudit').get()).docs.map((d) => d.data()).filter((a) => a.action === 'birthday-cards-download');
+  assert.equal(log.length, 1);
+  assert.match(log[0].detail, /^2 cards, state sent$/);
+  const js = read('assets/admin-birthdays.js');
+  for (const f of ['period', 'from', 'to', 'state', 'how', 'q']) assert.ok(js.includes(`data-bdf="${f}"`), `the ${f} filter`);
+  assert.match(js, /opt\('month', 'This month', f\.period\) \+ opt\('last', 'Last month', f\.period\) \+ opt\('3m', 'Last 3 months', f\.period\) \+ opt\('year', 'This year', f\.period\) \+ opt\('all', 'All time', f\.period\) \+ opt\('custom', 'Choose the dates', f\.period\)/);
 });

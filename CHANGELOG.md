@@ -1,3 +1,11 @@
+## v1.616
+
+- **Birthday cards go out between 8 and 9 am, and the panel keeps the list of every card sent.** Owner, 21 Nov 2026: "automatically trigger the happy birthday card between 8-9 A.M on the birthday"; "also maintain the list of to who it has been sent. and have standard filters".
+  - The card is emailed by itself between 8 and 9 in the morning, India time, on the birthday (it was 6 to 7). The panel's wording follows the server's hour, so the two never disagree.
+  - Birthdays has a new fold, Sent: every card emailed, newest first, with the birthday, the name, the email, the age turned, whether it was sent (and when) or could not be, and whether it went by itself in the morning or from the panel, and by whom.
+  - Filters: the period (this month, last month, the last 3 months, this year, all time, or dates you choose), the status, how it went, and a search by name or email. Download CSV gives exactly what the filters show, in India time, and the download is in the audit log.
+- Also in this build: v1.615 (the amount on the certificate, unguessable letter references with a public check, and the letter changes).
+
 ## v1.615
 
 - **The certificate of appreciation says how much was given.** Owner, 20 Nov 2026: "amount isnt there in the body". It now reads "your generous contribution of ₹5,000 to People for Animals".
