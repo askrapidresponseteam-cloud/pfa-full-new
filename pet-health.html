@@ -548,7 +548,7 @@ if (root.document && root.document.head) apply(read());
         <p class="ph-series__intro">Start with the condition. Follow with the tools used to monitor it.</p>
         <ol class="ph-guides">
           <li class="ph-card" id="note-pfa-diabetes-in-dogs">
-            <button class="ph-cover" type="button" data-read="pfa-diabetes-in-dogs" aria-label="Read Diabetes in dogs: what to do"><img src="media/med-notes/diabetes-in-dogs-cover.webp" alt="Cover of Diabetes in dogs: what to do" width="900" height="1347" loading="eager" decoding="async"></button>
+            <button class="ph-cover" type="button" data-read="pfa-diabetes-in-dogs" aria-label="Read Diabetes in dogs: what to do"><img src="media/med-notes/diabetes-in-dogs-cover-v2.webp" alt="Cover of Diabetes in dogs: what to do" width="900" height="1130" loading="eager" decoding="async"></button>
             <div class="ph-card__bd">
               <p class="ph-card__part">Guide 01</p>
               <h3 class="ph-card__title">Diabetes in dogs: what to do</h3>
@@ -558,7 +558,7 @@ if (root.document && root.document.head) apply(read());
             </div>
           </li>
           <li class="ph-card" id="note-pfa-glucose-meters-for-dogs">
-            <button class="ph-cover" type="button" data-read="pfa-glucose-meters-for-dogs" aria-label="Read Glucose meters for dogs"><img src="media/med-notes/glucose-meters-for-dogs-cover.webp" alt="Cover of Glucose meters for dogs" width="900" height="1347" loading="eager" decoding="async"></button>
+            <button class="ph-cover" type="button" data-read="pfa-glucose-meters-for-dogs" aria-label="Read Glucose meters for dogs"><img src="media/med-notes/glucose-meters-for-dogs-cover-v2.webp" alt="Cover of Glucose meters for dogs" width="900" height="1130" loading="eager" decoding="async"></button>
             <div class="ph-card__bd">
               <p class="ph-card__part">Guide 02</p>
               <h3 class="ph-card__title">Glucose meters for dogs</h3>
@@ -854,7 +854,7 @@ if (root.document && root.document.head) apply(read());
   function sizeOf(b) { b = Number(b) || 0; return b ? (b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB') : ''; }
   function cover(n, eager) {
     return n.cover
-      ? '<button class="ph-cover" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><img src="' + esc(n.cover) + '" alt="Cover of ' + esc(n.title) + '" width="900" height="1347" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></button>'
+      ? '<button class="ph-cover" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><img src="' + esc(n.cover) + '" alt="Cover of ' + esc(n.title) + '" width="900" height="1130" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></button>'
       : '<button class="ph-cover ph-cover--plain" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><span>' + esc(n.title) + '</span></button>';
   }
   /* the guides in their series (data/med-notes.json), each series in part order; a guide in no

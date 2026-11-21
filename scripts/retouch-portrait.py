@@ -4,8 +4,8 @@
     python3 scripts/retouch-portrait.py      (needs Pillow, numpy, scipy)
     then: python3 scripts/build-visor-mask.py
 
-Owner, 10 Nov 2026: "the image has this kinda texture which is so gpt ish!.
-fix". The photograph carried the fine wandering-line pattern an image
+Owner, 10 Nov 2026: the image had an artificial-looking texture, to be
+fixed. The photograph carried the fine wandering-line pattern an image
 generator leaves on smooth surfaces: over her forehead, cheeks, lips, neck,
 the white of the sari and the blouse. Read from the original
 (scripts/source/portrait-visor-original.jpg, kept out of the site), written

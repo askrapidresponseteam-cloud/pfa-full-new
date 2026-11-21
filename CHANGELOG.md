@@ -1,3 +1,10 @@
+## v1.617
+
+- **New covers for both care guides, the same size as each other.** Owner, 21 Nov 2026: "update careguide covers".
+  - Guide 01 (Diabetes in dogs: what to do) and Guide 02 (Glucose meters for dogs) have the new covers, with the white border trimmed so the picture fills the card.
+  - Both are 900 by 1130, a little shorter than before, so the titles and Read guide buttons still sit level across the row on every screen.
+- Also in this build: v1.616 (birthday cards between 8 and 9 am, and the list of cards sent).
+
 ## v1.616
 
 - **Birthday cards go out between 8 and 9 am, and the panel keeps the list of every card sent.** Owner, 21 Nov 2026: "automatically trigger the happy birthday card between 8-9 A.M on the birthday"; "also maintain the list of to who it has been sent. and have standard filters".
@@ -673,7 +680,7 @@
 
 ## v1.549
 
-- **Her photograph as a 60MP camera takes it: no generated texture, no blemishes, nothing blurred.** Owner, 10 Nov 2026: "the image has this kinda texture which is so gpt ish!. fix", "image cannot be blurred though", "it has to be like shot in 60MP canon mark dslr", "skin cannot have blemishes".
+- **Her photograph as a 60MP camera takes it: no generated texture, no blemishes, nothing blurred.** Owner, 10 Nov 2026: the image had an artificial-looking texture, to be fixed; "image cannot be blurred though", "it has to be like shot in 60MP canon mark dslr", "skin cannot have blemishes".
   - The wandering-line pattern an image generator leaves on smooth surfaces is gone from her forehead, cheeks, lips, neck and chest, the sari and the blouse.
   - In its place, the detail a high-resolution sensor records, sharp to the pixel: fine pores and the faint unevenness of real skin on her, and only the finest grain on cloth and the wall. Hair, lashes, the earrings, the sequins, the lips' outline and the glasses are left exactly as they were.
   - Every blemish, freckle and mole on her skin is healed from the skin around it.

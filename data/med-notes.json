@@ -27,7 +27,7 @@
           "label": "One page, PDF"
         }
       ],
-      "cover": "media/med-notes/diabetes-in-dogs-cover.webp"
+      "cover": "media/med-notes/diabetes-in-dogs-cover-v2.webp"
     },
     {
       "id": "glucose-meters-for-dogs",
@@ -48,7 +48,7 @@
           "label": "One page, PDF"
         }
       ],
-      "cover": "media/med-notes/glucose-meters-for-dogs-cover.webp"
+      "cover": "media/med-notes/glucose-meters-for-dogs-cover-v2.webp"
     }
   ]
 }
