@@ -1,0 +1,20 @@
+India district boundaries, for the People directory's Map in the admin panel.
+
+From india_shp_2020 by Abhishek Bhatia (https://github.com/abhatia08/india_shp_2020),
+which merges India Official Boundaries 2019
+(https://github.com/justinelliotmeyers/India_Official_Boundaries_2019),
+the Government of India's district units on India's official boundary.
+
+735 districts in 37 states and union territories, as they stood in 2020.
+Districts made since (for example Andhra Pradesh's new districts of 2022)
+are drawn inside the district they came from.
+
+Made with mapshaper: simplified to 1.5 percent of the points (every district
+kept), coordinates to 3 decimal places (about 100 metres), with the district
+name (d) and state (s) only. State lines (k: "state") are the borders
+between districts of different states. Four district names cut short in the
+source are written in full, and "&" is written "and".
+
+The repository's code is under the MIT licence (LICENSE.txt). Its README says
+the boundary data has no stated licence upstream. It is used here only inside
+the admin panel, not on the public site.

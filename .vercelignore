@@ -1,0 +1,3 @@
+# Served by the admin panel (Firebase) only, never by the public site.
+# India district boundaries: no stated licence upstream (assets/vendor/india-districts/SOURCE.txt).
+/assets/vendor/india-districts

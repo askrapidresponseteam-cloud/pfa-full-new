@@ -201,3 +201,42 @@ test('what is typed becomes the index\'s words', () => {
   assert.deepEqual(SEARCH.tokensOf('Asha.Rao@Example.com'), ['asha.rao@example.com']);
   assert.deepEqual(SEARCH.tokensOf('Café'), ['cafe']);
 });
+
+/* One completed donation, one number (owner, 21 Nov 2026: "for 1 completed
+   donation - 1 number only", over a search that showed PFA-DON-2026-00088
+   under Other cases and PFA-DON-KRH6J6T7 under Payments for one ₹10 gift). */
+test('a paid donation is one result: its case, with the amount, never its payment again', async () => {
+  const at = (iso) => Timestamp.fromMillis(Date.parse(iso));
+  /* filed since: the case is under the payment's own number */
+  await H.seed(W.db, 'PFA-DON-QX7M2K9R', {
+    kind: 'PFA-DON', kindLabel: 'Donation', receivedAtMs: Date.parse('2026-11-21T05:00:00Z'),
+    fields: { name: 'Nitin Tyagi', email: 'nitin@example.com', mobile: '9811100000', amount: 'INR 10' },
+    payment: { orderId: 'PFA-DON-QX7M2K9R', amount: 10, currency: 'inr' }
+  });
+  await W.db.collection('transactions').doc('PFA-DON-QX7M2K9R').set({
+    orderId: 'PFA-DON-QX7M2K9R', type: 'donate', status: 'success', amount: 10, currency: 'INR', donationReference: 'PFA-DON-QX7M2K9R',
+    customer: { name: 'Nitin Tyagi', email: 'nitin@example.com' }, createdAt: at('2026-11-21T04:59:00Z'), updatedAt: at('2026-11-21T05:00:00Z')
+  });
+  /* filed before: two numbers on record, still one result */
+  await H.seed(W.db, 'PFA-DON-2026-00088', {
+    kind: 'PFA-DON', kindLabel: 'Donation', receivedAtMs: Date.parse('2026-11-20T05:00:00Z'),
+    fields: { name: 'Nitin Tyagi', email: 'nitin@example.com', amount: 'INR 10', orderId: 'PFA-DON-KRH6J6T7' },
+    payment: { orderId: 'PFA-DON-KRH6J6T7', amount: 10, currency: 'inr' }
+  });
+  await W.db.collection('transactions').doc('PFA-DON-KRH6J6T7').set({
+    orderId: 'PFA-DON-KRH6J6T7', type: 'donate', status: 'success', amount: 10, currency: 'INR', donationReference: 'PFA-DON-2026-00088',
+    customer: { name: 'Nitin Tyagi', email: 'nitin@example.com' }, createdAt: at('2026-11-20T04:59:00Z'), updatedAt: at('2026-11-20T05:00:00Z')
+  });
+  /* pressed Pay and left: no case came of it, so the payment is all there is */
+  await W.db.collection('transactions').doc('PFA-DON-ABANDN22').set({
+    orderId: 'PFA-DON-ABANDN22', type: 'donate', status: 'initiated', amount: 10, currency: 'INR',
+    customer: { name: 'Nitin Tyagi', email: 'nitin@example.com' }, createdAt: at('2026-11-19T04:59:00Z'), updatedAt: at('2026-11-19T04:59:00Z')
+  });
+  const out = await find('nitin');
+  assert.deepEqual(ids(out).sort(), ['case:PFA-DON-2026-00088', 'case:PFA-DON-QX7M2K9R', 'payment:PFA-DON-ABANDN22'], JSON.stringify(ids(out)));
+  const line = out.results.find((r) => r.id === 'PFA-DON-QX7M2K9R').line;
+  assert.equal(line, 'Donation of ₹10 from Nitin Tyagi');
+  /* the number typed in full finds the one case, before the index has it too */
+  assert.deepEqual(ids(await find('PFA-DON-QX7M2K9R')), ['case:PFA-DON-QX7M2K9R']);
+  assert.deepEqual(ids(await find('PFA-DON-KRH6J6T7')), ['case:PFA-DON-2026-00088'], 'the payment number of an earlier donation finds its case');
+});

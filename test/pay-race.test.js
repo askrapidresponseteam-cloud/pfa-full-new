@@ -88,8 +88,10 @@ test('a donation: two copies of the success callback at once file one record und
   const pages = await Promise.all([callback(out), callback(out)]);
   pages.forEach((p) => assert.match(p.raw, /Donation successful/));
   const recs = records('PFA-DON');
-  assert.deepEqual(recs, [`PFA-DON-${YEAR}-00001`], 'one record for one payment');
-  assert.equal(counter('PFA-DON'), 1, 'no number was minted and thrown away');
+  /* one donation, one number: the payment's own (owner, 21 Nov 2026) */
+  assert.deepEqual(recs, [out.order_id], 'one record for one payment, under its payment number');
+  assert.match(recs[0], /^PFA-DON-[A-Z0-9]{8}$/);
+  assert.equal(counter('PFA-DON'), undefined, 'no second number is made for a donation');
   assert.equal(db.dump()[`transactions/${out.order_id}`].donationReference, recs[0]);
   assert.equal(sent.filter((m) => m.template === 'payment_received').length, 1, 'one receipt');
   assert.equal(sent.filter((m) => m.template === 'submission_forward').length, 2, 'one copy to each payments inbox, once');
@@ -151,6 +153,28 @@ for (const [label, form, kind] of [['membership', MEMBER, 'PFA-MEM'], ['donation
     await Promise.all([first, second]);
     db.collection = original;
     assert.equal(records(kind).length, 1, `${label}: one record for one payment`);
-    assert.equal(counter(kind), 1);
+    /* a donation is filed under its payment number, so no counter moves */
+    assert.equal(counter(kind), kind === 'PFA-DON' ? undefined : 1);
   });
 }
+
+/* One donation, one number (owner, 21 Nov 2026): the thank-you page, the
+   receipt email and the copy to the payments inboxes all say the payment's
+   number, once. */
+test('a donation says its one number once: on the page, in the receipt email, in the office copy', async () => {
+  const out = await handoff(DONOR);
+  const page = await callback(out);
+  const id = out.order_id;
+  assert.equal(page.raw.split(`<strong>${id}</strong>`).length - 1, 1, 'the page shows the number once');
+  assert.doesNotMatch(page.raw, /PFA-DON-\d{4}-\d{5}/, 'and no second number');
+  const receipt = sent.find((m) => m.template === 'payment_received');
+  assert.ok(receipt && JSON.stringify(receipt).includes(id));
+  assert.doesNotMatch(JSON.stringify(receipt), /PFA-DON-\d{4}-\d{5}/);
+  const office = sent.filter((m) => m.template === 'submission_forward');
+  assert.ok(office.length);
+  for (const m of office) {
+    const rows = (m.payload && m.payload.rows) || [];
+    assert.ok(!rows.some((r) => r.label === 'Order ID'), 'the office copy does not repeat it as an order');
+    assert.equal(m.payload.reference, id);
+  }
+});

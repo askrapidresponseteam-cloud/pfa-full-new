@@ -83,6 +83,8 @@ const PANEL_ASSETS = [
   'assets/digital-card.css', 'assets/digital-card.js', 'img/logo-dark.png',
   /* the People directory's Map (18 Nov 2026): Leaflet, served from the site */
   'assets/vendor/leaflet/leaflet.js', 'assets/vendor/leaflet/leaflet.css', 'assets/vendor/leaflet/LICENSE.txt',
+  /* and its district borders (21 Nov 2026): the panel's alone, not the public site's (.vercelignore) */
+  'assets/vendor/india-districts/india-districts.json', 'assets/vendor/india-districts/SOURCE.txt', 'assets/vendor/india-districts/LICENSE.txt',
   /* the viewer draws a PDF sent with a case with the site's own pdf.js (11 Nov 2026) */
   'assets/vendor/pdfjs/pdf.min.js', 'assets/vendor/pdfjs/pdf.worker.min.js', 'assets/vendor/pdfjs/wasm/jbig2.wasm', 'assets/vendor/pdfjs/wasm/openjpeg.wasm', 'assets/vendor/pdfjs/wasm/qcms_bg.wasm', 'assets/vendor/pdfjs/LICENSE', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-live-chat.js', 'assets/admin-taxid.js',
   'fonts/cinzel-latin-500.woff2',

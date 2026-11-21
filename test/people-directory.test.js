@@ -215,3 +215,28 @@ test('the Map: each person at their PIN code, else their district, from India Po
   for (const f of ['firebase.json', 'vercel.json']) assert.match(read(f), /img-src [^;]* https:\/\/tile\.openstreetmap\.org /, f + ' lets the map’s tiles in');
   assert.ok(fs.existsSync(path.join(ROOT, 'lib/pin-places.json.gz')));
 });
+
+/* District borders on the Map (owner, 21 Nov 2026: "can you have district
+   borders in the map using https://github.com/abhatia08/india_shp_2020"). */
+test('the Map draws India\'s district borders from the panel\'s own copy, kept off the public site', () => {
+  const dir = path.join(ROOT, 'assets/vendor/india-districts');
+  const file = path.join(dir, 'india-districts.json');
+  assert.ok(fs.statSync(file).size < 1.5 * 1024 * 1024, 'small enough to fetch on a phone');
+  const geo = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const districts = geo.features.filter((f) => f.properties && f.properties.d);
+  const states = geo.features.filter((f) => f.properties && f.properties.k === 'state');
+  assert.equal(districts.length, 735, 'every district of the 2020 layer');
+  assert.ok(states.length > 0, 'and the state lines');
+  districts.forEach((f) => {
+    assert.match(f.geometry.type, /^(Multi)?Polygon$/);
+    assert.doesNotMatch(f.properties.d, /\*|&/, `a name in full: ${f.properties.d}`);
+    assert.ok(f.properties.s, `${f.properties.d} has its state`);
+  });
+  for (const f of ['SOURCE.txt', 'LICENSE.txt']) assert.ok(fs.existsSync(path.join(dir, f)), f);
+  const js = fs.readFileSync(path.join(ROOT, 'assets/admin-directory.js'), 'utf8');
+  assert.match(js, /assets\/vendor\/india-districts\/india-districts\.json/, 'the map fetches it');
+  assert.match(js, /createPane\('drBorders'\)\.style\.zIndex = 350/, 'under the dots, which stay clickable');
+  const build = fs.readFileSync(path.join(ROOT, 'scripts/build-firebase.js'), 'utf8');
+  assert.match(build, /'assets\/vendor\/india-districts\/india-districts\.json'/, 'the Firebase panel carries it');
+  assert.match(fs.readFileSync(path.join(ROOT, '.vercelignore'), 'utf8'), /^\/assets\/vendor\/india-districts$/m, 'the public site does not');
+});

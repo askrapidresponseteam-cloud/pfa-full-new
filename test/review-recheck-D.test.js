@@ -33,7 +33,8 @@ async function callback(out, extra) {
   const r = await H.call(require('../lib/routes/payment/response'), { token: null, body: { encResp }, headers: FORM, url: '/api/payment/response' });
   return r.raw;
 }
-const subs = (kind) => Object.keys(W.db.dump()).filter((k) => new RegExp(`^submissions/${kind}-\\d{4}-\\d+$`).test(k));
+/* a donation is filed under its payment number (21 Nov 2026), the rest under a year and a count */
+const subs = (kind) => Object.keys(W.db.dump()).filter((k) => new RegExp(`^submissions/${kind}-(\\d{4}-\\d+|[A-Z0-9]{8})$`).test(k));
 const PERSON = { name: 'Asha Kumar', mobile: '9876543210', email: 'asha@example.com', address: '16 MG Road, Udupi', city: 'Udupi', state: 'Karnataka', district: 'Udupi', pincode: '576101' };
 async function stagePhoto() {
   const r = await H.call(require('../lib/routes/caregiver/documents'), { token: null, body: { photo: 'data:image/jpeg;base64,' + H.jpeg(5000).toString('base64') } });

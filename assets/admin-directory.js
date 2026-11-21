@@ -37,6 +37,7 @@
     /* the Map (18 Nov 2026) */
     '.dr-view{display:inline-flex;border:1px solid var(--line)}.dr-view button{min-height:38px;padding:0 16px;border:0;border-right:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;color:var(--muted);cursor:pointer}.dr-view button:last-child{border-right:0}.dr-view button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}',
     '.dr-map{height:min(70vh,620px);min-height:380px;border:1px solid var(--line);background:#e9eef3;position:relative;z-index:0}',
+    '.dr-dt{font:500 12px/1.3 var(--sans,Arial,sans-serif);padding:4px 8px;white-space:normal;max-width:240px}',
     '.dr-pop{font:13px/1.45 var(--sans,inherit);min-width:220px;max-width:300px}.dr-pop h4{margin:0 0 6px;font-size:13px;font-weight:700}.dr-pop ul{list-style:none;margin:0 0 8px;padding:0;max-height:220px;overflow:auto}.dr-pop li{padding:5px 0;border-top:1px solid #eee}.dr-pop li small{display:block;color:#666}.leaflet-container .dr-pop a{color:inherit}',
     '.dr-pop button{min-height:34px;padding:0 12px;border:1px solid #111;background:#111;color:#fff;font:inherit;font-size:12px;cursor:pointer}',
     '@media (max-width:700px){.dr-table thead{display:none}.dr-table,.dr-table tbody,.dr-table tr,.dr-table td{display:block;width:100%}.dr-table tr{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 4px;padding:14px;border-bottom:1px solid var(--line)}.dr-table td{padding:0;border:0;grid-column:1 / -1}.dr-table td:nth-child(3){order:-2;font-size:15px}.dr-table td[data-place]{order:-1;grid-column:auto;color:var(--muted);font-size:12px}.dr-table td:nth-child(1)::after{content:","}.dr-table td[data-bday]::before{content:"Birthday ";color:var(--muted)}.dr-table td[data-bday=""]{display:none}.dr-addr{min-width:0}.dr-wrap{overflow:visible}}'
@@ -175,10 +176,48 @@
     });
     return leaflet;
   }
+  /* District borders (owner, 21 Nov 2026: "can you have district borders in
+     the map using https://github.com/abhatia08/india_shp_2020"): India's
+     735 districts of 2020, simplified to about 300 KB, from the site's own
+     copy (assets/vendor/india-districts/SOURCE.txt). Fetched once, the
+     first time the map opens. */
+  var borders = null;
+  function needBorders(tag) {
+    if (borders) return borders;
+    borders = fetch('assets/vendor/india-districts/india-districts.json' + tag, { credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) throw new Error('borders'); return r.json(); })
+      .catch(function () { borders = null; return null; });
+    return borders;
+  }
+  function drawBorders(L, map, geo) {
+    if (!geo || !geo.features) return;
+    /* under the dots, which stay where they are clicked */
+    map.createPane('drBorders').style.zIndex = 350;
+    var renderer = L.canvas({ pane: 'drBorders', padding: 0.5 });
+    var districts = geo.features.filter(function (f) { return f.properties && f.properties.d; });
+    var states = geo.features.filter(function (f) { return f.properties && f.properties.k === 'state'; });
+    L.geoJSON({ type: 'FeatureCollection', features: districts }, {
+      pane: 'drBorders', renderer: renderer,
+      style: { color: '#4a5866', weight: 0.7, opacity: 0.55, fill: true, fillOpacity: 0, fillColor: '#4a5866' },
+      onEachFeature: function (f, layer) {
+        layer.bindTooltip(esc(f.properties.d) + (f.properties.s ? ', ' + esc(f.properties.s) : ''), { sticky: true, direction: 'top', className: 'dr-dt' });
+        layer.on('mouseover', function () { layer.setStyle({ fillOpacity: 0.08, weight: 1.4, opacity: 0.9 }); });
+        layer.on('mouseout', function () { layer.setStyle({ fillOpacity: 0, weight: 0.7, opacity: 0.55 }); });
+      }
+    }).addTo(map);
+    L.geoJSON({ type: 'FeatureCollection', features: states }, {
+      pane: 'drBorders', renderer: renderer, interactive: false,
+      style: { color: '#1f2933', weight: 1.6, opacity: 0.8 }
+    }).addTo(map);
+  }
   function drawMap(rows) {
     var box = document.getElementById('drMap');
     if (!box) return;
-    needLeaflet().then(function (L) {
+    var me = document.querySelector('script[src*="admin-directory.js"]');
+    var v = me && /\?v=([^&]+)/.exec(me.getAttribute('src') || '');
+    var tag = v ? '?v=' + v[1] : '';
+    Promise.all([needLeaflet(), needBorders(tag)]).then(function (got) {
+      var L = got[0];
       if (!document.body.contains(box)) return;
       var map = L.map(box, { scrollWheelZoom: true, worldCopyJump: false });
       D.map = map;
@@ -192,6 +231,7 @@
         referrerPolicy: 'strict-origin',
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
       }).addTo(map);
+      drawBorders(L, map, got[1]);
       var spots = {};
       rows.forEach(function (p) {
         if (!p.at) return;

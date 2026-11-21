@@ -1,3 +1,16 @@
+## v1.618
+
+- **One completed donation has one number.** Owner, 21 Nov 2026: "for 1 completed donation - 1 number only".
+  - A donation is now filed under its payment number (PFA-DON- and eight random characters, as PFA-DON-KRH6J6T7), made when the donor presses Pay. The case in To do, the receipt (page, email and PDF), the copy to the payments inboxes and the 80G certificate all carry that one number. No second PFA-DON-2026-00088 style number is made.
+  - Search shows a paid donation once: its case, as "Donation of ₹10 from Nitin Tyagi", never its payment again under Payments. A payment no donation came of (abandoned, failed, or still with the bank) still shows under Payments.
+  - Donations filed before keep their PFA-DON-2026-... numbers, and search shows them once too. Typing either of their numbers finds the one case.
+  - The Letter studio takes donations under either kind of number.
+- **District borders on the People directory's Map.** Owner, 21 Nov 2026: "can you have district borders in the map using https://github.com/abhatia08/india_shp_2020".
+  - Every district is outlined in thin grey, with state borders darker, under the dots, which stay clickable. Point at a district (or tap it on a phone) to see its name and state.
+  - The borders are India's 735 districts of 2020, on India's official boundary, simplified to about 300 KB and loaded once when the map opens. Districts made since 2020 (Andhra Pradesh's 2022 districts, for example) are drawn inside the district they came from.
+  - The file is served by the admin panel only, never by the public site: the source gives no licence for the boundary data itself (assets/vendor/india-districts/SOURCE.txt).
+- Also in this build: v1.617 (the new Care Guide covers).
+
 ## v1.617
 
 - **New covers for both care guides, the same size as each other.** Owner, 21 Nov 2026: "update careguide covers".

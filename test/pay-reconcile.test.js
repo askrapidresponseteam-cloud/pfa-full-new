@@ -152,7 +152,8 @@ test('check: CCAvenue says Successful, and the payment is settled and filed thro
   assert.equal(res.statusCode, 200, res.raw);
   assert.equal(res.json.applied, true);
   assert.equal(res.json.status, 'success');
-  assert.equal(res.json.reference, `PFA-DON-${YEAR}-00001`);
+  /* one donation, one number: the payment's own (21 Nov 2026) */
+  assert.equal(res.json.reference, out.order_id);
 
   /* what was asked, and how */
   assert.equal(api.asked.length, 1);
@@ -165,13 +166,13 @@ test('check: CCAvenue says Successful, and the payment is settled and filed thro
   const t = db.dump()[`transactions/${out.order_id}`];
   assert.equal(t.status, 'success');
   assert.equal(t.ccaVenue.trackingId, '310001112223');
-  assert.deepEqual(records('PFA-DON'), [`PFA-DON-${YEAR}-00001`]);
+  assert.deepEqual(records('PFA-DON'), [out.order_id]);
   assert.equal(sent.filter((m) => m.template === 'payment_received').length, 1, 'the receipt goes, once');
 
   /* the callback arriving late after all changes nothing */
   const late = await callback(out, { tracking_id: '310001112223', bank_ref_no: 'BNK55' });
   assert.match(late.raw, /Donation successful/);
-  assert.deepEqual(records('PFA-DON'), [`PFA-DON-${YEAR}-00001`]);
+  assert.deepEqual(records('PFA-DON'), [out.order_id]);
   assert.equal(sent.filter((m) => m.template === 'payment_received').length, 1);
   assert.ok(Object.keys(db.dump()).some((k) => k.startsWith('adminAudit/')), 'the check is in the admin log');
 });
