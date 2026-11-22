@@ -1,3 +1,13 @@
+## v1.619
+
+- **The chat answers what the site knows, however it is asked.** Owner, 22 Nov 2026, on "do u have a unit in ahmedabad" answered with "Where are you?" and then "There is no PFA unit listed near there": "chat bot isnt actually answering correctly", "build the bot so that it can answer any qs related to the website and knowledge that is already on the website", "even if asked in different ways".
+  - Units: the town in the question is the place ("do u have a unit in ahmedabad", "pfa pune", "contact number of pfa kolkata", "ahmedabad mein unit hai kya", a PIN code). It answers yes or no first, with the unit's head, phone, address and email. A town with no unit gets the nearest ones with how far they are, from India Post's directory kept with the site. A reply that is not a place ("just tell me if u do") is asked again, never answered "no unit". Every one of the 80 units, asked six ways, and every state is answered right.
+  - The site first: a question the site answers is answered in the site's own words, with its page, before a task is guessed from one word ("can I donate in dollars", "is animal cruelty a crime", "when were the CineKind awards"). Asking to do something ("I want to donate", "report cruelty", "become a member") still starts it, and an answer offers the task as a button.
+  - Asked differently: "tell me about", "I want to know", key words alone, Hinglish, and a word mistyped are all understood. On a page, the chat reads a question with that page in mind ("who can apply?" on the internship page).
+  - What it knows grew: membership prices and kits, tables, form explanations, events, the newsroom, the library, care guides, what a company can fund, and short lists such as the CineKind honours.
+  - Measured on the site itself: of its 655 headings asked as questions, 94% are answered from the right page when asked on that page and 84% from anywhere (31% before). A sample asked four other ways: about 90%; with a typo, about 80%.
+- Also in this build: v1.618 (one number per donation, district borders on the map) and v1.617 (Care Guide covers).
+
 ## v1.618
 
 - **One completed donation has one number.** Owner, 21 Nov 2026: "for 1 completed donation - 1 number only".

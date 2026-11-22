@@ -113,6 +113,11 @@
     noMatch: { en: 'Nothing matches that number with that email or mobile. Please check both.', hi: 'उस नंबर और ईमेल या मोबाइल से कुछ नहीं मिला। कृपया दोनों जाँचें।' },
     receiptSent: { en: 'If those details match a payment, its receipt has just been emailed to the address on it. Please check your inbox and spam folder in a few minutes.', hi: 'अगर ये जानकारी किसी भुगतान से मिलती है, तो उसकी रसीद अभी उसी पर दिए ईमेल पते पर भेज दी गई है। कुछ मिनट में अपना इनबॉक्स और स्पैम फ़ोल्डर देखें।' },
     unitsNear: { en: 'PFA units near {place}:', hi: '{place} के पास PFA यूनिट:' },
+    /* asked "is there a unit in ..." (22 Nov 2026): yes or no first */
+    unitsHere: { en: 'Yes. PFA has a unit in {place}:', hi: 'हाँ। {place} में PFA की यूनिट है:' },
+    unitsNone: { en: 'PFA has no unit in {place} itself. The nearest:', hi: '{place} में PFA की यूनिट नहीं है। सबसे पास:' },
+    kmAway: { en: 'about {km} km away', hi: 'लगभग {km} किमी दूर' },
+    placeAgain: { en: 'Which town or city? For example Ahmedabad, or a 6-digit PIN code like 380001.', hi: 'कौन सा शहर या कस्बा? जैसे अहमदाबाद, या 6 अंकों का PIN कोड जैसे 380001।' },
     allUnits: { en: 'See every unit', hi: 'सभी यूनिट देखें' },
     noUnits: { en: 'There is no PFA unit listed near there yet. PFA\'s head office in New Delhi can help: +91 11 2081 8191. Every unit, with its phone, is on the units page.', hi: 'वहाँ पास में अभी कोई PFA यूनिट नहीं है। नई दिल्ली में PFA का मुख्य कार्यालय मदद कर सकता है: +91 11 2081 8191। हर यूनिट, फ़ोन नंबर के साथ, यूनिट पेज पर है।' },
     callHq: { en: 'Call the head office', hi: 'मुख्य कार्यालय को कॉल करें' },
@@ -328,6 +333,7 @@
   /* Offerings finished on their own page, because of what they ask for
      (documents, a role's own questions, seven board members) */
   var PAGES = {
+    eventsList: { href: 'events.html', title: { en: 'Events', hi: 'कार्यक्रम' }, say: { en: 'Every drive, camp and open day PFA holds is on the events page, and every one is free to attend.', hi: 'PFA के हर ड्राइव, शिविर और ओपन डे की जानकारी कार्यक्रम पेज पर है, और हर एक में आना मुफ़्त है।' } },
     caregiver: { href: 'get-involved.html#caregiver', title: { en: 'Colony caregiver card', hi: 'कॉलोनी केयरगिवर कार्ड' }, say: { en: 'The colony caregiver card is for people who feed and care for community animals. The application asks for your ID and photographs, so it is done on its own page, step by step.', hi: 'कॉलोनी केयरगिवर कार्ड उन लोगों के लिए है जो मोहल्ले के जानवरों को खिलाते और देखभाल करते हैं। आवेदन में पहचान पत्र और फ़ोटो लगते हैं, इसलिए यह अपने पेज पर कदम दर कदम होता है।' } },
     jobs: { href: 'careers.html', title: { en: 'Jobs at PFA', hi: 'PFA में नौकरी' }, say: { en: 'Each role at PFA has its own questions, so applications are on the careers page.', hi: 'PFA में हर पद के अपने सवाल हैं, इसलिए आवेदन करियर पेज पर होते हैं।' } },
     shop: { href: 'shop.html', title: { en: 'The PFA shop', hi: 'PFA की दुकान' }, say: { en: 'Everything in the shop supports the animals. For an order you have placed, reply to its confirmation email, or ask me a question for the help desk.', hi: 'दुकान की हर चीज़ से जानवरों की मदद होती है। दिए गए ऑर्डर के लिए उसके पुष्टि ईमेल का जवाब दें, या हेल्प डेस्क के लिए मुझसे सवाल पूछें।' } },
@@ -384,6 +390,14 @@
      desk; never to the web. */
   var OFFICE_EMAIL = 'gandhim@exmpls.sansad.in';
   var FACTS = [
+    /* the number for an emergency, as report.html says it (22 Nov 2026) */
+    { id: 'emergency', need: [['emergency', 'urgent', 'danger', 'dying', 'turant', 'जल्दी', 'आपातकाल', 'इमरजेंसी'], ['number', 'call', 'helpline', 'phone', 'dial', 'contact', 'नंबर']],
+      say: { en: 'If an animal or you are in danger right now, call the police on 112. Then the nearest PFA unit, or PFA\'s head office in New Delhi: +91 11 2081 8191.', hi: 'अगर कोई जानवर या आप अभी खतरे में हैं, तो पुलिस को 112 पर कॉल करें। फिर सबसे पास की PFA यूनिट, या नई दिल्ली में PFA का मुख्य कार्यालय: +91 11 2081 8191।' },
+      links: [{ en: 'Call 112', hi: '112 पर कॉल करें', href: 'tel:112' }, { en: 'Call the head office', hi: 'मुख्य कार्यालय को कॉल करें', href: 'tel:+911120818191' }], chip: 'nearby', over: ['nearby', 'report'] },
+    /* what PFA is, in the site's own words (careers.html, founder.html) */
+    { id: 'about', need: [['what is pfa', 'what is people for animals', 'about pfa', 'about people for animals', 'who are you', 'who is pfa', 'tell me about pfa', 'what does pfa do', 'what do you do', 'pfa kya hai', 'pfa kya karta']],
+      say: { en: 'People for Animals is India\'s largest animal welfare organisation, founded by Smt. Maneka Sanjay Gandhi. It works through a nationwide network of independently registered units: rescue, shelter and adoption, animal birth control and anti-rabies programmes, cruelty complaints and prosecution, enforcement of animal protection laws, and engagement with government on policy.', hi: 'पीपल फॉर एनिमल्स भारत का सबसे बड़ा पशु कल्याण संगठन है, जिसकी स्थापना श्रीमती मेनका संजय गांधी ने की। यह देश भर में अलग से पंजीकृत यूनिटों के नेटवर्क से काम करता है: बचाव, आश्रय और गोद देना, पशु जन्म नियंत्रण और एंटी-रेबीज़ कार्यक्रम, क्रूरता की शिकायतें और मुकदमे, पशु संरक्षण कानूनों का पालन, और नीति पर सरकार के साथ काम।' },
+      links: [{ en: 'Her story', hi: 'उनकी कहानी', href: 'founder.html' }, { en: 'What PFA has done', hi: 'PFA ने क्या किया', href: 'achievements.html' }], over: ['nearby', 'question'] },
     { id: 'emailManeka', need: [['email', 'mail', 'e-mail', 'ईमेल', 'मेल'], ['maneka', 'menka', 'gandhi', 'chairperson', 'chairman', 'madam', 'founder', 'मेनका', 'गांधी']],
       say: { en: 'You can write to Smt. Maneka Sanjay Gandhi at PFA\'s office: ' + OFFICE_EMAIL, hi: 'श्रीमती मेनका संजय गांधी को PFA के कार्यालय के ईमेल पर लिखें: ' + OFFICE_EMAIL },
       links: [{ en: 'Write an email', hi: 'ईमेल लिखें', href: 'mailto:' + OFFICE_EMAIL }] },
@@ -407,7 +421,7 @@
       chip: 'donate' },
     { id: 'memberFee', over: ['member'], need: [['fee', 'fees', 'cost', 'costs', 'price', 'charge', 'charges', 'how much', 'kitna', 'kitne', 'paisa', 'शुल्क', 'कितना', 'फीस'], ['member', 'membership', 'sadasya', 'सदस्य', 'सदस्यता']],
       say: { en: 'Membership: Student ₹500, Silver ₹1,000, Golden ₹2,500, Platinum ₹5,000, Lifetime ₹10,000. Each has its own card and kit.', hi: 'सदस्यता: विद्यार्थी ₹500, सिल्वर ₹1,000, गोल्डन ₹2,500, प्लैटिनम ₹5,000, आजीवन ₹10,000। हर एक का अपना कार्ड और किट है।' },
-      chip: 'member' },
+      links: [{ en: 'The memberships', hi: 'सदस्यताएँ', href: 'get-involved.html#membership' }], chip: 'member', unless: /\b(student|silver|golden|gold|platinum|lifetime|life time)\b/ },
     { id: 'internTerms', over: ['internship'], need: [['fee', 'fees', 'cost', 'free', 'paid', 'stipend', 'salary', 'duration', 'long', 'weeks', 'age', 'eligible', 'eligibility', 'hours', 'kitna', 'kitne', 'शुल्क', 'कितना', 'उम्र'], ['intern', 'internship', 'इंटर्न']],
       say: { en: 'The remote internship is free to join and unpaid: 8 weeks, one task a week, 6 to 8 hours a week. Anyone in India aged 18 or over can apply; at 16 or 17, with a parent\'s consent.', hi: 'रिमोट इंटर्नशिप मुफ़्त है और इसमें भुगतान नहीं मिलता: 8 हफ़्ते, हर हफ़्ते एक काम, हफ़्ते में 6 से 8 घंटे। भारत में 18 या उससे ज़्यादा उम्र का कोई भी आवेदन कर सकता है; 16 या 17 की उम्र में माता-पिता की सहमति से।' },
       chip: 'internship' },
@@ -426,6 +440,8 @@
     for (var i = 0; i < FACTS.length; i++) {
       var f = FACTS[i];
       if (!f.need.every(function (group) { return N.countHits(s, words, group) > 0; })) continue;
+      /* a fact that gives way when the question is more particular (one tier, not all) */
+      if (f.unless && f.unless.test(s)) continue;
       if (!top || top === 'question' || top === 'greet' || top === 'thanks') return f;
       /* a fact with a word of what is asked (an address, a fee) is asked even
          without a question word: "care centre address" */
@@ -434,7 +450,7 @@
     return null;
   }
 
-  var INTENT_TO = { report: 'report', nearby: 'nearby', donate: 'donate', member: 'member', volunteer: 'volunteer', internship: 'internship', caregiver: 'caregiver', track: 'track', receipt: 'receipt',
+  var INTENT_TO = { eventsList: 'eventsList', report: 'report', nearby: 'nearby', donate: 'donate', member: 'member', volunteer: 'volunteer', internship: 'internship', caregiver: 'caregiver', track: 'track', receipt: 'receipt',
     adopt: 'adopt', event: 'event', sgacc: 'sgacc', csr: 'csr', legacy: 'legacy', campaign: 'campaign', campus: 'campus', privacy: 'privacy', cinekind: 'cinekind', wall: 'wallstory', proof: 'proof', verify: 'verify', jobs: 'jobs', shop: 'shop', newunit: 'newunit', mednote: 'mednote', podcast: 'podcast', guides: 'guides', desk: 'helpdesk', newsroom: 'newsroom', achievements: 'achievements', library: 'library', academy: 'academy', behaviour: 'behaviour', someone: 'someone', fireworks: 'fireworks', quiz: 'quiz', gifts: 'gifts', founder: 'founder', picks: 'picks', lawpage: 'lawpage', unitlist: 'unitlist', law: 'law', question: 'helpdesk' };
 
   function titleOf(id, lang) {
@@ -451,6 +467,14 @@
     var S = o.state ? JSON.parse(JSON.stringify(o.state)) : { lang: o.lang === 'hi' ? 'hi' : 'en', flow: '', step: 0, data: {}, phase: 'menu', addr: null, editing: false, pending: null, offer: '' };
     var photos = [];
     /* monthly giving, while the panel has it on (donate#monthly) */
+    /* the site's own paragraphs, once the page has them (assets/assistant-answers.json) */
+    function siteDocs() { try { return typeof o.docs === 'function' ? o.docs() : o.docs || null; } catch (_) { return null; } }
+    function herePage() { try { return typeof o.page === 'function' ? o.page() : o.page || ''; } catch (_) { return ''; } }
+    /* the units, for "pfa pune" and the like (assets/assistant-units.js) */
+    function unitList() {
+      if (o.units) return o.units;
+      try { return (typeof self !== 'undefined' && self.PFA_ASSIST_UNITS) || []; } catch (_) { return []; }
+    }
     function monthlyOn() { try { return typeof o.monthly === 'function' ? Boolean(o.monthly()) : Boolean(o.monthly); } catch (_) { return false; } }
     /* someone in the panel is available for a live chat (the page asks
        /api/live-chat and answers here) */
@@ -607,6 +631,15 @@
       if (e.email && has('contact')) S.data.contact = e.email;
       else if (e.mobile && has('contact')) S.data.contact = e.mobile;
       if (e.pin && has('place')) S.data.place = e.pin;
+      /* "do you have a unit in ahmedabad": the town said in the question */
+      if (!S.data.place && has('place')) {
+        var said = placeIn(text, true);
+        /* a place after "in", "at", "near"; or a word that is one (a unit's
+           town, a district), never just any word left over ("call") */
+        var lead = said && new RegExp('\\b(in|at|near|around|from)\\s+(\\w+\\s+)?' + said.toLowerCase().split(' ')[0] + '\\b|\\b' + said.toLowerCase().split(' ')[0] + '\\s+(mein|me|main)\\b').test(N.normalise(text));
+        var there = said ? unitsNear(unitList(), { text: said }) : [];
+        if (said && (/^\d{6}$/.test(said) || lead || isDistrict(said) || (there.length && there[0].here))) S.data.place = said;
+      }
       if (e.pin && has('address')) S.addr = { pin: e.pin, step: 'pinLookup' };
       if (S.flow === 'report') {
         if (e.animal) S.data.animal = e.animal;
@@ -1061,8 +1094,11 @@
           S.data[k] = cn; break;
         }
         case 'place': {
-          if (s.length < 3) return bad('A PIN code or the name of your town, please.', 'कृपया PIN कोड या अपने शहर का नाम लिखें।');
-          S.data[k] = N.pinOf(s) || s; break;
+          /* a place, not a sentence (22 Nov 2026: "just tell me if u do" was
+             looked up as a town, and answered "no unit near there") */
+          var where = N.pinOf(s) || placeIn(s);
+          if (!where) return bad(T.placeAgain.en, T.placeAgain.hi);
+          S.data[k] = where; break;
         }
       }
       S.step += 1;
@@ -1492,7 +1528,10 @@
         S.phase = 'menu';
         var units = r.units || [];
         if (!units.length) return out([msg(t('noUnits', lang()), { links: [{ label: t('callHq', lang()), href: 'tel:+911120818191' }, { label: t('allUnits', lang()), href: 'units.html' }], chips: [chip('report', lang())].concat(after) })]);
-        return out([msg(t('unitsNear', lang(), { place: r.place || S.data.place }), { list: units.map(function (u) { return [u.title, u.detail || '']; }), links: units.map(function (u) { return u.phone ? { label: (lang() === 'hi' ? 'कॉल करें: ' : 'Call ') + u.title, href: 'tel:' + String(u.phone).split('(')[0].replace(/[^\d+]/g, '') } : null; }).filter(Boolean).concat([{ label: t('allUnits', lang()), href: 'units.html' }]), chips: [chip('report', lang())].concat(after) }), msg(t('urgent', lang()))]);
+        var placeSaid = r.place || S.data.place;
+        var lead = units[0].here ? t('unitsHere', lang(), { place: placeSaid }) : units.some(function (u) { return u.km; }) ? t('unitsNone', lang(), { place: placeSaid }) : t('unitsNear', lang(), { place: placeSaid });
+        return out([msg(lead, { list: units.map(function (u) { return [u.title, [u.detail || '', u.km ? t('kmAway', lang(), { km: u.km }) : ''].filter(Boolean).join(', ')]; }), links: units.map(function (u) { return u.phone ? { label: (lang() === 'hi' ? 'कॉल करें: ' : 'Call ') + u.title, href: 'tel:' + String(u.phone).split('(')[0].replace(/[^\d+]/g, '') } : null; }).filter(Boolean)
+          .concat(units.filter(function (u) { return u.email; }).slice(0, 2).map(function (u) { return { label: (lang() === 'hi' ? 'ईमेल करें: ' : 'Email ') + u.title, href: 'mailto:' + u.email }; })).concat([{ label: t('allUnits', lang()), href: 'units.html' }]), chips: [chip('report', lang())].concat(after) }), msg(t('urgent', lang()))]);
       }
       /* a form sent */
       if (r.ok && r.reference) {
@@ -1541,11 +1580,42 @@
       return o;
     }
 
+    /* a question, not a request */
+    function isQuestion(text) {
+      var n = N.normalise(text).trim();
+      return /\?\s*$/.test(n) || ASKING_LEAD.test(n) || /^(what|when|who|whom|whose|which|why|where|how|is|are|am|was|were|does|do|did|can|could|should|will|would|may|has|have|kya|kab|kaun|kahan|kaise|kitna|kitne|kyun|kyon)\b/.test(n);
+    }
+    /* the task's own phrase, said in so many words ("report cruelty", "become a member") */
+    function taskPhrase(text, id) {
+      var it = (N.INTENTS || []).filter(function (x) { return x.id === id; })[0];
+      var n = ' ' + N.normalise(text).replace(/[^a-z0-9\u0900-\u097f ]+/g, ' ').replace(/\s+/g, ' ') + ' ';
+      return Boolean(it && (it.p || []).some(function (ph) { return n.indexOf(' ' + String(ph).toLowerCase() + ' ') > -1; }));
+    }
+    /* what was asked beyond the task's own words ("dollars" in "can i donate in dollars") */
+    function beyondTask(text, ids) {
+      var its = (N.INTENTS || []).filter(function (x) { return [].concat(ids).indexOf(x.id) > -1; });
+      if (!its.length) return [];
+      var own = wordsOf(its.map(function (it) { return (it.w || []).concat(it.p || []).join(' '); }).join(' '));
+      return wordsOf(text).filter(function (w) { return own.indexOf(w) < 0 && !/^\d+$/.test(w) && !/^(pfa|people|animal|animals|want|like|wish|would|kindly)$/.test(w); });
+    }
+    /* doing, not asking: "I want to donate", "report cruelty", "become a
+       member", "how do I volunteer", a task's own words ("adoption drive") */
+    function wantsTo(text, intents) {
+      var n = N.normalise(text).replace(/[?.!]+$/, '').trim();
+      /* "i want to know", "tell me", "explain": asking (22 Nov 2026) */
+      if (ASKING_LEAD.test(n)) return false;
+      if (N.tokens(n).length <= 2) return true;
+      if (/^(i\s*(want|wanna|wish|would like|need|have|had|am|m|will)|i'?d like|let me|help me|how (do|can|should|to) i|how to|where (do|can) i|can i|could i|may i|please|pls|plz|kindly|i'?m|my|our|we)\b/.test(n)) return true;
+      if (/^(report|donate|volunteer|join|become|apply|register|track|check|verify|buy|start|open|nominate|share|send|submit|invite|request|book|adopt|find|get|give|sign|follow|pay|order|contact|call|write|email|feed|show|take|help|someone|somebody|there is|there's|a dog|a cat|dog|cat)\b/.test(n)) return true;
+      /* a task's own phrase, said in so many words */
+      return (intents || []).some(function (x) { return taskPhrase(text, x.id); });
+    }
+
     /* the one page that answers it, in a line, and the way to it; not a
        list of pages (owner, 15 Nov 2026: "instead of tons of links") */
-    function searchDone(r) {
+    function searchDone(r, also) {
       var best = (r.rows || [])[0];
-      var chips = [];
+      var chips = (also || []).slice();
       /* not answered well enough? a person, if one is on; else the help desk */
       var live = liveOn();
       chips.push(live ? { label: t('liveChip', lang()), value: '#live' } : { label: t('askDesk', lang()), value: '#desk' });
@@ -1706,9 +1776,65 @@
       /* free text at the menu: what do they want? */
       var intents = N.intentOf(s);
       var top = intents[0];
+      /* a unit's own town, or a district, named: the units there, before any
+         general answer ("contact number of pfa ahmedabad" is not the head office) */
+      if ((!top || !{ report: 1, donate: 1, member: 1, volunteer: 1, internship: 1, track: 1, receipt: 1, verify: 1, shop: 1, caregiver: 1, newunit: 1 }[top.id]) && N.tokens(s).length <= 9 && !N.referenceOf(s)) {
+        var named = placeIn(s, true);
+        if (named && !/^\d+$/.test(named) && onlyPlace(s, named)) {
+          var thereFirst = unitsNear(unitList(), { text: named });
+          if ((thereFirst.length && thereFirst[0].here) || isDistrict(named)) return begin('nearby', s);
+        }
+      }
+      /* how many units: counted from the list the units page is built from */
+      if (/\b(how many|number of|total|kitne|kitni)\b.*\bunits?\b|\bunits?\b.*\b(how many|kitne)\b/.test(N.normalise(s)) && unitList().length) {
+        var ul = unitList();
+        var nStates = ul.map(function (u) { return u.s; }).filter(function (v, i, all) { return all.indexOf(v) === i; }).length;
+        S.phase = 'menu'; S.flow = '';
+        return out([msg(lang() === 'hi' ? 'PFA की ' + nStates + ' राज्यों में ' + ul.length + ' यूनिट हैं। अपना शहर या PIN कोड बताएँ, मैं सबसे पास की यूनिट बताऊँगा।' : 'PFA has ' + ul.length + ' units in ' + nStates + ' states. Tell me your town or PIN code and I will give you the nearest.', { links: [{ label: t('allUnits', lang()), href: 'units.html' }], chips: [chip('nearby', lang()), { label: t('menuChip', lang()), value: '#menu' }] })]);
+      }
       /* a question with a straight answer gets it, in one line */
       var fact = factOf(s, top && top.id);
       if (fact) return answer(fact);
+      /* a unit's town or state, said on its own or with "pfa", "unit",
+         "contact" (22 Nov 2026: "pfa pune", "ahmedabad", "unit in gujarat"):
+         the units there, not a search */
+      var doing = { report: 1, donate: 1, member: 1, volunteer: 1, internship: 1, track: 1, receipt: 1, verify: 1, shop: 1, caregiver: 1, newunit: 1, desk: 1, sgacc: 1 };
+      if ((!top || !doing[top.id]) && N.tokens(s).length <= 9 && !N.referenceOf(s)) {
+        var spot = placeIn(s, true);
+        if (spot && !/^\d+$/.test(spot) && onlyPlace(s, spot)) {
+          var there = unitsNear(unitList(), { text: spot });
+          /* a unit's town or state; or any district, or a town asked about
+             with "pfa", "unit", "contact" and the like: the nearest units */
+          var afterIn = new RegExp('\\b(in|at|near|around|mein|me)\\s+' + spot.toLowerCase().replace(/[^a-z ]/g, '').split(' ')[0] + '|' + spot.toLowerCase().replace(/[^a-z ]/g, '').split(' ')[0] + '\\s+(mein|me)\\b').test(N.normalise(s));
+          if ((there.length && there[0].here) || isDistrict(spot) || (afterIn && /\b(unit|units|branch|branches|office|offices|chapter)\b/i.test(s))) return begin('nearby', s);
+        }
+      }
+      /* the site's own words first, when they answer it squarely and it is
+         not a wish to do something (22 Nov 2026: "WSAVA vaccination
+         guidelines" opened the event form, "Pet Shop Rules" the shop) */
+      var docsNow = siteDocs();
+      if (docsNow && docsNow.length) {
+        var said = passageOf(s, docsNow, null, herePage());
+        if (said) {
+          var phrased = top && taskPhrase(s, top.id);
+          var extra = top ? beyondTask(s, intents.map(function (x) { return x.id; })) : [];
+          var asks = isQuestion(s);
+          var wh = /^(what|when|who|whom|whose|which|why|how much|how many|how long|how often|how old|kya|kab|kaun|kitna|kitne|kyun|kyon)\b/.test(N.normalise(s));
+          /* nothing asked for: the site's answer when it is squarely one */
+          var take = !top ? said.strong && !wantsTo(s, intents)
+            /* a task named, and more asked about it than its name ("can i
+               donate in dollars", "is animal cruelty a crime"), or a what,
+               when, who about it ("when were the cinekind awards") */
+            : !phrased && ((extra.length && (asks || !wantsTo(s, intents))) || (wh && !extra.length && said.strong)
+              /* "how to file an fir": a heading on the site that asks it */
+              || (asks && said.byHead && said.strong && /^how\b/.test(String(said.heading || '').toLowerCase())));
+          if (take) {
+            S.deskQuestion = s; S.deskTopic = '';
+            var goTo = top && INTENT_TO[top.id];
+            return searchDone({ rows: [], passage: said }, goTo && (FLOWS[goTo] || PAGES[goTo]) ? [chip(goTo, lang())] : []);
+          }
+        }
+      }
       /* only a number, an email or a PIN: nothing to search for */
       var bare = N.normalise(s).replace(/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/g, '').replace(/[\d\s+\-]/g, '');
       if (!top && bare.length < 3) return out([msg(t('notSure', lang()), { chips: MENU.map(function (id) { return chip(id, lang()); }).concat([{ label: t('more', lang()), value: '#more' }]) })]);
@@ -1721,8 +1847,24 @@
       /* a question about something, not a wish to do it ("is it legal to
          feed street dogs"): the site's own answer first, and the page for
          it only if the site has no paragraph that answers it */
-      if (go && PAGES[go] && !FLOWS[go] && /^(is|are|can|could|should|does|do|did|what|why|how|when|where|who|which|will|would)\b|\?\s*$/i.test(N.normalise(s))) {
+      if (go && PAGES[go] && !FLOWS[go] && !siteDocs() && /^(is|are|can|could|should|does|do|did|what|why|how|when|where|who|which|will|would)\b|\?\s*$/i.test(N.normalise(s))) {
         S.deskQuestion = s; S.deskTopic = ''; S.afterSearch = go;
+        return out([msg(t('looking', lang()))], { action: { id: newId('search'), type: 'search', q: N.searchText(s), question: s } });
+      }
+      /* a mention is not a request: "CineKind Awards 2026" is about the
+         awards, not a nomination; the form starts when asked for */
+      var SAY_FIRST = { cinekind: /\b(nominat|nominee|recommend someone|put forward)/, event: /\b(invite|request|organi[sz]e|conduct|hold|host|book|arrange|call pfa|bring pfa)/, campus: /\b(start|open|set up|form|create|found|apply|register|join)/, campaign: /\b(start|plan|run|create|launch|organi[sz]e|set up|do a|my)\b/, legacy: /\b(leave|write|add|include|put|make|my will|bequeath|plan)/, csr: /\b(partner|our company|my company|we want|we would|fund|sponsor|support|tie up|collaborat|work with)/, wallstory: /\b(share|send|submit|upload|post|put|add|my (film|video|reel))/ };
+      if (go && SAY_FIRST[go] && !SAY_FIRST[go].test(N.normalise(s)) && !/^(i|we)\s+(want|wanna|would like|wish|need|am|are|plan)\b/.test(N.normalise(s))) {
+        S.deskQuestion = s; S.deskTopic = '';
+        var docsSay = siteDocs();
+        var sayIt = docsSay && docsSay.length ? passageOf(s, docsSay, null, herePage()) : null;
+        if (sayIt) return searchDone({ rows: [], passage: sayIt }, [chip(go, lang())]);
+        return out([msg(t('looking', lang()))], { action: { id: newId('search'), type: 'search', q: N.searchText(s), question: s } });
+      }
+      /* "who won the cinekind awards": a what, who, when about a task the
+         site has no paragraph for is looked up, not the task's form */
+      if (go && FLOWS[go] && !FLOWS[go].look && /^(what|when|who|whom|which|how much|how many|how long|kab|kaun|kitna)\b/.test(N.normalise(s)) && beyondTask(s, intents.map(function (x) { return x.id; })).length) {
+        S.deskQuestion = s; S.deskTopic = '';
         return out([msg(t('looking', lang()))], { action: { id: newId('search'), type: 'search', q: N.searchText(s), question: s } });
       }
       /* close calls between two: ask which */
@@ -1774,29 +1916,137 @@
      district or town first, then the rest of its state, nearest to the first
      of those first. `place` is what the PIN lookup answered ({ state,
      district, city, near, areas }) or a town typed ({ text }). */
+  /* two letters typed the wrong way round ("anmial") */
+  function swapped(a, b) {
+    if (a.length !== b.length) return false;
+    var i = 0;
+    while (i < a.length && a.charAt(i) === b.charAt(i)) i += 1;
+    return i < a.length - 1 && a.charAt(i) === b.charAt(i + 1) && a.charAt(i + 1) === b.charAt(i) && a.slice(i + 2) === b.slice(i + 2);
+  }
+  /* the ways of asking that are not wishes: "i want to know", "tell me",
+     "explain", "information on" (owner, 22 Nov 2026: "even if asked in
+     different ways") */
+  var ASKING_LEAD = /^(i\s*(want|wanna|would like|need|wish|wanted|am trying|m trying|was hoping)\s*(to)?\s*(know|understand|learn|find out|ask|read|check|see)|i'?d like to (know|understand|learn|ask|read)|(can|could|would|will) you (please )?(tell|explain|let me know|show)|please (tell|explain|let me know)|kindly (tell|explain|let me know)|tell me|explain|let me know|what about|info(rmation)? (on|about|regarding)|details (of|on|about|regarding)|do you know|any (info|information|idea)|i have (a )?(question|doubt|query)|(question|doubt|query) (about|on|regarding)|batao|bataiye|bataye|samjhao|samjhaiye|jaankari|jankari)\b/;
+
+  /* ---- a place in what was typed (22 Nov 2026) ----
+     "do u have a unit in ahmedabad", "pfa pune", "ahmedabad mein", "380001".
+     Words that are never a place are set aside; what is left, when short,
+     is the place. In a whole sentence (asked) only a place after "in",
+     "at", "near" and the like, or one that is all that is left once the
+     question's own words are set aside. */
+  var NOT_PLACE = ' call calling dial ring message whatsapp sms text emergency urgent a an the is are am was do does did done you u ur your yours i me my we us our pfa people for animals animal unit units branch branches office offices centre center centres centers chapter team group contact contacts number numbers phone mobile address addresses email near nearby nearest close closest around here there any some have has had got get find show tell just please pls plz kindly know if what which where who how why when whether yes no yeah yep nope ok okay sure fine thanks thank hi hello hey can could will would should may might want need help me looking search searching for of to in at on from by with and or not dont don t doesn isn aren really actually also too only still yet now today one list all every whole state city town district area village place locality side region vet vets hospital clinic shelter ambulance rescue helpline emergency dog dogs cat cats cow cows injured hurt sick ka ki ke mein main me hai hain kya koi kahan kaha batao bataiye bolo mera meri mere ';
+  function notPlace(w) { return NOT_PLACE.indexOf(' ' + w + ' ') > -1; }
+  /* nothing said but the place and the words of asking for a unit ("do you
+     have a unit in ahmedabad", "pfa pune", "contact number of pfa kolkata");
+     not a story that happens to name a town ("donkeys rescued from a
+     Dehradun building site", 22 Nov 2026) */
+  function onlyPlace(text, place) {
+    var inPlace = String(place || '').toLowerCase().split(/\s+/);
+    var left = N.normalise(text).replace(/[^a-z\s]+/g, ' ').split(/\s+/).filter(function (w) { return w && !notPlace(w) && inPlace.indexOf(w) < 0 && !/^(mein|main|hai|hain|kya|koi|ka|ki|ke|wala|wali|located|location|situated|based|exist|exists|available|open|branch|chapter|office|centre|center)$/.test(w); });
+    return left.length === 0;
+  }
+  function placeIn(text, asked) {
+    var raw = String(text || '').trim();
+    var pin = N.pinOf(raw);
+    if (pin) return pin;
+    var t = N.normalise(raw).replace(/[^a-z\s.'-]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    var clip = function (phrase) {
+      var ws = String(phrase || '').split(' ').filter(Boolean);
+      while (ws.length && notPlace(ws[ws.length - 1])) ws.pop();
+      while (ws.length && notPlace(ws[0])) ws.shift();
+      if (!ws.length || ws.length > 4 || ws.some(function (w) { return notPlace(w) && w.length < 3; })) return '';
+      var out = ws.join(' ').replace(/^[.'-]+|[.'-]+$/g, '');
+      return out.length >= 3 ? out.replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); }) : '';
+    };
+    /* after in / at / near / around / from (the last one said) */
+    var re = /\b(?:in|at|near|around|from|for|of)\s+([a-z][a-z\s.'-]{1,48})/g, m, last = '';
+    while ((m = re.exec(t))) { var c = clip(m[1]); if (c) last = c; }
+    if (last) return last;
+    /* Hindi in Latin letters: "ahmedabad mein" */
+    var hm = /([a-z][a-z\s.'-]{1,40}?)\s+(?:mein|main|me)\b/.exec(t);
+    if (hm) { var hc = clip(hm[1]); if (hc) return hc; }
+    /* what is left once the question's words are set aside */
+    var left = t.split(' ').filter(function (w) { return w && !notPlace(w); });
+    if (!left.length || left.length > (asked ? 2 : 4)) return '';
+    return clip(left.join(' '));
+  }
+
+  /* India's districts and states (assets/india-districts.js), as one more
+     way to know a word is a place: "Chennai" alone asks about Chennai */
+  var districtSet = null;
+  function isDistrict(name) {
+    if (!districtSet) {
+      districtSet = {};
+      try {
+        var I = (typeof self !== 'undefined' && self.PFA_INDIA) || (typeof module === 'object' && typeof require === 'function' ? require('./india-districts.js') : null);
+        var add = function (n) { var k = String(n || '').toLowerCase().replace(/[^a-z]+/g, ' ').trim(); if (k.length >= 3) districtSet[k] = 1; };
+        Object.keys((I && I.DISTRICTS) || {}).forEach(function (st) {
+          add(st);
+          String(I.DISTRICTS[st]).split('|').forEach(function (d) {
+            add(d);
+            var m = /^(.*?)\s*\((.*)\)/.exec(d);
+            if (m) { add(m[1]); add(m[2]); }
+            add(d.replace(/\s+(city|urban|rural|suburban|district)$/i, ''));
+          });
+        });
+      } catch (_) { districtSet = {}; }
+    }
+    var k = String(name || '').toLowerCase().replace(/[^a-z]+/g, ' ').trim();
+    return Boolean(districtSet[k] || districtSet[UNIT_SAID[k] || '']);
+  }
+  /* the names people use for a unit's town that the unit list writes otherwise */
+  var UNIT_SAID = { bengaluru: 'bangalore', mysuru: 'mysore', kozhikode: 'calicut', trivandrum: 'thiruvananthapuram', hubballi: 'hubli', gurugram: 'gurgaon',
+    tiruchirappalli: 'trichy', tiruchi: 'trichy', bhubaneswar: 'bhubaneshwar', bombay: 'mumbai', vidarbha: 'nagpur', bareilly: 'rohilkhand bareilly',
+    'chhatrapati sambhajinagar': 'aurangabad', 'sambhajinagar': 'aurangabad', 'ahilyanagar': 'ahmednagar', 'quilon': 'kollam', 'trichur': 'thrissur',
+    'ahemdabad': 'ahmedabad', 'ahmadabad': 'ahmedabad', 'amdavad': 'ahmedabad' };
+
   function unitsNear(units, place) {
     var key = function (x) { return String(x || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[^a-z]+/g, ' ').trim(); };
     var p = place || {};
     var names = [p.district, p.city].concat(p.near || [], p.areas || [], p.districts || []).map(key).filter(Boolean);
     var typed = key(p.text);
+    typed = UNIT_SAID[typed] || typed.split(' ').map(function (w) { return UNIT_SAID[w] || w; }).join(' ');
+    var padded = ' ' + typed + ' ';
     var list = (units || []).slice();
-    var hit = function (u) {
+    /* a unit's own town, said in full (whole words: "kota" is not in "dakota") */
+    var named = function (u) {
       var c = key(u.c);
-      return names.some(function (n) { return n === c || n.indexOf(c) === 0 || c.indexOf(n) === 0; }) || (typed && (typed.indexOf(c) > -1 || c.indexOf(typed) === 0));
+      return names.some(function (n) { return n === c || n.indexOf(c + ' ') === 0 || c.indexOf(n + ' ') === 0; }) || (typed && (padded.indexOf(' ' + c + ' ') > -1 || (typed.length >= 4 && (' ' + c + ' ').indexOf(padded) > -1)));
     };
-    var inState = p.state ? list.filter(function (u) { return key(u.s) === key(p.state); }) : typed ? list.filter(function (u) { return typed.indexOf(key(u.s)) > -1 || hit(u); }) : [];
-    var near = inState.filter(hit);
-    var anchor = near[0];
+    var stateSaid = function (u) { return typed && padded.indexOf(' ' + key(u.s) + ' ') > -1; };
     var km = function (a, b) {
-      var r = Math.PI / 180, dLa = (b.la - a.la) * r, dLo = (b.lo - a.lo) * r;
-      var h = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(a.la * r) * Math.cos(b.la * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+      var r = Math.PI / 180, dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r;
+      var h = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
       return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
     };
-    var rest = inState.filter(function (u) { return near.indexOf(u) < 0; });
-    if (anchor) rest.sort(function (a, b) { return km(anchor, a) - km(anchor, b); });
-    return near.concat(rest).slice(0, 3).map(function (u) {
-      return { title: 'PFA ' + u.c, url: u.u, detail: [u.p, (u.t || [])[0]].filter(Boolean).join(', '), phone: (u.t || [])[0] || '' };
-    });
+    var at = Array.isArray(p.at) && p.at.length === 2 ? p.at : null;
+    var here = list.filter(named);
+    var shape = function (u, isHere) {
+      var d = !isHere && at && u.la != null ? Math.max(5, Math.round(km(at, [u.la, u.lo]) / 5) * 5) : 0;
+      return { title: 'PFA ' + u.c, url: u.u, detail: [u.p, (u.t || [])[0]].filter(Boolean).join(', ') + (isHere && u.a ? '. ' + u.a : ''), phone: (u.t || [])[0] || '', email: isHere ? u.e || '' : '', here: Boolean(isHere), km: d };
+    };
+    /* a whole state asked about: its units */
+    if (!here.length && typed) {
+      var inState = list.filter(stateSaid);
+      if (inState.length) return inState.slice(0, 6).map(function (u) { return shape(u, true); });
+    }
+    if (here.length) {
+      var anchor = [here[0].la, here[0].lo];
+      var others = list.filter(function (u) { return here.indexOf(u) < 0 && (key(u.s) === key(p.state || here[0].s) || km(anchor, [u.la, u.lo]) < 150); })
+        .sort(function (a, b) { return km(anchor, [a.la, a.lo]) - km(anchor, [b.la, b.lo]); });
+      var all = here.map(function (u) { return shape(u, true); }).concat(others.slice(0, Math.max(0, 3 - here.length)).map(function (u) { var x = shape(u, false); x.km = Math.max(5, Math.round(km(anchor, [u.la, u.lo]) / 5) * 5); return x; }));
+      return all;
+    }
+    /* nowhere named: by distance from the place, when it is known */
+    if (at) {
+      var byKm = list.filter(function (u) { return u.la != null; }).sort(function (a, b) { return km(at, [a.la, a.lo]) - km(at, [b.la, b.lo]); });
+      var close = byKm.filter(function (u) { return km(at, [u.la, u.lo]) <= 400; });
+      return (close.length ? close.slice(0, 3) : byKm.slice(0, 1)).map(function (u) { return shape(u, false); });
+    }
+    /* only a state known (a PIN India Post could not place exactly) */
+    if (p.state) return list.filter(function (u) { return key(u.s) === key(p.state); }).slice(0, 3).map(function (u) { return shape(u, false); });
+    return [];
   }
 
   /* ---- an answer in the site's own words (owner, 16 Nov 2026, of answering
@@ -1808,16 +2058,34 @@
      of what the question is about, by weight (rarer words count for more),
      and at least two of its words, or one when only one is asked about. */
   var STOP = ' a an the is are was were be been am do does did i me my we our you your he she it they them this that these those to of for in on at by with from as or and but if so not no can could will would should may might must shall what which who whom whose when where why how there here about into over under than then also just only any all some more most very much many such own same tell know want need please pfa people animal animals india safe ok okay good bad best way ways help get give take make use used using one ';
+  /* one form for a word's family: scratches, scratching, scratched ->
+     scratch; achieved, achievement -> achiev (22 Nov 2026) */
   function stemOf(w) {
     w = String(w || '').toLowerCase();
-    if (w.length > 5 && /ies$/.test(w)) return w.slice(0, -3) + 'y';
-    if (w.length > 5 && /ing$/.test(w)) return w.slice(0, -3);
-    if (w.length > 3 && /s$/.test(w) && !/ss$/.test(w)) return w.slice(0, -1);
+    if (/^[0-9]/.test(w) || /[\u0900-\u097f]/.test(w) || w.length <= 3) return w;
+    if (w.length > 5 && /ies$/.test(w)) w = w.slice(0, -3) + 'y';
+    else if (w.length > 5 && /(ch|sh|x|ss|z)es$/.test(w)) w = w.slice(0, -2);
+    else if (/s$/.test(w) && !/(ss|us|is)$/.test(w)) w = w.slice(0, -1);
+    if (w.length > 8 && /ment$/.test(w)) w = w.slice(0, -4);
+    if (w.length > 5 && /ing$/.test(w)) { w = w.slice(0, -3); if (/([b-df-hj-np-tv-z])\1$/.test(w) && !/(ll|ss)$/.test(w)) w = w.slice(0, -1); }
+    else if (w.length > 5 && /ed$/.test(w) && !/eed$/.test(w)) { w = w.slice(0, -2); if (/([b-df-hj-np-tv-z])\1$/.test(w) && !/(ll|ss)$/.test(w)) w = w.slice(0, -1); }
+    if (w.length > 4 && /e$/.test(w)) w = w.slice(0, -1);
     return w;
   }
   /* the same idea in the words the site uses */
   var SAME = {
     street: 'community', stray: 'community', strays: 'community', indie: 'community', indies: 'community',
+    /* a housing society is the RWA the law pages speak of (22 Nov 2026) */
+    society: 'rwa', societies: 'rwa', apartment: 'rwa', apartments: 'rwa', flat: 'rwa', flats: 'rwa', colony: 'rwa', association: 'rwa', builder: 'rwa',
+    lift: 'lift', lifts: 'lift', elevator: 'lift', elevators: 'lift',
+    stop: 'ban', stops: 'ban', stopping: 'ban', ban: 'ban', bans: 'ban', banned: 'ban', banning: 'ban', prohibit: 'ban', prohibited: 'ban', prohibits: 'ban', bar: 'ban', barred: 'ban', restrict: 'ban', restricted: 'ban', allow: 'ban', allowed: 'ban', allows: 'ban', permitted: 'ban', permit: 'ban', forbid: 'ban', forbidden: 'ban',
+    file: 'fir', filing: 'fir', lodge: 'fir', lodging: 'fir', fir: 'fir', firs: 'fir',
+    award: 'honour', awards: 'honour', awarded: 'honour', won: 'honour', win: 'honour', winner: 'honour', winners: 'honour', awardee: 'honour', awardees: 'honour', honoured: 'honour', honours: 'honour', honour: 'honour', honored: 'honour', honors: 'honour',
+    cost: 'cost', costs: 'cost', price: 'cost', prices: 'cost', priced: 'cost', charge: 'cost', charges: 'cost', sponsor: 'fund', sponsoring: 'fund', sponsored: 'fund', fund: 'fund', funds: 'fund', funding: 'fund',
+    crime: 'offence', crimes: 'offence', offence: 'offence', offences: 'offence', offense: 'offence', offenses: 'offence', illegal: 'offence', unlawful: 'offence', criminal: 'offence', cognizable: 'offence',
+    rabies: 'rabies', bitten: 'bite', bites: 'bite', biting: 'bite', bit: 'bite',
+    vaccine: 'vaccin', vaccines: 'vaccin', vaccination: 'vaccin', vaccinations: 'vaccin', vaccinate: 'vaccin', jab: 'vaccin', jabs: 'vaccin', shot: 'vaccin', shots: 'vaccin',
+    puppy: 'pupp', puppies: 'pupp', kitten: 'kitten', kittens: 'kitten',
     feeding: 'feed', fed: 'feed', feeder: 'feed', feeders: 'feed',
     killing: 'kill', killed: 'kill', kills: 'kill', murder: 'kill',
     punishment: 'punish', penalty: 'punish', penalties: 'punish', jail: 'punish', fine: 'punish', fines: 'punish',
@@ -1942,22 +2210,71 @@
     return hits.slice(0, 6).map(function (h) { return { name: h.name, place: h.place, works: h.works }; });
   }
 
-  function passageOf(question, docs) {
+  function passageOf(question, docs, ranked, here) {
+    /* the page the chat is open on: "who can apply?" asked on the
+       internship page is about the internship (22 Nov 2026) */
+    var herePage = String(here || '').replace(/^\//, '').split('#')[0].split('?')[0];
     var terms = wordsOf(question).filter(function (w, i, all) { return all.indexOf(w) === i; });
-    if (!terms.length || !docs || !docs.length || !onTopic(terms)) return null;
+    if (!terms.length || !docs || !docs.length) return null;
     if (passageCache.docs !== docs) {
       var df = {};
+      /* the first paragraph under each heading answers what the heading asks */
+      var lastHead = null;
       var items = docs.map(function (d) {
         var w = wordsOf(d.text);
-        var h = wordsOf(d.heading);
+        var hOnly = wordsOf(d.heading);
+        /* the page's own name is part of what a paragraph is under ("CineKind") */
+        var h = hOnly.concat(wordsOf(d.title).filter(function (x) { return hOnly.indexOf(x) < 0; }));
         w.concat(h).filter(function (x, i, all) { return all.indexOf(x) === i; }).forEach(function (x) { df[x] = (df[x] || 0) + 1; });
-        return { d: d, w: w, h: h };
+        var key = d.url + '|' + (d.heading || '');
+        var first = key !== lastHead;
+        lastHead = key;
+        /* people it names, for "who" questions */
+        var names = (String(d.text || '').match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+/g) || []).length;
+        return { d: d, w: w, h: h, hOnly: hOnly, first: first, names: names };
       });
       passageCache = { docs: docs, items: items, df: df };
     }
+    /* a word the site does not use is read as the nearest one it does,
+       when it is one letter off (two for a long word): "vacination",
+       "punishmnet" (22 Nov 2026) */
+    if (!passageCache.vocab) passageCache.vocab = Object.keys(passageCache.df);
+    terms = terms.map(function (w) {
+      if (passageCache.df[w] || w.length < 5 || /^\d/.test(w)) return w;
+      var limit = w.length >= 8 ? 2 : 1, best2 = '', bestDf = 0;
+      passageCache.vocab.forEach(function (v) {
+        if (Math.abs(v.length - w.length) > limit || v.charAt(0) !== w.charAt(0)) return;
+        if ((swapped(v, w) || N.editDistance(v, w) <= limit) && passageCache.df[v] > bestDf) { best2 = v; bestDf = passageCache.df[v]; }
+      });
+      return best2 || w;
+    }).filter(function (w, i, all) { return all.indexOf(w) === i; });
+    /* about what the site is about: its subjects, or a word the site itself
+       uses in only a few places (22 Nov 2026: "shark fins", "Gadhimai",
+       "cosmetic testing" are the site's own, and were refused) */
+    var rare = terms.filter(function (w) { var f = passageCache.df[w] || 0; return f > 0 && f <= 25 && w.length >= 4; });
+    /* or a word on the page the chat is open on */
+    var onHere = herePage ? terms.some(function (w) { return passageCache.items.some(function (it) { return it.d.url.split('#')[0] === herePage && (it.w.indexOf(w) > -1 || it.hOnly.indexOf(w) > -1); }); }) : false;
+    if (!onTopic(terms) && !rare.length && !onHere) return null;
     var n = passageCache.items.length || 1;
     var idf = function (w) { return Math.log(1 + n / (1 + (passageCache.df[w] || 0))); };
     var total = terms.reduce(function (a, w) { return a + idf(w); }, 0);
+    /* the page a kind of question belongs on: medicine on the Academy,
+       the law on the law page, behaviour on its own; what a company funds
+       only when funding is asked about (22 Nov 2026) */
+    var has = function (re) { return terms.some(function (w) { return re.test(w); }); };
+    var medical = has(/^(vaccin|dose|dosag|medicin|drug|tablet|treat|symptom|first|aid|wound|bleed|fever|poison|antibiot|injur|sick|diseas|parvo|schedul|prophylaxi|immunoglobulin|antivenom|paracetamol|meloxicam|deworm|tick|flea)/);
+    var legal = has(/^(offence|law|legal|punish|section|act|court|fir|police|ban|rwa|right|rule|bns|pca|judgment|complaint|liab)/);
+    var behaving = has(/^(bark|scratch|chew|aggress|fear|anxiet|litter|introduc|train|howl|whin|dig|jump|pull|leash|toilet)/);
+    var funding = has(/^(fund|cost|company|csr|corporat|sponsor)/);
+    var who = /^\s*(who|whom|whose|kaun)\b/i.test(String(question || ''));
+    var leanOf = function (url) {
+      var u = String(url || '');
+      if (/^academy/.test(u)) return medical ? 2 : 0;
+      if (/^laws/.test(u)) return legal ? 1.5 : medical ? -1 : 0;
+      if (/^behaviour/.test(u)) return behaving ? 2 : 0;
+      if (/^csr/.test(u)) return funding ? 1 : -2;
+      return 0;
+    };
     var need = Math.min(2, terms.length);
     var best = null;
     passageCache.items.forEach(function (it) {
@@ -1970,20 +2287,31 @@
          the question its heading asks */
       var asked = /\?\s*$/.test(it.d.heading || '');
       var textCover = inText.reduce(function (a, w) { return a + idf(w); }, 0) / total;
-      if (!asked && textCover < 0.75) return;
+      /* the heading is what is asked, most of it in so many words (22 Nov
+         2026: a heading asked word for word was "not found on the site") */
+      var headCover = it.h.length ? inHead.reduce(function (a, w) { return a + idf(w); }, 0) / total : 0;
+      var headAll = it.hOnly.length ? it.hOnly.filter(function (w) { return terms.indexOf(w) > -1; }).length / it.hOnly.length : 0;
+      var byHead = headCover >= 0.75 && headAll >= 0.5;
+      if (!asked && !byHead && textCover < 0.75) return;
       var named = terms.filter(function (w) { return KINDS.test(w); });
       var general = it.w.indexOf('pet') > -1 || it.h.indexOf('pet') > -1 || it.w.indexOf('community') > -1 || it.h.indexOf('community') > -1;
       if (named.length && !named.some(function (w) { return hit.indexOf(w) > -1; }) && !(general && named.some(function (w) { return /^(dog|cat)$/.test(w); }))) return;
-      var score = cover * 10 + (asked ? 3 : 0)
+      var score = cover * 10 + (asked ? 3 : 0) + (byHead ? 4 + headAll * 3 + (it.first ? 2 : 0) : 0) + leanOf(it.d.url) + (who ? (it.names >= 3 ? 5 : it.names ? 0 : -2) : 0) + (herePage && it.d.url.split('#')[0] === herePage ? 3 : 0)
         + inText.reduce(function (a, w) { return a + idf(w); }, 0) * 0.3
         + inHead.reduce(function (a, w) { return a + idf(w); }, 0) * 0.5
         - it.d.text.length / 3000;
-      if (!best || score > best.score) best = { score: score, it: it, cover: cover };
+      if (ranked) ranked.push({ score: Math.round(score * 10) / 10, cover: Math.round(cover * 100) / 100, url: it.d.url, heading: it.d.heading, text: it.d.text.slice(0, 80) });
+      if (!best || score > best.score) best = { score: score, it: it, cover: cover, byHead: byHead, textCover: textCover };
     });
     if (!best || best.cover < 0.75) return null;
+    /* a question outside the site's subjects is answered only by a heading
+       that asks it ("who is the prime minister" is not a news story) */
+    if (!onTopic(terms) && !best.byHead && !(onHere && best.it.d.url.split('#')[0] === herePage)) return null;
     var d = best.it.d;
-    return { text: shortOf(d.text), heading: d.heading || '', title: String(d.title || '').replace(/\s*\|\s*People for Animals\s*$/i, ''), url: d.url };
+    return { text: shortOf(d.text), heading: d.heading || '', title: String(d.title || '').replace(/\s*\|\s*People for Animals\s*$/i, ''), url: d.url,
+      /* sure enough to answer before any offering is guessed from a word */
+      strong: terms.length >= 2 && (best.byHead || best.textCover >= 0.9), byHead: Boolean(best.byHead) };
   }
 
-  return { createSession: createSession, unitsNear: unitsNear, passageOf: passageOf, nameLike: nameLike, peopleOf: peopleOf, sameName: sameName, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
+  return { createSession: createSession, unitsNear: unitsNear, placeIn: placeIn, passageOf: passageOf, nameLike: nameLike, peopleOf: peopleOf, sameName: sameName, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
 }));

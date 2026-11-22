@@ -110,9 +110,11 @@
     { id: 'volunteer', w: ['volunteer', 'volunteering', 'volunteers', 'swayamsevak', 'sewa', 'seva', 'स्वयंसेवक', 'वॉलंटियर', 'सेवा'], p: ['help out', 'give my time'] },
     { id: 'internship', w: ['intern', 'internship', 'interns', 'इंटर्न'], p: [] },
     { id: 'caregiver', w: ['caregiver', 'feeder', 'feeders', 'colony', 'khilana', 'khilata', 'khilati', 'खिला', 'फीडर'], p: ['caregiver card', 'feeding card', 'feed dogs', 'feed street'] },
-    { id: 'track', w: ['track', 'status', 'tracking', 'progress', 'update', 'स्थिति', 'स्टेटस'], p: ['where is my', 'kya hua', 'kahan tak', 'my application', 'my report'] },
+    { id: 'track', w: ['track', 'status', 'tracking', 'progress', 'update', 'स्थिति', 'स्टेटस'], p: ['where is my', 'kya hua', 'kahan tak', 'my application', 'my report', 'follow a report', 'follow my report', 'follow up', 'follow an application', 'report i sent', 'report you sent', 'report sent'] },
     { id: 'receipt', w: ['receipt', 'receipts', 'invoice', 'rasid', 'raseed', 'रसीद'], p: ['tax receipt', '80g receipt'] },
     { id: 'adopt', w: ['adopt', 'adoption', 'adopting', 'god', 'apnana', 'गोद', 'अपना'], p: ['god lena', 'ghar dena'] },
+    /* the events PFA holds, not inviting PFA to one (22 Nov 2026: "upcoming events") */
+    { id: 'eventsList', w: [], p: ['upcoming events', 'upcoming event', 'next event', 'events calendar', 'pfa events', 'events near me', 'any events', 'what events', 'event list', 'events list', 'list of events', 'events this month'] },
     { id: 'event', w: ['camp', 'camps', 'drive', 'event', 'events', 'session', 'talk', 'sterilisation', 'sterilization', 'vaccination', 'shivir', 'शिविर'], p: ['adoption drive', 'school session', 'vaccination camp', 'request an event', 'organise an event', 'organize an event', 'host an event', 'event in my area'] },
     { id: 'sgacc', w: ['sgacc', 'supplies'], p: ['sanjay gandhi', 'animal care centre', 'care centre', 'care center'] },
     { id: 'csr', w: ['csr', 'corporate', 'company'], p: ['our company'] },
@@ -125,17 +127,17 @@
     { id: 'proof', w: ['proof', 'saboot', 'sabut', 'सबूत'], p: ['submit proof', 'task proof', 'internship task', 'task done', 'submit my task', 'send proof'] },
     { id: 'verify', w: ['verify', 'verification', 'genuine', 'fake', 'asli', 'nakli', 'असली', 'नकली', 'सत्यापन'], p: ['check certificate', 'check a certificate', 'check this certificate', 'check a card', 'check this card', 'is this card', 'is this certificate', 'certificate real', 'certificate is real', 'card is real', 'card real'] },
     { id: 'jobs', w: ['job', 'jobs', 'career', 'careers', 'vacancy', 'vacancies', 'hiring', 'naukri', 'salary', 'नौकरी'], p: [] },
-    { id: 'shop', w: ['shop', 'buy', 'purchase', 'tshirt', 't-shirt', 'merchandise', 'store', 'kharid', 'khareed', 'खरीद', 'दुकान'], p: [] },
+    { id: 'shop', w: ['shop', 'buy', 'purchase', 'tshirt', 'tshirts', 't-shirt', 't-shirts', 'shirt', 'shirts', 'merch', 'merchandise', 'store', 'kharid', 'khareed', 'खरीद', 'दुकान'], p: [] },
     { id: 'newunit', w: [], p: ['new unit', 'start a unit', 'open a unit', 'unit kholna', 'own unit', 'new pfa unit', 'start a new unit', 'open a new unit', 'start a pfa unit', 'open a pfa unit', 'set up a unit', 'set up a pfa unit', 'unit in my city', 'unit in my town', 'unit in my district'] },
     { id: 'mednote', w: [], p: ['share a care guide', 'send a care guide', 'write a care guide', 'submit a care guide', 'share a guide', 'submit your guide', 'submit my guide', 'share a note', 'care guide', 'share my article', 'write an article'] },
     { id: 'podcast', w: ['podcast', 'podcasts', 'पॉडकास्ट'], p: [] },
     /* the pages that are read (16 Nov 2026: every visible feature) */
     { id: 'guides', w: ['diabetes', 'insulin', 'मधुमेह'], p: ['care guide', 'care guides', 'health guide', 'pet health', 'medical information', 'health article', 'pet care article', 'sugar in dogs'] },
     { id: 'newsroom', w: ['newsroom', 'news'], p: ['latest news', 'news from pfa', 'pfa cases', 'cases pfa'] },
-    { id: 'achievements', w: ['achievements', 'achievement', 'uplabdhi', 'उपलब्धि'], p: ['what has pfa done', 'what pfa has done', 'pfa policies', 'policies and achievements'] },
+    { id: 'achievements', w: ['achievements', 'achievement', 'achieved', 'achieve', 'accomplishments', 'uplabdhi', 'उपलब्धि'], p: ['what has pfa done', 'what pfa has done', 'pfa policies', 'policies and achievements'] },
     { id: 'library', w: ['library', 'handbook', 'handbooks', 'manuals', 'pustakalay', 'पुस्तकालय'], p: ['resources library', 'policy brief', 'training manual'] },
     { id: 'academy', w: ['academy', 'antibiotic', 'antibiotics', 'antivenom', 'prescription'], p: ['first aid', 'pratham upchar', 'प्राथमिक उपचार', 'animal medicine'] },
-    { id: 'behaviour', w: ['behaviour', 'behavior', 'barking', 'aggression', 'aggressive', 'vyavhar', 'व्यवहार'], p: ['why does my dog', 'why does my cat', 'dog keeps', 'cat keeps'] },
+    { id: 'behaviour', w: ['behaviour', 'behavior', 'barking', 'aggression', 'aggressive', 'scratching', 'scratches', 'chewing', 'chews', 'digging', 'howling', 'whining', 'spraying', 'litter', 'vyavhar', 'व्यवहार'], p: ['why does my dog', 'why does my cat', 'dog keeps', 'cat keeps', 'new dog', 'new cat', 'second dog', 'another dog', 'new puppy', 'new kitten', 'stop my puppy', 'stop my dog', 'stop my cat', 'separation anxiety'] },
     { id: 'someone', w: [], p: ['someone not something', 'animals we eat', 'farm animals feel', 'do hens feel', 'do pigs feel', 'do cows feel'] },
     { id: 'fireworks', w: ['fireworks', 'firework', 'crackers', 'cracker', 'patakhe', 'pataka', 'पटाखे', 'पटाखा'], p: ['diwali dog', 'diwali animals'] },
     { id: 'quiz', w: [], p: ['test yourself', 'animal quiz', 'take a quiz', 'farm animal quiz', 'quiz on farm animals'] },
@@ -194,6 +196,10 @@
       if (x.id === 'track' && out.length > 1) x.score += 1;
       /* checking a card or certificate is about checking it, whatever it is */
       if (x.id === 'verify' && out.length > 1) x.score += 2;
+      /* a company asking how to help is the CSR page, not a donation */
+      if (x.id === 'csr' && (has('donate') || has('volunteer'))) x.score += 1;
+      /* the events PFA holds, said in so many words, are not an invitation */
+      if (x.id === 'eventsList') x.score += 2;
       /* starting a unit is not looking for one */
       if (x.id === 'newunit') x.score += 2;
       /* writing to PFA is not a search of the site */

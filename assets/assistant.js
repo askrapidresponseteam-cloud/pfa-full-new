@@ -577,7 +577,17 @@
           finish(a.id, { units: FL.unitsNear(units, p), place: p.district ? place + ' (' + p.district + ')' : place });
         }).catch(function () { finish(a.id, { units: [], place: place }); });
       }
-      return setTimeout(function () { finish(a.id, { units: FL.unitsNear(units, { text: place }), place: place }); }, 0);
+      /* a unit's own town or state: answered here; any other town is placed
+         from India Post's directory, so the nearest units can be given with
+         how far they are (22 Nov 2026) */
+      var mine = FL.unitsNear(units, { text: place });
+      if (mine.length && mine[0].here) return setTimeout(function () { finish(a.id, { units: mine, place: place }); }, 0);
+      return fetch('/api/location-lookup?town=' + encodeURIComponent(place), { headers: { Accept: 'application/json' } }).then(json).then(function (r) {
+        var p = r.ok ? r.p : null;
+        if (!p) return finish(a.id, { units: mine, place: place });
+        var label = p.district && p.district.toLowerCase().indexOf(place.toLowerCase()) < 0 ? place + ' (' + p.district + ')' : place;
+        finish(a.id, { units: FL.unitsNear(units, Object.assign({ text: place }, p)), place: label });
+      }).catch(function () { finish(a.id, { units: mine, place: place }); });
     }
     if (a.type === 'search') {
       var rows = [];
@@ -593,7 +603,7 @@
       return Promise.all([siteText(), publicPeople()]).then(function (got) {
         var passage = null;
         var people = [];
-        try { passage = FL.passageOf([a.q, a.question].filter(Boolean).join(' '), got[0]); } catch (_) { passage = null; }
+        try { passage = FL.passageOf([a.q, a.question].filter(Boolean).join(' '), got[0], null, pageNow()); } catch (_) { passage = null; }
         try { people = FL.peopleOf(a.question || a.q, got[1]); } catch (_) { people = []; }
         finish(a.id, { rows: rows, passage: passage, people: people });
       }, function () { finish(a.id, { rows: rows }); });
@@ -765,6 +775,16 @@
     return peopleList;
   }
 
+  /* the site's paragraphs, read as soon as the chat opens, so a question
+     the site answers is answered before a task is guessed from one word
+     (22 Nov 2026) */
+  var docsKept = null;
+  /* the page the chat is open on, as the site names its pages */
+  function pageNow() { var p = String(location.pathname || '/').replace(/^\//, ''); return p ? (/\.html$/.test(p) ? p : p.replace(/\/$/, '') + '.html') : 'index.html'; }
+  function docsNow() {
+    if (!docsKept) siteText().then(function (d) { docsKept = d && d.length ? d : null; });
+    return docsKept;
+  }
   function siteText() {
     if (!siteDocs) {
       siteDocs = fetch('/assets/assistant-answers.json', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (ix) {
@@ -816,7 +836,7 @@
     var kept = load();
     var lang = (doc.documentElement.getAttribute('lang') || '').indexOf('hi') === 0 ? 'hi' : 'en';
     if (kept && kept.state) {
-      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline, bag: shopBag });
+      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, page: pageNow }); docsNow();
       log = kept.log || [];
       log.forEach(function (x, i) { draw(x.who === 'me' ? { text: x.text, cid: x.cid, n: x.n, st: x.st === 'sending' ? 'failed' : x.st } : x.m, x.who, i === log.length - 1); });
       /* a payment page opened and came back, or the tab was reloaded mid-send:
@@ -828,7 +848,7 @@
       if (kept.state.phase === 'live') { if (kept.state.live && kept.state.live.id) poll(); else show(session.tap('#endlive'), null); }
       logEl.scrollTop = logEl.scrollHeight;
     } else {
-      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline, bag: shopBag });
+      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, page: pageNow }); docsNow();
       show(session.start(), null);
     }
   }

@@ -305,7 +305,8 @@ test('a receipt is sent again only to the email on a paid payment whose email an
 
 test('on every page, loaded only when opened, talking only to the site itself', () => {
   const chrome = read('assets/chrome.js');
-  assert.match(chrome, /var FILES = \['\/assets\/assistant-nlu\.js', '\/assets\/assistant-flows\.js', '\/assets\/assistant-units\.js', '\/assets\/assistant\.js'\]\.map/);
+  /* and India's districts, so "Chennai" alone is known to be a place (22 Nov 2026) */
+  assert.match(chrome, /var FILES = \['\/assets\/assistant-nlu\.js', '\/assets\/assistant-flows\.js', '\/assets\/assistant-units\.js', '\/assets\/india-districts\.js', '\/assets\/assistant\.js'\]\.map/);
   assert.match(chrome, /if \(kept && \(kept\.open \|\| \(kept\.state && kept\.state\.phase === 'live'\)\) && !off\(\)\) load\(\);/, 'a conversation open in this tab, or a live chat, comes to the next page, unless the panel has hidden it');
   assert.match(chrome, /\(certificate\|card\|caregiver-card\|member-photo\|tax-receipt\|submission-collage\|admin\)/, 'not on a page to print or a private step');
   const files = ['assets/assistant.js', 'assets/assistant-nlu.js', 'assets/assistant-flows.js', 'assets/assistant.css'];
