@@ -155,7 +155,9 @@ test('a donation is never called a gift, and a gift always is', () => {
   }
   const g = m.render(...[CASES['a gift'][0], CASES['a gift'][2]]);
   assert.match(visible(g.html), /Your gift is in\./);
-  assert.match(visible(g.html), /PFA posts Ravi Kumar a Certificate of Appreciation/);
+  /* named as a gift, with no certificate promised (owner, 22 Nov 2026) */
+  assert.match(visible(g.html), /Ravi Kumar/);
+  assert.doesNotMatch(visible(g.html), /Certificate of Appreciation/);
   assert.match(g.text, /A gift for: Ravi Kumar/);
 });
 

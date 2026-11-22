@@ -317,9 +317,11 @@ test('a gift goes through the same CCAvenue flow, and the certificate to post is
   assert.equal(receipt.payload.giftTo, 'Ravi Menon');
   assert.equal(receipt.payload.giftAddress, '12 Lake View Road, Indiranagar, Bengaluru, 560038');
   const letter = caregiverMail.TEMPLATES.payment_received(receipt.payload);
-  assert.match(letter.html, /Certificate of Appreciation signed by Smt\. Maneka Sanjay Gandhi/);
-  assert.match(letter.html, /the 80G receipt stays in your name/);
-  assert.match(letter.text, /Certificate posted to: 12 Lake View Road, Indiranagar, Bengaluru, 560038/);
+  /* the email does not mention the certificate (owner, 22 Nov 2026: "remove
+     the Certificate of Appreciation mention in automated emails") */
+  assert.doesNotMatch(letter.html + letter.text, /Certificate of Appreciation|certificate posted|posts .* a certificate/i, 'no certificate of appreciation in the email (the 80G certificate is another thing)');
+  assert.match(letter.html, /The 80G receipt stays in your name/);
+  assert.match(letter.text, /A gift for: Ravi Menon\./);
   assert.doesNotMatch(letter.text + letter.html, /[\u2013\u2014]/, 'no long dashes in the letter');
 });
 

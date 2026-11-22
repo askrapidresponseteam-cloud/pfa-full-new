@@ -1,3 +1,10 @@
+## v1.621
+
+- **The donation receipt email no longer mentions the Certificate of Appreciation.** Owner, 22 Nov 2026.
+  - "remove the Certificate of Appreciation mention in automated emails". A gift's receipt email still says who it was for, and that the 80G receipt stays in the donor's name, but no longer says PFA posts a certificate, or where to.
+  - Unchanged, as they are not automatic: a certificate or letter an admin issues and emails from the panel (the certificate is what is sent). Also unchanged: the 80G tax certificate, the thank-you page after paying, and the copy to PFA's payments inboxes, which tells the team what to post.
+- Also in this build: v1.620 (Care Guide 03, Other amount, the Send button) and earlier.
+
 ## v1.620
 
 - **New Care Guide 03: Dehorning in cattle, pain and the law, by Milosz Wozniak, Guwahati.** Owner, 22 Nov 2026: "create this as a pdf and add it to care guide", and its cover: "this is the cover for the 3rd guide".
