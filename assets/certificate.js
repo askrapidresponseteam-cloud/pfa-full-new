@@ -76,6 +76,10 @@
   /* the same two at 6x, lossless, for the PDF and the download */
   var ART_PRINT = ROOT + 'assets/certificates/frame-print.png?v=' + ART_V;
   var SIG_PRINT = ROOT + 'assets/certificates/signature-print.png?v=' + ART_V;
+  /* the signature chosen for certificates in the panel, in its colour
+     (lib/routes/signature.js; owner, 22 Nov 2026), at print size; the
+     built-in one above when it cannot be had */
+  var SIG_LIVE = ROOT + 'api/signature?for=certificate';
   var PRINT_SCALE = 6;
   var SIG = { x: 798, y: 653, w: 252, h: 73, dx: 26, dy: 0, s: 100 };
   var SIG_RANGE = { x: 100, y: 50, s: [60, 160] };
@@ -321,9 +325,13 @@
        an error, as the artwork is, never a certificate without it */
     var signed = new Promise(function (resolve, reject) {
       var image = new Image();
+      var tried = false;
       image.onload = function () { signature = image; resolve(); };
-      image.onerror = function () { reject(new Error('The certificate signature could not be loaded.')); };
-      image.src = SIG_ART;
+      image.onerror = function () {
+        if (!tried) { tried = true; image.src = SIG_ART; return; }
+        reject(new Error('The certificate signature could not be loaded.'));
+      };
+      image.src = SIG_LIVE;
     });
     ready = Promise.all(fonts.concat([painted, signed])).catch(function (error) { ready = null; throw error; });
     return ready;
@@ -343,7 +351,7 @@
   function loadPrint() {
     if (printReady) return printReady;
     printReady = load().then(function () {
-      return Promise.all([picture(ART_PRINT, 'artwork'), picture(SIG_PRINT, 'signature')]);
+      return Promise.all([picture(ART_PRINT, 'artwork'), picture(SIG_LIVE, 'signature').catch(function () { return picture(SIG_PRINT, 'signature'); })]);
     }).then(function (both) { print.art = both[0]; print.sig = both[1]; }).catch(function (error) { printReady = null; throw error; });
     return printReady;
   }

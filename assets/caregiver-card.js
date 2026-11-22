@@ -42,6 +42,9 @@
      whole site (lib/certificate-layout.js, read from /api/certificate-layout
      with the card's other assets). A card is never printed without it. */
   var SIG_SRC = 'assets/certificates/signature-print.png';
+  /* the signature chosen for cards in the panel, in its colour (lib/routes/
+     signature.js; owner, 22 Nov 2026); the built-in one when it cannot be had */
+  var SIG_LIVE = '/api/signature?for=card';
   var SIG_BOX = { h: 62, aspect: 1512 / 438, gap: 1 };
   var SIG_RANGE = { x: 60, y: 30, s: [60, 160] };
   var SIG_DEFAULT = { x: 0, y: 0, s: 100 };
@@ -123,7 +126,7 @@
 
   /* The font and the two images every card needs. */
   function loadAssets() {
-    return Promise.all([loadFont(), loadImage(PATTERN_SRC), loadImage(LOGO_SRC), loadImage(SIG_SRC), loadPlace(), loadQr()]).then(function (out) {
+    return Promise.all([loadFont(), loadImage(PATTERN_SRC), loadImage(LOGO_SRC), loadImage(SIG_LIVE).then(function (im) { return im || loadImage(SIG_SRC); }), loadPlace(), loadQr()]).then(function (out) {
       return { pattern: out[1], logo: out[2], signature: out[3] };
     });
   }

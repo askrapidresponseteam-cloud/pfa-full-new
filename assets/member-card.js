@@ -54,6 +54,9 @@
      (lib/certificate-layout.js, /api/certificate-layout). A card is never
      printed without it. */
   var SIG_SRC = 'assets/certificates/signature-print.png';
+  /* the signature chosen for cards in the panel, in its colour (lib/routes/
+     signature.js; owner, 22 Nov 2026); the built-in one when it cannot be had */
+  var SIG_LIVE = '/api/signature?for=card';
   var SIG_BOX = { h: 62, aspect: 1512 / 438, gap: 1 };
   var SIG_RANGE = { x: 60, y: 30, s: [60, 160] };
   var SIG_DEFAULT = { x: 0, y: 0, s: 100 };
@@ -119,9 +122,10 @@
     });
     var signed = new Promise(function (resolve) {
       var img = new Image();
+      var tried = false;
       img.onload = function () { signature = whiten(img); resolve(); };
-      img.onerror = function () { resolve(); };
-      img.src = SIG_SRC;
+      img.onerror = function () { if (!tried) { tried = true; img.src = SIG_SRC; return; } resolve(); };
+      img.src = SIG_LIVE;
     });
     var placed = (typeof fetch === 'function' ? fetch('/api/certificate-layout', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }) : Promise.resolve(null))
       .then(function (l) { if (l && l.cards && l.cards.member) setSignature(l.cards.member); }, function () {});

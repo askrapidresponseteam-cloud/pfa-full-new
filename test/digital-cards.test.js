@@ -164,7 +164,7 @@ test('the page: front and back, turned over by a tap, Enter or the button; sky b
   const js = read('assets/digital-card.js');
   assert.match(js, /if \(e\.key === 'Enter' \|\| e\.key === ' '\) \{ e\.preventDefault\(\); flip\(\); \}/);
   assert.match(js, /role="button" tabindex="0" aria-pressed="false"/);
-  assert.match(js, /assets\/certificates\/signature\.svg" alt="Signature of Smt\. Maneka Sanjay Gandhi" width="1512" height="438"/, 'the chairperson\'s signature at print resolution, sharp at any zoom (owner, 15 Nov 2026: "is the signature super high res")');
+  assert.match(js, /api\/signature\?for=card&amp;builtin=svg" alt="Signature of Smt\. Maneka Sanjay Gandhi" width="1512" height="438"/, 'the chairperson\'s signature at print resolution, sharp at any zoom (owner, 15 Nov 2026: "is the signature super high res")');
   /* owner, 15 Nov 2026: "logo has to render perfectly. and it has to have
      transparent bg", "color of the card has to be chosen keeping the
      contrast in mind": every word in deep ink at 7 to 1 or more on every
@@ -324,7 +324,7 @@ test('the membership card online: the owner\'s template, in Marcellus, with what
   assert.equal(back.querySelector('.dcm__scan').textContent, 'Scan to verify');
   assert.ok(back.querySelector('.dcm__qr svg path'), 'the QR code of the card\'s own address');
   assert.doesNotMatch(back.textContent, /card\?id=/, 'the card\'s address is in the code, not printed');
-  assert.ok(back.querySelector('.dcm__sign img[src="assets/certificates/signature.svg"]'), 'the chairperson\'s signature, where the panel puts it');
+  assert.ok(back.querySelector('.dcm__sign img[src="api/signature?for=card&builtin=svg"]'), 'the chairperson\'s signature, where the panel puts it');
   assert.deepEqual([box.style.getPropertyValue('--sx'), box.style.getPropertyValue('--sy'), box.style.getPropertyValue('--ss')], ['4', '-2', '1.2']);
   const css = read('assets/digital-card.css');
   assert.match(css, /\.dc\[data-kind="member"\]\{[^}]*font-family:var\(--dc-serif\)\}/, 'Marcellus throughout');

@@ -28,6 +28,24 @@
   var $ = A.$, esc = A.esc, say = A.say, api = A.api;
   var fail = function (node, e) { if (A.fail) A.fail(node, e); else node.textContent = (e && e.message) || 'That could not be read.'; };
   var dayOf = function (iso) { return A.dayOf ? A.dayOf(iso) : String(iso || '').slice(0, 10); };
+  /* + Signatures, the password-kept collection (assets/admin-signatures.js,
+     22 Nov 2026), loaded with this pane so admin.html stays under its ceiling */
+  var vault = null;
+  function needVault() {
+    if (window.PFASignatures) return Promise.resolve(window.PFASignatures);
+    if (vault) return vault;
+    vault = new Promise(function (ok, no) {
+      var js = document.createElement('script');
+      js.src = 'assets/admin-signatures.js';
+      js.onload = function () { if (window.PFASignatures) ok(window.PFASignatures); else no(new Error('signatures')); };
+      js.onerror = function () { vault = null; no(new Error('signatures')); };
+      document.head.appendChild(js);
+    });
+    return vault;
+  }
+  function placeVault() {
+    needVault().then(function (S) { S.mount($('[data-pane="certificates"] [data-sv-slot]')); }, function () {});
+  }
   function C() { return window.PFACertificate; }
 
   var style = document.createElement('style');
@@ -135,11 +153,13 @@
         : '<div class="ct-acts"><button class="press" type="button" data-ct="issue">Issue certificate</button><p class="say" data-ct-say role="status" aria-live="polite"></p></div>')
       /* where the signature sits, for every certificate (assets/admin-cert-layout.js, 12 Nov 2026) */
       + (window.PFACertLayout ? window.PFACertLayout.panel(ct.layout) : '')
+      + '<div data-sv-slot></div>'
       + '<figure class="ct-preview"><canvas id="ctCanvas" width="1120" height="792" aria-label="The certificate as it will print"></canvas>'
       + '<figcaption>' + (c ? 'Downloads as an A4 landscape PDF, or a PNG at print quality.' : 'Drawn as you type. The certificate number is given when you issue it, and is kept so the certificate can be checked.') + '</figcaption></figure>'
       + list()
       + '</div>';
     if (said && !c) say($('[data-pane="certificates"] [data-ct-say]'), said.text, said.tone);
+    placeVault();
     if (C()) C().load().then(draw, function () { draw(); });
     draw();
   }

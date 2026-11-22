@@ -93,6 +93,7 @@ const PAGES = {
   'fireworks.html':    { current: 'fireworks.html', group: 'laws.html',       announce: DEFAULT_ANNOUNCE },
   'behaviour.html':    { current: 'behaviour.html', group: 'laws.html',       announce: DEFAULT_ANNOUNCE },
   'pet-health.html':   { current: 'pet-health.html', group: 'laws.html',      announce: DEFAULT_ANNOUNCE }, /* care guides for pet parents and caregivers, under Learn (16 Nov 2026) */
+  'rabies.html':       { current: null,             group: 'laws.html',      announce: DEFAULT_ANNOUNCE }, /* Care Guide 04, a guide in Care Guides (22 Nov 2026) */
   'series.html':       { current: null,             group: 'laws.html',       announce: DEFAULT_ANNOUNCE }, /* The Pet Parent Series, a closed preview: in no menu (11 Nov 2026) */
   'gifts.html':        { current: 'gifts.html',     group: 'get-involved.html', announce: 'Every purchase supports PFA\u2019s work for animals' },
   'privacy.html':      { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },

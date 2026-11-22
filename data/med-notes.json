@@ -51,6 +51,43 @@
       "cover": "media/med-notes/glucose-meters-for-dogs-cover-v2.webp"
     },
     {
+      "id": "rabies",
+      "title": "Rabies: the facts",
+      "summary": "What to do after a bite, the three kinds of contact and their treatment, the vaccine and its schedules, signs in dogs and in people, preventing bites, and why vaccinating dogs ends rabies. From the World Health Organization, with links to every source.",
+      "animal": "Dogs",
+      "role": "From the World Health Organization",
+      "credit": "People for Animals",
+      "sources": "the World Health Organization: its rabies health topic, fact sheet (17 September 2026), questions and answers for the public and for clinicians, and Vaccinating against rabies to save lives",
+      "at": "2026-11-22",
+      "number": 4,
+      "page": "rabies.html",
+      "files": [
+        {
+          "src": "media/med-notes/rabies.pdf",
+          "type": "application/pdf",
+          "size": 1646030,
+          "label": "11 pages, illustrated PDF"
+        }
+      ],
+      "cover": "media/med-notes/rabies-cover-v3.webp",
+      "points": [
+        "What to do after a dog bite or an animal bite or scratch: wash the wound at once with soap and plenty of running water for about 15 minutes (water alone if there is no soap), then an iodine antiseptic, put nothing else on it and do not bandage it, and see a doctor the same day for the anti-rabies vaccine. Do not wait to see if the animal falls ill.",
+        "Rabies facts: it is 100% fatal once signs start, and 100% preventable. Dog bites and scratches cause 99% of human rabies; 40% of the people who die are children under 15. WHO's latest estimate is 44,203 deaths a year.",
+        "What is a Category I, II or III exposure (bite)? Category I, touching, feeding or licks on unbroken skin, needs no treatment. Category II, nibbling or small scratches that do not bleed, needs the rabies vaccine at once. Category III, bites or scratches that break the skin, saliva on eyes, mouth, nose or a wound, or bat contact, needs the vaccine and rabies immunoglobulin or monoclonal antibodies.",
+        "Rabies vaccine schedule for people after a bite (WHO): intradermal, 2 sites on days 0, 3 and 7; intramuscular Essen, days 0, 3, 7 and 14 to 28; Zagreb, 2 doses on day 0, 1 on day 7, 1 on day 21. Finish every dose.",
+        "Is the rabies vaccine safe in pregnancy and breastfeeding? Yes. WHO says the vaccine and immunoglobulin are safe and work, and should never be withheld from a pregnant or breastfeeding woman. The vaccine cannot cause rabies.",
+        "Symptoms of rabies in a dog: biting without reason, restlessness or dullness, unsteadiness then paralysis, a hoarse bark or none, drooling or froth at the mouth. It usually dies within 10 days of the signs starting.",
+        "Symptoms of rabies in humans (people): fever and tingling or burning at the wound, then anxiety, agitation, hallucinations, fear of water and of air, difficulty swallowing, or paralysis spreading from the bite, then coma and death.",
+        "How long does rabies take to show? The incubation period is usually 2 to 3 months after the bite, but from a week to a year. Bites on the head, neck or fingers show sooner.",
+        "Can rabies be cured? No. Once signs start, rabies is almost always fatal and there is no cure, so treatment must start right after the bite, before any signs.",
+        "Can you get rabies from milk or meat? No one is known to have caught rabies from milk or cooked meat, but never drink milk from or eat an animal that had rabies. Rat and mouse bites do not normally carry rabies.",
+        "Should I wait 10 days to see if the dog dies? No. Where rabies is common, treatment starts at once; the animal is watched for 10 days at the same time, and if it stays healthy the doctor may change the course.",
+        "Who should get rabies vaccine before a bite, before any contact (pre-exposure prophylaxis, PrEP)? Vets, animal health workers, animal disease control staff, wildlife rangers, laboratory staff, and people in remote areas far from treatment: 2 visits, on day 0 and day 7. A bite later still needs washing and a short course.",
+        "Vaccinating about 70% of the dogs in an area every year breaks the chain of rabies; culling dogs does not control rabies. Under the ABC Rules 2023 the municipality must vaccinate community dogs. World Rabies Day is 28 September.",
+        "The rabies guide, Care Guide 04, Rabies: the facts, is a page on the site and an 11-page illustrated PDF to download, from the World Health Organization."
+      ]
+    },
+    {
       "id": "dehorning-cows",
       "title": "Dehorning in cattle: pain and the law",
       "summary": "Why and how dairy cows are dehorned, the pain of it, what the 2023 Rules now require (a registered vet and anaesthesia), the offences that apply, and what you can do in your district.",

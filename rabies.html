@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en" data-pfa-tabs>
+<head>
+<!-- Marcellus self-hosted, same files as the home page, so every display heading renders identically even when Google Fonts is slow or blocked -->
+<!-- Requested at parse time rather than when layout first needs it. Without this the
+     browser does not ask for the file until it lays out a heading, which is why the
+     display face arrived a beat late and swapped in over the fallback. Only the latin
+     file: latin-ext covers characters these pages do not use. -->
+<link rel="preload" href="fonts/marcellus-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* No black grounds (owner's instruction, 15 Sep 2026): the deep sections
+   now stand on stone with ink type, converted through the page's own
+   tokens; buttons, tags and photographs keep their weight. */
+/* latin-ext */
+@font-face {
+  font-family: 'Marcellus';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/marcellus-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Marcellus';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/marcellus-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* What a cold load paints while Marcellus arrives is the next face in the
+   stack, and the flash is the difference between the two: Georgia runs about
+   2% wider per line and sits on different vertical metrics, so the swap
+   rewrapped every heading and the boxes around them moved - the flash of
+   unstyled text, back on every hard refresh. These two faces are Georgia and
+   Times dressed in Marcellus's measurements (ascent 1995, descent 573, gap 0,
+   weighted advance 932.4, all per 2048 em, read from the woff2 itself;
+   Georgia 913, Times 832 per capsize). Scaled and overridden to occupy the
+   same lines and the same boxes, the swap exchanges glyphs in place and
+   moves nothing. The preload makes the window short; these make it
+   invisible. Keep the numbers and the font in step: they are pinned by
+   test/fout.test.js against the file on disk. */
+@font-face {
+  font-family: 'Marcellus Fallback';
+  src: local('Georgia');
+  size-adjust: 102.13%;
+  ascent-override: 95.38%;
+  descent-override: 27.39%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Marcellus Fallback Times';
+  src: local('Times New Roman'), local('Times'), local('Liberation Serif'), local('Tinos');
+  size-adjust: 112.07%;
+  ascent-override: 86.92%;
+  descent-override: 24.96%;
+  line-gap-override: 0%;
+}
+</style>
+<meta charset="utf-8">
+<meta name="pfa-build" content="v1.305">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Rabies: the facts | People for Animals</title>
+<meta name="description" content="Care Guide 04: rabies, from the World Health Organization. What to do after a bite, the three kinds of contact, the vaccine and its schedules, signs in dogs and people, preventing bites, and vaccinating dogs.">
+<link rel="stylesheet" href="assets/rabies-guide.css">
+<link rel="stylesheet" href="assets/chrome.css?v=51161f2e6a">
+<style>
+:root{
+  --paper:#fff;
+  --ink:#111;
+  --deep:#0a0a0a;
+  --muted:#6a6a6a;
+  --stone:#fff;
+  --bone:#fff;
+  --line:#e4e2df;
+  --line-dark:#3a3a3a;
+  --accent:#111;
+  --pop:#ff3b18; /* the units kicker orange, now the site-wide pop */
+  --display:Marcellus,'Marcellus Fallback','Marcellus Fallback Times',Georgia,'Times New Roman',serif;
+  --body:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --ann:34px;
+  /* 81px: the nav is 80px and the header carries a 1px rule under it. This is
+     only what the first paint uses; assets/chrome.js measures the real height
+     into --nav and overwrites it. Wrong, the top of the page starts 11px too
+     high and drops when the script lands. */
+  --nav:81px;
+  --max:1440px;
+  --gutter:max(clamp(16px,4vw,72px),(100% - 1440px) / 2);
+  --gutter-lg:max(clamp(24px,5vw,84px),(100% - 1440px) / 2);
+  --band:clamp(76px,8.5vw,136px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:hover{opacity:.65}
+img,svg{display:block}
+ul,ol{margin:0;padding:0;list-style:none}
+::selection{background:var(--accent);color:#fff}
+/* currentColor, not the accent. With the palette down to ink and paper a
+   fixed ring colour can only be right on one of the two, and the ring has
+   to be found on the dark controls as well as the white page; taking the
+   element's own text colour it can never come out the shade of what it
+   surrounds. */
+:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+input,button{font-family:inherit;font-size:inherit;color:inherit}
+
+.display{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:1.02;letter-spacing:.01em;margin:0;text-wrap:balance}
+.eyebrow{margin:0;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.btn{display:inline-block;padding:16px 32px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:center;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;transition:background .2s,color .2s}
+.btn:hover{background:transparent;color:var(--ink);opacity:1}
+.btn--light{background:#fff;border-color:var(--ink);color:var(--ink)}
+.btn--light:hover{background:transparent;color:var(--ink)}
+
+/* ---------- band ---------- */
+.band{padding:var(--band) var(--gutter)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;display:flex;align-items:flex-start;background:var(--stone);color:var(--ink);
+  padding:calc(var(--ann) + var(--nav) + 72px) var(--gutter) 64px;
+  overflow:hidden;isolation:isolate}
+.hero::before{content:"";position:absolute;inset:0;z-index:0;background:none}
+.hero__in{position:relative;z-index:1;width:100%}
+.hero .eyebrow{color:rgba(17,17,17,.55);margin:0 0 18px}
+.hero h1{font-size:clamp(34px,4.4vw,62px);max-width:15ch}
+.hero p.lede{margin:26px 0 0;max-width:46ch;font-size:14px;line-height:1.6;color:rgba(17,17,17,.78)}
+.hero .meta{display:flex;flex-wrap:wrap;gap:12px 40px;margin:32px 0 0;font-size:13px;color:rgba(17,17,17,.85)}
+
+/* ---------- filter bar ---------- */
+.filters{position:sticky;top:calc(var(--ann) + var(--nav));z-index:40;background:#fff;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px var(--gutter)}
+.filters__row{display:flex;align-items:center;gap:12px;overflow-x:auto;scrollbar-width:none}
+.filters__row::-webkit-scrollbar{display:none}
+.search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);padding:0 12px;height:38px;min-width:220px;flex:0 0 auto;background:#fff}
+.search:focus-within{border-color:var(--ink)}
+.search input{border:none;outline:none;background:none;font-size:13px;width:100%;padding:0}
+.search svg{flex:0 0 auto;opacity:.5}
+.chip{flex:0 0 auto;border:1px solid transparent;background:none;padding:0 12px;height:38px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s,border-color .15s}
+.chip:hover{color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.count{flex:0 0 auto;font-size:12px;color:var(--muted);margin-left:auto;padding-left:12px;white-space:nowrap}
+
+/* ---------- legs ---------- */
+.legs{padding:0 var(--gutter) var(--band)}
+.leg{margin-top:var(--band)}
+.legs > .leg:first-child{margin-top:clamp(24px,3.5vw,44px)} /* the band-sized gap was cut for the tall heroes; with heroes compacted (15 Sep 2026) the first case starts where the eye lands */
+.leg__panel{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:clamp(32px,4vw,64px);position:relative;overflow:hidden;isolation:isolate}
+.leg__panel::before{content:"";position:absolute;inset:0;z-index:0;background:none}
+.leg__panel > *{position:relative;z-index:1}
+.leg__panel .eyebrow{color:rgba(17,17,17,.5)}
+.leg__panel h2{font-size:clamp(28px,4vw,64px);margin-top:14px;max-width:14ch}
+.leg__panel p{margin:20px 0 0;max-width:52ch;font-size:14px;line-height:1.65;color:rgba(17,17,17,.72)}
+.leg__meta{display:flex;flex-wrap:wrap;gap:10px 36px;margin-top:32px;padding-top:22px;border-top:1px solid rgba(17,17,17,.18);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:rgba(17,17,17,.8)}
+
+/* ---------- date rows ---------- */
+.rows{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:150px minmax(0,1.5fr) minmax(0,.9fr) 104px auto;gap:20px;align-items:center;padding:20px 0;border-bottom:1px solid var(--line)}
+.row.hidden{display:none}
+.row .d{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.row .v{font-size:15px;font-weight:700;letter-spacing:.01em;line-height:1.35}
+.row .c{font-size:13px;color:var(--muted);line-height:1.35}
+.row .b{display:flex}
+.row .b em{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--ink);padding:5px 9px;white-space:nowrap}
+.row .b em.soft{border-color:var(--line);color:var(--muted)}
+.row .a{display:flex;gap:20px;justify-content:flex-end}
+.row .a a{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:2px;white-space:nowrap}
+.row .a span{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.leg.hidden{display:none}
+.empty{padding:64px 0;text-align:center;font-size:13px;color:var(--muted)}
+
+/* ---------- closing band ---------- */
+.band{padding:var(--band) var(--gutter)}
+.band--bone{background:var(--bone)}
+.band__head{max-width:var(--max)}
+.band__head h2{font-size:clamp(26px,3.2vw,48px);margin-top:14px;max-width:17ch}
+.band__head p{margin:22px 0 0;max-width:52ch;font-size:14px;line-height:1.65;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+
+.toast{position:fixed;left:16px;bottom:20px;z-index:75;background:var(--ink);color:#fff;font-size:12px;padding:11px 16px;opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:1000px){
+  .row{grid-template-columns:132px minmax(0,1.4fr) minmax(0,.9fr) auto;gap:16px}
+  .row .b{grid-column:2 / 4;margin-top:-6px}
+}
+@media (max-width:720px){
+  .hero{min-height:0;padding:calc(var(--ann) + var(--nav) + 36px) 16px 48px}
+  .legs{padding-left:16px;padding-right:16px}
+  .row{grid-template-columns:1fr auto;gap:6px 16px;padding:22px 0}
+  .row .d{grid-column:1;grid-row:1}
+  .row .b{grid-column:2;grid-row:1;justify-content:flex-end;margin-top:0}
+  .row .v{grid-column:1 / -1;grid-row:2;margin-top:4px}
+  .row .c{grid-column:1 / -1;grid-row:3}
+  .row .a{grid-column:1 / -1;grid-row:4;justify-content:flex-start;gap:24px;margin-top:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+
+/* ---------- the pop (15 Sep 2026): the orange the site already owns
+   (#ff3b18, the units gallery's kicker), promoted to a page-wide device so
+   pure white does not read as flat. Discipline: the pop is never small
+   text, where it would fail contrast - it is the tick over the title, the
+   rule across each panel, the selection, and nothing else. ---------- */
+.hero,.u-hero{border-bottom:1px solid var(--line)}
+.leg__panel{border-top:1px solid var(--ink,#111)}
+::selection{background:var(--pop,#ff3b18);color:#fff}
+/* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
+@media (max-width:700px),(pointer:coarse){
+  .search{height:44px}
+  .search input{height:100%}
+}
+/* ---- end phone pass ---- */
+</style>
+<link rel="stylesheet" href="pfa-search.css">
+<script src="pfa-search.js" defer></script>
+<!-- The editorial layer from the Sep 2026 theme pass: labels, display
+     leading, the band head, the call-to-action control, square corners,
+     hairlines. Loads after chrome.css so the theme wins ties; carries no
+     markup changes of its own. -->
+<link rel="stylesheet" href="assets/pfa-theme.css">
+  <!-- seo:start  generated by scripts/build-seo.js - do not edit by hand -->
+  <link rel="canonical" href="https://peopleforanimalsindia.org/rabies">
+  <meta property="og:site_name" content="People for Animals">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Rabies: the facts">
+  <meta property="og:description" content="Care Guide 04: rabies, from the World Health Organization. What to do after a bite, the three kinds of contact, the vaccine and its schedules, signs in dogs and people, preventing bites, and vaccinating dogs.">
+  <meta property="og:url" content="https://peopleforanimalsindia.org/rabies">
+  <meta property="og:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="A People for Animals caregiver with a rescued animal">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@pfaindia">
+  <meta name="twitter:title" content="Rabies: the facts">
+  <meta name="twitter:description" content="Care Guide 04: rabies, from the World Health Organization. What to do after a bite, the three kinds of contact, the vaccine and its schedules, signs in dogs and people, preventing bites, and vaccinating dogs.">
+  <meta name="twitter:image" content="https://peopleforanimalsindia.org/img/og-default.jpg">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://peopleforanimalsindia.org/"},{"@type":"ListItem","position":2,"name":"Rabies: the facts","item":"https://peopleforanimalsindia.org/rabies"}]}</script>
+  <!-- seo:end -->
+</head>
+<body>
+
+<script id="pfa-vis">
+(function (root) {
+'use strict';
+var KEY = 'pfa:visibility';
+var LOCKED = { index: 1, track: 2, search: 2 };
+var NOTICE = 'This page is not available right now.';
+var HOME = 'Go to the home page';
+var CSS_ID = 'pfa-vis-css';
+var ROBOTS_ID = 'pfa-vis-robots';
+var GONE_ID = 'pfa-gone';
+var PAGE = /^[a-z0-9][a-z0-9-]*$/;
+var PART = /^[A-Za-z][A-Za-z0-9_-]*$/;
+var NAME = /^[a-z][a-z0-9-]{0,31}$/;
+var OPTION = /^[a-z0-9]{1,16}$/;
+var applied = { version: 0, pages: [], modules: [], choices: {} };
+var marked = [];
+var title = null;
+function pagesOf(state) {
+return (state && Array.isArray(state.pages) ? state.pages : []).filter(function (p) {
+return typeof p === 'string' && PAGE.test(p) && !LOCKED[p];
+});
+}
+function modulesOf(state) {
+return (state && Array.isArray(state.modules) ? state.modules : []).filter(function (m) {
+var at = typeof m === 'string' ? m.indexOf('#') : -1;
+return at > 0 && PAGE.test(m.slice(0, at)) && PART.test(m.slice(at + 1)) && LOCKED[m.slice(0, at)] !== 2;
+});
+}
+function choicesOf(state) {
+var c = state && state.choices && typeof state.choices === 'object' ? state.choices : {};
+var out = {};
+Object.keys(c).forEach(function (k) {
+var at = k.indexOf('#');
+if (at > 0 && PAGE.test(k.slice(0, at)) && NAME.test(k.slice(at + 1)) && typeof c[k] === 'string' && OPTION.test(c[k])) out[k] = c[k];
+});
+return out;
+}
+function clean(state) {
+return { version: Number(state && state.version) || 0, pages: pagesOf(state), modules: modulesOf(state), choices: choicesOf(state) };
+}
+function choicesFor(state, page) {
+var c = clean(state).choices;
+var out = {};
+Object.keys(c).forEach(function (k) {
+var at = k.indexOf('#');
+var on = k.slice(0, at);
+if (on === 'site' || on === String(page || 'index')) out['data-choice-' + k.slice(at + 1)] = c[k];
+});
+return out;
+}
+function pageOf(url) {
+var p = String(url == null ? '' : url).split('#')[0].split('?')[0];
+p = p.slice(p.lastIndexOf('/') + 1).replace(/\.html$/, '');
+try { p = decodeURIComponent(p); } catch (e) {}
+return p || 'index';
+}
+function linksTo(page) {
+var f = page + '.html';
+return ['a[href="' + f + '"]', 'a[href^="' + f + '#"]', 'a[href^="' + f + '?"]',
+'a[href$="/' + f + '"]', 'a[href*="/' + f + '#"]', 'a[href*="/' + f + '?"]'];
+}
+function plan(state, page) {
+var s = clean(state);
+var here = String(page || 'index');
+var gone = s.pages.indexOf(here) > -1;
+var links = [];
+var own = [];
+var css = '';
+s.pages.forEach(function (p) { links = links.concat(linksTo(p)); });
+s.modules.forEach(function (m) {
+var at = m.indexOf('#');
+var p = m.slice(0, at);
+var id = m.slice(at + 1);
+links.push('a[href$="' + p + '.html#' + id + '"]');
+if (p === here) {
+own.push('[id="' + id + '"]', '[data-module="' + id + '"]');
+links.push('a[href="#' + id + '"]:not([aria-current])');
+}
+});
+if (gone) links.push('a[aria-current="page"]');
+if (own.length) css += own.join(',') + '{display:none!important}';
+if (links.length) {
+var list = links.join(',');
+css += list + '{display:none!important}';
+css += links.map(function (l) { return '.navitem>' + l; }).join(',') + '{display:revert!important;pointer-events:none;cursor:default}';
+css += 'li:has(>:is(' + list + '):only-child){display:none!important}';
+css += '.navitem:not(:has(.menu>a:not(' + list + '))){display:none!important}';
+css += '.mnav__group:not(:has(a:not(' + list + '))){display:none!important}';
+css += '.mnav__list:not(:has(>a:not(' + list + '))){display:none!important}';
+css += '.pfa-footer__col:not(:has(li>a:not(' + list + '))){display:none!important}';
+css += '.menu-label:has(+a:is(' + list + ')),.menu-label:has(+a:is(' + list + '))~.menu-sep,.mnav__sub:has(+a:is(' + list + ')),.mnav__sub:has(+.mnav__list:not(:has(>a:not(' + list + ')))){display:none!important}';
+}
+if (gone) {
+css += 'body>:not(.announce):not(header):not(.pfa-tabs):not(.pfa-footer):not(.mnav):not(.cursor-layer):not(.pfa-search):not(#pfa-gone){display:none!important}'
++ '#pfa-gone{display:block!important;box-sizing:border-box;min-height:62vh;padding:calc(var(--ann,34px) + var(--nav,81px) + 72px) var(--gutter,20px) 96px;text-align:center;color:var(--ink,#111);background:#fff}'
++ '#pfa-gone h1{font-family:var(--display,Georgia,serif);font-weight:400;font-size:clamp(28px,4vw,44px);line-height:1.15;margin:0 0 20px}'
++ '#pfa-gone p{margin:0;font-size:16px}'
++ '#pfa-gone a{color:inherit;text-decoration:underline;text-underline-offset:4px}';
+}
+return { css: css, gone: gone };
+}
+function blocked(url, state, anchors) {
+var s = clean(state || applied);
+var u = String(url == null ? '' : url);
+var page = pageOf(u);
+if (s.pages.indexOf(page) > -1) return true;
+var at = u.indexOf('#');
+if (at < 0 || !s.modules.length) return false;
+var hash = u.slice(at + 1);
+var part = (anchors && anchors[page] && anchors[page][hash]) || hash;
+return s.modules.indexOf(page + '#' + part) > -1;
+}
+function read() {
+try {
+var raw = root.localStorage.getItem(KEY);
+return raw ? clean(JSON.parse(raw)) : null;
+} catch (e) { return null; }
+}
+function save(state) {
+try { root.localStorage.setItem(KEY, JSON.stringify(clean(state))); } catch (e) {}
+}
+function drop(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
+function apply(state) {
+var d = root.document;
+if (!d || !d.head) return null;
+applied = clean(state);
+var here = pageOf(root.location && root.location.pathname);
+var p = plan(applied, here);
+var html = d.documentElement;
+var attrs = choicesFor(applied, here);
+if (html) {
+marked.forEach(function (a) { if (!(a in attrs)) html.removeAttribute(a); });
+marked = Object.keys(attrs);
+marked.forEach(function (a) { html.setAttribute(a, attrs[a]); });
+}
+var tag = d.getElementById(CSS_ID);
+if (!tag && p.css) {
+tag = d.createElement('style');
+tag.setAttribute('id', CSS_ID);
+d.head.appendChild(tag);
+}
+if (tag) tag.textContent = p.css;
+var robots = d.getElementById(ROBOTS_ID);
+var box = d.getElementById(GONE_ID);
+if (p.gone) {
+if (!robots) {
+robots = d.createElement('meta');
+robots.setAttribute('id', ROBOTS_ID);
+robots.setAttribute('name', 'robots');
+robots.setAttribute('content', 'noindex');
+d.head.appendChild(robots);
+}
+if (!box && d.body) {
+box = d.createElement('div');
+box.setAttribute('id', GONE_ID);
+var h = d.createElement('h1');
+h.textContent = NOTICE;
+var line = d.createElement('p');
+var home = d.createElement('a');
+home.setAttribute('href', '/');
+home.textContent = HOME;
+line.appendChild(home);
+box.appendChild(h);
+box.appendChild(line);
+d.body.insertBefore(box, d.body.firstChild);
+}
+if (title === null) title = d.title;
+d.title = 'Not available right now · People for Animals';
+} else {
+drop(robots);
+drop(box);
+if (title !== null) { d.title = title; title = null; }
+}
+return p;
+}
+root.PFA_VISIBILITY = {
+KEY: KEY, LOCKED: LOCKED, NOTICE: NOTICE,
+clean: clean, pageOf: pageOf, plan: plan, blocked: blocked, choicesFor: choicesFor,
+read: read, save: save, apply: apply,
+state: function () { return applied; }
+};
+try {
+if (root.document && root.document.head) apply(read());
+} catch (e) {}
+}(this));
+</script>
+<div class="announce" id="announce" data-cursor="light">
+  <p>Every drive, camp and open day is free to attend</p>
+  <button type="button" aria-label="Close" id="annClose"></button>
+</div>
+<header class="site" id="header" data-cursor="dark">
+  <nav aria-label="Main navigation">
+    <a class="wordmark" href="index.html" aria-label="People for Animals"><img src="img/logo.png" alt="People for Animals" width="231" height="79"></a>
+    <div class="navlinks">
+      <div class="navitem">
+        <a href="units.html" data-nav="units.html">Our Work</a>
+        <div class="menu">
+          <a href="units.html" data-nav="units.html">Units: find help near you</a>
+          <a href="report.html" data-nav="report.html">Report cruelty</a>
+          <a href="newsroom.html" data-nav="newsroom.html">Newsroom and cases</a>
+          <a href="achievements.html" data-nav="achievements.html">Policies and achievements</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="laws.html" data-nav="laws.html" class="in-section">Learn</a>
+        <div class="menu">
+          <a href="laws.html" data-nav="laws.html">What the law says</a>
+          <a href="library.html" data-nav="library.html">Resources library</a>
+          <a href="academy.html" data-nav="academy.html">Academy</a>
+          <a href="behaviour.html" data-nav="behaviour.html">Behaviour, A to Z</a>
+          <a href="pet-health.html" data-nav="pet-health.html">Care Guides</a>
+          <a href="someone.html" data-nav="someone.html">Someone, not something</a>
+          <a href="fireworks.html" data-nav="fireworks.html">Fireworks and animals</a>
+          <a href="quiz.html" data-nav="quiz.html">Test yourself</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="get-involved.html" data-nav="get-involved.html">Get Involved</a>
+        <div class="menu">
+          <span class="menu-label">Join the tribe</span>
+          <a href="get-involved.html#volunteer" data-nav="get-involved.html#volunteer">Volunteer</a>
+          <a href="get-involved.html#membership" data-nav="get-involved.html#membership">Become a member</a>
+          <a href="get-involved.html#caregiver" data-nav="get-involved.html#caregiver">Colony caregiver</a>
+          <a href="campus.html" data-nav="campus.html">PFA Campus</a>
+          <a href="internship.html" data-nav="internship.html">Remote internship</a>
+          <span class="menu-sep" aria-hidden="true"></span>
+          <span class="menu-label">Give and partner</span>
+          <a href="gifts.html" data-nav="gifts.html">Seasonal gifts</a>
+          <a href="campaign.html" data-nav="campaign.html">Plan a campaign</a>
+          <a href="legacy.html" data-nav="legacy.html">Leave a legacy</a>
+          <a href="csr.html" data-nav="csr.html">CSR partnerships</a>
+          <span class="menu-sep" aria-hidden="true"></span>
+          <a href="wall.html" data-nav="wall.html">The Wall</a>
+          <a href="events.html" data-nav="events.html">Events and podcasts</a>
+          <a href="cinekind.html" data-nav="cinekind.html">CineKind</a>
+        </div>
+      </div>
+      <div class="navitem">
+        <a href="founder.html" data-nav="founder.html">About</a>
+        <div class="menu right">
+          <a href="founder.html" data-nav="founder.html">The founder</a>
+          <a href="manekas-picks.html" data-nav="manekas-picks.html">Maneka’s Picks</a>
+          <a href="sgacc.html" data-nav="sgacc.html">Sanjay Gandhi Animal Care Centre</a>
+          <a href="careers.html" data-nav="careers.html">Careers</a>
+          <a href="ask.html" data-nav="ask.html">Contact</a>
+        </div>
+      </div>
+      <a href="donate.html" data-nav="donate.html" class="donate">Donate</a>
+      <a href="shop.html" data-nav="shop.html" class="shop">Shop</a>
+    </div>
+    <a class="appsearch" href="search.html" data-open-search aria-label="Search the site"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg></a>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open the menu"><span class="burger__bars" aria-hidden="true"></span></button>
+  </nav>
+</header>
+<nav class="pfa-tabs" aria-label="Main sections">
+  <a class="pfa-tab" href="index.html" data-tab="home"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.2 12 3.5l8.5 6.7"/><path d="M5.5 8.8V20.5h4.6v-5.6h3.8v5.6h4.6V8.8"/></svg><span class="pfa-tab__label">Home</span></a>
+  <a class="pfa-tab" href="units.html" data-tab="help"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.8-6-6.8-11.3a6.8 6.8 0 0 1 13.6 0C18.8 15 12 21 12 21Z"/><path d="M12 6.9v5.4M9.3 9.6h5.4"/></svg><span class="pfa-tab__label">Find help</span></a>
+  <a class="pfa-tab pfa-tab--donate" href="donate.html" data-tab="donate"><span class="pfa-tab__give"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19.6s-7.1-4.3-7.1-9.5a4.1 4.1 0 0 1 7.1-2.8 4.1 4.1 0 0 1 7.1 2.8c0 5.2-7.1 9.5-7.1 9.5Z" fill="currentColor"/></svg></span><span class="pfa-tab__label">Donate</span></a>
+  <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
+  <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
+</nav>
+<script src="assets/chrome.js?v=8ec0706de7"></script>
+
+<main>
+  <!-- Care Guide 04, rabies (owner, 22 Nov 2026: "can you build a rabies
+       fact sheet- based on this for PFA", "include images", then "the
+       rabies sheet and page within pfa care guide. has to be be super
+       detailed..details .. take them from multiple pages in
+       who.int/health-topics/rabies and give WHO links as well").
+       Every fact is WHO's, from the pages linked in each section and in
+       Sources; the India lines are the site's own (laws.html). The guide as
+       an illustrated A4 PDF is media/med-notes/rabies.pdf, the owner's own
+       (23 Nov 2026), and so are the photographs, illustrative scenes; the
+       drawings are the site's own. -->
+  <section class="hero" id="top">
+    <div class="hero__in">
+      <img class="rb-printlogo" src="img/logo.png" alt="People for Animals">
+      <p class="eyebrow pfa-kicker"><a href="pet-health.html">Care Guides</a> &middot; Guide 04</p>
+      <h1 class="pfa-title display">Rabies: the facts.</h1>
+      <p class="rb-lead">Rabies kills tens of thousands of people every year, most of them children in Asia and Africa. Once its signs appear it is almost always fatal. Yet it is <b>100% preventable</b>: by washing a bite at once, by treating people quickly after a bite, and above all by vaccinating dogs.</p>
+      <p class="rb-by">People for Animals, from the World Health Organization (WHO), the United Nations agency for health. Every fact links to the WHO page it comes from.</p>
+      <div class="rb-acts">
+        <a class="btn" href="media/med-notes/rabies.pdf" download>Download the PDF</a>
+        <a class="btn btn--light" href="#bite">Bitten? What to do now</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band rb" id="guide">
+
+    <!-- the numbers -->
+    <div class="rb-stats" role="list">
+      <div class="rb-stat rb-stat--red" role="listitem"><b>99%</b><span>of human rabies cases come from dog bites and scratches</span></div>
+      <div class="rb-stat rb-stat--red" role="listitem"><b>100%</b><span>fatal once the virus reaches the brain and signs start</span></div>
+      <div class="rb-stat" role="listitem"><b>44,203</b><span>deaths a year, WHO&rsquo;s latest estimate (2021); the true number is higher</span></div>
+      <div class="rb-stat" role="listitem"><b>40%</b><span>of the people who die are children under 15</span></div>
+      <div class="rb-stat" role="listitem"><b>70%</b><span>of dogs vaccinated in an area breaks the chain of infection</span></div>
+    </div>
+    <p class="rb-src">From WHO: <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a>, <a href="https://www.who.int/activities/vaccinating-against-rabies-to-save-lives" target="_blank" rel="noopener">Vaccinating against rabies to save lives</a></p>
+
+    <!-- 1. a bite -->
+    <article class="rb-part" id="bite" aria-labelledby="rb1">
+      <p class="rb-k">1 &middot; First aid</p>
+      <h2 class="rb-h" id="rb1">Bitten or scratched by an animal? Do this now</h2>
+      <figure class="rb-photo"><img src="media/med-notes/rabies/wash.webp" width="1171" height="626" alt="A man washes a scratch on his forearm under a running tap, a bar of soap beside the sink" loading="lazy" decoding="async"></figure>
+      <ol class="rb-steps">
+        <li><svg viewBox="0 0 80 60" aria-hidden="true"><path d="M10 14 H36 V8 H44 V14 H52 A8 8 0 0 1 60 22 V28 H50 V24 H10 Z" fill="#22385a"/><rect x="35" y="3" width="10" height="4" rx="1.5" fill="#22385a"/><path d="M55 33 C55 33 50 40 50 43 A5 5 0 0 0 60 43 C60 40 55 33 55 33 Z" fill="#4a90d9"/><path d="M55 48 C55 48 51 53 51 55.5 A4 4 0 0 0 59 55.5 C59 53 55 48 55 48 Z" fill="#4a90d9" opacity=".7"/><rect x="10" y="40" width="22" height="15" rx="4" fill="#fff" stroke="#22385a" stroke-width="2.5"/><circle cx="18" cy="34" r="3" fill="none" stroke="#4a90d9" stroke-width="1.8"/><circle cx="26" cy="31" r="2.2" fill="none" stroke="#4a90d9" stroke-width="1.6"/><text x="21" y="51" text-anchor="middle" font-size="7" font-weight="700" fill="#22385a" font-family="Arial, sans-serif">SOAP</text></svg>
+          <div><b>Wash it for 15 minutes.</b> Wash the wound at once with soap or detergent, and flush it with plenty of running water for about 15 minutes. No soap? Water alone. WHO calls wound washing the most effective first aid against rabies.</div></li>
+        <li><svg viewBox="0 0 80 60" aria-hidden="true"><rect x="22" y="6" width="36" height="48" rx="4" fill="#fff" stroke="#22385a" stroke-width="2.5"/><rect x="30" y="2" width="20" height="9" rx="2" fill="#22385a"/><path d="M40 20 V40 M30 30 H50" stroke="#b3261e" stroke-width="5" stroke-linecap="round"/></svg>
+          <div><b>Then an antiseptic.</b> About 15 minutes after washing, put on an iodine-based antiseptic, such as povidone-iodine, or another that kills viruses, if you have one.</div></li>
+        <li><svg viewBox="0 0 80 60" aria-hidden="true"><circle cx="40" cy="30" r="24" fill="#fdf0ef" stroke="#b3261e" stroke-width="3"/><path d="M23 13 L57 47" stroke="#b3261e" stroke-width="4"/><path d="M33 22 q7 -8 14 0 q-4 18 -7 18 q-3 0 -7 -18 z" fill="#c0392b"/></svg>
+          <div><b>Put nothing else on it, and do not bandage it.</b> No chilli powder, plant juice, acid or lime. Do not cover the wound with a dressing or a bandage, and a doctor should not stitch it straight away.</div></li>
+        <li><svg viewBox="0 0 80 60" aria-hidden="true"><path d="M8 56 V20 L30 8 L52 20 V56 Z" fill="#22385a"/><rect x="25" y="20" width="10" height="24" fill="#b3261e"/><rect x="18" y="27" width="24" height="10" fill="#b3261e"/><rect x="24" y="47" width="12" height="9" fill="#fff"/><circle cx="61" cy="38" r="14" fill="#fff" stroke="#b3261e" stroke-width="3"/><line x1="61" y1="38" x2="61" y2="29" stroke="#b3261e" stroke-width="3" stroke-linecap="round"/><line x1="61" y1="38" x2="68" y2="41" stroke="#b3261e" stroke-width="3" stroke-linecap="round"/></svg>
+          <div><b>See a doctor the same day.</b> Go to a hospital or health centre that gives the anti-rabies vaccine. Say what animal it was, where on the body, and when. Do not wait to see whether the animal falls ill.</div></li>
+        <li><svg viewBox="0 0 80 60" aria-hidden="true"><ellipse cx="26" cy="40" rx="11" ry="9" fill="#22385a"/><ellipse cx="13" cy="27" rx="4.2" ry="5.6" transform="rotate(-20 13 27)" fill="#22385a"/><ellipse cx="21" cy="19" rx="4.2" ry="5.8" transform="rotate(-6 21 19)" fill="#22385a"/><ellipse cx="31" cy="19" rx="4.2" ry="5.8" transform="rotate(6 31 19)" fill="#22385a"/><ellipse cx="39" cy="27" rx="4.2" ry="5.6" transform="rotate(20 39 27)" fill="#22385a"/><rect x="52" y="10" width="22" height="40" rx="4" fill="#fff" stroke="#22385a" stroke-width="2.5"/><rect x="56" y="16" width="14" height="24" fill="#f3f5f9"/><circle cx="63" cy="45" r="2" fill="#22385a"/><circle cx="63" cy="32" r="1.6" fill="#b3261e"/><path d="M59 24 Q63 20 67 24 M60.5 28 Q63 25.5 65.5 28" fill="none" stroke="#b3261e" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <div><b>Note the animal; keep it safe, never harm it.</b> If it can be done safely, have the animal confined and watched for 10 days, and note what it looked like, where it was and what happened. Tell your local body or the <a href="units.html">nearest PFA unit</a>. Do not beat, chase or kill it.</div></li>
+      </ol>
+      <p class="rb-src">From WHO: <a href="https://www.who.int/health-topics/rabies" target="_blank" rel="noopener">Rabies health topic</a>, <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-general-public-faqs.pdf?sfvrsn=ac59055f_4" target="_blank" rel="noopener">Rabies: questions and answers for the public</a> (PDF), <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-clinicians-faqs-20sep2018.pdf?sfvrsn=97d94712_4" target="_blank" rel="noopener">Rabies: questions and answers for clinicians</a> (PDF)</p>
+    </article>
+
+    <!-- 2. how serious -->
+    <article class="rb-part" aria-labelledby="rb2">
+      <p class="rb-k">2 &middot; How serious was it</p>
+      <h2 class="rb-h" id="rb2">The three categories of exposure</h2>
+      <p class="rb-p">Doctors sort every contact with an animal that may have rabies into one of three categories. The category decides the treatment.</p>
+      <div class="rb-cats">
+        <div class="rb-cat rb-cat--g">
+          <img class="rb-cat__img" src="media/med-notes/rabies/category-1.webp" width="414" height="269" alt="A hand held out to a dog, who sniffs it: touching or feeding, skin unbroken" loading="lazy" decoding="async">
+          <h3>Category I</h3><p class="rb-cat__what">Touching or feeding an animal; licks on unbroken skin.</p><p class="rb-cat__do"><b>No exposure.</b> Wash the skin. No treatment is needed.</p></div>
+        <div class="rb-cat rb-cat--a">
+          <img class="rb-cat__img" src="media/med-notes/rabies/category-2.webp" width="414" height="269" alt="An arm with a light graze that has not bled" loading="lazy" decoding="async">
+          <h3>Category II</h3><p class="rb-cat__what">Nibbling of bare skin; small scratches or grazes that do not bleed.</p><p class="rb-cat__do"><b>Vaccinate.</b> Wash the wound and start the rabies vaccine at once.</p></div>
+        <div class="rb-cat rb-cat--r">
+          <img class="rb-cat__img" src="media/med-notes/rabies/category-3.webp" width="414" height="269" alt="An arm with a bite wound that broke the skin" loading="lazy" decoding="async">
+          <h3>Category III</h3><p class="rb-cat__what">One or more bites or scratches that break the skin; saliva on the eyes, mouth, nose or a wound (a lick on broken skin counts); any direct contact with a bat.</p><p class="rb-cat__do"><b>Vaccinate and protect.</b> Wash the wound, start the vaccine at once, and get rabies immunoglobulin or monoclonal antibodies into and around the wound.</p></div>
+      </div>
+      <p class="rb-p rb-note">This care after a contact is called <b>PEP, post-exposure prophylaxis</b>: treatment given after contact, before any illness, so that the virus never takes hold. Category II and III both need the vaccine.</p>
+      <p class="rb-src">From WHO: <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a></p>
+    </article>
+
+    <!-- 3. the treatment -->
+    <article class="rb-part" aria-labelledby="rb3">
+      <p class="rb-k">3 &middot; The treatment</p>
+      <h2 class="rb-h" id="rb3">Treatment after a bite, and why every dose matters</h2>
+      <figure class="rb-photo"><img src="media/med-notes/rabies/clinic.webp" width="1171" height="575" alt="A doctor at a clinic looks at the arm of a woman who was bitten, and explains her treatment" loading="lazy" decoding="async"></figure>
+      <ul class="rb-list">
+        <li><b>Start at once, finish the course.</b> The vaccine is given as a series of injections over a week to a month. Among people who died despite treatment, the main reason was coming late; stopping before the last dose is another.</li>
+        <li><b>The vaccine cannot give you rabies.</b> Every human rabies vaccine is inactivated (contains no live virus) and is tested for strength, safety and sterility.</li>
+        <li><b>Safe in pregnancy and breastfeeding.</b> The vaccine and immunoglobulin are safe and work. They should never be withheld from a pregnant or breastfeeding woman, and no baby has been infected through pregnancy or breast milk.</li>
+        <li><b>No single shot lasts for life.</b> Even if you were vaccinated before, a new bite needs treatment again (a shorter course; see below).</li>
+        <li><b>Changing hospital or vaccine brand partway through</b> is acceptable if it cannot be avoided: carry on with the schedule; do not start again.</li>
+        <li><b>Watching the animal for 10 days is not a reason to wait.</b> Where rabies is common, treatment starts at once, and the animal is watched for 10 days where possible: an infected animal usually shows signs or dies within 1 to 7 days. If it stays healthy, the doctor may turn the course into protection for the future (pre-exposure vaccination).</li>
+        <li><b>The doctor also checks</b> your tetanus vaccination, gives antibiotics if the wound looks infected, and gives painkillers if needed.</li>
+      </ul>
+      <details class="rb-more">
+        <summary>For doctors and nurses: WHO schedules and doses</summary>
+        <div class="rb-more__in">
+          <h3 class="rb-s">The vaccine after a bite (Category II and III), for someone never vaccinated before</h3>
+          <div class="rb-table"><table>
+            <thead><tr><th scope="col">Regimen</th><th scope="col">Doses</th><th scope="col">Takes</th></tr></thead>
+            <tbody>
+              <tr><td>Intradermal (ID, into the skin), WHO 1-week</td><td>2 sites on day 0, day 3 and day 7</td><td>7 days</td></tr>
+              <tr><td>Intramuscular (IM, into the muscle), Essen</td><td>1 dose on day 0, 3, 7, and between day 14 and 28</td><td>14 to 28 days</td></tr>
+              <tr><td>Intramuscular, Zagreb</td><td>2 doses on day 0 (one in each arm), 1 on day 7, 1 on day 21</td><td>21 days</td></tr>
+            </tbody>
+          </table></div>
+          <p class="rb-p">WHO recommends the intradermal route: it uses less vaccine and fewer doses, cutting cost by 60 to 80% with the same safety and protection, and fewer visits mean more people finish.</p>
+          <h3 class="rb-s">Rabies immunoglobulin (RIG) and monoclonal antibodies</h3>
+          <ul class="rb-list">
+            <li>For Category III, and for Category II in a person whose immune system is badly weakened. Not for anyone vaccinated before, and not after day 7 of the vaccine course.</li>
+            <li>The most: 40 IU (international units) per kg of body weight of horse (equine) RIG, or 20 IU per kg of human RIG. Given once, at the start or as soon as possible after.</li>
+            <li>Infiltrated into and around the wound, as much as can be put there safely. For large or many wounds, diluted with saline to cover them all. Never in the same syringe or at the same site as the vaccine.</li>
+            <li>A skin test before horse RIG is not recommended. Watch the patient for some minutes afterwards, with anaphylaxis treatment at hand.</li>
+            <li>Where RIG is short, it goes first to: many bites; deep wounds; bites on the head, neck, hands or genitals; badly weakened immunity; bites from an animal confirmed or likely to have rabies; and contact with bats. <b>The vaccine is never held back because RIG is not available.</b></li>
+          </ul>
+          <h3 class="rb-s">Someone vaccinated before (a full course after an earlier bite, or before any bite)</h3>
+          <ul class="rb-list">
+            <li>Within 3 months of finishing a full course: no new course is needed.</li>
+            <li>After 3 months: 1 intradermal site on day 0 and day 3, or 4 intradermal sites on day 0, or 1 intramuscular dose on day 0 and day 3. No RIG.</li>
+          </ul>
+          <h3 class="rb-s">Weakened immunity</h3>
+          <p class="rb-p">For Category II or III in someone whose immunity is badly weakened and not under good care: wash and disinfect the wound well, give a full course with RIG even if vaccinated before, check antibodies 2 to 4 weeks after the first dose (and give another dose if they are low), and ask an infectious disease specialist. People living with HIV (human immunodeficiency virus) who are well treated are not counted as immunocompromised.</p>
+          <h3 class="rb-s">The wound</h3>
+          <p class="rb-p">Do not stitch it. If a large wound must be closed, RIG goes in first, and the stitches are loose so the wound can bleed and drain; stitching later gives a better result.</p>
+        </div>
+      </details>
+      <p class="rb-src">From WHO: <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-clinicians-faqs-20sep2018.pdf?sfvrsn=97d94712_4" target="_blank" rel="noopener">Rabies: questions and answers for clinicians</a> (PDF), <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-general-public-faqs.pdf?sfvrsn=ac59055f_4" target="_blank" rel="noopener">Rabies: questions and answers for the public</a> (PDF), <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a></p>
+    </article>
+
+    <!-- 4. how it spreads -->
+    <article class="rb-part" aria-labelledby="rb4">
+      <p class="rb-k">4 &middot; How it spreads</p>
+      <h2 class="rb-h" id="rb4">From animal to person, in saliva</h2>
+      <ul class="rb-list">
+        <li>Rabies is a virus that passes from animals to people (a zoonosis). It spreads in <b>saliva</b>: through bites and scratches, and through licks on wounds, grazes, broken skin, or the lining of the mouth, nose or eyes. Tears and nerve tissue may carry it too. It is not in blood or faeces.</li>
+        <li><b>Any mammal can carry it.</b> Dogs cause up to 99% of human cases. Cats, bats, mongooses, jackals, foxes and wolves can pass it on as well. Monkey bites rarely do. Horses and donkeys may bite when rabid.</li>
+        <li><b>Cattle and buffalo</b> can pass it on through their saliva: take care when examining a sick animal that is drooling.</li>
+        <li><b>Rats and mice</b> do not normally carry rabies, so a rat bite usually needs no rabies treatment. Clean it like any bite and ask a doctor about tetanus.</li>
+        <li><b>Milk and meat:</b> no one is known to have caught rabies from milk (breast milk included) or cooked meat. Still, never drink milk from, butcher or eat an animal that had rabies; bury or burn the body if possible, on a vet&rsquo;s advice. People who handle such a body risk infection through broken skin.</li>
+        <li><b>Person to person:</b> never confirmed, except through organ transplants. Anyone caring for a patient should keep saliva off their skin and wash their hands well.</li>
+        <li><b>Bats:</b> just seeing a bat does not pass on rabies, but a bat bite can leave no visible mark. Never touch a bat; one on the ground, unable to fly, is more likely to be sick. In the Americas, where dog rabies is largely controlled, bats are now the main source.</li>
+      </ul>
+      <p class="rb-src">From WHO: <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-general-public-faqs.pdf?sfvrsn=ac59055f_4" target="_blank" rel="noopener">Rabies: questions and answers for the public</a> (PDF), <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a></p>
+    </article>
+
+    <!-- 5. signs in dogs -->
+    <article class="rb-part" aria-labelledby="rb5">
+      <p class="rb-k">5 &middot; Signs in a dog</p>
+      <h2 class="rb-h" id="rb5">How a dog with rabies may behave</h2>
+      <div class="rb-signs">
+        <div><b>Changed behaviour</b><span>Biting people, animals or objects for no reason; restless, or unusually dull</span></div>
+        <div><b>Unsteady</b><span>Walking poorly, then paralysis</span></div>
+        <div><b>A changed voice</b><span>A hoarse bark or growl, or no bark at all</span></div>
+        <div><b>Drooling</b><span>Too much saliva, or froth at the mouth</span></div>
+      </div>
+      <p class="rb-p">A dog with these signs usually dies within 10 days of them starting. Keep away from it, keep others away, and call your local body or the <a href="units.html">nearest PFA unit</a>. Where rabies is common, as in India, <b>any dog bite is treated as a possible risk</b>, however healthy the dog looks.</p>
+      <p class="rb-src">From WHO: <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-general-public-faqs.pdf?sfvrsn=ac59055f_4" target="_blank" rel="noopener">Rabies: questions and answers for the public</a> (PDF)</p>
+    </article>
+
+    <!-- 6. signs in people -->
+    <article class="rb-part" aria-labelledby="rb6">
+      <p class="rb-k">6 &middot; Signs in people</p>
+      <h2 class="rb-h" id="rb6">Weeks or months later, and then fast</h2>
+      <figure class="rb-time">
+        <svg viewBox="0 0 340 66" role="img" aria-label="From the bite, signs usually start after 2 to 3 months, but can take from a week to a year">
+          <rect x="10" y="26" width="316" height="10" rx="5" fill="#e6e9ef"/>
+          <rect x="62.7" y="26" width="26.3" height="10" fill="#b3261e"/>
+          <circle cx="10" cy="31" r="7" fill="#22385a"/>
+          <path d="M7 31 l2 2 4 -4" fill="none" stroke="#fff" stroke-width="1.8"/>
+          <text x="4" y="16" font-size="8.5" font-family="Arial, sans-serif" fill="#22385a" font-weight="700">The bite</text>
+          <text x="79.8" y="16" font-size="8.5" font-family="Arial, sans-serif" fill="#b3261e" font-weight="700">Usually 2 to 3 months</text>
+          <line x1="75.8" y1="19" x2="75.8" y2="25" stroke="#b3261e" stroke-width="1.4"/>
+          <line x1="16.1" y1="38" x2="16.1" y2="44" stroke="#22385a" stroke-width="1.4"/>
+          <text x="14" y="54" font-size="8" font-family="Arial, sans-serif" fill="#333">1 week</text>
+          <line x1="168" y1="38" x2="168" y2="44" stroke="#22385a" stroke-width="1.4"/>
+          <text x="168" y="54" font-size="8" font-family="Arial, sans-serif" fill="#333" text-anchor="middle">6 months</text>
+          <line x1="326" y1="38" x2="326" y2="44" stroke="#22385a" stroke-width="1.4"/>
+          <text x="326" y="54" font-size="8" font-family="Arial, sans-serif" fill="#333" text-anchor="end">1 year</text>
+        </svg>
+      </figure>
+      <ul class="rb-list">
+        <li><b>The wait:</b> usually 2 to 3 months, but from a week to a year. The virus travels along the nerves to the spinal cord and the brain; signs begin when it gets there. Bites on the head, neck or fingers, which are full of nerves, bring them on sooner. So does a deep bite, many bites, or a lot of virus.</li>
+        <li><b>First:</b> fever, and pain, tingling, pricking, itching or burning where the wound was.</li>
+        <li><b>Then, quickly:</b> anxiety, confusion, agitation, hallucinations, sleeplessness; fear of water, with spasms even at the sight of it; fear of moving air; sensitivity to noise and bright light; difficulty swallowing; weakness or paralysis.</li>
+        <li><b>Furious rabies</b>, the most common form: overactive, excited behaviour, fear of water and of draughts. Death follows within days, from heart and breathing failure.</li>
+        <li><b>Paralytic rabies</b>, about 1 case in 5: slower, with paralysis spreading from the bite, then coma and death. It is often mistaken for other illness, so many cases go unrecorded.</li>
+        <li><b>There is no cure once signs start,</b> and no test can show the virus in a person before then. About 15 survivors are on record; nearly all had some vaccine beforehand, and all were left severely disabled.</li>
+        <li><b>Care at the end:</b> a quiet, dimly lit room away from noise and cold air; medicines to ease spasms, pain and fear; fluids through a drip. WHO advises against aggressive experimental treatments (such as the Milwaukee protocol), which do not reliably save lives and may cause harm. The patient&rsquo;s dignity and the family&rsquo;s time with them come first.</li>
+      </ul>
+      <p class="rb-src">From WHO: <a href="https://www.who.int/health-topics/rabies" target="_blank" rel="noopener">Rabies health topic</a>, <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a>, <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-general-public-faqs.pdf?sfvrsn=ac59055f_4" target="_blank" rel="noopener">Rabies: questions and answers for the public</a> (PDF)</p>
+    </article>
+
+    <!-- 7. children and bite prevention -->
+    <article class="rb-part" aria-labelledby="rb7">
+      <p class="rb-k">7 &middot; Preventing bites</p>
+      <h2 class="rb-h" id="rb7">Children first, and how to be around dogs</h2>
+      <figure class="rb-photo"><img src="media/med-notes/rabies/child.webp" width="1171" height="575" alt="A mother kneels beside her son and looks with him at his arm, where a dog touched him" loading="lazy" decoding="async"></figure>
+      <p class="rb-p"><b>Children are most at risk:</b> they play with animals, are more often bitten on the face and neck, and may not tell anyone about a bite or a scratch. Children aged 5 to 14 are frequent victims. Ask children often, and believe them.</p>
+      <div class="rb-two">
+        <div>
+          <h3 class="rb-s">A dog you know</h3>
+          <ul class="rb-list">
+            <li>Handle puppies gently and often, so they grow up at ease with people and learn not to bite.</li>
+            <li>Learn your dog&rsquo;s signals, train it, and know when and how to approach it.</li>
+            <li>Vaccinate it against rabies every year.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="rb-s">A dog you do not know</h3>
+          <img class="rb-room" src="media/med-notes/rabies/give-room.webp" width="501" height="363" alt="A girl stands still at a distance while a dog eats from its bowl" loading="lazy" decoding="async">
+          <ul class="rb-list">
+            <li>If a dog runs at you: stand still and stay quiet, and let it sniff you. When it leaves, walk away slowly.</li>
+            <li>Never tease, chase or throw things at a dog. Do not hit, kick or shout at it.</li>
+            <li>Leave dogs alone while they eat, sleep, or care for puppies, and avoid dogs that are tied up, fenced in, or behaving strangely.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="rb-src">From WHO: <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-general-public-faqs.pdf?sfvrsn=ac59055f_4" target="_blank" rel="noopener">Rabies: questions and answers for the public</a> (PDF), <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a>. More from PFA: <a href="behaviour.html">Behaviour, A to Z</a></p>
+    </article>
+
+    <!-- 8. the dog -->
+    <article class="rb-part" aria-labelledby="rb8">
+      <p class="rb-k">8 &middot; The real answer</p>
+      <h2 class="rb-h" id="rb8">Stop rabies in dogs, and it stops in people</h2>
+      <figure class="rb-photo"><img src="media/med-notes/rabies/vaccination.webp" width="1171" height="646" alt="A vaccination team at a street camp: one holds a calm dog while another readies the vaccine" loading="lazy" decoding="async"></figure>
+      <div class="rb-feature">
+        <svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="28" fill="#e5f2ea"/><ellipse cx="30" cy="36" rx="10" ry="8.5" fill="#1e5b3b"/><ellipse cx="18" cy="25" rx="3.8" ry="5" transform="rotate(-20 18 25)" fill="#1e5b3b"/><ellipse cx="25" cy="18" rx="3.8" ry="5.3" transform="rotate(-6 25 18)" fill="#1e5b3b"/><ellipse cx="35" cy="18" rx="3.8" ry="5.3" transform="rotate(6 35 18)" fill="#1e5b3b"/><ellipse cx="42" cy="25" rx="3.8" ry="5" transform="rotate(20 42 25)" fill="#1e5b3b"/><path d="M24 36 l4 4 8 -8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p>Vaccinating dogs, <b>puppies included</b>, is the most cost-effective way to prevent rabies in people: it stops the virus at its source. Vaccinating <b>about 70% of the dogs</b> in an area, in campaigns repeated every year, protects the whole dog population and breaks the chain of infection.</p>
+      </div>
+      <ul class="rb-list">
+        <li><b>Culling free-roaming dogs does not control rabies.</b> Vaccination does.</li>
+        <li>Treating people after bites, on its own, will never end rabies, and its cost only grows. Vaccinating dogs ends it.</li>
+        <li>Mass dog vaccination works when it reaches free-roaming dogs too, with strong health and veterinary services and stocks of dog vaccine.</li>
+        <li><b>In India:</b> under the Animal Birth Control (ABC) Rules, 2023, your municipality must sterilise and vaccinate community dogs against rabies; residents and feeders are not responsible for it. A yearly rabies vaccine is required to register a pet dog with the municipality. Rabies is a notifiable disease (one that must be reported to the authorities) under the Prevention and Control of Infectious and Contagious Diseases in Animals Act, 2009. <a href="laws.html">What the law says</a></li>
+      </ul>
+      <p class="rb-src">From WHO: <a href="https://www.who.int/activities/vaccinating-against-rabies-to-save-lives" target="_blank" rel="noopener">Vaccinating against rabies to save lives</a>, <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a>, <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-general-public-faqs.pdf?sfvrsn=ac59055f_4" target="_blank" rel="noopener">Rabies: questions and answers for the public</a> (PDF)</p>
+    </article>
+
+    <!-- 9. vaccinated before a bite -->
+    <article class="rb-part" aria-labelledby="rb9">
+      <p class="rb-k">9 &middot; Protection in advance</p>
+      <h2 class="rb-h" id="rb9">Who should be vaccinated before any bite</h2>
+      <p class="rb-p"><b>PrEP, pre-exposure prophylaxis,</b> is rabies vaccination before any contact. It makes treatment after a bite simpler and shorter. WHO recommends it for:</p>
+      <ul class="rb-list">
+        <li>vets and animal health workers, animal disease control staff and wildlife rangers;</li>
+        <li>laboratory staff working with the live virus;</li>
+        <li>people living in remote areas with a lot of rabies, far from treatment, and travellers to such areas.</li>
+      </ul>
+      <p class="rb-p">PrEP does not replace care after a bite: anyone vaccinated in advance who is then bitten still needs wound washing and the short course for those vaccinated before.</p>
+      <details class="rb-more">
+        <summary>For doctors and nurses: PrEP schedules and boosters</summary>
+        <div class="rb-more__in">
+          <div class="rb-table"><table>
+            <thead><tr><th scope="col">Regimen</th><th scope="col">Doses</th><th scope="col">Takes</th></tr></thead>
+            <tbody>
+              <tr><td>Intradermal (ID)</td><td>2 sites on day 0 and 2 sites on day 7</td><td>2 visits, 7 days</td></tr>
+              <tr><td>Intramuscular (IM)</td><td>1 dose on day 0 and 1 on day 7</td><td>2 visits, 7 days</td></tr>
+              <tr><td>One visit, when there is no other way</td><td>2 intradermal sites, or 1 intramuscular dose, on day 0; the second visit as soon as possible</td><td>1 day</td></tr>
+            </tbody>
+          </table></div>
+          <p class="rb-p">A one-visit course may protect a healthy person for up to a year. Bitten before the second dose: a full course after the bite, with RIG for a severe exposure. Routine boosters are only for people working with large amounts of live virus (laboratories, vaccine plants): an antibody test every 1 to 2 years, and a booster (1 site, ID or IM) if the level is below 0.5 IU per ml.</p>
+        </div>
+      </details>
+      <p class="rb-src">From WHO: <a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-clinicians-faqs-20sep2018.pdf?sfvrsn=97d94712_4" target="_blank" rel="noopener">Rabies: questions and answers for clinicians</a> (PDF), <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a>, <a href="https://www.who.int/travel-advice" target="_blank" rel="noopener">WHO travel advice</a></p>
+    </article>
+
+    <!-- 10. vaccines and cost -->
+    <article class="rb-part" aria-labelledby="rb10">
+      <p class="rb-k">10 &middot; Vaccines and their cost</p>
+      <h2 class="rb-h" id="rb10">Good vaccines exist; reaching people is the problem</h2>
+      <ul class="rb-list">
+        <li>Rabies vaccines for people are highly effective, safe and well tolerated. Every vaccine used should meet WHO&rsquo;s standards: poor-quality vaccines have failed people in several countries.</li>
+        <li>Three human rabies vaccines were WHO prequalified in 2024: <b>RABIVAX-S</b> (Serum Institute of India), <b>VaxiRab N</b> (Zydus Lifesciences) and <b>VERORAB</b> (Sanofi Pasteur).</li>
+        <li>More than 29 million people receive a rabies vaccine every year.</li>
+        <li>A course after a bite cost US$108 on average in 2018, before travel and lost pay: a heavy burden for families earning US$1 to 2 a day. Rabies costs the world about US$8.6 billion a year, in lives, livelihoods, medical care and trauma.</li>
+        <li>Rabies is a neglected tropical disease: it falls mostly on poor, rural people, for whom the vaccine, immunoglobulin and antibodies are often out of reach.</li>
+      </ul>
+      <p class="rb-src">From WHO: <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a>, <a href="https://www.who.int/activities/vaccinating-against-rabies-to-save-lives" target="_blank" rel="noopener">Vaccinating against rabies to save lives</a></p>
+    </article>
+
+    <!-- 11. the world's goal -->
+    <article class="rb-part" aria-labelledby="rb11">
+      <p class="rb-k">11 &middot; Zero by 30</p>
+      <h2 class="rb-h" id="rb11">No one dying of dog-borne rabies by 2030</h2>
+      <figure class="rb-one">
+        <svg viewBox="0 0 340 118" role="img" aria-label="One Health: dogs vaccinated, bites treated fast, and people who know, together">
+          <g font-family="Arial, sans-serif" text-anchor="middle">
+            <circle cx="58" cy="44" r="34" fill="#e5f2ea"/><circle cx="170" cy="44" r="34" fill="#fdf0ef"/><circle cx="282" cy="44" r="34" fill="#f3f5f9"/>
+            <g fill="#1e5b3b"><ellipse cx="58" cy="44" rx="9" ry="7.5"/><ellipse cx="47" cy="34" rx="3.3" ry="4.4" transform="rotate(-20 47 34)"/><ellipse cx="54" cy="28" rx="3.3" ry="4.6"/><ellipse cx="63" cy="28" rx="3.3" ry="4.6"/><ellipse cx="69" cy="34" rx="3.3" ry="4.4" transform="rotate(20 69 34)"/></g>
+            <g fill="#b3261e"><circle cx="170" cy="27" r="7"/><path d="M156 58 C156 44 162 38 170 38 C178 38 184 44 184 58 Z"/><rect x="176" y="44" width="16" height="16" rx="2" fill="#fff" stroke="#b3261e" stroke-width="2"/><rect x="182" y="47" width="4" height="10"/><rect x="179" y="50" width="10" height="4"/></g>
+            <g fill="#22385a"><circle cx="268" cy="32" r="5"/><circle cx="282" cy="28" r="6"/><circle cx="296" cy="32" r="5"/><path d="M260 56 C260 44 263 40 268 40 C273 40 276 44 276 56 Z"/><path d="M274 56 C274 42 277 36 282 36 C287 36 290 42 290 56 Z"/><path d="M288 56 C288 44 291 40 296 40 C301 40 304 44 304 56 Z"/></g>
+            <path d="M113 36 V52 M105 44 H121 M225 36 V52 M217 44 H233" stroke="#22385a" stroke-width="3" stroke-linecap="round"/>
+            <text x="58" y="92" font-size="9" font-weight="700" fill="#1e5b3b">Dogs vaccinated</text><text x="58" y="105" font-size="8" fill="#333">stops it at the source</text>
+            <text x="170" y="92" font-size="9" font-weight="700" fill="#b3261e">Bites treated fast</text><text x="170" y="105" font-size="8" fill="#333">wash, vaccine, every dose</text>
+            <text x="282" y="92" font-size="9" font-weight="700" fill="#22385a">People who know</text><text x="282" y="105" font-size="8" fill="#333">bite prevention, reporting</text>
+          </g>
+        </svg>
+      </figure>
+      <ul class="rb-list">
+        <li>WHO, with the Food and Agriculture Organization (FAO) and the World Organisation for Animal Health (WOAH), works through <b>One Health</b>, animal and human health together: mass dog vaccination, treatment within reach, trained health workers, better reporting, and teaching communities about bites.</li>
+        <li>The goal, <b>Zero by 30</b>, is in WHO&rsquo;s 2021 to 2030 roadmap for neglected tropical diseases. Since 2021, WHO and Gavi, the Vaccine Alliance, have worked to make human rabies vaccine easier to get.</li>
+        <li><b>It can be done.</b> WHO has confirmed that Mexico, Bhutan (4 September 2026) and Chile (14 September 2026) have ended dog-borne human rabies as a public health problem. 17 countries, among them Germany, Sweden and Portugal, have declared themselves free of the rabies virus to WOAH.</li>
+        <li>India has its own National Action Plan for Dog Mediated Rabies Elimination by 2030.</li>
+        <li><b>World Rabies Day</b> is 28 September, the day Louis Pasteur, who made the first rabies vaccine, died.</li>
+      </ul>
+      <p class="rb-p rb-note"><b>About the numbers:</b> WHO&rsquo;s latest count, from its 2021 Global Health Estimates, is 44,203 deaths a year; its longer-standing estimate is about 59,000 a year in over 150 countries, 95% of them in Africa and Asia. Both are known to be too low: many deaths are never diagnosed or reported.</p>
+      <p class="rb-src">From WHO: <a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies fact sheet</a>, <a href="https://www.who.int/health-topics/rabies" target="_blank" rel="noopener">Rabies health topic</a>, <a href="https://www.who.int/campaigns/world-rabies-day" target="_blank" rel="noopener">World Rabies Day</a>, <a href="https://www.who.int/multi-media/details/rabies----zero-deaths-by-2030" target="_blank" rel="noopener">Rabies: zero deaths by 2030</a></p>
+    </article>
+
+    <!-- what PFA asks -->
+    <article class="rb-part rb-ask" aria-labelledby="rb12">
+      <h2 class="rb-h" id="rb12">What PFA asks of you</h2>
+      <ul class="rb-list">
+        <li>Vaccinate your dog every year, and help vaccinate the community dogs you feed.</li>
+        <li>Ask your municipality to run its Animal Birth Control and anti-rabies vaccination programme, as the ABC Rules, 2023 require.</li>
+        <li>After any bite or scratch: wash for 15 minutes, see a doctor the same day, and finish every dose.</li>
+        <li>Teach children how to be around dogs, and to tell you about any bite or scratch.</li>
+        <li>Never take it out on the animal. Killing dogs does not stop rabies; vaccinating them does.</li>
+      </ul>
+    </article>
+
+    <!-- sources -->
+    <article class="rb-part rb-sources" aria-labelledby="rb13">
+      <h2 class="rb-h" id="rb13">Read more from WHO</h2>
+      <ul class="rb-links">
+        <li><a href="https://www.who.int/health-topics/rabies" target="_blank" rel="noopener">Rabies: health topic</a><span>Overview, symptoms, treatment and prevention</span></li>
+        <li><a href="https://www.who.int/news-room/fact-sheets/detail/rabies" target="_blank" rel="noopener">Rabies: fact sheet</a><span>17 September 2026: the numbers, the categories of contact, vaccines and WHO&rsquo;s response</span></li>
+        <li><a href="https://www.who.int/activities/vaccinating-against-rabies-to-save-lives" target="_blank" rel="noopener">Vaccinating against rabies to save lives</a><span>Treatment before and after a bite, and vaccinating dogs</span></li>
+        <li><a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-general-public-faqs.pdf?sfvrsn=ac59055f_4" target="_blank" rel="noopener">Rabies: questions and answers for the public</a><span>PDF: spread, signs, first aid, pregnancy, bats, bite prevention</span></li>
+        <li><a href="https://cdn.who.int/media/docs/default-source/ntds/rabies/rabies-clinicians-faqs-20sep2018.pdf?sfvrsn=97d94712_4" target="_blank" rel="noopener">Rabies: questions and answers for clinicians</a><span>PDF: schedules, immunoglobulin, special cases</span></li>
+        <li><a href="https://www.who.int/campaigns/world-rabies-day" target="_blank" rel="noopener">World Rabies Day</a><span>28 September</span></li>
+        <li><a href="https://openwho.org/courses/NTDs-Rabies-and-one-health" target="_blank" rel="noopener">Rabies and One Health: a free WHO course</a><span>OpenWHO, WHO&rsquo;s online learning</span></li>
+        <li><a href="https://www.who.int/data/gho/data/themes/topics/indicator-groups/indicator-group-details/GHO/rabies" target="_blank" rel="noopener">Rabies data</a><span>WHO&rsquo;s Global Health Observatory</span></li>
+      </ul>
+      <p class="rb-fine">General information, not medical advice: after any bite or scratch, see a doctor. Prepared by People for Animals from the WHO pages above, read on 22 November 2026; the India lines are from PFA&rsquo;s <a href="laws.html">What the law says</a>. The photographs are illustrative scenes, not real cases; the drawings are PFA&rsquo;s own.</p>
+    </article>
+  </section>
+</main>
+
+<footer class="pfa-footer" data-cursor="dark" id="donate" data-screen-label="Footer">
+  <!-- Folded (owner, 25 Oct 2026: "make footer cleaner.. like expand only if
+       need be.. right now .. just a load of things"). The footer is one row
+       of headings, each opening its links when asked, and one slim line
+       under it: PFA on social media, the visit counter and the legal line
+       with the privacy policy. Five link groups follow the header (Our
+       Work, Learn, Get Involved, its "Give and partner" list, About), then
+       the registered office. assets/chrome.js folds them, one open at a
+       time; a page whose script does not run shows every group open, as a
+       directory.
+
+       Every block is block-level in the markup: assets/ is cached for an hour
+       and the HTML is not, so for up to an hour after a deploy this markup
+       meets the previous chrome.css, and it still reads top to bottom. -->
+  <div class="pfa-footer__grid">
+    <nav class="pfa-footer__col" aria-label="Our Work">
+      <p class="pfa-footer__label">Our Work</p>
+      <ul>
+        <li><a href="units.html">Units near you</a></li>
+        <li><a href="report.html">Report cruelty</a></li>
+        <li><a href="newsroom.html">Newsroom and cases</a></li>
+        <li><a href="achievements.html">Policies and achievements</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Learn">
+      <p class="pfa-footer__label">Learn</p>
+      <ul>
+        <li><a href="laws.html">What the law says</a></li>
+        <li><a href="library.html">Resources library</a></li>
+        <li><a href="academy.html">Academy</a></li>
+        <li><a href="behaviour.html">Behaviour, A to Z</a></li>
+        <li><a href="pet-health.html">Care Guides</a></li>
+        <li><a href="fireworks.html">Fireworks and animals</a></li>
+        <li><a href="quiz.html">Test yourself</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Get Involved">
+      <p class="pfa-footer__label">Get Involved</p>
+      <ul>
+        <li><a href="get-involved.html#volunteer">Volunteer</a></li>
+        <li><a href="get-involved.html#membership">Become a member</a></li>
+        <li><a href="caregiver-card.html">Colony caregiver card</a></li>
+        <li><a href="campus.html">PFA Campus</a></li>
+        <li><a href="internship.html">Remote internship</a></li>
+        <li><a href="wall.html">The Wall</a></li>
+        <li><a href="events.html">Events and podcasts</a></li>
+        <li><a href="cinekind.html">CineKind</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="Give and partner">
+      <p class="pfa-footer__label">Give and partner</p>
+      <ul>
+        <li><a href="donate.html">Donate</a></li>
+        <li><a href="donate.html?gift=1">Make a gift</a></li>
+        <li><a href="gifts.html">Seasonal gifts</a></li>
+        <li><a href="campaign.html">Plan a campaign</a></li>
+        <li><a href="legacy.html">Leave a legacy</a></li>
+        <li><a href="csr.html">CSR partnerships</a></li>
+        <li><a href="shop.html">Shop</a></li>
+      </ul>
+    </nav>
+    <nav class="pfa-footer__col" aria-label="About">
+      <p class="pfa-footer__label">About</p>
+      <ul>
+        <li><a href="founder.html">Founder</a></li>
+        <li><a href="manekas-picks.html">Maneka’s Picks</a></li>
+        <li><a href="sgacc.html">Animal Care Centre</a></li>
+        <li><a href="careers.html">Careers</a></li>
+        <li><a href="ask.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="pfa-footer__office">
+      <p class="pfa-footer__label">Registered office</p>
+      <!-- As published on peopleforanimalsindia.org. tel: and mailto: so a
+           phone dials and a mail client opens; the numbers hold together with
+           non-breaking spaces, because a number split across two lines cannot
+           be dialled. -->
+      <address class="pfa-footer__where" id="contact">
+        <div>4-T, DCM Building, 16 Barakhamba Road, New Delhi 110001, India</div>
+        <div class="pfa-footer__tel"><a href="tel:+911120818191">+91&nbsp;11&nbsp;2081&nbsp;8191</a><span class="pfa-footer__dot"> · </span><a href="tel:+911120818194">+91&nbsp;11&nbsp;2081&nbsp;8194</a></div>
+        <div><a href="mailto:gandhim@exmpls.sansad.in">gandhim@exmpls.sansad.in</a></div>
+      </address>
+    </div>
+  </div>
+  <div class="pfa-footer__base">
+    <nav class="pfa-footer__social" aria-label="Social media">
+      <a href="https://www.instagram.com/pfa.official/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://www.facebook.com/people4animals/" target="_blank" rel="noopener noreferrer">Facebook</a>
+      <a href="https://x.com/pfaindia" target="_blank" rel="noopener noreferrer">X</a>
+      <a href="https://www.youtube.com/@peopleforanimals9047" target="_blank" rel="noopener noreferrer">YouTube</a>
+    </nav>
+    <!-- Real count, from /api/visits. Hidden until a number actually
+         arrives, so a counter that cannot reach the server shows nothing
+         rather than a zero or an invented figure. No caption; the
+         aria-label names it for a screen reader. -->
+    <div class="pfa-tally" id="pfaTally" hidden>
+      <div class="pfa-tally__odo" id="pfaTallyOdo" role="status" aria-live="polite" aria-label="Visit counter"></div>
+    </div>
+    <p>People for Animals © 2026</p>
+    <p>Registered charity · All donations tax-deductible</p>
+    <p><a href="privacy.html">Privacy policy</a></p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

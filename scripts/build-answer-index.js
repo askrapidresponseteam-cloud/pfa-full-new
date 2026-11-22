@@ -142,9 +142,11 @@ function fromData() {
   /* care guides */
   const mn = read('data/med-notes.json');
   for (const n of (mn && mn.notes) || []) {
-    add('Care Guides', `pet-health.html#note=pfa-${n.id}`, n.title, `${n.title}: ${n.summary || ''}${n.credit ? ` Written by ${n.credit}.` : ''}`);
+    /* a guide with its own page (rabies.html) is answered with that page */
+    const at = /^[a-z0-9-]+\.html$/.test(String(n.page || '')) ? n.page : `pet-health.html#note=pfa-${n.id}`;
+    add('Care Guides', at, n.title, `${n.title}: ${n.summary || ''}${n.credit ? ` Written by ${n.credit}.` : ''}`);
     /* what the guide itself says, as its own points (the PDF is not read here) */
-    for (const x of Array.isArray(n.points) ? n.points : []) add('Care Guides', `pet-health.html#note=pfa-${n.id}`, n.title, x);
+    for (const x of Array.isArray(n.points) ? n.points : []) add('Care Guides', at, n.title, x);
   }
   return out;
 }

@@ -130,6 +130,7 @@ const EXPECTED = {
   'fireworks.html':    ['Fireworks and animals',     'laws.html'],
   'behaviour.html':    ['Behaviour, A to Z',         'laws.html'],
   'pet-health.html':   ['Care Guides',             'laws.html'],
+  'rabies.html':       [null,                        'laws.html'], /* Care Guide 04, inside Care Guides (22 Nov 2026) */
   'series.html':       [null,                        'laws.html'], /* closed preview, in no menu */
   'gifts.html':        ['Seasonal gifts',            'get-involved.html'],
   'privacy.html':      [null,                        null]

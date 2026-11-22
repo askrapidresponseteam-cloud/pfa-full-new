@@ -117,7 +117,8 @@ test('the paper, then the art, then the signature on it; the signature where the
   const images = calls.filter((c) => c[0] === 'drawImage');
   assert.equal(images.length, 2, 'the art and the signature, each once');
   assert.match(images[0][1]._src, /frame\.webp\?v=[a-f0-9]{10}$/);
-  assert.match(images[1][1]._src, /signature\.png\?v=[a-f0-9]{10}$/);
+  /* the signature chosen in the panel, or the built-in one (22 Nov 2026) */
+  assert.match(images[1][1]._src, /api\/signature\?for=certificate$/);
   assert.deepEqual([...images[1].slice(2)], [798 + 26, 653, 252, 73], 'the design\'s own place: 26 to the right');
   assert.ok(!calls.some((c) => c[0] === 'fillRect' && c[3] === 1120), 'the art drawn, so no white paper laid over it');
   assert.deepEqual({ ...C.setLayout({ x: -12, y: 8 }) }, { x: -12, y: 8, s: 100 });
@@ -135,8 +136,13 @@ test('the paper, then the art, then the signature on it; the signature where the
 });
 
 test('a signature that does not arrive is an error, never a certificate drawn without it (12 Nov 2026 bug)', async () => {
-  const { C } = drawn({ fail: ['signature.png'] });
+  const { C } = drawn({ fail: ['api/signature', 'signature.png'] });
   await assert.rejects(C.load(), /signature could not be loaded/);
+  /* the chosen signature out of reach: the built-in one, never none */
+  const fell = drawn({ fail: ['api/signature'] });
+  await fell.C.load();
+  fell.C.draw(fell.canvas, {}, 1);
+  assert.match(fell.calls.filter((c) => c[0] === 'drawImage')[1][1]._src, /signature\.png\?v=[a-f0-9]{10}$/);
   const src = read('assets/certificate.js');
   assert.match(src, /if \(art\) ctx\.drawImage\(art, 0, 0, W, H\);\n {4}else \{ ctx\.fillStyle = '#ffffff'; ctx\.fillRect\(0, 0, W, H\); \}\n {4}if \(sig\) \{\n {6}var sw = SIG\.w \* SIG\.s \/ 100;/, 'the white paper only when there is no art, whatever the signature does');
 });

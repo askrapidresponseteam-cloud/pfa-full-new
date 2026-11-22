@@ -446,6 +446,23 @@
    ]
   },
   {
+   "id": "rabies",
+   "file": "rabies.html",
+   "title": "Rabies: the facts",
+   "group": "Learn",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "Rabies: the facts."
+    },
+    {
+     "id": "guide",
+     "label": "Guide"
+    }
+   ]
+  },
+  {
    "id": "series",
    "file": "series.html",
    "title": "The Pet Parent Series",
@@ -1671,6 +1688,8 @@
    "series-diabetes": "top",
    "note-pfa-diabetes-in-dogs": "top",
    "note-pfa-glucose-meters-for-dogs": "top",
+   "series-dogs": "top",
+   "note-pfa-rabies": "top",
    "series-cows": "top",
    "note-pfa-dehorning-cows": "top",
    "phCoverPicked": "share",
@@ -1695,6 +1714,22 @@
   },
   "quiz": {
    "qz": "the-quiz"
+  },
+  "rabies": {
+   "bite": "guide",
+   "rb1": "guide",
+   "rb2": "guide",
+   "rb3": "guide",
+   "rb4": "guide",
+   "rb5": "guide",
+   "rb6": "guide",
+   "rb7": "guide",
+   "rb8": "guide",
+   "rb9": "guide",
+   "rb10": "guide",
+   "rb11": "guide",
+   "rb12": "guide",
+   "rb13": "guide"
   },
   "series": {
    "psTitle": "top",

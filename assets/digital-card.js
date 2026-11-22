@@ -76,7 +76,7 @@
       + '<p>It is for display on screen only and is not to be printed.</p>'
       + '<p>Non-transferable. Any misuse will lead to its withdrawal.</p></div>'
       + '<div class="dcm__qr">' + qr(d.url) + '<div class="dcm__scan">Scan to verify</div></div></div>'
-      + '<div class="dcm__base"><div class="dcm__sign"><img src="' + esc(base) + 'assets/certificates/signature.svg" alt="Signature of Smt. Maneka Sanjay Gandhi" width="1512" height="438"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
+      + '<div class="dcm__base"><div class="dcm__sign"><img src="' + esc(base) + 'api/signature?for=card&amp;builtin=svg" alt="Signature of Smt. Maneka Sanjay Gandhi" width="1512" height="438"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
       + '<div class="dcm__footer"><span>peopleforanimalsindia.org</span><span>' + esc(number) + '</span></div></div>';
   }
 
@@ -122,7 +122,7 @@
       + '<div class="dc__body"><span class="dc__name">' + esc(d.name) + '</span>' + (place ? '<span class="dc__place">' + esc(place) + '</span>' : '')
       + '<div class="dc__grid">' + cells.map(function (c, i) { return '<div><span class="dc__lab">' + esc(c[0]) + '</span><span class="dc__val' + (i === 0 ? ' dc__val--id' : '') + '">' + esc(c[1]) + '</span></div>'; }).join('') + '</div></div>'
       + '<div class="dc__photo">' + photo + '</div>'
-      + '<div class="dc__foot"><div class="dc__sign"><img src="' + esc(base) + 'assets/certificates/signature.svg" alt="Signature of Smt. Maneka Sanjay Gandhi" width="1512" height="438"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
+      + '<div class="dc__foot"><div class="dc__sign"><img src="' + esc(base) + 'api/signature?for=card&amp;builtin=svg" alt="Signature of Smt. Maneka Sanjay Gandhi" width="1512" height="438"><b>Smt. Maneka Sanjay Gandhi</b><span>Chairperson, People for Animals</span></div>'
       + '<span class="dc__ok" data-state="' + esc(st.s) + '">' + (st.s === 'valid' ? CHECK : CROSS) + esc(st.word) + '</span></div>'
       + (st.s === 'valid' ? '' : '<div class="dc__void"><span>' + esc(st.word.toUpperCase()) + '</span></div>')
       + '</section>'

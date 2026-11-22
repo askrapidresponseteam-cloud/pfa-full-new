@@ -248,13 +248,13 @@ test('the nearest units: the person\'s own district first, then the rest of the 
 });
 
 test('a question goes to the site first, then to the help desk with the question already in it', () => {
-  const t = talk(['what should i do if a dog bites someone']);
+  const t = talk(['what should i do if a dog chases someone']);
   assert.equal(t.o.action.type, 'search');
   const s = t.s;
-  const r = s.done(t.o.action.id, { rows: [{ title: 'Laws: dogs', url: 'laws.html#part-a', desc: 'Bites' }] });
+  const r = s.done(t.o.action.id, { rows: [{ title: 'Laws: dogs', url: 'laws.html#part-a', desc: 'When a dog chases someone' }] });
   assert.deepEqual(r.messages[0].links, [{ label: 'Laws: dogs', href: 'laws.html#part-a' }]);
   const desk = s.tap('#desk');
-  assert.equal(s.state().data.question, 'what should i do if a dog bites someone');
+  assert.equal(s.state().data.question, 'what should i do if a dog chases someone');
   assert.match(desk.messages[desk.messages.length - 1].text, /closest to/);
 });
 
@@ -446,9 +446,9 @@ test('a straight question gets a straight answer: one line, the one link that do
 });
 
 test('a search answers with the one page that fits, not a list of links', () => {
-  const t = talk(['what should i do if a dog bites someone', { done: { rows: [{ title: 'Laws: dogs', url: 'laws.html#part-a', desc: 'What the law says when a dog bites.' }, { title: 'Newsroom', url: 'newsroom.html', desc: 'x' }, { title: 'Wall', url: 'wall.html', desc: 'y' }] } }]);
+  const t = talk(['what should i do if a dog chases someone', { done: { rows: [{ title: 'Laws: dogs', url: 'laws.html#part-a', desc: 'What the law says when a dog chases someone.' }, { title: 'Newsroom', url: 'newsroom.html', desc: 'x' }, { title: 'Wall', url: 'wall.html', desc: 'y' }] } }]);
   const m = t.o.messages[0];
-  assert.equal(m.text, 'What the law says when a dog bites.');
+  assert.equal(m.text, 'What the law says when a dog chases someone.');
   assert.equal(m.links.length, 1);
   assert.equal(m.links[0].href, 'laws.html#part-a');
   assert.ok(!m.list, 'no table of pages');

@@ -150,6 +150,7 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .ph-guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(24px,2.6vw,36px);margin:0;padding:0;list-style:none}
 .ph-card{display:grid;grid-template-columns:minmax(0,44%) minmax(0,1fr);gap:clamp(16px,1.7vw,24px);align-items:start;min-width:0}
 .ph-cover{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
+.ph-cover--page{cursor:pointer}
 .ph-cover img{display:block;width:100%;height:auto;box-shadow:0 18px 40px -24px rgba(17,17,17,.55)}
 .ph-cover--plain{display:flex;align-items:flex-end;aspect-ratio:2 / 3;padding:22px;background:#f3f1ed;border:1px solid var(--line);text-align:left}
 .ph-cover--plain span{font-family:var(--display);font-size:clamp(22px,2vw,30px);line-height:1.08;text-transform:uppercase;color:var(--ink);overflow-wrap:anywhere}
@@ -519,7 +520,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=708cf1f297"></script>
+<script src="assets/chrome.js?v=8ec0706de7"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -565,6 +566,22 @@ if (root.document && root.document.head) apply(read());
               <p class="ph-card__by">Sunny Raghvendra Singh, Dehradun &middot; Pet parent</p>
               <p class="ph-card__sum">A comparison of dog-calibrated meters and continuous monitors, where they are sold, their listed prices and the author’s findings on availability in India.</p>
               <p class="ph-card__acts"><button class="btn" type="button" data-read="pfa-glucose-meters-for-dogs">Read guide</button><a class="ph-card__get" href="media/med-notes/glucose-meters-for-dogs.pdf" download>Download PDF <small>(5 KB)</small></a></p>
+            </div>
+          </li>
+        </ol>
+      </li>
+      <li class="ph-series" id="series-dogs">
+        <div class="ph-series__head"><h2>Guides about dogs</h2><span class="ph-series__count">1 guide</span></div>
+        <p class="ph-series__intro">From pet parents, caregivers and vets who have been through it.</p>
+        <ol class="ph-guides">
+          <li class="ph-card" id="note-pfa-rabies">
+            <a class="ph-cover ph-cover--page" href="rabies.html" aria-label="Read Rabies: the facts"><img src="media/med-notes/rabies-cover-v3.webp" alt="Cover of Rabies: the facts" width="900" height="1130" loading="lazy" decoding="async"></a>
+            <div class="ph-card__bd">
+              <p class="ph-card__part">Guide 04</p>
+              <h3 class="ph-card__title">Rabies: the facts</h3>
+              <p class="ph-card__by">People for Animals &middot; From the World Health Organization</p>
+              <p class="ph-card__sum">What to do after a bite, the three kinds of contact and their treatment, the vaccine and its schedules, signs in dogs and in people, preventing bites, and why vaccinating dogs ends rabies. From the World Health Organization, with links to every source.</p>
+              <p class="ph-card__acts"><a class="btn" href="rabies.html">Read guide</a><a class="ph-card__get" href="media/med-notes/rabies.pdf" download>Download PDF <small>(1.6 MB)</small></a></p>
             </div>
           </li>
         </ol>
@@ -868,7 +885,10 @@ if (root.document && root.document.head) apply(read());
   var chips = $('#phChips');
   var NOTES = [];
   function sizeOf(b) { b = Number(b) || 0; return b ? (b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB') : ''; }
+  /* a guide with a page of its own (rabies.html, 22 Nov 2026) opens it */
+  var pageOf = function (n) { return /^[a-z0-9-]+\.html$/.test(n.page || '') ? n.page : ''; };
   function cover(n, eager) {
+    if (pageOf(n) && n.cover) return '<a class="ph-cover ph-cover--page" href="' + esc(pageOf(n)) + '" aria-label="Read ' + esc(n.title) + '"><img src="' + esc(n.cover) + '" alt="Cover of ' + esc(n.title) + '" width="900" height="1130" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></a>';
     return n.cover
       ? '<button class="ph-cover" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><img src="' + esc(n.cover) + '" alt="Cover of ' + esc(n.title) + '" width="900" height="1130" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></button>'
       : '<button class="ph-cover ph-cover--plain" type="button" data-read="' + esc(n.id) + '" aria-label="Read ' + esc(n.title) + '"><span>' + esc(n.title) + '</span></button>';
@@ -885,7 +905,7 @@ if (root.document && root.document.head) apply(read());
       + '<h3 class="ph-card__title">' + esc(n.title) + '</h3>'
       + '<p class="ph-card__by">' + esc([n.credit, n.role].filter(Boolean).join(' · ')) + '</p>'
       + '<p class="ph-card__sum">' + esc(n.summary) + '</p>'
-      + '<p class="ph-card__acts"><button class="btn" type="button" data-read="' + esc(n.id) + '">Read guide</button>'
+      + '<p class="ph-card__acts">' + (pageOf(n) ? '<a class="btn" href="' + esc(pageOf(n)) + '">Read guide</a>' : '<button class="btn" type="button" data-read="' + esc(n.id) + '">Read guide</button>')
       + (f ? '<a class="ph-card__get" href="' + esc(f.url) + '" download>Download' + (isPdf ? ' PDF' : '') + (sizeOf(f.size) ? ' <small>(' + sizeOf(f.size) + ')</small>' : '') + '</a>' : '')
       + '</p></div></li>';
   }
@@ -939,7 +959,7 @@ if (root.document && root.document.head) apply(read());
     return fetch('data/med-notes.json').then(function (r) { return r.json(); }).then(function (d) {
       SERIES = Array.isArray(d.series) ? d.series : [];
       return (d.notes || []).map(function (s) {
-        return { id: 'pfa-' + s.id, title: s.title, summary: s.summary, text: s.text || '', animal: s.animal, role: s.role, credit: s.credit, sources: s.sources, series: s.series || '', part: Number(s.part) || 0, number: Number(s.number) || 0, cover: s.cover ? '/' + String(s.cover).replace(/^\/+/, '') : '',
+        return { id: 'pfa-' + s.id, title: s.title, summary: s.summary, text: s.text || '', animal: s.animal, role: s.role, credit: s.credit, sources: s.sources, series: s.series || '', part: Number(s.part) || 0, number: Number(s.number) || 0, page: s.page || '', cover: s.cover ? '/' + String(s.cover).replace(/^\/+/, '') : '',
           files: (s.files || []).map(function (f) { return { url: '/' + String(f.src).replace(/^\/+/, ''), type: f.type, size: f.size }; }) };
       });
     });
@@ -986,6 +1006,7 @@ if (root.document && root.document.head) apply(read());
   }
   function read(id) {
     var n = NOTES.filter(function (x) { return x.id === id; })[0];
+    if (n && pageOf(n)) { location.href = pageOf(n); return; }
     if (!n || !view) return;
     $('#phViewTitle').textContent = n.title;
     var f = n.files && n.files[0];

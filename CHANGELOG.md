@@ -1,3 +1,37 @@
+## v1.624
+
+- **Care Guide 04 (Rabies): the owner's illustrated PDF and cover, and their photographs on the page.** Owner, 23 Nov 2026.
+  - The owner's cover: a community dog and a vet in the field, in the style of Guides 01 to 03. Saved by a new name, so no browser keeps showing the first cover.
+  - Download PDF is now the owner's 11-page illustrated guide (1.6 MB): first aid, the three categories, at the clinic, how rabies spreads, a child and a bite, vaccinating dogs, the numbers, the two pages for doctors and nurses, and sources. Its WHO links work.
+  - The page shows the same photographs beside the parts they illustrate: washing a wound (first aid); a photograph for each of Categories I, II and III, in place of the drawn hands; a clinic visit (the treatment); a mother and her son, and keeping a distance from a dog that is eating (preventing bites); a vaccination camp (vaccinating dogs). Each has words for a screen reader, and the page says the photographs are illustrative scenes.
+  - The page is no longer printed over the PDF: that script is retired, so the owner's file stays as it is.
+- Also in this build: v1.623 (Care Guide 04, the page; the chat and a bite) and earlier.
+
+## v1.623
+
+- **New Care Guide 04: Rabies, the facts, from the World Health Organization, as a page and a PDF.** Owner, 22 Nov 2026.
+  - "can you build a rabies fact sheet- based on this for PFA", "include images", then "the rabies sheet and page within pfa care guide. has to be be super detailed... take them from multiple pages in who.int/health-topics/rabies and give WHO links as well".
+  - A page of its own, peopleforanimalsindia.org/rabies, in eleven parts: first aid after a bite, the three kinds of contact (Categories I, II and III), the treatment and why every dose matters, how rabies spreads, signs in a dog, signs in people, preventing bites (children first), vaccinating dogs, vaccination before any bite (PrEP, pre-exposure prophylaxis), vaccines and their cost, and Zero by 30. Then what PFA asks of you, and Read more from WHO.
+  - Every part links the WHO pages it comes from: the rabies health topic, the fact sheet (17 September 2026), the questions and answers for the public and for clinicians, Vaccinating against rabies to save lives, World Rabies Day, the OpenWHO course and WHO's rabies data. The India lines (the ABC Rules, 2023, and the national plan) are from the site's What the law says.
+  - For doctors and nurses, under +: the WHO schedules after a bite and before one, immunoglobulin doses, people vaccinated before, weakened immunity, and wound care.
+  - Drawings of the site's own: the five first-aid steps, the three kinds of contact, a timeline of when signs start, and One Health.
+  - The PDF is the page itself printed to A4 (7 pages), every + opened, the WHO links clickable, with no contact strip. A cover in the style of Guides 01 to 03, from the site's own dog photograph.
+  - In Care Guides, under Guides about dogs: Guide 04, with Read guide (the page) and Download PDF.
+- **The chat and a bite.** "A dog bit me", "my cat scratched me", "kutte ne kaat liya" and the like are answered at once with the WHO's first aid and a link to the guide. Stopping a puppy biting, a cat scratching furniture, itching, a snake bite and a bite case at law are not. "Rabies" now counts as one of the site's subjects, so questions about it (signs, how long it takes, a cure, milk, pregnancy, culling) are answered from the guide.
+- Also in this build: v1.622 (the password-protected signature collection) and earlier.
+
+## v1.622
+
+- **A signature collection behind a password, for letters, certificates and cards, in any ink colour.** Owner, 22 Nov 2026.
+  - "add this to signature collection. it should be workable on letter, certificates and cards. and color should be changable", "ensure that signature should not be accesable even if one gets the code. it should be protected by password", and "there has to be 2 sign vectors".
+  - In the panel, Certificates, under + Signatures. It asks the password first. Then it shows what letters, certificates and cards are signed with, and one row to change it: where, which signature, the ink colour (six inks or any other), a preview, and Use. Built-in puts a place back to the signature it had before.
+  - + Add a signature: a name and its SVG file. Only the shapes are kept; colours, scripts and anything else in the file are left out.
+  - None of a signature is in the site's code or files. Each one is kept on the server sealed with the password (scrypt, a slow one-way key maker, then AES-256-GCM, a standard cipher), in a store no browser can read. The password is not kept anywhere; the code holds only a one-way check of it.
+  - Five wrong passwords lock that admin out for 15 minutes; twenty from anyone in an hour lock everyone out for an hour. Every try, right or wrong, and every change is in the audit log, never the password.
+  - + Change the password: every signature is sealed again with the new one, and the old one opens nothing.
+  - What a document shows is the finished picture, in its colour, made from the signature when Use is pressed: letters (drawn on the server), certificates and the caregiver and membership cards (printed and online). Until a place is given one, it keeps the built-in signature, which is unchanged.
+- Also in this build: v1.621 (no Certificate of Appreciation in the receipt email), v1.620 and earlier.
+
 ## v1.621
 
 - **The donation receipt email no longer mentions the Certificate of Appreciation.** Owner, 22 Nov 2026.
