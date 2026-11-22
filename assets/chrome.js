@@ -1719,7 +1719,7 @@
   if (document.documentElement.hasAttribute('data-no-assist')) return;
   var KEY = 'pfa.assist.v1';
   /* one fingerprint for the five files, written by npm run sync:chrome */
-  var ASSIST_V = '07f3d237ed';
+  var ASSIST_V = '43f05da13b';
   var FILES = ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/india-districts.js', '/assets/assistant.js'].map(function (f) { return f + '?v=' + ASSIST_V; });
   var loading = null;
 

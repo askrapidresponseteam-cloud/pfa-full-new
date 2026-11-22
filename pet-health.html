@@ -519,7 +519,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=d05560f1b2"></script>
+<script src="assets/chrome.js?v=708cf1f297"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -565,6 +565,22 @@ if (root.document && root.document.head) apply(read());
               <p class="ph-card__by">Sunny Raghvendra Singh, Dehradun &middot; Pet parent</p>
               <p class="ph-card__sum">A comparison of dog-calibrated meters and continuous monitors, where they are sold, their listed prices and the author’s findings on availability in India.</p>
               <p class="ph-card__acts"><button class="btn" type="button" data-read="pfa-glucose-meters-for-dogs">Read guide</button><a class="ph-card__get" href="media/med-notes/glucose-meters-for-dogs.pdf" download>Download PDF <small>(5 KB)</small></a></p>
+            </div>
+          </li>
+        </ol>
+      </li>
+      <li class="ph-series" id="series-cows">
+        <div class="ph-series__head"><h2>Guides about cows</h2><span class="ph-series__count">1 guide</span></div>
+        <p class="ph-series__intro">From pet parents, caregivers and vets who have been through it.</p>
+        <ol class="ph-guides">
+          <li class="ph-card" id="note-pfa-dehorning-cows">
+            <button class="ph-cover" type="button" data-read="pfa-dehorning-cows" aria-label="Read Dehorning in cattle: pain and the law"><img src="media/med-notes/dehorning-cows-cover-v2.webp" alt="Cover of Dehorning in cattle: pain and the law" width="900" height="1130" loading="lazy" decoding="async"></button>
+            <div class="ph-card__bd">
+              <p class="ph-card__part">Guide 03</p>
+              <h3 class="ph-card__title">Dehorning in cattle: pain and the law</h3>
+              <p class="ph-card__by">Milosz Wozniak, Guwahati &middot; Animal activist</p>
+              <p class="ph-card__sum">Why and how dairy cows are dehorned, the pain of it, what the 2023 Rules now require (a registered vet and anaesthesia), the offences that apply, and what you can do in your district.</p>
+              <p class="ph-card__acts"><button class="btn" type="button" data-read="pfa-dehorning-cows">Read guide</button><a class="ph-card__get" href="media/med-notes/dehorning-cows.pdf" download>Download PDF <small>(37 KB)</small></a></p>
             </div>
           </li>
         </ol>
@@ -865,7 +881,7 @@ if (root.document && root.document.head) apply(read());
     var f = n.files && n.files[0];
     var isPdf = f && (/pdf/i.test(f.type || '') || /\.pdf$/i.test(f.url));
     return '<li class="ph-card" id="note-' + esc(n.id) + '">' + cover(n, eager)
-      + '<div class="ph-card__bd"><p class="ph-card__part">' + (n.series && n.part ? 'Guide ' + two(n.part) : 'Care guide') + '</p>'
+      + '<div class="ph-card__bd"><p class="ph-card__part">' + (n.number ? 'Guide ' + two(n.number) : n.series && n.part ? 'Guide ' + two(n.part) : 'Care guide') + '</p>'
       + '<h3 class="ph-card__title">' + esc(n.title) + '</h3>'
       + '<p class="ph-card__by">' + esc([n.credit, n.role].filter(Boolean).join(' · ')) + '</p>'
       + '<p class="ph-card__sum">' + esc(n.summary) + '</p>'
@@ -923,7 +939,7 @@ if (root.document && root.document.head) apply(read());
     return fetch('data/med-notes.json').then(function (r) { return r.json(); }).then(function (d) {
       SERIES = Array.isArray(d.series) ? d.series : [];
       return (d.notes || []).map(function (s) {
-        return { id: 'pfa-' + s.id, title: s.title, summary: s.summary, text: s.text || '', animal: s.animal, role: s.role, credit: s.credit, sources: s.sources, series: s.series || '', part: Number(s.part) || 0, cover: s.cover ? '/' + String(s.cover).replace(/^\/+/, '') : '',
+        return { id: 'pfa-' + s.id, title: s.title, summary: s.summary, text: s.text || '', animal: s.animal, role: s.role, credit: s.credit, sources: s.sources, series: s.series || '', part: Number(s.part) || 0, number: Number(s.number) || 0, cover: s.cover ? '/' + String(s.cover).replace(/^\/+/, '') : '',
           files: (s.files || []).map(function (f) { return { url: '/' + String(f.src).replace(/^\/+/, ''), type: f.type, size: f.size }; }) };
       });
     });

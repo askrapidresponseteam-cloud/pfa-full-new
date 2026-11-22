@@ -1,3 +1,17 @@
+## v1.620
+
+- **New Care Guide 03: Dehorning in cattle, pain and the law, by Milosz Wozniak, Guwahati.** Owner, 22 Nov 2026: "create this as a pdf and add it to care guide", and its cover: "this is the cover for the 3rd guide".
+  - The owner's cover, at the same size as the other two (900 by 1130). The guide takes the cover's title and number: Guide 03, Dehorning in cattle: pain and the law, on the page, in the PDF and in the chat. A guide can now carry its own number, whatever group it is in.
+  - One A4 page, in the same layout as the diabetes guide: why and how cows are dehorned, the pain of it, older cows, the Animal Husbandry Practices and Procedures Rules 2023 (a registered vet and general and local anaesthesia), the offences (BNS Section 325, PCA Act Section 11, and the author's view on BNS Section 299), proof and seizure, what you can do in your district, and breeding hornless cows.
+  - The law in it is as published: the Rules were notified on 21 March 2023; BNS Section 325 carries up to five years, or a fine, or both.
+  - On the Care Guides page under "Guides about cows", with Read guide and Download PDF. With guides about two animals, the page now offers Dogs and Cows to choose from.
+  - The chat knows what the guide says ("who can dehorn a cow", "what is the punishment for dehorning without anaesthesia", "dehorning guide").
+- **The chat: Other amount, and the Send button in line.** Owner, 22 Nov 2026: "send button is not properly aligned..there should be other amount as well".
+  - Beside ₹500, ₹1,000, ₹2,500 and ₹5,000 is Other amount: it asks for the amount in rupees, puts the cursor in the box and brings up the number keyboard on a phone.
+  - The text box and the Send button are one height (46px), so their tops and bottoms line up on every browser.
+- **The chat, more of it right.** A word the site heads a section with is the site's subject ("dehorning"); cattle and cows, a car and a vehicle are one; a paragraph about animals in general answers for a dog or a cat ("dog hit by car"), after one that names it; "PCA Act" finds the Act in the library; a question asked word for word finds the paragraph that says it; and a page that shares no word with the question is no longer offered as an answer.
+- Also in this build: v1.619 (the chat answers what the site knows), v1.618 and v1.617.
+
 ## v1.619
 
 - **The chat answers what the site knows, however it is asked.** Owner, 22 Nov 2026, on "do u have a unit in ahmedabad" answered with "Where are you?" and then "There is no PFA unit listed near there": "chat bot isnt actually answering correctly", "build the bot so that it can answer any qs related to the website and knowledge that is already on the website", "even if asked in different ways".

@@ -167,7 +167,9 @@
 
   function grow() {
     input.style.height = 'auto';
-    input.style.height = Math.min(140, input.scrollHeight + 2) + 'px';
+    /* one line is 46px, the Send button's height, on every browser (22 Nov 2026:
+       "send button is not properly aligned"): 22px a line, 11px padding, 1px border */
+    input.style.height = Math.max(46, Math.min(140, input.scrollHeight + 2)) + 'px';
   }
 
   /* ---- drawing messages ---- */
@@ -390,6 +392,11 @@
     paintLive();
     clipBtn.hidden = !(o.input && o.input.type === 'photo');
     input.rows = o.input && o.input.type === 'long' ? 3 : 1;
+    /* an amount: the number keyboard on a phone, and the box ready for it */
+    var forAmount = Boolean(o.input && o.input.type === 'amount');
+    input.setAttribute('inputmode', forAmount ? 'numeric' : 'text');
+    input.placeholder = forAmount ? (o.lang === 'hi' ? 'रुपयों में राशि, जैसे 750' : 'Amount in rupees, like 750') : (o.lang === 'hi' ? 'यहाँ लिखें, हिंदी या अंग्रेज़ी में' : 'Type here, in English or Hindi');
+    if (o.input && o.input.focus) { try { input.focus({ preventScroll: true }); } catch (_) { input.focus(); } }
     grow();
     reveal(logEl.children[before]);
     store(true);

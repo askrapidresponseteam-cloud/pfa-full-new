@@ -117,6 +117,9 @@
     unitsHere: { en: 'Yes. PFA has a unit in {place}:', hi: 'हाँ। {place} में PFA की यूनिट है:' },
     unitsNone: { en: 'PFA has no unit in {place} itself. The nearest:', hi: '{place} में PFA की यूनिट नहीं है। सबसे पास:' },
     kmAway: { en: 'about {km} km away', hi: 'लगभग {km} किमी दूर' },
+    /* the amount: the four, and any other (owner, 22 Nov 2026: "there should be other amount as well") */
+    otherAmount: { en: 'Other amount', hi: 'दूसरी राशि' },
+    typeAmount: { en: 'Type the amount in rupees, for example 750.', hi: 'रुपयों में राशि लिखें, जैसे 750।' },
     placeAgain: { en: 'Which town or city? For example Ahmedabad, or a 6-digit PIN code like 380001.', hi: 'कौन सा शहर या कस्बा? जैसे अहमदाबाद, या 6 अंकों का PIN कोड जैसे 380001।' },
     allUnits: { en: 'See every unit', hi: 'सभी यूनिट देखें' },
     noUnits: { en: 'There is no PFA unit listed near there yet. PFA\'s head office in New Delhi can help: +91 11 2081 8191. Every unit, with its phone, is on the units page.', hi: 'वहाँ पास में अभी कोई PFA यूनिट नहीं है। नई दिल्ली में PFA का मुख्य कार्यालय मदद कर सकता है: +91 11 2081 8191। हर यूनिट, फ़ोन नंबर के साथ, यूनिट पेज पर है।' },
@@ -490,6 +493,7 @@
         var f = fieldNow();
         if (f && f.type === 'photos') return { type: 'photo' };
         if (f && f.type === 'long') return { type: 'long' };
+        if (f && f.type === 'amount') return { type: 'amount' };
       }
       return { type: 'text' };
     }
@@ -718,6 +722,7 @@
       var m = msg(L(f.ask, lang()) + (f.optional && f.type !== 'photos' ? ' ' + t('optional', lang()) : ''));
       var chips = [];
       if (f.type === 'choice' || f.type === 'amount') chips = f.options.map(function (op) { return { label: L(op, lang()) || op.value, value: op.value }; });
+      if (f.type === 'amount') chips.push({ label: t('otherAmount', lang()), value: '#otheramount' });
       if (f.type === 'multi') {
         var picked = S.data[keyOf(f.id)] || [];
         chips = f.options.map(function (op) { return { label: L(op, lang()) || op.value, value: op.value, on: picked.indexOf(op.value) > -1 }; }).concat([{ label: t('done', lang()), value: '#done' }]);
@@ -1632,6 +1637,15 @@
          nearest page is a guess (17 Nov 2026, "raghavendra" answered with
          Care Guides) */
       var nm = nameLike(S.deskQuestion || '');
+      /* a page that shares no word with the question is a guess, not an
+         answer (22 Nov 2026: "how to stop cows being dehorned" was answered
+         with heat stroke) */
+      if (best && !nm) {
+        var asked = wordsOf(S.deskQuestion || '');
+        var page = wordsOf([best.title, best.desc].join(' '));
+        var plain = /^(ban|dog|cat|cow|animal|pet|help|care|use|way|time|day|one|two|first|need|make|take|know|tell|ask|find|get|give|good|bad|new|old)$/;
+        if (asked.length && !asked.some(function (w) { return !plain.test(w) && page.indexOf(w) > -1; })) best = null;
+      }
       if (best && nm && !N.normalise([best.title, best.desc, best.url].join(' ')).split(/[^a-z]+/).some(function (w) { return nm.toLowerCase().split(' ').some(function (x) { return sameName(x, w); }); })) best = null;
       if (!best) {
         var word = nm;
@@ -1727,6 +1741,12 @@
       if (s === '#switch' && S.offerSwitch) { var to = S.offerSwitch; S.offerSwitch = ''; return begin(to, S.switchText || ''); }
       if (s === '#stay') { S.offerSwitch = ''; return ask([]); }
       if (s === '#nonumber' && S.phase === 'ask' && isNumberField(fieldNow())) return lostNumber(fieldNow());
+      /* any other amount: asked for in words, with the number keyboard */
+      if (s === '#otheramount') {
+        var fa = S.phase === 'ask' ? fieldNow() : null;
+        if (fa && fa.type === 'amount') return out([msg(t('typeAmount', lang()))], { input: { type: 'amount', focus: true } });
+        return ask([]);
+      }
       if (s.charAt(0) === '#' && s.length > 1 && s !== '#skip' && s !== '#done' && s !== '#send' && s !== '#change') return begin(s.slice(1), '');
 
       var cmd = N.commandOf(s);
@@ -2078,6 +2098,8 @@
     /* a housing society is the RWA the law pages speak of (22 Nov 2026) */
     society: 'rwa', societies: 'rwa', apartment: 'rwa', apartments: 'rwa', flat: 'rwa', flats: 'rwa', colony: 'rwa', association: 'rwa', builder: 'rwa',
     lift: 'lift', lifts: 'lift', elevator: 'lift', elevators: 'lift',
+    car: 'vehicle', cars: 'vehicle', bike: 'vehicle', bikes: 'vehicle', scooter: 'vehicle', truck: 'vehicle', trucks: 'vehicle', bus: 'vehicle', vehicle: 'vehicle', vehicles: 'vehicle', motorbike: 'vehicle', auto: 'vehicle',
+    cattle: 'cow', cows: 'cow', cow: 'cow', gau: 'cow', gaay: 'cow', gai: 'cow', dairy: 'dairy', dairies: 'dairy',
     stop: 'ban', stops: 'ban', stopping: 'ban', ban: 'ban', bans: 'ban', banned: 'ban', banning: 'ban', prohibit: 'ban', prohibited: 'ban', prohibits: 'ban', bar: 'ban', barred: 'ban', restrict: 'ban', restricted: 'ban', allow: 'ban', allowed: 'ban', allows: 'ban', permitted: 'ban', permit: 'ban', forbid: 'ban', forbidden: 'ban',
     file: 'fir', filing: 'fir', lodge: 'fir', lodging: 'fir', fir: 'fir', firs: 'fir',
     award: 'honour', awards: 'honour', awarded: 'honour', won: 'honour', win: 'honour', winner: 'honour', winners: 'honour', awardee: 'honour', awardees: 'honour', honoured: 'honour', honours: 'honour', honour: 'honour', honored: 'honour', honors: 'honour',
@@ -2113,7 +2135,7 @@
   }
   /* what the site is about: a question with none of these is not one the
      site's words can answer (the weather, a minister, a match score) */
-  var TOPIC = /^(dog|cat|cow|bull|buffalo|calf|puppy|pupp|kitten|bird|pigeon|parrot|crow|monkey|horse|donkey|goat|sheep|pig|camel|elephant|snake|wildlife|pet|community|feed|kill|punish|cruelty|cruel|abuse|rescue|shelter|hospital|clinic|veterinar|medicine|vaccin|rabie|antibiotic|antivenom|first|aid|bite|injur|sterilis|steriliz|abc|neuter|spay|adopt|adoption|foster|law|legal|court|fir|police|complaint|report|resident|lift|founder|maneka|gandhi|member|membership|card|caregiver|colony|intern|internship|volunteer|donat|tax|receipt|certificate|fear|firework|behaviour|behavior|train|leash|unit|centre|center|sgacc|academy|quiz|shop|event|campaign|csr|legacy|cinekind|wall|privacy|career|job)$/;
+  var TOPIC = /^(pca|act|bns|bnss|section|rule|rules|ordinance|gazette|dog|cat|cow|bull|buffalo|calf|puppy|pupp|kitten|bird|pigeon|parrot|crow|monkey|horse|donkey|goat|sheep|pig|camel|elephant|snake|wildlife|pet|community|feed|kill|punish|cruelty|cruel|abuse|rescue|shelter|hospital|clinic|veterinar|medicine|vaccin|rabie|antibiotic|antivenom|first|aid|bite|injur|sterilis|steriliz|abc|neuter|spay|adopt|adoption|foster|law|legal|court|fir|police|complaint|report|resident|lift|founder|maneka|gandhi|member|membership|card|caregiver|colony|intern|internship|volunteer|donat|tax|receipt|certificate|fear|firework|behaviour|behavior|train|leash|unit|centre|center|sgacc|academy|quiz|shop|event|campaign|csr|legacy|cinekind|wall|privacy|career|job)$/;
   function onTopic(terms) { return terms.some(function (w) { return TOPIC.test(w); }); }
   /* an animal named in the question must be in the answer */
   var KINDS = /^(dog|cat|cow|bull|buffalo|calf|bird|pigeon|parrot|crow|monkey|horse|donkey|goat|sheep|pig|camel|elephant|snake)$/;
@@ -2218,6 +2240,7 @@
     if (!terms.length || !docs || !docs.length) return null;
     if (passageCache.docs !== docs) {
       var df = {};
+      var hdf = {};
       /* the first paragraph under each heading answers what the heading asks */
       var lastHead = null;
       var items = docs.map(function (d) {
@@ -2226,6 +2249,7 @@
         /* the page's own name is part of what a paragraph is under ("CineKind") */
         var h = hOnly.concat(wordsOf(d.title).filter(function (x) { return hOnly.indexOf(x) < 0; }));
         w.concat(h).filter(function (x, i, all) { return all.indexOf(x) === i; }).forEach(function (x) { df[x] = (df[x] || 0) + 1; });
+        hOnly.forEach(function (x) { hdf[x] = (hdf[x] || 0) + 1; });
         var key = d.url + '|' + (d.heading || '');
         var first = key !== lastHead;
         lastHead = key;
@@ -2233,7 +2257,7 @@
         var names = (String(d.text || '').match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+/g) || []).length;
         return { d: d, w: w, h: h, hOnly: hOnly, first: first, names: names };
       });
-      passageCache = { docs: docs, items: items, df: df };
+      passageCache = { docs: docs, items: items, df: df, hdf: hdf };
     }
     /* a word the site does not use is read as the nearest one it does,
        when it is one letter off (two for a long word): "vacination",
@@ -2267,6 +2291,8 @@
     var behaving = has(/^(bark|scratch|chew|aggress|fear|anxiet|litter|introduc|train|howl|whin|dig|jump|pull|leash|toilet)/);
     var funding = has(/^(fund|cost|company|csr|corporat|sponsor)/);
     var who = /^\s*(who|whom|whose|kaun)\b/i.test(String(question || ''));
+    /* the question, word for word, in a paragraph ("who can dehorn a cow") */
+    var said = String(question || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
     var leanOf = function (url) {
       var u = String(url || '');
       if (/^academy/.test(u)) return medical ? 2 : 0;
@@ -2281,6 +2307,13 @@
       var inText = terms.filter(function (w) { return it.w.indexOf(w) > -1; });
       var inHead = terms.filter(function (w) { return it.h.indexOf(w) > -1; });
       var hit = terms.filter(function (w) { return inText.indexOf(w) > -1 || inHead.indexOf(w) > -1; });
+      var named = terms.filter(function (w) { return KINDS.test(w); });
+      /* a paragraph about animals in general answers for a dog or a cat ("most animals hit by vehicles") */
+      var general = it.w.indexOf('pet') > -1 || it.h.indexOf('pet') > -1 || it.w.indexOf('community') > -1 || it.h.indexOf('community') > -1 || /\banimals?\b/i.test(it.d.text);
+      if (named.length && !named.some(function (w) { return hit.indexOf(w) > -1; }) && !(general && named.some(function (w) { return /^(dog|cat)$/.test(w); }))) return;
+      /* and then the dog or cat asked about counts as covered */
+      var credited = false;
+      if (general) named.forEach(function (w) { if (/^(dog|cat)$/.test(w) && hit.indexOf(w) < 0) { hit.push(w); inText.push(w); inHead.push(w); credited = true; } });
       if (hit.length < need || !inText.length && !inHead.length) return;
       var cover = hit.reduce(function (a, w) { return a + idf(w); }, 0) / total;
       /* the words of the question in the paragraph itself, unless it answers
@@ -2291,12 +2324,10 @@
          2026: a heading asked word for word was "not found on the site") */
       var headCover = it.h.length ? inHead.reduce(function (a, w) { return a + idf(w); }, 0) / total : 0;
       var headAll = it.hOnly.length ? it.hOnly.filter(function (w) { return terms.indexOf(w) > -1; }).length / it.hOnly.length : 0;
-      var byHead = headCover >= 0.75 && headAll >= 0.5;
+      /* or every word asked is in its heading and page ("dehorning guide") */
+      var byHead = headCover >= 0.75 && (headAll >= 0.5 || (headCover >= 0.99 && terms.length >= 2 && inHead.some(function (w) { return it.hOnly.indexOf(w) > -1; })));
       if (!asked && !byHead && textCover < 0.75) return;
-      var named = terms.filter(function (w) { return KINDS.test(w); });
-      var general = it.w.indexOf('pet') > -1 || it.h.indexOf('pet') > -1 || it.w.indexOf('community') > -1 || it.h.indexOf('community') > -1;
-      if (named.length && !named.some(function (w) { return hit.indexOf(w) > -1; }) && !(general && named.some(function (w) { return /^(dog|cat)$/.test(w); }))) return;
-      var score = cover * 10 + (asked ? 3 : 0) + (byHead ? 4 + headAll * 3 + (it.first ? 2 : 0) : 0) + leanOf(it.d.url) + (who ? (it.names >= 3 ? 5 : it.names ? 0 : -2) : 0) + (herePage && it.d.url.split('#')[0] === herePage ? 3 : 0)
+      var score = cover * 10 + (asked ? 3 : 0) + (byHead ? 4 + headAll * 3 + (it.first ? 2 : 0) : 0) + leanOf(it.d.url) + (who ? (it.names >= 3 ? 5 : it.names ? 0 : -2) : 0) + (herePage && it.d.url.split('#')[0] === herePage ? 3 : 0) - (credited ? 4 : 0) + (said.length >= 12 && (' ' + String(it.d.text || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ') + ' ').indexOf(' ' + said + ' ') > -1 ? 5 : 0)
         + inText.reduce(function (a, w) { return a + idf(w); }, 0) * 0.3
         + inHead.reduce(function (a, w) { return a + idf(w); }, 0) * 0.5
         - it.d.text.length / 3000;
@@ -2306,7 +2337,9 @@
     if (!best || best.cover < 0.75) return null;
     /* a question outside the site's subjects is answered only by a heading
        that asks it ("who is the prime minister" is not a news story) */
-    if (!onTopic(terms) && !best.byHead && !(onHere && best.it.d.url.split('#')[0] === herePage)) return null;
+    /* a word the site itself heads a section with ("dehorning") is the site's subject */
+    var headed = rare.some(function (w) { return passageCache.hdf[w] && best.it.w.concat(best.it.h).indexOf(w) > -1; });
+    if (!onTopic(terms) && !best.byHead && !headed && !(onHere && best.it.d.url.split('#')[0] === herePage)) return null;
     var d = best.it.d;
     return { text: shortOf(d.text), heading: d.heading || '', title: String(d.title || '').replace(/\s*\|\s*People for Animals\s*$/i, ''), url: d.url,
       /* sure enough to answer before any offering is guessed from a word */

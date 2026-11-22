@@ -52,9 +52,9 @@
 .pfa-asst__chips button:disabled{opacity:.4;cursor:default;background:#fff;color:#111}
 .pfa-asst__wait{align-self:flex-start;color:#6b6b6b;font-size:14px}
 .pfa-asst__bar{flex:none;display:flex;align-items:flex-end;gap:8px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid #111;background:#fff}
-.pfa-asst__bar textarea{flex:1 1 auto;min-width:0;min-height:44px;max-height:140px;padding:11px 12px;border:1px solid #d6d4d0;background:#fff;color:#111;font-family:inherit;font-size:16px;line-height:1.4;resize:none}
+.pfa-asst__bar textarea{flex:1 1 auto;min-width:0;min-height:46px;max-height:140px;padding:11px 12px;border:1px solid #d6d4d0;background:#fff;color:#111;font-family:inherit;font-size:16px;line-height:22px;resize:none;box-sizing:border-box}
 .pfa-asst__bar textarea:focus{outline:none;border-color:#111}
-.pfa-asst__send,.pfa-asst__clip{flex:none;min-height:44px;border:1px solid #111;font-family:inherit;font-size:11px;font-weight:700;line-height:1;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.pfa-asst__send,.pfa-asst__clip{flex:none;box-sizing:border-box;height:46px;min-height:46px;border:1px solid #111;font-family:inherit;font-size:11px;font-weight:700;line-height:1;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 .pfa-asst__send{padding:0 16px;background:#111;color:#fff}
 @media (hover:hover){.pfa-asst__send:hover{background:#fff;color:#111}}
 .pfa-asst__clip{width:44px;padding:0;background:#fff;color:#111;display:inline-flex;align-items:center;justify-content:center}

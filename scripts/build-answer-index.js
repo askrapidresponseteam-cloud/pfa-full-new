@@ -48,7 +48,9 @@ function passages(html) {
     .replace(/<(select|textarea|option|button)\b[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<input\b[^>]*>/gi, ' ')
     .replace(/<(header|footer|nav)\b[\s\S]*?<\/\1>/gi, ' ')
-    .replace(/<!--[\s\S]*?-->/g, ' ');
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    /* the Care Guides list is the guides' data drawn as cards: read from the data instead */
+    .replace(/<ol class="ph-list"[\s\S]*?(?=<p class="m-fine ph-fine")/, ' ');
   const out = [];
   let heading = '';
   let section = '';
@@ -131,13 +133,19 @@ function fromData() {
   for (const n of (nr && nr.stories) || []) add('Newsroom', 'newsroom.html', n.title, `${n.dek || n.title}${n.date ? ` (${[day(n.date), n.place].filter(Boolean).join(', ')})` : ''}`);
   /* the library */
   const lib = read('data/library.json');
-  for (const b of (lib && lib.items) || []) add('Library', 'library.html', b.title, `${b.title}${b.kind ? ` (${b.kind})` : ''}: ${b.blurb || ''}`);
+  /* the short names people use for the Acts ("the PCA Act") */
+  const shortName = (t) => (/Prevention of Cruelty to Animals Act/i.test(t) ? ' (the PCA Act)' : /Wild ?life \(?Protection\)? Act/i.test(t) ? ' (the WPA)' : '');
+  for (const b of (lib && lib.items) || []) add('Library', 'library.html', b.title + shortName(b.title), `${b.title}${shortName(b.title)}${b.kind ? ` (${b.kind})` : ''}: ${b.blurb || ''}`);
   /* what a company can fund */
   const csr = read('data/csr-projects.json');
   for (const c of (csr && csr.projects) || []) add('CSR', 'csr.html', `${c.name}: what it costs to fund`, `${c.name} costs ${rupees(c.price)} for a company to fund. ${c.pitch || ''}${c.what ? ` What it is: ${c.what}.` : ''}${c.time ? ` For: ${c.time}.` : ''}`);
   /* care guides */
   const mn = read('data/med-notes.json');
-  for (const n of (mn && mn.notes) || []) add('Care Guides', `pet-health.html#note=pfa-${n.id}`, n.title, `${n.title}: ${n.summary || ''}${n.credit ? ` Written by ${n.credit}.` : ''}`);
+  for (const n of (mn && mn.notes) || []) {
+    add('Care Guides', `pet-health.html#note=pfa-${n.id}`, n.title, `${n.title}: ${n.summary || ''}${n.credit ? ` Written by ${n.credit}.` : ''}`);
+    /* what the guide itself says, as its own points (the PDF is not read here) */
+    for (const x of Array.isArray(n.points) ? n.points : []) add('Care Guides', `pet-health.html#note=pfa-${n.id}`, n.title, x);
+  }
   return out;
 }
 

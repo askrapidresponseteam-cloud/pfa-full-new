@@ -171,3 +171,55 @@ test('the town lookup the chat asks the server for: India Post\'s directory, not
   const pin = await call({ pin: '576101' });
   assert.ok(Array.isArray(pin.body.at), 'a PIN gives its place too');
 });
+
+/* The dehorning guide (owner, 22 Nov 2026: "create this as a pdf and add it
+   to care guide", by Milosz Wozniak, Guwahati): one A4 page, the same cover
+   size as the others, on the page before any script, and known to the chat. */
+test('the dehorning guide: its PDF, its cover, its card, and the chat knows what it says', () => {
+  const data = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/med-notes.json'), 'utf8'));
+  const g = data.notes.find((n) => n.id === 'dehorning-cows');
+  assert.ok(g, 'in the guides');
+  assert.equal(g.credit, 'Milosz Wozniak, Guwahati');
+  assert.equal(g.animal, 'Cows');
+  const pdf = fs.readFileSync(path.join(ROOT, g.files[0].src));
+  assert.equal(pdf.slice(0, 5).toString(), '%PDF-');
+  assert.equal(g.files[0].size, pdf.length, 'its true size');
+  assert.equal((pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length, 1, 'one page');
+  const cover = fs.readFileSync(path.join(ROOT, g.cover));
+  assert.equal(cover.slice(8, 12).toString(), 'WEBP');
+  const html = fs.readFileSync(path.join(ROOT, 'pet-health.html'), 'utf8');
+  assert.match(html, /<li class="ph-series" id="series-cows">[\s\S]*?id="note-pfa-dehorning-cows"[\s\S]*?<img src="media\/med-notes\/dehorning-cows-cover-v2\.webp"[^>]*width="900" height="1130"/);
+  assert.match(html, /<p class="ph-card__part">Guide 03<\/p>\s*<h3 class="ph-card__title">Dehorning in cattle: pain and the law<\/h3>/, 'the number and title on its cover');
+  assert.equal(g.number, 3);
+  assert.match(html, /href="media\/med-notes\/dehorning-cows\.pdf" download>Download PDF/);
+  assert.doesNotMatch(JSON.stringify(g), /[–—]/, 'no long dashes');
+  assert.match(chat('what is the punishment for dehorning without anaesthesia').last, /BNS Section 325/);
+  assert.match(chat('who can dehorn a cow').last, /registered vet/);
+  assert.match(chat('dehorning guide').last, /^Dehorning in cattle: pain and the law/);
+  assert.match(chat('is dehorning cows legal').last, /Section 11\(3\)/);
+});
+
+/* The donation amount and the Send button (owner, 22 Nov 2026: "send button
+   is not properly aligned..there should be other amount as well"). */
+test('a donation offers any other amount, asked for with the number keyboard', () => {
+  const s = FL.createSession({ now: () => Date.parse('2026-11-22T06:00:00Z') });
+  s.start();
+  const o = s.hear('donate');
+  const chips = o.messages[o.messages.length - 1].chips.map((c) => c.label);
+  assert.deepEqual(chips, ['₹500', '₹1,000', '₹2,500', '₹5,000', 'Other amount']);
+  assert.equal(o.input.type, 'amount', 'the number keyboard while an amount is asked');
+  const other = s.tap('#otheramount');
+  assert.equal(other.messages[0].text, 'Type the amount in rupees, for example 750.');
+  assert.deepEqual(other.input, { type: 'amount', focus: true });
+  s.hear('750');
+  assert.equal(s.state().data.amount, '750');
+  const js = fs.readFileSync(path.join(ROOT, 'assets/assistant.js'), 'utf8');
+  assert.match(js, /input\.setAttribute\('inputmode', forAmount \? 'numeric' : 'text'\)/);
+});
+
+test('the Send button and the text box are one height: 46px', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'assets/assistant.css'), 'utf8');
+  assert.match(css, /\.pfa-asst__bar textarea\{[^}]*min-height:46px;[^}]*line-height:22px;[^}]*box-sizing:border-box\}/);
+  assert.match(css, /\.pfa-asst__send,\.pfa-asst__clip\{flex:none;box-sizing:border-box;height:46px;min-height:46px;/);
+  assert.match(fs.readFileSync(path.join(ROOT, 'assets/assistant.js'), 'utf8'), /input\.style\.height = Math\.max\(46, Math\.min\(140, input\.scrollHeight \+ 2\)\) \+ 'px';/);
+});

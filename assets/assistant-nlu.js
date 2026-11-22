@@ -97,7 +97,7 @@
   /* Each offering, with the words people use for it. Order matters only
      for a tie: the earlier wins. */
   var INTENTS = [
-    { id: 'report', w: ['cruelty', 'cruel', 'abuse', 'abused', 'abusing', 'beat', 'beating', 'beaten', 'kill', 'killed', 'killing', 'poison', 'poisoned', 'torture', 'tortured', 'attack', 'attacked', 'stone', 'stones', 'stoning', 'chained', 'starving', 'starved', 'complaint', 'complain', 'fir', 'report', 'harass', 'hitting', 'kicked', 'kicking', 'burnt', 'burned', 'maar', 'maara', 'mara', 'marte', 'peet', 'pitai', 'pita', 'zeher', 'zehar', 'jeher', 'jahar', 'shikayat', 'atyachar', 'zulm', 'julm', 'bandh', 'tadpa',
+    { id: 'report', w: ['cruelty', 'cruel', 'abuse', 'abused', 'abusing', 'beat', 'beating', 'beaten', 'kill', 'killed', 'killing', 'poison', 'poisoned', 'torture', 'tortured', 'attack', 'attacked', 'stone', 'stones', 'stoning', 'chained', 'starving', 'starved', 'complaint', 'complain', 'report', 'harass', 'hitting', 'kicked', 'kicking', 'burnt', 'burned', 'maar', 'maara', 'mara', 'marte', 'peet', 'pitai', 'pita', 'zeher', 'zehar', 'jeher', 'jahar', 'shikayat', 'atyachar', 'zulm', 'julm', 'bandh', 'tadpa',
       'क्रूर', 'मार', 'पीट', 'ज़हर', 'जहर', 'शिकायत', 'अत्याचार', 'जुल्म', 'हत्या', 'बांध', 'रिपोर्ट'],
       p: ['report cruelty', 'someone is beating', 'is beating', 'ko maar', 'maar rahe', 'maar raha', 'peet rahe', 'मार रहे', 'मार रहा', 'पीट रहे', 'को मार'] },
     { id: 'nearby', w: ['near', 'nearest', 'nearby', 'unit', 'units', 'vet', 'vets', 'hospital', 'clinic', 'ambulance', 'injured', 'injury', 'accident', 'bleeding', 'sick', 'emergency', 'helpline', 'paas', 'najdik', 'nazdeek', 'aspatal', 'doctor', 'ghayal', 'bimar', 'beemar', 'hadsa', 'chot', 'khoon',
