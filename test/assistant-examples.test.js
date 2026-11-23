@@ -100,5 +100,5 @@ test('what the chat could not answer is counted for Analytics, the words only', 
   let o = s.hear('ramesh');
   o = s.done(o.action.id, { rows: [], passage: null, people: [] });
   assert.equal(o.miss, 'ramesh');
-  assert.match(fs.readFileSync(path.join(__dirname, '..', 'assets', 'assistant.js'), 'utf8'), /if \(o\.miss\) missed\(o\.miss\);/);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'assets', 'assistant.js'), 'utf8'), /if \(o\.miss\) missed\(o\.miss, o\.missWrong\);/);
 });

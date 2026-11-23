@@ -84,6 +84,8 @@ const ROUTES = {
   'admin/letters': './admin/letters.js',
   'admin/signatures': './admin/signatures.js',
   'signature': './signature.js',
+  'admin/chat-learn': './admin/chat-learn.js',
+  'chat-taught': './chat-taught.js',
 };
 
 // Static requires so Vercel's file tracer bundles every handler.
@@ -166,6 +168,8 @@ const LOADERS = {
   'admin/letters': () => require('../lib/routes/admin/letters.js'),
   'admin/signatures': () => require('../lib/routes/admin/signatures.js'),
   'signature': () => require('../lib/routes/signature.js'),
+  'admin/chat-learn': () => require('../lib/routes/admin/chat-learn.js'),
+  'chat-taught': () => require('../lib/routes/chat-taught.js'),
 };
 
 function routeKey(request) {

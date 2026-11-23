@@ -375,6 +375,8 @@
       + '<div class="lc-chat" data-lc-chat></div></div>';
     L.said = '';
     drawChat(true);
+    /* Teach the chat, under the chats (assets/admin-chat-learn.js) */
+    if (window.PFAChatLearn) window.PFAChatLearn.mount(p);
   }
 
   function canWrite(c) { return c.status !== 'closed' && (!c.takenBy || c.mine); }
@@ -531,6 +533,15 @@
     post({ action: 'typing', id: L.open }).catch(function () {});
   });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) { loop(true); if (L.open && shown()) readChat(false); } });
+
+  /* Teach the chat (assets/admin-chat-learn.js, 23 Nov 2026), loaded with
+     this file so admin.html stays under its page-weight ceiling */
+  if (!document.querySelector('script[data-pfa-chat-learn]')) {
+    var cl = document.createElement('script');
+    cl.src = 'assets/admin-chat-learn.js';
+    cl.setAttribute('data-pfa-chat-learn', '');
+    document.head.appendChild(cl);
+  }
 
   window.PFALiveChat = {
     pane: function () {

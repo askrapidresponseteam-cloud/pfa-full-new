@@ -157,8 +157,8 @@
   /* The words that mean "the conversation, not the task": go back to the
      start, stop, step back. Checked before anything else. */
   var COMMANDS = {
-    menu: ['menu', 'start over', 'restart', 'home', 'main menu', 'shuru', 'मेनू', 'शुरू'],
-    cancel: ['cancel', 'stop', 'quit', 'exit', 'leave it', 'never mind', 'nevermind', 'rehne do', 'chhodo', 'chodo', 'band karo', 'radd', 'रद्द', 'छोड़ो', 'रहने दो'],
+    menu: ['menu', 'start over', 'start again', 'begin again', 'restart', 'home', 'main menu', 'go home', 'shuru', 'मेनू', 'शुरू'],
+    cancel: ['cancel', 'cancel this', 'cancel it', 'stop', 'stop this', 'quit', 'exit', 'leave it', 'forget it', 'never mind', 'nevermind', 'rehne do', 'chhodo', 'chodo', 'band karo', 'radd', 'रद्द', 'छोड़ो', 'रहने दो'],
     back: ['back', 'go back', 'previous', 'peeche', 'pichhe', 'पीछे'],
     skip: ['skip', 'none', 'no thanks', 'not now', 'later', 'baad mein', 'chhod do', 'nahi chahiye', 'kuch nahi', 'pata nahi', 'pta nahi', 'malum nahi', 'maloom nahi', 'dont know', "don't know", 'do not know', 'no idea', 'not known', 'unknown', 'पता नहीं', 'नहीं पता', 'मालूम नहीं', 'छोड़ दो', 'कुछ नहीं']
   };

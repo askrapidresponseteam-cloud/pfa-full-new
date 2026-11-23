@@ -23,6 +23,9 @@
                        /api/shop/checkout, which opens CCAvenue's own page,
                        exactly as the shop page's own checkout does
      a question        the site search already on the page (pfa-search.js)
+     what PFA taught   /api/chat-taught (lib/chat-learn.js): answers written
+                       in the panel's Teach the chat, given before the
+                       site's own text
      a person          /api/live-chat (lib/routes/live-chat.js): offered only
                        while someone in the panel is available; this page
                        asks every few seconds for their replies
@@ -401,7 +404,7 @@
     reveal(logEl.children[before]);
     store(true);
     if (o.action) act(o.action);
-    if (o.miss) missed(o.miss);
+    if (o.miss) missed(o.miss, o.missWrong);
   }
 
   /* The reply is read from its start. A reply taller than the window (the
@@ -748,9 +751,10 @@
   /* What the chat could not answer, counted for the panel's Analytics
      (17 Nov 2026): the words only; the server strips numbers, emails and
      reference numbers before anything is kept (lib/analytics.js). */
-  function missed(q) {
+  /* wrong: it answered, and they asked for a person straight after */
+  function missed(q, wrong) {
     try {
-      fetch('/api/analytics', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ p: location.pathname, q: String(q).slice(0, 200) }) }).catch(function () {});
+      fetch('/api/analytics', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ p: location.pathname, q: String(q).slice(0, 200) }, wrong ? { w: 1 } : {})) }).catch(function () {});
     } catch (_) { /* never in the visitor's way */ }
   }
 
@@ -791,6 +795,17 @@
   function docsNow() {
     if (!docsKept) siteText().then(function (d) { docsKept = d && d.length ? d : null; });
     return docsKept;
+  }
+  /* what PFA has taught the chat in the panel (lib/chat-learn.js), read
+     once a visit; until it arrives, or if it cannot, the chat is as before */
+  var taughtList = null, taughtAsked = false;
+  function taughtNow() {
+    if (!taughtAsked) {
+      taughtAsked = true;
+      fetch('/api/chat-taught', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { taughtList = d && Array.isArray(d.taught) ? d.taught : []; }).catch(function () { taughtList = []; });
+    }
+    return taughtList || [];
   }
   function siteText() {
     if (!siteDocs) {
@@ -843,7 +858,7 @@
     var kept = load();
     var lang = (doc.documentElement.getAttribute('lang') || '').indexOf('hi') === 0 ? 'hi' : 'en';
     if (kept && kept.state) {
-      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, page: pageNow }); docsNow();
+      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, page: pageNow, taught: taughtNow }); docsNow(); taughtNow();
       log = kept.log || [];
       log.forEach(function (x, i) { draw(x.who === 'me' ? { text: x.text, cid: x.cid, n: x.n, st: x.st === 'sending' ? 'failed' : x.st } : x.m, x.who, i === log.length - 1); });
       /* a payment page opened and came back, or the tab was reloaded mid-send:
@@ -855,7 +870,7 @@
       if (kept.state.phase === 'live') { if (kept.state.live && kept.state.live.id) poll(); else show(session.tap('#endlive'), null); }
       logEl.scrollTop = logEl.scrollHeight;
     } else {
-      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, page: pageNow }); docsNow();
+      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, page: pageNow, taught: taughtNow }); docsNow(); taughtNow();
       show(session.start(), null);
     }
   }

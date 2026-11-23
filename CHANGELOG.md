@@ -1,3 +1,11 @@
+## v1.630
+
+- **The chat follows a change of mind, and PFA can teach it answers.** Owner, 23 Nov 2026.
+  - "chat is still not smart enough": in the middle of Become a member, "shop" was taken as a full name and "i mean I want to shop" as a mobile number. Now a word that is one of the chat's offerings, typed where a name is asked, brings "Stop Become a member and go to The PFA shop?" with both choices; said plainly ("i mean I want to shop", "actually I want to donate", "take me to the shop"), the form is stopped, nothing is sent, and the chat goes there. A real name stays a name, even one like Rahul Shopkar. Where a few sentences are asked (what is happening, in a report), only a plain correction leaves ("I want to volunteer instead"); "I want to help this dog" is still the answer. "cancel this", "forget it", "start again" and "go home" also work.
+  - "can you have chat module keep learning and get better": in the panel, Live chat now has Teach the chat. It lists what visitors asked in the last 30 days that the chat could not answer, and questions it answered after which the visitor still asked for a person, most asked first. Teach an answer (a sentence or two, and a page of the site if one says more, and other ways people ask it) and the chat gives it from then on, within five minutes, before its own text; or set a question aside. Taught answers can be changed or forgotten. Every change is in the audit log.
+  - It learns from PFA, not by itself: nothing a visitor types becomes an answer until someone at PFA writes one. Only the words of a question are kept, with numbers, emails and phone numbers taken out, and nothing about who asked; the privacy page says so.
+- Also in this build: v1.629 (the drawer's landscape card, Certificates and letters) and earlier.
+
 ## v1.629
 
 - **Application drawer: one landscape card, photo clear of the title; Certificates and letters.** Owner, 23 Nov 2026.

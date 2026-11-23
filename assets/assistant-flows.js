@@ -91,7 +91,8 @@
     fixThis: { en: 'Let us fix that.', hi: 'इसे ठीक करते हैं।' },
     tryLater: { en: 'It could not be sent just now. Please try again in a minute.', hi: 'अभी नहीं भेजा जा सका। एक मिनट बाद फिर कोशिश करें।' },
     follow: { en: 'Follow it', hi: 'स्थिति देखें' },
-    switchTo: { en: 'Leave this and {what}?', hi: 'इसे छोड़कर {what}?' },
+    switchTo: { en: 'Stop {here} and go to {what}?', hi: '{here} रोककर {what} पर जाएँ?' },
+    leftForm: { en: '{what}: stopped. Nothing was sent.', hi: '{what}: रोक दिया। कुछ नहीं भेजा गया।' },
     keepGoing: { en: 'Carry on here', hi: 'यहीं जारी रखें' },
     payNow: { en: 'Accept and pay {amount} on CCAvenue', hi: 'मानें और CCAvenue पर {amount} चुकाएँ' },
     payMonthly: { en: 'Accept and pay {amount} a month on CCAvenue', hi: 'मानें और CCAvenue पर हर महीने {amount} दें' },
@@ -469,6 +470,43 @@
     return null;
   }
 
+  /* ---- what PFA has taught it (lib/chat-learn.js; owner, 23 Nov 2026:
+     "can you have chat module keep learning and get better") ----
+     A question someone at PFA answered in the panel, in any of the wordings
+     given with it, is answered so from then on. The same words matter, not
+     their order; small words ("how", "do", "the", "pfa") and a plural's s do
+     not. Close is not enough: the taught wording's words must all be asked,
+     and nearly nothing else. */
+  var TAUGHT_SMALL = /^(a|an|the|i|me|my|we|our|you|your|is|are|am|was|be|do|does|did|can|could|will|would|should|shall|may|to|of|in|on|at|for|from|with|about|and|or|it|its|this|that|there|here|what|whats|how|where|when|who|which|why|please|pls|plz|tell|know|want|need|pfa|people|animals|ji|sir|madam|hi|hello|kya|hai|hain|ka|ki|ke|ko|se|me|mein|kaise|kahan|kab|kaun|mujhe|batao|bataiye)$/;
+  function taughtWords(text) {
+    var seen = {};
+    return N.tokens(N.normalise(text)).map(function (w) { return w.length > 4 && /[^s]s$/.test(w) ? w.slice(0, -1) : w; })
+      .filter(function (w) { if (TAUGHT_SMALL.test(w) || seen[w]) return false; seen[w] = 1; return true; });
+  }
+  /* least: the fewest taught words a match needs (2 when the words also
+     read as one of the chat's own offerings: "donate" is still Donate) */
+  function taughtOf(text, list, least) {
+    if (!list || !list.length) return null;
+    var asked = taughtWords(text);
+    if (!asked.length || asked.length > 12) return null;
+    var whole = N.normalise(text).replace(/[?.!]+$/, '').trim();
+    var best = null, bestScore = 0;
+    list.forEach(function (k) {
+      if (!k || !k.answer) return;
+      [k.q].concat(k.also || []).forEach(function (w) {
+        if (!w) return;
+        if (N.normalise(w).replace(/[?.!]+$/, '').trim() === whole && taughtWords(w).length >= (least || 1)) { best = k; bestScore = 2; return; }
+        var ww = taughtWords(w);
+        if (ww.length < (least || 1) || !ww.every(function (x) { return asked.indexOf(x) > -1; })) return;
+        var score = ww.length / asked.length;
+        /* every taught word asked; and what else was asked is at most one
+           word in three (one word alone must be the whole question) */
+        if ((ww.length === 1 ? asked.length === 1 : score >= 0.66) && score > bestScore) { best = k; bestScore = score; }
+      });
+    });
+    return best;
+  }
+
   var INTENT_TO = { eventsList: 'eventsList', report: 'report', nearby: 'nearby', donate: 'donate', member: 'member', volunteer: 'volunteer', internship: 'internship', caregiver: 'caregiver', track: 'track', receipt: 'receipt',
     adopt: 'adopt', event: 'event', sgacc: 'sgacc', csr: 'csr', legacy: 'legacy', campaign: 'campaign', campus: 'campus', privacy: 'privacy', cinekind: 'cinekind', wall: 'wallstory', proof: 'proof', verify: 'verify', jobs: 'jobs', shop: 'shop', newunit: 'newunit', mednote: 'mednote', podcast: 'podcast', guides: 'guides', desk: 'helpdesk', newsroom: 'newsroom', achievements: 'achievements', library: 'library', academy: 'academy', behaviour: 'behaviour', someone: 'someone', fireworks: 'fireworks', quiz: 'quiz', gifts: 'gifts', founder: 'founder', picks: 'picks', lawpage: 'lawpage', unitlist: 'unitlist', law: 'law', question: 'helpdesk' };
 
@@ -488,6 +526,7 @@
     /* monthly giving, while the panel has it on (donate#monthly) */
     /* the site's own paragraphs, once the page has them (assets/assistant-answers.json) */
     function siteDocs() { try { return typeof o.docs === 'function' ? o.docs() : o.docs || null; } catch (_) { return null; } }
+    function taughtNow() { try { return (typeof o.taught === 'function' ? o.taught() : o.taught) || []; } catch (_) { return []; } }
     function herePage() { try { return typeof o.page === 'function' ? o.page() : o.page || ''; } catch (_) { return ''; } }
     /* the units, for "pfa pune" and the like (assets/assistant-units.js) */
     function unitList() {
@@ -1648,6 +1687,7 @@
       var then = S.afterSearch;
       S.afterSearch = '';
       if (!(p && p.text && p.url) && then) return begin(then, S.deskQuestion || '');
+      if (p && p.text && p.url) S.answered = S.deskQuestion || '';
       if (p && p.text && p.url) return out([msg(p.text, { links: [{ label: (lang() === 'hi' ? 'पूरा पढ़ें: ' : 'Read more: ') + p.title, href: String(p.url).replace(/^\//, '') }], chips: chips })]);
       /* a name and a page that does not carry it is not an answer: the
          nearest page is a guess (17 Nov 2026, "raghavendra" answered with
@@ -1669,6 +1709,7 @@
         if (word) return Object.assign(whoIs(word, chips), { miss: S.deskQuestion || word });
         return out([msg(t(live ? 'nothingLive' : 'nothingFound', lang()), { chips: chips })], { miss: S.deskQuestion || '' });
       }
+      S.answered = S.deskQuestion || '';
       return out([msg(best.desc || best.title, { links: [{ label: best.title, href: best.url }], chips: chips })]);
     }
     /* who a name is, when the site names no one by it: one question, with
@@ -1707,11 +1748,49 @@
       return out([msg(L(f.say, lang()), { links: (f.links || []).map(function (k) { return { label: L(k, lang()), href: k.href }; }), chips: chips })]);
     }
 
+    /* words that say the person has changed their mind, in English and Hindi */
+    var CHANGE_MIND = /(^| )(i mean|i meant|actually|instead|rather|no i want|i want to|i want|i would like|i d like|i wanna|take me|go to|open the|show me the|let me|can i|i need to|i came to|wrong|not this|mujhe|chahiye|karna hai|karna chahta|karna chahti|jana hai|jaana hai|मुझे|चाहिए|करना है)( |$)/;
+    /* a correction in so many words, the only way out of a free-text answer */
+    var CHANGE_PLAIN = /(^| )(i mean|i meant|actually|instead|rather|not this|wrong form|wrong one|no i want)( |$)/;
+    /* words no one's name is made of: a sentence typed where a name was asked */
+    var NOT_NAME = /(^| )(i|me|my|want|wanna|the|take|buy|mean|meant|actually|this|please|how|what|where|why|which|cancel|over|instead|go|shop|shopping|donate|donation|volunteer|report|member|membership|mujhe|karna|chahiye|kaise|kya|kahan)( |$)/;
+    /* does the text answer this question as it was asked? */
+    function changeFits(s, f) {
+      switch (f.type) {
+        /* a name of two words or more is a name ("Rahul Shopkar"), unless
+           it holds a word no name is made of; one word that is also an
+           offering ("shop") is not */
+        case 'name': { var nn = N.normalise(s); return !NOT_NAME.test(nn) && Boolean(N.nameOf(s, true)) && (N.tokens(s).length >= 2 || !N.intentOf(s).length); }
+        case 'mobile': return Boolean(N.mobileOf(s));
+        case 'email': return Boolean(N.emailOf(s));
+        case 'choice': return Boolean(N.choiceOf(s, f.options));
+        case 'multi': return f.options.some(function (op) { return N.choiceOf(s, [op]); });
+        case 'yesno': case 'consent': return N.yesNoOf(s) !== null;
+        case 'amount': return Boolean(N.amountOf(s, true));
+        case 'date': return Boolean(N.dateOf(s));
+        case 'reference': return Boolean(N.referenceOf(s));
+        default: return true;
+      }
+    }
+
     /* ---- one message in ---- */
     function hear(text, tapped) {
       var raw = String(text == null ? '' : text);
       var s = raw.trim();
       if (!s) return out([]);
+      /* the question just answered: a person asked for straight after it
+         means the answer missed, which is noted for teaching (lib/chat-learn.js) */
+      var answeredQ = S.answered || '';
+      S.answered = '';
+      if ((s === '#desk' || s === '#live') && answeredQ) {
+        var asked = hearAsked(s);
+        if (asked) { asked.miss = answeredQ; asked.missWrong = 1; }
+        return asked;
+      }
+      return hearAsked(s, raw, tapped);
+    }
+    function hearAsked(s, raw, tapped) {
+      if (raw === undefined) { raw = s; tapped = true; }
       /* the language follows what the person types, unless they chose it;
          a button they tap carries no language of its own */
       var lg = tapped ? '' : N.languageOf(s);
@@ -1775,6 +1854,35 @@
           if (f && f.optional) { if (f.type === 'photos') S.photosAsked = true; else S.data[keyOf(f.id)] = ''; S.step += 1; return ask([]); }
         }
         if (cmd === 'back' && S.step > 0 && !(S.addr && S.addr.step !== 'pin')) { S.step -= 1; var prev = fieldIds()[S.step]; changeField(prev); S.editing = false; return ask([]); }
+        /* a change of mind (owner, 23 Nov 2026, of "shop" taken as a name and
+           "i mean I want to shop" as a mobile number: "chat is still not smart
+           enough"): an answer that does not fit the question and names
+           something else PFA offers is not an answer. Said plainly ("I mean
+           I want to shop", "actually, donate"), the chat goes there at once;
+           only the name of it ("shop" for a name), it asks first. */
+        if (!tapped && f && f.type !== 'address') {
+          var said0 = N.normalise(s);
+          /* where a few sentences are asked for, "I want to help this dog" is
+             the answer: only a plain correction leaves ("instead", "I mean") */
+          var free = f.type === 'long' || f.type === 'text';
+          var fits = free ? !(CHANGE_PLAIN.test(said0) && N.tokens(s).length <= 10) : changeFits(s, f);
+          var wish = N.intentOf(s)[0];
+          var toFlow = wish && INTENT_TO[wish.id];
+          if (!fits && toFlow && toFlow !== S.flow && toFlow !== 'helpdesk') {
+            if (CHANGE_MIND.test(said0)) {
+              var leaving = titleOf(S.flow, lang());
+              /* the form left behind, so nothing typed next answers it */
+              S.flow = ''; S.phase = 'menu'; S.step = 0; S.data = {}; S.addr = null; S.editing = false;
+              var gone = begin(toFlow, s);
+              gone.messages.unshift(msg(t('leftForm', lang(), { what: leaving })));
+              return gone;
+            }
+            S.offerSwitch = toFlow; S.switchText = s;
+            return out([msg(t('switchTo', lang(), { here: titleOf(S.flow, lang()), what: titleOf(toFlow, lang()) }), { chips: [{ label: titleOf(toFlow, lang()), value: '#switch' }, { label: t('keepGoing', lang()), value: '#stay' }] })]);
+          }
+          /* a sentence is not a name ("take me to the shop") */
+          if (f.type === 'name' && !fits) return out([msg(lang() === 'hi' ? 'कृपया अपना पूरा नाम लिखें, जैसे आशा राव।' : 'Please give your full name, like Asha Rao.')]);
+        }
         /* a clear wish for something else, while a short answer was asked
            for: offer to switch rather than read it as the answer */
         if (!tapped && f && /^(choice|yesno|consent|amount|date|mobile|email|reference|contact|multi)$/.test(f.type) && N.tokens(s).length >= 3) {
@@ -1782,7 +1890,7 @@
           var wantFlow = want && want.score >= 2 && INTENT_TO[want.id];
           if (wantFlow && wantFlow !== S.flow) {
             S.offerSwitch = wantFlow; S.switchText = s;
-            return out([msg(t('switchTo', lang(), { what: titleOf(wantFlow, lang()).toLowerCase() }), { chips: [{ label: titleOf(wantFlow, lang()), value: '#switch' }, { label: t('keepGoing', lang()), value: '#stay' }] })]);
+            return out([msg(t('switchTo', lang(), { here: titleOf(S.flow, lang()), what: titleOf(wantFlow, lang()) }), { chips: [{ label: titleOf(wantFlow, lang()), value: '#switch' }, { label: t('keepGoing', lang()), value: '#stay' }] })]);
           }
         }
         if (!tapped && f) { var said2 = aside(s, f); if (said2) return said2; }
@@ -1828,9 +1936,16 @@
         S.phase = 'menu'; S.flow = '';
         return out([msg(lang() === 'hi' ? 'PFA की ' + nStates + ' राज्यों में ' + ul.length + ' यूनिट हैं। अपना शहर या PIN कोड बताएँ, मैं सबसे पास की यूनिट बताऊँगा।' : 'PFA has ' + ul.length + ' units in ' + nStates + ' states. Tell me your town or PIN code and I will give you the nearest.', { links: [{ label: t('allUnits', lang()), href: 'units.html' }], chips: [chip('nearby', lang()), { label: t('menuChip', lang()), value: '#menu' }] })]);
       }
+      /* what PFA taught it, first: a person's answer is the latest word */
+      var learnt = taughtOf(s, taughtNow(), (!top || { question: 1, greet: 1, thanks: 1 }[top.id] || ASKING.test(s)) ? 1 : 2);
+      if (learnt) {
+        S.phase = 'menu'; S.flow = ''; S.answered = s;
+        var lk = learnt.link ? [{ label: lang() === 'hi' ? 'और पढ़ें' : 'Read more', href: learnt.link }] : [];
+        return out([msg(learnt.answer, { links: lk, chips: [{ label: t('menuChip', lang()), value: '#menu' }] })], { taught: 1 });
+      }
       /* a question with a straight answer gets it, in one line */
       var fact = factOf(s, top && top.id);
-      if (fact) return answer(fact);
+      if (fact) { var said1 = answer(fact); S.answered = s; return said1; }
       /* a unit's town or state, said on its own or with "pfa", "unit",
          "contact" (22 Nov 2026: "pfa pune", "ahmedabad", "unit in gujarat"):
          the units there, not a search */
@@ -2362,5 +2477,5 @@
       strong: terms.length >= 2 && (best.byHead || best.textCover >= 0.9), byHead: Boolean(best.byHead) };
   }
 
-  return { createSession: createSession, unitsNear: unitsNear, placeIn: placeIn, passageOf: passageOf, nameLike: nameLike, peopleOf: peopleOf, sameName: sameName, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
+  return { createSession: createSession, unitsNear: unitsNear, placeIn: placeIn, passageOf: passageOf, taughtOf: taughtOf, nameLike: nameLike, peopleOf: peopleOf, sameName: sameName, FACTS: FACTS, factOf: factOf, FLOWS: FLOWS, FIELDS: F, OPTIONS: O, PAGES: PAGES, MENU: MENU, MORE: MORE, T: T };
 }));

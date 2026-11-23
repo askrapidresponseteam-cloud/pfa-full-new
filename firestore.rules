@@ -77,6 +77,7 @@ service cloud.firestore {
     match /letters/{id}               { allow read, write: if false; }
     /* the signature collection: sealed, and the server's alone (lib/signature-vault.js) */
     match /signatureVault/{id}        { allow read, write: if false; }
+    match /chatLearn/{id}             { allow read, write: if false; }
     match /digitalCards/{id}          { allow read, write: if false; }
     match /digitalCardIds/{id}        { allow read, write: if false; }
     match /finance_reports/{id}       { allow read, write: if false; }
