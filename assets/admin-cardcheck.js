@@ -37,6 +37,12 @@
 
   var style = document.createElement('style');
   style.textContent = [
+    /* the card in a case's drawer: the whole row, at a card's width, never
+       narrow enough to stand upright (owner, 23 Nov 2026: "it should be the
+       one that you see under caregivers tab ... not vertical like this..it
+       is the credit card style layout") */
+    '.preview.ccx-wide{grid-template-columns:minmax(520px,620px);overflow-x:auto}',
+    '.preview.ccx-wide .cardbtn{cursor:pointer}',
     '.ccx{position:fixed;inset:0;z-index:90;background:var(--paper,#fff);display:flex;flex-direction:column;overflow:hidden}',
     '.ccx[hidden]{display:none}',
     '.ccx__bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:16px clamp(16px,3vw,40px);border-bottom:1px solid var(--line)}',
@@ -568,14 +574,29 @@
      hidden. data: { kind, name, number, district, state, validUntil, photo } */
   function inPlaceOf(canvas, data) {
     if (!canvas || !canvas.parentNode) return Promise.resolve();
-    var box = canvas.nextElementSibling && canvas.nextElementSibling.classList.contains('ccx-new') ? canvas.nextElementSibling : null;
+    /* drawn again (once the photograph arrives) in the same box: the card
+       renders its own class over ccx-new, so the box is known by a mark of
+       its own, or a second card stood under the first (23 Nov 2026) */
+    var next = canvas.nextElementSibling;
+    var box = next && (next.hasAttribute('data-ccx-new') || next.classList.contains('ccx-new')) ? next : null;
     if (!box) {
       box = document.createElement('div');
       box.className = 'dc ccx-new';
+      box.setAttribute('data-ccx-new', '');
       canvas.parentNode.insertBefore(box, canvas.nextSibling);
     }
     canvas.hidden = true;
     canvas.style.display = 'none';
+    /* in a case's drawer the old front-and-back pair gives way to the one
+       card, which turns over by itself: its row whole, no empty Back */
+    var grid = canvas.closest && canvas.closest('.preview');
+    if (grid) {
+      grid.classList.add('ccx-wide');
+      var mine = canvas.closest('figure');
+      Array.prototype.forEach.call(grid.children, function (el) { if (el.tagName === 'FIGURE' && el !== mine) el.hidden = true; });
+      var cap = mine && mine.querySelector('figcaption');
+      if (cap) cap.hidden = true;
+    }
     var card = Object.assign({ standing: 'valid', valid: true, url: '' }, data, { photo: undefined });
     return draw(box, card, data.photo || '');
   }

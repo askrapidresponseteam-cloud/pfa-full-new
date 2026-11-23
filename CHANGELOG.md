@@ -1,3 +1,12 @@
+## v1.629
+
+- **Application drawer: one landscape card, photo clear of the title; Certificates and letters.** Owner, 23 Nov 2026.
+  - "it should be the one that you see under caregivers tab ... not vertical like this..it is the credit card style layout": a colony caregiver application's drawer showed the card upright, because its preview was half a row wide and the card stands upright below 520px. It now has the whole row, at a card's width, so it is the same landscape card as in Check the cards. The empty Back beside it is gone; the card turns over by itself.
+  - The drawer also showed the card twice, one above the other: drawn again once the photograph arrived, it made a second card instead of replacing the first. Now it replaces it.
+  - "ensure that the photo border is not too close to title above- in any situation": on the online cards the photograph is now as tall as its row and no taller, with a clear gap under COLONY CAREGIVER CARD at every size (about 30 to 40px on a desktop). On a phone, where the photograph stands beside the title, nothing changed.
+  - "how is it still certificates and not certificates and letters": the panel's section is now called Certificates and letters, in the menu, its heading, the panel search and the list of what an admin may open.
+- Also in this build: v1.628 (emails in a case look as in Gmail) and earlier.
+
 ## v1.628
 
 - **Emails in a case look as they do in Gmail.** Owner, 23 Nov 2026: "can the emails look/render like how they render within mailbox/gmail.. right now looks like lines?"

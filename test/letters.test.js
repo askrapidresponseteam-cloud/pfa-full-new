@@ -268,7 +268,7 @@ test('the signature, the seal and the letterhead are never public; the panel has
   assert.ok(fs.existsSync(path.join(ROOT, 'lib/report-fonts/OFL-Liberation.txt')), 'Liberation Sans\'s licence travels with it');
 
   const admin = read('admin.html');
-  assert.match(admin, /certificates: \{ title: 'Certificates', module: 'certificates', needs: 'certificates', panes: \['certificates', 'letters'\] \}/);
+  assert.match(admin, /certificates: \{ title: 'Certificates and letters', module: 'certificates', needs: 'certificates', panes: \['certificates', 'letters'\] \}/);
   assert.match(admin, /letters: \{ title: 'Letter studio', module: 'letters', needs: 'letters' \}/);
   assert.match(admin, /<div class="pane" data-pane="letters" role="region" aria-label="Letter studio">/);
   assert.match(admin, /if \(tab === 'letters'\) return window\.PFALetters && window\.PFALetters\.pane\(\);/);

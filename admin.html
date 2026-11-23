@@ -779,7 +779,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="birthdays">Birthdays<span class="pip" id="pipBirthdays" hidden>0</span></button>
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
-      <button class="tab" type="button" data-tab="certificates">Certificates</button>
+      <button class="tab" type="button" data-tab="certificates">Certificates and letters</button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="gifts">Seasonal gifts</button>
       <button class="tab" type="button" data-tab="analytics">Analytics</button>
@@ -907,7 +907,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="shelters" role="region" aria-label="Shelter directory"><div class="loading">Reading the shelter directory&#8230;</div></div>
     <!-- Certificates, every kind (16 Nov 2026: their own section, not under
          Internship). Filled by certificatesPane(); drawn by assets/certificate.js. -->
-    <div class="pane" data-pane="certificates" role="region" aria-label="Certificates"><div class="loading">Reading the certificates&#8230;</div></div>
+    <div class="pane" data-pane="certificates" role="region" aria-label="Certificates and letters"><div class="loading">Reading the certificates&#8230;</div></div>
     <div class="pane" data-pane="letters" role="region" aria-label="Letter studio"><div class="loading">Opening the Letter studio&#8230;</div></div>
 
     <div class="pane" data-pane="payments">
@@ -1400,7 +1400,7 @@ window.addEventListener('unhandledrejection', function (event) {
     internship:  { title: 'Internship',    module: 'internship',  needs: 'internship', panes: ['internship', 'interns', 'shelters'] },
     interns:     { title: 'Interns',       module: 'internship',  needs: 'internship' },
     shelters:    { title: 'Shelter directory', module: 'internship', needs: 'internship' },
-    certificates: { title: 'Certificates', module: 'certificates', needs: 'certificates', panes: ['certificates', 'letters'] },
+    certificates: { title: 'Certificates and letters', module: 'certificates', needs: 'certificates', panes: ['certificates', 'letters'] },
     letters: { title: 'Letter studio', module: 'letters', needs: 'letters' },
     cards:       { title: 'Print and post', module: 'cards',      needs: 'caregivers' },
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
@@ -4345,7 +4345,7 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Caregivers', line: 'Colony caregivers, their cards and numbers', tab: 'caregivers', words: 'caregiver carer cards colony cct number' },
     { title: 'Members', line: 'Every member, their number and card', tab: 'membership', words: 'members membership number card register patron' },
     { title: 'Internship', line: 'Interns given an ID, their work and shelters', tab: 'internship', words: 'interns internship shelters batch' },
-    { title: 'Certificates', line: 'Internship, volunteer, participation, recognition and donor certificates', tab: 'certificates', words: 'certificates certificate internship completion volunteer appreciation participation camp event recognition award donor issue withdraw' },
+    { title: 'Certificates and letters', line: 'Internship, volunteer, participation, recognition and donor certificates, and letters', tab: 'certificates', words: 'certificates certificate internship completion volunteer appreciation participation camp event recognition award donor issue withdraw' },
     { title: 'Live chat', line: 'Answer visitors on the site\u2019s chat', tab: 'livechat', words: 'live chat visitors online available talk person reply help desk' },
     { title: 'Job applicants', line: 'Applications from the careers page', tab: 'employees', words: 'jobs careers applicants applications hiring posts vacancies' },
     { title: 'Find a card', line: 'Any card by its number: the public check, the card studio, the register', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid find' },

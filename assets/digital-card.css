@@ -42,7 +42,7 @@
 @media (hover:hover){.dc__stage:hover .dc__turn{transform:translateY(-4px)}.dc[data-side="back"] .dc__stage:hover .dc__turn{transform:translateY(-4px) rotateY(180deg)}}
 
 /* ---- the front ---- */
-.dc__front{display:grid;grid-template-columns:minmax(0,1fr) 27%;grid-template-rows:auto minmax(0,1fr) auto;column-gap:4.5cqw;padding:4.6cqw 5.2cqw 4cqw}
+.dc__front{display:grid;grid-template-columns:minmax(0,1fr) 27%;grid-template-rows:auto minmax(0,1fr) auto;column-gap:4.5cqw;row-gap:2.8cqw;padding:4.6cqw 5.2cqw 4cqw}
 .dc__top{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:3cqw}
 .dc__logo{flex:none;display:block;width:15.5cqw}
 .dc__logo img{display:block;width:100%;height:auto;image-rendering:auto}
@@ -58,7 +58,11 @@
 /* a card number on its own (no date yet, before issue) takes the whole row and never breaks */
 .dc__grid>:only-child{grid-column:1/-1}
 .dc__grid>:only-child .dc__val--id{white-space:nowrap}
-.dc__photo{grid-column:2;grid-row:2;align-self:center;aspect-ratio:3/4;width:100%;border-radius:2.4cqw;overflow:hidden;background:rgba(255,255,255,.6);border:max(2px,.45cqw) solid #fff;box-shadow:0 0 0 1px rgba(11,31,58,.14),0 10px 24px -12px rgba(0,0,0,.4)}
+/* the photograph as tall as its row and no taller, so it never comes up
+   against the card's title, whatever the card's size (owner, 23 Nov 2026:
+   "ensure that the photo border is not too close to title above- in any
+   situation"); the row gap keeps it clear of the title */
+.dc__photo{grid-column:2;grid-row:2;align-self:stretch;justify-self:end;aspect-ratio:3/4;height:100%;width:auto;max-width:100%;border-radius:2.4cqw;overflow:hidden;background:rgba(255,255,255,.6);border:max(2px,.45cqw) solid #fff;box-shadow:0 0 0 1px rgba(11,31,58,.14),0 10px 24px -12px rgba(0,0,0,.4)}
 .dc__photo img{display:block;width:100%;height:100%;object-fit:cover}
 .dc__photo i{display:grid;place-items:center;height:100%;font-style:normal;font-size:max(10px,1.8cqw);letter-spacing:.2em;color:var(--soft)}
 .dc__foot{grid-column:1 / -1;display:flex;align-items:flex-end;justify-content:space-between;gap:3cqw;margin-top:2.4cqw}
@@ -97,7 +101,8 @@
   .dc__title{text-align:left}
   .dc__title b{font-size:max(16px,5.6cqw);line-height:1.15}
   .dc__title span{font-size:max(10px,2.8cqw)}
-  .dc__photo{grid-column:2;grid-row:1;align-self:start;width:34cqw;border-radius:4cqw}
+  .dc__front{row-gap:0}
+  .dc__photo{grid-column:2;grid-row:1;align-self:start;justify-self:auto;width:34cqw;height:auto;max-width:none;border-radius:4cqw}
   .dc__body{grid-column:1 / -1;grid-row:2;align-self:center;padding-top:4cqw}
   .dc__lab{font-size:max(10px,3cqw)}
   .dc__name{font-size:calc(max(22px,8.6cqw) * var(--fit,1))}

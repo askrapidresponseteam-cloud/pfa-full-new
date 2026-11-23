@@ -121,14 +121,14 @@ test('the panel: a Certificates section that draws, issues, downloads and withdr
   /* A section of its own (owner, 16 Nov 2026: "having all kinds of
      certificates under internship is not sensible"): every kind, not under
      Internship; an intern's record opens it with their details filled in */
-  assert.match(html, /<button class="tab" type="button" data-tab="certificates">Certificates<\/button>/);
+  assert.match(html, /<button class="tab" type="button" data-tab="certificates">Certificates and letters<\/button>/);
   assert.match(html, /internship:\s+\{ title: 'Internship',\s+module: 'internship',\s+needs: 'internship', panes: \['internship', 'interns', 'shelters'\] \}/);
-  assert.match(read('lib/admin-modules.js'), /key: 'certificates', label: 'Certificates'/);
+  assert.match(read('lib/admin-modules.js'), /key: 'certificates', label: 'Certificates and letters'/);
   assert.match(read('assets/admin-internship.js'), /data-ix-cert>Issue the certificate<\/button>/);
   assert.match(read('assets/admin-internship.js'), /window\.PFACertPane\.prefill\(\{ kind: 'internship', name: who\.name, email: who\.email, startDate: who\.startsOn \|\| '', endDate: who\.endsOn \|\| '' \}\);\s+A\.show\('certificates'\);/);
   assert.match(html, /<script src="assets\/certificate\.js\?v=[a-f0-9]{10}"><\/script>/);
   /* with the Letter studio beside it since 20 Nov 2026 (test/letters.test.js) */
-  assert.match(html, /certificates: \{ title: 'Certificates', module: 'certificates', needs: 'certificates', panes: \['certificates', 'letters'\] \}/);
+  assert.match(html, /certificates: \{ title: 'Certificates and letters', module: 'certificates', needs: 'certificates', panes: \['certificates', 'letters'\] \}/);
   /* the pane itself, in its own file since 15 Nov 2026 (the panel's weight ceiling) */
   assert.match(html, /<script src="assets\/admin-cert-pane\.js"><\/script>/);
   assert.match(html, /function certificatesPane\(said\) \{ return window\.PFACertPane \? window\.PFACertPane\.open\(said\) : undefined; \}/);
