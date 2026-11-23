@@ -1,3 +1,13 @@
+## v1.628
+
+- **Emails in a case look as they do in Gmail.** Owner, 23 Nov 2026: "can the emails look/render like how they render within mailbox/gmail.. right now looks like lines?"
+  - An email that comes in is now kept with its HTML, and the panel draws it as the person's mail program wrote it: their fonts, bold and colours, links, tables, signature and pictures.
+  - What they quoted back (Gmail's "On ... wrote:" and PFA's email under it) is folded behind a ... button, as in Gmail, and opens in place under it, drawn as it was sent.
+  - Made safe first: no scripts, forms, embedded pages or click handlers; the frame it is drawn in runs no script at all. Links open in a new tab. Pictures from the web load without telling their server which page asked; a picture carried inside the email is among its files, as before.
+  - Emails that came in before this build were kept as text only, so they still read as text, but tidier: only the new words, links that work, and the quote folded behind the same ... button instead of the whole email repeated underneath.
+  - A reply whose "On ..., People for Animals <info@...> wrote:" line was wrapped over two lines by Gmail is now trimmed at that line.
+- Also in this build: v1.627 (no top bar, no YouTube) and earlier.
+
 ## v1.627
 
 - **No announcement bar on any page.** Owner, 23 Nov 2026: "remove the top bar like every drive camp etc.. we dont need that section/bar to appear on any page".

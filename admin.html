@@ -3396,8 +3396,8 @@ window.addEventListener('unhandledrejection', function (event) {
             : '<span class="detail">' + esc(f.filename) + ' (not kept' + (f.why ? ': ' + esc(f.why) : '') + ')</span>';
         }).join('') + '</div>';
       }
-      var full = m.direction === 'in' && m.fullText && m.fullText !== m.text
-        ? '<details><summary>Show the quoted text</summary><p>' + esc(m.fullText) + '</p></details>' : '';
+      var full = m.direction === 'in' && window.PFAMail ? window.PFAMail.view(m) : '';
+      if (full) body = '';
       items.push({ at: at, seq: m.seq, k: k, head: head, body: body, extra: files + full });
     });
     (c.history || []).forEach(function (h) {

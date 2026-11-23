@@ -627,3 +627,14 @@
 
   window.PFAViewer = { open: open, close: close };
 }());
+
+/* An email in a case, drawn as a mail program draws it (assets/admin-mail.js,
+   owner, 23 Nov 2026), loaded with the viewer so admin.html stays under its
+   page-weight ceiling. */
+(function () {
+  if (window.PFAMail || document.querySelector('script[data-pfa-mail]')) return;
+  var js = document.createElement('script');
+  js.src = 'assets/admin-mail.js';
+  js.setAttribute('data-pfa-mail', '');
+  document.head.appendChild(js);
+}());
