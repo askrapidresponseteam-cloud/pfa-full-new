@@ -146,6 +146,8 @@ input,button,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .ph-series__head{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;flex-wrap:wrap;margin:0 0 6px}
 .ph-series__head h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(24px,2.4vw,34px);line-height:1.2;color:var(--ink);overflow-wrap:anywhere}
 .ph-series__count{font-size:14px;color:var(--muted);white-space:nowrap}
+/* a group with no line under its heading keeps the same gap above its guides */
+.ph-series__head + .ph-guides{margin-top:clamp(18px,2vw,24px)}
 .ph-series__intro{margin:0 0 clamp(18px,2vw,24px);max-width:65ch;font-size:15px;line-height:1.6;color:var(--muted)}
 .ph-guides{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(24px,2.6vw,36px);margin:0;padding:0;list-style:none}
 .ph-card{display:grid;grid-template-columns:minmax(0,44%) minmax(0,1fr);gap:clamp(16px,1.7vw,24px);align-items:start;min-width:0}
@@ -570,22 +572,6 @@ if (root.document && root.document.head) apply(read());
           </li>
         </ol>
       </li>
-      <li class="ph-series" id="series-dogs">
-        <div class="ph-series__head"><h2>Guides about dogs</h2><span class="ph-series__count">1 guide</span></div>
-        <p class="ph-series__intro">From pet parents, caregivers and vets who have been through it.</p>
-        <ol class="ph-guides">
-          <li class="ph-card" id="note-pfa-rabies">
-            <a class="ph-cover ph-cover--page" href="rabies.html" aria-label="Read Rabies: the facts"><img src="media/med-notes/rabies-cover-v3.webp" alt="Cover of Rabies: the facts" width="900" height="1130" loading="lazy" decoding="async"></a>
-            <div class="ph-card__bd">
-              <p class="ph-card__part">Guide 04</p>
-              <h3 class="ph-card__title">Rabies: the facts</h3>
-              <p class="ph-card__by">People for Animals &middot; From the World Health Organization</p>
-              <p class="ph-card__sum">What to do after a bite, the three kinds of contact and their treatment, the vaccine and its schedules, signs in dogs and in people, preventing bites, and why vaccinating dogs ends rabies. From the World Health Organization, with links to every source.</p>
-              <p class="ph-card__acts"><a class="btn" href="rabies.html">Read guide</a><a class="ph-card__get" href="media/med-notes/rabies.pdf" download>Download PDF <small>(1.6 MB)</small></a></p>
-            </div>
-          </li>
-        </ol>
-      </li>
       <li class="ph-series" id="series-cows">
         <div class="ph-series__head"><h2>Guides about cows</h2><span class="ph-series__count">1 guide</span></div>
         <p class="ph-series__intro">From pet parents, caregivers and vets who have been through it.</p>
@@ -598,6 +584,21 @@ if (root.document && root.document.head) apply(read());
               <p class="ph-card__by">Milosz Wozniak, Guwahati &middot; Animal activist</p>
               <p class="ph-card__sum">Why and how dairy cows are dehorned, the pain of it, what the 2023 Rules now require (a registered vet and anaesthesia), the offences that apply, and what you can do in your district.</p>
               <p class="ph-card__acts"><button class="btn" type="button" data-read="pfa-dehorning-cows">Read guide</button><a class="ph-card__get" href="media/med-notes/dehorning-cows.pdf" download>Download PDF <small>(37 KB)</small></a></p>
+            </div>
+          </li>
+        </ol>
+      </li>
+      <li class="ph-series" id="series-dogs">
+        <div class="ph-series__head"><h2>Guides about dogs</h2><span class="ph-series__count">1 guide</span></div>
+        <ol class="ph-guides">
+          <li class="ph-card" id="note-pfa-rabies">
+            <a class="ph-cover ph-cover--page" href="rabies.html" aria-label="Read Rabies: the facts"><img src="media/med-notes/rabies-cover-v3.webp" alt="Cover of Rabies: the facts" width="900" height="1130" loading="lazy" decoding="async"></a>
+            <div class="ph-card__bd">
+              <p class="ph-card__part">Guide 04</p>
+              <h3 class="ph-card__title">Rabies: the facts</h3>
+              <p class="ph-card__by">People for Animals &middot; From the World Health Organization</p>
+              <p class="ph-card__sum">What to do after a bite, the three kinds of contact and their treatment, the vaccine and its schedules, signs in dogs and in people, preventing bites, and why vaccinating dogs ends rabies. From the World Health Organization, with links to every source.</p>
+              <p class="ph-card__acts"><a class="btn" href="rabies.html">Read guide</a><a class="ph-card__get" href="media/med-notes/rabies.pdf" download>Download PDF <small>(1.6 MB)</small></a></p>
             </div>
           </li>
         </ol>
@@ -918,12 +919,22 @@ if (root.document && root.document.head) apply(read());
       if (!at[key]) { at[key] = { s: s, animal: n.animal || '', notes: [] }; groups.push(at[key]); }
       at[key].notes.push(n);
     });
-    groups.sort(function (a, b) { return (a.s ? 0 : 1) - (b.s ? 0 : 1); });
+    /* in the order of the guides' numbers: Guides 01 and 02, then 03, then 04
+       (owner, 23 Nov 2026: "04 is before 03"); a group with no numbered guide
+       (one sent through the page) after them, series before the rest */
+    var numOf = function (n) { return Number(n.number) || (n.series && Number(n.part)) || 0; };
+    var firstOf = function (g) { var m = g.notes.map(numOf).filter(Boolean); return m.length ? Math.min.apply(null, m) : 999; };
+    groups.forEach(function (g) { if (!g.s) g.notes.sort(function (a, b) { return (numOf(a) || 999) - (numOf(b) || 999); }); });
+    groups.sort(function (a, b) { return firstOf(a) - firstOf(b) || (a.s ? 0 : 1) - (b.s ? 0 : 1); });
     var first = true;
     list.innerHTML = groups.map(function (g) {
       if (g.s) g.notes.sort(function (a, b) { return (a.part || 99) - (b.part || 99); });
       var name = g.s ? g.s.name : g.animal ? 'Guides about ' + g.animal.toLowerCase() : 'More guides';
-      var intro = g.s ? g.s.intro : 'From pet parents, caregivers and vets who have been through it.';
+      /* only over guides someone sent in: never over PFA's own (owner, 23 Nov
+         2026: "rabies guide is not from pet parent.. so skip that line for
+         pfa published items") */
+      var theirs = g.notes.some(function (n) { return !/^people for animals$/i.test(String(n.credit || '').trim()); });
+      var intro = g.s ? g.s.intro : theirs ? 'From pet parents, caregivers and vets who have been through it.' : '';
       return '<li class="ph-series" id="series-' + esc(g.s ? g.s.id : (g.animal || 'more').toLowerCase()) + '">'
         + '<div class="ph-series__head"><h2>' + esc(name) + '</h2><span class="ph-series__count">' + g.notes.length + (g.notes.length === 1 ? ' guide' : ' guides') + '</span></div>'
         + (intro ? '<p class="ph-series__intro">' + esc(intro) + '</p>' : '')

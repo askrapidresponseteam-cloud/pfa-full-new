@@ -51,6 +51,36 @@
       "cover": "media/med-notes/glucose-meters-for-dogs-cover-v2.webp"
     },
     {
+      "id": "dehorning-cows",
+      "title": "Dehorning in cattle: pain and the law",
+      "summary": "Why and how dairy cows are dehorned, the pain of it, what the 2023 Rules now require (a registered vet and anaesthesia), the offences that apply, and what you can do in your district.",
+      "animal": "Cows",
+      "role": "Animal activist",
+      "credit": "Milosz Wozniak, Guwahati",
+      "sources": "the PCA Act 1960, the Animal Husbandry Practices and Procedures Rules 2023, the Bharatiya Nyaya Sanhita 2023",
+      "at": "2026-11-22",
+      "files": [
+        {
+          "src": "media/med-notes/dehorning-cows.pdf",
+          "type": "application/pdf",
+          "size": 38241,
+          "label": "One page, PDF"
+        }
+      ],
+      "cover": "media/med-notes/dehorning-cows-cover-v2.webp",
+      "points": [
+        "Nearly all cows used for milk are born with tissue that grows into horns. Farmers remove it, or the horns, with searing-hot irons, caustic chemicals, blades or handsaws, so the cow cannot hit them and takes less space in the shed and on the truck.",
+        "Dehorning is usually done without painkillers. The pain is severe, lasts for hours and can become chronic. Calves are often a few weeks old when their horn buds are burned or cut out.",
+        "In older cows the horn has to be amputated, which can lead to haemorrhage, necrosis, broken bones, sinusitis, gangrene and even death. Castration rings (elastrators) are not acceptable for dehorning.",
+        "Who can dehorn a cow: since the Prevention of Cruelty to Animals (Animal Husbandry Practices and Procedures) Rules, 2023, notified on 21 March 2023, dehorning or disbudding cows and calves must be done by a registered veterinary practitioner, using general and local anaesthesia.",
+        "Dehorning a cow by burning or cutting without anaesthesia is a punishable offence: cruelty under Section 11 of the PCA Act 1960, and maiming an animal under BNS Section 325, which carries up to five years in jail, or a fine, or both.",
+        "A farmer with dehorned cows should be able to show which registered vet did it, including for cows he bought. Animals treated with cruelty can be seized and kept in a gaushala or infirmary while the case is heard.",
+        "What you can do: check dairy farms in your district, ask for the vet's record, photograph what you see, go to the police for an FIR naming BNS Section 325 and PCA Act Section 11, and tell PFA.",
+        "The lasting answer is to breed naturally hornless cows: a single gene decides whether a cow grows horns."
+      ],
+      "number": 3
+    },
+    {
       "id": "rabies",
       "title": "Rabies: the facts",
       "summary": "What to do after a bite, the three kinds of contact and their treatment, the vaccine and its schedules, signs in dogs and in people, preventing bites, and why vaccinating dogs ends rabies. From the World Health Organization, with links to every source.",
@@ -86,36 +116,6 @@
         "Vaccinating about 70% of the dogs in an area every year breaks the chain of rabies; culling dogs does not control rabies. Under the ABC Rules 2023 the municipality must vaccinate community dogs. World Rabies Day is 28 September.",
         "The rabies guide, Care Guide 04, Rabies: the facts, is a page on the site and an 11-page illustrated PDF to download, from the World Health Organization."
       ]
-    },
-    {
-      "id": "dehorning-cows",
-      "title": "Dehorning in cattle: pain and the law",
-      "summary": "Why and how dairy cows are dehorned, the pain of it, what the 2023 Rules now require (a registered vet and anaesthesia), the offences that apply, and what you can do in your district.",
-      "animal": "Cows",
-      "role": "Animal activist",
-      "credit": "Milosz Wozniak, Guwahati",
-      "sources": "the PCA Act 1960, the Animal Husbandry Practices and Procedures Rules 2023, the Bharatiya Nyaya Sanhita 2023",
-      "at": "2026-11-22",
-      "files": [
-        {
-          "src": "media/med-notes/dehorning-cows.pdf",
-          "type": "application/pdf",
-          "size": 38241,
-          "label": "One page, PDF"
-        }
-      ],
-      "cover": "media/med-notes/dehorning-cows-cover-v2.webp",
-      "points": [
-        "Nearly all cows used for milk are born with tissue that grows into horns. Farmers remove it, or the horns, with searing-hot irons, caustic chemicals, blades or handsaws, so the cow cannot hit them and takes less space in the shed and on the truck.",
-        "Dehorning is usually done without painkillers. The pain is severe, lasts for hours and can become chronic. Calves are often a few weeks old when their horn buds are burned or cut out.",
-        "In older cows the horn has to be amputated, which can lead to haemorrhage, necrosis, broken bones, sinusitis, gangrene and even death. Castration rings (elastrators) are not acceptable for dehorning.",
-        "Who can dehorn a cow: since the Prevention of Cruelty to Animals (Animal Husbandry Practices and Procedures) Rules, 2023, notified on 21 March 2023, dehorning or disbudding cows and calves must be done by a registered veterinary practitioner, using general and local anaesthesia.",
-        "Dehorning a cow by burning or cutting without anaesthesia is a punishable offence: cruelty under Section 11 of the PCA Act 1960, and maiming an animal under BNS Section 325, which carries up to five years in jail, or a fine, or both.",
-        "A farmer with dehorned cows should be able to show which registered vet did it, including for cows he bought. Animals treated with cruelty can be seized and kept in a gaushala or infirmary while the case is heard.",
-        "What you can do: check dairy farms in your district, ask for the vet's record, photograph what you see, go to the police for an FIR naming BNS Section 325 and PCA Act Section 11, and tell PFA.",
-        "The lasting answer is to breed naturally hornless cows: a single gene decides whether a cow grows horns."
-      ],
-      "number": 3
     }
   ]
 }

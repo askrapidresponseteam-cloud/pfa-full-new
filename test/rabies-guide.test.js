@@ -93,7 +93,11 @@ test('the card: Guide 04, its cover, Read guide opens the page', () => {
   assert.equal(webp.toString('latin1', 8, 12), 'WEBP');
   assert.ok(!fs.existsSync(path.join(ROOT, 'media/med-notes/rabies-cover-v2.webp')));
   const ph = read('pet-health.html');
-  assert.match(ph, /<li class="ph-series" id="series-dogs">[\s\S]*?<p class="ph-card__part">Guide 04<\/p>[\s\S]*?<a class="btn" href="rabies\.html">Read guide<\/a>[\s\S]*?<li class="ph-series" id="series-cows">/);
+  /* in number order (owner, 23 Nov 2026: "04 is before 03"), and no "from pet
+     parents" line over PFA's own guide */
+  assert.match(ph, /<li class="ph-series" id="series-cows">[\s\S]*?Guide 03[\s\S]*?<li class="ph-series" id="series-dogs">\s*<div class="ph-series__head"><h2>Guides about dogs<\/h2><span class="ph-series__count">1 guide<\/span><\/div>\s*<ol class="ph-guides">[\s\S]*?<p class="ph-card__part">Guide 04<\/p>[\s\S]*?<a class="btn" href="rabies\.html">Read guide<\/a>/);
+  assert.match(ph, /groups\.sort\(function \(a, b\) \{ return firstOf\(a\) - firstOf\(b\)/);
+  assert.match(ph, /var intro = g\.s \? g\.s\.intro : theirs \? 'From pet parents, caregivers and vets who have been through it\.' : '';/);
   assert.match(ph, /\(pageOf\(n\) \? '<a class="btn" href="' \+ esc\(pageOf\(n\)\) \+ '">Read guide<\/a>'/);
   assert.match(ph, /if \(n && pageOf\(n\)\) \{ location\.href = pageOf\(n\); return; \}/, 'a link to the guide in the list opens its page');
 });

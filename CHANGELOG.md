@@ -1,3 +1,10 @@
+## v1.625
+
+- **Care Guides in number order, and no "from pet parents" line over PFA's own guides.** Owner, 23 Nov 2026.
+  - "04 is before 03": the groups follow their guides' numbers, so Guides 01 and 02 (diabetes) come first, then 03 (cows), then 04 (dogs). Guides sent through the page, which have no number, come after.
+  - "rabies guide is not from pet parent.. so skip that line for pfa published items": the line "From pet parents, caregivers and vets who have been through it." shows only over a group with a guide someone sent in, never over one of PFA's own. The heading keeps the same space above its guides.
+- Also in this build: v1.624 (the owner's illustrated rabies PDF, cover and photographs) and earlier.
+
 ## v1.624
 
 - **Care Guide 04 (Rabies): the owner's illustrated PDF and cover, and their photographs on the page.** Owner, 23 Nov 2026.
