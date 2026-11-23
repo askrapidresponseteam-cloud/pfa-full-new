@@ -1,3 +1,16 @@
+## v1.627
+
+- **No announcement bar on any page.** Owner, 23 Nov 2026: "remove the top bar like every drive camp etc.. we dont need that section/bar to appear on any page".
+  - The thin bar above the header is gone everywhere: "Every drive, camp and open day is free to attend", the home page's donation line, the shop's line and the Report page's (the Report page still says to call the police on 112 in its first section).
+  - The header now sits at the very top of every page, the 80 unit pages included, from the first moment the page shows, with no empty strip above it.
+  - Each page's line is kept in the header script, so the bar can be switched back on in one place.
+  - Site search: "world animal day" finds the CineKind awards (held that day) first, as before.
+- **No YouTube in the footer: PFA has no YouTube channel** (v1.626, in this build). Owner, 23 Nov 2026: "remove yt from footer as there is no yt channel".
+  - The footer on every page, the unit pages included, shows Instagram, Facebook and X.
+  - The channel is gone from what the site tells search engines about PFA, too.
+  - Asked about PFA on YouTube, the chat says PFA has no channel and names the three it is on; asked about Instagram, it no longer mentions YouTube at all.
+- Also in this build: v1.625 (Care Guides in number order) and earlier.
+
 ## v1.625
 
 - **Care Guides in number order, and no "from pet parents" line over PFA's own guides.** Owner, 23 Nov 2026.

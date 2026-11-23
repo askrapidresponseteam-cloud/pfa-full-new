@@ -87,7 +87,7 @@ function fontHead() {
 }
 
 const CSS = `
-:root{--paper:#fff;--ink:#111;--muted:#5f5f5f;--line:#e4e2df;--stone:#f5f4f1;--display:Marcellus,'Marcellus Fallback','Marcellus Fallback Times',Georgia,'Times New Roman',serif;--body:'Helvetica Neue',Helvetica,Arial,sans-serif;--ann:34px;--nav:81px;--gutter:max(clamp(16px,4vw,72px),(100% - 1440px) / 2)}
+:root{--paper:#fff;--ink:#111;--muted:#5f5f5f;--line:#e4e2df;--stone:#f5f4f1;--display:Marcellus,'Marcellus Fallback','Marcellus Fallback Times',Georgia,'Times New Roman',serif;--body:'Helvetica Neue',Helvetica,Arial,sans-serif;--ann:0px;--nav:81px;--gutter:max(clamp(16px,4vw,72px),(100% - 1440px) / 2)}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
 a{color:inherit}

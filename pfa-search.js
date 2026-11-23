@@ -169,7 +169,8 @@
     { t: 'CineKind Awards', s: 'Explore', y: 'page', u: 'cinekind.html',
       d: 'The award for cinema that moves a country towards kindness, and its honourees.',
       k: 'cinekind film films movie cinema award awards honourees ceremony',
-      q: ['cinekind', 'film award', 'awards', 'cinema', 'movie award'] },
+      /* the awards are held on World Animal Day, 4 October */
+      q: ['cinekind', 'film award', 'awards', 'cinema', 'movie award', 'world animal day'] },
     { t: 'Academy: animal healthcare made legible', s: 'Explore', y: 'page', u: 'academy.html',
       d: 'Ten modules on medicines, antibiotics, vaccines, antivenom, immunoglobulins, first aid and dosages, written for India and cited line by line.',
       k: 'academy learn course lessons module health healthcare medicine medicines medical veterinary animal care guide education training' },

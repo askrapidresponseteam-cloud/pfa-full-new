@@ -69,11 +69,12 @@ test('the header height is re-measured, not assumed', () => {
 });
 
 test('the check would catch a page that forgot', () => {
-  /* Every page has the bar now (sync-chrome stamps it), so the case is
-     simulated: take the bar out of quiz.html and the detector must see a
-     header pinned to --ann with nothing reserving that space. */
+  assert.ok(!/id="announce"/.test(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8')), 'no announcement bar on any page (owner, 23 Nov 2026)');
+  /* No page has the bar now (owner, 23 Nov 2026), so the case is simulated:
+     quiz.html as it would be had it kept the stylesheet's 34px reservation,
+     and the detector must see a header pinned to --ann with nothing there. */
   const html = fs.readFileSync(path.join(ROOT, 'quiz.html'), 'utf8');
-  const without = html.replace(/<div class="announce" id="announce"[\s\S]*?<\/div>\n/, '');
+  const without = html.replace(/<div class="announce" id="announce"[\s\S]*?<\/div>\n/, '').replace(/--ann:0px/g, '--ann:34px');
   const s = state(without);
   assert.equal(s.usesAnn, true);
   assert.equal(s.hasBar, false);

@@ -441,8 +441,11 @@
     { id: 'internTerms', over: ['internship'], need: [['fee', 'fees', 'cost', 'free', 'paid', 'stipend', 'salary', 'duration', 'long', 'weeks', 'age', 'eligible', 'eligibility', 'hours', 'kitna', 'kitne', 'शुल्क', 'कितना', 'उम्र'], ['intern', 'internship', 'इंटर्न']],
       say: { en: 'The remote internship is free to join and unpaid: 8 weeks, one task a week, 6 to 8 hours a week. Anyone in India aged 18 or over can apply; at 16 or 17, with a parent\'s consent.', hi: 'रिमोट इंटर्नशिप मुफ़्त है और इसमें भुगतान नहीं मिलता: 8 हफ़्ते, हर हफ़्ते एक काम, हफ़्ते में 6 से 8 घंटे। भारत में 18 या उससे ज़्यादा उम्र का कोई भी आवेदन कर सकता है; 16 या 17 की उम्र में माता-पिता की सहमति से।' },
       chip: 'internship' },
-    { id: 'social', need: [['instagram', 'facebook', 'twitter', 'youtube', 'social', 'insta']],
-      say: { en: 'PFA is on Instagram (@pfa.official), Facebook (people4animals), X (@pfaindia) and YouTube (@peopleforanimals9047).', hi: 'PFA इंस्टाग्राम (@pfa.official), फेसबुक (people4animals), X (@pfaindia) और यूट्यूब (@peopleforanimals9047) पर है।' } }
+    /* no YouTube channel (owner, 23 Nov 2026: "remove yt from footer as there is no yt channel"): asked, it says so */
+    { id: 'youtube', need: [['youtube', 'yt', 'यूट्यूब']],
+      say: { en: 'PFA does not have a YouTube channel. It is on Instagram (@pfa.official), Facebook (people4animals) and X (@pfaindia).', hi: 'PFA का कोई यूट्यूब चैनल नहीं है। PFA इंस्टाग्राम (@pfa.official), फेसबुक (people4animals) और X (@pfaindia) पर है।' } },
+    { id: 'social', need: [['instagram', 'facebook', 'twitter', 'social', 'insta']],
+      say: { en: 'PFA is on Instagram (@pfa.official), Facebook (people4animals) and X (@pfaindia).', hi: 'PFA इंस्टाग्राम (@pfa.official), फेसबुक (people4animals) और X (@pfaindia) पर है।' } }
   ];
   /* a question, said as one: "kya", "where is", "?" */
   var ASKING = /\?|\b(what|whats|who|whom|where|when|how|which|is|are|can|does|do|kya|kaun|kahan|kaha|kab|kaise|kitna|kitne)\b|क्या|कौन|कहाँ|कब|कैसे|कितना/i;

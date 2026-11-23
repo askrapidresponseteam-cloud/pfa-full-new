@@ -58,8 +58,7 @@ const ORG = {
   sameAs: [
     'https://www.facebook.com/people4animals/',
     'https://www.instagram.com/pfa.official/',
-    'https://x.com/pfaindia',
-    'https://www.youtube.com/@peopleforanimals9047'
+    'https://x.com/pfaindia'
   ]
 };
 

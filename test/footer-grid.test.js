@@ -55,7 +55,7 @@ test('five groups in the header\'s order, then the office, each a heading and wh
   /* the slim line under the headings: social media and the counter, then the legal line */
   const base = doc.querySelector('.pfa-footer__base');
   assert.ok(base.querySelector('#pfaTally[hidden] #pfaTallyOdo[aria-label="Visit counter"]'));
-  assert.deepEqual([...base.querySelectorAll('.pfa-footer__social a')].map((a) => a.textContent), ['Instagram', 'Facebook', 'X', 'YouTube']);
+  assert.deepEqual([...base.querySelectorAll('.pfa-footer__social a')].map((a) => a.textContent), ['Instagram', 'Facebook', 'X'], 'no YouTube: PFA has no channel (owner, 23 Nov 2026)');
   assert.equal(doc.querySelectorAll('.pfa-footer__social').length, 1, 'once');
   const group = (label) => [...doc.querySelector(`nav[aria-label="${label}"]`).querySelectorAll('a')].map((a) => a.textContent);
   assert.deepEqual(group('Get Involved'), ['Volunteer', 'Become a member', 'Colony caregiver card', 'PFA Campus', 'Remote internship', 'The Wall', 'Events and podcasts', 'CineKind']);

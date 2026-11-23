@@ -182,8 +182,13 @@ function tabsMarkup(page) {
 }
 const TABS_TAG = /[ \t]*<nav class="pfa-tabs"[\s\S]*?<\/nav>\n?/g;
 
+/* No announcement bar on any page (owner, 23 Nov 2026: "remove the top bar
+   like every drive camp etc.. we dont need that section/bar to appear on any
+   page"). The lines each page would carry stay in PAGES, so it comes back by
+   setting this to true. */
+const SHOW_BAR = false;
 function announceMarkup(text) {
-  if (!text) return '';
+  if (!SHOW_BAR || !text) return '';
   return '<div class="announce" id="announce" data-cursor="light">\n' +
     '  <p>' + text + '</p>\n' +
     '  <button type="button" aria-label="Close" id="annClose"></button>\n' +
@@ -432,7 +437,7 @@ function run({ check } = {}) {
   return stale;
 }
 
-module.exports = { applyChrome, renderChrome, visibilityScript, PAGES, ALERT, TABS, tabOf, run, assistStamp, ASSIST_FILES, certArtStamp, CERT_PAGES };
+module.exports = { SHOW_BAR, applyChrome, renderChrome, visibilityScript, PAGES, ALERT, TABS, tabOf, run, assistStamp, ASSIST_FILES, certArtStamp, CERT_PAGES };
 
 if (require.main === module) {
   const check = process.argv.includes('--check');
