@@ -108,6 +108,9 @@ test('the health check names the settings it has, never their values', async () 
     });
     const j = JSON.parse(out.body);
     assert.ok(j.settings.includes('CCAVENUE_USD_WORKING_KEY'));
+    /* the keys themselves are compared by a short fingerprint, never shown */
+    assert.match(j.keyPrints.usdWorkingKey, /^[0-9a-f]{4}$/);
+    assert.equal(j.keyPrints.workingKey === 'none' || /^[0-9a-f]{4}$/.test(j.keyPrints.workingKey), true);
     assert.ok(!out.body.includes('a-very-secret-value-123'), 'a value is never in the answer');
     assert.ok(['vercel', 'firebase', 'local'].includes(j.host));
     for (const name of handler.SETTINGS) assert.match(name, /^[A-Z0-9_]+$/);
@@ -134,4 +137,18 @@ test('an address not on the site gets the site\'s own page, with links that work
   assert.match(html, /<meta name="robots" content="noindex, follow">/);
   assert.match(html, /<h1[^>]*>This page is not here\.<\/h1>/);
   assert.ok(!/data-search-page/.test(html), 'not driven by the search page script');
+});
+
+test('a deploy can be handed a setting on its command line; only known names, never printed', () => {
+  const ship = read('scripts/ship.sh');
+  const set = ship.indexOf('node scripts/firebase-set-secrets.js || true');
+  assert.ok(set !== -1 && set < ship.indexOf('--only functions,hosting${PANEL_ONLY}'), 'stored before the function deploys, and never stops a release');
+  const src = read('scripts/firebase-set-secrets.js');
+  assert.ok(!/\$\{value\}|\{env\[k\]\}/.test(src), 'a value is never printed');
+  const lines = [];
+  const orig = console.log; console.log = (s) => lines.push(String(s));
+  try { require('../scripts/firebase-set-secrets.js').main({ PFA_SET_NOT_A_SETTING: 'x', PFA_SET_CCAVENUE_MERCHANT_ID: '' }); } finally { console.log = orig; }
+  assert.ok(lines.some((l) => /not a setting the site reads/.test(l)));
+  assert.ok(lines.some((l) => /CCAVENUE_MERCHANT_ID: empty/.test(l)));
+  assert.match(read('functions/index.js'), /CCAVENUE_MODE: 'production'/, 'live payments on Firebase, as on Vercel');
 });

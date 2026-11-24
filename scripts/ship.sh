@@ -438,6 +438,12 @@ step "The public website's own Hosting site on Firebase"
 PANEL_ONLY=":panel"
 if node scripts/firebase-site.js "$PROJECT" && [ -n "$(node scripts/firebase-site.js --name)" ]; then PANEL_ONLY=""; fi
 
+step "Settings handed to this deploy"
+# PFA_SET_<NAME>=value on the deploy's command line stores <NAME> in Firebase's
+# Secret Manager before the function deploys (scripts/firebase-set-secrets.js;
+# owner, 25 Nov 2026: one zip and one command). Names only are printed.
+node scripts/firebase-set-secrets.js || true
+
 step "Capping how many Hosting versions Firebase keeps"
 # Firebase keeps every version ever deployed, for ever, by default, and storage
 # is the sum of all of them. On 13 Oct 2026 this project was at 9.73 GB of the

@@ -1,3 +1,17 @@
+## v1.634
+
+- **One command deploys and hands Firebase the payment settings it still lacked.** Owner, 25 Nov 2026.
+  - "i cant do it in parts.. give me 1 zip and 1 cmd": a setting can be given to the deploy on its command line (PFA_SET_CCAVENUE_MERCHANT_ID=...), and is stored in Firebase before the server deploys. Only the name is ever printed.
+  - Payments on Firebase are live by default, as on Vercel (CCAVENUE_MODE production).
+- Also in this build: v1.633 (the move check compares CCAvenue's keys by fingerprint) and earlier.
+
+## v1.633
+
+- **The move check confirms Firebase holds exactly Vercel's CCAvenue keys.** Owner, 24 Nov 2026.
+  - The keys were copied from the old site's files, which may be older than the ones Vercel uses. Each server now gives a four character fingerprint of each CCAvenue key (never the key), and the check at the end of a deploy says whether they match, with the command to set any that does not.
+  - A payment that cannot start no longer tells a donor the service "needs to be configured in Vercel": it says payments cannot be taken just now and gives info@ to write to.
+- Also in this build: v1.632 (the website prepared on Firebase) and earlier.
+
 ## v1.632
 
 - **The website is ready to move to Firebase: deployed there too, checked, and switched only when READY.** Owner, 24 Nov 2026.

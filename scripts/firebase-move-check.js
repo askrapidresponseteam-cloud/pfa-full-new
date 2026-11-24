@@ -116,6 +116,12 @@ async function main() {
       if (SECRET.test(n)) fixes.push(`npx firebase-tools functions:secrets:set ${n} --project ${PROJECT}     (paste the value from Vercel > Settings > Environment Variables)`);
       else fixes.push(`add the line  ${n}=<the value in Vercel>  to ~/Desktop/PFA_Website/functions/.env`);
     }
+    /* CCAvenue's keys: the same values, compared by a fingerprint of each */
+    const vp = vh.keyPrints || {}, fp = fh.keyPrints || {};
+    const KEY_NAMES = { merchantId: 'CCAVENUE_MERCHANT_ID', accessCode: 'CCAVENUE_ACCESS_CODE', workingKey: 'CCAVENUE_WORKING_KEY', usdMerchantId: 'CCAVENUE_USD_MERCHANT_ID', usdAccessCode: 'CCAVENUE_USD_ACCESS_CODE', usdWorkingKey: 'CCAVENUE_USD_WORKING_KEY' };
+    const differ = Object.keys(KEY_NAMES).filter((k) => vp[k] && vp[k] !== 'none' && fp[k] && fp[k] !== 'none' && vp[k] !== fp[k]);
+    if (Object.keys(vp).length) say(differ.length === 0, differ.length ? `CCAvenue keys differ from Vercel's: ${differ.map((k) => KEY_NAMES[k]).join(', ')}` : 'CCAvenue\'s keys on Firebase are exactly the ones Vercel uses');
+    for (const k of differ) fixes.push(`npx firebase-tools functions:secrets:set ${KEY_NAMES[k]} --project ${PROJECT}     (the value Vercel uses; this one is different)`);
     say(vh.pepper === fh.pepper, `the same tracking key (PFA_AUTH_PEPPER) on both${vh.pepper === fh.pepper ? '' : ': copy Vercel\'s to Firebase'}`);
     if (vh.pepper !== fh.pepper) fixes.push(`npx firebase-tools functions:secrets:set PFA_AUTH_PEPPER --project ${PROJECT}     (the value from Vercel)`);
   }

@@ -29,6 +29,9 @@ const { onSchedule } = require('firebase-functions/v2/scheduler');
    would land on nothing. Change it here once the domain points at this site. */
 const DEFAULTS = {
   PFA_SMTP_USER: 'info@peopleforanimalsindia.org',
+  /* live payments, as on Vercel (25 Nov 2026, for the public website on
+     Firebase); 'test' in functions/.env sends them to CCAvenue's test host */
+  CCAVENUE_MODE: 'production',
   PUBLIC_SITE_URL: 'https://pfa-new-website.web.app'
 };
 for (const [key, value] of Object.entries(DEFAULTS)) {
