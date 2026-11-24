@@ -15,11 +15,14 @@ const assert = require('node:assert/strict');
 
 const ROOT = path.join(__dirname, '..');
 const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'firebase.json'), 'utf8'));
+/* two Hosting sites since 24 Nov 2026: the panel, and the public website */
+const hostingOf = (target) => [].concat(cfg.hosting).find((h) => h.target === target);
 const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
 
 test('hosting is never pointed at the repository root', () => {
-  assert.equal(cfg.hosting.public, 'public',
+  assert.equal(hostingOf('panel').public, 'public',
     'public must be the assembled directory, never "." \u2014 that publishes lib/ and api/');
+  assert.equal(hostingOf('site').public, 'site', 'the website is the assembled site/ directory, never "."');
 });
 
 test('every API route resolves from the path alone', () => {
@@ -40,20 +43,31 @@ test('every API route resolves from the path alone', () => {
 
 test('every route the router knows is reachable through the /api rewrite', () => {
   const { _private } = require('../api/index.js');
-  const rewrite = cfg.hosting.rewrites.find((r) => r.source === '/api/**');
-  assert.ok(rewrite && rewrite.function, 'no /api/** rewrite to the function');
+  for (const h of [].concat(cfg.hosting)) {
+    const rewrite = h.rewrites.find((r) => r.source === '/api/**');
+    assert.ok(rewrite && rewrite.function && rewrite.function.functionId === 'api', `no /api/** rewrite to the function on ${h.target}`);
+    assert.equal(h.rewrites[0].source, '/api/**', `the API is the first rewrite on ${h.target}`);
+  }
   for (const key of Object.keys(_private.ROUTES)) {
     assert.equal(_private.routeKey({ url: `/api/${key}`, query: {} }), key, `${key} is unreachable`);
   }
 });
 
 test('nothing from vercel.json was dropped in the port', () => {
-  for (const r of vercel.redirects) {
-    assert.ok(cfg.hosting.redirects.some((x) => x.source === r.source && x.destination === r.destination),
-      `redirect ${r.source} was not ported`);
+  for (const h of [].concat(cfg.hosting)) {
+    for (const r of vercel.redirects) {
+      assert.ok(h.redirects.some((x) => x.source === r.source && x.destination === r.destination),
+        `redirect ${r.source} was not ported to ${h.target}`);
+    }
+    assert.equal(h.headers.length, vercel.headers.length,
+      `a caching header rule was lost in the port to ${h.target}`);
   }
-  assert.equal(cfg.hosting.headers.length, vercel.headers.length,
-    'a caching header rule was lost in the port');
+  /* the website: clean addresses and every page rewrite, as on Vercel */
+  const site = hostingOf('site');
+  assert.equal(site.cleanUrls, vercel.cleanUrls, 'clean addresses, as on Vercel');
+  for (const r of vercel.rewrites.filter((x) => !x.source.startsWith('/api'))) {
+    assert.ok(site.rewrites.some((x) => x.source === r.source && x.destination === r.destination), `rewrite ${r.source} was not ported to the website`);
+  }
 });
 
 test('the worker Vercel runs daily still runs on Firebase, and more often', () => {

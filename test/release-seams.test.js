@@ -202,7 +202,7 @@ test('health lets the two servers be compared without showing the pepper', async
 
 test('Storage rules deploy on their own, and never block the site or the panel', () => {
   const ship = fs.readFileSync(path.join(ROOT, 'scripts/ship.sh'), 'utf8');
-  const panel = ship.indexOf('Deploying the admin panel and the API to Firebase');
+  const panel = ship.indexOf('Deploying the admin panel, the API and the website to Firebase');
   const storage = ship.indexOf('--only storage');
   assert.ok(panel > 0 && storage > panel, 'after the panel');
   assert.match(ship, /has not been set up/, '"not set up yet" is a note');

@@ -159,7 +159,7 @@ fi
 # public/ was about 480 MB then, because it was a full mirror of the site
 # including the library's PDFs. Since 13 Oct it is the admin panel only, about
 # 350 KB, and the Desktop is quieter for it.
-BUILT_EXCLUDES=(--exclude '/public' --exclude '/functions/node_modules' --exclude '/functions/api' --exclude '/functions/lib' --exclude '/functions/assets' --exclude '/functions/product.html' --exclude '/functions/.env')
+BUILT_EXCLUDES=(--exclude '/public' --exclude '/site' --exclude '/dist' --exclude '/functions/node_modules' --exclude '/functions/api' --exclude '/functions/lib' --exclude '/functions/assets' --exclude '/functions/product.html' --exclude '/functions/.env')
 
 # Content that lives in the repository and deliberately does not travel in the
 # zip, so the zip stays one file (owner, 7 Oct 2026: "need just 1 zip").
@@ -429,6 +429,15 @@ else
 fi
 rm -f "$RULES_LOG"
 
+step "The public website's own Hosting site on Firebase"
+# 24 Nov 2026 (owner: "next month I plan to migrate main site to firebase"):
+# the website is deployed to Firebase too, to its own Hosting site, so it can
+# be checked there before peopleforanimalsindia.org is pointed at it. Made
+# once and named in .firebaserc (scripts/firebase-site.js). If Firebase cannot
+# be asked just now, the panel and the API still deploy without it.
+PANEL_ONLY=":panel"
+if node scripts/firebase-site.js "$PROJECT" && [ -n "$(node scripts/firebase-site.js --name)" ]; then PANEL_ONLY=""; fi
+
 step "Capping how many Hosting versions Firebase keeps"
 # Firebase keeps every version ever deployed, for ever, by default, and storage
 # is the sum of all of them. On 13 Oct 2026 this project was at 9.73 GB of the
@@ -438,7 +447,7 @@ step "Capping how many Hosting versions Firebase keeps"
 # a release: the build has already bounded the bundle.
 node scripts/hosting-retention.js || true
 
-step "Deploying the admin panel and the API to Firebase"
+step "Deploying the admin panel, the API and the website to Firebase"
 # The admin panel is used at pfa-new-website.web.app, which is Firebase
 # Hosting and the Cloud Function in functions/, not Vercel. Until 8 Oct 2026
 # this script updated GitHub (and so Vercel) and the database rules only, and
@@ -458,7 +467,7 @@ deploy_firebase() {
     && node scripts/rrt-referral-key.js \
     && node scripts/firebase-secrets.js \
     && npm --prefix functions install --no-audit --no-fund --silent \
-    && npx --yes firebase-tools deploy --only functions,hosting --project "$PROJECT" 2>&1 | tee "$FB_LOG"
+    && npx --yes firebase-tools deploy --only functions,hosting${PANEL_ONLY} --project "$PROJECT" 2>&1 | tee "$FB_LOG"
   return "${PIPESTATUS[0]}"
 }
 # Google counts project look-ups per minute (HTTP 429, "Quota exceeded ...

@@ -34,16 +34,23 @@ test('vercel.json sends the hardening headers on every path', () => {
 
 test('firebase.json sends the same headers', () => {
   const f = JSON.parse(read('firebase.json'));
-  const all = f.hosting.headers.find((h) => h.source === '**');
-  assert.ok(all, 'a ** header rule exists');
-  const map = headerMap(all.headers);
-  for (const key of REQUIRED) assert.ok(map[key], `${key} is set`);
+  /* both Firebase sites: the panel and the public website (24 Nov 2026) */
+  for (const h of [].concat(f.hosting)) {
+    const all = h.headers.find((x) => x.source === '**');
+    assert.ok(all, `a ** header rule exists on ${h.target}`);
+    const map = headerMap(all.headers);
+    for (const key of REQUIRED) assert.ok(map[key], `${key} is set on ${h.target}`);
+  }
 });
 
 test('the admin page is never framed, indexed or cached by either host', () => {
   const v = JSON.parse(read('vercel.json'));
   const f = JSON.parse(read('firebase.json'));
-  for (const rule of [v.headers.find((h) => /admin/.test(h.source)), f.hosting.headers.find((h) => /admin/.test(h.source))]) {
+  const rules = [v.headers.find((h) => /admin/.test(h.source))].concat([].concat(f.hosting).map((h) => h.headers.find((x) => /admin/.test(x.source || x.regex || ''))));
+  /* the public website on Firebase has clean addresses, so its rule covers /admin as well as /admin.html */
+  const siteRule = [].concat(f.hosting).find((h) => h.target === 'site').headers.find((x) => /admin/.test(x.source || x.regex || ''));
+  assert.ok(new RegExp(siteRule.regex).test('/admin') && new RegExp(siteRule.regex).test('/admin.html'), 'the site covers both addresses of the panel page');
+  for (const rule of rules) {
     assert.ok(rule, 'an admin header rule exists');
     const map = headerMap(rule.headers);
     assert.equal(map['X-Frame-Options'], 'DENY');
@@ -114,9 +121,11 @@ test('a report-only CSP names every origin the site talks to, and nothing broade
   const v = JSON.parse(read('vercel.json'));
   const f = JSON.parse(read('firebase.json'));
   const fromV = headerMap(v.headers.find((h) => h.source === '/(.*)').headers)['Content-Security-Policy-Report-Only'];
-  const fromF = headerMap(f.hosting.headers.find((h) => h.source === '**').headers)['Content-Security-Policy-Report-Only'];
   assert.ok(fromV, 'vercel carries the policy');
-  assert.equal(fromV, fromF, 'both hosts send the same policy');
+  for (const h of [].concat(f.hosting)) {
+    const fromF = headerMap(h.headers.find((x) => x.source === '**').headers)['Content-Security-Policy-Report-Only'];
+    assert.equal(fromV, fromF, `both hosts send the same policy (${h.target})`);
+  }
   const directives = Object.fromEntries(fromV.split(';').map((d) => d.trim().split(/\s+/)).map(([k, ...v]) => [k, v]));
   assert.deepEqual(directives['object-src'], ["'none'"]);
   assert.deepEqual(directives['base-uri'], ["'self'"]);

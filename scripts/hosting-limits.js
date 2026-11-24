@@ -49,9 +49,12 @@ const CEILING_BYTES = 10 * 1024 * 1024 * 1024;
    and a limit set at the ceiling would be found out too late. */
 const SAFE_BYTES = CEILING_BYTES / 2;
 
-/* 1 to 100 is what the API accepts. Ten is enough history to roll back a bad
-   release several times over, and at a panel sized bundle costs nothing. */
-const RETAINED_RELEASES = 10;
+/* 1 to 100 is what the API accepts. Five is enough history to roll back a bad
+   release several times over. It was ten while Hosting held the panel alone;
+   on 24 Nov 2026 the public website joined it (about 50 MB, and over 350 MB
+   with the library's PDFs and the films kept out of the zip), and five
+   copies of that keep well inside half the free storage. */
+const RETAINED_RELEASES = 5;
 
 /* The deploy in progress is not yet one of the retained ones. */
 const WORST_CASE_MULTIPLIER = RETAINED_RELEASES + 1;

@@ -46,6 +46,17 @@ const limits = require('./hosting-limits.js');
 const ROOT = path.join(__dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
 const FN = path.join(ROOT, 'functions');
+/* The public website on Firebase (24 Nov 2026): firebase.json's second
+   hosting entry, target 'site'. Built from dist/, which is what Vercel serves
+   (scripts/minify.js), less what Vercel never received (.vercelignore) and
+   what was never meant to be a page. */
+const SITE = path.join(ROOT, 'site');
+const DIST = path.join(ROOT, 'dist');
+const SITE_NEVER = [
+  /^assets\/vendor\/india-districts(\/|$)/,   // the panel's map only (.vercelignore)
+  /\.orig$/, /\.bak$/, /~$/,                    // an editor's leftovers
+  /^product\.html$/                              // a template the function renders
+];
 
 /* ---- what the world may download: the panel, and only the panel --------- */
 /* Every other page is on Vercel. admin.html is served here, and every route
@@ -298,14 +309,69 @@ function biggest(dir, n = 8) {
 }
 
 function checkBudget() {
-  const bytes = dirBytes(PUBLIC);
+  /* the project's free storage holds both sites' versions */
+  const bytes = dirBytes(PUBLIC) + dirBytes(SITE);
   const worst = limits.worstCaseBytes(bytes);
   const ok = limits.withinBudget(bytes);
   return { bytes, worst, ok };
 }
 
+/* site/: the public website, from dist/ (made here by scripts/minify.js, as
+   Vercel makes it). Unlike the panel's copy, dot folders are kept: the site
+   serves .well-known/security.txt. */
+function copySite(from, to, rel = '') {
+  let n = 0;
+  fs.mkdirSync(to, { recursive: true });
+  for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
+    const r = rel ? `${rel}/${entry.name}` : entry.name;
+    if (entry.name === 'node_modules' || entry.name === '.DS_Store' || entry.name === '.git') continue;
+    if (SITE_NEVER.some((re) => re.test(r))) continue;
+    const src = path.join(from, entry.name);
+    const dst = path.join(to, entry.name);
+    if (entry.isDirectory()) n += copySite(src, dst, r);
+    else { fs.copyFileSync(src, dst); n += 1; }
+  }
+  return n;
+}
+function buildSite(opts) {
+  rmrf(SITE);
+  if (!(opts && opts.reuseDist && fs.existsSync(DIST))) {
+    const made = require('child_process').spawnSync(process.execPath, [path.join(__dirname, 'minify.js')], { cwd: ROOT, encoding: 'utf8' });
+    if (made.status !== 0) {
+      console.error('\nREFUSING TO BUILD: the website could not be minified for Firebase\n' + String(made.stderr || made.stdout).trim().split('\n').slice(-5).join('\n'));
+      process.exit(1);
+    }
+  }
+  const files = copySite(DIST, SITE);
+  const pages = fs.readdirSync(SITE).filter((f) => f.endsWith('.html')).length;
+  if (!fs.existsSync(path.join(SITE, 'index.html'))) {
+    console.error('\nREFUSING TO BUILD: the website has no index.html');
+    process.exit(1);
+  }
+  return { files, pages };
+}
+
+/* nothing server-side may reach a folder the world can download */
+function leaksIn(dir) {
+  const leaked = [];
+  const walk = (d, rel = '') => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const r = rel ? `${rel}/${e.name}` : e.name;
+      if (e.isDirectory()) walk(path.join(d, e.name), r);
+      else if (/^(lib|api|test|scripts|functions|_inline-extracts|tools)\//.test(r)
+               || /(firestore|storage)\.(rules|indexes)/.test(r)
+               || r === 'package.json' || r === 'package-lock.json' || r === 'vercel.json'
+               || r === 'firebase.json' || r === '.firebaserc' || /(^|\/)\.env/.test(r) || r.endsWith('.md')
+               || /firebase-adminsdk|service-?account/i.test(r)) leaked.push(r);
+    }
+  };
+  if (fs.existsSync(dir)) walk(dir);
+  return leaked;
+}
+
 function build(opts = {}) {
   const full = Boolean(opts.full);
+  const withSite = opts.site !== false;
 
   rmrf(PUBLIC);
   rmrf(path.join(FN, 'api'));
@@ -380,21 +446,13 @@ function build(opts = {}) {
     for (const entry of panel.optional) console.log(`  optional, not in the tree: ${entry}`);
   }
 
-  /* The guard that matters: nothing server-side may have reached public/. */
-  const leaked = [];
-  const walk = (dir, rel = '') => {
-    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-      const r = rel ? `${rel}/${e.name}` : e.name;
-      if (e.isDirectory()) walk(path.join(dir, e.name), r);
-      else if (/^(lib|api|test|scripts|functions|_inline-extracts|tools)\//.test(r)
-               || /(firestore|storage)\.(rules|indexes)/.test(r)
-               || r === 'package.json' || r === 'package-lock.json' || r === 'vercel.json'
-               || r === 'firebase.json' || r.endsWith('.md')) leaked.push(r);
-    }
-  };
-  walk(PUBLIC);
+  /* The guard that matters: nothing server-side may have reached public/,
+     nor the website's site/. */
+  let site = null;
+  if (withSite) site = buildSite(opts);
+  const leaked = leaksIn(PUBLIC).map((r) => `public/${r}`).concat(leaksIn(SITE).map((r) => `site/${r}`));
   if (leaked.length) {
-    console.error('\nREFUSING TO BUILD: server files reached public/\n  ' + leaked.join('\n  '));
+    console.error('\nREFUSING TO BUILD: server files reached a public folder\n  ' + leaked.join('\n  '));
     process.exit(1);
   }
 
@@ -409,7 +467,8 @@ function build(opts = {}) {
   allowed             ${limits.gb(limits.SAFE_BYTES)}  (half of Firebase's free ${limits.gb(limits.CEILING_BYTES)})
 
   Largest things in public/:`);
-    for (const [name, size] of biggest(PUBLIC)) console.error(`    ${limits.mb(size).padStart(10)}  ${name}`);
+    for (const [name, size] of biggest(PUBLIC)) console.error(`    ${limits.mb(size).padStart(10)}  public/${name}`);
+    if (fs.existsSync(SITE)) for (const [name, size] of biggest(SITE)) console.error(`    ${limits.mb(size).padStart(10)}  site/${name}`);
     console.error(`
   Hosting keeps every version and does not dedupe between them, so this is
   multiplied by ${limits.RETAINED_RELEASES} + 1, not stored once. Either keep this bundle under
@@ -420,14 +479,15 @@ function build(opts = {}) {
 
   console.log(full
     ? `public/     ${pages} pages, ${assets} assets  (--full: the whole site)`
-    : `public/     ${pages} pages, ${assets} assets  (the admin panel; the site is on Vercel)`);
+    : `public/     ${pages} pages, ${assets} assets  (the admin panel)`);
+  if (site) console.log(`site/       ${site.pages} pages, ${site.files} files  (the public website, ${limits.mb(dirBytes(SITE))})`);
   console.log(`functions/  ${server} server files`);
-  console.log('nothing server-side in public/  (checked, not assumed)');
+  console.log(`nothing server-side in public/${site ? ' or site/' : ''}  (checked, not assumed)`);
   console.log(`hosting     ${limits.mb(budget.bytes)} a version, ${limits.RETAINED_RELEASES} kept, worst case ${limits.gb(budget.worst)} of ${limits.gb(limits.CEILING_BYTES)} free`);
 }
 
-if (require.main === module) build({ full: process.argv.includes('--full') });
+if (require.main === module) build({ full: process.argv.includes('--full'), site: !process.argv.includes('--panel-only'), reuseDist: process.argv.includes('--reuse-dist') });
 module.exports = {
-  build, checkRequires, checkPanel, panelReferences, checkBudget, dirBytes,
+  build, buildSite, leaksIn, checkRequires, checkPanel, panelReferences, checkBudget, dirBytes, SITE_NEVER,
   PANEL_PAGES, PANEL_ASSETS, PUBLIC_DIRS, PUBLIC_FILES, NEVER
 };

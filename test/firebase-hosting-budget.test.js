@@ -64,11 +64,16 @@ test('a bundle at the budget is allowed and one over it is not', () => {
 
 /* ---- the regression this was written for ------------------------------ */
 
-test('the 480 MB full-site bundle of 8 Oct would be refused', () => {
-  const asItWas = 480 * 1024 * 1024;
-  assert.ok(!limits.withinBudget(asItWas),
-    'the bundle that filled Hosting storage must not pass the budget again');
-  assert.ok(limits.worstCaseBytes(asItWas) > limits.SAFE_BYTES);
+/* 24 Nov 2026: the public website joined the panel on Hosting, so a site
+   sized bundle (the pages, media and the library's PDFs, about 400 MB on the
+   live tree) must fit, five times over, inside half the free storage; and a
+   bundle that would fill it is still refused. */
+test('the website with its library fits; a bundle that would fill Hosting is refused', () => {
+  const site = 400 * 1024 * 1024;
+  assert.ok(limits.withinBudget(site), `a 400 MB site, worst case ${limits.gb(limits.worstCaseBytes(site))}`);
+  const tooBig = 1024 * 1024 * 1024;
+  assert.ok(!limits.withinBudget(tooBig), 'a 1 GB bundle must not pass the budget');
+  assert.ok(limits.worstCaseBytes(tooBig) > limits.SAFE_BYTES);
 });
 
 test('the panel bundle is nowhere near the budget', () => {

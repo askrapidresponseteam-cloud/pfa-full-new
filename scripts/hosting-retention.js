@@ -86,10 +86,15 @@ async function main() {
   }
 
   const project = sa.project_id;
-  /* The default site's id is the project id. A project with several sites
-     would name them here; this one has the default site only. */
-  const site = process.env.PFA_HOSTING_SITE || project;
-  const url = `${API}/sites/${encodeURIComponent(site)}/channels/live`;
+  /* Both Hosting sites (24 Nov 2026): the panel's, whose id is the project id,
+     and the public website's once it is made (scripts/firebase-site.js). Each
+     keeps its own versions, and the free storage is the project's, so both
+     are capped. */
+  const named = String(process.env.PFA_HOSTING_SITE || '').split(',').map((x) => x.trim()).filter(Boolean);
+  let sites = named;
+  if (!sites.length) {
+    try { sites = require('./firebase-site.js').allSites(); } catch (_) { sites = [project]; }
+  }
 
   let accessToken;
   try {
@@ -98,29 +103,34 @@ async function main() {
     console.log(`  could not authenticate to set the retained version count (${e.message}). Left as it is.`);
     return 0;
   }
+  for (const site of sites) await capSite(site, accessToken, check);
+  return 0;
+}
 
+async function capSite(site, accessToken, check) {
+  const url = `${API}/sites/${encodeURIComponent(site)}/channels/live`;
   const before = await call('GET', url, accessToken);
   if (!before.ok) {
     console.log(`  could not read the live channel on ${site} (HTTP ${before.status}). Retained version count left as it is.`);
-    return 0;
+    return;
   }
   const current = before.json && before.json.retainedReleaseCount;
   console.log(`  site ${site}: keeping ${current === undefined ? 'every version (the default)' : current + ' versions'}`);
 
   if (current === RETAINED_RELEASES) {
     console.log(`  already ${RETAINED_RELEASES}, nothing to change`);
-    return 0;
+    return;
   }
   if (check) {
     console.log(`  --check: would set it to ${RETAINED_RELEASES}`);
-    return 0;
+    return;
   }
 
   const after = await call('PATCH', `${url}?updateMask=retainedReleaseCount`, accessToken, { retainedReleaseCount: RETAINED_RELEASES });
   if (!after.ok) {
     console.log(`  could not set the retained version count (HTTP ${after.status}). Left as it is.`);
     if (after.json && after.json.error && after.json.error.message) console.log(`  ${after.json.error.message}`);
-    return 0;
+    return;
   }
   console.log(`  set to ${RETAINED_RELEASES}. Firebase schedules everything older for deletion, oldest first.`);
   if (current === undefined) {

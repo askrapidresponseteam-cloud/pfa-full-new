@@ -163,3 +163,41 @@ test('wired in: routes, the rule, the panel, the chat and the privacy page', () 
   assert.match(read('privacy.html'), /teach it a better answer/);
   for (const f of ['assets/admin-chat-learn.js', 'lib/chat-learn.js', 'lib/routes/admin/chat-learn.js', 'lib/routes/chat-taught.js']) assert.ok(!/[–—]/.test(read(f)), f);
 });
+
+test('a page asked for is given, in any wording, and a form in hand is kept to carry on with', () => {
+  const said = (lines, taps) => {
+    const s = FL.createSession({ now: () => NOW, docs: [] });
+    s.start();
+    let o = null;
+    for (const l of lines) o = l.charAt(0) === '#' ? s.tap(l) : s.hear(l);
+    const last = o.messages[o.messages.length - 1];
+    return { text: o.messages.map((m) => m.text).join(' '), links: (last.links || []).map((x) => x.href), chips: (last.chips || []).map((c) => c.label), flow: s.state().flow };
+  };
+  /* the screenshot: in Donate, then in a nomination, "visit cinekind page" */
+  for (const ask of ['visit cinekind page', 'open cinekind page', 'i want to see cinekind', 'mujhe cinekind ka page dikhao']) {
+    const r = said(['donate', ask]);
+    assert.deepEqual(r.links, ['cinekind.html'], ask);
+    assert.equal(r.flow, 'donate', ask + ': Donate is kept');
+    assert.match(r.chips[0], /^Carry on with Donate$/);
+  }
+  let r = said(['donate', 'cinekind', '#switch', 'visit cinekind page']);
+  assert.deepEqual(r.links, ['cinekind.html']);
+  assert.equal(r.flow, 'cinekind', 'not taken as the nominee');
+  r = said(['donate', 'cinekind', '#switch', 'visit cinekind page', '#stay']);
+  assert.match(r.text, /Who or what are you nominating/);
+  /* a task named in a form offers its page too */
+  r = said(['donate', 'cinekind']);
+  assert.deepEqual(r.chips, ['Nominate for CineKind', 'See the CineKind page', 'Carry on here']);
+  r = said(['donate', 'cinekind', '#seepage']);
+  assert.deepEqual(r.links, ['cinekind.html']);
+  /* outside a form: the page, with its task beside it */
+  r = said(['link to donate']);
+  assert.deepEqual(r.links, ['donate.html']);
+  assert.equal(r.flow, '');
+  /* where a few sentences are asked, seeing is not a page request */
+  r = said(['report cruelty', 'yes', 'I can see a dog being beaten near the construction site']);
+  assert.equal(r.flow, 'report');
+  assert.deepEqual(r.links, []);
+  /* Carry on with no form is the menu, not an error */
+  assert.doesNotThrow(() => said(['visit cinekind page', '#stay']));
+});

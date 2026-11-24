@@ -37,6 +37,8 @@ npm-debug.log*
 
 # built by scripts/minify.js on every Vercel deploy
 dist/
+# the public website built for Firebase Hosting (scripts/build-firebase.js)
+site/
 
 # written by scripts/build-catalog.js on every Vercel deploy
 assets/catalog-snapshot.json

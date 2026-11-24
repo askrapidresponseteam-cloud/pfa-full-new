@@ -230,3 +230,76 @@ by form and API so the verdicts match).
 `PHOTO_CUTOUT_ENDPOINT` `PHOTO_CUTOUT_FIELD` `PHOTO_CUTOUT_FORMAT` `PHOTO_CUTOUT_KEY` (background removal, optional)
 
 Rotation: change the value in Vercel → redeploy. Nothing is cached in code.
+
+---
+
+## 8. Moving the website to Firebase (prepared 24 Nov 2026)
+
+The website can be served by Firebase Hosting instead of Vercel, in the same
+Firebase project as the admin panel (`pfa-new-website`), with nothing else
+changing: the same pages, the same API code, the same database.
+
+**What is in place.** Every deploy (DEPLOY.command) now also publishes the
+website to its own Firebase Hosting site, next to the panel's:
+
+| Hosting site | Address | Serves |
+|---|---|---|
+| panel | pfa-new-website.web.app | the admin panel (`public/`), as before |
+| site | the name in `.firebaserc`, `<name>.web.app` | the public website (`site/`) |
+
+- `scripts/firebase-site.js` makes the website's site once (its name must be
+  free across Firebase) and names it in `.firebaserc`.
+- `scripts/build-firebase.js` builds `site/` from `dist/` (the same minified
+  copy Vercel serves), without anything server-side, and keeps both sites
+  inside half the free Hosting storage (`scripts/hosting-limits.js`, five
+  versions kept, set on both sites by `scripts/hosting-retention.js`).
+- `firebase.json` has the website's clean addresses, redirects, rewrites and
+  headers, copied from `vercel.json`; `test/firebase-deploy.test.js` keeps them
+  the same for as long as both exist. `/api/**` goes to the same function the
+  panel uses (Mumbai).
+- CCAvenue's return point and every public link are never a Firebase address
+  (`lib/ccavenue.js`, `lib/public-site.js`): donors always come back to
+  peopleforanimalsindia.org.
+- The scheduled jobs already run on Firebase (`functions/index.js`), every
+  10 minutes and every 2 minutes, not once a day as on Vercel.
+- `404.html` is the page shown for an address that is not on the site, on
+  either host.
+
+**Checking it is ready.** At the end of every deploy, DEPLOY.command runs
+`node scripts/firebase-move-check.js`. It reads the site on Vercel and the
+copy on Firebase and checks: the same build; every main page and the files
+pages load; the API (payments health, chat, visit counter, shop, Care
+Guides, the Wall, PIN lookup, signature); the old addresses' redirects; and
+that Firebase has every setting Vercel has, by name only, with the same
+tracking key (`PFA_AUTH_PEPPER`). It ends READY or NOT READY and, for each
+missing setting, prints the one command that sets it. Run it by hand any time:
+
+    cd ~/Desktop/PFA_Website && node scripts/firebase-move-check.js
+
+**Moving the domain, once it says READY.** No downtime if done in this order:
+
+1. Firebase console > pfa-new-website > Hosting > the website's site (not
+   pfa-new-website) > Add custom domain > `peopleforanimalsindia.org`.
+   Choose the advanced setup, which proves the domain and issues the HTTPS
+   certificate *before* any traffic moves. Add the TXT record(s) it gives at
+   wherever the domain's DNS is kept (Vercel > Domains if Vercel's
+   nameservers are used, or the registrar). Never touch the MX or other mail
+   records: info@ email depends on them.
+2. Wait until Firebase shows the certificate as issued (minutes to a few
+   hours). The site is still on Vercel throughout.
+3. Replace the domain's A record(s) (and AAAA, if any) with the ones Firebase
+   shows. Add `www.peopleforanimalsindia.org` the same way, set to redirect
+   to the bare domain.
+4. Within an hour or so visitors reach Firebase. Run the check again: it
+   notices the domain now points at Firebase and compares against
+   pfa-full-website.vercel.app instead.
+5. Leave Vercel running for a week as the fallback (pointing the A record
+   back undoes the move). Then disconnect the GitHub repository from the
+   Vercel project, or delete the project, and downgrade Vercel to Hobby; the
+   unused days of Pro are refunded pro rata.
+
+**Cost.** Hosting is free up to 10 GB stored and about 360 MB downloaded a
+day; the project is on the Blaze plan, so beyond that it is charged per GB
+(cents), not stopped. Set a budget alert in Google Cloud Billing for the
+project. Functions and Firestore were already serving the panel and the
+schedules from this project.

@@ -33,7 +33,11 @@ const KNOWN = [
   'PFA_ADMIN_TOKEN', 'PFA_AUTH_PEPPER', 'PFA_MAIL_API_KEY',
   'PFA_SHOPIFY_ADMIN_TOKEN', 'PFA_SHOPIFY_WEBHOOK_SECRET',
   /* the internship portal (1 Nov 2026): the RRT referral counts' shared key */
-  'PFA_RRT_REFERRAL_SECRET'
+  'PFA_RRT_REFERRAL_SECRET',
+  /* the public website on Firebase (24 Nov 2026): the keys only Vercel had,
+     for dollar donations, the shop's orders and the member photo's cut-out */
+  'CCAVENUE_USD_WORKING_KEY', 'CCAVENUE_USD_ACCESS_CODE', 'CCAVENUE_USD_MERCHANT_ID',
+  'PFA_SHOP_FIREBASE_SERVICE_ACCOUNT', 'PHOTO_CUTOUT_KEY'
 ];
 
 function cli(args) {

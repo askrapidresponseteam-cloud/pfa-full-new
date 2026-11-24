@@ -183,4 +183,10 @@ else
   esac
 fi
 
+step "Checking the website's copy on Firebase (for moving off Vercel)"
+# The website is deployed to its own Firebase Hosting site as well (24 Nov
+# 2026). This reads it beside the one on Vercel and says READY once it does
+# everything Vercel does, or what is missing. It changes nothing.
+( cd "$HOME/Desktop/PFA_Website" 2>/dev/null && node scripts/firebase-move-check.js ) || true
+
 printf '\nDone. You can close this window.\n'

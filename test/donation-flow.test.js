@@ -386,7 +386,8 @@ test('the gift is offered on the donate page, linked from every footer, and the 
   const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
   const firebase = JSON.parse(fs.readFileSync(path.join(ROOT, 'firebase.json'), 'utf8'));
   assert.ok(vercel.redirects.some((r) => r.source === '/make-a-gift.html' && r.destination === '/donate.html?gift=1' && r.permanent));
-  assert.ok(firebase.hosting.redirects.some((r) => r.source === '/make-a-gift.html' && r.destination === '/donate.html?gift=1' && r.type === 301));
+  /* on both Firebase sites: the panel's, and the public website's (24 Nov 2026) */
+  for (const h of [].concat(firebase.hosting)) assert.ok(h.redirects.some((r) => r.source === '/make-a-gift.html' && r.destination === '/donate.html?gift=1' && r.type === 301), h.target);
 });
 
 test('a gift reads plainly and asks one thing per step: amount, who it is for, your details', () => {

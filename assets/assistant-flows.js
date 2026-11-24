@@ -92,6 +92,11 @@
     tryLater: { en: 'It could not be sent just now. Please try again in a minute.', hi: 'अभी नहीं भेजा जा सका। एक मिनट बाद फिर कोशिश करें।' },
     follow: { en: 'Follow it', hi: 'स्थिति देखें' },
     switchTo: { en: 'Stop {here} and go to {what}?', hi: '{here} रोककर {what} पर जाएँ?' },
+    pageHere: { en: 'Here is the {title} page.', hi: '{title} का पेज यह है।' },
+    pageHereKept: { en: 'Here is the {title} page. {what} is kept where you left it.', hi: '{title} का पेज यह है। {what} वहीं रुका है जहाँ आपने छोड़ा।' },
+    openPage: { en: 'Open {title}', hi: '{title} खोलें' },
+    seePage: { en: 'See the {title} page', hi: '{title} का पेज देखें' },
+    carryOn: { en: 'Carry on with {what}', hi: '{what} जारी रखें' },
     leftForm: { en: '{what}: stopped. Nothing was sent.', hi: '{what}: रोक दिया। कुछ नहीं भेजा गया।' },
     keepGoing: { en: 'Carry on here', hi: 'यहीं जारी रखें' },
     payNow: { en: 'Accept and pay {amount} on CCAvenue', hi: 'मानें और CCAvenue पर {amount} चुकाएँ' },
@@ -507,6 +512,40 @@
     return best;
   }
 
+  /* ---- the page each task belongs to (owner, 23 Nov 2026: in the middle of
+     Donate, "visit cinekind page" started a CineKind nomination, and then was
+     taken as the name of the nominee) ---- */
+  var PAGE_OF = {
+    cinekind: ['cinekind.html', 'CineKind'], donate: ['donate.html', 'Donate'], member: ['get-involved.html#membership', 'Membership'],
+    volunteer: ['get-involved.html#volunteer', 'Volunteer'], internship: ['internship.html', 'Remote internship'], report: ['report.html', 'Report cruelty'],
+    event: ['events.html', 'Events'], sgacc: ['sgacc.html', 'Sanjay Gandhi Animal Care Centre'], legacy: ['legacy.html', 'A gift in your will'],
+    privacy: ['privacy.html', 'Privacy'], campaign: ['campaign.html', 'Campaigns'], csr: ['csr.html', 'Companies and CSR'], campus: ['campus.html', 'Campus societies'],
+    wallstory: ['wall.html', 'The Wall'], verify: ['verify-certificate.html', 'Check a certificate'], track: ['track.html', 'Follow an application'],
+    nearby: ['units.html', 'PFA units'], helpdesk: ['ask.html', 'Ask PFA'], adopt: ['units.html', 'PFA units'], law: ['laws.html', 'Animal law']
+  };
+  /* What someone wants to do, apart from what it is about: to see a page.
+     "visit / open / show me / take me to / see ... (page, site, link)", in
+     English, Hindi and Hinglish. */
+  var NAV_VERB = /(^| )(visit|open|see|view|show|show me|read|browse|check out|go to|goto|take me to|bring me to|navigate to|redirect me to|link to|link for|link of|url of|dikhao|dikha do|dikhaiye|kholo|khol do|kholiye|dekhna|dekhni|dekhna hai|jana hai|jaana hai|देखना|देखनी|दिखाओ|दिखाइए|खोलो|खोलिए|जाना है)( |$)/;
+  var NAV_THING = /(^| )(page|pages|site|website|webpage|web page|link|url|section|tab|पेज|पन्ना|साइट|लिंक)( |$)/;
+  var NAV_WORDS = /(^| )(i|me|my|want|wanna|would|like|to|the|a|an|please|pls|can|could|you|visit|open|see|view|show|read|browse|check|out|go|goto|take|bring|navigate|redirect|link|links|url|for|of|page|pages|site|website|webpage|web|section|tab|pfa|s|on|your|dikhao|dikha|do|dikhaiye|kholo|khol|kholiye|dekhna|dekhni|hai|jana|jaana|mujhe|ka|ki|ke|wala|wali|देखना|देखनी|दिखाओ|दिखाइए|खोलो|खोलिए|जाना|है|मुझे|का|की|के|पेज|पन्ना|साइट|लिंक)(?= |$)/g;
+  var NAV_LEAD = /^(hi |hello |ok |okay |no |actually |sorry |please |pls |can you |could you |can i |could i |i want to |i wanna |i d like to |i would like to |let me |i need to |i need |i want )*(visit|open|see|view|show|show me|read|browse|check out|go to|goto|take me to|bring me to|navigate to|link to|link for|give me the link|the link)( |$)/;
+  /* free: where a few sentences are asked, "I can see a dog bleeding" is an
+     answer; a page is asked for only with the word page, site or link */
+  function navWish(text, free) {
+    var nn = N.normalise(text);
+    var n = N.tokens(nn).length;
+    if (!n || n > 10) return false;
+    /* said as a request: it starts with the asking ("show me", "can I see",
+       "take me to"), or ends with it in Hindi ("... dikhao", "... kholo") */
+    var asked = NAV_LEAD.test(nn) || /(^| )(dikhao|dikha do|dikhaiye|kholo|khol do|kholiye|dekhna hai|jana hai|jaana hai|दिखाओ|दिखाइए|खोलो|खोलिए|देखना है|जाना है)$/.test(nn);
+    if (free) return NAV_THING.test(nn) && (asked || n <= 3);
+    if (NAV_THING.test(nn)) return NAV_VERB.test(nn) || n <= 4;
+    return n <= 7 && asked;
+  }
+  /* what is left once the asking is taken out: "cinekind" */
+  function navTopic(text) { return N.normalise(text).replace(/[?.!,]/g, ' ').replace(NAV_WORDS, ' ').replace(/\s+/g, ' ').trim(); }
+
   var INTENT_TO = { eventsList: 'eventsList', report: 'report', nearby: 'nearby', donate: 'donate', member: 'member', volunteer: 'volunteer', internship: 'internship', caregiver: 'caregiver', track: 'track', receipt: 'receipt',
     adopt: 'adopt', event: 'event', sgacc: 'sgacc', csr: 'csr', legacy: 'legacy', campaign: 'campaign', campus: 'campus', privacy: 'privacy', cinekind: 'cinekind', wall: 'wallstory', proof: 'proof', verify: 'verify', jobs: 'jobs', shop: 'shop', newunit: 'newunit', mednote: 'mednote', podcast: 'podcast', guides: 'guides', desk: 'helpdesk', newsroom: 'newsroom', achievements: 'achievements', library: 'library', academy: 'academy', behaviour: 'behaviour', someone: 'someone', fireworks: 'fireworks', quiz: 'quiz', gifts: 'gifts', founder: 'founder', picks: 'picks', lawpage: 'lawpage', unitlist: 'unitlist', law: 'law', question: 'helpdesk' };
 
@@ -528,6 +567,50 @@
     function siteDocs() { try { return typeof o.docs === 'function' ? o.docs() : o.docs || null; } catch (_) { return null; } }
     function taughtNow() { try { return (typeof o.taught === 'function' ? o.taught() : o.taught) || []; } catch (_) { return []; } }
     function herePage() { try { return typeof o.page === 'function' ? o.page() : o.page || ''; } catch (_) { return ''; } }
+
+    /* the page a page request names: a task's own page, a page the chat
+       opens, or a page of the site by its title; null if none is named */
+    function pageFor(text) {
+      var topic = navTopic(text);
+      if (!topic) return null;
+      if (/^(home|homepage|home page|main|main page|start|first page|ghar|होम)$/.test(topic)) return { id: '', href: 'index.html', title: lang() === 'hi' ? 'होम' : 'Home' };
+      /* a task or page named in a word or three ("cinekind", "care guides") */
+      var it = N.tokens(topic).length <= 3 ? N.intentOf(topic)[0] : null;
+      var id = it && INTENT_TO[it.id];
+      if (id && PAGES[id]) return { id: id, href: PAGES[id].href, title: L(PAGES[id].title, lang()), own: true };
+      if (id && PAGE_OF[id]) return { id: id, href: PAGE_OF[id][0], title: PAGE_OF[id][1] };
+      var want = N.tokens(topic).filter(function (w) { return w.length > 2; });
+      if (!want.length) return null;
+      var best = null, bestN = 0, seen = {};
+      (siteDocs() || []).forEach(function (d) {
+        var u = String(d.url || '').replace(/^\//, '').split('#')[0];
+        if (!u || seen[u]) return;
+        seen[u] = 1;
+        var words = N.tokens(N.normalise(String(d.title || '')));
+        /* the title's own words, a plural, or the start of a long one: a
+           near spelling is not a page asked for */
+        var hit = want.filter(function (w) { return words.some(function (x) { return x === w || x === w + 's' || w === x + 's' || (w.length > 4 && x.indexOf(w) === 0); }); }).length;
+        if (hit > bestN) { bestN = hit; best = { id: '', href: u, title: String(d.title || '').split(/\s*[|:]\s*/)[0] }; }
+      });
+      return best && bestN === want.length ? best : null;
+    }
+    /* go there, see its page, or carry on */
+    function switchChips(to) {
+      var c = [{ label: titleOf(to, lang()), value: '#switch' }];
+      if (PAGE_OF[to]) c.push({ label: t('seePage', lang(), { title: PAGE_OF[to][1] }), value: '#seepage' });
+      c.push({ label: t('keepGoing', lang()), value: '#stay' });
+      return c;
+    }
+    /* a page given; a form in hand is kept, to carry on with */
+    function pagePut(pg) {
+      var inForm = S.phase === 'ask' && S.flow && FLOWS[S.flow];
+      if (pg.own && !inForm) return begin(pg.id, '');
+      var what = inForm ? titleOf(S.flow, lang()) : '';
+      var chips = inForm ? [{ label: t('carryOn', lang(), { what: what }), value: '#stay' }] : [];
+      if (!inForm && pg.id && FLOWS[pg.id] && pg.id !== 'helpdesk') chips.push(chip(pg.id, lang()));
+      chips.push({ label: t('menuChip', lang()), value: '#menu' });
+      return out([msg(t(inForm ? 'pageHereKept' : 'pageHere', lang(), { title: pg.title, what: what }), { links: [{ label: t('openPage', lang(), { title: pg.title }), href: pg.href }], chips: chips })]);
+    }
     /* the units, for "pfa pune" and the like (assets/assistant-units.js) */
     function unitList() {
       if (o.units) return o.units;
@@ -1833,8 +1916,10 @@
       if (s === '#iam' && S.guess) { S.knownName = S.guess; S.guess = ''; var hi = menu(false); hi.messages.unshift(msg(t('hiName', lang(), { name: S.knownName }))); return hi; }
       if (s === '#notwho') return whoIs(S.guess || '', [{ label: t('menuChip', lang()), value: '#menu' }]);
       if (s === '#nearhere' && S.guess) { S.placeHint = S.guess; S.guess = ''; return begin('nearby', ''); }
+      if (s === '#seepage' && S.offerSwitch && PAGE_OF[S.offerSwitch]) { var sp = S.offerSwitch; S.offerSwitch = ''; return pagePut({ id: sp, href: PAGE_OF[sp][0], title: PAGE_OF[sp][1] }); }
       if (s === '#switch' && S.offerSwitch) { var to = S.offerSwitch; S.offerSwitch = ''; return begin(to, S.switchText || ''); }
-      if (s === '#stay') { S.offerSwitch = ''; return ask([]); }
+      /* carry on: the question the form was at; with no form, the menu */
+      if (s === '#stay') { S.offerSwitch = ''; return S.flow && FLOWS[S.flow] ? ask([]) : menu(false); }
       if (s === '#nonumber' && S.phase === 'ask' && isNumberField(fieldNow())) return lostNumber(fieldNow());
       /* any other amount: asked for in words, with the number keyboard */
       if (s === '#otheramount') {
@@ -1860,6 +1945,11 @@
            something else PFA offers is not an answer. Said plainly ("I mean
            I want to shop", "actually, donate"), the chat goes there at once;
            only the name of it ("shop" for a name), it asks first. */
+        /* a page asked for: given, and the form kept to carry on with */
+        if (!tapped && f && f.type !== 'address' && !S.addr && navWish(s, f.type === 'long' || f.type === 'text')) {
+          var pgA = pageFor(s);
+          if (pgA) return pagePut(pgA);
+        }
         if (!tapped && f && f.type !== 'address') {
           var said0 = N.normalise(s);
           /* where a few sentences are asked for, "I want to help this dog" is
@@ -1878,7 +1968,7 @@
               return gone;
             }
             S.offerSwitch = toFlow; S.switchText = s;
-            return out([msg(t('switchTo', lang(), { here: titleOf(S.flow, lang()), what: titleOf(toFlow, lang()) }), { chips: [{ label: titleOf(toFlow, lang()), value: '#switch' }, { label: t('keepGoing', lang()), value: '#stay' }] })]);
+            return out([msg(t('switchTo', lang(), { here: titleOf(S.flow, lang()), what: titleOf(toFlow, lang()) }), { chips: switchChips(toFlow) })]);
           }
           /* a sentence is not a name ("take me to the shop") */
           if (f.type === 'name' && !fits) return out([msg(lang() === 'hi' ? 'कृपया अपना पूरा नाम लिखें, जैसे आशा राव।' : 'Please give your full name, like Asha Rao.')]);
@@ -1890,7 +1980,7 @@
           var wantFlow = want && want.score >= 2 && INTENT_TO[want.id];
           if (wantFlow && wantFlow !== S.flow) {
             S.offerSwitch = wantFlow; S.switchText = s;
-            return out([msg(t('switchTo', lang(), { here: titleOf(S.flow, lang()), what: titleOf(wantFlow, lang()) }), { chips: [{ label: titleOf(wantFlow, lang()), value: '#switch' }, { label: t('keepGoing', lang()), value: '#stay' }] })]);
+            return out([msg(t('switchTo', lang(), { here: titleOf(S.flow, lang()), what: titleOf(wantFlow, lang()) }), { chips: switchChips(wantFlow) })]);
           }
         }
         if (!tapped && f) { var said2 = aside(s, f); if (said2) return said2; }
@@ -1920,6 +2010,9 @@
       /* free text at the menu: what do they want? */
       var intents = N.intentOf(s);
       var top = intents[0];
+      /* a page asked for ("visit cinekind page", "show me the laws page"):
+         the page, not its form */
+      if (navWish(s, false)) { var pgM = pageFor(s); if (pgM) return pagePut(pgM); }
       /* a unit's own town, or a district, named: the units there, before any
          general answer ("contact number of pfa ahmedabad" is not the head office) */
       if ((!top || !{ report: 1, donate: 1, member: 1, volunteer: 1, internship: 1, track: 1, receipt: 1, verify: 1, shop: 1, caregiver: 1, newunit: 1 }[top.id]) && N.tokens(s).length <= 9 && !N.referenceOf(s)) {

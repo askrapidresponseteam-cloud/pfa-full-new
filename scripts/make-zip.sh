@@ -30,6 +30,7 @@ find "$HOME/Desktop" -maxdepth 1 -name 'PFA_Full_Website_v*.zip' ! -name "$(base
 mkdir -p "$STAGE"
 tar -cf - \
   --exclude='./.git' --exclude='./node_modules' --exclude='./public' \
+  --exclude='./site' --exclude='./dist' \
   --exclude='./functions/node_modules' --exclude='./functions/api' \
   --exclude='./functions/lib' --exclude='./functions/assets' \
   --exclude='./functions/product.html' --exclude='./functions/.env' \

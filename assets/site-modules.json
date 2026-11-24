@@ -1070,6 +1070,19 @@
    ]
   },
   {
+   "id": "404",
+   "file": "404.html",
+   "title": "Page not found",
+   "group": "Not in the menus",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "This page is not here."
+    }
+   ]
+  },
+  {
    "id": "privacy",
    "file": "privacy.html",
    "title": "Privacy policy",

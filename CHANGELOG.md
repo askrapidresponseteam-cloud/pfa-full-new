@@ -1,3 +1,22 @@
+## v1.632
+
+- **The website is ready to move to Firebase: deployed there too, checked, and switched only when READY.** Owner, 24 Nov 2026.
+  - "can you prep the whole site to work on firebase pls" (in PFA New Website, pfa-new-website): every deploy now also publishes the website to its own Firebase Hosting site, beside the admin panel's, so the panel's address is never the site's. Same pages, clean addresses, redirects and security headers as on Vercel; /api goes to the same Mumbai function the panel already uses; the scheduled jobs were already there.
+  - "cant risk a disruption in the service": nothing moves until the domain is pointed at Firebase by hand. Each deploy ends with a check that reads the site on Vercel and the copy on Firebase (pages, the server, redirects, and every setting Vercel has, by name only) and says READY, or what is missing with the one command that mends it. The steps for moving the domain with no downtime are in ARCHITECTURE.md, section 8.
+  - A donor always comes back from CCAvenue to peopleforanimalsindia.org, never to a Firebase address.
+  - An address that is not on the site now shows the site's own page, "This page is not here", with a search box, on either host.
+  - Hosting keeps five versions of each site (was ten), so both stay well inside the free storage.
+- Also in this build: v1.631 (page requests understood in any wording) and earlier.
+
+## v1.631
+
+- **The chat tells a page asked for from a form to fill in, and keeps your place.** Owner, 23 Nov 2026.
+  - "not smart enough to understand nlp": in the middle of Donate, "visit cinekind page" offered to start a CineKind nomination, and once in it, was taken as the name of the nominee. The chat now reads what someone wants to do apart from what it is about: to see a page ("visit / open / show me / take me to / link to ... page", "cinekind page kholo", "mujhe cinekind ka page dikhao") is answered with that page, and a form in hand is kept, with Carry on with Donate to go back to the question it was at.
+  - A task named in the middle of a form now offers three ways: go there, See its page, or Carry on here.
+  - Where a few sentences are asked (what is happening, in a report), "I can see a dog being beaten" is still the answer; only a plain request for a page ("show me the report page") is read as one.
+  - It stays rule based, with no AI service and no key, and gets better as questions are taught in Teach the chat.
+- Also in this build: v1.630 (a change of mind in a form, Teach the chat) and earlier.
+
 ## v1.630
 
 - **The chat follows a change of mind, and PFA can teach it answers.** Owner, 23 Nov 2026.

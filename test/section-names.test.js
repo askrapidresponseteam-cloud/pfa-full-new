@@ -40,7 +40,8 @@ test('the old URL redirects rather than 404s', () => {
      would 404 the moment the site moved. */
   const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
   const firebase = JSON.parse(fs.readFileSync(path.join(ROOT, 'firebase.json'), 'utf8'));
-  const onFirebase = ((firebase.hosting || {}).redirects) || [];
+  /* the public website's Firebase site carries the site's redirects (24 Nov 2026) */
+  const onFirebase = ([].concat(firebase.hosting || []).find((h) => h.target === 'site') || {}).redirects || [];
   for (const source of ['/the-wire.html', '/dispatch.html']) {
     assert.ok(onFirebase.some((r) => r.source === source && r.destination === '/newsroom.html'),
       `Firebase would 404 on ${source}`);

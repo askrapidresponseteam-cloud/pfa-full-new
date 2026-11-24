@@ -8,9 +8,23 @@
     "",
     "scripts/ship.sh additionally passes --project, taken from the service",
     "account key, so the rules always land on the same project the API and the",
-    "sign-in use."
+    "sign-in use.",
+    "",
+    "targets (24 Nov 2026): the two Hosting sites. panel is the admin panel at",
+    "pfa-new-website.web.app; site is the public website, written here by",
+    "scripts/firebase-site.js the first time it is made (its name must be free",
+    "across all of Firebase)."
   ],
   "projects": {
     "default": "pfa-new-website"
+  },
+  "targets": {
+    "pfa-new-website": {
+      "hosting": {
+        "panel": [
+          "pfa-new-website"
+        ]
+      }
+    }
   }
 }
