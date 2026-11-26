@@ -94,7 +94,7 @@ test('Case 001 is still carried word for word, under its own heading, and the fr
 
 test('as the newsroom grows or shrinks, the front page keeps its shape', () => {
   const page = read('newsroom.html');
-  const base = DATA.stories.find((s) => s.desk === 'cinekind' && !s.image);
+  const base = DATA.stories.find((s) => s.desk === 'cinekind' && /^media\//.test(s.image.src));
   const many = Array.from({ length: 12 }, (_, i) => ({ ...base, slug: `story-${String(i + 1).padStart(2, '0')}`, title: `Story ${i + 1}`, date: `2027-${String(i + 1).padStart(2, '0')}-01`, front: undefined }));
   const grown = doc(B.render(page, { stories: many }));
   assert.equal(grown.querySelector('.nr-front').getAttribute('data-count'), '4');
@@ -112,7 +112,7 @@ test('as the newsroom grows or shrinks, the front page keeps its shape', () => {
 });
 
 test('bad data is refused with the story and the field, before it can reach the page', () => {
-  const good = DATA.stories.find((s) => s.desk === 'cinekind' && !s.image);
+  const good = DATA.stories.find((s) => s.desk === 'cinekind' && /^media\//.test(s.image.src));
   const cases = [
     [{ ...good, slug: 'X' }, /slug must be/],
     [{ ...good, desk: 'gossip' }, /desk must be one of/],
@@ -128,6 +128,7 @@ test('bad data is refused with the story and the field, before it can reach the 
     [{ ...good, image: { src: 'https://example.com/a.jpg', alt: 'x' } }, /img-src/],
     [{ ...good, image: { src: 'img/nowhere.webp', alt: 'x' } }, /not on disk/],
     [{ ...good, dek: 'Mumbai \u2014 at last' }, /em dash/],
+    [{ ...good, image: undefined }, /every story carries a photograph/],
     [{ ...good, print: 'Reported in print' }, /only a "work" story may be one reported in print/],
     [{ ...good, desk: 'work', print: 'Reported in print' }, /has no link; give one or the other/],
     [{ ...good, desk: 'work', link: undefined, print: ' ' }, /must name the paper/]
@@ -170,4 +171,15 @@ test('a story reported in print names it instead of a link, and the Kanpur clipp
   assert.equal(card.querySelector('.nr-card__more'), null);
   assert.equal(card.closest('.nr-desk').id, 'desk-work');
   assert.deepEqual(B.validate({ stories: [st] }), []);
+});
+
+/* Owner, 27 Nov 2026: "if no photo, it looks odd. there cannot be any place
+   where a photo is needed and it isnt there". Every story carries one, and a
+   photograph that cannot be had gives way to PFA's own. */
+test('every story carries a photograph, and a failed one gives way to PFA\'s own', () => {
+  assert.ok(DATA.stories.every((s) => s.image && s.image.src && s.image.alt), 'every story has a photograph and says what it shows');
+  const d = doc(read('newsroom.html'));
+  assert.equal(d.querySelectorAll('.nr-tile--text, .nr-card__type').length, 0, 'nothing set in type in place of a photograph');
+  for (const img of d.querySelectorAll('.nr img')) assert.match(img.getAttribute('onerror') || '', /this\.src='img\/og-default\.jpg'/);
+  assert.ok(fs.existsSync(path.join(ROOT, 'img/og-default.jpg')));
 });

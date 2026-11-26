@@ -130,7 +130,7 @@
   function paintForm(error) {
     var n = node(), e = S.edit;
     if (!n || !e) return;
-    var hasPic = !!e.photo, hasLink = !!e.link;
+    var hasLink = !!e.link;
     var out = ['<div class="ux-form">', '<div><button class="ghost" type="button" data-ux="back">Back to the updates</button></div>'];
     out.push('<label class="ux-f"><span>Title</span><input type="text" id="uxTitle" maxlength="90" value="' + esc(e.title) + '" placeholder="What happened, in a line"></label>');
     out.push('<div class="ux-f"><span>Kind</span><div class="ux-radio">' + radio('uxKind', 'news', 'News', e.kind === 'news') + radio('uxKind', 'notice', 'Notice', e.kind === 'notice') + radio('uxKind', 'event', 'Event', e.kind === 'event') + '</div></div>');
@@ -145,9 +145,11 @@
       + '<div class="ux-bar" id="uxFilmBar" hidden><i></i></div><p class="ux-hint" id="uxFilmSay">MP4, WebM or MOV, up to 1 GB. Keep this page open while it uploads.</p></div>');
     out.push('<div class="ux-box" id="uxLinkBox"' + (e.film === 'link' ? '' : ' hidden') + '><label class="ux-f"><span>YouTube, Vimeo, Instagram or Facebook link</span>'
       + '<textarea class="ux-grow" rows="1" id="uxFilmLink" placeholder="https://youtu.be/… or a Facebook reel">' + esc(e.filmLink) + '</textarea></label></div>');
-    out.push('<button class="ux-plus" type="button" data-ux="toggle" aria-controls="uxPicBox" aria-expanded="' + hasPic + '"><i aria-hidden="true">+</i>Picture</button>');
-    out.push('<div class="ux-box" id="uxPicBox"' + (hasPic ? '' : ' hidden') + '>'
-      + '<p class="ux-hint">Shown with the update when it has no film, and as the film’s cover when it has one.</p>'
+    /* a picture with every update (27 Nov 2026): always open, never under a + */
+    var ownCover = e.film === 'mux' || (e.film === 'link' && /youtu\.?be/i.test(e.filmLink || ''));
+    out.push('<div class="ux-f"><span>Picture' + (ownCover ? ' (the YouTube film brings its own; add one to choose the cover)' : '') + '</span></div>');
+    out.push('<div class="ux-box" id="uxPicBox">'
+      + '<p class="ux-hint">Shown with the update on the home page and in the Newsroom, and as the film’s cover when it has one. Needed before it goes on the site.</p>'
       + (e.photo ? '<p class="ux-got">The picture:<img src="' + esc(e.photo) + '" alt=""></p><div><button class="ghost danger" type="button" data-ux="nopic">Remove the picture</button></div>' : '')
       + '<div class="ux-file"><input type="file" id="uxPicFile" accept="image/jpeg,image/png,image/webp"></div>'
       + '<div class="ux-bar" id="uxPicBar" hidden><i></i></div>'

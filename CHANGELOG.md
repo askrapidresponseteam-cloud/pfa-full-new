@@ -1,3 +1,17 @@
+## v1.643
+
+- **A photograph everywhere one belongs: every Newsroom story, and every update put on the site.** Owner, 27 Nov 2026.
+  - "if no photo, it looks odd. there cannot be any place where a photo is needed and it isnt there". Eight Newsroom stories were set in type with a large date where a photograph goes. Each now has one: PFA's own where the site has a fitting one (the Gadhimai rescue, the pig housing, PFA Uttarakhand's sanctuary, CineKind 2026), and otherwise a free photograph from Pexels of the animal in the story (the cobra, the turtle, the pigeon, the puppy). A story can no longer be added without one.
+  - A photograph that cannot be had gives way to PFA's own photograph, so no frame is ever left empty.
+  - Updates: a picture is needed before an update goes on the site (a YouTube film or a live show recording brings its own; a draft may wait). The Picture box is always open in the form, not under a +. An update put on the site before this, without a picture, shows PFA's own photograph in the bell and the Newsroom.
+  - Uploading a picture needs Storage switched on in Firebase (Build, Storage, Get started, location US-CENTRAL1, production mode); until then the panel says so.
+- **The same person's second application for the same thing is spotted and tied to the first.** Owner, 27 Nov 2026: "Why are there two applications for the same person? Can the system use matching details or identifiers to detect an existing application for the same purpose? Apply this check to other relevant use cases too."
+  - A new form is matched against the same person's earlier forms of the same kind: the same email (whatever its capitals) or the same mobile (however it is written), and for a job the same post. Checked for a new PFA unit, volunteering, a job, a colony caregiver card, a campus society, a corporate partnership, an Animal Care Centre offer and the podcast. A remote internship application was already added to the one on file by email.
+  - Never matched: cruelty reports, help desk questions, case follow-ups, donations and orders, which one person rightly sends many times; and a form marked spam or removed.
+  - The newer form is kept (it may carry something new) and the two are tied: its tile says "Same person, same application, sent before as" the first, and the first says "Sent again by the same person as" the later ones, each a press away. Forms already on file are tied once, the first time the register is read, so Anwari Begum Ansari's two unit applications show as one person's.
+- **The kind tiles over Submissions are all one size.** Owner, 27 Nov 2026: "can the tiles be of the same dimensions all of them". Every tile takes the height of the tallest, and they are a little wider so a name wraps to two lines at most.
+- Also in this build: v1.642 (Submissions tiles with unread counts, Facebook films at their real shape, the Kanpur clipping) and earlier.
+
 ## v1.642
 
 - **Newsroom: the Kanpur puppy cruelty arrest, from a newspaper clipping, under For the animals.** Owner, 26 Nov 2026.

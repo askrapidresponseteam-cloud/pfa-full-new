@@ -25,6 +25,10 @@
       "dek": "Maneka Gandhi, with the Film Federation of India's Abhay Sinha and Sandeep Marwah, announced the 2026 honours and called on cinema to become a voice for animals, since what audiences watch on screen shapes how they treat them.",
       "date": "2026-09-11",
       "place": "Mumbai",
+      "image": {
+        "src": "media/cinekind-2026/reels/the-hall.jpg",
+        "alt": "Guests at CineKind 2026 at The Leela, Mumbai"
+      },
       "link": {
         "href": "cinekind.html",
         "label": "About CineKind"
@@ -59,6 +63,10 @@
       "date": "2026-08-07",
       "place": "Bengaluru",
       "from": "PFA Wildlife Hospital, Bengaluru",
+      "image": {
+        "src": "https://images.pexels.com/photos/9560352/pexels-photo-9560352.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "alt": "An Indian cobra, alert, in the wild"
+      },
       "link": {
         "href": "https://www.etvbharat.com/en/bharat/pfa-rescued-treated-and-released-over-52000-wild-animals-awareness-key-to-protecting-bengalurus-urban-wildlife-enn26080702977",
         "label": "Read in ETV Bharat"
@@ -73,6 +81,10 @@
       "date": "2026-06-27",
       "place": "Rishikesh",
       "from": "PFA Public Policy Foundation",
+      "image": {
+        "src": "img/achievements/rec-021.webp",
+        "alt": "Sows housed in a group, resting and moving freely on straw"
+      },
       "link": {
         "href": "https://garhwalpost.in/uttarakhand-pioneers-scientific-high-welfare-pig-farming-with-model-demonstration-unit/",
         "label": "Read in Garhwal Post"
@@ -88,6 +100,10 @@
       "date": "2026-06-07",
       "place": "Dehradun",
       "from": "PFA Uttarakhand",
+      "image": {
+        "src": "img/achievements/rec-029.webp",
+        "alt": "Gauri Maulekhi of PFA Uttarakhand with rescued horses at the sanctuary in Uttarakhand"
+      },
       "link": {
         "href": "https://pioneeredge.in/four-donkeys-rescued-from-construction-site-in-doon/",
         "label": "Read in Pioneer Edge"
@@ -102,6 +118,10 @@
       "date": "2026-02-18",
       "place": "Chandigarh",
       "from": "People for Animals, Chandigarh",
+      "image": {
+        "src": "https://images.pexels.com/photos/17292797/pexels-photo-17292797.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "alt": "A freshwater turtle basking on a rock"
+      },
       "link": {
         "href": "https://www.tribuneindia.com/news/chandigarh/city-man-caught-with-protected-species-of-turtle/",
         "label": "Read in The Tribune"
@@ -116,6 +136,10 @@
       "date": "2026-01-13",
       "place": "Bengaluru",
       "from": "PFA Wildlife Hospital, Bengaluru",
+      "image": {
+        "src": "https://images.pexels.com/photos/7004498/pexels-photo-7004498.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "alt": "A pigeon landing on an outstretched hand in an Indian street"
+      },
       "link": {
         "href": "https://thebetterindia.com/wildlife/people-for-animals-wildlife-hospital-bengaluru-treating-and-rescue-rehabilitation-of-birds-manjha-related-kite-injuries-10995687",
         "label": "Read in The Better India"
@@ -146,6 +170,10 @@
       "date": "2024-12-18",
       "place": "Indo-Nepal border, Bihar",
       "from": "PFA and HSI/India",
+      "image": {
+        "src": "img/achievements/rec-011.webp",
+        "alt": "A Humane Society International/India rescuer embraces a buffalo saved from the Gadhimai sacrifice"
+      },
       "link": {
         "href": "https://www.humaneworld.org/en/news/nearly-400-animals-rescued-hsiindia-and",
         "label": "Read the report"
@@ -160,6 +188,10 @@
       "date": "2026-11-26",
       "place": "Kanpur",
       "from": "Gujaini, Kanpur",
+      "image": {
+        "src": "https://images.pexels.com/photos/17663165/pexels-photo-17663165.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "alt": "An Indian street puppy sitting on sandy ground"
+      },
       "print": "Reported in print, Kanpur"
     }
   ]

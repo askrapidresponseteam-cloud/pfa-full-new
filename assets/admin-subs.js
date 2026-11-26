@@ -50,14 +50,20 @@
     '.st.is-unread .st__from b::before{content:"";display:inline-block;width:8px;height:8px;margin:0 8px 2px 0;border-radius:50%;background:#ff3b18;vertical-align:middle}',
     '.flag[data-s="unread"]{border-color:#ff3b18;background:#ff3b18;color:#fff;font-weight:700}',
     '.st-empty{grid-column:1 / -1}',
+    /* the same person's form for the same thing, sent before or since */
+    '.st__tie{position:relative;z-index:1;margin:0;font-size:12.5px;line-height:1.45;color:#a3361b;overflow-wrap:anywhere}',
+    '.st__tie button{padding:0;border:0;background:none;color:inherit;font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}',
+    '.st__tie button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}',
     '.st-count{display:inline-flex;align-items:center;gap:6px;margin-left:10px;padding:3px 9px;border-radius:11px;background:#ff3b18;color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em;line-height:1.4}',
     '.st-count[hidden]{display:none}',
     /* the segments: one tile a kind of form, with a red count of the unread,
        as a notification count is; pressing one shows only that kind */
-    '.sg-grid{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:10px}',
+    '.sg-grid{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));grid-auto-rows:1fr;gap:10px}',
+    /* every tile the size of the tallest (27 Nov 2026: "can the tiles be of the same dimensions all of them") */
+    '.sg-grid > li{display:flex;min-width:0}',
     '.sg--more{min-height:0;justify-content:center;padding:14px;border-style:dashed;color:var(--muted)}',
     '.sg--more:hover{color:var(--ink)}',
-    '.sg{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;min-height:78px;box-sizing:border-box;padding:14px 44px 14px 14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}',
+    '.sg{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;height:100%;min-height:78px;box-sizing:border-box;padding:14px 44px 14px 14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}',
     '.sg:hover{border-color:var(--ink);box-shadow:0 6px 18px rgba(0,0,0,.06)}',
     '.sg:focus-visible{outline:2px solid var(--ink);outline-offset:2px}',
     '.sg[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}',
@@ -100,6 +106,17 @@
     return r && r.awaitingReply ? ' <span class="flag" data-s="wrote" title="' + esc('Wrote back ' + when(r.lastInboundAt || r.lastReplyAt)) + '">Wrote back</span>' : '';
   }
 
+  /* "Why are there two applications for the same person?" (27 Nov 2026):
+     the same person's form for the same thing, tied by the server
+     (lib/repeat-forms.js), each a press away */
+  function ties(r) {
+    var go = function (ref) { return '<button type="button" data-open-case="' + esc(ref) + '">' + esc(ref) + '</button>'; };
+    var out = '';
+    if (r.repeatOf) out += '<p class="st__tie">Same person, same application, sent before as ' + go(r.repeatOf) + '</p>';
+    var again = r.repeats || [];
+    if (again.length) out += '<p class="st__tie">Sent again by the same person as ' + again.map(go).join(', ') + '</p>';
+    return out;
+  }
   function tile(r) {
     var c = contactOf(r.fields);
     var who = c.name || c.email || c.mobile || 'Someone';
@@ -112,6 +129,7 @@
       + '<p class="st__from"><b>' + esc(c.name || '-') + '</b>' + (c.email || c.mobile ? '<span>' + esc(c.email || c.mobile) + '</span>' : '') + '</p>'
       + '<div class="st__flags">' + (r.unread ? '<span class="flag" data-s="unread">New</span> ' : '') + flag(r.status, r.statusLabel) + wrote(r)
       + (r.assignedTo ? '<span class="st__with">With ' + esc(r.assignedTo) + '</span>' : '') + '</div>'
+      + ties(r)
       + '</li>';
   }
 
@@ -218,7 +236,7 @@
   /* opened here: read at once, without waiting for the list to be read again */
   document.addEventListener('click', function (e) {
     var b = e.target && e.target.closest ? e.target.closest('#subRows [data-open-case]') : null;
-    var t = b && b.closest('.st');
+    var t = b && !b.closest('.st__tie') && b.closest('.st');
     if (!t || !t.classList.contains('is-unread')) return;
     t.classList.remove('is-unread');
     var mark = t.querySelector('.flag[data-s="unread"]');

@@ -49,6 +49,14 @@
 
   /* ---------- what each update's film is ---------- */
   function playable(u) { var m = u.media; return !!(m && (m.kind === 'youtube' || m.kind === 'vimeo' || m.kind === 'file' || m.kind === 'mux')); }
+  /* An update put on the site before every update had to carry a picture
+     (27 Nov 2026: "there cannot be any place where a photo is needed and it
+     isnt there") is shown with PFA's own photograph rather than an empty
+     frame. */
+  var COVER = 'img/og-default.jpg';
+  /* a picture that cannot be had gives way to PFA's own, and only then to nothing */
+  var SWAP = "if(!this.dataset.fb){this.dataset.fb=1;this.src='" + COVER + "'}else{this.remove()}";
+  function cover(u) { return poster(u) || COVER; }
   function poster(u) {
     var m = u.media || {};
     if (u.photo) return u.photo;
@@ -201,10 +209,10 @@
         '<span class="pfa-bell__go' + (on ? ' pfa-bell__go--play' : '') + '" aria-hidden="true">' + (on ? PLAY : ARROW) + '</span></a></li>';
     }
     BELL.list.slice(0, BELL_MAX).forEach(function (u, i) {
-      var go = playable(u) || framed(u), p = poster(u);
+      var go = playable(u) || framed(u), p = cover(u);
       html += '<li><a class="pfa-bell__row' + (fresh(u) ? ' is-new' : '') + '" href="newsroom.html#u-' + esc(u.id) + '" data-i="' + i + '">' +
         /* the picture, over the kind's word: a picture that fails leaves the word */
-        (p ? '<span class="pfa-bell__pic"><span>' + esc(u.kindLabel || 'News') + '</span><img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>'
+        (p ? '<span class="pfa-bell__pic"><span>' + esc(u.kindLabel || 'News') + '</span><img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" onerror="' + SWAP + '"></span>'
           : '<span class="pfa-bell__tag">' + esc(u.kindLabel || 'News') + '</span>') +
         '<span class="pfa-bell__text"><span class="pfa-bell__title">' + esc(u.title) + '</span>' +
         '<span class="pfa-bell__meta">' + esc(day(u.date)) + ' · ' + esc(watchWord(u)) + '</span></span>' +
@@ -292,13 +300,16 @@
         '<iframe data-fb="' + esc(FACEBOOK + encodeURIComponent(m.url) + '&show_text=false&allowfullscreen=1') + '"' +
         ' title="' + esc(kindWord + ': ' + u.title) + '" loading="lazy" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture; fullscreen; web-share" allowfullscreen></iframe></div>';
     } else if (playable(u) || framed(u)) {
-      var still = p ? '<img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">'
+      var still = p ? '<img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" onerror="' + SWAP + '">'
+        : m.kind !== 'file' ? '<img src="' + COVER + '" alt="" loading="lazy" decoding="async">'
         : m.kind === 'file' ? '<video src="' + esc(m.url) + '#t=1" muted playsinline preload="metadata" aria-hidden="true"></video>'
         : '<span class="upd__type" aria-hidden="true">' + esc(kindWord) + '</span>';
       media = '<button type="button" class="upd__media" data-play="' + i + '" aria-label="' + esc(watchWord(u) + ': ' + u.title) + '">' + still +
         '<span class="upd__play"><span class="upd__chip">' + PLAY + '</span>' + esc(watchWord(u)) + '</span></button>';
     } else if (u.photo) {
       media = '<figure class="upd__media upd__media--still" style="margin:0"><img src="' + esc(u.photo) + '" alt="' + esc(u.photoAlt || '') + '" loading="lazy" decoding="async"></figure>';
+    } else {
+      media = '<figure class="upd__media upd__media--still" style="margin:0"><img src="' + COVER + '" alt="" loading="lazy" decoding="async"></figure>';
     }
     var ps = paras(u.body);
     var body = ps.length ? '<div class="upd__body">' + ps[0] + (ps.length > 1 ? '<div class="upd__rest" id="upd-rest-' + i + '" hidden>' + ps.slice(1).join('') + '</div>' : '') + '</div>' : '';

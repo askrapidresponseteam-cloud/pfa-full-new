@@ -17,6 +17,7 @@ const ROOT = path.join(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const NOW = Date.parse('2026-11-26T05:00:00Z');
 const FILE = 'https://firebasestorage.googleapis.com/v0/b/pfa-new-website.firebasestorage.app/o/public%2Fupdates%2F2026%2Fabcdef0123456789abcdef01.mp4?alt=media&token=0b7c6a52-9d1e-4f3a-8a59-3c7c2a1b9e10';
+const PIC = FILE.replace('.mp4', '.webp');
 
 function call(handler, method, body, headers) {
   return new Promise((resolve) => {
@@ -44,7 +45,7 @@ test('film links: YouTube in every shape, Vimeo, Instagram posts and reels; noth
   assert.deepEqual(U.readLink('https://fb.watch/abCD12xy/'), { kind: 'facebook', url: 'https://fb.watch/abCD12xy/', reel: false });
   assert.deepEqual(U.readLink('https://www.facebook.com/share/r/1AbCdEfGh/'), { kind: 'facebook', url: 'https://www.facebook.com/share/r/1AbCdEfGh/', reel: true });
   assert.equal(U.readLink('https://www.facebook.com/someone/posts/1').bad, true, 'a post that is not a film');
-  assert.deepEqual(U.check({ title: 'Delhi notice', media: { link: 'facebook.com/reel/1785602909217866/?rdid=x' } }).media, { kind: 'facebook', url: 'https://www.facebook.com/reel/1785602909217866', reel: true });
+  assert.deepEqual(U.check({ title: 'Delhi notice', photo: PIC, media: { link: 'facebook.com/reel/1785602909217866/?rdid=x' } }).media, { kind: 'facebook', url: 'https://www.facebook.com/reel/1785602909217866', reel: true });
   assert.equal(U.readLink('https://evil.example/watch?v=dQw4w9WgXcQ').bad, true);
   assert.equal(U.readLink('https://youtube.com/watch?v=short').bad, true);
 });
@@ -58,7 +59,14 @@ test('an update is checked: a title, long dashes made hyphens, only our own file
   assert.equal(c.link, 'donate.html#ways');
   assert.deepEqual(c.media, { kind: 'youtube', id: 'dQw4w9WgXcQ' });
   assert.equal(U.check({ title: 'A film', media: { kind: 'file', url: 'https://evil.example/x.mp4' } }).ok, false);
-  assert.equal(U.check({ title: 'A film', media: { kind: 'file', url: FILE } }).ok, true);
+  assert.equal(U.check({ title: 'A film', media: { kind: 'file', url: FILE } }).ok, false, 'a film of our own needs a cover picture');
+  assert.equal(U.check({ title: 'A film', photo: PIC, media: { kind: 'file', url: FILE } }).ok, true);
+  /* a picture with every update put on the site (27 Nov 2026); a YouTube film brings its own; a draft may wait */
+  assert.equal(U.check({ title: 'A notice' }).needsPicture, true);
+  assert.equal(U.check({ title: 'A notice', status: 'draft' }).ok, true);
+  assert.equal(U.check({ title: 'A notice', photo: PIC }).ok, true);
+  assert.equal(U.check({ title: 'A reel', media: { link: 'https://www.instagram.com/reel/C1abcDEF12/' } }).needsPicture, true);
+  assert.equal(U.check({ title: 'A film', media: { link: 'https://youtu.be/dQw4w9WgXcQ' } }).ok, true);
   assert.equal(U.check({ title: 'A picture', photo: 'https://evil.example/x.jpg' }).ok, false);
   assert.equal(U.check({ title: 'A link', link: 'http://example.org' }).ok, false);
   assert.equal(U.check({ title: 'A link', link: 'javascript:alert(1)' }).ok, false);
@@ -66,18 +74,18 @@ test('an update is checked: a title, long dashes made hyphens, only our own file
 
 test('the public list: published only, the kept one first, newest next, no names of staff, dated in India', async () => {
   const db = memoryFirestore();
-  await U.save(db, 'a@pfa', { title: 'Older news item', status: 'published' }, NOW - 3 * 864e5);
-  const pin = await U.save(db, 'a@pfa', { title: 'Kept at the top', pinned: true }, NOW - 2 * 864e5);
+  await U.save(db, 'a@pfa', { title: 'Older news item', status: 'published', photo: PIC }, NOW - 3 * 864e5);
+  const pin = await U.save(db, 'a@pfa', { title: 'Kept at the top', pinned: true, photo: PIC }, NOW - 2 * 864e5);
   await U.save(db, 'a@pfa', { title: 'A draft for later', status: 'draft' }, NOW - 864e5);
   /* posted at 1 am in India on the 26th: 19:30 UTC on the 25th */
-  await U.save(db, 'a@pfa', { title: 'Newest news item' }, Date.parse('2026-11-25T19:30:00Z'));
+  await U.save(db, 'a@pfa', { title: 'Newest news item', photo: PIC }, Date.parse('2026-11-25T19:30:00Z'));
   let list = await U.publicList(db);
   assert.deepEqual(list.map((u) => u.title), ['Kept at the top', 'Newest news item', 'Older news item']);
   assert.equal(list[1].date, '2026-11-26');
   assert.ok(!JSON.stringify(list).includes('a@pfa'));
   /* keeping another at the top lets the first go */
   const other = list.find((u) => u.title === 'Older news item');
-  await U.save(db, 'b@pfa', { id: other.id, title: 'Older news item', pinned: true }, NOW);
+  await U.save(db, 'b@pfa', { id: other.id, title: 'Older news item', pinned: true, photo: PIC }, NOW);
   list = await U.publicList(db);
   assert.equal(list[0].title, 'Older news item');
   assert.equal(list.filter((u) => u.pinned).length, 1);
@@ -272,6 +280,10 @@ test('wiring: routes, panel sections, page holders, rules, policy, and no long d
   assert.match(css, /\.upd__media--tall\{aspect-ratio:9\/16;/);
   assert.match(css, /\.upd__list\[data-n="1"\]\{grid-template-columns:minmax\(0,1fr\)\}/, 'one update fills the row');
   assert.match(read('vercel.json'), /frame-src[^;]*https:\/\/www\.facebook\.com/);
+  /* never an empty frame: an older update without a picture, or one whose picture fails, shows PFA's own (27 Nov 2026) */
+  assert.match(upd, /var COVER = 'img\/og-default\.jpg';/);
+  assert.match(upd, /function cover\(u\) \{ return poster\(u\) \|\| COVER; \}/);
+  assert.doesNotMatch(upd, /onerror="this\.remove\(\)"/);
   assert.match(read('assets/admin-updates.js'), /YouTube, Vimeo, Instagram or Facebook link/);
   for (const f of ['lib/site-updates.js', 'lib/update-media.js', 'lib/live-show.js', 'lib/routes/updates.js', 'lib/routes/admin/updates.js', 'lib/routes/live.js', 'lib/routes/admin/live.js',
     'assets/updates.js', 'assets/updates.css', 'assets/live-show.js', 'assets/live.css', 'assets/admin-updates.js', 'assets/admin-live-show.js', 'live.html']) {

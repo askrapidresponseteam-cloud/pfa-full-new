@@ -96,7 +96,11 @@ function validate(data, root = ROOT) {
       else if (fronts.has(st.front)) say(`front ${st.front} is used twice`);
       else fronts.add(st.front);
     }
-    if (st.image != null) {
+    /* every story carries a photograph (owner, 27 Nov 2026: "if no photo, it
+       looks odd. there cannot be any place where a photo is needed and it
+       isnt there") */
+    if (st.image == null) say('image is missing: every story carries a photograph');
+    else {
       const p = st.image;
       if (!p || !text(p.src) || !text(p.alt)) say('image needs a src and an alt');
       else if (/^https:\/\//.test(p.src)) { if (!hosts.includes(new URL(p.src).host)) say(`image: ${new URL(p.src).host} is not in the img-src of the Content-Security-Policy in vercel.json`); }
@@ -130,7 +134,11 @@ function validate(data, root = ROOT) {
 
 const newestFirst = (stories) => stories.slice().sort((a, b) => (a.date === b.date ? (a.slug < b.slug ? -1 : 1) : (a.date < b.date ? 1 : -1)));
 
-const ONERROR = 'onerror="var t=this.closest(\'[data-tile]\');if(t)t.setAttribute(\'data-noimg\',\'\');var f=this.closest(\'[data-shot]\');if(f)f.remove()"';
+/* A photograph that cannot be had is replaced by PFA's own (27 Nov 2026:
+   "there cannot be any place where a photo is needed and it isnt there");
+   only if that fails too is the story set in type. */
+const FALLBACK = 'img/og-default.jpg';
+const ONERROR = `onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${FALLBACK}';return}var t=this.closest('[data-tile]');if(t)t.setAttribute('data-noimg','');var f=this.closest('[data-shot]');if(f)f.remove()"`;
 
 /* A report on another site opens in a new tab, without handing it this page. */
 const rel = (st) => (/^https:\/\//.test(st.link.href) ? ' target="_blank" rel="noopener noreferrer external"' : '');
