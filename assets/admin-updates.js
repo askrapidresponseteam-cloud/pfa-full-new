@@ -4,7 +4,7 @@
    it should have a cool video player as well").
 
    A list of updates, newest first, and a short form: title, a few lines,
-   and at most one film (uploaded here, or a YouTube, Vimeo or Instagram
+   and at most one film (uploaded here, or a YouTube, Vimeo, Instagram or Facebook
    link) and one picture. The latest update shows under the home page's
    buttons; every update shows at the top of the Newsroom. Read from and
    saved through /api/admin/updates (lib/routes/admin/updates.js).
@@ -36,6 +36,8 @@
     '.ux-f>span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}',
     '.ux-f input[type=text],.ux-f input[type=url],.ux-f textarea{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:14px;color:var(--ink);border-radius:0}',
     '.ux-f textarea{min-height:130px;resize:vertical;line-height:1.55;field-sizing:content}',
+    /* a long link wraps inside its box, never cut off at the edge */
+    '.ux-f textarea.ux-grow{min-height:44px;resize:none;overflow:hidden;word-break:break-all}',
     '.ux-f input:focus,.ux-f textarea:focus{outline:none;border-color:var(--ink)}',
     '.ux-hint{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}',
     '.ux-radio{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:14px}',
@@ -64,7 +66,7 @@
   var S = { list: [], edit: null, busy: false };
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var KIND = { news: 'News', notice: 'Notice', event: 'Event' };
-  var FILM = { file: 'Uploaded film', youtube: 'YouTube film', vimeo: 'Vimeo film', instagram: 'Instagram', mux: 'Live show recording' };
+  var FILM = { file: 'Uploaded film', youtube: 'YouTube film', vimeo: 'Vimeo film', instagram: 'Instagram', facebook: 'Facebook', mux: 'Live show recording' };
 
   function node() { return $('[data-pane="updates"]'); }
   function api(body) { return A.api(URL_, body ? { method: 'POST', body: body } : undefined); }
@@ -116,7 +118,7 @@
       var m = u.media;
       if (m && m.kind === 'file') { e.film = 'file'; }
       else if (m && m.kind === 'mux') { e.film = 'mux'; }
-      else if (m) { e.film = 'link'; e.filmLink = m.kind === 'youtube' ? 'https://youtu.be/' + m.id : m.kind === 'vimeo' ? 'https://vimeo.com/' + m.id : 'https://www.instagram.com/' + (m.reel ? 'reel' : 'p') + '/' + m.id + '/'; }
+      else if (m) { e.film = 'link'; e.filmLink = m.kind === 'youtube' ? 'https://youtu.be/' + m.id : m.kind === 'vimeo' ? 'https://vimeo.com/' + m.id : m.kind === 'facebook' ? m.url : 'https://www.instagram.com/' + (m.reel ? 'reel' : 'p') + '/' + m.id + '/'; }
     }
     S.edit = e;
     paintForm();
@@ -141,8 +143,8 @@
       + (e.media && e.media.kind === 'file' ? '<p class="ux-got">A film is uploaded. Choose another file only to replace it.</p>' : '')
       + '<div class="ux-file"><input type="file" id="uxFilmFile" accept="video/mp4,video/webm,video/quicktime"></div>'
       + '<div class="ux-bar" id="uxFilmBar" hidden><i></i></div><p class="ux-hint" id="uxFilmSay">MP4, WebM or MOV, up to 1 GB. Keep this page open while it uploads.</p></div>');
-    out.push('<div class="ux-box" id="uxLinkBox"' + (e.film === 'link' ? '' : ' hidden') + '><label class="ux-f"><span>YouTube, Vimeo or Instagram link</span>'
-      + '<input type="url" id="uxFilmLink" value="' + esc(e.filmLink) + '" placeholder="https://youtu.be/…"></label></div>');
+    out.push('<div class="ux-box" id="uxLinkBox"' + (e.film === 'link' ? '' : ' hidden') + '><label class="ux-f"><span>YouTube, Vimeo, Instagram or Facebook link</span>'
+      + '<textarea class="ux-grow" rows="1" id="uxFilmLink" placeholder="https://youtu.be/… or a Facebook reel">' + esc(e.filmLink) + '</textarea></label></div>');
     out.push('<button class="ux-plus" type="button" data-ux="toggle" aria-controls="uxPicBox" aria-expanded="' + hasPic + '"><i aria-hidden="true">+</i>Picture</button>');
     out.push('<div class="ux-box" id="uxPicBox"' + (hasPic ? '' : ' hidden') + '>'
       + '<p class="ux-hint">Shown with the update when it has no film, and as the film’s cover when it has one.</p>'
@@ -152,7 +154,7 @@
       + '<label class="ux-f"><span>What the picture shows</span><input type="text" id="uxPicAlt" maxlength="160" value="' + esc(e.photoAlt) + '" placeholder="For people who cannot see it"></label></div>');
     out.push('<button class="ux-plus" type="button" data-ux="toggle" aria-controls="uxLinkMore" aria-expanded="' + hasLink + '"><i aria-hidden="true">+</i>Read more link</button>');
     out.push('<div class="ux-box" id="uxLinkMore"' + (hasLink ? '' : ' hidden') + '>'
-      + '<label class="ux-f"><span>A page of the site or a web address</span><input type="text" id="uxLink" value="' + esc(e.link) + '" placeholder="donate.html, or https://…"></label>'
+      + '<label class="ux-f"><span>A page of the site or a web address</span><textarea class="ux-grow" rows="1" id="uxLink" placeholder="donate.html, or https://…">' + esc(e.link) + '</textarea></label>'
       + '<label class="ux-f"><span>Its words</span><input type="text" id="uxLinkLabel" maxlength="40" value="' + esc(e.linkLabel) + '" placeholder="Read the full story"></label></div>');
     out.push('<label class="ux-check"><input type="checkbox" id="uxPin"' + (e.pinned ? ' checked' : '') + '><span>Keep at the top, on the home page and the Newsroom, until another is kept there</span></label>');
     out.push('<div class="ux-foot"><button class="press" type="button" data-ux="publish">' + (e.status === 'published' && e.id ? 'Save' : 'Put on the site') + '</button>'
@@ -166,8 +168,8 @@
   function read() {
     var e = S.edit;
     var v = function (id) { var el = document.getElementById(id); return el ? el.value : ''; };
-    e.title = v('uxTitle'); e.body = v('uxBody'); e.filmLink = v('uxFilmLink');
-    e.photoAlt = v('uxPicAlt'); e.link = v('uxLink'); e.linkLabel = v('uxLinkLabel');
+    e.title = v('uxTitle'); e.body = v('uxBody'); e.filmLink = v('uxFilmLink').replace(/\s+/g, '');
+    e.photoAlt = v('uxPicAlt'); e.link = v('uxLink').replace(/\s+/g, ''); e.linkLabel = v('uxLinkLabel');
     var k = document.querySelector('input[name=uxKind]:checked'); if (k) e.kind = k.value;
     var f = document.querySelector('input[name=uxFilm]:checked'); if (f) e.film = f.value;
     var p = document.getElementById('uxPin'); if (p) e.pinned = p.checked;
@@ -239,6 +241,14 @@
     }).catch(function (x) { S.busy = false; err(x && x.message); });
   }
 
+  /* a link box grows with what is pasted, and Enter never breaks the link */
+  document.addEventListener('input', function (ev) {
+    var t = ev.target;
+    if (t && t.classList && t.classList.contains('ux-grow')) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 2 + 'px'; }
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter' && ev.target && ev.target.classList && ev.target.classList.contains('ux-grow')) ev.preventDefault();
+  });
   document.addEventListener('change', function (ev) {
     if (!S.edit || !node() || !node().contains(ev.target)) return;
     var t = ev.target;

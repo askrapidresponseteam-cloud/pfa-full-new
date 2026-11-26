@@ -139,14 +139,17 @@ test('after 5 November it is a letter to read, not to send', () => {
 
 /* ---- the bell beside Shop ---------------------------------------------------- */
 
-test('the home page has the bell beside Shop, and it opens this page', () => {
+test('the home page has the bell beside Shop; since the appeal closed it holds the updates', () => {
   const doc = new JSDOM(read('index.html')).window.document;
   const bell = doc.querySelector('header.site .navlinks .shop + .pfa-notification');
   assert.ok(bell, 'right after Shop');
-  assert.equal(bell.getAttribute('href'), PAGE);
-  assert.equal(bell.getAttribute('data-until'), '2026-11-06T00:00:00+05:30', 'gone at the end of 5 November, India time');
-  assert.match(bell.getAttribute('aria-label'), /lab animal rules/i, 'a screen reader is told what it opens');
-  assert.ok(bell.querySelector('svg') && bell.querySelector('.pfa-notification__dot'));
+  /* 26 Nov 2026: the appeal closed on 5 November; the bell is now where
+     "From PFA" lives, a plain link to the Newsroom's updates without script */
+  assert.equal(bell.getAttribute('href'), 'newsroom.html#from-pfa');
+  assert.equal(bell.getAttribute('data-updates'), 'bell');
+  assert.equal(bell.getAttribute('data-until'), null, 'it stays');
+  assert.match(bell.getAttribute('aria-label'), /updates/i, 'a screen reader is told what it opens');
+  assert.ok(bell.querySelector('svg'));
   /* the landing page only */
   for (const f of fs.readdirSync(ROOT).filter((n) => n.endsWith('.html') && n !== 'index.html')) {
     assert.doesNotMatch(read(f), /class="pfa-notification"/, `${f} has no bell`);

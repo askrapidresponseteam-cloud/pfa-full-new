@@ -37,6 +37,14 @@ test('film links: YouTube in every shape, Vimeo, Instagram posts and reels; noth
   assert.deepEqual(U.readLink('https://vimeo.com/channels/x/123456789'), { kind: 'vimeo', id: '123456789' });
   assert.deepEqual(U.readLink('https://www.instagram.com/reel/C1abcDEF12/?igsh=x'), { kind: 'instagram', id: 'C1abcDEF12', reel: true });
   assert.deepEqual(U.readLink('https://instagram.com/p/C1abcDEF12'), { kind: 'instagram', id: 'C1abcDEF12', reel: false });
+  /* Facebook (26 Nov 2026): reels, videos, watch, share and fb.watch links, the tracking dropped */
+  assert.deepEqual(U.readLink('facebook.com/reel/1785602909217866/?rdid=hxeZx&share_url=https%3A%2F%2Fwww.facebook.com'), { kind: 'facebook', url: 'https://www.facebook.com/reel/1785602909217866', reel: true });
+  assert.deepEqual(U.readLink('https://m.facebook.com/watch/?v=123456789012'), { kind: 'facebook', url: 'https://www.facebook.com/watch/?v=123456789012', reel: false });
+  assert.deepEqual(U.readLink('https://www.facebook.com/PeopleForAnimals/videos/987654321012345/'), { kind: 'facebook', url: 'https://www.facebook.com/PeopleForAnimals/videos/987654321012345', reel: false });
+  assert.deepEqual(U.readLink('https://fb.watch/abCD12xy/'), { kind: 'facebook', url: 'https://fb.watch/abCD12xy/', reel: false });
+  assert.deepEqual(U.readLink('https://www.facebook.com/share/r/1AbCdEfGh/'), { kind: 'facebook', url: 'https://www.facebook.com/share/r/1AbCdEfGh/', reel: true });
+  assert.equal(U.readLink('https://www.facebook.com/someone/posts/1').bad, true, 'a post that is not a film');
+  assert.deepEqual(U.check({ title: 'Delhi notice', media: { link: 'facebook.com/reel/1785602909217866/?rdid=x' } }).media, { kind: 'facebook', url: 'https://www.facebook.com/reel/1785602909217866', reel: true });
   assert.equal(U.readLink('https://evil.example/watch?v=dQw4w9WgXcQ').bad, true);
   assert.equal(U.readLink('https://youtube.com/watch?v=short').bad, true);
 });
@@ -128,7 +136,7 @@ test('uploads: only films and pictures of a sane size, only from the panel, and 
   try {
     const r = await M.start({ kind: 'video', type: 'video/mp4', size: 10, origin: 'https://pfa-new-website.web.app' });
     assert.equal(r.ok, false);
-    assert.match(r.message, /YouTube, Vimeo or Instagram link/);
+    assert.match(r.message, /YouTube, Vimeo, Instagram or Facebook link/);
   } finally { M._stub(null); }
 });
 
@@ -235,7 +243,12 @@ test('wiring: routes, panel sections, page holders, rules, policy, and no long d
   assert.match(admin, /data-tab="updates"/); assert.match(admin, /data-tab="live"/);
   assert.match(admin, /assets\/admin-updates\.js/); assert.match(admin, /assets\/admin-live-show\.js/);
   assert.match(read('scripts/build-firebase.js'), /'assets\/admin-updates\.js', 'assets\/admin-live-show\.js'/);
-  assert.match(read('index.html'), /data-updates="strip"[^>]*hidden/);
+  /* on top, as on Facebook (26 Nov 2026: "this cannot be below the join
+     button. have it on top like facebook"): the bell beside Shop, and
+     nothing left under the hero's buttons */
+  const home = read('index.html');
+  assert.match(home, /class="shop">Shop<\/a>\s*<a class="pfa-notification" href="newsroom\.html#from-pfa" data-updates="bell"/);
+  assert.doesNotMatch(home, /data-updates="strip"|class="pfa-new"/);
   assert.match(read('newsroom.html'), /<section class="upd" id="from-pfa" data-updates="feed"[^>]*hidden><\/section>/);
   assert.match(read('scripts/build-newsroom.js'), /data-updates="feed"/);
   assert.match(read('live.html'), /<script src="assets\/live-show\.js" defer><\/script>/);
@@ -246,6 +259,14 @@ test('wiring: routes, panel sections, page holders, rules, policy, and no long d
   assert.match(csp, /connect-src 'self' https:\/\/storage\.googleapis\.com/);
   assert.match(read('scripts/firebase-secrets.js'), /'MUX_TOKEN_ID', 'MUX_TOKEN_SECRET'/);
   assert.match(read('assets/theatre.js'), /\\\.m3u8/);
+  /* a Facebook film plays on the page, in Facebook's own frame, at once, from the bell too */
+  const upd = read('assets/updates.js');
+  assert.match(upd, /var FACEBOOK = 'https:\/\/www\.facebook\.com\/plugins\/video\.php\?href=';/);
+  assert.match(upd, /&autoplay=1&mute=0/);
+  assert.match(upd, /if \(playable\(u\) \|\| framed\(u\)\) \{ e\.preventDefault\(\); shutBell\(false\); play\(u, bell\); \}/);
+  assert.match(read('assets/updates.css'), /\.pfa-bell__count\{position:absolute/);
+  assert.match(read('vercel.json'), /frame-src[^;]*https:\/\/www\.facebook\.com/);
+  assert.match(read('assets/admin-updates.js'), /YouTube, Vimeo, Instagram or Facebook link/);
   for (const f of ['lib/site-updates.js', 'lib/update-media.js', 'lib/live-show.js', 'lib/routes/updates.js', 'lib/routes/admin/updates.js', 'lib/routes/live.js', 'lib/routes/admin/live.js',
     'assets/updates.js', 'assets/updates.css', 'assets/live-show.js', 'assets/live.css', 'assets/admin-updates.js', 'assets/admin-live-show.js', 'live.html']) {
     assert.ok(!/[\u2013\u2014\u2212]/.test(read(f)), f + ' carries a long dash');

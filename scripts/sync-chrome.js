@@ -114,24 +114,23 @@ const SKIP = new Set(['submission-collage.html', 'admin.html', 'read.html']);
 
 
 /* The bell beside Shop (owner, 22 Oct 2026: "notification icon next to shop
-   on the landing page should open this page"). On the pages whose PAGES
-   entry says alert: true, which is the home page. It opens the appeal that is
-   open now, and data-until takes it away when that closes: assets/chrome.js
-   removes it once the date has passed, so nothing has to be shipped on the
-   day. Change ALERT when the next appeal opens. */
+   on the landing page"). On the pages whose PAGES entry says alert: true,
+   which is the home page. Since 26 Nov 2026 ("this cannot be below the join
+   button. have it on top like facebook") it is where "From PFA" lives:
+   assets/updates.js gives it a red count of what is new and opens the
+   latest updates under it, PFA Live first while a show is on or coming.
+   Without the script it is a plain link to the Newsroom's updates. */
 const ALERT = {
-  href: 'lab-animal-rules.html',
-  until: '2026-11-06T00:00:00+05:30',
-  label: 'Animal welfare alert: object to the draft lab animal rules by 5 November 2026',
-  title: 'Speak up for animals, by 5 November 2026'
+  href: 'newsroom.html#from-pfa',
+  label: 'Updates from PFA',
+  title: 'Updates from PFA'
 };
 function alertMarkup() {
-  return `<a class="pfa-notification" href="${ALERT.href}" data-until="${ALERT.until}" aria-label="${ALERT.label}" title="${ALERT.title}">` +
+  return `<a class="pfa-notification" href="${ALERT.href}" data-updates="bell" aria-label="${ALERT.label}" title="${ALERT.title}">` +
     '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     /* drawn one unit lower than it was: its ink ran from 1 to 21 of 24, a
        pixel above the middle of its button (23 Oct 2026); now 2 to 22 */
-    '<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 22h4M12 3V2"/></svg>' +
-    '<span class="pfa-notification__dot" aria-hidden="true"></span></a>';
+    '<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 22h4M12 3V2"/></svg></a>';
 }
 
 /* The tab bar: the site on a phone or tablet, read like an app (owner,

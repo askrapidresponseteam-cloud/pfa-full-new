@@ -2,11 +2,12 @@
  * section (owner, 26 Nov 2026: "find a best place to display new
  * news/notifications ... it should have a cool video player as well").
  *
- * Two holders, both empty and hidden in the page until there is something
- * to put in them, so a page whose request fails looks exactly as before:
- *   [data-updates="strip"]  home page, under the hero's buttons: the latest
- *                           update, marked New until it is opened, or PFA
- *                           Live while a show is on or about to start
+ * Two places; a page whose request fails looks exactly as before (the bell
+ * stays a plain link to the Newsroom's updates):
+ *   [data-updates="bell"]   the bell at the top of the home page: a red
+ *                           count of what is new, and under it the latest
+ *                           updates, with PFA Live first while a show is on
+ *                           or about to start
  *   [data-updates="feed"]   the Newsroom, under its masthead: every update,
  *                           three at first and the rest under + More updates
  *
@@ -17,15 +18,16 @@
  */
 (function () {
   'use strict';
-  var strip = document.querySelector('[data-updates="strip"]');
+  var bell = document.querySelector('[data-updates="bell"]');
   var feed = document.querySelector('[data-updates="feed"]');
-  if (!strip && !feed) return;
+  if (!bell && !feed) return;
 
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var FRESH_DAYS = 14;
   /* a film's stream (media-src) and Instagram's frame (frame-src), both named in the policy */
   var MUX_STREAM = 'https://stream.mux.com/';
   var INSTAGRAM = 'https://www.instagram.com/';
+  var FACEBOOK = 'https://www.facebook.com/plugins/video.php?href=';
   var FIRST = 3;
   var SEEN_KEY = 'pfa:updates:seen';
   var PLAY = '<svg viewBox="0 0 12 14" aria-hidden="true"><path fill="currentColor" d="M0 0l12 7-12 7z"/></svg>';
@@ -63,9 +65,13 @@
     var p = poster(u); if (p) f.poster = p;
     return f;
   }
+  /* played in the platform's own frame, on this page (26 Nov 2026, of
+     Facebook: "they should start playing natively") */
+  function framed(u) { var m = u.media; return !!(m && (m.kind === 'instagram' || m.kind === 'facebook')); }
   function watchWord(u) {
     var m = u.media || {};
     if (m.kind === 'instagram') return m.reel ? 'Watch the reel' : 'See the post';
+    if (m.kind === 'facebook') return m.reel ? 'Watch the reel' : 'Watch the film';
     return playable(u) ? 'Watch the film' : 'Read more';
   }
 
@@ -96,7 +102,7 @@
   function play(u, from) {
     markSeen(u.id);
     var m = u.media || {};
-    if (m.kind === 'instagram') return insta(u, from);
+    if (framed(u)) return insta(u, from);
     if (!playable(u)) return;
     var i = LIST.filter(playable).indexOf(u);
     withTheatre(function (t) {
@@ -111,7 +117,8 @@
   var ig = null, igBack = null;
   function insta(u, from) {
     var m = u.media || {};
-    if (!/^[\w-]{5,40}$/.test(m.id || '')) return;
+    var fb = m.kind === 'facebook';
+    if (fb ? !/^https:\/\/(www\.facebook\.com|fb\.watch)\//.test(m.url || '') : !/^[\w-]{5,40}$/.test(m.id || '')) return;
     if (!ig) {
       ig = document.createElement('div');
       ig.className = 'upd-ig'; ig.hidden = true;
@@ -124,9 +131,16 @@
     }
     igBack = from || null;
     ig.querySelector('.upd-ig__ttl').textContent = u.title;
+    ig.setAttribute('aria-label', fb ? 'Facebook film' : 'Instagram post');
+    /* a Facebook film that is not a reel is wide; a reel or a post is tall */
+    ig.classList.toggle('upd-ig--wide', fb && !m.reel);
+    ig.classList.toggle('upd-ig--fb', fb);
     var f = document.createElement('iframe');
-    f.src = INSTAGRAM + (m.reel ? 'reel' : 'p') + '/' + m.id + '/embed';
-    f.title = u.title; f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture'); f.setAttribute('allowfullscreen', '');
+    /* it starts at once: the press that opened it lets it play with sound */
+    f.src = fb ? FACEBOOK + encodeURIComponent(m.url) + '&show_text=false&autoplay=1&mute=0&allowfullscreen=1&width=' + (m.reel ? 400 : 960)
+      : INSTAGRAM + (m.reel ? 'reel' : 'p') + '/' + m.id + '/embed';
+    f.setAttribute('scrolling', 'no');
+    f.title = u.title; f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen'); f.setAttribute('allowfullscreen', '');
     var box = ig.querySelector('.upd-ig__frame'); box.textContent = ''; box.appendChild(f);
     ig.hidden = false;
     document.documentElement.style.overflow = 'hidden';
@@ -139,41 +153,125 @@
     if (igBack && igBack.focus) try { igBack.focus({ preventScroll: true }); } catch (e) { igBack.focus(); }
   }
 
-  /* ---------- the home strip ---------- */
-  function paintStrip(list, live) {
-    if (!strip) return;
-    var html = '';
-    if (live && (live.status === 'live' || live.status === 'soon')) {
-      var on = live.status === 'live';
-      var when = '';
+  /* ---------- the bell at the top ----------
+     Owner, 26 Nov 2026, of the line that sat under Join now: "this cannot be
+     below the join button. have it on top like facebook". The bell in the
+     header carries a red count of what is new (PFA Live about to start or
+     on, and updates not yet seen); pressing it opens the list under it.
+     Opening clears the count; a row stays marked until it is opened. A film
+     or a reel plays right here; anything else opens in the Newsroom. With
+     no script the bell is a plain link to the Newsroom's updates. */
+  var NOTICED_KEY = 'pfa:updates:noticed';
+  var BELL_MAX = 6;
+  var box = null, BELL = { list: [], live: null };
+  function noticed() { try { return JSON.parse(localStorage.getItem(NOTICED_KEY) || '[]') || []; } catch (e) { return []; } }
+  function notice(ids) {
+    try { var n = noticed(); ids.forEach(function (id) { if (n.indexOf(id) < 0) n.push(id); }); localStorage.setItem(NOTICED_KEY, JSON.stringify(n.slice(-80))); } catch (e) { /* private mode */ }
+  }
+  function liveOn(live) { return !!(live && (live.status === 'live' || live.status === 'soon')); }
+  function liveKey(live) { return 'live:' + (live.status === 'live' ? 'on:' : '') + (live.startsAt || live.title || ''); }
+  function newIds() {
+    var ids = [];
+    if (liveOn(BELL.live)) ids.push(liveKey(BELL.live));
+    BELL.list.slice(0, BELL_MAX).forEach(function (u) { if (fresh(u)) ids.push(u.id); });
+    return ids;
+  }
+  function paintCount() {
+    if (!bell) return;
+    var n = noticed();
+    var count = newIds().filter(function (id) { return n.indexOf(id) < 0; }).length;
+    var c = bell.querySelector('.pfa-bell__count');
+    if (!c) { c = document.createElement('span'); c.className = 'pfa-bell__count'; c.setAttribute('aria-hidden', 'true'); bell.appendChild(c); }
+    c.textContent = count > 9 ? '9+' : String(count);
+    c.hidden = !count;
+    bell.setAttribute('aria-label', count ? 'Updates from PFA, ' + count + ' new' : 'Updates from PFA');
+  }
+  function bellRows() {
+    var html = '', live = BELL.live;
+    if (liveOn(live)) {
+      var on = live.status === 'live', when = '';
       if (!on && live.startsAt) {
         var t = new Date(live.startsAt);
         if (!isNaN(t)) when = t.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
       }
-      html = '<a class="pfa-new__row" href="live.html">' +
-        '<span class="pfa-new__tag"' + (on ? ' data-live' : '') + '>' + (on ? '<span class="pfa-new__dot" aria-hidden="true"></span>Live now' : 'Live soon') + '</span>' +
-        '<span class="pfa-new__text"><span class="pfa-new__title">' + esc(live.title) + '</span>' +
-        '<span class="pfa-new__meta">' + (on ? 'Watch, comment and ask a question' : (when ? esc(when) + ' · ' : '') + 'Send a question now') + '</span></span>' +
-        '<span class="pfa-new__go' + (on ? ' pfa-new__go--play' : '') + '" aria-hidden="true">' + (on ? PLAY : ARROW) + '</span></a>';
-    } else if (list.length) {
-      var u = list[0];
-      var isNew = fresh(u);
-      var canPlay = playable(u);
-      html = '<a class="pfa-new__row" href="newsroom.html#u-' + esc(u.id) + '" data-id="' + esc(u.id) + '">' +
-        '<span class="pfa-new__tag">' + (isNew ? 'New' : 'Latest') + '</span>' +
-        '<span class="pfa-new__text"><span class="pfa-new__title">' + esc(u.title) + '</span>' +
-        '<span class="pfa-new__meta">' + esc(day(u.date)) + ' · ' + esc(watchWord(u)) + '</span></span>' +
-        '<span class="pfa-new__go' + (canPlay ? ' pfa-new__go--play' : '') + '" aria-hidden="true">' + (canPlay ? PLAY : ARROW) + '</span></a>';
+      html += '<li><a class="pfa-bell__row is-new" href="live.html">' +
+        '<span class="pfa-bell__tag"' + (on ? ' data-live' : '') + '>' + (on ? '<span class="pfa-new__dot" aria-hidden="true"></span>Live now' : 'Live soon') + '</span>' +
+        '<span class="pfa-bell__text"><span class="pfa-bell__title">' + esc(live.title) + '</span>' +
+        '<span class="pfa-bell__meta">' + (on ? 'Watch, comment and ask a question' : (when ? esc(when) + ' · ' : '') + 'Send a question now') + '</span></span>' +
+        '<span class="pfa-bell__go' + (on ? ' pfa-bell__go--play' : '') + '" aria-hidden="true">' + (on ? PLAY : ARROW) + '</span></a></li>';
     }
-    if (!html) return;
-    strip.innerHTML = html;
-    strip.hidden = false;
-    var row = strip.querySelector('[data-id]');
-    if (row) row.addEventListener('click', function (e) {
-      var u = list[0];
-      markSeen(u.id);
-      /* a film plays right here; anything else opens in the Newsroom */
-      if (playable(u) && !e.metaKey && !e.ctrlKey && !e.shiftKey) { e.preventDefault(); play(u, row); }
+    BELL.list.slice(0, BELL_MAX).forEach(function (u, i) {
+      var go = playable(u) || framed(u), p = poster(u);
+      html += '<li><a class="pfa-bell__row' + (fresh(u) ? ' is-new' : '') + '" href="newsroom.html#u-' + esc(u.id) + '" data-i="' + i + '">' +
+        /* the picture, over the kind's word: a picture that fails leaves the word */
+        (p ? '<span class="pfa-bell__pic"><span>' + esc(u.kindLabel || 'News') + '</span><img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>'
+          : '<span class="pfa-bell__tag">' + esc(u.kindLabel || 'News') + '</span>') +
+        '<span class="pfa-bell__text"><span class="pfa-bell__title">' + esc(u.title) + '</span>' +
+        '<span class="pfa-bell__meta">' + esc(day(u.date)) + ' · ' + esc(watchWord(u)) + '</span></span>' +
+        '<span class="pfa-bell__go' + (go ? ' pfa-bell__go--play' : '') + '" aria-hidden="true">' + (go ? PLAY : ARROW) + '</span></a></li>';
+    });
+    return html;
+  }
+  function placeBox() {
+    if (!box) return;
+    var r = bell.getBoundingClientRect();
+    var top = Math.max(8, Math.round(r.bottom + 8));
+    var tabs = document.querySelector('.pfa-tabs');
+    var below = tabs && tabs.getBoundingClientRect().height && getComputedStyle(tabs).display !== 'none' ? tabs.getBoundingClientRect().height : 0;
+    box.style.top = top + 'px';
+    box.style.maxHeight = Math.max(220, window.innerHeight - top - below - 12) + 'px';
+  }
+  function openBell() {
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'pfa-bell'; box.id = 'pfaBell'; box.hidden = true;
+      box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Updates from PFA');
+      document.body.appendChild(box);
+      box.addEventListener('click', function (e) {
+        if (e.target.closest('[data-bell-x]')) { shutBell(true); return; }
+        var row = e.target.closest('[data-i]');
+        if (!row || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        var u = BELL.list[+row.getAttribute('data-i')];
+        markSeen(u.id);
+        if (playable(u) || framed(u)) { e.preventDefault(); shutBell(false); play(u, bell); }
+      });
+      document.addEventListener('click', function (e) {
+        if (box && !box.hidden && !box.contains(e.target) && !bell.contains(e.target)) shutBell(false);
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box && !box.hidden) shutBell(true); });
+      window.addEventListener('resize', placeBox);
+    }
+    var rows = bellRows();
+    box.innerHTML = '<div class="pfa-bell__head"><p class="pfa-bell__name">Updates</p><button type="button" class="pfa-bell__x" data-bell-x>Close</button></div>' +
+      (rows ? '<ol class="pfa-bell__list">' + rows + '</ol>' : '<p class="pfa-bell__none">Nothing new just now.</p>') +
+      '<a class="pfa-bell__all" href="newsroom.html#from-pfa">See all in the Newsroom</a>';
+    box.hidden = false;
+    placeBox();
+    bell.setAttribute('aria-expanded', 'true');
+    notice(newIds());
+    paintCount();
+    var first = box.querySelector('.pfa-bell__row') || box.querySelector('.pfa-bell__x');
+    if (first) first.focus({ preventScroll: true });
+  }
+  function shutBell(back) {
+    if (!box || box.hidden) return;
+    box.hidden = true;
+    bell.setAttribute('aria-expanded', 'false');
+    if (back) bell.focus();
+  }
+  function paintBell(list, live) {
+    if (!bell) return;
+    BELL.list = list; BELL.live = live;
+    paintCount();
+  }
+  if (bell) {
+    bell.setAttribute('aria-haspopup', 'dialog');
+    bell.setAttribute('aria-expanded', 'false');
+    bell.setAttribute('aria-controls', 'pfaBell');
+    bell.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      if (box && !box.hidden) shutBell(false); else openBell();
     });
   }
 
@@ -184,8 +282,8 @@
   }
   function card(u, i) {
     var m = u.media || {}, p = poster(u), media = '';
-    var kindWord = m.kind === 'instagram' ? (m.reel ? 'Instagram reel' : 'Instagram post') : m.kind === 'vimeo' ? 'Vimeo film' : 'Film';
-    if (playable(u) || m.kind === 'instagram') {
+    var kindWord = m.kind === 'instagram' ? (m.reel ? 'Instagram reel' : 'Instagram post') : m.kind === 'facebook' ? (m.reel ? 'Facebook reel' : 'Facebook film') : m.kind === 'vimeo' ? 'Vimeo film' : 'Film';
+    if (playable(u) || framed(u)) {
       var still = p ? '<img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">'
         : m.kind === 'file' ? '<video src="' + esc(m.url) + '#t=1" muted playsinline preload="metadata" aria-hidden="true"></video>'
         : '<span class="upd__type" aria-hidden="true">' + esc(kindWord) + '</span>';
@@ -243,7 +341,7 @@
       }
     });
     list.forEach(function (u) { markSeen(u.id); });
-    /* arrived from the home strip: that update, shown and marked */
+    /* arrived from the bell: that update, shown and marked */
     var h = /^#u-([\w-]+)$/.exec(location.hash || '');
     if (h) {
       var li = document.getElementById('u-' + h[1]);
@@ -259,7 +357,7 @@
   fetch(api, { credentials: 'omit' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
     if (!d) return;
     LIST = Array.isArray(d.updates) ? d.updates.filter(function (u) { return u && u.id && u.title; }) : [];
-    paintStrip(LIST, d.live || null);
+    paintBell(LIST, d.live || null);
     paintFeed(LIST);
   }).catch(function () { /* the page stays as it was */ });
 

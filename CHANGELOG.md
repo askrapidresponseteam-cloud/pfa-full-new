@@ -1,3 +1,20 @@
+## v1.641
+
+- **Updates move to the bell at the top, as on Facebook: a red count, and the list opens under it.** Owner, 26 Nov 2026.
+  - "this cannot be below the join button. have it on top like facebook": the line under Join now is gone. The bell beside Shop (on a phone, beside Search) now carries a red count of what is new: PFA Live about to start or on, and updates not yet seen.
+  - Pressing it opens the latest six under it, PFA Live first. What has not been opened is tinted and dotted; opening the bell clears the count. A film or a reel plays right there; anything else opens in the Newsroom, and "See all in the Newsroom" is at the foot.
+  - Without script the bell is a plain link to the Newsroom's updates. The bell had been empty since the lab animal rules appeal closed on 5 November.
+- Also in this build: v1.640 (Facebook films and reels) and earlier.
+
+## v1.640
+
+- **Facebook films and reels in updates, playing on the site itself, from the home page and the Newsroom.** Owner, 26 Nov 2026.
+  - "allow facebook links as well.. and they should start playing natively": the Updates form turned a Facebook reel link away. A Facebook reel, video, watch, share or fb.watch link is now taken, and the tracking that follows it is dropped.
+  - Tapping it plays the film at once, with sound, on the page: in Facebook's own player inside the site, never sent off to Facebook. A reel stands tall; a wide film fills the screen sixteen by nine.
+  - On the home page the newest update plays right where it is, for an Instagram or Facebook reel too.
+  - In the panel, a long pasted link wraps inside its box instead of running off the edge, and Enter never breaks it.
+- Also in this build: v1.639 (Firebase only) and earlier.
+
 ## v1.639
 
 - **Firebase only: the deploy no longer reads the old Vercel site or compares against Vercel.** Owner, 26 Nov 2026.
