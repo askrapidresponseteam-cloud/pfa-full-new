@@ -69,6 +69,26 @@ html.header-on-dark header.site .pfa-bell__count{box-shadow:none}
 .upd__chip{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#fff;color:#111;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .3s}
 .upd__chip svg{width:13px;height:15px;margin-left:3px}
 .upd__media:hover .upd__chip{transform:scale(1.08)}
+/* a Facebook film in the card, at its real shape: a reel tall, a film wide */
+.upd__media--fb{background:#000}
+.upd__media--fb iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.upd__media--tall{aspect-ratio:9/16;width:min(100%,360px)}
+/* one or two updates fill the row instead of sitting in a third of it */
+.upd__list[data-n="1"]{grid-template-columns:minmax(0,1fr)}
+.upd__list[data-n="2"]{grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr))}
+@media (min-width:760px){
+  /* one update with a film: the film beside its words, not over an empty row */
+  .upd__list[data-n="1"] .upd__item:has(> .upd__media){display:grid;grid-template-columns:minmax(0,min(58%,760px)) minmax(0,1fr);grid-auto-rows:min-content;column-gap:clamp(24px,3vw,48px);row-gap:12px;align-content:start}
+  .upd__list[data-n="1"] .upd__item:has(> .upd__media--tall){grid-template-columns:360px minmax(0,1fr)}
+  /* a reel among others: tall beside its words across two columns, so the
+     row it sits in is not left half empty */
+  .upd__list:not([data-n="1"]) .upd__item:has(> .upd__media--tall){grid-column:span 2;display:grid;grid-template-columns:270px minmax(0,1fr);grid-auto-rows:min-content;column-gap:clamp(20px,2.4vw,32px);row-gap:12px;align-content:start}
+  .upd__item:has(> .upd__media) > .upd__media{grid-column:1;grid-row:1 / span 6;align-self:start}
+  .upd__item:has(> .upd__media) > :not(.upd__media){grid-column:2}
+  .upd__list[data-n="1"] .upd__item > .upd__media:not(.upd__media--tall){width:100%}
+  .upd__list:not([data-n="1"]) .upd__item:not(:has(> .upd__media--tall)) > *{grid-column:auto}
+  .upd__item > .upd__acts{margin-top:4px}
+}
 .upd__type{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6)}
 .upd__meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5a5a5a}
 .upd__tag{display:inline-block;padding:5px 8px 4px;background:#111;color:#fff;line-height:1}

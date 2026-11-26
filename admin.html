@@ -841,9 +841,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
         </select>
         <button class="linky" type="button" id="subClear" hidden>Clear</button>
       </div>
-      <div class="wrap"><table><thead><tr>
-        <th>Reference</th><th>Kind</th><th>From</th><th>Status</th><th>With</th><th>Arrived</th>
-      </tr></thead><tbody id="subRows"></tbody></table></div>
+      <!-- tiles, unread marked (26 Nov 2026): assets/admin-subs.js -->
+      <ol class="st-grid" id="subRows"></ol>
       <div class="more"><button class="ghost" type="button" id="subMore" hidden>Load more</button></div>
       <!-- Monday digest (1 Nov 2026): last week's orders, members and
            applications, emailed every Monday with a link to each record
@@ -1982,8 +1981,6 @@ window.addEventListener('unhandledrejection', function (event) {
 
   /* ---- submissions: the register the public forms fill ------------------- */
 
-  var subCursor = null;
-
   /* The kinds come from the server with the overview, so the panel never keeps
      a second copy of a vocabulary that lives in lib/submissions.js. */
   function offerKinds(byKind) {
@@ -2032,44 +2029,7 @@ window.addEventListener('unhandledrejection', function (event) {
     return r && r.awaitingReply ? ' <span class="flag" data-s="wrote" title="' + esc('Wrote back ' + when(r.lastInboundAt || r.lastReplyAt)) + '">Wrote back</span>' : '';
   }
 
-  function subRow(r) {
-    var c = contactOf(r.fields);
-    return '<tr>'
-      + '<td class="ref"><button class="rowopen" type="button" data-open-case="' + esc(r.reference) + '">' + esc(r.reference) + '</button></td>'
-      + '<td>' + esc(r.kindLabel || r.kind) + (r.attachments ? ' <span class="flag">' + (r.kind === 'PFA-CG' && r.attachments >= 2 ? 'photo + proof' : r.attachments + ' photo') + '</span>' : '') + '</td>'
-      + '<td>' + esc(c.name || '-') + '<br><span class="note">' + esc(c.email || c.mobile || '') + '</span></td>'
-      + '<td>' + flag(r.status, r.statusLabel) + wrote(r) + '</td>'
-      + '<td>' + esc(r.assignedTo || '-') + '</td>'
-      + '<td>' + esc(when(r.createdAt)) + '</td>'
-      + '</tr>';
-  }
-
-  function submissions(reset) {
-    var body = $('#subRows');
-    if (reset) { subCursor = null; body.innerHTML = '<tr><td colspan="6" class="loading">Reading\u2026</td></tr>'; }
-    var q = $('#subQ').value.trim();
-    var url = '/api/admin/records?type=submissions&limit=25';
-    if (q) { url += '&q=' + encodeURIComponent(q); } else {
-      if ($('#subKind').value) url += '&kind=' + encodeURIComponent($('#subKind').value);
-      if ($('#subStatus').value) url += '&status=' + encodeURIComponent($('#subStatus').value);
-      if (subCursor) url += '&cursor=' + encodeURIComponent(subCursor);
-    }
-    api(url).then(function (data) {
-      var rows = data.rows || [];
-      if (reset) body.innerHTML = '';
-      if (!rows.length && reset) {
-        body.innerHTML = '<tr><td colspan="6"><div class="empty"><b>Nothing here yet</b>'
-          + esc(data.message || 'When someone sends a form on the site, it lands here.') + '</div></td></tr>';
-      }
-      body.insertAdjacentHTML('beforeend', rows.map(subRow).join(''));
-      subCursor = data.cursor || null;
-      $('#subMore').hidden = !subCursor || Boolean(q);
-      say($('#paneNote'), rows.length ? rows.length + ' shown' : '');
-    }).catch(function (e) {
-      body.innerHTML = '<tr><td colspan="6"><div class="empty"><b>Nothing to show</b>'
-        + esc(e.denied ? 'Your account does not carry Submissions.' : e.message) + '</div></td></tr>';
-    });
-  }
+  function submissions(reset) { if (window.PFASubs) window.PFASubs.load(reset); }
 
   /* ---- volunteers: the same register, one kind --------------------------- */
 
@@ -6302,6 +6262,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-people.js"></script>
 <script src="assets/admin-gifts.js"></script>
 <script src="assets/admin-updates.js"></script>
+<script src="assets/admin-subs.js"></script>
 <script src="assets/admin-live-show.js"></script>
 <script src="assets/admin-directory.js"></script>
 <script src="assets/birthday-card.js"></script>

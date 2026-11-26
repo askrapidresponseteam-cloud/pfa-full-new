@@ -338,6 +338,8 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .nr-card__dek{margin:8px 0 0;max-width:62ch;font-size:14px;line-height:1.5;color:#333}
 .nr-card__meta{flex-direction:column;align-items:flex-start;gap:6px;margin-top:auto;padding-top:16px;color:var(--nr-muted)}
 .nr-card__more{color:var(--nr-ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+/* a story reported only in print: the paper named, quietly, where the link would be */
+.nr-card__print{color:var(--nr-muted)}
 /* Where subgrid is supported, cards in one row share their row tracks, so a
    two-line issuer never pushes one headline below its neighbours'. */
 @supports (grid-template-rows:subgrid){.nr-card{display:grid;grid-row:span 5;grid-template-rows:subgrid;row-gap:0;min-height:0}.nr-card__meta{align-self:end}}
@@ -665,7 +667,7 @@ if (root.document && root.document.head) apply(read());
 <div class="nr-mast">
 <p class="eyebrow pfa-kicker">Our work</p>
 <h1 class="pfa-title nr-title" id="nrTitle">Newsroom</h1>
-<div class="nr-strap"><nav class="nr-desks" aria-label="Newsroom sections"><a href="#front">Front page</a><a href="#desk-work">For the animals</a><a href="#desk-cinekind">CineKind</a><a href="#case-file">Case file</a></nav><p class="nr-count">10 stories on the record</p></div>
+<div class="nr-strap"><nav class="nr-desks" aria-label="Newsroom sections"><a href="#front">Front page</a><a href="#desk-work">For the animals</a><a href="#desk-cinekind">CineKind</a><a href="#case-file">Case file</a></nav><p class="nr-count">11 stories on the record</p></div>
 </div>
 <section class="upd" id="from-pfa" data-updates="feed" aria-label="From PFA" hidden></section>
 <div class="nr-front" id="front" data-count="4">
@@ -677,8 +679,15 @@ if (root.document && root.document.head) apply(read());
 </div>
 </div>
 <section class="nr-desk" id="desk-work" aria-labelledby="desk-work-title">
-<div class="nr-desk__head"><h2 class="nr-desk__title" id="desk-work-title">For the animals</h2><p class="nr-desk__count">4 stories</p></div>
-<ol class="nr-cards" data-cols="4">
+<div class="nr-desk__head"><h2 class="nr-desk__title" id="desk-work-title">For the animals</h2><p class="nr-desk__count">5 stories</p></div>
+<ol class="nr-cards" data-cols="3">
+<li class="nr-card" data-tile>
+<time class="nr-card__date" datetime="2026-11-26"><span aria-hidden="true">26 11 2026</span><span class="nr-vh">26 November 2026</span></time>
+<p class="nr-card__from"><span class="nr-tag" data-desk="work">Justice</span><span>Gujaini, Kanpur</span></p>
+<h3 class="nr-card__title">Jailed in Kanpur for filming cruelty to a puppy for likes</h3>
+<p class="nr-card__dek">A video on Facebook showed a young man in Kanpur’s Gujaini area appearing to cut a puppy with a sharp blade, made for likes. On a complaint by the NGO Umeed Ek Kiran, police booked him under the animal cruelty law, arrested him and he was sent to jail.</p>
+<p class="nr-card__meta"><span class="nr-card__print">Reported in print, Kanpur</span></p>
+</li>
 <li class="nr-card" data-tile>
 <time class="nr-card__date" datetime="2026-06-27"><span aria-hidden="true">27 06 2026</span><span class="nr-vh">27 June 2026</span></time>
 <p class="nr-card__from"><span class="nr-tag" data-desk="work">Welfare</span><span>PFA Public Policy Foundation</span></p>

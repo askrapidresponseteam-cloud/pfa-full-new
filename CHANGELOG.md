@@ -1,3 +1,19 @@
+## v1.642
+
+- **Newsroom: the Kanpur puppy cruelty arrest, from a newspaper clipping, under For the animals.** Owner, 26 Nov 2026.
+  - "add this under news", with a clipping: a young man in Kanpur's Gujaini area filmed cruelty to a puppy for likes; on a complaint by Umeed Ek Kiran he was booked under the animal cruelty law, arrested and jailed. Written in the site's own words, newest in the For the animals desk.
+  - The clipping has no page on the web, so a story can now be one reported in print: the paper is named where the link would be, and its headline links nowhere. Only a For the animals story may be one, and it carries one or the other, never both.
+  - The accused is not named and his photograph is not used.
+- **A Facebook film in the Newsroom shows at its real shape, in Facebook's own player.** Owner, 26 Nov 2026: "facebook video dimension should match the actual".
+  - It was a wide black box marked Facebook reel. Now a reel stands tall, nine by sixteen, and a wide film sixteen by nine, showing the film's own first frame and playing right there. Each player is told its exact size, so nothing is cropped.
+  - A single update sits beside its film instead of in a third of the row with the rest empty; a reel among other updates sits beside its words across two columns.
+- **Panel: Submissions in tiles, one a kind of form, with a red unread count as a notification has.** Owner, 26 Nov 2026: "make these tiles- for segments. and when something is unread- have that unread notification type thingie".
+  - Over the list, one tile a kind of form (Cruelty report, Job application, Help desk query and the rest): how many are Waiting, and a red count of the unread on its corner. Kinds with something unread come first, then those waiting; the kinds with nothing in them wait under "+ more kinds". Pressing a tile shows only that kind, pressing it again every kind. The tiles take the place of the Every kind list.
+  - One tile a form: reference and time, kind and photos, who sent it, status, Wrote back, and who has it. The whole tile opens the form. Long names and emails wrap.
+  - Unread: nobody in the office has opened it yet, or the sender wrote back after it was last opened. It is tinted, with a red dot by the name and a red New mark, and the count shows beside "shown" at the top ("3 unread").
+  - Opening a form reads it for every administrator: the server keeps when it was last opened and by whom. Forms from before this that are no longer Waiting are not lit up.
+- Also in this build: v1.641 (updates in the bell at the top) and earlier.
+
 ## v1.641
 
 - **Updates move to the bell at the top, as on Facebook: a red count, and the list opens under it.** Owner, 26 Nov 2026.

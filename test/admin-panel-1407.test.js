@@ -23,7 +23,10 @@ const path = require('node:path');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
 const ROOT = path.join(__dirname, '..');
-const HTML = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
+/* the Submissions tiles (26 Nov 2026) live in their own script; set in the
+   page here, as a browser loads it, so the list is drawn as it is live */
+const HTML = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8')
+  .replace('<script src="assets/admin-subs.js"></script>', () => `<script>${fs.readFileSync(path.join(ROOT, 'assets/admin-subs.js'), 'utf8')}</script>`);
 const script = HTML.slice(HTML.indexOf('<script>\n/* The panel.'));
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
@@ -621,6 +624,85 @@ test('register rows show the status label the server sends, not the raw key', as
   await p.tab('volunteers');
   assert.equal(p.$('#volRows .flag').textContent, 'Card issued', 'Volunteers reads the same label');
   assert.match(read('lib/routes/admin/records.js'), /statusLabel: FLOW\.labelOf\(data\.kind \|\| '', data\.status \|\| 'new'\)/);
+});
+
+test('Submissions are tiles; a form nobody has opened is marked unread, counted, and read once opened', async () => {
+  const row = (reference, extra) => Object.assign({ id: reference, reference, kind: 'PFA-Q', kindLabel: 'Help desk query', status: 'new', statusLabel: 'Waiting', createdAt: AT(8, 4), attachments: 0, fields: { name: 'Vikas', email: 'vikas@example.com' } }, extra);
+  const p = await panel((url) => {
+    if (url.includes('type=submissions')) return { ok: true, rows: [row('PFA-Q-2026-00031', { unread: true }), row('PFA-Q-2026-00030', { unread: false, status: 'handled', statusLabel: 'Handled' }), row('PFA-Q-2026-00029', { unread: true, awaitingReply: true })] };
+    if (url.includes('/api/admin/case')) return { status: 404, body: { code: 'NOT_FOUND', message: 'No.' } };
+    return undefined;
+  });
+  await p.tab('submissions');
+  const tiles = [...p.w.document.querySelectorAll('#subRows .st')];
+  assert.equal(tiles.length, 3, 'one tile a form');
+  assert.equal(p.$('#subRows table, #subRows tr'), null, 'no table');
+  assert.deepEqual(tiles.map((t) => t.classList.contains('is-unread')), [true, false, true]);
+  assert.equal(tiles[0].querySelector('.flag[data-s="unread"]').textContent, 'New');
+  assert.equal(tiles[1].querySelector('.flag[data-s="unread"]'), null);
+  assert.match(p.text('#paneNote'), /3 shown\s*2 unread/);
+  assert.ok(tiles[2].querySelector('.flag[data-s="wrote"]'), 'wrote back still shows');
+  tiles[0].querySelector('[data-open-case]').click();
+  await settle();
+  assert.equal(tiles[0].classList.contains('is-unread'), false, 'opened: read at once');
+  assert.match(p.text('#paneNote'), /1 unread/);
+  /* the server keeps the opening and decides what is unread */
+  const R = require('../lib/routes/admin/records.js');
+  assert.equal(R.unreadOf({ status: 'new' }), true, 'never opened, still waiting');
+  assert.equal(R.unreadOf({ status: 'handled' }), false, 'an old one already dealt with is not lit up');
+  assert.equal(R.unreadOf({ status: 'new', lastOpenedAt: '2026-11-26T10:00:00.000Z' }), false, 'opened');
+  assert.equal(R.unreadOf({ status: 'in-progress', lastOpenedAt: '2026-11-26T10:00:00.000Z', awaitingReply: true, lastInboundAt: '2026-11-26T11:00:00.000Z' }), true, 'wrote back after it was opened');
+  assert.equal(R.unreadOf({ status: 'in-progress', lastOpenedAt: '2026-11-26T12:00:00.000Z', awaitingReply: true, lastInboundAt: '2026-11-26T11:00:00.000Z' }), false, 'and opened since');
+  assert.equal(R.submissionRow('X', { status: 'new' }).unread, true);
+  assert.match(read('lib/routes/admin/case.js'), /set\(\{ lastOpenedAt: at, lastOpenedBy: by \}, \{ merge: true \}\)/);
+});
+
+test('over the tiles, one tile a kind of form: busy kinds first with a red unread count, the rest folded, and pressing one filters', async () => {
+  const segs = [
+    { kind: 'PFA-A', label: 'Adoption application', waiting: 0, unread: 0 },
+    { kind: 'PFA-Q', label: 'Help desk query', waiting: 2, unread: 0 },
+    { kind: 'PFA-CR', label: 'Cruelty report', waiting: 1, unread: 1 }
+  ];
+  const asked = [];
+  const p = await panel((url) => {
+    if (url.includes('type=segments')) return { ok: true, segments: segs, unread: 1 };
+    if (url.includes('type=submissions')) { asked.push(url); return { ok: true, rows: [] }; }
+    return undefined;
+  });
+  await p.tab('submissions');
+  await settle();
+  const names = () => [...p.w.document.querySelectorAll('#subSegs [data-seg] .sg__name')].map((n) => n.textContent);
+  assert.deepEqual(names(), ['Every kind', 'Cruelty report', 'Help desk query'], 'the unread first, then the waiting; the empty folded');
+  const cr = p.$('#subSegs [data-seg="PFA-CR"]');
+  assert.equal(cr.querySelector('.sg__count').textContent, '1');
+  assert.ok(cr.classList.contains('has-unread'));
+  assert.equal(p.$('#subSegs [data-seg="PFA-Q"] .sg__count').hidden, true, 'no count when nothing is unread');
+  assert.equal(p.$('#subSegs [data-seg=""] .sg__count').textContent, '1', 'Every kind carries the whole count');
+  assert.equal(p.$('#subSegs [data-seg-more] .sg__name').textContent, '+ 1 more kind');
+  p.$('#subSegs [data-seg-more]').click();
+  assert.deepEqual(names(), ['Every kind', 'Cruelty report', 'Help desk query', 'Adoption application']);
+  p.$('#subSegs [data-seg="PFA-CR"]').click();
+  await settle();
+  assert.match(asked[asked.length - 1], /kind=PFA-CR/, 'pressing a kind shows only that kind');
+  assert.equal(p.$('#subSegs [data-seg="PFA-CR"]').getAttribute('aria-pressed'), 'true');
+  p.$('#subSegs [data-seg="PFA-CR"]').click();
+  await settle();
+  assert.doesNotMatch(asked[asked.length - 1], /kind=/, 'pressing it again shows every kind');
+  /* counted by the server, on two single-field reads */
+  const R = require('../lib/routes/admin/records.js');
+  const docs = {
+    a: { kind: 'PFA-CR', status: 'new' },
+    b: { kind: 'PFA-CR', status: 'new', lastOpenedAt: '2026-11-26T10:00:00.000Z' },
+    c: { kind: 'PFA-U', status: 'in-progress', awaitingReply: true, lastOpenedAt: '2026-11-26T10:00:00.000Z', lastInboundAt: '2026-11-26T11:00:00.000Z' },
+    d: { kind: 'PFA-CR', status: 'removed' },
+    e: { kind: 'PFA-U', status: 'new', awaitingReply: true }
+  };
+  const db = { collection: () => ({ where: (f, op, v) => ({ limit: () => ({ get: async () => ({ docs: Object.entries(docs).filter(([, d]) => d[f] === v).map(([id, d]) => ({ id, data: () => d })) }) }) }) }) };
+  const out = await R.segmentsOf(db);
+  const of = (k) => out.find((x) => x.kind === k);
+  assert.deepEqual([of('PFA-CR').waiting, of('PFA-CR').unread], [2, 1], 'a removed form is not counted');
+  assert.deepEqual([of('PFA-U').waiting, of('PFA-U').unread], [1, 2], 'one form read once though both reads find it');
+  assert.match(read('lib/routes/admin/records.js'), /segments: 'submissions'/, 'only for those who carry Submissions');
 });
 
 /* ---- house rules ------------------------------------------------------------ */

@@ -283,7 +283,15 @@
   function card(u, i) {
     var m = u.media || {}, p = poster(u), media = '';
     var kindWord = m.kind === 'instagram' ? (m.reel ? 'Instagram reel' : 'Instagram post') : m.kind === 'facebook' ? (m.reel ? 'Facebook reel' : 'Facebook film') : m.kind === 'vimeo' ? 'Vimeo film' : 'Film';
-    if (playable(u) || framed(u)) {
+    if (m.kind === 'facebook' && /^https:\/\/(www\.facebook\.com|fb\.watch)\//.test(m.url || '')) {
+      /* Facebook's own player, in the card, at the film's real shape (owner,
+         26 Nov 2026: "facebook video dimension should match the actual"): a
+         reel stands nine by sixteen, a wide film sixteen by nine. It shows
+         the film's own first frame and plays right there when pressed. */
+      media = '<div class="upd__media upd__media--still upd__media--fb' + (m.reel ? ' upd__media--tall' : '') + '">' +
+        '<iframe data-fb="' + esc(FACEBOOK + encodeURIComponent(m.url) + '&show_text=false&allowfullscreen=1') + '"' +
+        ' title="' + esc(kindWord + ': ' + u.title) + '" loading="lazy" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture; fullscreen; web-share" allowfullscreen></iframe></div>';
+    } else if (playable(u) || framed(u)) {
       var still = p ? '<img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">'
         : m.kind === 'file' ? '<video src="' + esc(m.url) + '#t=1" muted playsinline preload="metadata" aria-hidden="true"></video>'
         : '<span class="upd__type" aria-hidden="true">' + esc(kindWord) + '</span>';
@@ -305,15 +313,27 @@
       '<h3 class="upd__name">' + esc(u.title) + '</h3>' + body +
       (acts ? '<div class="upd__acts">' + acts + '</div>' : '') + '</li>';
   }
+  /* Facebook draws its player at the width and height it is told, so each
+     frame is told its own, once it has its place on the page; a frame still
+     hidden under + More is told when it is shown */
+  function sizeFb() {
+    if (!feed) return;
+    [].forEach.call(feed.querySelectorAll('iframe[data-fb]'), function (f) {
+      var w = Math.round(f.clientWidth), h = Math.round(f.clientHeight);
+      if (!w || !h || f.getAttribute('src')) return;
+      f.src = f.getAttribute('data-fb') + '&width=' + w + '&height=' + h;
+    });
+  }
   function paintFeed(list) {
     if (!feed || !list.length) return;
     var more = list.length - FIRST;
     feed.innerHTML = '<div class="upd__head"><h2 class="upd__title" id="from-pfa-title">From PFA</h2>' +
       '<p class="upd__count">' + list.length + (list.length === 1 ? ' update' : ' updates') + '</p></div>' +
-      '<ol class="upd__list">' + list.map(card).join('') + '</ol>' +
+      '<ol class="upd__list" data-n="' + Math.min(list.length, 3) + '">' + list.map(card).join('') + '</ol>' +
       (more > 0 ? '<div class="upd__all"><button type="button" class="upd__more" data-all aria-expanded="false"><span class="upd__plus" aria-hidden="true">+</span>' + more + ' more ' + (more === 1 ? 'update' : 'updates') + '</button></div>' : '');
     feed.setAttribute('aria-labelledby', 'from-pfa-title');
     feed.hidden = false;
+    sizeFb();
     var nav = document.querySelector('.nr-desks');
     if (nav && !nav.querySelector('a[href="#from-pfa"]')) {
       var a = document.createElement('a'); a.href = '#from-pfa'; a.textContent = 'From PFA';
@@ -325,6 +345,7 @@
       var all = e.target.closest('[data-all]');
       if (all) {
         feed.querySelectorAll('[data-later]').forEach(function (li) { li.hidden = false; });
+        sizeFb();
         all.parentNode.hidden = true;
         var next = feed.querySelectorAll('.upd__item')[FIRST];
         var focus = next && next.querySelector('button, a');
@@ -346,7 +367,7 @@
     if (h) {
       var li = document.getElementById('u-' + h[1]);
       if (li) {
-        li.hidden = false; li.classList.add('is-target');
+        li.hidden = false; li.classList.add('is-target'); sizeFb();
         var r = li.querySelector('.upd__rest'); if (r) { r.hidden = false; var mb = li.querySelector('.upd__more[aria-controls]'); if (mb) { mb.setAttribute('aria-expanded', 'true'); mb.innerHTML = '<span class="upd__plus" aria-hidden="true">+</span>Show less'; } }
         setTimeout(function () { try { li.scrollIntoView({ block: 'start' }); } catch (e) { li.scrollIntoView(); } }, 60);
       }

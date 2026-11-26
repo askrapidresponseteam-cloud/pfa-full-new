@@ -242,7 +242,7 @@ test('wiring: routes, panel sections, page holders, rules, policy, and no long d
   const admin = read('admin.html');
   assert.match(admin, /data-tab="updates"/); assert.match(admin, /data-tab="live"/);
   assert.match(admin, /assets\/admin-updates\.js/); assert.match(admin, /assets\/admin-live-show\.js/);
-  assert.match(read('scripts/build-firebase.js'), /'assets\/admin-updates\.js', 'assets\/admin-live-show\.js'/);
+  assert.match(read('scripts/build-firebase.js'), /'assets\/admin-updates\.js', 'assets\/admin-subs\.js', 'assets\/admin-live-show\.js'/);
   /* on top, as on Facebook (26 Nov 2026: "this cannot be below the join
      button. have it on top like facebook"): the bell beside Shop, and
      nothing left under the hero's buttons */
@@ -265,6 +265,12 @@ test('wiring: routes, panel sections, page holders, rules, policy, and no long d
   assert.match(upd, /&autoplay=1&mute=0/);
   assert.match(upd, /if \(playable\(u\) \|\| framed\(u\)\) \{ e\.preventDefault\(\); shutBell\(false\); play\(u, bell\); \}/);
   assert.match(read('assets/updates.css'), /\.pfa-bell__count\{position:absolute/);
+  /* in the Newsroom, Facebook's own player at the film's real shape, told its own size (26 Nov 2026) */
+  assert.match(upd, /upd__media--fb' \+ \(m\.reel \? ' upd__media--tall' : ''\)/);
+  assert.match(upd, /f\.src = f\.getAttribute\('data-fb'\) \+ '&width=' \+ w \+ '&height=' \+ h;/);
+  const css = read('assets/updates.css');
+  assert.match(css, /\.upd__media--tall\{aspect-ratio:9\/16;/);
+  assert.match(css, /\.upd__list\[data-n="1"\]\{grid-template-columns:minmax\(0,1fr\)\}/, 'one update fills the row');
   assert.match(read('vercel.json'), /frame-src[^;]*https:\/\/www\.facebook\.com/);
   assert.match(read('assets/admin-updates.js'), /YouTube, Vimeo, Instagram or Facebook link/);
   for (const f of ['lib/site-updates.js', 'lib/update-media.js', 'lib/live-show.js', 'lib/routes/updates.js', 'lib/routes/admin/updates.js', 'lib/routes/live.js', 'lib/routes/admin/live.js',

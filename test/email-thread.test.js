@@ -902,7 +902,10 @@ test('a paid membership: the application to gandhim without the payment, the rec
 test('the panel shows who wrote back, and no longer says volunteers and memberships stay in it', () => {
   const html = fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8');
   assert.match(html, /function wrote\(r\) \{\s*return r && r\.awaitingReply \?/);
-  assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n {6}\+ '<td>' \+ esc\(r\.assignedTo/, 'in the register');
+  /* the register is tiles since 26 Nov 2026 (assets/admin-subs.js) */
+  const subs = fs.readFileSync(path.join(ROOT, 'assets/admin-subs.js'), 'utf8');
+  assert.match(subs, /function wrote\(r\) \{\s*return r && r\.awaitingReply \?/);
+  assert.match(subs, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\)\n {6}\+ \(r\.assignedTo/, 'in the register');
   assert.match(html, /flag\(r\.status, r\.statusLabel\) \+ wrote\(r\) \+ '<\/td>'\n {10}\+ '<td>' \+ esc\(when\(r\.createdAt\)\)/, 'and in the volunteers list');
   assert.doesNotMatch(html, /are not emailed to anyone at PFA/);
   assert.match(html, /every application included \(caregiver, membership, volunteer and job\), without any payment in it/);

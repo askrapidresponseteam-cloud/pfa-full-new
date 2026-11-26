@@ -127,7 +127,10 @@ test('bad data is refused with the story and the field, before it can reach the 
     [{ ...good, link: { href: 'javascript:alert(1)', label: 'x' } }, /must be a page on this site/],
     [{ ...good, image: { src: 'https://example.com/a.jpg', alt: 'x' } }, /img-src/],
     [{ ...good, image: { src: 'img/nowhere.webp', alt: 'x' } }, /not on disk/],
-    [{ ...good, dek: 'Mumbai \u2014 at last' }, /em dash/]
+    [{ ...good, dek: 'Mumbai \u2014 at last' }, /em dash/],
+    [{ ...good, print: 'Reported in print' }, /only a "work" story may be one reported in print/],
+    [{ ...good, desk: 'work', print: 'Reported in print' }, /has no link; give one or the other/],
+    [{ ...good, desk: 'work', link: undefined, print: ' ' }, /must name the paper/]
   ];
   for (const [st, why] of cases) {
     const problems = B.validate({ stories: [st] });
@@ -139,7 +142,7 @@ test('bad data is refused with the story and the field, before it can reach the 
 });
 
 test('a story of PFA work links to the press report it comes from, in a new tab', () => {
-  const work = DATA.stories.filter((s) => s.desk === 'work');
+  const work = DATA.stories.filter((s) => s.desk === 'work' && !s.print);
   assert.ok(work.length >= 1, 'the newsroom carries PFA work for animals');
   const d = doc(read('newsroom.html'));
   for (const st of work) {
@@ -150,4 +153,21 @@ test('a story of PFA work links to the press report it comes from, in a new tab'
     assert.match(a.getAttribute('rel'), /noopener/);
   }
   assert.equal(DATA.stories.filter((s) => s.desk === 'policy' || s.desk === 'law').length, 0, 'policy and law are not newsroom stories');
+});
+
+/* Owner, 26 Nov 2026, a newspaper clipping: "add this under news". A story
+   reported only in print names the paper where the link would be, and its
+   headline links nowhere. */
+test('a story reported in print names it instead of a link, and the Kanpur clipping is on the page', () => {
+  const st = DATA.stories.find((s) => s.slug === 'kanpur-puppy-cruelty-arrest');
+  assert.ok(st && st.desk === 'work' && st.print && !st.link);
+  const d = doc(read('newsroom.html'));
+  const h = [...d.querySelectorAll('.nr-card__title')].find((n) => n.textContent === st.title);
+  assert.ok(h, 'in the For the animals desk');
+  assert.equal(h.querySelector('a'), null, 'its headline links nowhere');
+  const card = h.closest('.nr-card');
+  assert.equal(card.querySelector('.nr-card__print').textContent, st.print);
+  assert.equal(card.querySelector('.nr-card__more'), null);
+  assert.equal(card.closest('.nr-desk').id, 'desk-work');
+  assert.deepEqual(B.validate({ stories: [st] }), []);
 });

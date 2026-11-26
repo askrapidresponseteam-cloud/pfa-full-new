@@ -103,7 +103,15 @@ function validate(data, root = ROOT) {
       else if (/^[a-z0-9][\w./-]*$/i.test(p.src) && !p.src.includes('..')) { if (!fs.existsSync(path.join(root, p.src))) say(`image: ${p.src} is not on disk`); }
       else say('image: src must be a path on this site or an https address');
     }
-    if (!st.link || !text(st.link.href) || !text(st.link.label)) say('link needs an href and a label');
+    /* reported in print, with no page on the web to send anyone to (owner,
+       26 Nov 2026, a newspaper clipping: "add this under news"): the paper
+       is named under the story instead of a link, and only for PFA work
+       or a welfare outcome reported in the press */
+    if (st.print != null) {
+      if (!text(st.print) || st.print.length > 60) say('print, when given, must name the paper in at most 60 characters');
+      if (st.desk !== 'work') say('only a "work" story may be one reported in print');
+      if (st.link != null) say('a story reported in print has no link; give one or the other');
+    } else if (!st.link || !text(st.link.href) || !text(st.link.label)) say('link needs an href and a label');
     else if (/^https:\/\//.test(st.link.href)) {
       /* a press report: an https address that parses, and only for a story
          reported elsewhere */
@@ -126,6 +134,9 @@ const ONERROR = 'onerror="var t=this.closest(\'[data-tile]\');if(t)t.setAttribut
 
 /* A report on another site opens in a new tab, without handing it this page. */
 const rel = (st) => (/^https:\/\//.test(st.link.href) ? ' target="_blank" rel="noopener noreferrer external"' : '');
+/* the headline: a link to where the story is, or, for one reported only in
+   print, the headline alone */
+const headline = (st, cls) => (st.print ? esc(st.title) : `<a${cls ? ` class="${cls}"` : ''} href="${esc(st.link.href)}"${rel(st)}>${esc(st.title)}</a>`);
 
 /* A story's date, set once (20 Oct 2026). The cards and tiles used to print
    it twice: the large numerals for the eye, marked aria-hidden, and again in
@@ -153,7 +164,7 @@ function tile(st, size) {
   const tag = `<span class="nr-tag" data-desk="${esc(st.desk)}">${esc(st.tag || DESKS[st.desk].tag)}</span>`;
   const when = st.image ? `<time datetime="${esc(st.date)}">${esc(long(d))}</time>` : '';
   const meta = `<p class="nr-tile__meta"><span>${esc(st.image ? st.place : (st.from || st.place))}</span>${when}${st.status ? `<span>${esc(st.status)}</span>` : ''}</p>`;
-  const title = `<${H} class="nr-tile__title"><a class="nr-tile__link" href="${esc(st.link.href)}"${rel(st)}>${esc(st.title)}</a></${H}>`;
+  const title = `<${H} class="nr-tile__title">${headline(st, 'nr-tile__link')}</${H}>`;
   if (st.image) {
     const loading = size === 'lead' ? 'fetchpriority="high"' : 'loading="lazy"';
     return `<article class="nr-tile nr-tile--${size} nr-tile--photo" data-tile><figure class="nr-tile__img" data-shot><img src="${esc(st.image.src)}" alt="${esc(st.image.alt)}" ${loading} decoding="async" ${ONERROR}></figure><div class="nr-tile__body">${tag}${title}${meta}</div></article>`;
@@ -179,9 +190,9 @@ function card(st, typeset) {
     `<li class="nr-card${framed ? ' nr-card--photo' : ''}" data-tile>`,
     top,
     `<p class="nr-card__from"><span class="nr-tag" data-desk="${esc(st.desk)}">${esc(st.tag || DESKS[st.desk].tag)}</span><span>${esc(st.from || st.place)}</span></p>`,
-    `<h3 class="nr-card__title"><a href="${esc(st.link.href)}"${rel(st)}>${esc(st.title)}</a></h3>`,
+    `<h3 class="nr-card__title">${headline(st)}</h3>`,
     `<p class="nr-card__dek">${esc(st.dek)}</p>`,
-    `<p class="nr-card__meta">${when}<span class="nr-card__more">${esc(st.link.label)}</span></p>`,
+    `<p class="nr-card__meta">${when}${st.print ? `<span class="nr-card__print">${esc(st.print)}</span>` : `<span class="nr-card__more">${esc(st.link.label)}</span>`}</p>`,
     '</li>'
   ].join('\n');
 }
