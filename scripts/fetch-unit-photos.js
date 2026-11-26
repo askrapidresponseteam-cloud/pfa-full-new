@@ -103,16 +103,33 @@ async function main() {
   if (!units.length) { console.error('no UNITS found in units.html'); process.exit(1); }
   fs.mkdirSync(OUT, { recursive: true });
 
-  console.log(`\n${units.length} units in units.html; reading each unit's own page on ${HOST}\n`);
+  console.log(`\n${units.length} units in units.html; each photograph not already here is read from its unit's page on ${HOST}\n`);
 
   const manifest = [];
   const bySource = {};
   let ok = 0, had = 0, none = 0, failed = 0;
+  /* What the last run learned, kept: a unit's photograph already here is not
+     asked for again, and the old site going away (26 Nov 2026: its Vercel
+     address answers 402, "there is no vercel anymore") never undoes what was
+     fetched while it was up. */
+  let before = {};
+  try { for (const r of JSON.parse(fs.readFileSync(path.join(OUT, 'manifest.json'), 'utf8'))) before[r.slug] = r; } catch (_) { before = {}; }
+  const here = (s) => ['jpg', 'jpeg', 'png', 'webp', 'gif'].map((e) => `${s}.${e}`).find((f) => { const p = path.join(OUT, f); return fs.existsSync(p) && fs.statSync(p).size > 0; });
+  let gone = '';
 
   for (const u of units) {
     const s = slug(u.city);
     const pageUrl = `${HOST}/units/details/${u.id}.html`;
     let record = { slug: s, city: u.city, id: u.id, page: pageUrl, source: null, file: null, status: null };
+    const was = before[s];
+    const kept = !FORCE && here(s);
+    if (kept) {
+      manifest.push(Object.assign({}, record, was && was.page ? { page: was.page, source: was.source || null } : {}, { file: `media/units/${kept}`, status: 'already-here' }));
+      had += 1;
+      continue;
+    }
+    if (!FORCE && was && was.status === 'no-photo') { manifest.push(Object.assign({}, was)); none += 1; continue; }
+    if (gone) { manifest.push(Object.assign({}, was || record, { status: was && was.status ? was.status : 'not-fetched' })); continue; }
     try {
       const html = (await getWithRetry(pageUrl)).toString('utf8');
       /* Only the unit's own photograph lives under /uploads/unit/; the
@@ -142,6 +159,14 @@ async function main() {
         (bySource[src] = bySource[src] || []).push(s);
       }
     } catch (error) {
+      /* the old site gone, not this unit: said once, and the rest not asked */
+      if (/HTTP (402|403|404|410)|ENOTFOUND|EAI_AGAIN/.test(String(error.message))) {
+        gone = String(error.message);
+        console.log(`  The old site (${HOST}) no longer answers (${gone}). Every photograph already here is kept;`);
+        console.log('  a unit without one keeps its typographic plate. Set PFA_OLD_SITE to a copy of the old site to fetch more.');
+        manifest.push(Object.assign({}, was || record, { status: was && was.status ? was.status : 'not-fetched' }));
+        continue;
+      }
       record.status = `failed: ${error.message}`;
       failed += 1;
       console.log(`  FAIL ${s} (id ${u.id}) - ${error.message}`);

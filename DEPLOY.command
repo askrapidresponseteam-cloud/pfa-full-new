@@ -41,8 +41,8 @@ step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
 
 EMAIL="${1:-karthik.dhanya11@gmail.com}"
 # The public address since Oct 2026 (book.pfaevents.buzz no longer serves the
-# site, so the read-back below could never find a build there). -L follows
-# Vercel's clean-URL redirect.
+# site, so the read-back below could never find a build there), served by
+# Firebase Hosting since 26 Nov 2026. -L follows its clean-URL redirect.
 SITE_URL="https://peopleforanimalsindia.org"
 LIVE_URL="$SITE_URL/"
 
@@ -137,7 +137,7 @@ HEALTH_URL="$SITE_URL/api/payment/health"
 HEALTH="$(curl -s "$HEALTH_URL" || true)"
 case "$HEALTH" in
   *'"mail":true'*)  printf 'EMAIL IS ON: acknowledgements, receipts and welcome letters can be sent.\n' ;;
-  *'"mail":false'*) printf '\033[31mEMAIL IS OFF: PFA_MAIL_API_KEY is not set in Vercel.\033[0m\n  Every form still reaches the admin panel, but nobody is sent an acknowledgement or a welcome letter.\n  Add the key in Vercel (Project > Settings > Environment Variables), then deploy again.\n' ;;
+  *'"mail":false'*) printf '\033[31mEMAIL IS OFF: PFA_MAIL_API_KEY is not set on Firebase.\033[0m\n  Every form still reaches the admin panel, but nobody is sent an acknowledgement or a welcome letter.\n  Put PFA_SET_PFA_MAIL_API_KEY=<the key> in front of the deploy command, or run:\n  npx firebase-tools functions:secrets:set PFA_MAIL_API_KEY --project pfa-new-website, then deploy again.\n' ;;
   *) printf 'Could not read %s just now. Open it in a browser and look for "mail":true.\n' "$HEALTH_URL" ;;
 esac
 
@@ -146,47 +146,16 @@ case "$HEALTH" in
   *'"files":"database"'*) printf '\033[33mPHOTOS ARE KEPT IN: the database.\033[0m Switch Storage on to store them for less:\n  Firebase console > pfa-new-website > Storage > Get started (production mode, Mumbai). No deploy needed after.\n' ;;
 esac
 
-step "Checking the two servers agree"
-# The public site (Vercel) and the admin panel (Firebase) run the same code
-# against one database, each with its own settings. Read both and compare
-# what must match, without either showing a secret (8 Oct 2026).
-PANEL_HEALTH="$(curl -s https://pfa-new-website.web.app/api/payment/health || true)"
-field() { printf '%s' "$1" | grep -o "\"$2\":[^,}]*" | head -1 | sed 's/^[^:]*://; s/"//g'; }
-if [ -z "$PANEL_HEALTH" ] || [ -z "$HEALTH" ]; then
-  printf 'Could not read both servers just now; nothing to compare.\n'
-else
-  P1="$(field "$HEALTH" pepper)"; P2="$(field "$PANEL_HEALTH" pepper)"
-  M2="$(field "$PANEL_HEALTH" mail)"
-  if [ "$P1" = "$P2" ]; then
-    printf 'BOTH SERVERS AGREE: the same tracking key (PFA_AUTH_PEPPER) on the site and the panel.\n'
-  else
-    printf '\033[33mThe site and the panel use different PFA_AUTH_PEPPER values.\033[0m Tracking still works on both\n'
-    printf '  (each server also checks the email and mobile on the record itself), so nothing is broken.\n'
-    printf '  To make them the same, copy the value from Vercel (Project > Settings > Environment Variables)\n'
-    printf '  and run:  npx firebase-tools functions:secrets:set PFA_AUTH_PEPPER --project pfa-new-website\n'
-    printf '  It takes effect with the next deploy.\n'
-  fi
-  # Both asked over IPv4 from this computer: the same network should come back.
-  S1="$(field "$(curl -4 -s "$HEALTH_URL" || true)" seenAs)"
-  S2="$(field "$(curl -4 -s https://pfa-new-website.web.app/api/payment/health || true)" seenAs)"
-  if [ -n "$S1" ] && [ -n "$S2" ]; then
-    if [ "$S1" = "$S2" ]; then
-      printf 'BOTH SERVERS SEE VISITORS CORRECTLY: each saw this computer as %s, so their rate limits count real visitors.\n' "$S1"
-    else
-      printf '\033[33mThe panel server saw this computer as %s, the site as %s.\033[0m The panel server may be counting\n' "$S2" "$S1"
-      printf '  a proxy instead of visitors. Send this line to whoever maintains the site (lib/client-ip.js, PFA_TRUSTED_PROXIES).\n'
-    fi
-  fi
-  case "$M2" in
-    true)  printf 'PANEL EMAIL IS ON: replies from the admin panel can be sent.\n' ;;
-    false) printf '\033[31mPANEL EMAIL IS OFF on Firebase.\033[0m Run: npx firebase-tools functions:secrets:set PFA_SMTP_PASS --project pfa-new-website, then deploy again.\n' ;;
-  esac
-fi
-
-step "Checking the website's copy on Firebase (for moving off Vercel)"
-# The website is deployed to its own Firebase Hosting site as well (24 Nov
-# 2026). This reads it beside the one on Vercel and says READY once it does
-# everything Vercel does, or what is missing. It changes nothing.
-( cd "$HOME/Desktop/PFA_Website" 2>/dev/null && node scripts/firebase-move-check.js ) || true
+step "Checking the domain is served by Firebase"
+# Vercel is gone (26 Nov 2026: "there is no vercel anymore. it is firebase"):
+# peopleforanimalsindia.org, the admin panel and the API are all Firebase,
+# one server and one set of settings. This only says if the address is still
+# pointed anywhere else.
+HEADERS="$(curl -sI "$LIVE_URL" || true)"
+case "$HEADERS" in
+  *[Xx]-[Vv]ercel*) printf '\033[31mThe domain still answers from Vercel.\033[0m Point the A record in GoDaddy at 199.36.158.100 (Firebase).\n' ;;
+  '') printf 'Could not read %s just now.\n' "$LIVE_URL" ;;
+  *) printf 'SERVED BY FIREBASE: %s\n' "$SITE_URL" ;;
+esac
 
 printf '\nDone. You can close this window.\n'

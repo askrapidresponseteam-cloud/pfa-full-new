@@ -195,9 +195,11 @@ test('health lets the two servers be compared without showing the pepper', async
   assert.notEqual(b.json.pepper, a.json.pepper);
   delete process.env.PFA_AUTH_PEPPER;
   assert.equal((await call(health, {})).json.pepper, 'none');
+  /* one server since 26 Nov 2026 ("there is no vercel anymore. it is
+     firebase"): the deploy reads its health once, nothing to compare */
   const deploy = fs.readFileSync(path.join(ROOT, 'DEPLOY.command'), 'utf8');
-  assert.match(deploy, /pfa-new-website\.web\.app\/api\/payment\/health/, 'DEPLOY.command reads the panel\'s server too');
-  assert.match(deploy, /BOTH SERVERS AGREE/);
+  assert.match(deploy, /HEALTH_URL="\$SITE_URL\/api\/payment\/health"/);
+  assert.doesNotMatch(deploy, /BOTH SERVERS AGREE/);
 });
 
 test('Storage rules deploy on their own, and never block the site or the panel', () => {

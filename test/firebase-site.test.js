@@ -73,7 +73,12 @@ test('every deploy makes sure of the site, caps both, deploys it, and checks it'
   const deploy = ship.indexOf('--only functions,hosting${PANEL_ONLY}');
   assert.ok(make !== -1 && cap !== -1 && deploy !== -1);
   assert.ok(make < cap && cap < deploy, 'made, then capped, then deployed');
-  assert.match(read('DEPLOY.command'), /node scripts\/firebase-move-check\.js \) \|\| true/, 'the check never stops a deploy');
+  /* Vercel gone (26 Nov 2026): no move check against it; the deploy only
+     says whether the domain answers from Firebase, and never stops on it */
+  const dc = read('DEPLOY.command');
+  assert.doesNotMatch(dc, /firebase-move-check/);
+  assert.match(dc, /step "Checking the domain is served by Firebase"/);
+  assert.match(dc, /SERVED BY FIREBASE/);
   const retention = read('scripts/hosting-retention.js');
   assert.match(retention, /allSites\(\)/, 'both sites keep only the capped number of versions');
 });

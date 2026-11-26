@@ -398,7 +398,7 @@ echo "  project: $PROJECT"
 # rules API calls answered with an error page instead of JSON. That is a
 # hiccup on Google's side or the network's, not a problem with the rules, so
 # the deploy is tried a second time after a pause. And by this step the
-# release is already on GitHub and Vercel is building it, so if the rules
+# release is already on GitHub, so if the rules
 # file did not change in this release, a failure here cannot leave the
 # project behind: it is reported as a warning, not as STOPPED.
 RULES_LOG="$(mktemp)"
@@ -540,10 +540,8 @@ rm -f "$ST_LOG"
 
 printf '\n\033[32mDone.\033[0m Pushed %s to %s\n' "$MESSAGE" "$REMOTE"
 printf 'Backup of the previous tree: %s\n' "$BACKUP"
-printf '\nCheck the deployment picked it up:\n'
-printf '  The commit shown in Vercel should read "%s".\n' "$MESSAGE"
-printf '  If no new deployment appears at all, the deploy was refused before it\n'
-printf '  started. On a Hobby account the two usual causes are a cron firing more\n'
-printf '  than once a day (guarded by test/vercel-crons.test.js) and a repository\n'
-printf '  owned by a GitHub organisation, which Hobby cannot deploy from.\n'
+# The site, the panel and the API are all on Firebase (26 Nov 2026: "there is
+# no vercel anymore. it is firebase"): the deploy above is the deployment, and
+# GitHub keeps the release's history.
+printf 'The website, the admin panel and the API are live on Firebase.\n'
 printf '\nThen rotate %s in the Firebase console - it has been sitting on your Desktop.\n' "$(basename "$KEY")"

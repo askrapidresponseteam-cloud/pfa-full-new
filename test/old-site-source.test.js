@@ -36,10 +36,13 @@ test('nothing on the site still points at the old site\'s files on this site\'s 
   const files = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html'))
     .concat(['data/site-photos.json', 'media/units/manifest.json', 'pfa-search.js']);
   for (const f of files) assert.doesNotMatch(read(f), dead, `${f} names a file that address no longer serves`);
-  /* the founder page falls back to the old site when its own copy is missing */
-  const founder = read('founder.html');
-  assert.ok((founder.match(/data-alt-src="https:\/\/pf-acurrent\.vercel\.app\/front\/img\//g) || []).length >= 5);
-  assert.match(read('vercel.json'), /img-src 'self' data: blob: https:\/\/pf-acurrent\.vercel\.app /, 'and the browser is allowed to show them');
+  /* The old site is gone (26 Nov 2026: its Vercel address answers 402, "there
+     is no vercel anymore. it is firebase"): no page falls back to it and the
+     browser is not told to expect it. A photograph missing here shows its
+     empty frame, as the founder page has always done when both failed. */
+  for (const f of fs.readdirSync(ROOT).filter((x) => x.endsWith('.html'))) assert.doesNotMatch(read(f), /pf-acurrent\.vercel\.app/, f);
+  assert.doesNotMatch(read('vercel.json'), /pf-acurrent/);
+  assert.doesNotMatch(read('firebase.json'), /pf-acurrent/);
 });
 
 test('a local copy of the old site can stand in for it', () => {

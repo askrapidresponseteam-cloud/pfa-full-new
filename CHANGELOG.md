@@ -1,3 +1,12 @@
+## v1.639
+
+- **Firebase only: the deploy no longer reads the old Vercel site or compares against Vercel.** Owner, 26 Nov 2026.
+  - "there is no vercel anymore. it is firebase", after a deploy printed a failure for every unit: the old site's Vercel address (pf-acurrent.vercel.app) now answers 402, and the unit photo step read every unit's old page before looking at the photographs already here.
+  - The unit photographs (all 80 are in the site) are never asked for again. A unit without one is tried once; if the old site does not answer, that is said in one line and the rest are not asked. What earlier runs recorded is kept, never overwritten by a failure.
+  - After shipping, the deploy no longer compares "the two servers" or checks Firebase against Vercel: there is one server. It checks that the domain answers from Firebase, and that email is on (with the Firebase way to set the key if not).
+  - The founder page no longer falls back to the old site's photographs, and the security policy no longer names it.
+- Also in this build: v1.638 (one clean signature everywhere; every label on receipts and UCs editable) and earlier.
+
 ## v1.638
 
 - **One clean signature everywhere, older ones retired; every label on receipts and UCs editable.** Owner, 26 Nov 2026.
