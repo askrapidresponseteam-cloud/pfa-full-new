@@ -379,7 +379,9 @@ test('from a register: Preview card draws it with the kept photograph and saves 
 test('the signature online is a vector: lines in the ink of the print master, sharp at any zoom', () => {
   const svg = read('assets/certificates/signature.svg');
   assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 1512 438"/);
-  assert.match(svg, /<path fill="#0e33a6" fill-rule="evenodd" d="M/);
+  /* the clean signature's own ink since 26 Nov 2026 (scripts/build-signature.js,
+     test/signature-master.test.js) */
+  assert.match(svg, /<path fill="#193b84" d="M/);
   assert.doesNotMatch(svg, /<image|data:image/, 'no picture inside it');
   assert.ok(svg.length < 60000, 'small enough to load at once');
   assert.match(read('scripts/build-firebase.js'), /'assets\/certificates\/signature\.svg'/, 'on the panel\'s server too');

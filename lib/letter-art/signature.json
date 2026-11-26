@@ -1,0 +1,10 @@
+{
+  "master": "73e615ab2b2ae23eceb3c8b9bfbfcc7068e83913783c3399f08adc419b697642",
+  "box": "82.22 32.07 822.21 252.72",
+  "colour": "#193b84",
+  "files": {
+    "lib/letter-art/signature.png": "a6c627c46a7e0b9d8c7844e8e925dbf78c088edc2a476a4023e9a0fbd4deeaf2",
+    "assets/certificates/signature.png": "3716fc4c151c150ea2d816251b0a32f2b17e1286d218e92048b58b0d847cb386",
+    "assets/certificates/signature-print.png": "7335b110482a025d53e9574fa38681fcf7053039cf4711aef1897eb2f2d63ea2"
+  }
+}

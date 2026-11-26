@@ -54,7 +54,7 @@
      words on a cached copy of an older artwork that has them already
      (owner, 15 Nov 2026: "all the certs look terrible because of double
      text/ text over text"). */
-  var ART_V = 'e22f0df390';
+  var ART_V = '9b620629fd';
   var ART = ROOT + 'assets/certificates/frame.webp?v=' + ART_V;
   var INK = '#242620';
   var FONTS = [

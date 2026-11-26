@@ -78,6 +78,8 @@ service cloud.firestore {
     /* the signature collection: sealed, and the server's alone (lib/signature-vault.js) */
     match /signatureVault/{id}        { allow read, write: if false; }
     match /chatLearn/{id}             { allow read, write: if false; }
+    /* the foreign contribution documents' template (26 Nov 2026): the server's alone */
+    match /letterTemplates/{id}       { allow read, write: if false; }
     /* "From PFA" updates and PFA Live (26 Nov 2026): the server's alone;
        visitors read them through /api/updates and /api/live */
     match /siteUpdates/{id}           { allow read, write: if false; }

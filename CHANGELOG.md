@@ -1,3 +1,23 @@
+## v1.638
+
+- **One clean signature everywhere, older ones retired; every label on receipts and UCs editable.** Owner, 26 Nov 2026.
+  - "clean sign. pls use this everywhere. remove all other versions of sign from every place. surgical removal", then "do an enterprise grade implementation and update": the clean signature is the one master (scripts/source/MG-Sign-Vector-Clean.svg), and every signature PFA draws is made from it by scripts/build-signature.js, at the size each place has always used: letters, receipts and certificates of utilization, certificates, the caregiver and membership cards, the cards online, and the certificate design itself. A check holds every file to the master.
+  - Removed: the old signature with the printed name (letters), the older one on certificates and cards, and an unused copy from the caregiver card. The certificate art build no longer makes a signature of its own.
+  - The signature collection: every signature added before, and every choice made from one, is retired. Never drawn, never chosen again, kept only as the record. The panel says how many were retired. One added after (the clean one in a colour of its own) is used as before.
+  - Letters now type "Maneka Sanjay Gandhi" under the signature, since the clean one carries no printed name; it can be changed or emptied under Signature, seal and letterhead.
+  - "all variables should be editable": every heading and label a receipt or certificate prints (33 of them, from "Receipt No." to the table's columns) can be changed on each document and in the template, and PFA's own receipt or UC number can be printed instead of the site's reference (the reference the public check knows then goes at the foot).
+- Also in this build: v1.637 (foreign contribution receipts and utilization certificates) and earlier.
+
+## v1.637
+
+- **Foreign contribution receipts and utilization certificates, signed and sealed, in the panel.** Owner, 26 Nov 2026.
+  - "add this to admin.. it has to render perfectly with signature and seal. plan and build the template editable", with PFA's receipt and utilization certificate template, for the ambulance Rosie's Heroes gave PFA Khamgaon.
+  - The Letter studio now opens on three choices: Letters and certificates, Foreign contribution receipt, Utilization certificate. Each document is a short form (the donor, the money, the project; for a certificate, the payments), with the wording, bank accounts, signatories and placing of the signature and seal under a +. The preview is the PDF exactly as it will be issued, on the letterhead, with Maneka Sanjay Gandhi's signature and PFA's seal.
+  - A certificate can start from a receipt already issued: the donor, the amounts and the project come with it. The payments add up as they are typed, the unexpended balance is worked out, and a certificate cannot claim more than was received.
+  - + Edit the template changes PFA's registration line, the FCRA bank and account, the signatory, every clause and enclosure, and the donors on file, for every document made after. One already issued keeps what it was issued with. Donors are remembered when a document is issued for them; Rosie's Heroes is there from the start.
+  - Each is issued as a letter is: its own reference, its PDF kept, emailed to the donor with wording of its own, checkable on the public check page, and can be withdrawn.
+- Also in this build: v1.636 (every reply email carries the person's form details) and earlier.
+
 ## v1.636
 
 - **A reply to PFA now carries everything the person put on the form, under their message.** Owner, 26 Nov 2026.

@@ -30,6 +30,10 @@
   var style = document.createElement('style');
   style.textContent = [
     '.pane[data-pane="letters"]::before{content:"Letter studio";display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}',
+    '.ls-modes{display:flex;flex-wrap:wrap;gap:0;margin:0 0 20px;border-bottom:1px solid var(--line)}',
+    '.ls-modes button{min-height:44px;padding:0 16px;border:0;border-bottom:2px solid transparent;background:none;font:inherit;font-size:13px;color:var(--muted);cursor:pointer;margin-bottom:-1px}',
+    '.ls-modes button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink);font-weight:600}',
+    '.ls-modes button:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}',
     '.ls{display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);gap:28px;align-items:start}',
     '@media (max-width:1100px){.ls{grid-template-columns:minmax(0,1fr)}}',
     '.ls-form{display:grid;gap:14px;min-width:0}',
@@ -74,6 +78,32 @@
   function template(kind) { return (S.setup.templates.filter(function (t) { return t.kind === kind; })[0]) || S.setup.templates[0]; }
   function placesDefault() { var o = {}; Object.keys(S.setup.layout).forEach(function (k) { o[k] = S.setup.layout[k].value; }); return o; }
 
+  /* ---- letters, or the foreign contribution documents ----------------------
+     (owner, 26 Nov 2026: the receipt and utilization certificate template,
+     "add this to admin.. it has to render perfectly with signature and
+     seal"): three choices across the top of the studio. The documents are
+     drawn by assets/admin-fcdocs.js, fetched the first time one is chosen. */
+  var MODES = [['letters', 'Letters and certificates'], ['fc-receipt', 'Foreign contribution receipt'], ['fc-uc', 'Utilization certificate']];
+  function modes(now) {
+    return '<div class="ls-modes" role="tablist" aria-label="What to make">' + MODES.map(function (m) {
+      return '<button type="button" role="tab" data-ls-mode="' + m[0] + '" aria-selected="' + (m[0] === now) + '">' + esc(m[1]) + '</button>';
+    }).join('') + '</div>';
+  }
+  function openMode(mode) {
+    var node = pane();
+    if (!node) return;
+    if (mode === 'letters') { render(); return; }
+    var go = function () {
+      if (!window.PFAFcDocs) { A.fail(node, new Error('That part of the studio could not be loaded. Refresh the page.')); return; }
+      window.PFAFcDocs.show(node, mode, { modes: modes, setup: S.setup, letters: S.letters, onIssued: function (row) { S.letters.unshift(row); } });
+    };
+    if (window.PFAFcDocs) return go();
+    var sc = document.createElement('script');
+    sc.src = 'assets/admin-fcdocs.js';
+    sc.onload = go; sc.onerror = go;
+    document.head.appendChild(sc);
+  }
+
   /* ---- the pane ---------------------------------------------------------- */
   function render() {
     var node = pane();
@@ -83,7 +113,7 @@
       S.letters = d.letters || [];
       S.places = Object.assign(placesDefault(), stored(PLACES) || {});
       var draft = stored(DRAFT);
-      node.innerHTML = '<div class="ls"><div class="ls-form" data-ls-form></div><div class="ls-view" data-ls-view aria-label="The letter as it will be issued"><p class="ls-viewbar"><span>The letter, as it will be issued</span><span data-ls-pages></span></p><div data-ls-pagesbox></div></div></div>'
+      node.innerHTML = modes('letters') + '<div class="ls"><div class="ls-form" data-ls-form></div><div class="ls-view" data-ls-view aria-label="The letter as it will be issued"><p class="ls-viewbar"><span>The letter, as it will be issued</span><span data-ls-pages></span></p><div data-ls-pagesbox></div></div></div>'
         + '<div class="ls-list"><h3>Letters issued</h3><div data-ls-list></div></div>';
       form(draft);
       list();
@@ -117,6 +147,7 @@
       + '<label>Closing words<input name="closing" maxlength="160" value="' + esc(v.closing) + '"></label>'
       + '<details class="ls-places"><summary>Signature, seal and letterhead</summary>'
       + '<label class="ls-check"><input type="checkbox" name="signed"' + (v.signed !== false ? ' checked' : '') + '><span>Maneka Sanjay Gandhi\'s signature</span></label>'
+      + '<label>Name under the signature<input name="signName" maxlength="120" value="' + esc(v.signName == null ? 'Maneka Sanjay Gandhi' : v.signName) + '" placeholder="None"></label>'
       + '<label class="ls-check"><input type="checkbox" name="sealed"' + (v.sealed !== false ? ' checked' : '') + '><span>PFA\'s seal</span></label>'
       + '<div class="ls-group"><span class="ls-k">Letterhead</span>' + range('headSize') + range('headX') + range('headY') + '</div>'
       + '<div class="ls-group"><span class="ls-k">Signature</span>' + range('sigSize') + range('sigX') + range('sigY') + '</div>'
@@ -138,7 +169,7 @@
     Object.keys(S.setup.layout).forEach(function (k) { layout[k] = Number(get(k)); });
     return {
       kind: get('kind'), date: get('date'), recipient: get('recipient'), subject: get('subject'), salutation: get('salutation'),
-      body: get('body'), closing: get('closing'), signed: field('signed').checked, sealed: field('sealed').checked, layout: layout,
+      body: get('body'), closing: get('closing'), signed: field('signed').checked, sealed: field('sealed').checked, signName: get('signName'), layout: layout,
       email: get('email').trim(), person: S.person ? { id: S.person.id, name: S.person.name, email: S.person.email, mobile: S.person.mobile } : null,
       amount: S.shownAmount, donation: S.donation === 'all' ? '' : S.donation
     };
@@ -429,7 +460,7 @@
   /* ---- what the pane does ----------------------------------------------- */
   document.addEventListener('input', function (e) {
     var t = e.target;
-    if (!t.closest || !t.closest('[data-pane="letters"]')) return;
+    if (!t.closest || !t.closest('[data-pane="letters"]') || t.closest('[data-fc]')) return;
     if (t.hasAttribute('data-ls-find')) return find(t.value);
     /* the amount goes into the letter when it is finished (change), never
        a keystroke at a time: "2" on its way to "2500" would match any 2 */
@@ -441,7 +472,7 @@
   });
   document.addEventListener('change', function (e) {
     var t = e.target;
-    if (!t.closest || !t.closest('[data-pane="letters"]')) return;
+    if (!t.closest || !t.closest('[data-pane="letters"]') || t.closest('[data-fc]')) return;
     if (t.hasAttribute('data-ls-money')) return setAmount(moneyTyped(t.value));
     if (t.hasAttribute('data-ls-donation')) {
       S.donation = t.value;
@@ -472,6 +503,8 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-pane="letters"] button');
     if (!b) return;
+    if (b.hasAttribute('data-ls-mode')) { if (b.getAttribute('aria-selected') !== 'true') openMode(b.getAttribute('data-ls-mode')); return; }
+    if (b.closest('[data-fc]')) return;
     if (b.hasAttribute('data-ls-pick')) return pick(S.hits[Number(b.getAttribute('data-ls-pick'))]);
     if (b.hasAttribute('data-ls-pdf')) return download(b.getAttribute('data-ls-pdf'), b);
     if (b.hasAttribute('data-ls-mail')) return mail(b.getAttribute('data-ls-mail'));
@@ -496,5 +529,5 @@
     }
   });
 
-  window.PFALetters = { pane: render };
+  window.PFALetters = { pane: render, draw: draw };
 }());

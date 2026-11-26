@@ -21,8 +21,9 @@
                     (site rule: no dash-shaped mark anywhere)
      the paper      pure white (the design's own since 12 Nov 2026)
      the signature  taken out of the art and kept on its own
-                    (assets/certificates/signature.png), in the design's navy
-                    ink, so it can be placed: assets/certificate.js draws it
+                    (assets/certificates/signature.png), made from the one
+                    master by scripts/build-signature.js (26 Nov 2026), so it
+                    can be placed: assets/certificate.js draws it
                     where the design puts it, moved by the panel's Signature
                     position (owner, 12 Nov 2026: "update this certificate
                     with controls")
@@ -82,7 +83,7 @@ function design(blank) {
   /* the art without the signature; the signature drawn on it in its place */
   /* (the image itself taken out: hidden, its ink filter would still paint
      a solid block, since it reads ink from what is not there) */
-  if (blank) s = s.replace('</style>', '.signature svg image{display:none}</style>');
+  if (blank) s = s.replace('</style>', '.signature svg path{display:none}</style>');
   return s;
 }
 
@@ -166,11 +167,13 @@ async function main() {
   /* the signature alone, on nothing, at the same 2x */
   const sig = await browser.newPage({ viewport: { width: 1200, height: 900 }, deviceScaleFactor: 2 });
   const sigPage = path.join(dir, 'signature.html');
-  fs.writeFileSync(sigPage, design(true).replace('.signature svg image{display:none}', '').replace('</style>', 'html,body,.stage,.certificate{background:transparent!important;box-shadow:none!important}.certificate:before,.certificate:after{display:none!important}.certificate *{visibility:hidden}.signature svg,.signature svg *{visibility:visible}</style>'));
+  fs.writeFileSync(sigPage, design(true).replace('.signature svg path{display:none}', '').replace('</style>', 'html,body,.stage,.certificate{background:transparent!important;box-shadow:none!important}.certificate:before,.certificate:after{display:none!important}.certificate *{visibility:hidden}.signature svg,.signature svg *{visibility:visible}</style>'));
   await sig.goto('file://' + sigPage);
   await sig.evaluate(() => document.fonts.ready);
   const svg = await sig.$('.signature svg');
-  await svg.screenshot({ path: SIG_OUT, omitBackground: true });
+  /* the signature's pictures are made from its one master by
+     scripts/build-signature.js (26 Nov 2026), never from this design */
+  void svg;
   const sigBox = await sig.evaluate(() => {
     const c = document.querySelector('.certificate').getBoundingClientRect();
     const r = document.querySelector('.signature svg').getBoundingClientRect();
@@ -184,7 +187,7 @@ async function main() {
   }
   console.log('wrote', path.relative(ROOT, OUT));
   console.log('the blanks, in the design\'s pixels:', JSON.stringify(at));
-  console.log('wrote', path.relative(ROOT, SIG_OUT), 'the signature, where the design puts it:', JSON.stringify(sigBox));
+  console.log('the signature, where the design puts it (its pictures: scripts/build-signature.js):', JSON.stringify(sigBox));
   await printMasters(chromium, page, sigPage);
 }
 
@@ -213,9 +216,8 @@ async function printMasters(chromium, page, sigPage) {
   const sig = await browser.newPage({ viewport: { width: 1200, height: 900 }, deviceScaleFactor: PRINT_SCALE });
   await sig.goto('file://' + sigPage);
   await sig.evaluate(() => document.fonts.ready);
-  await (await sig.$('.signature svg')).screenshot({ path: SIG_PRINT_OUT, omitBackground: true });
   await browser.close();
-  console.log('wrote', path.relative(ROOT, PRINT_OUT), 'and', path.relative(ROOT, SIG_PRINT_OUT), `at ${PRINT_SCALE}x, lossless`);
+  console.log('wrote', path.relative(ROOT, PRINT_OUT), `at ${PRINT_SCALE}x, lossless`);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });

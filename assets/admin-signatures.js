@@ -117,8 +117,10 @@
       var x = u[p.id];
       return '<li><b>' + esc(p.label) + '</b>' + (x && x.id
         ? '<span class="sv__dot" style="background:' + esc(x.colour) + '"></span><span>' + esc(x.name || x.id) + '</span>'
-        : '<span>The built-in signature</span>') + '</li>';
-    }).join('') + '</ul>';
+        : '<span>The clean signature</span>') + '</li>';
+    }).join('') + '</ul>'
+      /* 26 Nov 2026: every earlier signature retired, never drawn again */
+      + (st.info && st.info.retired ? '<p class="sv__note">' + st.info.retired + ' earlier ' + (st.info.retired === 1 ? 'signature was' : 'signatures were') + ' retired on 26 Nov 2026, when the clean signature replaced every other. They are never drawn.</p>' : '');
   }
   function opened() {
     var sigs = (st.info && st.info.signatures) || [];
@@ -132,7 +134,7 @@
         + '<label class="sv__other"><span class="sv__wheel" aria-pressed="' + (custom() ? 'true' : 'false') + '"><input class="sv__pick" type="color" data-sv="colour" value="' + esc(st.colour) + '" aria-label="Any other colour"></span>Other</label></div></div>'
         + '<figure class="sv__prev"><canvas data-sv-canvas width="1512" height="438" aria-label="The signature as it will be drawn"></canvas></figure>'
         + '<div class="sv__row"><button class="press" type="button" data-sv-act="use">Use for ' + esc(labelOf(st.place).toLowerCase()) + '</button>'
-        + '<button class="ghost" type="button" data-sv-act="builtin">Built-in for ' + esc(labelOf(st.place).toLowerCase()) + '</button>'
+        + '<button class="ghost" type="button" data-sv-act="builtin">Clean signature for ' + esc(labelOf(st.place).toLowerCase()) + '</button>'
         + '<button class="ghost" type="button" data-sv-act="lock">Lock</button></div>'
       : '<p class="sv__note">No signatures in the collection yet. Add one below.</p><div class="sv__row"><button class="ghost" type="button" data-sv-act="lock">Lock</button></div>';
     return uses() + editor
@@ -325,7 +327,7 @@
     if (what === 'builtin') {
       tell('Saving…');
       api({ action: 'builtin', place: place }).then(function () { return refresh(); }).then(function () {
-        st.say = 'Saved. ' + labelOf(place) + ' use the built-in signature again.'; st.tone = 'good';
+        st.say = 'Saved. ' + labelOf(place) + ' use the clean signature again.'; st.tone = 'good';
         paint();
       }).catch(function (err) { b.disabled = false; failed(err); });
     }
