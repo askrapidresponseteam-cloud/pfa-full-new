@@ -78,6 +78,12 @@ service cloud.firestore {
     /* the signature collection: sealed, and the server's alone (lib/signature-vault.js) */
     match /signatureVault/{id}        { allow read, write: if false; }
     match /chatLearn/{id}             { allow read, write: if false; }
+    /* "From PFA" updates and PFA Live (26 Nov 2026): the server's alone;
+       visitors read them through /api/updates and /api/live */
+    match /siteUpdates/{id}           { allow read, write: if false; }
+    match /liveShow/{document=**}     { allow read, write: if false; }
+    match /liveBlocks/{id}            { allow read, write: if false; }
+    match /liveRate/{id}              { allow read, write: if false; }
     match /digitalCards/{id}          { allow read, write: if false; }
     match /digitalCardIds/{id}        { allow read, write: if false; }
     match /finance_reports/{id}       { allow read, write: if false; }

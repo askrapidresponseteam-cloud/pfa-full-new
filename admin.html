@@ -780,6 +780,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="payments">Payments &amp; donations</button>
       <button class="tab" type="button" data-tab="shop">Shop orders<span class="pip" id="pipShop" hidden>0</span></button>
       <button class="tab" type="button" data-tab="certificates">Certificates and letters</button>
+      <button class="tab" type="button" data-tab="updates">Updates</button>
+      <button class="tab" type="button" data-tab="live">PFA Live</button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="gifts">Seasonal gifts</button>
       <button class="tab" type="button" data-tab="analytics">Analytics</button>
@@ -960,6 +962,8 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="website" role="region" aria-label="What the public site shows"><div class="loading">Reading the site&#8230;</div></div>
 
     <div class="pane" data-pane="gifts" role="region" aria-label="Seasonal gifts"></div>
+    <div class="pane" data-pane="updates" role="region" aria-label="Updates"></div>
+    <div class="pane" data-pane="live" role="region" aria-label="PFA Live"></div>
     <div class="pane" data-pane="directory" role="region" aria-label="People directory"></div>
     <!-- today's birthdays, the next 30 days and the card (11 Nov 2026): assets/admin-birthdays.js -->
     <div class="pane" data-pane="birthdays" role="region" aria-label="Birthdays"></div>
@@ -1406,6 +1410,8 @@ window.addEventListener('unhandledrejection', function (event) {
     verify:      { title: 'Verify a card', module: 'verify',      needs: 'verify' },
     website:     { title: 'Website',       module: 'website',     needs: 'website' },
     gifts: { title: 'Seasonal gifts', module: 'gifts', needs: 'gifts' },
+    updates: { title: 'Updates', module: 'updates', needs: 'updates' },
+    live: { title: 'PFA Live', module: 'live', needs: 'live' },
     directory: { title: 'People directory', module: 'directory', needs: 'directory' },
     birthdays: { title: 'Birthdays', module: 'directory', needs: 'directory' },
     analytics:   { title: 'Analytics',     module: 'analytics',   needs: 'analytics' },
@@ -1545,6 +1551,8 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'employees') return window.PFAPeople && window.PFAPeople.pane();
     if (tab === 'website') return website();
     if (tab === 'gifts') return window.PFAGifts && window.PFAGifts.pane();
+    if (tab === 'updates') return window.PFAUpdates && window.PFAUpdates.pane();
+    if (tab === 'live') return window.PFALiveShow && window.PFALiveShow.pane();
     if (tab === 'directory') return window.PFADirectory && window.PFADirectory.pane();
     if (tab === 'birthdays') return window.PFABirthdays && window.PFABirthdays.pane();
     if (tab === 'analytics') return window.PFAAnalytics && window.PFAAnalytics.pane();
@@ -2255,13 +2263,10 @@ window.addEventListener('unhandledrejection', function (event) {
 
   var CHECKS_OFF = 'Checking by hand is not available here';
 
-  /* Payments that were started and never came back from CCAvenue (owner, 21
-     Oct 2026: "this dashboard is super complex for a non tech savvy
-     person"). One plain sentence says what they are and that nothing needs
-     doing; the list itself folds under a + and opens only if someone wants
-     it. No technical warning: when this server cannot ask CCAvenue, the
-     site does it by itself once a day (Vercel's daily run), so the row has
-     no button rather than a greyed one with a message on every line. */
+  /* Payments started and never back from CCAvenue (owner, 21 Oct 2026: "this
+     dashboard is super complex for a non tech savvy person"): one plain
+     sentence, the list under a +, no technical warning (the site asks
+     CCAvenue itself once a day when this server cannot). */
   /* ---- monthly payments reports (owner, 1 Nov 2026) --------------------
      Each of the last twelve months: whether its report went (made, emailed,
      the queue's attempts and last error), the count and total, the CSV, and
@@ -2681,13 +2686,9 @@ window.addEventListener('unhandledrejection', function (event) {
     }).catch(function (e) { fail(node, e); });
   }
 
-  /* ---- website: what the public site shows --------------------------------
-     Owner, 8 Oct 2026: show or hide any page or section of the public site,
-     each with a simple Visible / Hidden toggle, with no code change. The list
-     is the site's own (assets/site-modules.json, built from the pages),
-     grouped the way the site's menus group it. A toggle saves at once through
-     /api/admin/site and the public site has it within about ten seconds;
-     every change is in the audit log. */
+  /* ---- website (owner, 8 Oct 2026): show or hide any page or section, from
+     assets/site-modules.json, grouped as the menus are; saved at once through
+     /api/admin/site, on the site within ten seconds, in the audit log. */
 
   var site = null;
   var SHOWN = { visible: 'Visible', hidden: 'Hidden' };
@@ -4346,6 +4347,8 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Members', line: 'Every member, their number and card', tab: 'membership', words: 'members membership number card register patron' },
     { title: 'Internship', line: 'Interns given an ID, their work and shelters', tab: 'internship', words: 'interns internship shelters batch' },
     { title: 'Certificates and letters', line: 'Internship, volunteer, participation, recognition and donor certificates, and letters', tab: 'certificates', words: 'certificates certificate internship completion volunteer appreciation participation camp event recognition award donor issue withdraw' },
+    { title: 'Updates', line: 'News and notices on the home page and the Newsroom', tab: 'updates', words: 'updates news notice notices announcement announcements post publish film video newsroom home what is new latest' },
+    { title: 'PFA Live', line: 'The live show: go live, comments, questions', tab: 'live', words: 'live stream show broadcast maneka ki baat comments questions qna q&a mux youtube obs on air' },
     { title: 'Live chat', line: 'Answer visitors on the site\u2019s chat', tab: 'livechat', words: 'live chat visitors online available talk person reply help desk' },
     { title: 'Job applicants', line: 'Applications from the careers page', tab: 'employees', words: 'jobs careers applicants applications hiring posts vacancies' },
     { title: 'Find a card', line: 'Any card by its number: the public check, the card studio, the register', tab: 'caregivers', anchor: '#vfQ', words: 'verify check card valid find' },
@@ -4832,15 +4835,10 @@ window.addEventListener('unhandledrejection', function (event) {
 
   window.pfaSignInReady = true;
 
-  /* ---- applications to decide ---------------------------------------------
-     Owner, 24 Oct 2026: "caregiver card ditto. update. in admin panel. so
-     that issuance is easy. there should be issue or reject". Every paid
-     colony caregiver application still waiting, oldest first, on one screen:
-     the card drawn exactly as it would be issued (the applicant's own
-     photograph in it), what the server checked, and Issue or Reject. Issue
-     is the drawer's approve and Reject its reject (lib/routes/admin/case.js),
-     which re-check everything in their own transactions; this screen only
-     makes them one press away. */
+  /* ---- applications to decide (owner, 24 Oct 2026: "there should be issue
+     or reject"): every paid caregiver application waiting, oldest first, its
+     card drawn as it would issue, Issue or Reject (lib/routes/admin/case.js,
+     which re-checks everything). */
 
   var REJECT_REASONS = [
     { short: 'Could not confirm the colony', text: 'We could not confirm that you feed or look after community animals in the colony you named.' },
@@ -4910,15 +4908,9 @@ window.addEventListener('unhandledrejection', function (event) {
     });
   }
 
-  /* ---- membership cards ---------------------------------------------------
-
-     Owner, 26 Oct 2026: "admin should have option to send email to the
-     applicant to upload photo. once they upload the application should come
-     to pfa for approval and card generation". One section, in the order the
-     work happens: ask for the photograph, wait for it, approve it (the card
-     is drawn here with the photograph, exactly as it prints), then print.
-     Every step is lib/routes/admin/membership.js; the card is drawn only
-     here (assets/member-card.js) and never sent to the member. */
+  /* ---- membership cards (owner, 26 Oct 2026): ask for the photograph, wait,
+     approve (the card drawn here as it prints, assets/member-card.js, never
+     sent to the member), print. Every step is lib/routes/admin/membership.js. */
 
   var MQ = {
     ask:      { g: 1, label: 'Ask for photo', queues: ['request', 'lapsed'], hint: 'Paid members with no photograph yet. Issue card puts the card online now; Email photo link asks for a photograph first (the link lasts 14 days).' },
@@ -6309,6 +6301,8 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-live.js"></script>
 <script src="assets/admin-people.js"></script>
 <script src="assets/admin-gifts.js"></script>
+<script src="assets/admin-updates.js"></script>
+<script src="assets/admin-live-show.js"></script>
 <script src="assets/admin-directory.js"></script>
 <script src="assets/birthday-card.js"></script>
 <script src="assets/admin-birthdays.js"></script>

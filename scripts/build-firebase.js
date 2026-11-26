@@ -89,7 +89,7 @@ const PANEL_ASSETS = [
      the page-weight ceiling */
   'assets/admin-registers.js',
   /* emailing an internship certificate (2 Nov 2026) */
-  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-live.js', 'assets/admin-chat-learn.js', 'assets/admin-people.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-site-designs.js', 'assets/admin-viewer.js', 'assets/admin-mail.js', 'assets/admin-cert-layout.js', 'assets/admin-cert-pane.js', 'assets/admin-signatures.js', 'assets/admin-digital-cards.js', 'assets/admin-intern-time.js',
+  'assets/admin-certificates.js', 'assets/admin-internship.js', 'assets/admin-payreport.js', 'assets/admin-live.js', 'assets/admin-chat-learn.js', 'assets/admin-people.js', 'assets/admin-updates.js', 'assets/admin-live-show.js', 'assets/admin-gifts.js', 'assets/admin-directory.js', 'assets/birthday-card.js', 'assets/admin-birthdays.js', 'assets/admin-site-designs.js', 'assets/admin-viewer.js', 'assets/admin-mail.js', 'assets/admin-cert-layout.js', 'assets/admin-cert-pane.js', 'assets/admin-signatures.js', 'assets/admin-digital-cards.js', 'assets/admin-intern-time.js',
   /* the card online, drawn in its studio to place the signature (15 Nov 2026) */
   'assets/digital-card.css', 'assets/digital-card.js', 'img/logo-dark.png',
   /* the People directory's Map (18 Nov 2026): Leaflet, served from the site */

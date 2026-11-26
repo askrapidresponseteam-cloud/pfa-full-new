@@ -37,7 +37,9 @@ const KNOWN = [
   /* the public website on Firebase (24 Nov 2026): the keys only Vercel had,
      for dollar donations, the shop's orders and the member photo's cut-out */
   'CCAVENUE_USD_WORKING_KEY', 'CCAVENUE_USD_ACCESS_CODE', 'CCAVENUE_USD_MERCHANT_ID',
-  'PFA_SHOP_FIREBASE_SERVICE_ACCOUNT', 'PHOTO_CUTOUT_KEY'
+  'PFA_SHOP_FIREBASE_SERVICE_ACCOUNT', 'PHOTO_CUTOUT_KEY',
+  /* PFA Live (26 Nov 2026): the Mux account that carries the stream */
+  'MUX_TOKEN_ID', 'MUX_TOKEN_SECRET'
 ];
 
 function cli(args) {

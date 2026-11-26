@@ -1,0 +1,71 @@
+/* "From PFA": the home page's strip and the Newsroom's feed
+   (assets/updates.js; owner, 26 Nov 2026). Nothing here shows until there
+   is an update to show: both holders start hidden. Text wraps, never cut. */
+
+/* ---------- the home strip, under the hero's buttons ---------- */
+.pfa-new{margin:0;pointer-events:auto}
+.pfa-new[hidden]{display:none}
+.pfa-new__row{display:flex;align-items:center;gap:12px;max-width:560px;padding:10px 14px 10px 10px;border:1px solid rgba(17,17,17,.16);background:rgba(255,255,255,.86);color:#111;text-decoration:none;transition:border-color .25s,background .25s}
+.pfa-new__row:hover{border-color:#111;background:#fff;opacity:1}
+.pfa-new__row:focus-visible{outline:2px solid #111;outline-offset:3px}
+.pfa-new__tag{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 8px 5px;background:#111;color:#fff;font-size:10px;font-weight:700;letter-spacing:.14em;line-height:1;text-transform:uppercase;white-space:nowrap}
+.pfa-new__tag[data-live]{background:#c4161c}
+.pfa-new__dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pfaNewPulse 1.4s ease-in-out infinite}
+@keyframes pfaNewPulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.pfa-new__dot{animation:none}}
+.pfa-new__text{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:3px}
+.pfa-new__title{font-size:14px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
+.pfa-new__meta{font-size:11.5px;line-height:1.4;color:#5a5a5a}
+.pfa-new__go{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#111;color:#fff}
+.pfa-new__go svg{width:12px;height:12px}
+.pfa-new__go--play svg{width:11px;height:13px;margin-left:2px}
+
+/* ---------- the Newsroom's feed, under its masthead ---------- */
+.upd{padding:clamp(22px,3vw,40px) var(--nr-gutter,var(--g,20px)) clamp(28px,3.4vw,48px);box-sizing:border-box}
+.upd[hidden]{display:none}
+.upd__head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;padding-bottom:12px;border-bottom:2px solid #111}
+.upd__title{margin:0;font-size:clamp(20px,2.2vw,28px);font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.upd__count{margin:0;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5a5a5a}
+.upd__list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,max(290px,calc((100% - 2 * clamp(18px,2.4vw,32px)) / 3))),1fr));gap:clamp(18px,2.4vw,32px);padding-top:clamp(18px,2.4vw,28px)}
+.upd__list[hidden]{display:none}
+.upd__item[hidden]{display:none}
+.upd__item{display:flex;flex-direction:column;gap:12px;min-width:0;scroll-margin-top:calc(var(--bar,90px) + 16px)}
+.upd__item:target .upd__name,.upd__item.is-target .upd__name{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.upd__media{position:relative;display:block;width:100%;aspect-ratio:16/9;padding:0;border:0;background:#1a1a1a;color:#fff;overflow:hidden;cursor:pointer;font:inherit;text-align:left}
+.upd__media--still{cursor:default}
+.upd__media img,.upd__media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.7,.2,1),filter .5s}
+.upd__media:not(.upd__media--still) img,.upd__media:not(.upd__media--still) video{filter:brightness(.82)}
+.upd__media:hover img,.upd__media:hover video,.upd__media:focus-visible img{transform:scale(1.04);filter:none}
+.upd__media:focus-visible{outline:2px solid #111;outline-offset:3px}
+.upd__media::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55),rgba(0,0,0,0) 55%);pointer-events:none}
+.upd__media--still::after{display:none}
+.upd__play{position:absolute;left:14px;bottom:14px;z-index:1;display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.upd__chip{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#fff;color:#111;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .3s}
+.upd__chip svg{width:13px;height:15px;margin-left:3px}
+.upd__media:hover .upd__chip{transform:scale(1.08)}
+.upd__type{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.upd__meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5a5a5a}
+.upd__tag{display:inline-block;padding:5px 8px 4px;background:#111;color:#fff;line-height:1}
+.upd__tag[data-kind="notice"]{background:#c4161c}
+.upd__tag[data-kind="event"]{background:#e9e4d8;color:#111}
+.upd__name{margin:0;font-size:clamp(17px,1.5vw,20px);font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.upd__body{margin:0;font-size:15px;line-height:1.6;color:#2b2b2b;overflow-wrap:anywhere}
+.upd__body p{margin:0 0 10px}
+.upd__body p:last-child{margin-bottom:0}
+.upd__acts{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:auto}
+.upd__more,.upd__link{display:inline-flex;align-items:center;gap:8px;padding:0;border:0;background:none;color:#111;font:inherit;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border-bottom:1px solid #111;padding-bottom:2px;text-decoration:none}
+.upd__more:focus-visible,.upd__link:focus-visible{outline:2px solid #111;outline-offset:3px}
+.upd__plus{display:inline-block;font-size:15px;line-height:.8;font-weight:400;transition:transform .25s}
+.upd__more[aria-expanded="true"] .upd__plus{transform:rotate(45deg)}
+.upd__all{display:flex;justify-content:center;padding-top:clamp(18px,2.4vw,28px)}
+.upd__all[hidden]{display:none}
+
+/* ---------- an Instagram post, in a frame of its own ---------- */
+.upd-ig{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:rgba(8,8,8,.97);color:#fff}
+.upd-ig[hidden]{display:none}
+.upd-ig__bar{display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(100%,420px)}
+.upd-ig__ttl{font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+.upd-ig__x{flex:none;min-height:40px;padding:0 16px;border:1px solid rgba(255,255,255,.5);background:none;color:#fff;font:inherit;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.upd-ig__x:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.upd-ig__frame{width:min(100%,420px)}
+.upd-ig iframe{display:block;width:100%;height:min(780px,calc(100dvh - 90px));border:0;background:#fff}

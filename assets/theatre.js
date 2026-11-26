@@ -50,6 +50,14 @@
     var PROG_KEY = opts.progKey || 'pfa:theatre:progress';
     var onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : function () {};
     var $ = function (q) { return document.querySelector(q); };
+    var hlsNow = null;
+    function withHls(cb){
+      if (window.Hls) return cb(window.Hls);
+      var sc = document.createElement('script');
+      sc.src = 'https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js'; sc.async = true;
+      sc.onload = function(){ cb(window.Hls || null); }; sc.onerror = function(){ cb(null); };
+      document.head.appendChild(sc);
+    }
 
     /* The markup comes with the module. A page carrying its own copy would be
        free to let it drift from the code that drives it, which is the whole
@@ -572,8 +580,23 @@
       var startAt = t >= 0 ? t : saved ? saved.t : Number(it.start) || 0;
       if (saved && t < 0) say('Resuming from ' + tc(saved.t).replace(/^00:/, ''));
 
+      if (hlsNow) { try { hlsNow.destroy(); } catch (e) {} hlsNow = null; }
       if (it.src){
-        video.hidden = false; video.src = it.src; if (it.poster) video.poster = it.poster; else video.removeAttribute('poster');
+        video.hidden = false; if (it.poster) video.poster = it.poster; else video.removeAttribute('poster');
+        /* A live show's recording (26 Nov 2026) comes as HLS, the stream
+           that changes quality with the connection. Safari and every iPhone
+           play it as they are; elsewhere hls.js feeds it to the same video
+           element, so every control on the bar works on it unchanged. */
+        if (/\.m3u8(\?|$)/.test(it.src) && !video.canPlayType('application/vnd.apple.mpegurl')) {
+          var mineHls = loadSeq + 1;
+          video.removeAttribute('src');
+          withHls(function(Hls){
+            if (mineHls !== loadSeq || !Hls || !Hls.isSupported()) { if (!Hls || !Hls.isSupported()) say('This film cannot play in this browser.'); return; }
+            hlsNow = new Hls({ capLevelToPlayerSize: true });
+            hlsNow.loadSource(it.src); hlsNow.attachMedia(video);
+            hlsNow.on(Hls.Events.MANIFEST_PARSED, function(){ var q = video.play(); if (q && q.catch) q.catch(function(){ paintPlay(); }); });
+          });
+        } else video.src = it.src;
         video.classList.toggle('contain', !!it.fit);
         video.muted = muted; video.volume = volume; video.playbackRate = rate;
         video.load();

@@ -2,7 +2,7 @@
 <html lang="en" data-pfa-tabs>
 <head>
 <meta charset="utf-8">
-<meta name="pfa-build" content="v1.634">
+<meta name="pfa-build" content="v1.636">
 <title>People for Animals | India’s largest animal welfare organisation</title>
 <meta name="description" content="Report cruelty, find your nearest unit, read what the law actually says, or give. People for Animals turns moments of crisis into second chances for animals across the country.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -254,6 +254,7 @@ section[data-screen-label="Hero"].is-waking .pfa-heroin > div{transition:opacity
      hairlines. Loads after chrome.css so the theme wins ties; carries no
      markup changes of its own. -->
 <link rel="stylesheet" href="assets/pfa-theme.css">
+<link rel="stylesheet" href="assets/updates.css">
 
 <style id="pfa-space-refinement">
 /* Layout only: retain the existing palette, type, images and controls. */
@@ -639,6 +640,9 @@ if (root.document && root.document.head) apply(read());
         <a class="pfa-hero__btn pfa-hero__btn--line" href="units.html">Find a unit</a>
         <a class="pfa-join" href="get-involved.html#membership" aria-label="Join now: become a PFA member today"><span class="pfa-join__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><ellipse cx="5.9" cy="10.4" rx="1.95" ry="2.45"/><ellipse cx="9.5" cy="6.3" rx="2.05" ry="2.65"/><ellipse cx="14.5" cy="6.3" rx="2.05" ry="2.65"/><ellipse cx="18.1" cy="10.4" rx="1.95" ry="2.45"/><path d="M12 11.4c-2.7 0-5.6 3.5-5.6 6.2 0 1.6 1.1 2.5 2.6 2.5 1.2 0 1.9-.6 3-.6s1.8.6 3 .6c1.5 0 2.6-.9 2.6-2.5 0-2.7-2.9-6.2-5.6-6.2Z"/></svg></span><span class="pfa-join__words"><b>Join now</b><span>Become a member today.</span></span><svg class="pfa-join__go" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5.5 6.5 6.5L9 18.5"/></svg></a>
       </div>
+      <!-- "From PFA" (26 Nov 2026): the latest update, or PFA Live while a show
+           is on, put in by assets/updates.js; empty and hidden until then -->
+      <div class="pfa-new" data-updates="strip" aria-label="New from PFA" hidden></div>
     </div>
   </div>
   <img id="hero-media" src="img/hero-caregiver.webp" width="1536" height="1024" alt="A caregiver holding a rescued dog">
@@ -852,6 +856,7 @@ if (root.document && root.document.head) apply(read());
      trophy. data-plate is the photograph it burns off into, warmed during
      the count. Deferred, so it never holds up this page; a click before it
      has run simply goes, and the CineKind page counts for itself. -->
+<script src="assets/updates.js" defer></script>
 <script src="assets/cinekind-leader.js" data-leader="link" data-plate="img/cinekind-landing.webp" defer></script>
 
 </body>

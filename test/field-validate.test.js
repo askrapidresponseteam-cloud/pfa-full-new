@@ -286,7 +286,10 @@ test('no page with a data entry box was left out', () => {
     /* behaviour.html's find box filters the topics on the page (11 Nov 2026) */
     'behaviour.html',
     /* 404.html's search box sends a word to the search page (24 Nov 2026) */
-    '404.html']);
+    '404.html',
+    /* live.html's comment and question boxes: a name and a line, checked by
+       the server as they arrive (lib/live-show.js checkMessage; 26 Nov 2026) */
+    'live.html']);
   const missed = [];
   for (const file of fs.readdirSync(ROOT).filter((f) => f.endsWith('.html'))) {
     if (skip.has(file) || WIRED.includes(file)) continue;

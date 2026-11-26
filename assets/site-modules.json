@@ -106,6 +106,23 @@
    ]
   },
   {
+   "id": "live",
+   "file": "live.html",
+   "title": "PFA Live",
+   "group": "Our Work",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "PFA Live"
+    },
+    {
+     "id": "show",
+     "label": "The show"
+    }
+   ]
+  },
+  {
    "id": "laws",
    "file": "laws.html",
    "title": "Laws",
@@ -1180,6 +1197,7 @@
   },
   "newsroom": {
    "nrTitle": "top",
+   "from-pfa": "top",
    "front": "top",
    "desk-work": "top",
    "desk-work-title": "top",
@@ -1295,6 +1313,21 @@
    "rec-101": "records",
    "rec-102": "records",
    "rec-103": "records"
+  },
+  "live": {
+   "lvTitle": "top",
+   "lvState": "top",
+   "lvAbout": "top",
+   "lvPlayer": "show",
+   "lvCard": "show",
+   "lvSpot": "show",
+   "lvSide": "show",
+   "lvPaneC": "show",
+   "lvFeed": "show",
+   "lvEmpty": "show",
+   "lvSayC": "show",
+   "lvPaneQ": "show",
+   "lvSayQ": "show"
   },
   "laws": {
    "a1": "part-a",

@@ -207,6 +207,9 @@ function render(page, data) {
     '<h1 class="pfa-title nr-title" id="nrTitle">Newsroom</h1>',
     `<div class="nr-strap"><nav class="nr-desks" aria-label="Newsroom sections">${links}</nav><p class="nr-count">${stories.length} ${stories.length === 1 ? 'story' : 'stories'} on the record</p></div>`,
     '</div>',
+    /* "From PFA" (26 Nov 2026): updates written in the panel, put in by
+       assets/updates.js; hidden, and empty, until there is one */
+    '<section class="upd" id="from-pfa" data-updates="feed" aria-label="From PFA" hidden></section>',
     front.length ? `<div class="nr-front" id="front" data-count="${front.length}">\n${tile(front[0], 'lead')}${front.length > 1 ? `\n<div class="nr-front__side">\n${side}\n</div>` : ''}\n</div>` : '',
     desks.map((g) => [
       `<section class="nr-desk" id="desk-${g.id}" aria-labelledby="desk-${g.id}-title">`,

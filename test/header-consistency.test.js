@@ -102,6 +102,8 @@ const EXPECTED = {
   'quiz.html':         ['Test yourself',             'laws.html'],
   'units.html':        ['Units: find help near you', 'units.html'],
   'newsroom.html':     ['Newsroom and cases',        'units.html'],
+  /* PFA Live (26 Nov 2026): no menu entry of its own, shown under Our Work beside the Newsroom */
+  'live.html':         [null,                        'units.html'],
   'wall.html':         ['The Wall',                  'get-involved.html'],
   'achievements.html': ['Policies and achievements', 'units.html'],
   'report.html':       ['Report cruelty',            'units.html'],

@@ -1,3 +1,21 @@
+## v1.636
+
+- **A reply to PFA now carries everything the person put on the form, under their message.** Owner, 26 Nov 2026.
+  - "how is it that the form doesnt capture details.. i told u capturing details are a must": every form keeps all it asked, in the panel and in the first email, but an email someone later wrote back with ("I am interested.") was passed on with only the reference and their email address. Read on its own, it said nothing about who they were.
+  - Now each one lists their name, mobile, address with a map link, every answer they gave (for a volunteer: the areas, availability and what they wrote) and the day they applied. Nothing about money.
+- Also in this build: v1.635 (news with films on the home page and the Newsroom, and PFA Live) and earlier.
+
+## v1.635
+
+- **News with films on the home page and Newsroom; PFA Live, a monthly show with comments and questions.** Owner, 26 Nov 2026.
+  - "find a best place to display new news/notifications ... it should have a cool video player as well": the newest update shows under the home page's buttons, marked New until it is opened; every update shows at the top of the Newsroom, three at first and the rest under + More updates.
+  - Updates are written in the panel's new Updates section: a title, a few lines, and a film (uploaded from the panel, or a YouTube, Vimeo or Instagram link) and a picture. Films play in the site's own player, the one the founder page and CineKind use; an Instagram post opens in its own frame.
+  - A film goes from the panel straight to the project's Storage bucket, never through the server, with a bar showing how far it has got. Only files under public/updates can be read by visitors; the rest of the bucket stays closed.
+  - PFA Live (live.html): the show plays on the site, with comments beside it and a tab to send a question. Comments with bad words, and every question, go to the panel first; staff put a question on air under the picture, mark it answered, hide comments, stop a person, and post as PFA.
+  - The picture comes from Mux (our own player, quality to suit each connection, YouTube as the backup, the recording kept) once its keys are set as PFA_SET_MUX_TOKEN_ID and PFA_SET_MUX_TOKEN_SECRET, and from a YouTube Live link until then. When the show ends, one press posts the recording as an update.
+  - While a show is announced or on, the home strip says Live soon or Live now instead of the latest update.
+- Also in this build: v1.634 (one command deploys and hands Firebase its payment settings) and earlier.
+
 ## v1.634
 
 - **One command deploys and hands Firebase the payment settings it still lacked.** Owner, 25 Nov 2026.

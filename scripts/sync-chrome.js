@@ -79,7 +79,8 @@ const PAGES = {
   'events.html':       { current: 'events.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'shop.html':         { current: 'shop.html',        group: null,               announce: 'Every purchase supports PFA\u2019s work for animals' },
   'search.html':       { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },
-  '404.html':          { current: null,               group: null,               announce: DEFAULT_ANNOUNCE }, /* the page shown for an address not on the site (24 Nov 2026) */
+  '404.html':          { current: null,               group: null,               announce: DEFAULT_ANNOUNCE },
+  'live.html':         { current: null,               group: 'units.html',       announce: DEFAULT_ANNOUNCE }, /* PFA Live, the monthly live show (26 Nov 2026) */ /* the page shown for an address not on the site (24 Nov 2026) */
   'quiz.html':         { current: 'quiz.html',        group: 'laws.html',        announce: DEFAULT_ANNOUNCE },
   /* The microsites (9 Oct 2026). Privacy is in the footer's legal line, not a menu. */
   'campus.html':       { current: 'campus.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },

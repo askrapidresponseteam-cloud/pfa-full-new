@@ -356,3 +356,31 @@ test('C9 a real delivery report (multipart/report) read from the mailbox, about 
   assert.equal(msgs('PFA-Q-2026-00013')[0].text, `The email to ${PERSON} was not delivered: 550 5.1.1 User unknown`);
   assert.equal(r.status, 'new');
 });
+
+/* ---- the details go with every reply (owner, 26 Nov 2026: "how is it that
+   the form doesnt capture details.. i told u capturing details are a must") */
+test('a reply relayed to PFA carries everything the form captured: name, mobile, address, every answer, never money', async () => {
+  await seed('PFA-V-2026-00055', { kind: 'PFA-V', kindLabel: 'Volunteer application', fields: {
+    name: 'Khushboo Aggarwal', email: PERSON, mobile: '9876543210', address: '12 Lake Road', city: 'Udupi', district: 'Udupi', state: 'Karnataka', pincode: '576101',
+    areas: ['Rescue', 'Fostering'], availability: 'Weekends', about: 'I feed dogs in my lane.', amount: '500'
+  } });
+  const queued = [];
+  const queue = { async queueEmail(row) { queued.push(row); return { emailId: `e${queued.length}`, created: true }; }, async recordEmailResult() {} };
+  const out = await INBOUND.file(db, email('PFA-V-2026-00055', PERSON, 'I am interested.'), options({ queue }));
+  assert.equal(out.filed, true);
+  const relay = queued.find((q) => q.template === 'submission_followup');
+  const a = relay.payload.application;
+  assert.equal(a.name, 'Khushboo Aggarwal');
+  assert.equal(a.mobile, '9876543210');
+  assert.match(a.place.value, /12 Lake Road, Udupi.*Karnataka 576101/);
+  const values = a.rows.map((r) => r.value).join(' | ');
+  assert.match(values, /Rescue, Fostering/);
+  assert.match(values, /Weekends/);
+  assert.match(values, /I feed dogs in my lane\./);
+  assert.ok(!a.rows.some((r) => /500/.test(r.value)), 'nothing about money');
+  const m = require('../lib/caregiver-mail.js').render('submission_followup', relay.payload);
+  for (const want of ['I am interested.', 'Khushboo Aggarwal', '9876543210', '12 Lake Road', 'Rescue, Fostering', 'Weekends', 'Applied on']) {
+    assert.ok(m.text.includes(want), `the email text carries ${want}`);
+    assert.ok(m.html.includes(want), `the email carries ${want}`);
+  }
+});
