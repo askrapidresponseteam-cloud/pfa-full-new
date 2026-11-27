@@ -21,7 +21,7 @@
   if (!A) return;
   var $ = A.$; var esc = A.esc;
   var URL_ = '/api/admin/partners';
-  var SITE_PAGE = 'partners.html';
+  var SITE_PAGE = 'partners-in-giving.html';
   var PFA_LOGO = 'img/logo.png';
 
   var style = document.createElement('style');
@@ -122,7 +122,7 @@
       + input('ppDonor', 'Name', e.donor, { max: 80, ph: 'Rosie’s Heroes' })
       + input('ppLink', 'Their website', e.link, { type: 'url', ph: 'https://' }) + '</div>'
       + input('ppDonorLine', 'A line about them', e.donorLine, { max: 160, ph: 'A volunteer-run charity in California…' })
-      + input('ppLetter', 'Letter of thanks, a page on this site (optional)', e.letter || '', { max: 60, ph: 'rosies-heroes.html' })
+      + input('ppLetter', 'Letter of thanks, a page on this site (optional)', e.letter || '', { max: 60, ph: 'partners.html' })
       + '<label class="ux-f"><span>The people to thank, one a line: name, then role</span><textarea id="ppPeople" placeholder="Priyanka Rao, President">' + esc((e.people || []).join('\n')) + '</textarea></label>'
       + '<div class="ux-f pp-logo"><span>Their logo</span>' + (e.logo ? '<img src="' + esc(e.logo) + '" alt="">' : '<p class="ux-hint">No logo yet: their name is written in its place.</p>')
       + '<div class="ux-file"><input type="file" id="ppLogoFile" accept="image/png,image/webp,image/jpeg">' + (e.logo ? '<button class="ghost danger" type="button" data-pp="nologo">Remove the logo</button>' : '') + '</div>'

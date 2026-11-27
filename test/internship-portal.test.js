@@ -214,7 +214,9 @@ test('approving: the intern is made, active at once, emailed that the internship
     const b = browser('198.51.100.20');
     const r = await b.go('session', 'POST', { email, mobile, dob });
     assert.equal(r.status, 200, `${email} ${mobile} ${dob}: ${JSON.stringify(r.json)}`);
-    assert.match(r.headers['set-cookie'], /^__session=[A-Za-z0-9_-]{43}; Path=\/api\/intern; HttpOnly; Secure; SameSite=Strict; Max-Age=604800$/);
+    assert.match(r.headers['set-cookie'][0], /^__session=[A-Za-z0-9_-]{43}; Path=\/api\/intern; HttpOnly; Secure; SameSite=Strict; Max-Age=604800$/);
+    /* the marker the internship page reads holds no key and no name, only that someone signed in here */
+    assert.equal(r.headers['set-cookie'][1], 'pfa_intern_in=1; Path=/; Secure; SameSite=Lax; Max-Age=604800');
     assert.equal((await b.go('me', 'GET')).json.intern.internId, issued.json.internId);
     assert.ok(!JSON.stringify(db.dump()).includes(b.cookie), 'the session is kept only as its hash');
   }

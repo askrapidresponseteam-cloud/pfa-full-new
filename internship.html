@@ -585,7 +585,7 @@ if (root.document && root.document.head) apply(read());
         <a class="btn vi-open__apply" href="#apply">Apply</a>
         <!-- for those who have applied: straight to their tasks, without
              going back to the email (owner, 27 Nov 2026) -->
-        <a class="btn vi-open__start" href="intern.html">Applied? Start your tasks</a>
+        <a class="btn vi-open__start" href="intern.html" id="viStart">Applied? Start your tasks</a>
         <a class="vi-open__go" href="#collection">Discover the internship<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M6 14l6 6 6-6"/></svg></a>
       </div>
     </div>
@@ -1010,6 +1010,14 @@ if (root.document && root.document.head) apply(read());
     }
   });
 }());
+</script>
+<script>
+/* someone who has started sees "Resume my internship" right in the opening (owner, 27 Nov 2026: "where is resume internship, if one has started") */
+(function () {
+  var a = document.getElementById('viStart');
+  /* pfa_intern_in is set beside the sign-in by /api/intern/session and holds no key */
+  if (a && /(?:^|;\s*)pfa_intern_in=1(?:;|$)/.test(document.cookie)) a.textContent = 'Resume my internship';
+})();
 </script>
 </body>
 </html>

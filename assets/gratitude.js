@@ -1,4 +1,4 @@
-/* With gratitude, to Rosie's Heroes (rosies-heroes.html): the owner's own
+/* With gratitude, to Rosie's Heroes (partners.html): the owner's own
    design's script, as it moves (the words rising into place, the portrait
    drifting with the pointer and the scroll, the three photographs flying
    apart and settling, the photographs opening larger), in the site's shell.

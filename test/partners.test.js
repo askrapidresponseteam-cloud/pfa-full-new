@@ -66,9 +66,9 @@ test('the timeline adds up the animals helped; a partnership needs a name, a hea
 });
 
 test('the page: four facts with the amount, three without, the row closing up and nothing said about it', async () => {
-  const page = read('partners.html').replace(/<script[\s\S]*?<\/script>/g, '');
+  const page = read('partners-in-giving.html').replace(/<script[\s\S]*?<\/script>/g, '');
   const run = async (pub) => {
-    const dom = new JSDOM(page, { runScripts: 'outside-only', url: 'https://pfa.test/partners.html' });
+    const dom = new JSDOM(page, { runScripts: 'outside-only', url: 'https://pfa.test/partners-in-giving.html' });
     const w = dom.window;
     w.fetch = async () => ({ ok: true, json: async () => ({ ok: true, partners: [pub] }) });
     w.scrollTo = () => {};
@@ -106,8 +106,8 @@ test('the page: four facts with the amount, three without, the row closing up an
 
 test('the page without script carries the first partnership, written by the page\'s own render', () => {
   const B = require('../scripts/build-partners');
-  const page = read('partners.html');
-  assert.equal(B.build(page), page, 'partners.html is out of date: run node scripts/build-partners.js');
+  const page = read('partners-in-giving.html');
+  assert.equal(B.build(page), page, 'partners-in-giving.html is out of date: run node scripts/build-partners.js');
   const { render } = require('../assets/partners.js');
   assert.ok(page.includes(render(P.publicOf(P.ROSIES), true, B.AS_OF)));
   const d = new JSDOM(page).window.document;
@@ -131,7 +131,7 @@ test('wired in: the routes, the panel section with its switch, the menu and foot
   assert.match(read('assets/chrome-header.html'), /\{\{CURRENT:partners\.html\|Partners in giving\}\}/);
   assert.match(read('assets/chrome-footer.html'), /<a href="partners\.html">Partners in giving<\/a>/);
   assert.match(read('firestore.rules'), /match \/partners\/\{id\}\s+\{ allow read, write: if false; \}/);
-  for (const f of ['lib/partners.js', 'lib/routes/partners.js', 'lib/routes/admin/partners.js', 'assets/partners.js', 'assets/partners.css', 'assets/admin-partners.js', 'partners.html']) {
+  for (const f of ['lib/partners.js', 'lib/routes/partners.js', 'lib/routes/admin/partners.js', 'assets/partners.js', 'assets/partners.css', 'assets/admin-partners.js', 'partners-in-giving.html']) {
     assert.ok(!/[\u2013\u2014]/.test(read(f)), f + ' carries a long dash');
   }
 });
@@ -145,17 +145,21 @@ test('the letter of thanks: linked from the partnership, a page of this site onl
   await db.collection('siteMeta').doc('partnersSeed').set({ at: 'then' });
   await db.collection('partners').doc(P.ROSIES.id).set(old);
   let list = await P.all(db);
-  assert.equal(list[0].letter, 'rosies-heroes.html');
+  assert.equal(list[0].letter, 'partners.html');
   /* taken off in the panel, it stays off */
   await db.collection('partners').doc(P.ROSIES.id).update({ letter: '' });
   list = await P.all(db);
   assert.equal(list[0].letter, '');
-  assert.equal(P.publicOf(P.ROSIES).letter, 'rosies-heroes.html');
+  assert.equal(P.publicOf(P.ROSIES).letter, 'partners.html');
   for (const bad of ['https://evil.example/x.html', 'javascript:alert(1)', '../admin.html', 'a page.html']) {
     assert.equal(P.check(Object.assign({}, P.ROSIES, { letter: bad })).ok, false, bad);
   }
-  assert.ok(read('partners.html').includes('<a class="pg-thanks__letter" href="rosies-heroes.html">Read our letter of thanks</a>'));
-  const page = read('rosies-heroes.html');
+  assert.ok(read('partners-in-giving.html').includes('<a class="pg-thanks__letter" href="partners.html">Read our letter of thanks</a>'));
+  /* /partners is the owner's own design (owner, 27 Nov 2026: "FOR PARTNER THANKS"); the old address forwards there */
+  const page = read('partners.html');
+  assert.ok(page.includes('<main class="gt" id="with-gratitude">'));
+  assert.ok(!fs.existsSync(path.join(__dirname, '..', 'rosies-heroes.html')));
+  for (const cfg of ['vercel.json', 'firebase.json']) assert.ok(read(cfg).includes('"/rosies-heroes.html"'), cfg + ' forwards the old letter address');
   assert.doesNotMatch(page.replace(/<!--[\s\S]*?-->/g, ''), /class="[^"]*marquee|Scroll to discover/i, 'no marquee, no scroll cue (owner, 27 Nov 2026)');
   assert.ok(!/[–—]/.test(page) && !/[–—]/.test(read('assets/gratitude.js')), 'no long dashes');
 });
@@ -200,9 +204,9 @@ test('the public list: fresh, a failed read answers 503 and is not cached; nothi
   assert.equal(bad.status, 503);
   assert.equal(bad.headers['cache-control'], 'no-store');
   /* the page: an empty list from a good read empties it; a failed read keeps it */
-  const page = read('partners.html').replace(/<script[\s\S]*?<\/script>/g, '');
+  const page = read('partners-in-giving.html').replace(/<script[\s\S]*?<\/script>/g, '');
   for (const [answer, still] of [[{ ok: true, partners: [] }, false], [null, true]]) {
-    const dom = new JSDOM(page, { runScripts: 'outside-only', url: 'https://pfa.test/partners.html' });
+    const dom = new JSDOM(page, { runScripts: 'outside-only', url: 'https://pfa.test/partners-in-giving.html' });
     dom.window.fetch = async () => (answer ? { ok: true, json: async () => answer } : { ok: false, json: async () => ({}) });
     dom.window.eval(read('assets/partners.js'));
     await new Promise((r) => setTimeout(r, 30));

@@ -301,3 +301,58 @@
 /* the hero clears the fixed menu like every page, and its stage sticks just under it */
 .tw .hero{padding-top:calc(var(--ann,0px) + var(--nav,69px));height:calc(195svh + var(--ann,0px) + var(--nav,69px))}
 @media(max-width:650px){.tw .hero{height:calc(165svh + var(--ann,0px) + var(--nav,69px))}}
+
+/* ---------- the owner's second Wall design (27 Nov 2026: "this should be the wall landing page.. follow pfa font and button style. rest to be ditto as it") ----------
+   Original photographs in place of generated ones: the collage's photo stickers
+   framed in white, the phone holding the opening photograph, the clapperboard
+   drawn rather than a picture, and the photographers credited at the foot. */
+.tw .collage>.sticker:not(.photo-phone):not(.photo-clapper){height:43%;border:7px solid #fff;border-radius:18px;object-fit:cover;box-shadow:0 10px 26px #0002;filter:none}
+.tw .collage>.s-dog{width:46%;height:43%;left:10%;top:33%;object-position:70% 50%}
+.tw .collage>.s-cat{width:37%;height:47%;left:60%;top:41%;object-position:50% 40%}
+.tw .collage>.s-cow{width:46%;height:43%;left:36%;top:5%}
+.tw .collage>.s-bird{width:30%;height:44%;left:74%;top:12%;object-position:50% 50%}
+.tw .collage>.photo-phone{height:66%;width:29%;left:7%;top:1%;padding:8px 6px;background:#171717;border:6px solid #fff;border-radius:25px;box-shadow:0 12px 26px #0002;filter:none;overflow:hidden}
+.tw .photo-phone img{width:100%;height:100%;object-fit:cover;border-radius:13px;object-position:68% center;display:block}
+.tw .photo-phone span{position:absolute;width:35%;height:9px;background:#171717;top:7px;left:33%;border-radius:0 0 9px 9px}
+.tw .collage>.photo-clapper{height:39%;width:43%;left:31%;top:52%;border:6px solid #fff;border-radius:12px;background:#171717;overflow:hidden;filter:none;box-shadow:0 12px 24px #0002}
+.tw .clapper-top{height:24%;border-bottom:3px solid #fff;background:repeating-linear-gradient(125deg,#171717 0 23px,#fff 23px 46px)}
+.tw .clapper-body{display:flex;flex-direction:column;justify-content:center;gap:12px;color:#fff;height:76%;padding:15px;min-width:0}
+.tw .clapper-body b{font-family:var(--display);font-weight:400;font-size:clamp(18px,2.4vw,32px);line-height:1.05;letter-spacing:-.01em}
+.tw .clapper-body span{font-size:8px;letter-spacing:.04em;line-height:1.3}
+.tw .portrait .mini-sticker{width:135px;height:105px;border:5px solid #fff;border-radius:12px;object-fit:cover;box-shadow:0 10px 20px #0002;filter:none}
+.tw .tw-credits{padding:0 var(--tw-edge) 40px}
+.tw .photo-credits{border-top:1px solid var(--tw-line);padding:20px 0;font-size:12px;color:#555;line-height:1.6}
+.tw .photo-credits summary{cursor:pointer;color:#333;min-height:44px;display:flex;align-items:center}
+.tw .photo-credits ul{list-style:none;padding:0;margin:15px 0}
+.tw .photo-credits li{margin:9px 0}
+.tw .photo-credits a{text-decoration:underline;text-underline-offset:3px}
+.tw .photo-credits p{margin:0;max-width:80ch}
+@media(max-width:650px){
+  .tw .collage>.sticker:not(.photo-phone):not(.photo-clapper){border-width:5px;border-radius:12px}
+  .tw .collage>.photo-phone{border-width:4px;padding:6px 4px;border-radius:18px}
+  .tw .collage>.photo-clapper{border-width:4px}
+  .tw .clapper-body{padding:9px;gap:7px}
+  .tw .clapper-body b{font-size:20px}
+  .tw .clapper-body span{font-size:5px}
+  .tw .portrait .mini-sticker{width:110px;height:90px}
+  .tw .tw-credits{padding:0 20px 30px}
+}
+
+/* PFA's own buttons (owner: "follow pfa ... button style"): square, capitals, the site's .btn */
+.tw a.btn{color:#fff;text-decoration:none;text-align:center}
+.tw a.btn:hover{color:var(--ink,#111)}
+.tw a.btn.btn--light{color:var(--ink,#111)}
+.tw .modal .btn{margin-top:10px}
+/* the credits fold opens with the page's own drawn plus, beside its words */
+.tw .photo-credits summary{list-style:none;position:relative;display:inline-flex;padding-right:30px}
+.tw .photo-credits summary::-webkit-details-marker{display:none}
+.tw .photo-credits summary::before,.tw .photo-credits summary::after{content:"";position:absolute;right:4px;top:50%;width:12px;height:1.5px;background:currentColor;transition:transform .25s}
+.tw .photo-credits summary::before{transform:translateY(-50%)}
+.tw .photo-credits summary::after{transform:translateY(-50%) rotate(90deg)}
+.tw .photo-credits[open] summary::before{transform:translateY(-50%) rotate(45deg)}
+.tw .photo-credits[open] summary::after{transform:translateY(-50%) rotate(135deg)}
+/* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
+@media (max-width:700px),(pointer:coarse){
+  .tw .clapper-body span{font-size:10px}
+}
+/* ---- end phone pass ---- */

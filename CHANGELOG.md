@@ -1,3 +1,16 @@
+## v1.649
+
+- **Partners in giving (/partners) is now the owner's own thank-you design, with every word pure white.** Owner, 27 Nov 2026: "WHY THE F DID U NOT IMPLEMENT THIS", "FOR PARTNER THANKS", "NOTHING CAN BE CLIPPED. AND COLOR HAS TO BE PURE WHITE, NOT PALE GREEN".
+  - partners.html carries his design whole (it was on a separate letter page, rosies-heroes.html, which now forwards to /partners). The list of every partnership from the Partners panel moves to partners-in-giving.html.
+  - Every word over the dark sections is pure white; the pale green and grey greens are gone. The moving "Thank you. For the love of animals" band stays out.
+  - Checked at 360, 768, 1440 and 1920 wide with every row hovered, faint words included: nothing is cut. On a phone it has the site's app bar and five tabs.
+  - Each photograph shows once. Owner, 27 Nov 2026: "showing the same photo 5 times in a page is waste of space". The three ambulance photographs appear in the opening scene only; the big Hope on Wheels photograph and the repeat gallery are gone, and the journey shows the one photograph not seen above, the ambulance arriving at PFA Khamgaon, full width.
+- **The Wall landing is the owner's new design: real photographs, credited, with PFA's own buttons.** Owner, 27 Nov 2026: "this should be the wall landing page.. follow pfa font and button style. rest to be ditto as it".
+  - Every generated picture is replaced by his original photographs from India: the person resting beside a mountain dog in Bir, the ginger cat in Meghalaya, the meadow in Shangarh, the rose-ringed parakeet and the Indian dog in a village. The phone in the collage now holds the opening photograph and the clapperboard is drawn, as in his design.
+  - The bird story is now "A world just outside." The notes under the film ideas say the photographs are originals, and a "Photography credits" fold at the foot names each photographer and licence, opened with the page's drawn plus.
+  - Fonts stay PFA's (Marcellus and the site's sans), and every button is PFA's own square button in capitals: "Share your video" in ink, "Explore The Wall" in white with an ink line. The rest is his design as it is. The old generated pictures are removed from the project.
+- **Resume my internship, right in the internship opening.** Owner, 27 Nov 2026: "where is resume internship, if one has started". Beside Apply, the button reads "Resume my internship" for anyone who has signed in to their intern dashboard in that browser, and "Applied? Start your tasks" otherwise. The dashboard keeps its back button, the browser's Back, and previous and next week.
+
 ## v1.648
 
 - **Every photograph back on the live site: the internship hero, SGACC, the campus and Gau Seva.** Owner, 27 Nov 2026: "how can u fucking miss images.. there cant be empty spots anywhere where there was an image previously".

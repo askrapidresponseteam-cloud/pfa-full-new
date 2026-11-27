@@ -28,6 +28,8 @@
     }
   ],
   "redirects": [
+    { "source": "/rosies-heroes.html", "destination": "/partners", "permanent": true },
+    { "source": "/rosies-heroes", "destination": "/partners", "permanent": true },
     {
       "source": "/make-a-gift.html",
       "destination": "/donate.html?gift=1",

@@ -89,8 +89,8 @@ const PAGES = {
   'campaign.html':     { current: 'campaign.html',    group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'legacy.html':       { current: 'legacy.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'csr.html':          { current: 'csr.html',         group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
-  'partners.html':     { current: 'partners.html',    group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* Partners in giving: donors' gifts and what they do (27 Nov 2026) */
-  'rosies-heroes.html': { current: 'partners.html',  group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* the owner's letter of thanks to Rosie's Heroes, in his own design (27 Nov 2026) */
+  'partners.html':     { current: 'partners.html',    group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* Partners in giving: the owner's own design, with gratitude to Rosie's Heroes (owner, 27 Nov 2026: "FOR PARTNER THANKS") */
+  'partners-in-giving.html': { current: 'partners.html', group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* the list of every partnership, from the Partners panel (was partners.html until 27 Nov 2026) */
   'sgacc.html':        { current: 'sgacc.html',       group: 'founder.html',     announce: DEFAULT_ANNOUNCE },
   'manekas-picks.html': { current: 'manekas-picks.html', group: 'founder.html', announce: DEFAULT_ANNOUNCE }, /* her films and a book, under The founder (9 Nov 2026) */
   /* Fireworks and animals (10 Nov 2026), under Learn; Seasonal gifts, under

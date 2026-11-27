@@ -85,6 +85,16 @@
       ],
       "redirects": [
         {
+          "source": "/rosies-heroes.html",
+          "destination": "/partners",
+          "type": 301
+        },
+        {
+          "source": "/rosies-heroes",
+          "destination": "/partners",
+          "type": 301
+        },
+        {
           "source": "/make-a-gift.html",
           "destination": "/donate.html?gift=1",
           "type": 301
@@ -313,6 +323,16 @@
         "**/node_modules/**"
       ],
       "redirects": [
+        {
+          "source": "/rosies-heroes.html",
+          "destination": "/partners",
+          "type": 301
+        },
+        {
+          "source": "/rosies-heroes",
+          "destination": "/partners",
+          "type": 301
+        },
         {
           "source": "/make-a-gift.html",
           "destination": "/donate.html?gift=1",

@@ -130,7 +130,7 @@ const EXPECTED = {
   'legacy.html':       ['Leave a legacy',            'get-involved.html'],
   'csr.html':          ['CSR partnerships',          'get-involved.html'],
   'partners.html':     ['Partners in giving',        'get-involved.html'],
-  'rosies-heroes.html': ['Partners in giving',       'get-involved.html'], /* the letter to Rosie's Heroes, inside Partners in giving (27 Nov 2026) */
+  'partners-in-giving.html': ['Partners in giving',  'get-involved.html'], /* the list of partnerships (was partners.html until 27 Nov 2026) */
   'sgacc.html':        ['Sanjay Gandhi Animal Care Centre', 'founder.html'],
   'manekas-picks.html': ['Maneka’s Picks',            'founder.html'],
   'fireworks.html':    ['Fireworks and animals',     'laws.html'],
