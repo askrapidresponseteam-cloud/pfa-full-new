@@ -83,6 +83,9 @@ service cloud.firestore {
     /* "From PFA" updates and PFA Live (26 Nov 2026): the server's alone;
        visitors read them through /api/updates and /api/live */
     match /siteUpdates/{id}           { allow read, write: if false; }
+    /* Partners in giving (27 Nov 2026): the server's alone; visitors read them through /api/partners */
+    match /partners/{id}              { allow read, write: if false; }
+    match /siteMeta/{id}              { allow read, write: if false; }
     match /liveShow/{document=**}     { allow read, write: if false; }
     match /liveBlocks/{id}            { allow read, write: if false; }
     match /liveRate/{id}              { allow read, write: if false; }

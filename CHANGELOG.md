@@ -1,3 +1,19 @@
+## v1.645
+
+- **Interns can sign in again: the sign-in cookie is one Firebase passes on.** Owner, 27 Nov 2026: "why is remote internship not working. pls fix immediately ... on clicking sign in - nothing works".
+  - Since the site moved to Firebase Hosting, the sign-in said yes and the very next step said no: Firebase passes only one cookie to the server, the one named __session, and drops the rest, and the sign-in cookie was called pfa_intern. So every intern was signed in and out again at once, and the page went back to the empty form without a word. The cookie is now __session (a pfa_intern one from before is still read).
+  - If a sign-in ever does not hold again, the page says so, in plain words, instead of nothing.
+- **Partners in giving: each donor's gift on a page of its own, with a timeline and a count that grow.** Owner, 27 Nov 2026: "what is the best way to share the donors givings. it has to look amazing and stand out", with Maneka Sanjay Gandhi's email about the ambulance Rosie's Heroes gave PFA Khamgaon ("put it on the site and thank that California team ... They are waiting to see how this turns out before they send the next tranche").
+  - partners.html, in the menu and the footer under Give and partner. Each partnership opens on its photograph, full width, with PFA's logo and the donor's side by side and the headline across it. Rosie's Heroes and PFA Khamgaon are the first: Twix's Hope on Wheels, the electric rescue ambulance, with its four photographs and Rosie's Heroes' own logo.
+  - A row of facts: the gift, where it works, the day it arrived, and the amount given when it is to be shown.
+  - A large count of the animals the gift has helped, once there are some. The thanks are shown large, beside Rosie's Heroes' logo and the people who lead it (Priyanka Rao, President; Archana Ramamoorthy, Treasurer; Sonia Dong, Secretary, from rosiesheroes.org/team), with a link to their site.
+  - The photographs open larger. The timeline is oldest first, and a day still to come (the inauguration and puja on 29 November) is marked Coming up.
+  - The amount: "can be shown or hidden using a toggle in the admin panel ... no amount hidden message or empty space". A switch in the panel. When it is off the server never sends the amount, and the row of facts is one shorter and closes up to fill the width. Amounts are written without separators (US$2664.92).
+  - The panel's new Partners in giving section: the donor, their logo and the people to thank; the gift, its story and the thanks; the amount and its switch; the photographs (the first opens the page); and the timeline, a line a week with a photograph and the animals it helped.
+  - Every timeline line, and the partnership itself, can be made into a picture for Instagram in one press: 1080 by 1350, the photograph above, the line and the day below, both logos at the foot.
+  - Photographs uploaded in the panel need Storage switched on (Build, Storage, Get started, US-CENTRAL1). Rosie's Heroes' photographs and logo are part of the site, so the page is complete without it.
+- Also in this build: v1.644 (Facebook films play with their sound on) and earlier.
+
 ## v1.644
 
 - **A Facebook film opened on the site plays with its sound on.** Owner, 27 Nov 2026: "when this video is played, by default can you unmute.. right now one has to manually unmute".

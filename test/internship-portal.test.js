@@ -79,11 +79,11 @@ function browser(ip) {
   const go = async (op, method, body, { header = true, query } = {}) => {
     const h = PORTAL.createHandler(op, { getDb: () => db, now: () => NOW });
     const headers = { 'x-real-ip': ip || '203.0.113.7' };
-    if (cookie) headers.cookie = `pfa_intern=${cookie}`;
+    if (cookie) headers.cookie = `__session=${cookie}`;
     if (header && method !== 'GET') headers['x-pfa-intern'] = '1';
     const r = await respond(h, { method, url: `/api/intern/${op}`, query: query || {}, body, headers, socket: { remoteAddress: ip || '203.0.113.7' } });
     const set = r.headers['set-cookie'];
-    if (set) { const m = /pfa_intern=([^;]*)/.exec(set); cookie = m ? m[1] : ''; }
+    if (set) { const m = /__session=([^;]*)/.exec(set); cookie = m ? m[1] : ''; }
     return r;
   };
   return { go, get cookie() { return cookie; }, set cookie(v) { cookie = v; } };
@@ -214,7 +214,7 @@ test('approving: the intern is made, active at once, emailed that the internship
     const b = browser('198.51.100.20');
     const r = await b.go('session', 'POST', { email, mobile, dob });
     assert.equal(r.status, 200, `${email} ${mobile} ${dob}: ${JSON.stringify(r.json)}`);
-    assert.match(r.headers['set-cookie'], /^pfa_intern=[A-Za-z0-9_-]{43}; Path=\/api\/intern; HttpOnly; Secure; SameSite=Strict; Max-Age=604800$/);
+    assert.match(r.headers['set-cookie'], /^__session=[A-Za-z0-9_-]{43}; Path=\/api\/intern; HttpOnly; Secure; SameSite=Strict; Max-Age=604800$/);
     assert.equal((await b.go('me', 'GET')).json.intern.internId, issued.json.internId);
     assert.ok(!JSON.stringify(db.dump()).includes(b.cookie), 'the session is kept only as its hash');
   }

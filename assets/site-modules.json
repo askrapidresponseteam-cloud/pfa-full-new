@@ -639,6 +639,14 @@
    ]
   },
   {
+   "id": "partners",
+   "file": "partners.html",
+   "title": "Partners in giving",
+   "group": "Get Involved",
+   "menu": "Partners in giving",
+   "modules": []
+  },
+  {
    "id": "wall",
    "file": "wall.html",
    "title": "The Wall",

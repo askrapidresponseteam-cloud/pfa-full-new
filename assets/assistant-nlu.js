@@ -142,6 +142,8 @@
     { id: 'fireworks', w: ['fireworks', 'firework', 'crackers', 'cracker', 'patakhe', 'pataka', 'पटाखे', 'पटाखा'], p: ['diwali dog', 'diwali animals'] },
     { id: 'quiz', w: [], p: ['test yourself', 'animal quiz', 'take a quiz', 'farm animal quiz', 'quiz on farm animals'] },
     { id: 'gifts', w: ['gifts', 'upahar', 'उपहार', 'deepawali', 'christmas'], p: ['seasonal gifts', 'seasonal gift', 'diwali gift', 'gift for someone', 'a gift for'] },
+    /* Partners in giving (27 Nov 2026): the donors and what their gifts do */
+    { id: 'partners', w: ['donors', 'sponsors', 'funders', 'rosies'], p: ['partners in giving', 'pfa partners', 'your partners', 'our donors', 'your donors', 'who donated', 'who funds pfa', 'who funded', 'rosie s heroes', 'rosies heroes', 'donor partnership', 'khamgaon ambulance'] },
     { id: 'founder', w: ['founder'], p: ['about maneka', 'about the founder', 'the founder page'] },
     { id: 'picks', w: [], p: ['maneka picks', 'manekas picks', 'films she recommends', 'books she recommends', 'film recommendation', 'book recommendation'] },
     { id: 'lawpage', w: [], p: ['what the law says', 'animal law page', 'laws page'] },

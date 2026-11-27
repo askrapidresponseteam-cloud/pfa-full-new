@@ -50,6 +50,7 @@ const WAYS = {
   'campus.html': ['start a campus society at my college', { flow: 'campus' }],
   'internship.html': ['apply for the remote internship', { flow: 'internship' }],
   'gifts.html': ['seasonal gifts for diwali', { link: 'gifts.html' }],
+  'partners.html': ['who are pfa\'s partners in giving', { link: 'partners.html' }],
   'campaign.html': ['plan a birthday fundraiser campaign', { flow: 'campaign' }],
   'legacy.html': ['leave a gift in my will', { flow: 'legacy' }],
   'csr.html': ['csr partnership for our company', { flow: 'csr' }],

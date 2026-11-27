@@ -38,7 +38,7 @@ test('the rail has a Website section, gated by the Website module, and it reads 
   const tabs = [...panel.matchAll(/data-tab="([a-z]+)"/g)].map((m) => m[1]);
   /* Membership cards (26 Oct 2026) after Colony cards; Old site members after the rest, in a group of its own;
      Updates and PFA Live (26 Nov 2026) just before Website */
-  assert.deepEqual(tabs, ['overview', 'submissions', 'livechat', 'wall', 'mednotes', 'membership', 'caregivers', 'volunteers', 'internship', 'employees', 'directory', 'birthdays', 'payments', 'shop', 'certificates', 'updates', 'live', 'website', 'gifts', 'analytics', 'people', 'oldmembers']);
+  assert.deepEqual(tabs, ['overview', 'submissions', 'livechat', 'wall', 'mednotes', 'membership', 'caregivers', 'volunteers', 'internship', 'employees', 'directory', 'birthdays', 'payments', 'shop', 'certificates', 'updates', 'live', 'partners', 'website', 'gifts', 'analytics', 'people', 'oldmembers']);
   assert.match(script, /website:\s*\{ title: 'Website',\s*module: 'website',\s*needs: 'website' \}/);
   assert.match(panel, /<div class="pane" data-pane="website"/);
   assert.match(script, /if \(tab === 'website'\) return website\(\);/);

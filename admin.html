@@ -782,6 +782,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
       <button class="tab" type="button" data-tab="certificates">Certificates and letters</button>
       <button class="tab" type="button" data-tab="updates">Updates</button>
       <button class="tab" type="button" data-tab="live">PFA Live</button>
+      <button class="tab" type="button" data-tab="partners">Partners in giving</button>
       <button class="tab" type="button" data-tab="website">Website</button>
       <button class="tab" type="button" data-tab="gifts">Seasonal gifts</button>
       <button class="tab" type="button" data-tab="analytics">Analytics</button>
@@ -963,6 +964,7 @@ body label :is(small,.opt){font-size:inherit;line-height:inherit;vertical-align:
     <div class="pane" data-pane="gifts" role="region" aria-label="Seasonal gifts"></div>
     <div class="pane" data-pane="updates" role="region" aria-label="Updates"></div>
     <div class="pane" data-pane="live" role="region" aria-label="PFA Live"></div>
+    <div class="pane" data-pane="partners" role="region" aria-label="Partners in giving"></div>
     <div class="pane" data-pane="directory" role="region" aria-label="People directory"></div>
     <!-- today's birthdays, the next 30 days and the card (11 Nov 2026): assets/admin-birthdays.js -->
     <div class="pane" data-pane="birthdays" role="region" aria-label="Birthdays"></div>
@@ -1411,6 +1413,7 @@ window.addEventListener('unhandledrejection', function (event) {
     gifts: { title: 'Seasonal gifts', module: 'gifts', needs: 'gifts' },
     updates: { title: 'Updates', module: 'updates', needs: 'updates' },
     live: { title: 'PFA Live', module: 'live', needs: 'live' },
+    partners: { title: 'Partners in giving', module: 'partners', needs: 'partners' },
     directory: { title: 'People directory', module: 'directory', needs: 'directory' },
     birthdays: { title: 'Birthdays', module: 'directory', needs: 'directory' },
     analytics:   { title: 'Analytics',     module: 'analytics',   needs: 'analytics' },
@@ -1552,6 +1555,7 @@ window.addEventListener('unhandledrejection', function (event) {
     if (tab === 'gifts') return window.PFAGifts && window.PFAGifts.pane();
     if (tab === 'updates') return window.PFAUpdates && window.PFAUpdates.pane();
     if (tab === 'live') return window.PFALiveShow && window.PFALiveShow.pane();
+    if (tab === 'partners') return window.PFAPartners && window.PFAPartners.pane();
     if (tab === 'directory') return window.PFADirectory && window.PFADirectory.pane();
     if (tab === 'birthdays') return window.PFABirthdays && window.PFABirthdays.pane();
     if (tab === 'analytics') return window.PFAAnalytics && window.PFAAnalytics.pane();
@@ -4308,6 +4312,7 @@ window.addEventListener('unhandledrejection', function (event) {
     { title: 'Internship', line: 'Interns given an ID, their work and shelters', tab: 'internship', words: 'interns internship shelters batch' },
     { title: 'Certificates and letters', line: 'Internship, volunteer, participation, recognition and donor certificates, and letters', tab: 'certificates', words: 'certificates certificate internship completion volunteer appreciation participation camp event recognition award donor issue withdraw' },
     { title: 'Updates', line: 'News and notices on the home page and the Newsroom', tab: 'updates', words: 'updates news notice notices announcement announcements post publish film video newsroom home what is new latest' },
+    { title: 'Partners in giving', line: 'Donors\u2019 gifts and what they do', tab: 'partners', words: 'partners partner donor donors gift gifts grant rosie rosies heroes ambulance thank amount timeline instagram' },
     { title: 'PFA Live', line: 'The live show: go live, comments, questions', tab: 'live', words: 'live stream show broadcast maneka ki baat comments questions qna q&a mux youtube obs on air' },
     { title: 'Live chat', line: 'Answer visitors on the site\u2019s chat', tab: 'livechat', words: 'live chat visitors online available talk person reply help desk' },
     { title: 'Job applicants', line: 'Applications from the careers page', tab: 'employees', words: 'jobs careers applicants applications hiring posts vacancies' },
@@ -6264,6 +6269,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-updates.js"></script>
 <script src="assets/admin-subs.js"></script>
 <script src="assets/admin-live-show.js"></script>
+<script src="assets/admin-partners.js"></script>
 <script src="assets/admin-directory.js"></script>
 <script src="assets/birthday-card.js"></script>
 <script src="assets/admin-birthdays.js"></script>

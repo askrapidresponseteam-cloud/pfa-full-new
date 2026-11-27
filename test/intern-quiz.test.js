@@ -76,11 +76,11 @@ function browser() {
   const go = async (op, method, body) => {
     const h = PORTAL.createHandler(op, { getDb: () => db, now: () => NOW });
     const headers = { 'x-real-ip': '203.0.113.9' };
-    if (cookie) headers.cookie = `pfa_intern=${cookie}`;
+    if (cookie) headers.cookie = `__session=${cookie}`;
     if (method !== 'GET') headers['x-pfa-intern'] = '1';
     const r = await respond(h, { method, url: `/api/intern/${op}`, query: {}, body, headers, socket: { remoteAddress: '203.0.113.9' } });
     const set = r.headers['set-cookie'];
-    if (set) { const m = /pfa_intern=([^;]*)/.exec(set); cookie = m ? m[1] : ''; }
+    if (set) { const m = /__session=([^;]*)/.exec(set); cookie = m ? m[1] : ''; }
     return r;
   };
   return { go };

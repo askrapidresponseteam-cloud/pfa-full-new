@@ -88,6 +88,8 @@ const ROUTES = {
   'chat-taught': './chat-taught.js',
   'updates': './updates.js',
   'admin/updates': './admin/updates.js',
+  'partners': './partners.js',
+  'admin/partners': './admin/partners.js',
   'live': './live.js',
   'admin/live': './admin/live.js',
 };
@@ -176,6 +178,8 @@ const LOADERS = {
   'chat-taught': () => require('../lib/routes/chat-taught.js'),
   'updates': () => require('../lib/routes/updates.js'),
   'admin/updates': () => require('../lib/routes/admin/updates.js'),
+  'partners': () => require('../lib/routes/partners.js'),
+  'admin/partners': () => require('../lib/routes/admin/partners.js'),
   'live': () => require('../lib/routes/live.js'),
   'admin/live': () => require('../lib/routes/admin/live.js'),
 };
