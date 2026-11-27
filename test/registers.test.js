@@ -103,7 +103,7 @@ test('the membership register: name, number, email, address, type and amount, da
   assert.deepEqual(r.asked, ['membership']);
   assert.deepEqual(r.json.rows.map((x) => x.id), ['PFA-MEM-2026-00031', 'PFA-MEM-2026-00032'], 'removed and testing left out');
   const [s, sohan] = r.json.rows;
-  assert.deepEqual([s.name, s.mobile, s.email, s.type, s.amount, s.paidOn, s.done], ['Sanchita Banerjee', '9831563126', 'sanchita.bmi@gmail.com', 'Golden membership', 'INR 2,500.00', '28/10/2026', false]);
+  assert.deepEqual([s.name, s.mobile, s.email, s.type, s.amount, s.paidOn, s.done], ['Sanchita Banerjee', '9831563126', 'sanchita.bmi@gmail.com', 'Golden membership', 'INR 2500.00', '28/10/2026', false]);
   assert.deepEqual(s.lines, ['Flat 22/CL, Sanjeeva Town Duplex Estate, Thakdari Main Road, Newtown, Near Aquatica Water Park', 'Kolkata, North 24 Parganas', 'West Bengal - 700156']);
   assert.deepEqual([sohan.altMobile, sohan.cardId, sohan.cardStage, sohan.courier, sohan.tracking, sohan.ship, sohan.done], ['9448012345', 'PFA-MC-AB12CD34', 'Dispatched by courier', 'DTDC', 'D12345678', 'shipped', true], 'a card already dispatched by courier reads as shipped, with its courier');
   assert.deepEqual(sohan.lines, ['House No 10, Near Om Shanti Building, Shantinagar', 'Athani, Belagavi (Belgaum)', 'Karnataka - 591304']);

@@ -113,7 +113,7 @@ test('Careers: one footer link, a page of real roles, and applications filed as 
   }
   assert.match(page, /<ul class="zones" id="zones"><\/ul>/, 'zones are rendered from PFA_ZONES, not hand-written');
   assert.match(page, /PFA_ZONES = \[[\s\S]*'south-south'/, 'all nine zones');
-  assert.match(page, /\u20b935,000 per month/, 'the pay is stated');
+  assert.match(page, /\u20b935000 per month/, 'the pay is stated');
   assert.equal((page.match(/class="step" data-step=/g) || []).length, 5, 'five screens');
   assert.match(page, /PFAForms\.submit\('PFA-J'/);
   assert.equal(S.KIND_LABELS['PFA-J'], 'Job application');

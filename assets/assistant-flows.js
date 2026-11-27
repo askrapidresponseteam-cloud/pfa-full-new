@@ -588,7 +588,17 @@
        page's own, in its title or the name the menu gives it, as written,
        singular or plural, or the start of a longer one ("partner",
        "partnerships"). The best first, then up to two close ones. */
-    var PG_FILL = /^(the|and|for|with|pfa|people|animal|animals|page|pages|site|website|about|your|our|of|in|on|a|an|to|is|me|my|please|plz|pls|show|open|link)$/;
+    var PG_FILL = /^(the|and|for|with|pfa|people|animal|animals|dog|dogs|cat|cats|cow|cows|pet|pets|page|pages|site|website|about|your|our|of|in|on|a|an|to|is|me|my|please|plz|pls|show|open|link|need|needs|want|wants|wanna|would|like|looking|look|find|know|info|information|details|detail|tell|see|get|visit|go|take|some|any|can|could|how|where|more|read|learn|join|become|with|this|that|there|here|now|just|also|please)$/;
+    /* a slip of the keys: seven letters or more, the same first letter, one
+       letter off (two from nine letters), or two letters swapped */
+    function slip(w, x) {
+      if (w.length < 7 || x.length < 7 || w.charAt(0) !== x.charAt(0)) return false;
+      var d = editsApart(w, x);
+      if (d <= (Math.min(w.length, x.length) >= 9 ? 2 : 1)) return true;
+      if (d !== 2 || w.length !== x.length) return false;
+      for (var i = 0; i < w.length - 1; i++) if (w.charAt(i) !== x.charAt(i)) return w.charAt(i) === x.charAt(i + 1) && w.charAt(i + 1) === x.charAt(i) && w.slice(i + 2) === x.slice(i + 2);
+      return false;
+    }
     function namedPages(text) {
       var want = N.tokens(N.normalise(text)).filter(function (w) { return w.length > 2 && !PG_FILL.test(w); });
       if (!want.length || want.length > 4) return null;
@@ -603,10 +613,13 @@
           var q = 0;
           all.forEach(function (x) {
             var k = x === w || x === w + 's' || w === x + 's' || x === w + 'es' || w === x + 'es' ? 2
-              : (w.length > 4 && x.indexOf(w) === 0) || (x.length > 4 && w.indexOf(x) === 0 && w.length - x.length <= 3) || (w.length > 5 && sameName(w, x)) ? 1 : 0;
+              : (w.length > 4 && x.indexOf(w) === 0) || (x.length > 4 && w.indexOf(x) === 0 && w.length - x.length <= 3)
+                /* a slip of the keys in a long word ("parnter"), never a near word ("police", "course") */
+                || slip(w, x) || slip(w, x.replace(/e?s$/, '')) ? 1 : 0;
             if (k > q) q = k;
           });
-          if (q && lw.some(function (x) { return x === w || x === w + 's' || w === x + 's'; })) inLabel += 1;
+          /* named as the menu names it, even with a slip of the keys */
+          if (q && lw.some(function (x) { return x === w || x === w + 's' || w === x + 's' || slip(w, x) || slip(w, x.replace(/e?s$/, '')); })) inLabel += 1;
           sum += q;
           return q > 0;
         });
@@ -619,9 +632,9 @@
       if (!found.length) return null;
       found.sort(function (a, b) { return b.score - a.score || a.i - b.i; });
       var top = found[0];
-      return { top: top.pg, also: found.slice(1).filter(function (f) { return f.score >= top.score / 2; }).slice(0, 2).map(function (f) { return f.pg; }) };
+      return { top: top.pg, also: found.slice(1).filter(function (f) { return f.score >= top.score / 3; }).slice(0, 2).map(function (f) { return f.pg; }) };
     }
-    function namedSay(hit, go) {
+    function namedSay(hit, go, kept) {
       var pg = hit.top;
       var own = null;
       Object.keys(PAGES).forEach(function (k) { if (!own && PAGES[k].href === pg.u) own = PAGES[k]; });
@@ -629,11 +642,20 @@
       var text = own ? L(own.say, lang()) : (pg.d || name);
       /* each link says which page it opens; a second page with the same
          short name is told apart by its full title */
+      var used = [name];
       var links = [{ label: lang() === 'hi' ? name + ' खोलें' : 'Open ' + name, href: pg.u }].concat(hit.also.map(function (x) {
         var short = x.l || String(x.t).split(/\s*:\s*/)[0];
-        return { label: short === name ? String(x.t) : short, href: x.u };
+        var label = used.indexOf(short) > -1 ? String(x.t) : short;
+        used.push(label);
+        return { label: label, href: x.u };
       }));
       var chips = [];
+      if (kept) {
+        /* the form stays where it was, to carry on with */
+        chips.push({ label: S.flow === 'helpdesk' ? (lang() === 'hi' ? 'अपना सवाल जारी रखें' : 'Carry on with my question') : t('carryOn', lang(), { what: titleOf(S.flow, lang()) }), value: '#stay' });
+        chips.push({ label: t('menuChip', lang()), value: '#menu' });
+        return out([msg(text, { links: links, chips: chips })]);
+      }
       if (go && FLOWS[go]) chips.push(chip(go, lang()));
       chips.push({ label: t('menuChip', lang()), value: '#menu' });
       S.phase = 'menu'; S.flow = ''; S.answered = S.deskQuestion || '';
@@ -820,6 +842,8 @@
       var f = FLOWS[id];
       if (!f) return menu(false);
       S.flow = id; S.step = 0; S.phase = 'ask'; S.editing = false; S.addr = null; S.photosAsked = false; photos = [];
+      /* "help desk", "I have a question", "contact PFA": a request for the desk, not the question itself, which is still asked (review of 27 Nov 2026) */
+      if (id === 'helpdesk' && firstText && !N.tokens(N.normalise(firstText)).filter(function (w) { return !/^(i|we|have|got|a|an|the|to|want|wanna|would|like|need|please|pls|plz|ask|asking|question|questions|query|doubt|pfa|people|animals|for|help|desk|helpdesk|write|contact|talk|speak|with|of|can|could|my|me|open|start|send|your|you|team|some|one|hai|hain|mujhe|sawal|puchna|poochna)$/.test(w); }).length) firstText = '';
       if (id !== 'helpdesk' || !firstText) S.data = {};
       if (id === 'helpdesk' && firstText) S.data = { question: cleanLong(firstText) };
       if (firstText) prefill(firstText);
@@ -2024,6 +2048,14 @@
           var pgA = pageFor(s);
           if (pgA) return pagePut(pgA);
         }
+        /* a page named in a few words where a few sentences are asked for
+           (27 Nov 2026: "partner" typed into the help desk's question was
+           told "A little more, please"): the page, and the form kept */
+        if (!tapped && f && f.type === 'long' && N.tokens(s).length <= 5 && !ASKING.test(s) && S.pageNamed !== N.normalise(s)) {
+          var pgL = namedPages(s);
+          /* once per text: said again after "Carry on", it is the answer */
+          if (pgL) { S.pageNamed = N.normalise(s); return namedSay(pgL, '', true); }
+        }
         if (!tapped && f && f.type !== 'address') {
           var said0 = N.normalise(s);
           /* where a few sentences are asked for, "I want to help this dog" is
@@ -2117,9 +2149,26 @@
          it ("partner" was taken for a name, 27 Nov 2026); a task asked for
          ("donate", "report", "volunteer") still starts its form */
       var doingNow = { report: 1, donate: 1, member: 1, volunteer: 1, internship: 1, track: 1, receipt: 1, verify: 1, shop: 1, newunit: 1, desk: 1, greet: 1, thanks: 1, nearby: 1 };
-      if ((!top || !doingNow[top.id]) && !ASKING.test(s) && !N.referenceOf(s) && !/^(i|we|my|mera|meri|mujhe)\b/.test(N.normalise(s))) {
+      if ((!top || !doingNow[top.id]) && !ASKING.test(s) && !N.referenceOf(s)) {
         var hitPg = namedPages(s);
-        if (hitPg) return namedSay(hitPg, top && INTENT_TO[top.id]);
+        /* asked to partner, collaborate or tie up: that task's page leads, the pages named come after (review of 27 Nov 2026) */
+        var goId = top && INTENT_TO[top.id];
+        var goHref = goId && ((PAGES[goId] && PAGES[goId].href) || (PAGE_OF[goId] && PAGE_OF[goId][0]));
+        if (hitPg && goHref && hitPg.top.u !== goHref && top.score >= 2 && N.tokens(s).length >= 3) {
+          var askedPg = (sitePages() || []).filter(function (x) { return x.u === goHref; })[0];
+          if (askedPg) hitPg = { top: askedPg, also: [hitPg.top].concat(hitPg.also).filter(function (x) { return x.u !== askedPg.u; }).slice(0, 2) };
+        }
+        /* a task whose own page is another ("caregiver": the card, not Care Guides) keeps its page */
+        var ownPg = top && PAGES[INTENT_TO[top.id]];
+        if (hitPg && !(ownPg && ownPg.href)) return namedSay(hitPg, top && INTENT_TO[top.id]);
+        /* the task's own page leads, to its exact part ("podcast": events.html#podcast); the other pages named come after it */
+        if (hitPg && ownPg && ownPg.href) {
+          var base = ownPg.href.split('#')[0];
+          var all = [hitPg.top].concat(hitPg.also);
+          if (all.some(function (p) { return p.u === base; })) {
+            return namedSay({ top: { u: ownPg.href, t: L(ownPg.title, lang()), l: '', d: '' }, also: all.filter(function (p) { return p.u !== base; }).slice(0, 2) }, top && INTENT_TO[top.id]);
+          }
+        }
       }
       /* a unit's town or state, said on its own or with "pfa", "unit",
          "contact" (22 Nov 2026: "pfa pune", "ahmedabad", "unit in gujarat"):

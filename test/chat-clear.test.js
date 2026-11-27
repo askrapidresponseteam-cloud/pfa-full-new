@@ -22,9 +22,9 @@ const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 
 test('the chat button steps aside from anything pressable, in either corner, at every size', () => {
   const chrome = read('assets/chrome.js');
-  assert.match(chrome, /function underneath\(b\)[\s\S]*document\.elementsFromPoint/, 'reads what lies under it');
+  assert.match(chrome, /function underneath\(b, words\)[\s\S]*document\.elementsFromPoint/, 'reads what lies under it');
   assert.match(chrome, /var PRESSABLE = 'a\[href\],button,input,select,textarea,summary,label,video\[controls\],iframe/);
-  assert.match(chrome, /b\.classList\.add\('is-left'\); blocked = underneath\(b\)/, 'the other corner before stepping aside');
+  assert.match(chrome, /b\.classList\.add\('is-left'\); blocked = underneath\(b, true\)/, 'the other corner before stepping aside, and only where no words lie');
   assert.match(chrome, /b\.classList\.toggle\('is-clear', blocked\)/);
   assert.match(chrome, /\.pfa-asst-launch\.is-clear\{opacity:0;visibility:hidden;pointer-events:none\}/, 'aside means not seen and not pressable');
   assert.match(chrome, /window\.addEventListener\('scroll', soon, \{ passive: true, capture: true \}\);\s*window\.addEventListener\('resize', soon\)/, 'checked as the page moves and resizes');

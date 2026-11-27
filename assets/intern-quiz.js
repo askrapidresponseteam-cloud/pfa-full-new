@@ -69,7 +69,7 @@
     var t = document.getElementById('ipTitle');
     if (t) t.textContent = 'The quiz.';
     try { if (!(root.history.state && root.history.state.pfaQuiz)) root.history.pushState({ pfaQuiz: 1 }, ''); } catch (_) {}
-    var top = '<p class="qz__back"><button class="linkish" type="button" data-qz="' + (st.attempt ? 'leave' : 'back') + '">\u2039 My dashboard</button></p>';
+    var top = '<p class="qz__back"><button class="linkish" type="button" data-qz="' + (st.attempt ? 'leave' : 'back') + '"><span class="pfa-chev" aria-hidden="true"></span>My dashboard</button></p>';
     box.innerHTML = top + html + (html.indexOf('data-qz-say') === -1 ? '<p class="say" data-qz-say role="status" aria-live="polite"></p>' : '');
     try { box.scrollIntoView({ block: 'start' }); } catch (_) {}
   }

@@ -120,3 +120,43 @@ test('the browser hands the chat the list of pages with the paragraphs', () => {
   assert.match(js, /pagesKept = ix && Array\.isArray\(ix\.pages\) \? ix\.pages : null;/);
   assert.equal((js.match(/docs: docsNow, pages: pagesNow, page: pageNow/g) || []).length, 2);
 });
+
+/* owner, 27 Nov 2026, of "partner" typed into the help desk's question
+   ("A little more, please"), "parnter", and "need to find partner" ("Which
+   animal?"): "what nonsense reply is this" */
+test('a page named inside a form, with a slip of the keys, or with a wish around it, is the page; the form is kept', () => {
+  const s = FL.createSession({ docs: () => DOCS, pages: () => IX.pages, page: () => 'index.html' });
+  s.start();
+  s.tap('#desk');
+  assert.equal(s.state().flow, 'helpdesk');
+  let o = s.hear('partner');
+  assert.ok(o.messages.some((m) => (m.links || []).some((l) => l.href === 'partners.html')), 'the page, not "A little more, please"');
+  assert.ok(o.messages.some((m) => (m.chips || []).some((c) => c.value === '#stay' && /Carry on with my question/.test(c.label))));
+  assert.equal(s.state().flow, 'helpdesk', 'the question is kept');
+  o = s.tap('#stay');
+  assert.match(o.messages.map((m) => m.text).join(' '), /What would you like to ask PFA\?/);
+  /* a real question is still a question */
+  o = s.hear('My neighbour keeps beating the dog he owns, what can I do about it legally?');
+  assert.ok(!o.messages.some((m) => (m.links || []).some((l) => l.href === 'partners.html')));
+  for (const w of ['parnter', 'need to find partner', 'i want to partner with pfa', 'find partner']) {
+    assert.ok(ask(w).links.includes('partners.html'), w);
+  }
+});
+
+/* review of 27 Nov 2026 (the frontend-developer agent): a near word is not a
+   page, a task keeps its own page, and a short question said again after
+   "Carry on" is the question */
+test('near words, tasks with their own page, and a question said twice', () => {
+  for (const w of ['Carmen', 'callers']) assert.ok(!ask(w).links.includes('careers.html'), w);
+  assert.ok(!ask('dog').links.includes('laws.html'), 'one animal word is not the law page');
+  assert.ok(!ask('police').links.includes('achievements.html'));
+  assert.ok(!ask('course').links.includes('careers.html'));
+  assert.equal(ask('caregiver').links[0], 'get-involved.html', 'the caregiver card, not Care Guides');
+  const s = FL.createSession({ docs: () => DOCS, pages: () => IX.pages, page: () => 'index.html' });
+  s.start();
+  s.tap('#desk');
+  s.hear('animal cruelty');
+  s.tap('#stay');
+  const again = s.hear('animal cruelty');
+  assert.ok(!again.messages.some((m) => (m.chips || []).some((c) => c.value === '#stay')), 'said again, it is the answer, not the page once more');
+});

@@ -194,7 +194,7 @@ test('a membership and a volunteer application kept in the panel only (21 to 23 
   assert.doesNotMatch(application.text + application.html, /Amount|PFA-MEM-Q7ANEQLZ|901132268778|Bank reference|₹/, 'no payment in it');
   for (const address of PAY) {
     assert.deepEqual(to(address).map((m) => m.subject), [`${member.reference}: Payment for a membership from Rashid`], `${address}: the receipt, and not the volunteer`);
-    assert.match(to(address)[0].text, /Amount paid: ₹1,000/);
+    assert.match(to(address)[0].text, /Amount paid: ₹1000/);
   }
   assert.deepEqual((await check('GET')).json.missed, [], 'no longer listed');
 });

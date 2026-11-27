@@ -242,7 +242,7 @@ test('the page opens only with the key of a paid rupee payment, and says what it
   const open = (o, k) => run(handler, request({ action: 'open', o, k }));
   const ok = await open('PFA-DON-ABCD1234', KEY);
   assert.equal(ok.body.ok, true, JSON.stringify(ok.body));
-  assert.equal(ok.body.first, 'Asha'); assert.equal(ok.body.amount, '\u20b96,000.00'); assert.equal(ok.body.given, null);
+  assert.equal(ok.body.first, 'Asha'); assert.equal(ok.body.amount, '\u20b96000.00'); assert.equal(ok.body.given, null);
   assert.equal(ok.body.kind, 'donation');
   assert.match(ok.body.receiptUrl, /\/api\/payment\/receipt\?order=PFA-DON-ABCD1234&k=/);
   for (const [o, k] of [['PFA-DON-ABCD1234', 'x'.repeat(24)], ['PFA-DON-ZZZZ9999', KEY], ['PFA-CGA-ABCD1234', KEY], ['', '']]) {

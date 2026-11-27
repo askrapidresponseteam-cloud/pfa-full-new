@@ -157,11 +157,22 @@ test('the letter of thanks: linked from the partnership, a page of this site onl
   assert.ok(read('partners-in-giving.html').includes('<a class="pg-thanks__letter" href="partners.html">Read our letter of thanks</a>'));
   /* /partners is the owner's own design (owner, 27 Nov 2026: "FOR PARTNER THANKS"); the old address forwards there */
   const page = read('partners.html');
-  assert.ok(page.includes('<main class="gt" id="with-gratitude">'));
+  assert.ok(page.includes('<main class="pt" id="with-gratitude">'));
   assert.ok(!fs.existsSync(path.join(__dirname, '..', 'rosies-heroes.html')));
   for (const cfg of ['vercel.json', 'firebase.json']) assert.ok(read(cfg).includes('"/rosies-heroes.html"'), cfg + ' forwards the old letter address');
   assert.doesNotMatch(page.replace(/<!--[\s\S]*?-->/g, ''), /class="[^"]*marquee|Scroll to discover/i, 'no marquee, no scroll cue (owner, 27 Nov 2026)');
-  assert.ok(!/[–—]/.test(page) && !/[–—]/.test(read('assets/gratitude.js')), 'no long dashes');
+  assert.ok(!/[–—]/.test(page) && !/[–—]/.test(read('assets/partners-thanks.js')), 'no long dashes');
+  /* the second design (27 Nov 2026): "bg behind logo is shit..", "never have
+     this kinda arrows". The design's own header and footer are left out, so
+     no logo stands on a panel; no typed arrow anywhere on the page or in what
+     its script writes; Close is the site's own. */
+  const main = page.slice(page.indexOf('<main class="pt"'), page.indexOf('</main>'));
+  assert.doesNotMatch(main, /class="(header|brand|footer)"/, 'the site\'s header and footer are the page\'s');
+  assert.doesNotMatch(page + read('assets/partners-thanks.js'), /[\u2190-\u21ff\u2794-\u27bf]|&(rarr|larr|uarr|darr|nearr);/, 'no typed arrows');
+  assert.match(main, /<button type="button" class="close pfa-close"/);
+  assert.match(main, /class="arrow arrow--prev"[^>]*><\/button>/, 'the gallery buttons carry a drawn chevron, not a character');
+  for (const who of ['Priyanka Rao', 'Archana Ramamoorthy', 'Sonia Dong', 'Shreya Singh', 'Sai Kiran Mudupu', 'Avani Ashok']) assert.ok(main.includes(who), who);
+  for (const src of main.match(/src="media\/[^"]+"/g)) assert.ok(fs.existsSync(path.join(__dirname, '..', src.slice(5, -1))), src);
 });
 
 /* review of 27 Nov 2026 (the backend-developer agent): a second gift from

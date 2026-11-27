@@ -83,8 +83,8 @@
      box and say so, as typing in it does, so each studio's own code moves
      the signature and offers Save. */
   var STEPS = {
-    x: [[-10, '\u2190 10', 'Left 10'], [-1, '\u2190 1', 'Left 1'], [1, '1 \u2192', 'Right 1'], [10, '10 \u2192', 'Right 10']],
-    y: [[-10, '\u2191 10', 'Up 10'], [-1, '\u2191 1', 'Up 1'], [1, '1 \u2193', 'Down 1'], [10, '10 \u2193', 'Down 10']],
+    x: [[-10, 'Left 10', 'Left 10'], [-1, 'Left 1', 'Left 1'], [1, 'Right 1', 'Right 1'], [10, 'Right 10', 'Right 10']],
+    y: [[-10, 'Up 10', 'Up 10'], [-1, 'Up 1', 'Up 1'], [1, 'Down 1', 'Down 1'], [10, 'Down 10', 'Down 10']],
     s: [[-10, '-10%', 'Smaller by 10 per cent'], [-1, '-1%', 'Smaller by 1 per cent'], [1, '+1%', 'Larger by 1 per cent'], [10, '+10%', 'Larger by 10 per cent']]
   };
   function axisOf(num) { return num.getAttribute('data-sig') || num.getAttribute('data-axis') || ''; }

@@ -646,24 +646,24 @@
    "menu": "Partners in giving",
    "modules": [
     {
-     "id": "top",
+     "id": "opening",
      "label": "A little kindness. A whole new journey."
     },
     {
      "id": "gift",
-     "label": "Hope. On wheels."
+     "label": "A way to reach care."
+    },
+    {
+     "id": "founder",
+     "label": "For the love of a dog. And so many more."
     },
     {
      "id": "people",
-     "label": "Good things happen because of people."
-    },
-    {
-     "id": "journey",
-     "label": "From a generous thought. To the streets of Khamgaon."
+     "label": "Good hearts. Real people."
     },
     {
      "id": "thank-you",
-     "label": "You made this possible."
+     "label": "Because of you, help can get there."
     }
    ]
   },
@@ -894,7 +894,7 @@
   {
    "id": "wall",
    "file": "wall.html",
-   "title": "The Wall",
+   "title": "The Wall: the films",
    "group": "Get Involved",
    "menu": "",
    "modules": [
@@ -1920,6 +1920,11 @@
    "project-gaushala-upgrade": "projects",
    "done": "start",
    "doneRef": "start"
+  },
+  "partners": {
+   "founder-heading": "founder",
+   "people-heading": "people",
+   "thanks-heading": "thank-you"
   },
   "the-wall": {
    "topics-title": "ways-of-looking",

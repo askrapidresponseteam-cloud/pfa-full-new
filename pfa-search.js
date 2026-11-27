@@ -264,7 +264,7 @@
   var SECTIONS = ['Do something', 'Places', 'Laws', 'Explore', 'About'];
   var TYPE_BOOST = { action: 1.15, place: 1.1, law: 1.0, page: 1.0, article: 0.95 };
 
-  /* What visitors type → what the index says. A value may name more than
+  /* What visitors type, and what the index says. A value may name more than
      one word; each is looked for, a little below the word itself.
 
      Hindi and Hinglish, as people type it in Roman letters (8 Oct 2026):
@@ -612,7 +612,7 @@
     }).sort(function (a, b) { return b.score - a.score; }).slice(0, limit || 5).map(function (x) { return x.row; });
   }
 
-  /* One query word → the forms we look for, each with a confidence weight. */
+  /* One query word, and the forms we look for, each with a confidence weight. */
   function forms(w0) {
     var out = [], push = function (w, c) { if (w && !out.some(function (o) { return o.w === w; })) out.push({ w: w, c: c }); };
     push(w0, 1); push(stem(w0), 1);
@@ -1050,7 +1050,7 @@
           '<button type="submit" aria-label="Search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>' +
         '</div>' +
         '<ul class="pfa-search__chips" data-chips aria-label="Suggestions"></ul>' +
-        '<p class="pfa-search__hint" aria-hidden="true">Enter opens the top result · ↑ ↓ to move · Tab completes · Esc closes</p>' +
+        '<p class="pfa-search__hint" aria-hidden="true">Enter opens the top result · Up and Down keys move · Tab completes · Esc closes</p>' +
       '</form>' +
       '<nav class="pfa-search__quick" aria-label="Quick actions"><p class="pfa-search__label">Or go straight to</p><ul>' +
         QUICK.map(function (t) { var r = byTitle(t); return r && shown(r) ? '<li><a href="' + esc(r.u) + '" data-id="' + r.id + '">' + esc(r.t) + '</a></li>' : ''; }).join('') +
@@ -1138,7 +1138,7 @@
       if (comps.length) chips.innerHTML = comps.map(function (c) {
         return '<li><a href="search.html?q=' + encodeURIComponent(c) + '" data-fill="' + esc(c) + '">' + mark(c, q) + '</a></li>';
       }).join('');
-      var seeAll = ' <a href="search.html?q=' + encodeURIComponent(q) + '">See all results →</a>';
+      var seeAll = ' <a href="search.html?q=' + encodeURIComponent(q) + '">See all results</a>';
       if (res.via === 'corrected') {
         label.innerHTML = 'Showing results for <a href="#" data-fill="' + esc(res.corrected) + '">' + esc(res.corrected) + '</a>. No pages match “' + esc(q) + '”.';
       } else if (res.via === 'closest') {
@@ -1315,7 +1315,7 @@
         '<ol>' + groups[s].map(function (r) {
           return '<li><a href="' + esc(r.u) + '" data-id="' + r.id + '">' +
             '<span class="pfa-sr-title">' + mark(r.t, q) + '</span>' +
-            '<span class="pfa-sr-url">' + esc(r.p ? r.p : r.u.replace(/\.html/, '').replace(/#/, ' › ')) + '</span>' +
+            '<span class="pfa-sr-url">' + esc(r.p ? r.p : (r.t || r.u.replace(/\.html.*$/, ''))) + '</span>' +
             '<span class="pfa-sr-desc">' + mark(r.d || '', q) + '</span>' +
           '</a></li>';
         }).join('') + '</ol></section>';

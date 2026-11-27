@@ -1101,7 +1101,7 @@
     back.className = 'pfa-flow-bar__back';
     back.href = location.pathname + location.search;
     back.setAttribute('data-flow-close', '');
-    back.innerHTML = '<span aria-hidden="true">←</span> ';
+    back.innerHTML = '<span class="pfa-chev" aria-hidden="true"></span> ';
     back.appendChild(document.createTextNode(label(flow)));
     var help = document.createElement('a');
     help.className = 'pfa-flow-bar__help';
@@ -1722,7 +1722,7 @@
   if (document.documentElement.hasAttribute('data-no-assist')) return;
   var KEY = 'pfa.assist.v1';
   /* one fingerprint for the five files, written by npm run sync:chrome */
-  var ASSIST_V = 'ef1772990d';
+  var ASSIST_V = '2287aab663';
   var FILES = ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/india-districts.js', '/assets/assistant.js'].map(function (f) { return f + '?v=' + ASSIST_V; });
   var loading = null;
 
@@ -1782,7 +1782,12 @@
      anything that opens or moves without either. Never while it has focus
      or the chat is open, so it does not vanish from under the person using it. */
   var PRESSABLE = 'a[href],button,input,select,textarea,summary,label,video[controls],iframe,[role="button"],[role="link"],[role="tab"],[role="checkbox"],[role="radio"],[contenteditable="true"]';
-  function underneath(b) {
+  /* words under a point: an element in the stack whose own text is not blank */
+  function wordsAt(el) {
+    for (var n = el.firstChild; n; n = n.nextSibling) if (n.nodeType === 3 && /\S/.test(n.nodeValue)) return true;
+    return false;
+  }
+  function underneath(b, words) {
     if (typeof document.elementsFromPoint !== 'function') return false;
     var r = b.getBoundingClientRect();
     if (!r.width || !r.height) return false;
@@ -1800,6 +1805,8 @@
           if (el.closest && el.closest('.pfa-asst')) break;
           var hit = el.closest && el.closest(PRESSABLE);
           if (hit && hit !== b) return true;
+          /* the other corner is taken only if it covers no words either (review of 27 Nov 2026) */
+          if (words && el !== document.body && el !== document.documentElement && wordsAt(el)) return true;
         }
       }
     }
@@ -1820,7 +1827,7 @@
       b.style.pointerEvents = 'none';
       b.classList.remove('is-left');
       var blocked = underneath(b);
-      if (blocked) { b.classList.add('is-left'); blocked = underneath(b); if (blocked) b.classList.remove('is-left'); }
+      if (blocked) { b.classList.add('is-left'); blocked = underneath(b, true); if (blocked) b.classList.remove('is-left'); }
       b.style.pointerEvents = '';
       b.classList.toggle('is-clear', blocked);
     }

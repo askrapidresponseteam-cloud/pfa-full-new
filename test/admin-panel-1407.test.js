@@ -757,7 +757,7 @@ test('Overview says what is new in plain words, with one button to it and one mo
   const tiles = [...p.w.document.querySelectorAll('.grid .cell')];
   assert.equal(tiles.filter((t) => /received in all|given in 30 days/.test(t.textContent)).length, 1, 'one money tile, not two');
   /* all time, the same figure Payments opens on (owner, 20 Nov 2026) */
-  assert.match(tiles.find((t) => /received in all/.test(t.textContent)).textContent, /₹2,500received in all · 3 payments/);
+  assert.match(tiles.find((t) => /received in all/.test(t.textContent)).textContent, /₹2500received in all · 3 payments/);
   assert.ok(tiles.every((t) => t.tagName === 'BUTTON' && t.getAttribute('data-go')), 'every tile opens its page');
   assert.equal(p.$('.spark'), null, 'no little charts to decode');
   open.click();

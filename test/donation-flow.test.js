@@ -325,10 +325,10 @@ test('a gift goes through the same CCAvenue flow, and the certificate to post is
   assert.doesNotMatch(letter.text + letter.html, /[\u2013\u2014]/, 'no long dashes in the letter');
 });
 
-test('a gift under ₹1,000 has no certificate and is refused before the bank, with the reason', async () => {
+test('a gift under ₹1000 has no certificate and is refused before the bank, with the reason', async () => {
   const res = await refused(Object.assign({}, GIFT, { amount: '999' }));
   assert.equal(res.statusCode, 400);
-  assert.match(res.html, /A gift of ₹1,000 or more comes with a certificate/);
+  assert.match(res.html, /A gift of ₹1000 or more comes with a certificate/);
   assert.equal([...db.store.keys()].filter((k) => k.startsWith('transactions/')).length, 0, 'nothing on record');
 });
 
@@ -449,7 +449,7 @@ test('the bank confirms: the dog smiles, the thank-you, and the receipt to downl
   const page = await callback(bankSays(sentOut));
   assert.match(page, /<h1>You made their day\.<\/h1>/);
   assert.match(page, /Thank you for standing with animals\./);
-  assert.match(page, /Asha, your donation of ₹1,500\.00 has reached People for Animals\./);
+  assert.match(page, /Asha, your donation of ₹1500\.00 has reached People for Animals\./);
   assert.match(page, /<div class="dog" role="img" aria-label="A dog, now smiling"><i class="was"><\/i><i class="now"><\/i><\/div>/);
   assert.match(page, /url\(\/img\/donate-dog\.webp\)/);
   assert.match(page, /\.dog \.now\{background-position:right center;opacity:0;animation:show 1\.7s [^}]* 1s forwards\}/, 'the smile comes in by itself, a moment after the page opens');
@@ -481,7 +481,7 @@ test('the receipt: a PDF in PFA\'s type, with the donor, the amount in words and
   assert.ok(raw.includes('/BaseFont /PFAAAA+Marcellus') && raw.includes('/BaseFont /PFAAAB+EBGaramond-Medium'), 'the site\'s own type, embedded');
   assert.ok(raw.includes('/FontFile2') && raw.includes('/Subtype /Image'), 'and the logo');
   const words = pdfWords(got.body);
-  for (const bit of ['DONATION RECEIPT', t.donationReference, 'THANK YOU', 'INR 1,500.00', 'Rupees One Thousand Five Hundred only', 'Asha Kumar', 'PAN ABCPK1234F', '16 MG Road', 'Karnataka 576101',
+  for (const bit of ['DONATION RECEIPT', t.donationReference, 'THANK YOU', 'INR 1500.00', 'Rupees One Thousand Five Hundred only', 'Asha Kumar', 'PAN ABCPK1234F', '16 MG Road', 'Karnataka 576101',
     sentOut.order_id, 'BNK900', '31233', 'UPI', 'Section 80G', 'needs no signature', 'PEOPLE FOR ANIMALS']) {
     assert.ok(words.includes(bit), `the receipt says ${bit}`);
   }

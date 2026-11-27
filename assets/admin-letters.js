@@ -248,7 +248,7 @@
     var list = (S.person && S.person.donations) || [];
     var inr = list.filter(function (d) { return d.currency === 'inr'; });
     var total = inr.reduce(function (n, d) { return n + d.amount; }, 0);
-    var totalMoney = '₹' + total.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    var totalMoney = '₹' + String(Math.round(total * 100) / 100);
     var opts = list.map(function (d) {
       return '<option value="' + esc(d.reference) + '"' + (d.reference === S.donation ? ' selected' : '') + '>' + esc(d.money + ', ' + longDay(d.at) + (d.giftTo ? ', a gift for ' + d.giftTo : '') + ' (' + d.reference + ')') + '</option>';
     });
@@ -256,13 +256,13 @@
     opts.push('<option value=""' + (!S.donation ? ' selected' : '') + '>Another amount, typed below</option>');
     box.innerHTML = (list.length ? '<label>Their donation<select data-ls-donation>' + opts.join('') + '</select></label>'
       : (S.person ? '<p class="ls-off" style="font-size:12px;margin:0">No donation on file for ' + esc(S.person.name) + '. Type the amount, or take the amount out of the letter.</p>' : ''))
-      + '<label>Amount on the letter<input data-ls-money maxlength="40" value="' + esc(S.shownAmount) + '" placeholder="For example ₹5,000"></label>';
+      + '<label>Amount on the letter<input data-ls-money maxlength="40" value="' + esc(S.shownAmount) + '" placeholder="For example ₹5000"></label>';
     box.setAttribute('data-total', totalMoney);
   }
-  /* 5000 or 5,000 is rupees: ₹5,000; anything else is kept as typed */
+  /* 5000 or 5,000 is rupees, written ₹5000 (no separators); anything else is kept as typed */
   function moneyTyped(raw) {
     var v = String(raw || '').trim();
-    if (/^\d[\d,]*(\.\d{1,2})?$/.test(v)) { var n = Number(v.replace(/,/g, '')); if (n > 0) return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
+    if (/^\d[\d,]*(\.\d{1,2})?$/.test(v)) { var n = Number(v.replace(/,/g, '')); if (n > 0) return '₹' + String(Math.round(n * 100) / 100); }
     return v;
   }
   function setAmount(value) {

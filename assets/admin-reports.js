@@ -166,7 +166,7 @@
     if (!d) { out.innerHTML = '<p class="loading">Reading…</p>'; return; }
     var n = NOUN[kind] || ['line', 'lines'];
     var rows = d.rows.slice(0, SHOW);
-    out.innerHTML = '<p class="sr-line"><b>' + d.count + ' ' + (d.count === 1 ? n[0] : n[1]) + '</b> · ' + esc(d.period) + (d.total != null ? ' · INR ' + Number(d.total).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '') + '</p>'
+    out.innerHTML = '<p class="sr-line"><b>' + d.count + ' ' + (d.count === 1 ? n[0] : n[1]) + '</b> · ' + esc(d.period) + (d.total != null ? ' · INR ' + Number(d.total).toFixed(2) : '') + '</p>'
       + '<div class="wrap"><table><thead><tr>' + d.columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>'
       + (rows.length ? rows.map(function (r) {
         return '<tr>' + r.cells.map(function (c, i) {

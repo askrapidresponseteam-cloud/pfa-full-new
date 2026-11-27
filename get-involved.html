@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Get Involved &#183; People for Animals</title>
 <meta name="description" content="Volunteer with People for Animals, become a member, or apply for a colony caregiver card. Every application is read by a named person and you are told where yours has got to.">
-<link rel="stylesheet" href="assets/chrome.css?v=51161f2e6a">
+<link rel="stylesheet" href="assets/chrome.css?v=0856c45a5f">
 <style>
 :root{
   --paper:#fff;
@@ -413,6 +413,8 @@ body.in-flow .pfa-footer,body.in-flow .announce{display:none}
   padding:0;cursor:pointer;align-items:center;gap:8px}
 .gi.is-guided.has-open .gi__back{display:inline-flex}
 .gi__back:hover{color:var(--ink)}
+.gi__back{min-height:44px;align-items:center}
+@media(max-width:600px){.gi__stages{flex-direction:column;align-items:flex-start;gap:6px}.gi__arrow{padding-left:14px}.gi__arrow .pfa-chev--r{transform:rotate(-45deg)}}
 .gi__back:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 /* a way to reach PFA at every step (owner, 9 Oct 2026: "always have a link to
    contact when at such stages"); the footer is not there in a journey */
@@ -776,7 +778,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=d80c002d98"></script>
+<script src="assets/chrome.js?v=27dcfd2a8e"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -813,7 +815,7 @@ if (root.document && root.document.head) apply(read());
          with no JavaScript they simply stack and the form still sends. -->
     <section class="gi__section" id="volunteer" data-journey="Volunteer">
       <div class="gi__bar">
-        <button type="button" class="gi__back" data-gi-back><span aria-hidden="true">&larr;</span> Back to the tribe</button>
+        <button type="button" class="gi__back" data-gi-back><span class="pfa-chev" aria-hidden="true"></span> Back to the tribe</button>
         <ol class="gi__progress" aria-label="Steps"><li>Areas</li><li>About you</li><li>Send</li></ol>
         <a class="pfa-flow-bar__help gi__help" href="ask.html" target="_blank" rel="noopener" aria-label="Need help? Contact PFA (opens in a new tab, so nothing here is lost)"><span class="pfa-flow-bar__q">Need help? </span><b>Contact PFA</b></a>
       </div>
@@ -856,7 +858,7 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__copy">
             <p class="eyebrow">Where an application goes</p>
             <h2>Send it.</h2>
-            <ul class="gi__stages"><li class="gi__stage">Submitted</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Under review</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Shortlisted</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Approved or not taken forward</li></ul>
+            <ul class="gi__stages"><li class="gi__stage">Submitted</li><li class="gi__arrow" aria-hidden="true"><span class="pfa-chev pfa-chev--r"></span></li><li class="gi__stage">Under review</li><li class="gi__arrow" aria-hidden="true"><span class="pfa-chev pfa-chev--r"></span></li><li class="gi__stage">Shortlisted</li><li class="gi__arrow" aria-hidden="true"><span class="pfa-chev pfa-chev--r"></span></li><li class="gi__stage">Approved or not taken forward</li></ul>
             <p class="fine">You get a reference number. Every application appears in PFA's admin record under
               Volunteers, and its stage is updated there as it moves.</p>
           </div>
@@ -883,7 +885,7 @@ if (root.document && root.document.head) apply(read());
          successful callback, and answered with the welcome letter. -->
     <section class="gi__section" id="membership" data-journey="Membership">
       <div class="gi__bar">
-        <button type="button" class="gi__back" data-gi-back><span aria-hidden="true">&larr;</span> Back to the tribe</button>
+        <button type="button" class="gi__back" data-gi-back><span class="pfa-chev" aria-hidden="true"></span> Back to the tribe</button>
         <ol class="gi__progress" aria-label="Steps"><li>The membership</li><li>About you</li><li>Your address</li><li>Pay</li></ol>
         <a class="pfa-flow-bar__help gi__help" href="ask.html" target="_blank" rel="noopener" aria-label="Need help? Contact PFA (opens in a new tab, so nothing here is lost)"><span class="pfa-flow-bar__q">Need help? </span><b>Contact PFA</b></a>
       </div>
@@ -949,7 +951,7 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__copy">
             <p class="eyebrow">Where a membership goes</p>
             <h2>Pay and join.</h2>
-            <ul class="gi__stages"><li class="gi__stage">Paid</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Your photograph</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Card by courier</li></ul>
+            <ul class="gi__stages"><li class="gi__stage">Paid</li><li class="gi__arrow" aria-hidden="true"><span class="pfa-chev pfa-chev--r"></span></li><li class="gi__stage">Your photograph</li><li class="gi__arrow" aria-hidden="true"><span class="pfa-chev pfa-chev--r"></span></li><li class="gi__stage">Card by courier</li></ul>
           </div>
           <div class="gi__body">
             <div class="field"><label class="agree"><input type="checkbox" name="terms" value="yes" required><span>I accept the membership terms above, and that PFA may contact me as a member.</span></label><span class="error">Accept the membership terms to continue.</span></div>
@@ -967,7 +969,7 @@ if (root.document && root.document.head) apply(read());
     <!-- ---------------- caregiver ---------------- -->
     <section class="gi__section" id="caregiver" data-journey="Colony caregiver">
       <div class="gi__bar">
-        <button type="button" class="gi__back" data-gi-back><span aria-hidden="true">&larr;</span> Back to the tribe</button>
+        <button type="button" class="gi__back" data-gi-back><span class="pfa-chev" aria-hidden="true"></span> Back to the tribe</button>
         <ol class="gi__progress" aria-label="Steps"><li>The card</li><li>About you</li><li>Your address</li><li>Your colony</li><li>Pay</li></ol>
         <a class="pfa-flow-bar__help gi__help" href="ask.html" target="_blank" rel="noopener" aria-label="Need help? Contact PFA (opens in a new tab, so nothing here is lost)"><span class="pfa-flow-bar__q">Need help? </span><b>Contact PFA</b></a>
       </div>
@@ -1046,7 +1048,7 @@ if (root.document && root.document.head) apply(read());
           <div class="gi__copy">
             <p class="eyebrow">Where an application goes</p>
             <h2>Pay and apply.</h2>
-            <ul class="gi__stages"><li class="gi__stage">Submitted</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Under review</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Verified</li><li class="gi__arrow" aria-hidden="true">&rarr;</li><li class="gi__stage">Card issued</li></ul>
+            <ul class="gi__stages"><li class="gi__stage">Submitted</li><li class="gi__arrow" aria-hidden="true"><span class="pfa-chev pfa-chev--r"></span></li><li class="gi__stage">Under review</li><li class="gi__arrow" aria-hidden="true"><span class="pfa-chev pfa-chev--r"></span></li><li class="gi__stage">Verified</li><li class="gi__arrow" aria-hidden="true"><span class="pfa-chev pfa-chev--r"></span></li><li class="gi__stage">Card issued</li></ul>
             <!-- "Not issued on the spot" is a promise the tests guard: paying
                  must never read as buying. It lived in a hero meta row that
                  fell in the intro cull of 15 Sep 2026; it belongs here, next

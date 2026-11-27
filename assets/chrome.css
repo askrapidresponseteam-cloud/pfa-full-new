@@ -380,7 +380,7 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
   html[data-pfa-tabs].pfa-search-open .pfa-tabs{display:none}
   html[data-pfa-tabs].pfa-typing .pfa-tabs{transform:translateY(110%)}
   .pfa-tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:58px;margin:0;padding:0 0 8px;box-sizing:border-box;
-    background:none;border:0;border-radius:0;color:#858585;font:inherit;font-size:10.5px;font-weight:600;letter-spacing:.02em;line-height:1;text-decoration:none;text-transform:none;
+    background:none;border:0;border-radius:0;color:#5f5f5f;font:inherit;font-size:10.5px;font-weight:600;letter-spacing:.02em;line-height:1;text-decoration:none;text-transform:none;
     cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
   .pfa-tab:hover{opacity:1}
   .pfa-tab svg{display:block;width:24px;height:24px;transition:transform .15s ease}
@@ -403,7 +403,7 @@ header.site{padding-left:max(var(--gutter),env(safe-area-inset-left,0px));paddin
     font-size:8.5px;font-weight:800;letter-spacing:.02em;line-height:1;box-shadow:0 0 0 2px #fff}
   .pfa-tab__badge::before{content:"50%"}
   /* Menu open: Menu is the tab you are on */
-  html.mnav-open .pfa-tab{color:#858585}
+  html.mnav-open .pfa-tab{color:#5f5f5f}
   html.mnav-open .pfa-tab.is-on svg{stroke-width:1.6}
   html.mnav-open .pfa-tab--donate{color:var(--ink,#111)}
   html.mnav-open .pfa-tab--menu{color:var(--ink,#111)}
@@ -822,3 +822,7 @@ abbr.pfa-abbr{text-decoration:underline dotted;text-decoration-thickness:1px;tex
 .pfa-abbr-tip{position:fixed;left:0;top:0;z-index:2147483000;max-width:min(320px,calc(100vw - 16px));padding:8px 11px;background:#111;color:#fff;font:500 12.5px/1.45 'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:.01em;text-transform:none;box-shadow:0 10px 30px -12px rgba(0,0,0,.5);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s ease}
 .pfa-abbr-tip.is-on{opacity:1;visibility:visible}
 @media (prefers-reduced-motion:reduce){.pfa-abbr-tip{transition:none}}
+/* A drawn chevron, never a typed arrow (owner, 27 Nov 2026: "never have
+   this kinda arrows"): a back link, a step to the next stage. */
+.pfa-chev{display:inline-block;width:7px;height:7px;border-left:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:0 4px 1px 2px;vertical-align:middle;flex:none}
+.pfa-chev--r{transform:rotate(-135deg);margin:0 2px 1px 4px}

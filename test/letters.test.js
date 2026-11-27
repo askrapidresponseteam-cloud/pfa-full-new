@@ -47,7 +47,7 @@ async function make(letter, number) {
 const SOHAN = { id: 'P00002', name: 'Sohan Ashok Banasode', email: 'sohan@example.com', mobile: '6361825963', address: 'House No 10, Shantinagar, Athani 591304', district: 'Belagavi (Belgaum)', state: 'Karnataka', pin: '591304', categories: ['member'], otherEmails: [] };
 const RAYA = { id: 'P00001', name: 'Raya Shah', email: 'raya@example.com', mobile: '9876500000', address: '4 Temple Road, Udupi 576101', district: 'Udupi', state: 'Karnataka', pin: '576101', categories: ['donor'], otherEmails: [] };
 
-function appreciation(person, amount = '₹5,000') {
+function appreciation(person, amount = '₹5000') {
   const t = L.TEMPLATES.appreciation;
   return { kind: 'appreciation', date: '2026-11-20', recipient: L.recipientOf(person), subject: t.subject, salutation: t.salutation, body: t.body.split('[Name]').join(person.name).split('[Amount]').join(amount), closing: t.closing, person: { id: person.id, name: person.name, email: person.email }, email: person.email, amount };
 }
@@ -74,7 +74,7 @@ test('a blank left in it is refused on issue, never on preview: [Name] means nob
 });
 
 test('the letter: the studio\'s layout in Arial\'s widths, bold where asked, the rupee and an Indian script drawn', async () => {
-  const v = L.check(Object.assign(appreciation(RAYA), { body: appreciation(RAYA).body + '\n\nA gift of ₹5,000 from आशा.' }), NOW, true).values;
+  const v = L.check(Object.assign(appreciation(RAYA), { body: appreciation(RAYA).body + '\n\nA gift of ₹5000 from आशा.' }), NOW, true).values;
   const out = await make(v, 'PFA-LET-K7M2Q9XA');
   assert.equal(out.bytes.subarray(0, 5).toString('latin1'), '%PDF-');
   assert.match(out.all, /Ref: PFA-LET-K7M2Q9XA/);
@@ -82,7 +82,7 @@ test('the letter: the studio\'s layout in Arial\'s widths, bold where asked, the
   assert.match(out.all, /Raya Shah/);
   assert.match(out.all, /4 Temple Road, Udupi 576101/);
   assert.match(out.all, /CERTIFICATE OF APPRECIATION/);
-  assert.match(out.all, /contribution of ₹5,000 to/, 'how much they gave');
+  assert.match(out.all, /contribution of ₹5000 to/, 'how much they gave');
   const fonts = new Set(out.drawn.map((d) => d.font));
   assert.ok([...fonts].some((f) => /LiberationSans-Bold/.test(f)) && [...fonts].some((f) => /^LiberationSans$|LiberationSans(?!-)/.test(f)), 'Liberation Sans, Arial\'s widths');
   assert.ok(out.drawn.some((d) => d.text === 'Animals' && /Bold/.test(d.font)), 'People for Animals in bold');
@@ -288,13 +288,13 @@ test('the signature, the seal and the letterhead are never public; the panel has
 /* owner, 20 Nov 2026: "amount isnt there in the body" */
 test('the certificate says how much: [Amount] in the letter, filled from their donation or typed, never issued blank', async () => {
   assert.match(L.TEMPLATES.appreciation.body, /your generous contribution of \[Amount\] to \*\*People for Animals\*\*/);
-  assert.deepEqual([L.moneyOf(5000, 'inr'), L.moneyOf(1250000, 'INR'), L.moneyOf(2500.5, 'inr'), L.moneyOf(25, 'usd'), L.moneyOf(0, 'inr')], ['₹5,000', '₹12,50,000', '₹2,500.50', 'US$25', '']);
+  assert.deepEqual([L.moneyOf(5000, 'inr'), L.moneyOf(1250000, 'INR'), L.moneyOf(2500.5, 'inr'), L.moneyOf(25, 'usd'), L.moneyOf(0, 'inr')], ['₹5000', '₹1250000', '₹2500.50', 'US$25', '']);
   const t = L.TEMPLATES.appreciation;
   const blank = L.check({ kind: 'appreciation', subject: t.subject, body: t.body.split('[Name]').join('Raya Shah'), closing: t.closing, recipient: 'Raya Shah' }, NOW, true);
   assert.deepEqual([blank.ok, blank.field], [false, 'amount']);
   assert.match(blank.message, /Choose their donation or type the amount: \[Amount\] is still in the letter\./);
   const ok = L.check(Object.assign(appreciation(RAYA), { donation: 'pfa-don-2026-00041' }), NOW, true);
-  assert.deepEqual([ok.values.amount, ok.values.donation], ['₹5,000', 'PFA-DON-2026-00041'], 'kept with the letter, and which donation it came from');
+  assert.deepEqual([ok.values.amount, ok.values.donation], ['₹5000', 'PFA-DON-2026-00041'], 'kept with the letter, and which donation it came from');
   assert.equal(L.check(Object.assign(appreciation(RAYA), { donation: 'anything' }), NOW, true).values.donation, undefined);
 });
 
@@ -311,11 +311,11 @@ test('a donor found in the People directory comes with their paid donations, new
     handler({ method: 'GET', query: { people: 'raya' }, headers: {} }, res);
   });
   const p = out.people[0];
-  assert.deepEqual(p.donations.map((d) => [d.reference, d.money, d.giftTo]), [['PFA-DON-2026-00044', '₹2,500', 'Ravi Kumar'], ['PFA-DON-2026-00041', '₹5,000', '']], 'paid ones only, newest first');
+  assert.deepEqual(p.donations.map((d) => [d.reference, d.money, d.giftTo]), [['PFA-DON-2026-00044', '₹2500', 'Ravi Kumar'], ['PFA-DON-2026-00041', '₹5000', '']], 'paid ones only, newest first');
   assert.equal(p.records, undefined, 'the records themselves stay on the server');
-  const issued = await h.call('POST', { body: { action: 'issue', letter: Object.assign(appreciation(RAYA, '₹2,500'), { donation: 'PFA-DON-2026-00044' }) } });
+  const issued = await h.call('POST', { body: { action: 'issue', letter: Object.assign(appreciation(RAYA, '₹2500'), { donation: 'PFA-DON-2026-00044' }) } });
   const rec = (await h.db.collection('letters').doc('PFA-LET-ABCDEF22').get()).data();
-  assert.deepEqual([rec.amount, rec.donation], ['₹2,500', 'PFA-DON-2026-00044']);
+  assert.deepEqual([rec.amount, rec.donation], ['₹2500', 'PFA-DON-2026-00044']);
   assert.equal(issued.statusCode, 200);
   const js = read('assets/admin-letters.js');
   assert.match(js, /var d = \(p\.donations \|\| \[\]\)\[0\];\n    S\.donation = d \? d\.reference : '';\n    amountBox\(\);\n    setAmount\(d \? d\.money : ''\);/, 'their newest donation, chosen for them');
@@ -362,7 +362,7 @@ test('the public check: who it is to, when and what for, and whether it stands; 
   assert.equal(ok.statusCode, 200);
   assert.deepEqual(ok.json, { found: true, letter: true, genuine: true, number, kindLabel: 'Certificate of appreciation', about: '', name: 'Raya Shah', issuedOn: '2026-11-20', withdrawn: false, withdrawnOn: '' });
   const said = JSON.stringify(ok.json);
-  for (const never of ['Temple Road', '576101', '₹5,000', 'raya@example.com', 'grateful recognition']) assert.ok(!said.includes(never), `never ${never}`);
+  for (const never of ['Temple Road', '576101', '₹5000', 'raya@example.com', 'grateful recognition']) assert.ok(!said.includes(never), `never ${never}`);
   await h.call('POST', { body: { action: 'withdraw', number, reason: 'Issued in error' } });
   const off = await ask(number);
   assert.deepEqual([off.json.genuine, off.json.withdrawn, off.json.withdrawnOn], [false, true, '2026-11-20']);

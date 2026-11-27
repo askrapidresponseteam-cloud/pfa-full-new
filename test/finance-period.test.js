@@ -124,9 +124,9 @@ test('to one payments inbox: the period by purpose, subtotals, the total, and th
   const m = sent[0];
   assert.equal(m.to, PAY[0]);
   assert.equal(m.cc, undefined, 'a payments inbox on its own: no copies');
-  assert.equal(m.subject, 'PFA payments report: November 2026 (9 payments, INR 13,549.00 and USD 40.00)');
-  assert.match(m.text, /Donations: 4 payments, INR 2,100\.00 and USD 40\.00/);
-  assert.match(m.text, /Patrons and membership: 1 payment, INR 10,000\.00/);
+  assert.equal(m.subject, 'PFA payments report: November 2026 (9 payments, INR 13549.00 and USD 40.00)');
+  assert.match(m.text, /Donations: 4 payments, INR 2100\.00 and USD 40\.00/);
+  assert.match(m.text, /Patrons and membership: 1 payment, INR 10000\.00/);
   assert.match(m.html, /Payments report/);
   assert.match(m.html, /Sent from the PFA website’s admin panel\./);
   assert.equal(m.attachments[0].filename, 'PFA-payments-2026-11-01-to-2026-11-30.csv');
@@ -156,7 +156,7 @@ test('one purpose: only its payments, and the subject says which', async () => {
   seed();
   const r = await call('POST', { body: { action: 'period', month: '2026-11', purpose: 'donate', purposeLabel: 'Donation', recipients: [PAY[1]] } });
   assert.equal(r.json.result.count, 4);
-  assert.match(sent[0].subject, /^PFA payments report: Donation, November 2026 \(4 payments, INR 2,100\.00 and USD 40\.00\)$/);
+  assert.match(sent[0].subject, /^PFA payments report: Donation, November 2026 \(4 payments, INR 2100\.00 and USD 40\.00\)$/);
   assert.doesNotMatch(sent[0].text, /Patrons and membership/);
   assert.match(sent[0].html, /took for Donation, November 2026/);
 });

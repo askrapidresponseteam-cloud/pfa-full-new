@@ -285,7 +285,7 @@ function build() {
       const snippet = clip(said.length >= 40 ? said : whole, 220);
       rows.push({
         t: mark.head.slice(0, 120), s: group, y: file === 'laws.html' ? 'law' : 'article',
-        u: file + '#' + mark.id, p: title + ' \u203a ' + mark.head.slice(0, 60),
+        u: file + '#' + mark.id, p: title + ' / ' + mark.head.slice(0, 60),
         d: snippet, k: '',
         b: bodyWords(whole, mark.head + ' ' + snippet, 300)
       });
@@ -294,7 +294,7 @@ function build() {
       const u = it.own || (it.lastId ? file + '#' + it.lastId : file);
       rows.push({
         t: it.head.slice(0, 120), s: group, y: 'article', u,
-        p: title + ' \u203a ' + it.head.slice(0, 60),
+        p: title + ' / ' + it.head.slice(0, 60),
         d: clip(it.blurb, 220), k: '',
         b: bodyWords(it.more, it.head + ' ' + it.blurb, 120)
       });
@@ -337,7 +337,7 @@ function build() {
     rows.push({
       t: 'PFA ' + city + ' unit', s: 'Places', y: 'place',
       u: 'units.html?q=' + encodeURIComponent(city),
-      p: 'Units \u203a ' + city,
+      p: 'Units / ' + city,
       d: bits.join(' \u00b7 ').slice(0, 230),
       k: (city + ' ' + state + ' ' + (ALIAS[city] || '') + ' ' + head + ' unit hospital shelter rescue centre contact phone email helpline').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 300),
       /* the street address on its own: pfa-search.js weighs it lightly, so
@@ -361,7 +361,7 @@ function build() {
     const year = '20' + hm[2];
     rows.push({
       t: who + ', ' + award, s: 'Explore', y: 'article', u: 'cinekind.html#' + hm[1],
-      p: 'CineKind \u203a ' + year,
+      p: 'CineKind / ' + year,
       d: `CineKind ${year}: ${award}${work ? ', for ' + work : ''}.`,
       k: (who + ' ' + award + ' ' + work + ' cinekind ' + year + ' honour award film').toLowerCase()
     });
@@ -374,7 +374,7 @@ function build() {
     if (!name) continue;
     rows.push({
       t: name + ' membership', s: 'Do something', y: 'article', u: 'get-involved.html#membership',
-      p: 'Get involved \u203a Membership',
+      p: 'Get involved / Membership',
       d: `${name} membership of People for Animals${amt ? ', ' + amt : ''}.`,
       k: (name + ' membership member join tier fee ' + amt).toLowerCase()
     });
@@ -385,7 +385,7 @@ function build() {
   for (const bm of ev.matchAll(/<button class="ev-bar"[^>]*data-kind="([a-z]+)"[^>]*data-none="([^"]*)"[^>]*data-choice-label="([^"]*)"[^>]*>[\s\S]*?class="ev-bar__name">([^<]+)</g)) {
     rows.push({
       t: decode(bm[3]), s: 'Places', y: 'article', u: 'events.html#request',
-      p: 'Events \u203a ' + decode(bm[4]),
+      p: 'Events / ' + decode(bm[4]),
       d: clip(decode(bm[2]) + ' ' + evAsk, 220),
       k: (decode(bm[4]) + ' ' + bm[1] + ' event ask request organise').toLowerCase()
     });

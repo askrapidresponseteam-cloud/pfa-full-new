@@ -117,7 +117,7 @@
     { id: 'eventsList', w: [], p: ['upcoming events', 'upcoming event', 'next event', 'events calendar', 'pfa events', 'events near me', 'any events', 'what events', 'event list', 'events list', 'list of events', 'events this month'] },
     { id: 'event', w: ['camp', 'camps', 'drive', 'event', 'events', 'session', 'talk', 'sterilisation', 'sterilization', 'vaccination', 'shivir', 'शिविर'], p: ['adoption drive', 'school session', 'vaccination camp', 'request an event', 'organise an event', 'organize an event', 'host an event', 'event in my area'] },
     { id: 'sgacc', w: ['sgacc', 'supplies'], p: ['sanjay gandhi', 'animal care centre', 'care centre', 'care center'] },
-    { id: 'csr', w: ['csr', 'corporate', 'company'], p: ['our company'] },
+    { id: 'csr', w: ['csr', 'corporate', 'company'], p: ['our company', 'partner with', 'partnership with', 'become a partner', 'want to partner', 'collaborate with', 'tie up with'] },
     { id: 'legacy', w: ['legacy', 'bequest', 'will', 'vasiyat', 'wasiyat', 'वसीयत'], p: ['in my will'] },
     { id: 'campaign', w: ['campaign', 'fundraiser', 'fundraising', 'abhiyan', 'अभियान'], p: ['birthday fundraiser'] },
     { id: 'campus', w: ['campus', 'society', 'chapter', 'college', 'university'], p: ['student society'] },

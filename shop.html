@@ -65,7 +65,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>Shop | People for Animals</title>
 <meta name="description" content="Fourteen limited-edition designer T-shirts made with People for Animals, by Sabyasachi, Gaurav Gupta, Masaba Gupta, Raw Mango and more, and the PFA logo tee. 100% cotton. Every purchase supports PFA’s work for animals.">
-<link rel="stylesheet" href="assets/chrome.css?v=51161f2e6a">
+<link rel="stylesheet" href="assets/chrome.css?v=0856c45a5f">
 <style>
 /* The PFA shop (3 Oct 2026). Laid out after the store the owner supplied as a
    reference (an announcement bar, a campaign opening, the collection as tall
@@ -290,7 +290,7 @@ input,button{font-family:inherit;font-size:inherit;color:inherit}
 .sum div:last-child dd{font-size:20px;font-weight:700}
 .co{display:flex;flex-direction:column;flex:1;min-height:0}
 .co__body{flex:1;overflow:auto;padding:16px 24px 8px}
-.co__back{border:0;background:none;padding:0 0 18px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.co__back{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-bottom:8px;border:0;background:none;padding:0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer}
 .co__back:hover{color:var(--ink)}
 .co__gap{margin-top:26px!important}
 .co .field{margin-top:20px}
@@ -575,7 +575,9 @@ main .item__off{font-size:10px}
 #look [data-close]::before,#look [data-close]::after{display:none}
 #look [data-close]{font-size:0}
 #look [data-close] span{display:none}
-#look [data-close]::before{content:'‹ Back';display:block;position:static;transform:none;width:auto;height:auto;background:none;font-size:12px}
+#look [data-close]::before{content:'Back';display:block;position:static;transform:none;width:auto;height:auto;background:none;font-size:12px}
+#look [data-close]{display:inline-flex;align-items:center;gap:8px;min-height:44px}
+#look [data-close]::after{display:block;content:'';order:-1;position:static;width:7px;height:7px;background:none;border-left:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg)}
 body:has(#look:not([hidden])) #scrim{visibility:hidden}
 @media(min-width:1600px){main .grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(max-width:1100px){main .grid{grid-template-columns:repeat(4,minmax(0,1fr))}#look .look__bd{padding:60px 30px 30px}}
@@ -864,14 +866,14 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab is-on" href="#top" data-tab="shop" aria-current="page"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=d80c002d98"></script>
+<script src="assets/chrome.js?v=27dcfd2a8e"></script>
 
 <main>
   <section class="hero" id="opening" data-screen-label="Shop opening">
     <div class="hero__in">
       <p class="eyebrow pfa-kicker">The PFA shop</p>
       <h1 class="pfa-title display">Wear the cause.</h1>
-      <p class="lede">Fourteen limited-edition T-shirts by Sabyasachi, Masaba Gupta, Raw Mango and more, made with People for Animals. 100% cotton, now half price at ₹2,500, and every purchase supports PFA&rsquo;s work for animals.</p>
+      <p class="lede">Fourteen limited-edition T-shirts by Sabyasachi, Masaba Gupta, Raw Mango and more, made with People for Animals. 100% cotton, now half price at ₹2500, and every purchase supports PFA&rsquo;s work for animals.</p>
       <div class="hero__cta">
         <a class="btn" href="#collection">Shop the edit</a>
         <a class="btn btn--light" href="#everyday">The logo tee, ₹350</a>
@@ -1315,7 +1317,7 @@ if (root.document && root.document.head) apply(read());
   </div>
   <form class="co" id="checkout" method="post" action="/api/shop/checkout" novalidate hidden>
     <div class="co__body">
-      <button type="button" class="co__back" id="backToBag"><span aria-hidden="true">&larr;</span> Back to your bag</button>
+      <button type="button" class="co__back" id="backToBag"><span class="pfa-chev" aria-hidden="true"></span> Back to your bag</button>
       <p class="eyebrow">Your details</p>
       <div class="field"><label for="coName">Full name</label><input id="coName" name="name" type="text" autocomplete="name" required><span class="error">Add your name.</span></div>
       <div class="field"><label for="coMobile">Mobile number</label><input id="coMobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" required><span class="error">Enter a 10-digit Indian mobile number.</span></div>

@@ -131,11 +131,11 @@ test('on the 1st: made once, emailed to gandhim, copied to the payments inboxes,
   const m = sent[0];
   assert.equal(m.to, 'gandhim@exmpls.sansad.in');
   assert.equal(m.cc, 'pfadcmho@gmail.com, ozairhusain@gmail.com');
-  assert.equal(m.subject, 'PFA payments report: November 2026 (9 payments, INR 13,549.00 and USD 40.00)');
+  assert.equal(m.subject, 'PFA payments report: November 2026 (9 payments, INR 13549.00 and USD 40.00)');
   assert.equal(m.attachments.length, 1);
   assert.equal(m.attachments[0].filename, 'PFA-payments-2026-11.csv');
   assert.match(m.attachments[0].content.toString('utf8'), /Grand total,9 payments,,,,INR,13549\.00/);
-  for (const bit of ['Donations', 'Patrons and membership', 'Shop orders', 'Colony caregiver cards', 'Other payments', 'Grand total', 'Asha Rao', 'PFA-DON-AAAAAAA1 / PFA-DON-2026-00031', '3 Nov 2026, 10:30', 'INR 1,500.00', 'Success']) {
+  for (const bit of ['Donations', 'Patrons and membership', 'Shop orders', 'Colony caregiver cards', 'Other payments', 'Grand total', 'Asha Rao', 'PFA-DON-AAAAAAA1 / PFA-DON-2026-00031', '3 Nov 2026, 10:30', 'INR 1500.00', 'Success']) {
     assert.ok(m.html.includes(bit), bit);
   }
   assert.ok(!/[\u2013\u2014]/.test(m.html + m.text), 'no dashes');
@@ -351,7 +351,7 @@ test('each payment once, by gateway identifier; checked with CCAvenue; discrepan
   assert.match(p.reconciliation.excluded[0].reason, /CCAvenue: Refunded/);
   assert.deepEqual(p.reconciliation.corrected.map((x) => [x.orderId, x.recorded, x.gateway]), [['PFADONOLDAAAAA000003', 1000, 100]]);
   /* totals: by the gateway's word */
-  assert.equal(p.totalText, 'INR 17,380.00');
+  assert.equal(p.totalText, 'INR 17380.00');
   /* send it */
   const out = await call2('POST', { body: { action: 'send', month: '2026-10' } });
   assert.equal(out.status, 200, JSON.stringify(out.json));
@@ -359,7 +359,7 @@ test('each payment once, by gateway identifier; checked with CCAvenue; discrepan
   const m = sent[0];
   assert.equal(m.to, 'gandhim@exmpls.sansad.in');
   assert.equal(m.cc, 'pfadcmho@gmail.com, ozairhusain@gmail.com');
-  assert.match(m.subject, /October 2026 \(9 payments, INR 17,380\.00\)/);
+  assert.match(m.subject, /October 2026 \(9 payments, INR 17380\.00\)/);
   assert.ok(m.html.includes('How this month was reconciled'));
   assert.ok(m.html.includes('PFADONMVHHIQRTBBD29B (old site) is PFA-DON-NEWAAAA4: same CCAvenue tracking number'));
   const csv = m.attachments[0].content.toString('utf8');

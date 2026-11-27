@@ -282,7 +282,7 @@
 @media(max-width:650px){.tw .intro{padding-top:48px}}
 
 /* the chat button sits in the corner on a phone: the line that shares it moves up */
-@media(max-width:650px){.tw .reel-corner.end{bottom:calc(8% + 72px)}}
+@media(max-width:650px){.tw .reel-corner.end{top:11%;bottom:auto}}
 
 /* every plus is drawn, two bars from the middle (owner, 28 Oct 2026: "+mark
    isnt perfectly centered"), and turns to a cross when it closes */
@@ -351,6 +351,21 @@
 .tw .photo-credits summary::after{transform:translateY(-50%) rotate(90deg)}
 .tw .photo-credits[open] summary::before{transform:translateY(-50%) rotate(45deg)}
 .tw .photo-credits[open] summary::after{transform:translateY(-50%) rotate(135deg)}
+
+/* review of 27 Nov 2026 (the ui-ux-designer agent) */
+/* the page's own .hero clips its overflow, which stopped the stage from staying in place: the screen went blank mid-scroll */
+.tw .hero{overflow:visible}
+/* the chat button never sits on STORIES */
+.tw .hero-stage .hero-title{bottom:calc(9% + 84px)}
+@media(max-width:650px){.tw .hero-stage .hero-title{bottom:calc(15% + 40px)}}
+/* contrast: the three tabs, and the grey words, read at 4.5 to 1 or better */
+.tw .values button{color:#595959}
+.tw{--tw-muted:#6b6b6b}
+/* white words on the panorama photograph get a wash under them */
+.tw .panorama::after{content:'';position:absolute;inset:40% 0 0;background:linear-gradient(transparent,#000a);pointer-events:none}
+.tw .panorama-text{z-index:1}
+
+.tw .values button{min-width:44px;padding-left:6px;padding-right:6px}
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
   .tw .clapper-body span{font-size:10px}

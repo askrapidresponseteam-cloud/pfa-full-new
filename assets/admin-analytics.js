@@ -34,7 +34,7 @@
     + '.an-note{font-size:12px;color:#5f5f5f;margin:12px 0 0;line-height:1.5}.an-err{font-size:13px;line-height:1.5;overflow-wrap:anywhere}';
   document.head.appendChild(style);
 
-  function n(v) { return Number(v || 0).toLocaleString('en-IN'); }
+  function n(v) { return String(Number(v || 0)); }
   /* "US" as United States, where the browser can say so */
   function country(code) {
     try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code; } catch (_) { return code; }

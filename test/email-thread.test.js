@@ -532,7 +532,7 @@ test('a shop order: a case under its order number, the payments inboxes get it (
     assert.ok(record, 'the order is a case in the panel');
     assert.equal(record.kind, 'PFA-SHP');
     assert.equal(record.fields.email, PERSON_A);
-    assert.match(record.fields.items, /Sabyasachi x PFA, size L \(₹2,500\)/);
+    assert.match(record.fields.items, /Sabyasachi x PFA, size L \(₹2500\)/);
     assert.ok(MT.isThreadId(record.threadId));
     const copy = lastInboxCopy(PAY);
     assert.equal(copy.to, PAY);
