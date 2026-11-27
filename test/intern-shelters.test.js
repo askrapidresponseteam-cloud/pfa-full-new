@@ -265,7 +265,7 @@ test('every intern in the panel: contact, the eight tasks, quiz, shelter and hou
   assert.equal(asha.batch, 'November 2026');
   assert.equal(asha.progress.tasks.length, 8);
   assert.equal(asha.progress.tasks.find((t) => t.key === 'shelter').state, 'submitted');
-  assert.deepEqual(asha.quiz, { attempts: 0, open: false, best: null, passed: false, max: 3 });
+  assert.deepEqual(asha.quiz, { attempts: 0, open: false, best: null, passed: false });
   assert.equal(asha.place.name, 'Karuna Animal Shelter');
   assert.equal(asha.hours, 20);
   assert.equal(asha.certificate.number, 'PFA-INT-ABCDEFGH');

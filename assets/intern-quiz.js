@@ -44,12 +44,7 @@
       out += '<p class="qzc__now">Attempt ' + q.open.n + ' is open: ' + q.open.answered + ' of ' + (q.open.total || q.count) + ' answered. Your time runs out at ' + esc(H.when(q.open.deadline).replace(/^.*?,\s*/, '')) + '.</p>';
       out += '<button class="btn" type="button" data-qz="resume">Carry on</button>';
     } else if (q.canStart) {
-      out += '<button class="btn" type="button" data-qz="intro">' + (q.attempts.length ? 'Start attempt ' + (q.attempts.length + 1) + ' of ' + q.maxAttempts : 'Take the quiz') + '</button>';
-    } else if (q.nextAt) {
-      out += '<p class="qzc__now">Your best so far is ' + q.best.percent + '%. Attempt ' + (q.attempts.length + 1) + ' opens ' + esc(H.when(q.nextAt)) + '.</p>';
-    } else if (q.left <= 0) {
-      out += '<p class="qzc__now">All ' + q.maxAttempts + ' attempts are used; your best was ' + (q.best ? q.best.percent : 0) + '%. PFA will review it and write to you.</p>';
-      out += '<button class="btn btn--light" type="button" data-qz="review">See the answers</button>';
+      out += '<button class="btn" type="button" data-qz="intro">' + (q.attempts.length ? 'Take it again' : 'Take the quiz') + '</button>';
     }
     if (q.attempts && q.attempts.length) out += '<ul class="qzc__past">' + lines(q) + '</ul>';
     /* seven practice questions, never in the quiz (assets/law-quiz-sample.js) */
@@ -58,8 +53,8 @@
       + '<li>Ten common incidents, two or three questions on each: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ' each)'; }).join(', ') + ', all mixed together.</li>'
       + '<li>One question at a time, five choices, one best answer. Once you confirm an answer it is final: there is no going back.</li>'
       + '<li>The ' + q.minutes + ' minutes run from when you start, even if you close the page. Unanswered questions count as wrong.</li>'
-      + '<li>' + q.maxAttempts + ' attempts, at least a day apart; your best counts. Pass with ' + q.passMark + '% and this task is done.</li>'
-      + '<li>The answers, with the reasons, open once you pass or have used every attempt.</li></ul></details>';
+      + '<li>Take it as many times as you like, whenever you like; your best counts. Pass with ' + q.passMark + '% and this task is done.</li>'
+      + '<li>The answers, with the reasons, open once you pass.</li></ul></details>';
     return out + '</div>';
   }
 
@@ -82,7 +77,7 @@
   function intro() {
     var q = H.data().quiz;
     stopClock(); guard(false);
-    frame('<div class="qz__intro"><p class="tile__h">The quiz' + (q.attempts.length ? ', attempt ' + (q.attempts.length + 1) + ' of ' + q.maxAttempts : '') + '</p>'
+    frame('<div class="qz__intro"><p class="tile__h">The quiz' + (q.attempts.length ? ', attempt ' + (q.attempts.length + 1) : '') + '</p>'
       + '<h2 class="qz__h">' + q.count + ' questions. ' + q.minutes + ' minutes.</h2>'
       + '<p class="qz__p">Two or three questions on each of ten incidents you will meet, mixed: ' + q.sections.map(function (s) { return s.count + ' ' + s.label.toLowerCase() + ' (' + plural(s.points, 'mark', 'marks') + ')'; }).join(', ') + '. Two minutes a question.</p>'
       + '<ol class="qz__rules">'
@@ -197,13 +192,15 @@
     var a = q && q.attempts && q.attempts[q.attempts.length - 1];
     if (!a) return back();
     var verdict = a.pass ? 'A pass. Week 1\'s task is done.' : 'Below the pass mark of ' + q.passMark + '%.'
-      + (q.left > 0 ? ' You have ' + plural(q.left, 'more attempt', 'more attempts') + (q.nextAt ? ', from ' + esc(H.when(q.nextAt)) : '') + '.' : ' PFA will review your best attempt.');
+      + ' Take it again whenever you are ready.';
     frame('<p class="tile__h">Attempt ' + a.n + (a.timedOut || timedOut ? ' · time ran out' : '') + '</p>'
       + '<div class="count"><b>' + a.percent + '%</b><span class="tile__p">' + a.points + ' of ' + a.max + ' marks · ' + a.answered + ' of ' + q.count + ' answered</span></div>'
       + '<p class="qz__verdict" data-pass="' + (a.pass ? '1' : '') + '">' + verdict + '</p>'
       + '<div class="qz__rows">' + bars(a.byLevel) + '</div>'
       + '<details class="fold"><summary>By topic</summary><div class="qz__rows">' + bars(a.byTopic) + '</div></details>'
-      + '<div class="qz__acts">' + (q.review ? '<button class="btn" type="button" data-qz="review">See the answers</button>' : '') + '<button class="' + (q.review ? 'linkish' : 'btn') + '" type="button" data-qz="back">Back to my dashboard</button></div>');
+      + '<div class="qz__acts">' + (q.review ? '<button class="btn" type="button" data-qz="review">See the answers</button>' : '')
+      + (q.canStart ? '<button class="btn" type="button" data-qz="intro">Take it again</button>' : '')
+      + '<button class="' + (q.review || q.canStart ? 'linkish' : 'btn') + '" type="button" data-qz="back">Back to my dashboard</button></div>');
   }
 
   /* ---- the answers ------------------------------------------------------------ */

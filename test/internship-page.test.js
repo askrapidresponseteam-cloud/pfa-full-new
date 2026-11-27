@@ -99,7 +99,7 @@ test('each of the eight with its week, its target and its proof', () => {
   assert.match(law.querySelector('.vi-qs').textContent, /Two or three questions on each incident, easy, medium and hard, worth 1, 2 and 3 marks, all 25 mixed\./);
   assert.match(law.querySelector('.vi-qs').textContent, /Two minutes a question\./);
   assert.ok(law.querySelector('[data-law-sample-host] [data-law-sample]'), 'the practice round, from the task itself');
-  assert.match(law.querySelector('.vi-qs').textContent, /Pass with 60 percent\. Three attempts/);
+  assert.match(law.querySelector('.vi-qs').textContent, /Pass with 60 percent\. Take it as many times as you like, whenever you like/);
   /* 2: names, addresses and phone numbers, and at least ten activists */
   const map = task('Map your district').body;
   assert.match(map, /vets, government vet centres, shelters and ABC centres in your district, and at least 10 animal activists/);

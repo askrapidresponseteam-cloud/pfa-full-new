@@ -1,3 +1,10 @@
+## v1.650
+
+- **The internship quiz: no limit on attempts, and no wait between them.** Owner, 27 Nov 2026: "dont need limit for attempts. and one should be able to start anytime pls.. no unnecessary wait time".
+  - An intern who has not passed can start again at once, as many times as they like; a fresh paper each time, and the best counts. The result screen offers "Take it again" right there.
+  - A pass marks Learn the law done and opens every answer with its reason. Answers stay closed until a pass, because with no limit they would be the key to the next try.
+  - The marks email no longer says "attempt 1 of 3" or when the next opens: it says they can take it again whenever they are ready. The admin panel shows how many attempts, with no "of 3". The internship page, the guide, the task list and the chat answers say the same.
+
 ## v1.649
 
 - **Partners in giving (/partners) is now the owner's own thank-you design, with every word pure white.** Owner, 27 Nov 2026: "WHY THE F DID U NOT IMPLEMENT THIS", "FOR PARTNER THANKS", "NOTHING CAN BE CLIPPED. AND COLOR HAS TO BE PURE WHITE, NOT PALE GREEN".

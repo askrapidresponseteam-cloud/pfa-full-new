@@ -314,7 +314,7 @@ test('a pass marks the law task accepted, shows the marks by section, and opens 
   assert.equal(work.state, 'accepted');
   assert.equal(work.score, 7.5);
   assert.equal(work.reviewedBy, 'quiz');
-  assert.match(work.note, /76 percent \(38 of 50 marks\), attempt 1 of 3\. Easy 8\/8, medium 9\/9, hard 4\/8\./);
+  assert.match(work.note, /76 percent \(38 of 50 marks\), attempt 1\. Easy 8\/8, medium 9\/9, hard 4\/8\./);
   const me = await br.go('me', 'GET');
   assert.equal(me.json.progress.tasks.find((t) => t.key === 'law').state, 'accepted');
   /* no proof form for the quiz task */
@@ -323,34 +323,34 @@ test('a pass marks the law task accepted, shows the marks by section, and opens 
   assert.equal((await br.go('quiz', 'POST', { action: 'start' })).json.code, 'PASSED');
 });
 
-test('three attempts a day apart; no review until passed or done; then PFA reviews the best', async () => {
+/* owner, 27 Nov 2026: "dont need limit for attempts. and one should be able to
+   start anytime pls.. no unnecessary wait time" */
+test('no limit on attempts and no wait: start again straight after; answers only after a pass', async () => {
   NOW = at('2026-11-09T05:00:00.000Z'); // a session lasts seven days
   const { br, internId } = await intern();
   NOW = at('2026-11-10T05:00:00.000Z');
   const one = await sit(br, (q) => q.section.level === 'easy');
   assert.equal(one.quiz.best.percent, 16);
   assert.equal(one.quiz.passed, false);
-  assert.equal(one.quiz.review, null, 'no answers while attempts remain');
-  assert.equal(one.quiz.left, 2);
-  assert.match(one.quiz.nextAt, /^2026-11-11T05:/);
-  const soon = await br.go('quiz', 'POST', { action: 'start' });
-  assert.equal(soon.status, 409);
-  assert.match(soon.json.message, /Your next attempt opens Wed 11 Nov at 10:30 am/);
-  assert.equal((await db.collection('intern_work').doc(`${internId}__law`).get()).exists, false, 'nothing for PFA yet');
-
-  NOW = at('2026-11-11T06:00:00.000Z');
-  const two = await sit(br, (q) => q.section.level !== 'hard');
-  assert.equal(two.quiz.best.percent, 52);
-  NOW = at('2026-11-12T07:00:00.000Z');
-  const three = await sit(br, (q) => q.section.level === 'medium');
-  assert.equal(three.quiz.left, 0);
-  assert.equal(three.quiz.best.n, 2, 'the best attempt counts');
-  assert.equal(three.quiz.review.length, 25, 'the review opens once every attempt is used');
+  assert.equal(one.quiz.canStart, true, 'free to start again at once');
+  assert.equal(one.quiz.review, null, 'no answers before a pass');
+  assert.equal('nextAt' in one.quiz || 'left' in one.quiz || 'maxAttempts' in one.quiz, false, 'no wait and no count of attempts left');
+  assert.equal((await db.collection('intern_work').doc(`${internId}__law`).get()).exists, false, 'a fail marks nothing');
+  /* four more, back to back, the same minute */
+  let last;
+  for (let k = 0; k < 4; k += 1) last = await sit(br, (q) => q.section.level === 'easy');
+  assert.equal(last.quiz.attempts.length, 5);
+  assert.equal(last.quiz.canStart, true);
+  assert.equal(last.quiz.review, null);
+  /* then a pass: the task is done and the answers open */
+  const pass = await sit(br, () => true);
+  assert.equal(pass.quiz.passed, true);
+  assert.equal(pass.quiz.canStart, false);
+  assert.equal(pass.quiz.review.length, 25);
   const work = (await db.collection('intern_work').doc(`${internId}__law`).get()).data();
-  assert.equal(work.state, 'submitted', 'in the review queue for PFA to decide');
-  assert.match(work.note, /52 percent \(26 of 50 marks\), attempt 2 of 3\. .* Below the pass mark of 60 percent after 3 attempts\./);
-  NOW = at('2026-11-14T07:00:00.000Z');
-  assert.equal((await br.go('quiz', 'POST', { action: 'start' })).json.code, 'NO_ATTEMPTS');
+  assert.equal(work.state, 'accepted');
+  assert.match(work.note, /attempt 6\. /);
+  assert.equal((await br.go('quiz', 'POST', { action: 'start' })).json.code, 'PASSED');
 });
 
 test('the clock is the server’s: an attempt left open is marked when its time is up', async () => {
@@ -459,10 +459,10 @@ test('each attempt’s marks are emailed to the intern who took it, once; no ans
   assert.equal(sent.length, 1);
   const m = sent[0];
   assert.equal(m.to, 'asha@example.com');
-  assert.equal(m.subject, 'Your PFA internship quiz: 16%, attempt 1 of 3');
-  assert.match(m.text, /Asha, here are your marks for attempt 1 of 3 of the internship quiz\./);
+  assert.equal(m.subject, 'Your PFA internship quiz: 16%, attempt 1');
+  assert.match(m.text, /Asha, here are your marks for attempt 1 of the internship quiz\./);
   assert.match(m.text, /Easy 8 of 8, medium 0 of 9, hard 0 of 8\./);
-  assert.match(m.text, /You have 2 more attempts; the next opens Wed 11 Nov, 10:30 am\./);
+  assert.match(m.text, /You can take it again whenever you are ready, as many times as you like; your best counts\./);
   assert.doesNotMatch(m.text + m.html, /The answer|Why:/, 'no answers by email');
   /* the dashboard reading the finished attempt again sends nothing more */
   await br.go('me', 'GET');
