@@ -1,3 +1,11 @@
+## v1.644
+
+- **A Facebook film opened on the site plays with its sound on.** Owner, 27 Nov 2026: "when this video is played, by default can you unmute.. right now one has to manually unmute".
+  - Facebook's player starts any film it plays by itself without sound, whatever the link asks. The site now plays it through Facebook's own player script (the Embedded Video Player API), which turns the sound on and starts it as soon as the player is ready; the tap that opened it is what lets the browser play it aloud, and the player's frame is let play sound.
+  - The player is now exactly the film's size, with no black band under a reel. Closing it stops the film.
+  - If Facebook's script cannot be loaded, the film plays as before, its sound a tap away. On some phones the browser itself still asks for a tap before sound.
+- Also in this build: v1.643 (photographs everywhere, the same person's repeat applications tied together, kind tiles one size) and earlier.
+
 ## v1.643
 
 - **A photograph everywhere one belongs: every Newsroom story, and every update put on the site.** Owner, 27 Nov 2026.

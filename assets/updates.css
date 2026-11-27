@@ -114,11 +114,14 @@ html.header-on-dark header.site .pfa-bell__count{box-shadow:none}
 .upd-ig__x{flex:none;min-height:40px;padding:0 16px;border:1px solid rgba(255,255,255,.5);background:none;color:#fff;font:inherit;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
 .upd-ig__x:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .upd-ig__frame{width:min(100%,420px)}
-.upd-ig iframe{display:block;width:100%;height:min(780px,calc(100dvh - 90px));border:0;background:#fff}
-/* a wide Facebook film: as wide as the screen allows, sixteen by nine */
-.upd-ig--wide .upd-ig__bar,.upd-ig--wide .upd-ig__frame{width:min(100%,960px,calc((100dvh - 90px) * 16 / 9))}
-.upd-ig--wide iframe{height:auto;aspect-ratio:16/9;background:#000}
-.upd-ig--fb iframe{background:#000}
+.upd-ig:not(.upd-ig--fb) iframe{display:block;width:100%;height:min(780px,calc(100dvh - 90px));border:0;background:#fff}
+/* a Facebook film: its player at exactly the width it was given, as tall as the film */
+.upd-ig--fb .upd-ig__bar,.upd-ig--fb .upd-ig__frame{width:var(--fbw,min(100%,420px))}
+.upd-ig--fb .upd-ig__frame{background:#000}
+.upd-ig--fb .fb-video,.upd-ig--fb .fb-video>span{display:block!important;width:100%!important}
+.upd-ig--fb .fb-video iframe{display:block;max-width:100%;border:0}
+.upd-ig--fb iframe.upd-ig__own{display:block;width:100%;height:min(780px,calc(100dvh - 90px));border:0}
+.upd-ig--fb.upd-ig--wide iframe.upd-ig__own{height:auto;aspect-ratio:16/9}
 /* ---- phone pass (scripts/mobile-pass.js): generated, do not edit ---- */
 @media (max-width:700px),(pointer:coarse){
   .pfa-bell__pic,

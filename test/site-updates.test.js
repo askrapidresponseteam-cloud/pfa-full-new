@@ -281,6 +281,11 @@ test('wiring: routes, panel sections, page holders, rules, policy, and no long d
   assert.match(css, /\.upd__list\[data-n="1"\]\{grid-template-columns:minmax\(0,1fr\)\}/, 'one update fills the row');
   assert.match(read('vercel.json'), /frame-src[^;]*https:\/\/www\.facebook\.com/);
   /* never an empty frame: an older update without a picture, or one whose picture fails, shows PFA's own (27 Nov 2026) */
+  /* with its sound on (27 Nov 2026): Facebook's player API turns it on once ready, the frame let play sound */
+  assert.match(upd, /var FB_SDK = 'https:\/\/connect\.facebook\.net\/en_US\/sdk\.js';/);
+  assert.match(upd, /p\.unmute\(\); if \(p\.setVolume\) p\.setVolume\(1\); p\.play\(\);/);
+  assert.match(upd, /f\.setAttribute\('allow', 'autoplay; encrypted-media/);
+  for (const f of ['vercel.json', 'firebase.json']) assert.match(read(f), /script-src [^;]*https:\/\/connect\.facebook\.net/, f);
   assert.match(upd, /var COVER = 'img\/og-default\.jpg';/);
   assert.match(upd, /function cover\(u\) \{ return poster\(u\) \|\| COVER; \}/);
   assert.doesNotMatch(upd, /onerror="this\.remove\(\)"/);

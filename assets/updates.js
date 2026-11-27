@@ -28,6 +28,8 @@
   var MUX_STREAM = 'https://stream.mux.com/';
   var INSTAGRAM = 'https://www.instagram.com/';
   var FACEBOOK = 'https://www.facebook.com/plugins/video.php?href=';
+  /* Facebook's own script, for its player's controls (script-src) */
+  var FB_SDK = 'https://connect.facebook.net/en_US/sdk.js';
   var FIRST = 3;
   var SEEN_KEY = 'pfa:updates:seen';
   var PLAY = '<svg viewBox="0 0 12 14" aria-hidden="true"><path fill="currentColor" d="M0 0l12 7-12 7z"/></svg>';
@@ -143,19 +145,109 @@
     /* a Facebook film that is not a reel is wide; a reel or a post is tall */
     ig.classList.toggle('upd-ig--wide', fb && !m.reel);
     ig.classList.toggle('upd-ig--fb', fb);
-    var f = document.createElement('iframe');
-    /* it starts at once: the press that opened it lets it play with sound */
-    f.src = fb ? FACEBOOK + encodeURIComponent(m.url) + '&show_text=false&autoplay=1&mute=0&allowfullscreen=1&width=' + (m.reel ? 400 : 960)
-      : INSTAGRAM + (m.reel ? 'reel' : 'p') + '/' + m.id + '/embed';
-    f.setAttribute('scrolling', 'no');
-    f.title = u.title; f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen'); f.setAttribute('allowfullscreen', '');
-    var box = ig.querySelector('.upd-ig__frame'); box.textContent = ''; box.appendChild(f);
+    var box = ig.querySelector('.upd-ig__frame'); box.textContent = '';
+    ig.style.removeProperty('--fbw');
+    if (fb) {
+      /* as large as the screen allows, at the film's own shape */
+      var room = Math.max(200, window.innerHeight - 110);
+      var w = Math.round(m.reel ? Math.min(400, window.innerWidth - 24, room * 9 / 16) : Math.min(960, window.innerWidth - 24, room * 16 / 9));
+      ig.style.setProperty('--fbw', w + 'px');
+      ig.hidden = false;
+      playFb(m, u, box, w);
+    } else {
+      var f = document.createElement('iframe');
+      f.src = INSTAGRAM + (m.reel ? 'reel' : 'p') + '/' + m.id + '/embed';
+      f.setAttribute('scrolling', 'no');
+      f.title = u.title; f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen'); f.setAttribute('allowfullscreen', '');
+      box.appendChild(f);
+    }
     ig.hidden = false;
     document.documentElement.style.overflow = 'hidden';
     ig.querySelector('.upd-ig__x').focus();
   }
+  /* ---------- a Facebook film, playing with its sound on ----------
+     Owner, 27 Nov 2026: "when this video is played, by default can you
+     unmute.. right now one has to manually unmute". Facebook's player starts
+     every film it plays by itself without sound, whatever the address asks.
+     Its own script (the Embedded Video Player API) can turn the sound on once
+     the player is ready; the press that opened the film is what lets a
+     browser play it aloud, and the player's frame is let play sound
+     (allow="autoplay"). If Facebook's script cannot be had, the film plays
+     as before, and its sound is a press away. */
+  var fbLoad = null, fbWant = null, fbN = 0;
+  function withFb() {
+    if (window.FB && window.FB.XFBML && fbLoad) return fbLoad;
+    if (fbLoad) return fbLoad;
+    fbLoad = new Promise(function (ok, no) {
+      var done = false;
+      var prev = window.fbAsyncInit;
+      window.fbAsyncInit = function () {
+        try {
+          window.FB.init({ xfbml: false, version: 'v21.0' });
+          window.FB.Event.subscribe('xfbml.ready', function (msg) {
+            if (!msg || msg.type !== 'video' || !fbWant || msg.id !== fbWant.id) return;
+            var p = msg.instance; fbWant.player = p;
+            try { p.unmute(); if (p.setVolume) p.setVolume(1); p.play(); } catch (e) { /* the player's own button */ }
+          });
+        } catch (e) { /* below */ }
+        if (typeof prev === 'function') { try { prev(); } catch (e) { /* not ours */ } }
+        done = true;
+        if (window.FB && window.FB.XFBML) ok(window.FB); else { fbLoad = null; no(); }
+      };
+      var sc = document.createElement('script');
+      sc.async = true; sc.defer = true; sc.crossOrigin = 'anonymous';
+      sc.onerror = function () { if (!done) { done = true; fbLoad = null; no(); } };
+      sc.src = FB_SDK;
+      document.head.appendChild(sc);
+      setTimeout(function () { if (!done) { done = true; fbLoad = null; no(); } }, 6000);
+    });
+    return fbLoad;
+  }
+  /* The player's frame, as Facebook makes it, is let play sound: given
+     allow="autoplay" the moment it appears, before it has begun. */
+  function letPlaySound(box) {
+    if (!window.MutationObserver) return;
+    var mo = new MutationObserver(function () {
+      [].forEach.call(box.querySelectorAll('iframe'), function (f) {
+        if (f.getAttribute('data-sound')) return;
+        f.setAttribute('data-sound', '1');
+        var allow = f.getAttribute('allow') || '';
+        if (/autoplay/.test(allow)) return;
+        f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen; web-share' + (allow ? '; ' + allow : ''));
+        f.setAttribute('allowfullscreen', '');
+        var src = f.getAttribute('src');
+        if (src) f.setAttribute('src', src);
+      });
+    });
+    mo.observe(box, { childList: true, subtree: true });
+    setTimeout(function () { mo.disconnect(); }, 15000);
+  }
+  function fbFrame(m, title, w) {
+    var f = document.createElement('iframe');
+    f.src = FACEBOOK + encodeURIComponent(m.url) + '&show_text=false&autoplay=1&mute=0&allowfullscreen=1&width=' + w;
+    f.setAttribute('scrolling', 'no');
+    f.title = title; f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen'); f.setAttribute('allowfullscreen', '');
+    f.className = 'upd-ig__own';
+    return f;
+  }
+  function playFb(m, u, box, w) {
+    var id = 'updfb' + (++fbN);
+    fbWant = { id: id };
+    box.innerHTML = '<div class="fb-video" id="' + id + '" data-href="' + esc(m.url) + '" data-width="' + w + '" data-show-text="false" data-allowfullscreen="true" data-autoplay="true"></div>';
+    letPlaySound(box);
+    withFb().then(function (FB) {
+      if (!fbWant || fbWant.id !== id || ig.hidden) return;
+      FB.XFBML.parse(box);
+    }).catch(function () {
+      if (!fbWant || fbWant.id !== id || ig.hidden) return;
+      box.textContent = ''; box.appendChild(fbFrame(m, u.title, w));
+    });
+  }
+
   function shutInsta() {
     if (!ig || ig.hidden) return;
+    if (fbWant && fbWant.player) { try { fbWant.player.pause(); } catch (e) { /* gone */ } }
+    fbWant = null;
     ig.hidden = true; ig.querySelector('.upd-ig__frame').textContent = '';
     document.documentElement.style.overflow = '';
     if (igBack && igBack.focus) try { igBack.focus({ preventScroll: true }); } catch (e) { igBack.focus(); }
