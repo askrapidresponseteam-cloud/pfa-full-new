@@ -66,7 +66,7 @@ const NAV = [
   'legacy.html|Leave a legacy',
   'csr.html|CSR partnerships',
   'partners.html|Partners in giving',
-  'wall.html|The Wall',
+  'the-wall.html|The Wall',
   'events.html|Events and podcasts',
   'cinekind.html|CineKind',
   'founder.html|About',
@@ -106,6 +106,7 @@ const EXPECTED = {
   /* PFA Live (26 Nov 2026): no menu entry of its own, shown under Our Work beside the Newsroom */
   'live.html':         [null,                        'units.html'],
   'wall.html':         ['The Wall',                  'get-involved.html'],
+  'the-wall.html':     ['The Wall',                  'get-involved.html'], /* The Wall's landing, first in the menu (27 Nov 2026) */
   'achievements.html': ['Policies and achievements', 'units.html'],
   'report.html':       ['Report cruelty',            'units.html'],
   'get-involved.html': ['Volunteer',                 'get-involved.html'],
@@ -129,6 +130,7 @@ const EXPECTED = {
   'legacy.html':       ['Leave a legacy',            'get-involved.html'],
   'csr.html':          ['CSR partnerships',          'get-involved.html'],
   'partners.html':     ['Partners in giving',        'get-involved.html'],
+  'rosies-heroes.html': ['Partners in giving',       'get-involved.html'], /* the letter to Rosie's Heroes, inside Partners in giving (27 Nov 2026) */
   'sgacc.html':        ['Sanjay Gandhi Animal Care Centre', 'founder.html'],
   'manekas-picks.html': ['Maneka’s Picks',            'founder.html'],
   'fireworks.html':    ['Fireworks and animals',     'laws.html'],

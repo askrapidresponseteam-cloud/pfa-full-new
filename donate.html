@@ -715,7 +715,7 @@ if (root.document && root.document.head) apply(read());
           <a href="csr.html" data-nav="csr.html">CSR partnerships</a>
           <a href="partners.html" data-nav="partners.html">Partners in giving</a>
           <span class="menu-sep" aria-hidden="true"></span>
-          <a href="wall.html" data-nav="wall.html">The Wall</a>
+          <a href="the-wall.html" data-nav="the-wall.html">The Wall</a>
           <a href="events.html" data-nav="events.html">Events and podcasts</a>
           <a href="cinekind.html" data-nav="cinekind.html">CineKind</a>
         </div>
@@ -744,7 +744,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=d4c4390f19"></script>
+<script src="assets/chrome.js?v=a68a8c80db"></script>
 <script src="assets/india-districts.js"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
@@ -896,7 +896,7 @@ if (root.document && root.document.head) apply(read());
                  (tax-receipt.html). -->
             <label class="agree"><input type="checkbox" id="gAgree" required><span id="gAgreeText">I confirm these details are mine and I accept the donation and receipt terms.</span></label>
             <span class="error" id="gAgreeErr">Accept the donation and receipt terms to continue.</span>
-            <button class="btn btn--full" type="submit" id="payBtn">Pay &#8377;1,500</button>
+            <button class="btn btn--full" type="submit" id="payBtn">Pay &#8377;1500</button>
             <p class="fine" id="payNote">You are handed to CCAvenue to pay. PFA never sees your card, bank or UPI credentials. Your receipt is emailed as soon as the donation clears, with a link to add your PAN or Aadhaar if you need the 80G tax receipt.</p>
           </form>
         </div>
@@ -960,7 +960,7 @@ if (root.document && root.document.head) apply(read());
         <li><a href="caregiver-card.html">Colony caregiver card</a></li>
         <li><a href="campus.html">PFA Campus</a></li>
         <li><a href="internship.html">Remote internship</a></li>
-        <li><a href="wall.html">The Wall</a></li>
+        <li><a href="the-wall.html">The Wall</a></li>
         <li><a href="events.html">Events and podcasts</a></li>
         <li><a href="cinekind.html">CineKind</a></li>
       </ul>
@@ -1083,7 +1083,7 @@ if (root.document && root.document.head) apply(read());
     function monthlyOn(){ return document.documentElement.getAttribute('data-choice-monthly') === 'on'; }
     var freq = 'once', amt = 1500, idx = 1, custom = false;
     var wrap = $('#otherWrap'), input = $('#other'), errBox = $('#amtErr');
-    var fmt = function(n){ return '₹' + Number(n).toLocaleString('en-IN'); };
+    var fmt = function(n){ return '₹' + String(Math.round(Number(n))); };
     function digits(v){ var d = String(v == null ? '' : v).replace(/[^0-9]/g, '').replace(/^0+/, ''); return d ? +d : 0; }
     function err(msg, contact){
       errBox.textContent = msg || '';
@@ -1251,7 +1251,7 @@ if (root.document && root.document.head) apply(read());
     input.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); $('#next1').click(); } });
     /* Grouped while resting, raw while editing: ₹70,000 and ₹7,000 are hard to tell apart as bare digits. */
     input.addEventListener('focus', function(){ this.value = amt ? String(amt) : ''; });
-    input.addEventListener('blur',  function(){ this.value = amt ? Number(amt).toLocaleString('en-IN') : ''; });
+    input.addEventListener('blur',  function(){ this.value = amt ? String(Math.round(Number(amt))) : ''; });
     $('#next1').addEventListener('click', function(){
       if (amt < minAmt()){
         if (custom) input.focus(); else openOther();
@@ -1395,7 +1395,7 @@ if (root.document && root.document.head) apply(read());
         send: $('#payBtn').textContent,
         /* who the gift is for and where it is posted are listed from the
            gift's own fields already; repeating them here showed each twice */
-        extra: [['Amount', (dollars ? '$' : '\u20b9') + Number(amt).toLocaleString(dollars ? 'en-US' : 'en-IN')]]
+        extra: [['Amount', (dollars ? '$' : '\u20b9') + String(Math.round(Number(amt)))]]
       }).then(function(confirmed){ if (!confirmed) return; send(); });
     });
     $('#giveForm').addEventListener('input', function(e){ var t = e.target; if (t.closest('.field')) bad(t, false); });
@@ -1414,7 +1414,7 @@ if (root.document && root.document.head) apply(read());
       }
       if (qa < MIN || qa > MAX) return;
       if (AMTS[tier()].filter(function(a){ return a[0] === qa; })[0]){ pickPreset(qa); return; }
-      input.value = Number(qa).toLocaleString('en-IN'); custom = true; amt = qa;
+      input.value = String(Math.round(Number(qa))); custom = true; amt = qa;
       wrap.classList.add('is-open');
       $('#otherBtn').setAttribute('aria-pressed', 'true');
     })();

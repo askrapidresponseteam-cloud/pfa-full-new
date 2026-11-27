@@ -30,7 +30,8 @@ function lakh(n) {
   const l = n / 1e5;
   return '₹' + (Number.isInteger(l) ? String(l) : l.toFixed(2).replace(/0$/, '')) + ' lakh';
 }
-function rupees(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+/* plain numbers, no separators (owner's rule; end to end test, 27 Nov 2026) */
+function rupees(n) { return '₹' + String(Math.round(Number(n) || 0)); }
 function plain(s) { return String(s || '').replace(/\bRs\.? ?/g, '₹'); }
 
 /* who a project suits, as a few short words */
@@ -72,7 +73,7 @@ function section(list) {
       if (!a) return;
       var name = a.getAttribute('data-csr-pick'); var price = Number(a.getAttribute('data-csr-price')) || 0;
       var note = document.getElementById('message');
-      var line = 'We would like to fund: ' + name + ' (Rs ' + price.toLocaleString('en-IN') + ').';
+      var line = 'We would like to fund: ' + name + ' (Rs ' + String(price) + ').';
       if (note && note.value.indexOf(line) === -1) note.value = line + (note.value ? '\\n' + note.value : '');
       var band = price < 1e6 ? 'b1' : price <= 5e6 ? 'b2' : price <= 1e7 ? 'b3' : 'b4';
       var r = document.getElementById(band); if (r) r.checked = true;
@@ -133,11 +134,11 @@ function pdf(p) {
       doc.font('Helvetica').fontSize(8.6).fillColor(INK);
       const h = doc.heightOfString(plain(l.item).replace(/₹/g, 'Rs '), { width: col - 90 });
       doc.text(plain(l.item).replace(/₹/g, 'Rs '), M, y, { width: col - 90 });
-      doc.text('Rs ' + Number(l.inr).toLocaleString('en-IN'), M + col - 85, y, { width: 85, align: 'right' });
+      doc.text('Rs ' + String(Math.round(Number(l.inr) || 0)), M + col - 85, y, { width: 85, align: 'right' });
       y += h + 5;
       doc.moveTo(M, y - 2.5).lineTo(W - M, y - 2.5).lineWidth(0.4).strokeColor(LINE).stroke();
     });
-    doc.font('Helvetica-Bold').fontSize(9).fillColor(INK).text('Fixed price', M, y + 2).text('Rs ' + Number(p.price).toLocaleString('en-IN'), M + col - 120, y + 2, { width: 120, align: 'right' });
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(INK).text('Fixed price', M, y + 2).text('Rs ' + String(Math.round(Number(p.price) || 0)), M + col - 120, y + 2, { width: 120, align: 'right' });
     y += 24;
     doc.font('Helvetica-Bold').fontSize(7).fillColor(MUTED).text('WHAT YOU CAN REPORT', M, y, { characterSpacing: 0.8 });
     y += 13;

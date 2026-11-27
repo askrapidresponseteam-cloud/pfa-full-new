@@ -117,7 +117,7 @@ test('the site\'s own words answer a question before a task is guessed from one 
     ['what is the punishment for killing a dog', /Section|BNS|years/],
     ['can my society stop me from feeding dogs', /resident association|RWA/i],
     ['are pets allowed in lifts', /lift/i],
-    ['what do i get with lifetime membership', /Lifetime membership costs ₹10,000/],
+    ['what do i get with lifetime membership', /Lifetime membership costs ₹10000/],
     ['how much is membership', /Student ₹500/],
     ['how much does an animal ambulance cost to sponsor', /ambulance/i],
     ['when were the cinekind awards', /2026/],
@@ -146,9 +146,9 @@ test('a question outside what the site covers is not answered with a stray parag
 test('what the bot reads: tables, form explanations, short lists, and what pages draw from data', () => {
   const idx = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/assistant-answers.json'), 'utf8')).passages;
   const has = (re, u) => idx.some((p) => (!u || p.u.startsWith(u)) && re.test(p.x));
-  assert.ok(has(/Student ₹500, Silver ₹1,000, Golden ₹2,500, Platinum ₹5,000, Lifetime ₹10,000/, 'get-involved.html'), 'membership fees');
+  assert.ok(has(/Student ₹500, Silver ₹1000, Golden ₹2500, Platinum ₹5000, Lifetime ₹10000/, 'get-involved.html'), 'membership fees');
   assert.ok(has(/CineKind Awards 2026: 4 October 2026, Mumbai/, 'events.html'), 'events');
-  assert.ok(has(/costs ₹31,75,000 for a company to fund/, 'csr.html'), 'what a company can fund');
+  assert.ok(has(/costs ₹3175000 for a company to fund/, 'csr.html'), 'what a company can fund');
   assert.ok(has(/Prevention of Cruelty to Animals Act 1960/, 'library.html'), 'the library');
   assert.ok(has(/Diabetes in dogs/, 'pet-health.html'), 'care guides');
   assert.ok(has(/02 Director of Change Amit Rai/, 'cinekind.html'), 'a short list, read together');
@@ -206,7 +206,7 @@ test('a donation offers any other amount, asked for with the number keyboard', (
   s.start();
   const o = s.hear('donate');
   const chips = o.messages[o.messages.length - 1].chips.map((c) => c.label);
-  assert.deepEqual(chips, ['₹500', '₹1,000', '₹2,500', '₹5,000', 'Other amount']);
+  assert.deepEqual(chips, ['₹500', '₹1000', '₹2500', '₹5000', 'Other amount']);
   assert.equal(o.input.type, 'amount', 'the number keyboard while an amount is asked');
   const other = s.tap('#otheramount');
   assert.equal(other.messages[0].text, 'Type the amount in rupees, for example 750.');

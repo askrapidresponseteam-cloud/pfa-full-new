@@ -82,7 +82,7 @@
   var SIG_LIVE = ROOT + 'api/signature?for=certificate';
   var PRINT_SCALE = 6;
   var SIG = { x: 798, y: 653, w: 252, h: 73, dx: 26, dy: 0, s: 100 };
-  var SIG_RANGE = { x: 100, y: 50, s: [60, 160] };
+  var SIG_RANGE = { x: 1120, y: 792, s: [20, 300] };
   var SIG_DEFAULT = { x: 26, y: 0, s: 100 };
   function setLayout(l) {
     var c = function (v, max, d) { var n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(-max, Math.min(max, n)) : d; };

@@ -45,7 +45,7 @@
 
   function $(id) { return document.getElementById(id); }
   var AT_DISPATCH = 'Colour chosen for you at dispatch';
-  function rupees(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+  function rupees(n) { return '₹' + String(Math.round(Number(n) || 0)); }
   function el(tag, cls, text) {
     var e = document.createElement(tag);
     if (cls) e.className = cls;

@@ -111,6 +111,7 @@ function pageSchema(file) {
   if (file === 'founder.html') {
     return [{
       '@type': 'Person',
+      honorificPrefix: 'Smt.',
       name: 'Maneka Sanjay Gandhi',
       jobTitle: 'Founder',
       affiliation: { '@id': `${SITE}/#organisation` },

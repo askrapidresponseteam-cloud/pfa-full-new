@@ -82,6 +82,7 @@
         + '<div class="pg-thanks__who">'
         + (p.people.length ? '<ul class="pg-people">' + p.people.map(function (l) { return '<li>' + person(l) + '</li>'; }).join('') + '</ul>' : '')
         + (p.donorLine ? '<p class="pg-thanks__about">' + esc(p.donorLine) + '</p>' : '')
+        + (p.letter ? '<a class="pg-thanks__letter" href="' + esc(p.letter) + '">Read our letter of thanks</a>' : '')
         + (p.link ? '<a class="pg-thanks__link" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + esc(p.donor) + ' on the web</a>' : '')
         + '</div></div></div>');
     }
@@ -135,7 +136,12 @@
       box.innerHTML = '<img alt=""><p></p><button type="button">Close</button>';
       document.body.appendChild(box);
       box.addEventListener('click', function (e) { if (e.target === box || e.target.tagName === 'BUTTON') shut(); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box && !box.hidden) shut(); });
+      document.addEventListener('keydown', function (e) {
+        if (!box || box.hidden) return;
+        if (e.key === 'Escape') shut();
+        /* the one control inside keeps the focus: Tab never reaches the page behind */
+        else if (e.key === 'Tab') { e.preventDefault(); box.querySelector('button').focus(); }
+      });
     }
     back = from;
     box.querySelector('img').src = src; box.querySelector('img').alt = alt || '';
@@ -160,8 +166,17 @@
     if (ph) show(ph.src, ph.alt, b);
   });
 
+  /* none on the site (all taken off, or drafts): not the partnership the page
+     was written with, which may be the one just taken off (review of 27 Nov
+     2026) */
+  function none() {
+    holder.innerHTML = '<div class="pg-none"><h1 class="pg-title">Partners in giving</h1>'
+      + '<p>The gifts that keep PFA\u2019s rescues going, and what each one does, are shown here as they are given.</p>'
+      + '<p class="pg-next__acts"><a class="pg-next__give" href="donate.html">Give to PFA</a><a class="pg-none__partner" href="csr.html">Partner with PFA</a></p></div>';
+    holder.setAttribute('aria-busy', 'false');
+  }
   function paint(list) {
-    if (!list.length) return;
+    if (!list.length) return none();
     LIST = list;
     var today = todayInIndia();
     var html = '';
@@ -179,6 +194,8 @@
   }
 
   fetch('/api/partners', { credentials: 'omit' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
-    paint(d && Array.isArray(d.partners) ? d.partners.filter(function (p) { return p && p.id && p.photos && p.photos.length; }) : []);
+    /* only a list the server says it read; anything else keeps the page */
+    if (!d || d.ok !== true || !Array.isArray(d.partners)) return;
+    paint(d.partners.filter(function (p) { return p && p.id && p.photos && p.photos.length; }));
   }).catch(function () { /* the page keeps what it was written with */ });
 })(this);

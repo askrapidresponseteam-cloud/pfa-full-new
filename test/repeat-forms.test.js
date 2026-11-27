@@ -86,9 +86,37 @@ test('wired in: every new form is checked, the register carries the ties, and ea
   assert.match(subs, /Sent again by the same person as/);
   assert.match(subs, /grid-auto-rows:1fr/, 'the kind tiles are one size');
   /* only the ties and the contact keys are written, never what the sender wrote */
-  const writes = [...read('lib/repeat-forms.js').matchAll(/\.(?:set|update|create)\(\s*\{([\s\S]*?)\}\s*(?:,|\))/g)].map((m) => m[1]);
-  assert.ok(writes.length >= 3);
+  const writes = [...read('lib/repeat-forms.js').matchAll(/(?:\.(?:set|update|create)\(|tx\.update\(ref, |put\([a-z.]+, )\s*\{([\s\S]*?)\}\s*(?:,|\))/g)].map((m) => m[1]);
+  assert.ok(writes.length >= 5);
+  /* the backfill writes only what it put together: put(id, { ... }) */
+  assert.match(read('lib/repeat-forms.js'), /for \(const \[id, patch\] of writes\) await subs\.doc\(id\)\.update\(patch\);/);
   writes.filter((w) => !/version/.test(w)).forEach((w) => assert.match(w, /^\s*(repeatOf|repeats|contactKeys):/, w));
   assert.doesNotMatch(read('lib/repeat-forms.js'), /merge: true \}\);\s*\n\s*const snap/);
   for (const f of ['lib/repeat-forms.js', 'test/repeat-forms.test.js', 'assets/admin-subs.js']) assert.ok(!/[\u2013\u2014]/.test(read(f)), f);
+});
+
+/* review of 27 Nov 2026: two repeats arriving together are both kept, and
+   the backfill ties a chain to its first form from one read of the register */
+test('two repeats at once are both kept; the backfill ties from memory, oldest first, only the ties written', async () => {
+  const db = memoryFirestore();
+  const f = { name: 'Asha', email: 'asha@example.com', mobile: '9876543210' };
+  await put(db, 'PFA-U-1', 'PFA-U', f, 0);
+  const two = await put(db, 'PFA-U-2', 'PFA-U', f, 1);
+  const three = await put(db, 'PFA-U-3', 'PFA-U', f, 2);
+  await Promise.all([R.tie(db, 'PFA-U-2', two), R.tie(db, 'PFA-U-3', three)]);
+  assert.deepEqual((await doc(db, 'PFA-U-1')).repeats.slice().sort(), ['PFA-U-2', 'PFA-U-3']);
+
+  const db2 = memoryFirestore();
+  await put(db2, 'PFA-V-1', 'PFA-V', f, 0);
+  await put(db2, 'PFA-V-2', 'PFA-V', Object.assign({}, f, { email: 'other@example.com' }), 1);
+  await put(db2, 'PFA-V-3', 'PFA-V', Object.assign({}, f, { mobile: '9000000000' }), 2);
+  await put(db2, 'PFA-J-1', 'PFA-J', Object.assign({ roleId: 'vet' }, f), 0);
+  await put(db2, 'PFA-J-2', 'PFA-J', Object.assign({ roleId: 'campaigns' }, f), 1);
+  R._reset();
+  assert.equal(await R.markOnce(db2), 2);
+  assert.deepEqual((await doc(db2, 'PFA-V-1')).repeats, ['PFA-V-2', 'PFA-V-3']);
+  assert.equal((await doc(db2, 'PFA-V-3')).repeatOf, 'PFA-V-1');
+  assert.equal((await doc(db2, 'PFA-J-2')).repeatOf, undefined, 'a different post is a different application');
+  R._reset();
+  assert.equal(await R.markOnce(db2), 0, 'once');
 });

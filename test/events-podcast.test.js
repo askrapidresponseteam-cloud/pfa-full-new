@@ -55,7 +55,7 @@ test('the podcast is on the events page, closed until asked for, with every rule
   assert.match(head, /PFA team approves/);
   assert.match(head, /one paragraph, in your own words/i);
   assert.match(head, /do not use AI/);
-  assert.match(head, /at least 10,000 followers on YouTube, Instagram or Facebook/);
+  assert.match(head, /at least 10000 followers on YouTube, Instagram or Facebook/);
   assert.match(head, /purely for how far it spreads/);
   assert.match(head, /apply online through this website only/i);
   const form = pod.querySelector('form#podForm');

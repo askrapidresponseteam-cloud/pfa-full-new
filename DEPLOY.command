@@ -103,6 +103,9 @@ echo "  $(ls resources | wc -l | tr -d ' ') library documents, $(ls test/fixture
 
 step "Fetching media (best effort; the test suite is the backstop)"
 # The microsites' photographs (data/site-photos.json) come from PFA's old site.
+# Since v1.647 they travel in the zip itself (2.7 MB, resized), because the
+# deploy removes the previous tree before unpacking and the old site could not
+# always be reached: the SGACC, campus and Gau Seva pages lost their pictures.
 # Once fetched they are in the live tree, so they are taken from there first and
 # survive the old site going away; only what is still missing is fetched.
 if [ -d "$HOME/Desktop/PFA_Website/media/site" ]; then

@@ -215,10 +215,10 @@
       { value: 'Where it is needed most', hi: 'जहाँ सबसे ज़्यादा ज़रूरत हो' }, { value: 'Hospitals', hi: 'अस्पताल' }, { value: 'Rescue', hi: 'रेस्क्यू' },
       { value: 'Legal work', hi: 'कानूनी काम' }, { value: 'Learning', hi: 'शिक्षा' }],
     tier: [
-      { value: 'student', en: 'Student, ₹500', hi: 'विद्यार्थी, ₹500', amount: 500 }, { value: 'silver', en: 'Silver, ₹1,000', hi: 'सिल्वर, ₹1,000', amount: 1000 },
-      { value: 'golden', en: 'Golden, ₹2,500', hi: 'गोल्डन, ₹2,500', amount: 2500 }, { value: 'platinum', en: 'Platinum, ₹5,000', hi: 'प्लैटिनम, ₹5,000', amount: 5000 },
-      { value: 'lifetime', en: 'Lifetime, ₹10,000', hi: 'आजीवन, ₹10,000', amount: 10000 }],
-    amount: [{ value: '500', en: '₹500' }, { value: '1000', en: '₹1,000' }, { value: '2500', en: '₹2,500' }, { value: '5000', en: '₹5,000' }],
+      { value: 'student', en: 'Student, ₹500', hi: 'विद्यार्थी, ₹500', amount: 500 }, { value: 'silver', en: 'Silver, ₹1000', hi: 'सिल्वर, ₹1000', amount: 1000 },
+      { value: 'golden', en: 'Golden, ₹2500', hi: 'गोल्डन, ₹2500', amount: 2500 }, { value: 'platinum', en: 'Platinum, ₹5000', hi: 'प्लैटिनम, ₹5000', amount: 5000 },
+      { value: 'lifetime', en: 'Lifetime, ₹10000', hi: 'आजीवन, ₹10000', amount: 10000 }],
+    amount: [{ value: '500', en: '₹500' }, { value: '1000', en: '₹1000' }, { value: '2500', en: '₹2500' }, { value: '5000', en: '₹5000' }],
     wall: [
       { value: 'Long form, over three minutes', en: 'Long, over three minutes', hi: 'लंबी, तीन मिनट से ज़्यादा', syn: ['long', 'lamba', 'lambi', 'लंबी', 'documentary'] },
       { value: 'Short form, under a minute', en: 'Short, under a minute', hi: 'छोटी, एक मिनट से कम', syn: ['short', 'reel', 'reels', 'chhota', 'chhoti', 'छोटी', 'रील'] }],
@@ -362,11 +362,11 @@
     quiz: { href: 'quiz.html', title: { en: 'Test yourself', hi: 'ख़ुद को परखें' }, say: { en: 'A six-question quiz on what farm animals can do, every answer drawn from published research. Download a certificate at the end.', hi: 'खेत के जानवर क्या कर सकते हैं, इस पर छह सवालों की क्विज़। अंत में प्रमाणपत्र डाउनलोड करें।' } },
     partners: { href: 'partners.html', title: { en: 'Partners in giving', hi: 'दान के साझेदार' }, say: { en: 'The donors who give PFA what it needs to save animals, and what each gift is doing: first, the animal rescue ambulance Rosie\'s Heroes gave PFA Khamgaon.', hi: 'वे दानदाता जो PFA को जानवरों को बचाने के साधन देते हैं, और हर दान क्या कर रहा है: पहला, Rosie\'s Heroes का PFA खामगाँव को दिया पशु बचाव एम्बुलेंस।' } },
     gifts: { href: 'gifts.html', title: { en: 'Seasonal gifts', hi: 'त्योहार के उपहार' }, say: { en: 'Gifts for Deepawali, Christmas, New Year and every occasion: PFA\'s designer T-shirts, a donation in someone\'s name, a membership. Every gift helps animals.', hi: 'दीपावली, क्रिसमस, नए साल और हर मौके के उपहार: PFA की डिज़ाइनर टी-शर्ट, किसी के नाम दान, सदस्यता। हर उपहार जानवरों की मदद करता है।' } },
-    founder: { href: 'founder.html', title: { en: 'The founder', hi: 'संस्थापक' }, say: { en: 'Maneka Sanjay Gandhi founded People for Animals and built it into India\'s largest animal welfare organisation.', hi: 'मेनका संजय गांधी ने People for Animals की स्थापना की और इसे भारत का सबसे बड़ा पशु कल्याण संगठन बनाया।' } },
+    founder: { href: 'founder.html', title: { en: 'The founder', hi: 'संस्थापक' }, say: { en: 'Smt. Maneka Sanjay Gandhi founded People for Animals and built it into India\'s largest animal welfare organisation.', hi: 'श्रीमती मेनका संजय गांधी ने People for Animals की स्थापना की और इसे भारत का सबसे बड़ा पशु कल्याण संगठन बनाया।' } },
     picks: { href: 'manekas-picks.html', title: { en: 'Maneka\'s Picks', hi: 'मेनका की पसंद' }, say: { en: 'Three films and three books about the lives we share with animals, chosen by Smt. Maneka Sanjay Gandhi.', hi: 'जानवरों के साथ हमारे जीवन पर तीन फ़िल्में और तीन किताबें, श्रीमती मेनका संजय गांधी की चुनी हुई।' } },
     lawpage: { href: 'laws.html', title: { en: 'What the law says', hi: 'कानून क्या कहता है' }, say: { en: 'How to file an animal cruelty complaint or FIR in India, what the law says after a dog bite, and plain answers on community dogs, cattle, pets and working animals.', hi: 'भारत में पशु क्रूरता की शिकायत या FIR कैसे करें, कुत्ते के काटने के बाद कानून क्या कहता है, और गली के कुत्तों, मवेशियों, पालतू और काम करने वाले जानवरों पर सीधे जवाब।' } },
     unitlist: { href: 'units.html', title: { en: 'Units: find help near you', hi: 'यूनिट: पास में मदद' }, say: { en: 'People for Animals has units in some eighty cities across India: animal rescue, shelters, hospitals and animal ambulances, each with its phone number, email and address.', hi: 'People for Animals की यूनिट भारत के लगभग अस्सी शहरों में हैं: बचाव, आश्रय, अस्पताल और एम्बुलेंस, हर एक का फ़ोन, ईमेल और पता।' } },
-    podcast: { href: 'events.html#podcast', title: { en: 'A podcast with Maneka Gandhi', hi: 'मेनका गांधी के साथ पॉडकास्ट' }, say: { en: 'There are three a year, each on animal welfare and the concerns animals face, planned at least 60 days ahead and approved by the PFA team. The application asks for one paragraph in your own words, so it is on the events page.', hi: 'साल में तीन होते हैं, हर एक पशु कल्याण और जानवरों की समस्याओं पर, कम से कम 60 दिन पहले तय, और PFA टीम की मंज़ूरी से। आवेदन में अपने शब्दों में एक पैराग्राफ़ लिखना होता है, इसलिए यह इवेंट पेज पर है।' } },
+    podcast: { href: 'events.html#podcast', title: { en: 'A podcast with Smt. Maneka Gandhi', hi: 'श्रीमती मेनका गांधी के साथ पॉडकास्ट' }, say: { en: 'There are three a year, each on animal welfare and the concerns animals face, planned at least 60 days ahead and approved by the PFA team. The application asks for one paragraph in your own words, so it is on the events page.', hi: 'साल में तीन होते हैं, हर एक पशु कल्याण और जानवरों की समस्याओं पर, कम से कम 60 दिन पहले तय, और PFA टीम की मंज़ूरी से। आवेदन में अपने शब्दों में एक पैराग्राफ़ लिखना होता है, इसलिए यह इवेंट पेज पर है।' } },
     interndash: { href: 'intern.html', title: { en: 'Intern dashboard', hi: 'इंटर्न डैशबोर्ड' }, say: { en: 'Interns sign in to the dashboard with their email, mobile and date of birth.', hi: 'इंटर्न अपने ईमेल, मोबाइल और जन्मतिथि से डैशबोर्ड में साइन इन करते हैं।' } }
   };
 
@@ -443,7 +443,7 @@
       say: { en: 'Yes. Donations to PFA are eligible for tax deduction under Section 80G. Your receipt comes by email, with a link to add your PAN or Aadhaar for the 80G receipt.', hi: 'हाँ। PFA को दान पर धारा 80G के तहत कर छूट मिलती है। रसीद ईमेल पर आती है, उसी में 80G रसीद के लिए PAN या आधार देने का लिंक होता है।' },
       chip: 'donate' },
     { id: 'memberFee', over: ['member'], need: [['fee', 'fees', 'cost', 'costs', 'price', 'charge', 'charges', 'how much', 'kitna', 'kitne', 'paisa', 'शुल्क', 'कितना', 'फीस'], ['member', 'membership', 'sadasya', 'सदस्य', 'सदस्यता']],
-      say: { en: 'Membership: Student ₹500, Silver ₹1,000, Golden ₹2,500, Platinum ₹5,000, Lifetime ₹10,000. Each has its own card and kit.', hi: 'सदस्यता: विद्यार्थी ₹500, सिल्वर ₹1,000, गोल्डन ₹2,500, प्लैटिनम ₹5,000, आजीवन ₹10,000। हर एक का अपना कार्ड और किट है।' },
+      say: { en: 'Membership: Student ₹500, Silver ₹1000, Golden ₹2500, Platinum ₹5000, Lifetime ₹10000. Each has its own card and kit.', hi: 'सदस्यता: विद्यार्थी ₹500, सिल्वर ₹1000, गोल्डन ₹2500, प्लैटिनम ₹5000, आजीवन ₹10000। हर एक का अपना कार्ड और किट है।' },
       links: [{ en: 'The memberships', hi: 'सदस्यताएँ', href: 'get-involved.html#membership' }], chip: 'member', unless: /\b(student|silver|golden|gold|platinum|lifetime|life time)\b/ },
     { id: 'internTerms', over: ['internship'], need: [['fee', 'fees', 'cost', 'free', 'paid', 'stipend', 'salary', 'duration', 'long', 'weeks', 'age', 'eligible', 'eligibility', 'hours', 'kitna', 'kitne', 'शुल्क', 'कितना', 'उम्र'], ['intern', 'internship', 'इंटर्न']],
       say: { en: 'The remote internship is free to join and unpaid: 8 weeks, one task a week, 6 to 8 hours a week. Anyone in India aged 18 or over can apply; at 16 or 17, with a parent\'s consent.', hi: 'रिमोट इंटर्नशिप मुफ़्त है और इसमें भुगतान नहीं मिलता: 8 हफ़्ते, हर हफ़्ते एक काम, हफ़्ते में 6 से 8 घंटे। भारत में 18 या उससे ज़्यादा उम्र का कोई भी आवेदन कर सकता है; 16 या 17 की उम्र में माता-पिता की सहमति से।' },
@@ -1283,7 +1283,7 @@
     }
     function optionLabel(f, v) {
       var op = (f.options || []).filter(function (x) { return x.value === v; })[0];
-      if (f.type === 'amount' || f.id === 'amount') return '₹' + Number(v).toLocaleString('en-IN');
+      if (f.type === 'amount' || f.id === 'amount') return '₹' + String(Math.round(Number(v) || 0));
       return op ? (L(op, lang()) || op.value) : String(v);
     }
     function summary(lead) {
@@ -1292,7 +1292,7 @@
       if (flow.look) return lookUp();
       if (flow.pay === 'shop') return shopSummary(lead, flow);
       var rows = fieldIds().filter(function (id) { return F[id].type !== 'consent'; }).map(function (id) { return [L(F[id].label, lang()), shown(id)]; });
-      var go = flow.pay ? t(S.flow === 'donate' && S.data.frequency === 'monthly' && monthlyOn() ? 'payMonthly' : 'payNow', lang(), { amount: '₹' + Number(payAmount()).toLocaleString('en-IN') }) : t('send', lang());
+      var go = flow.pay ? t(S.flow === 'donate' && S.data.frequency === 'monthly' && monthlyOn() ? 'payMonthly' : 'payNow', lang(), { amount: '₹' + Number(payAmount()) }) : t('send', lang());
       var chips = [{ label: go, value: '#send' }, { label: t('change', lang()), value: '#change' }, { label: t('cancel', lang()), value: '#cancel' }];
       var terms = flow.fields.map(function (id) { return F[id]; }).filter(function (f) { return f.type === 'consent'; })[0];
       if (!terms) return out((lead || []).concat([msg(t('checkTitle', lang()) + ' ' + L(flow.title, lang()), { list: rows, chips: chips })]));
@@ -1420,7 +1420,7 @@
       try { if (o.bag && typeof o.bag.set === 'function') o.bag.set(memBag.slice()); } catch (_) { /* this visit only */ }
       S.shopQuote = null;
     }
-    function rs(n) { return '₹' + Number(n || 0).toLocaleString('en-IN'); }
+    function rs(n) { return '₹' + String(Math.round(Number(n || 0))); }
     function piece(id) { return ((S.shop && S.shop.pieces) || []).filter(function (p) { return p.id === String(id); })[0] || null; }
     function pieces() { return (S.shop && S.shop.pieces) || []; }
     function lineName(p, size) { return p.name + ', ' + (lang() === 'hi' ? 'साइज़ ' : 'size ') + size + (p.atDispatch ? ', ' + t('shopAtDispatch', lang()) : ''); }

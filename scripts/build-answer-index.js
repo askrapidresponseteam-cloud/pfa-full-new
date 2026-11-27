@@ -114,7 +114,7 @@ function fromData() {
   const out = [];
   const read = (f) => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8')); } catch (_) { return null; } };
   const day = (iso) => { const d = new Date(String(iso || '') + 'T00:00:00Z'); return isNaN(d) ? '' : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }); };
-  const rupees = (n) => '\u20b9' + Number(n).toLocaleString('en-IN');
+  const rupees = (n) => '\u20b9' + String(Math.round(Number(n) || 0));
   const add = (t, u, h, x) => { x = decode(String(x || '')).replace(/\s+/g, ' ').trim(); if (x.length >= 30) out.push({ t, u, h: decode(String(h || '')).trim(), x }); };
   /* membership: the tiers, their price and kit (lib/payment.js) */
   try {

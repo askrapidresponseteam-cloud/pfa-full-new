@@ -52,7 +52,7 @@ test('a bag kept from when the tee was bought by colour becomes one line a size,
   assert.deepEqual(lines(d), [
     { name: 'PFA logo T-shirt', meta: 'Size L · ₹350 each', note: 'Colour chosen for you at dispatch', qty: 10 },
     { name: 'PFA logo T-shirt', meta: 'Size XL · ₹350 each', note: 'Colour chosen for you at dispatch', qty: 1 },
-    { name: 'Sabyasachi x PFA', meta: 'Size XL · ₹2,500 each', note: '', qty: 1 }
+    { name: 'Sabyasachi x PFA', meta: 'Size XL · ₹2500 each', note: '', qty: 1 }
   ]);
 });
 

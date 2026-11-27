@@ -647,27 +647,47 @@
    "modules": []
   },
   {
-   "id": "wall",
-   "file": "wall.html",
-   "title": "The Wall",
+   "id": "the-wall",
+   "file": "the-wall.html",
+   "title": "The Wall: real stories",
    "group": "Get Involved",
    "menu": "The Wall",
    "modules": [
     {
-     "id": "top",
-     "label": "The Wall"
+     "id": "real-stories",
+     "label": "REAL STORIES"
     },
     {
-     "id": "longform",
-     "label": "Long form"
+     "id": "about",
+     "label": "About"
     },
     {
-     "id": "shortform",
-     "label": "Short form"
+     "id": "ways-of-looking",
+     "label": "Ways of looking"
     },
     {
-     "id": "submit",
-     "label": "Send us yours"
+     "id": "reel",
+     "label": "A moving wall of animal story ideas"
+    },
+    {
+     "id": "stories",
+     "label": "Worth seeing."
+    },
+    {
+     "id": "purpose",
+     "label": "Make us notice. Make us care."
+    },
+    {
+     "id": "your-lens",
+     "label": "Your lens. Their world."
+    },
+    {
+     "id": "how",
+     "label": "You have a camera. And a voice."
+    },
+    {
+     "id": "share",
+     "label": "Share"
     }
    ]
   },
@@ -839,6 +859,60 @@
    ]
   },
   {
+   "id": "wall",
+   "file": "wall.html",
+   "title": "The Wall",
+   "group": "Get Involved",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "The Wall"
+    },
+    {
+     "id": "longform",
+     "label": "Long form"
+    },
+    {
+     "id": "shortform",
+     "label": "Short form"
+    },
+    {
+     "id": "submit",
+     "label": "Send us yours"
+    }
+   ]
+  },
+  {
+   "id": "rosies-heroes",
+   "file": "rosies-heroes.html",
+   "title": "With gratitude, to Rosie’s Heroes",
+   "group": "Get Involved",
+   "menu": "",
+   "modules": [
+    {
+     "id": "top",
+     "label": "A little kindness. A whole new journey."
+    },
+    {
+     "id": "gift",
+     "label": "Hope. On wheels."
+    },
+    {
+     "id": "people",
+     "label": "Good things happen because of people."
+    },
+    {
+     "id": "journey",
+     "label": "From a generous thought. To the streets of Khamgaon."
+    },
+    {
+     "id": "thank-you",
+     "label": "You made this possible."
+    }
+   ]
+  },
+  {
    "id": "founder",
    "file": "founder.html",
    "title": "Founder",
@@ -847,7 +921,7 @@
    "modules": [
     {
      "id": "top",
-     "label": "Maneka Sanjay Gandhi"
+     "label": "Smt. Maneka Sanjay Gandhi"
     },
     {
      "id": "watch",
@@ -1843,9 +1917,15 @@
    "done": "start",
    "doneRef": "start"
   },
-  "wall": {
-   "wallStatus": "submit",
-   "wallSuccess": "submit"
+  "the-wall": {
+   "topics-title": "ways-of-looking",
+   "statement-title": "purpose",
+   "statement-copy": "purpose",
+   "fan-title": "your-lens",
+   "fan-type": "your-lens",
+   "fan-name": "your-lens",
+   "fan-sub": "your-lens",
+   "twEndH": "share"
   },
   "events": {
    "top": "events",
@@ -1937,6 +2017,10 @@
    "mpFine": "photo",
    "mpDone": "photo",
    "mpRef": "photo"
+  },
+  "wall": {
+   "wallStatus": "submit",
+   "wallSuccess": "submit"
   },
   "founder": {
    "vgrid": "watch",

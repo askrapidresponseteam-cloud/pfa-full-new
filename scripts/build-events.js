@@ -256,7 +256,7 @@ function render(page, data) {
     '</div>',
     '<div class="ev-ask">',
     '<h3 class="ev-ask__title">Your area could be next.</h3>',
-    '<p>Maneka Gandhi joins live online to speak with the organisers. Organisers get a certificate anyone can verify online, and everyone who takes part a certificate of participation.</p>',
+    '<p>Smt. Maneka Gandhi joins live online to speak with the organisers. Organisers get a certificate anyone can verify online, and everyone who takes part a certificate of participation.</p>',
     '<a class="ev-btn" href="#request">Request an Event</a>',
     '</div>',
     '</div>',

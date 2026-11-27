@@ -91,9 +91,9 @@ test('letters type her name under the clean signature, which no longer carries i
   PDFDocument.prototype.text = function (s, ...r) { drawn.push(String(s)); return real.call(this, s, ...r); };
   try {
     const v = L.check({ kind: 'general', subject: 'A test', body: 'Words.', recipient: 'Someone' }, Date.now(), false).values;
-    assert.equal(v.signName, 'Maneka Sanjay Gandhi');
+    assert.equal(v.signName, 'Smt. Maneka Sanjay Gandhi');
     await L.pdfOf(v, {});
-    assert.ok(drawn.join('').includes('Maneka Sanjay Gandhi'));
+    assert.ok(drawn.join('').includes('Smt. Maneka Sanjay Gandhi'));
     drawn.length = 0;
     await L.pdfOf(L.check({ kind: 'general', subject: 'A test', body: 'Words.', recipient: 'Someone', signName: '' }, Date.now(), false).values, {});
     assert.ok(!drawn.join('').includes('Maneka Sanjay Gandhi'), 'emptied, none');

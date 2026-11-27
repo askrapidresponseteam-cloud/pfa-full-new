@@ -693,12 +693,15 @@
        chevron is stood there at once. */
     try {
       var seed = JSON.parse(sessionStorage.getItem('pfa:cursor') || 'null');
-      if (seed && seed.x >= 0 && seed.y >= 0 && seed.x <= innerWidth && seed.y <= innerHeight) {
+      /* a position the hand really reached: never the corner a page that was
+         never pointed at leaves behind (end to end test, 27 Nov 2026) */
+      if (seed && seed.x > 0 && seed.y > 0 && seed.x <= innerWidth && seed.y <= innerHeight) {
         cx = seed.x; cy = seed.y; vis = true; svg.style.opacity = '1';
         schedule();
       }
     } catch (e) {}
     window.addEventListener('pagehide', function () {
+      if (!vis) return;
       try { sessionStorage.setItem('pfa:cursor', JSON.stringify({ x: Math.round(cx), y: Math.round(cy) })); } catch (e) {}
     });
     window.addEventListener('pointermove', function (e) {
@@ -1719,7 +1722,7 @@
   if (document.documentElement.hasAttribute('data-no-assist')) return;
   var KEY = 'pfa.assist.v1';
   /* one fingerprint for the five files, written by npm run sync:chrome */
-  var ASSIST_V = '85bb6f990f';
+  var ASSIST_V = 'dd41658763';
   var FILES = ['/assets/assistant-nlu.js', '/assets/assistant-flows.js', '/assets/assistant-units.js', '/assets/india-districts.js', '/assets/assistant.js'].map(function (f) { return f + '?v=' + ASSIST_V; });
   var loading = null;
 

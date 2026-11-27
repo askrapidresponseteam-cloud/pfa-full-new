@@ -87,8 +87,8 @@
       ['prvok', 'Request received', 'We have your privacy request and are working on it. We will write to you again when it is done.']
     ],
     'PFA-POD': [
-      ['podyes', 'Approved, fix the date', 'Thank you for applying for a podcast with Maneka Gandhi. The PFA team has approved it. Reply with two or three dates that suit you, at least 60 days from today, and we will confirm one.'],
-      ['podno', 'Not this time', 'Thank you for applying for a podcast with Maneka Gandhi. There are only three a year, and we cannot take yours this time. You are welcome to apply again.']
+      ['podyes', 'Approved, fix the date', 'Thank you for applying for a podcast with Smt. Maneka Gandhi. The PFA team has approved it. Reply with two or three dates that suit you, at least 60 days from today, and we will confirm one.'],
+      ['podno', 'Not this time', 'Thank you for applying for a podcast with Smt. Maneka Gandhi. There are only three a year, and we cannot take yours this time. You are welcome to apply again.']
     ],
     'PFA-MED': [
       ['medsrc', 'Ask what it is based on', 'Thank you for sending your note to People for Animals. Before it goes on the website, please reply with what it is based on: [what is needed].'],

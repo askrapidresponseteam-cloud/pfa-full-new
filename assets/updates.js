@@ -307,7 +307,7 @@
         (p ? '<span class="pfa-bell__pic"><span>' + esc(u.kindLabel || 'News') + '</span><img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" onerror="' + SWAP + '"></span>'
           : '<span class="pfa-bell__tag">' + esc(u.kindLabel || 'News') + '</span>') +
         '<span class="pfa-bell__text"><span class="pfa-bell__title">' + esc(u.title) + '</span>' +
-        '<span class="pfa-bell__meta">' + esc(day(u.date)) + ' · ' + esc(watchWord(u)) + '</span></span>' +
+        '<span class="pfa-bell__meta">' + (u.date ? esc(day(u.date)) + ' · ' : '') + esc(watchWord(u)) + '</span></span>' +
         '<span class="pfa-bell__go' + (go ? ' pfa-bell__go--play' : '') + '" aria-hidden="true">' + (go ? PLAY : ARROW) + '</span></a></li>';
     });
     return html;

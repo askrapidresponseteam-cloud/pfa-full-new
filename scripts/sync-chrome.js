@@ -72,7 +72,8 @@ const PAGES = {
   'achievements.html': { current: 'achievements.html', group: 'units.html',      announce: DEFAULT_ANNOUNCE },
   'report.html':       { current: 'report.html',               group: 'units.html',       announce: 'An animal being hurt? Call 112 first, then tell us here' },
   'newsroom.html':     { current: 'newsroom.html',    group: 'units.html',       announce: DEFAULT_ANNOUNCE },
-  'wall.html':         { current: 'wall.html',        group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
+  'wall.html':         { current: 'the-wall.html',    group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* the films and the form; The Wall in the menu opens its landing first (27 Nov 2026) */
+  'the-wall.html':     { current: 'the-wall.html',    group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* The Wall's landing, the owner's design (27 Nov 2026) */
   'get-involved.html': { current: 'get-involved.html#volunteer', group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* the menu's Volunteer opens the one volunteer application, as the footer's does (9 Oct 2026) */
   'cinekind.html':     { current: 'cinekind.html',    group: 'get-involved.html', announce: '', bare: true }, /* bare: no tab bar on a phone either; the page keeps its menu button (owner: "let this page be clean.. only log and ham menu") */ /* no bar (22 Oct 2026): the page is the logo and the menu over the trophy, and "4 October" read as a date still to come once it had passed. Before that: */ /* the credit went back over the photograph and above the trophy, where it reads; putting it here cost the hero 115px of black and left the bar saying the same sentence twice. The bar keeps the where and the when */
   'donate.html':       { current: 'donate.html',      group: null,               announce: DEFAULT_ANNOUNCE },
@@ -89,6 +90,7 @@ const PAGES = {
   'legacy.html':       { current: 'legacy.html',      group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'csr.html':          { current: 'csr.html',         group: 'get-involved.html', announce: DEFAULT_ANNOUNCE },
   'partners.html':     { current: 'partners.html',    group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* Partners in giving: donors' gifts and what they do (27 Nov 2026) */
+  'rosies-heroes.html': { current: 'partners.html',  group: 'get-involved.html', announce: DEFAULT_ANNOUNCE }, /* the owner's letter of thanks to Rosie's Heroes, in his own design (27 Nov 2026) */
   'sgacc.html':        { current: 'sgacc.html',       group: 'founder.html',     announce: DEFAULT_ANNOUNCE },
   'manekas-picks.html': { current: 'manekas-picks.html', group: 'founder.html', announce: DEFAULT_ANNOUNCE }, /* her films and a book, under The founder (9 Nov 2026) */
   /* Fireworks and animals (10 Nov 2026), under Learn; Seasonal gifts, under

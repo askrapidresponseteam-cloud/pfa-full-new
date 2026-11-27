@@ -177,7 +177,7 @@ test('the cards: the signature above the line, moved by the studio, saved for ev
   r = await post({ card: 'caregiver', x: -60, y: 30 });
   assert.equal(r.statusCode, 200);
   assert.deepEqual(asked, ['membership', 'caregivers']);
-  assert.equal((await post({ card: 'caregiver', x: 61, y: 0 })).statusCode, 422);
+  assert.equal((await post({ card: 'caregiver', x: 861, y: 0 })).statusCode, 422);
   assert.equal(auditRows.length, 2);
   assert.match(auditRows[0].detail, /membership card moved from 0 across, 0 down to 12 across, -4 down/);
   assert.deepEqual(await LAYOUT.readCards(db).then((c) => [c.caregiver.x, c.caregiver.y, c.member.x, c.member.y]), [-60, 30, 12, -4]);

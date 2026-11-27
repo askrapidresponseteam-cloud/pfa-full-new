@@ -77,7 +77,7 @@
   }
   function first(name) { return String(name || '').replace(/^(dr|mr|mrs|ms|shri|smt|sri)\.?\s+/i, '').split(' ')[0] || 'friend'; }
   function wish(p) {
-    return 'Dear ' + first(p.name) + ', a very happy birthday from all of us at People for Animals. The world is kinder because of you. Wishing you joy, today and always. Warm regards, Maneka Sanjay Gandhi';
+    return 'Dear ' + first(p.name) + ', a very happy birthday from all of us at People for Animals. The world is kinder because of you. Wishing you joy, today and always. Warm regards, Smt. Maneka Sanjay Gandhi';
   }
   function phone(m) { return m ? m.slice(0, 5) + ' ' + m.slice(5) : ''; }
   function clock(iso) {

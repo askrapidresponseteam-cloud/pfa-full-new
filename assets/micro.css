@@ -29,6 +29,9 @@
 .m-hero__media{position:relative;min-width:0}
 .m-hero__media .m-ph{aspect-ratio:4/5}
 .m-hero__media--wide .m-ph{aspect-ratio:5/4}
+/* a hero photograph fills its frame; one that would lose more than a quarter
+   takes its own shape instead (keepWhole, assets/micro.js) */
+.m-hero__media .m-ph:not(.m-ph--whole) img{object-fit:cover}
 /* two photographs, the second smaller and stepped down over the first's corner */
 .m-duo{position:relative;padding:0 0 clamp(40px,6vw,80px) 0}
 .m-duo .m-ph:first-child{width:82%;aspect-ratio:4/5}
@@ -214,6 +217,12 @@ a:hover .m-ph img,.m-ph--zoom:hover img{transform:none}
 .m-gallery li:nth-child(5n+4) .m-ph,.m-gallery li:nth-child(5n+5) .m-ph{aspect-ratio:16/10}
 .m-gallery button{display:block;width:100%;height:100%;padding:0;border:0;background:none;cursor:zoom-in}
 .m-gallery .m-ph{aspect-ratio:4/3}
+/* thumbnails fill their tiles (each opens whole in the viewer), and the
+   folded section's list rules never put bullets or a gutter on them (end to
+   end test, 27 Nov 2026: stray bullets, an 18px shift and grey bands) */
+.m-acc details ul.m-gallery,.m-acc details > ul.m-gallery{list-style:none;padding:0;margin:0 0 18px;max-width:none}
+.m-acc details .m-gallery li{margin:0}
+.m-gallery .m-ph img{object-fit:cover}
 .m-gallery li.is-gone{display:none}
 dialog.m-lb{width:min(1100px,100vw - 32px);max-height:calc(100dvh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding:0;border:0;background:var(--paper);color:var(--ink)}
 dialog.m-lb::backdrop{background:rgba(17,17,17,.82)}

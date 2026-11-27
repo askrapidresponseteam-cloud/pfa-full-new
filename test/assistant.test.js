@@ -177,11 +177,11 @@ test('a donation and a membership are posted as the pages post them, and the pay
   assert.doesNotMatch(don.text, /Do you confirm these details are yours/, 'no terms question before the summary');
   const [shownFirst, termsAfter] = don.o.messages;
   assert.match(shownFirst.text, /^Please check before it is sent: Donate/);
-  assert.ok(shownFirst.list.some(([k, v]) => k === 'Amount' && v === '₹2,500'), 'the details, listed');
+  assert.ok(shownFirst.list.some(([k, v]) => k === 'Amount' && v === '₹2500'), 'the details, listed');
   assert.ok(!shownFirst.chips, 'no button above the terms');
   assert.match(termsAfter.text, /^Paying confirms these details are yours and that you accept the donation and receipt terms\./);
   assert.equal(termsAfter.links[0].href, 'donate.html');
-  assert.equal(termsAfter.chips[0].label, 'Accept and pay ₹2,500 on CCAvenue');
+  assert.equal(termsAfter.chips[0].label, 'Accept and pay ₹2500 on CCAvenue');
   const pay = talk(tapAll(['#donate', { tap: '2500' }, { tap: 'Hospitals' }, 'Asha Rao', '9876543210', 'asha@example.com', ...ADDRESS, { tap: '#send' }])).actions.find((a) => a.type === 'pay');
   assert.equal(pay.fields.terms, 'yes', 'accepted by pressing Accept and pay');
   const p = PAY.parsePaymentRequest(pay.fields);
@@ -391,7 +391,7 @@ test('monthly giving in the chat: asked only while the panel has it on, and sent
 
   const on = talk(['donate', { tap: '1000' }, { tap: 'monthly' }, { tap: 'Rescue' }, ...donor], { monthly: () => true });
   assert.match(on.text, /Once, or the same amount every month\?/);
-  assert.ok(on.o.messages.some((m) => (m.chips || []).some((c) => c.label === 'Accept and pay ₹1,000 a month on CCAvenue')), 'the pay button says monthly');
+  assert.ok(on.o.messages.some((m) => (m.chips || []).some((c) => c.label === 'Accept and pay ₹1000 a month on CCAvenue')), 'the pay button says monthly');
   const pay = on.s.tap('#send').action.fields;
   assert.equal(pay.frequency, 'monthly');
   assert.equal(PAY.parsePaymentRequest(pay).recurring, true);
@@ -431,7 +431,7 @@ test('a straight question gets a straight answer: one line, the one link that do
   assert.match(ask('where is pfa head office').m.text, /16 Barakhamba Road, New Delhi 110001/);
   assert.match(ask('who founded pfa').m.text, /founded by Smt\. Maneka Sanjay Gandhi/);
   assert.match(ask('is donation tax exempt?').m.text, /^Yes\. Donations to PFA are eligible for tax deduction under Section 80G/);
-  assert.match(ask('membership fees').m.text, /Student ₹500, Silver ₹1,000, Golden ₹2,500, Platinum ₹5,000, Lifetime ₹10,000/);
+  assert.match(ask('membership fees').m.text, /Student ₹500, Silver ₹1000, Golden ₹2500, Platinum ₹5000, Lifetime ₹10000/);
   assert.match(ask('is the internship paid?').m.text, /free to join and unpaid/);
   assert.match(ask('sanjay gandhi care centre address').m.text, /Raja Garden, New Delhi 110027/);
   assert.match(ask('मेनका गांधी का ईमेल').m.text, /gandhim@exmpls\.sansad\.in/);

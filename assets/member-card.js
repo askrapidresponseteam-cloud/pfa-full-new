@@ -58,7 +58,7 @@
      signature.js; owner, 22 Nov 2026); the built-in one when it cannot be had */
   var SIG_LIVE = '/api/signature?for=card';
   var SIG_BOX = { h: 62, aspect: 1512 / 438, gap: 1 };
-  var SIG_RANGE = { x: 60, y: 30, s: [60, 160] };
+  var SIG_RANGE = { x: 860, y: 540, s: [20, 300] };
   var SIG_DEFAULT = { x: 0, y: 0, s: 100 };
   var sigAt = { x: 0, y: 0, s: 100 };
   var signature = null;

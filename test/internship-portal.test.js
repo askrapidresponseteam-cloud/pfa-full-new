@@ -141,7 +141,7 @@ test('the default plan is the eight weeks on the internship page: all eight task
   const id = await batch();
   const b = await S.getBatch(db, id);
   assert.equal(b.weeks.length, 8);
-  assert.deepEqual(b.weeks.slice(0, 3).map((w) => w.title), ['Learn the law', 'Map your district', 'Bring people onto the RRT']);
+  assert.deepEqual(b.weeks.slice(0, 3).map((w) => w.title), ['Learn the law', 'Map your district', 'Bring people onto the Rapid Response Team (RRT)']);
   assert.deepEqual(b.tasks.map((t) => [t.key, t.kind, t.week, t.goal]), [
     ['law', 'core', 1, '25-question quiz'], ['map', 'core', 2, '1 district'], ['rrt', 'core', 3, '50 people'], ['films', 'core', 4, '2 films'],
     ['shelter', 'core', 5, '20 hours'], ['rti', 'core', 6, '1 RTI'], ['cinekind', 'core', 7, '1 nomination'], ['story', 'core', 8, '1 story']

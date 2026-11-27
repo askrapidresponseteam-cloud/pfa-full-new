@@ -276,7 +276,13 @@ function walk(rel) {
   const abs = path.join(ROOT, rel);
   const st = fs.statSync(abs);
   if (st.isDirectory()) {
-    if (SKIP_DIRS.has(path.basename(rel)) && rel !== '') return;
+    /* Only at the top of the project (27 Nov 2026): matched by name anywhere,
+       'site' also dropped media/site/, so the internship's hero and every
+       photograph of the Sanjay Gandhi Animal Care Centre, the campus and the
+       Gau Seva campaign never reached the live site. node_modules and .git
+       are left out wherever they are. */
+    const top = !rel.includes(path.sep);
+    if (rel !== '' && ((top && SKIP_DIRS.has(rel)) || rel.split(path.sep).some((p) => p === 'node_modules' || p === '.git'))) return;
     for (const entry of fs.readdirSync(abs)) walk(path.join(rel, entry));
     return;
   }

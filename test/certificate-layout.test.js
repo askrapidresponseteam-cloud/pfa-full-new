@@ -46,8 +46,9 @@ const admin = (method, body) => respond(ROUTE.createHandler({ getDb: () => db, r
 
 test('the design\'s own place until it is set, then saved from the panel, logged, and told to every page', async () => {
   assert.deepEqual(L.DEFAULT, { x: 26, y: 0, s: 100 }, 'the design\'s own: 26 to the right, at its own size');
-  assert.deepEqual(L.SIZE, { min: 60, max: 160, home: 100 }, 'the size, in per cent (owner, 15 Nov 2026: "there should be option to adjust the size of the sign as well")');
-  assert.deepEqual(L.RANGE, { x: 100, y: 50 }, 'the design\'s own ranges');
+  assert.deepEqual(L.SIZE, { min: 20, max: 300, home: 100 }, 'the size, in per cent (owner, 15 Nov 2026: "there should be option to adjust the size of the sign as well")');
+  assert.deepEqual(L.RANGE, { x: 1120, y: 792 }, 'anywhere on the page (owner, 27 Nov 2026: "there should be more/unlimited adjustment")');
+  assert.deepEqual(L.CARD_RANGE, { x: 860, y: 540 }, 'anywhere on a card');
   let list = await admin('GET');
   assert.deepEqual([list.json.layout.x, list.json.layout.y], [26, 0]);
   let pub = await respond(PUBLIC, { method: 'GET', headers: {} });
@@ -67,14 +68,14 @@ test('the design\'s own place until it is set, then saved from the panel, logged
 });
 
 test('a position past the design\'s ranges, or not a number, is refused and nothing is written', async () => {
-  for (const body of [{ x: 101, y: 0 }, { x: 0, y: -51 }, { x: 'left', y: 0 }, {}]) {
+  for (const body of [{ x: 1121, y: 0 }, { x: 0, y: -793 }, { x: 'left', y: 0 }, {}]) {
     const r = await admin('POST', Object.assign({ action: 'layout' }, body));
     assert.equal(r.statusCode, 422, JSON.stringify(body));
   }
   assert.equal(db.dump()['siteSettings/certificate'], undefined);
   /* and a hand edit in the database is held to the ranges */
-  assert.deepEqual(L.view({ sigX: 900, sigY: -900 }), { x: 100, y: -50, s: 100 });
-  assert.deepEqual(L.view({ sigS: 400 }), { x: 26, y: 0, s: 160 }, 'the size held to its range');
+  assert.deepEqual(L.view({ sigX: 2000, sigY: -2000 }), { x: 1120, y: -792, s: 100 });
+  assert.deepEqual(L.view({ sigS: 400 }), { x: 26, y: 0, s: 300 }, 'the size held to its range');
   assert.deepEqual(L.view({ sigX: 'x' }), { x: 26, y: 0, s: 100 });
 });
 
@@ -125,14 +126,14 @@ test('the paper, then the art, then the signature on it; the signature where the
   calls.length = 0;
   C.draw(canvas, {}, 1);
   assert.deepEqual([...calls.filter((c) => c[0] === 'drawImage')[1].slice(2)], [798 - 12, 653 + 8, 252, 73]);
-  assert.deepEqual({ ...C.setLayout({ x: 500, y: -500 }) }, { x: 100, y: -50, s: 100 }, 'held to the ranges');
+  assert.deepEqual({ ...C.setLayout({ x: 5000, y: -5000 }) }, { x: 1120, y: -792, s: 100 }, 'held to the ranges');
   /* the size: grown from the middle of its foot, so it stays on its line */
   C.setLayout({ x: 0, y: 0, s: 120 });
   calls.length = 0;
   C.draw(canvas, {}, 1);
   const big = [...calls.filter((c) => c[0] === 'drawImage')[1].slice(2)].map((v) => Math.round(v * 10) / 10);
   assert.deepEqual(big, [798 - 25.2, 653 - 14.6, 302.4, 87.6]);
-  assert.equal(C.setLayout({ x: 0, y: 0, s: 999 }).s, 160, 'held to its range');
+  assert.equal(C.setLayout({ x: 0, y: 0, s: 999 }).s, 300, 'held to its range');
 });
 
 test('a signature that does not arrive is an error, never a certificate drawn without it (12 Nov 2026 bug)', async () => {

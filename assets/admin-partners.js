@@ -100,7 +100,7 @@
   }
 
   function blank() {
-    return { id: '', status: 'published', order: S.list.length + 1, donor: '', donorLine: '', link: '', logo: '', people: [], unit: '', place: '', headline: '', gift: '', giftName: '', story: '', thanks: '', amount: '', currency: 'INR', showAmount: false, givenOn: today(), countLabel: 'animals helped', photos: [], timeline: [] };
+    return { id: '', status: 'published', order: S.list.length + 1, donor: '', donorLine: '', link: '', letter: '', logo: '', people: [], unit: '', place: '', headline: '', gift: '', giftName: '', story: '', thanks: '', amount: '', currency: 'INR', showAmount: false, givenOn: today(), countLabel: 'animals helped', photos: [], timeline: [] };
   }
   function startEdit(p) { S.edit = p ? copy(Object.assign(blank(), p)) : blank(); paintForm(); }
 
@@ -122,6 +122,7 @@
       + input('ppDonor', 'Name', e.donor, { max: 80, ph: 'Rosie’s Heroes' })
       + input('ppLink', 'Their website', e.link, { type: 'url', ph: 'https://' }) + '</div>'
       + input('ppDonorLine', 'A line about them', e.donorLine, { max: 160, ph: 'A volunteer-run charity in California…' })
+      + input('ppLetter', 'Letter of thanks, a page on this site (optional)', e.letter || '', { max: 60, ph: 'rosies-heroes.html' })
       + '<label class="ux-f"><span>The people to thank, one a line: name, then role</span><textarea id="ppPeople" placeholder="Priyanka Rao, President">' + esc((e.people || []).join('\n')) + '</textarea></label>'
       + '<div class="ux-f pp-logo"><span>Their logo</span>' + (e.logo ? '<img src="' + esc(e.logo) + '" alt="">' : '<p class="ux-hint">No logo yet: their name is written in its place.</p>')
       + '<div class="ux-file"><input type="file" id="ppLogoFile" accept="image/png,image/webp,image/jpeg">' + (e.logo ? '<button class="ghost danger" type="button" data-pp="nologo">Remove the logo</button>' : '') + '</div>'
@@ -178,7 +179,7 @@
     var e = S.edit;
     if (!e) return e;
     var v = function (id) { var el = document.getElementById(id); return el ? el.value : ''; };
-    e.donor = v('ppDonor'); e.link = v('ppLink').trim(); e.donorLine = v('ppDonorLine');
+    e.donor = v('ppDonor'); e.link = v('ppLink').trim(); e.donorLine = v('ppDonorLine'); e.letter = v('ppLetter').trim();
     e.people = v('ppPeople').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
     e.headline = v('ppHeadline'); e.gift = v('ppGift'); e.giftName = v('ppGiftName'); e.place = v('ppPlace'); e.unit = v('ppUnit');
     e.givenOn = v('ppGivenOn'); e.countLabel = v('ppCountLabel'); e.story = v('ppStory'); e.thanks = v('ppThanks');
@@ -240,7 +241,7 @@
       S.busy = false;
       return api().then(function (d) {
         S.list = d.partners || []; S.edit = null;
-        paintList(r.status === 'draft' ? 'Saved as a draft. It is not on the site.' : 'On the site. Visitors see it within two minutes.');
+        paintList(r.status === 'draft' ? 'Saved as a draft. It is not on the site.' : 'On the site. Visitors see it within a minute.');
       });
     }).catch(function (x) { S.busy = false; err(x && x.message); });
   }

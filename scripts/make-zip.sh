@@ -36,8 +36,7 @@ tar -cf - \
   --exclude='./functions/product.html' --exclude='./functions/.env' \
   --exclude='./functions/data' --exclude='./functions/fonts' --exclude='./functions/media' \
   --exclude='./.DS_Store' \
-  --exclude='./resources' --exclude='./media/site/campaign' \
-  --exclude='./media/site/campus' --exclude='./media/site/sgacc' \
+  --exclude='./resources' \
   --exclude='./media/cinekind-2026/reels/*.mp4' \
   . | (cd "$STAGE" && tar -xf -)
 

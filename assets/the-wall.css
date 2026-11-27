@@ -1,0 +1,303 @@
+/* The Wall's landing (the-wall.html, assets/the-wall.js; owner, 27 Nov 2026,
+   with his design: "landing page for the wall..leading to submission. font to
+   follow people for animals standards.. animation to be intact..nothing to get
+   clipped whatosever.. spacing issues or any other ui ux issue to be sorted
+   100%").
+
+   His design's styles, every rule held inside .tw so none reaches the site's
+   own menu, footer or tab bar, and its own header and footer left to the
+   site's. The faces are PFA's: Marcellus in capitals for what is said large,
+   the site's sans for the rest, in place of the design's heavy black face.
+   Marcellus is wider than that face, so the sizes are set again below for it,
+   and every heading wraps or fits: nothing is cut at any width. */
+.tw{--tw-ink:#101010;--tw-muted:#777;--tw-line:#dedede;--tw-blue:#2522c9;--tw-edge:clamp(20px,3.55vw,64px);--tw-display:WallDisplay,'Arial Black',Arial,sans-serif;--tw-body:WallText,Arial,sans-serif}
+.tw summary:focus-visible{outline:3px solid var(--tw-blue);outline-offset:6px}
+.tw .display{font-family:var(--tw-display);font-weight:900;text-transform:uppercase;letter-spacing:-.065em;line-height:.87}
+.tw .eyebrow{font-size:13px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.tw .muted{color:var(--tw-muted)}
+.tw .hero{height:195svh;position:relative}
+.tw .hero-stage{position:sticky;top:0;height:100svh;min-height:580px;overflow:hidden}
+.tw .collage{position:absolute;left:51%;top:40%;width:min(620px,52vw);height:min(510px,58vh);transform:translate(-50%,-50%);z-index:3;will-change:transform}
+.tw .sticker{position:absolute;object-fit:contain;filter:drop-shadow(0 12px 14px #0002);will-change:transform;user-select:none;pointer-events:none;opacity:0;animation:tw-sticker-in 1.25s cubic-bezier(.16,1.3,.3,1) both;animation-delay:var(--delay)}
+.tw .s-cow{width:43%;left:44%;top:0%;--rot:9deg;--delay:.18s;z-index:1}
+.tw .s-phone{width:40%;left:3%;top:10%;--rot:-13deg;--delay:.05s;z-index:2}
+.tw .s-bird{width:35%;left:68%;top:24%;--rot:13deg;--delay:.26s;z-index:3}
+.tw .s-clapper{width:43%;left:37%;top:43%;--rot:17deg;--delay:.12s;z-index:4}
+.tw .s-cat{width:39%;left:55%;top:34%;--rot:-10deg;--delay:.31s;z-index:5}
+.tw .s-dog{width:51%;left:11%;top:25%;--rot:-9deg;--delay:.38s;z-index:6}
+@keyframes tw-sticker-in{0%{opacity:0;transform:translateY(65vh) rotate(calc(var(--rot) - 32deg)) scale(.7)}100%{opacity:1;transform:translateY(0) rotate(var(--rot)) scale(1)}}
+.tw .hero-title{position:absolute;inset:auto var(--tw-edge) 9%;display:flex;justify-content:space-between;align-items:center;margin:0;font-size:clamp(60px,11.7vw,220px);white-space:nowrap;z-index:2;will-change:transform,opacity}
+.tw .hero-title .word{display:flex}
+.tw .hero-title .char{display:inline-block;animation:tw-letter-in 1.15s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.32s + var(--i)*.045s)}
+@keyframes tw-letter-in{from{opacity:0;transform:translateY(120%) rotate(12deg)}to{opacity:1;transform:translateY(0) rotate(0)}}
+.tw .title-gap{width:14%;flex-shrink:0}
+.tw .hero-bottom{position:absolute;bottom:3.2%;left:var(--tw-edge);right:var(--tw-edge);display:flex;justify-content:space-between;gap:20px;font-size:12px;text-transform:uppercase}
+.tw .scroll-cue{display:flex;align-items:center;gap:9px}
+.tw .scroll-cue:after{content:'';width:5px;height:18px;border-bottom:1px solid;border-right:1px solid;transform:rotate(45deg);animation:tw-cue 1.7s ease-in-out infinite}
+@keyframes tw-cue{50%{translate:0 5px}}
+.tw .hero-media{position:absolute;z-index:4;border-radius:15px;overflow:hidden;background:#e6e6e6;will-change:width,height,transform;cursor:pointer;text-align:left;padding:0}
+.tw .hero-media img{width:100%;height:100%;object-fit:cover;animation:tw-photo-breathe 18s ease-in-out infinite alternate}
+@keyframes tw-photo-breathe{to{transform:scale(1.065)}}
+.tw .media-plus{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:44px;width:44px;border-radius:50%;background:#fff;display:grid;place-content:center;font-size:32px;line-height:1;transition:transform .3s}
+.tw .hero-media:hover .media-plus{transform:translate(-50%,-50%) rotate(90deg)}
+.tw .hero-caption{position:absolute;bottom:5%;left:5%;color:white;max-width:70%;text-shadow:0 2px 20px #0008;opacity:var(--expanded,0)}
+.tw .hero-caption strong{font-size:clamp(30px,5vw,80px);display:block}
+.tw .hero-caption small{font-size:13px;display:block;margin-top:20px;text-transform:uppercase;letter-spacing:.06em}
+.tw .hero-media:after{content:'';position:absolute;inset:60% 0 0;background:linear-gradient(transparent,#0005);opacity:var(--expanded,0);pointer-events:none}
+.tw .hero-caption{z-index:1}
+.tw .intro{display:grid;grid-template-columns:1.6fr 1fr .65fr;align-items:center;gap:28px;padding:150px var(--tw-edge) 120px}
+.tw .intro-copy{max-width:540px;font-size:clamp(23px,2.55vw,42px);line-height:1.08;letter-spacing:-.045em}
+.tw .intro-copy p{margin:0 0 1em}
+.tw .intro-copy p:last-child{margin-bottom:0}
+.tw .intro .color-line{height:3px;background:linear-gradient(90deg,#e23c26,#ffbf00,#78bf4c);margin-top:76px}
+.tw .portrait{height:620px;max-height:75svh;position:relative}
+.tw .portrait>img{width:100%;height:100%;object-fit:cover;border-radius:30px}
+.tw .portrait .mini-sticker{height:auto;border-radius:0;object-fit:contain;position:absolute;right:-30px;top:-32px;width:125px;transform:rotate(13deg);filter:drop-shadow(0 8px 10px #0002)}
+.tw .side-note{align-self:end;font-size:14px;line-height:1.4;padding-bottom:65px}
+.tw .side-note:before{content:'';display:block;height:3px;background:linear-gradient(90deg,#2323ac,#9f388a);margin-bottom:15px}
+.tw .side-note a{text-decoration:underline;text-underline-offset:4px}
+.tw .reveal{opacity:0;transform:translateY(45px);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.7,.2,1)}
+.tw .reveal.visible{opacity:1;transform:translateY(0)}
+.tw .topics{padding:100px var(--tw-edge) 130px;text-align:center}
+.tw .topics>.eyebrow{margin:0 0 24px}
+.tw .topic{display:block;width:100%;position:relative;border-top:1px solid var(--tw-line);padding:17px 0;isolation:isolate}
+.tw .topic:last-child{border-bottom:1px solid var(--tw-line)}
+.tw .topic-label{position:relative;z-index:2;display:block;font-size:clamp(44px,8.3vw,142px);transition:color .35s,letter-spacing .5s}
+.tw .topic:hover .topic-label,.tw .topic:focus-visible .topic-label{color:var(--tw-blue);letter-spacing:-.04em}
+.tw .topic>img{position:absolute;left:var(--mx,65%);top:50%;height:210px;width:270px;object-fit:cover;pointer-events:none;opacity:0;border-radius:14px;transform:translate(-50%,-50%) rotate(-8deg) scale(.7);transition:opacity .3s,transform .5s;z-index:3;box-shadow:0 15px 30px #0002}
+.tw .topic:hover>img,.tw .topic:focus-visible>img{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}
+.tw .reel{height:190svh;position:relative}
+.tw .reel-stage{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center}
+.tw .reel-watermark{font-size:clamp(140px,37vw,650px);color:var(--tw-blue);letter-spacing:-.09em;white-space:nowrap;will-change:transform;line-height:.8}
+.tw .reel-track{display:flex;gap:12px;position:absolute;left:50%;top:50%;align-items:center;transform:translate(-50%,-50%);will-change:transform}
+.tw .reel-track img{width:200px;height:145px;border-radius:16px;object-fit:cover;flex-shrink:0;transition:transform .5s}
+.tw .reel-track img:nth-child(3n){height:190px}
+.tw .reel-track img:hover{transform:scale(1.12) rotate(-3deg)}
+.tw .reel-corner{position:absolute;top:11%;left:var(--tw-edge);font-weight:600;font-size:13px;text-transform:uppercase}
+.tw .reel-corner.end{top:auto;left:auto;bottom:8%;right:var(--tw-edge);text-align:right}
+.tw .reel-label{position:absolute;bottom:20%;font-size:clamp(20px,3vw,40px);text-align:center;opacity:0;transform:translateY(20px)}
+.tw .wall-section{padding:100px var(--tw-edge) 90px}
+.tw .section-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:38px}
+.tw .section-heading h2{font-size:clamp(55px,9vw,155px);margin:0}
+.tw .section-heading p{max-width:290px;font-size:15px;line-height:1.5;margin:0 0 3px}
+.tw .story-grid{display:grid;grid-template-columns:1.45fr 1fr;gap:18px}
+.tw .story-card{position:relative;overflow:hidden;min-height:460px;border-radius:24px;isolation:isolate;color:white;text-align:left;padding:0}
+.tw .story-card.wide{grid-column:1/-1;min-height:580px}
+.tw .story-card img{height:100%;width:100%;position:absolute;inset:0;object-fit:cover;transition:transform 1s cubic-bezier(.2,.6,.2,1)}
+.tw .story-card:hover img{transform:scale(1.045)}
+.tw .story-card:after{content:'';inset:35% 0 0;position:absolute;background:linear-gradient(transparent,#0009);z-index:0}
+.tw .story-info{position:absolute;left:28px;bottom:28px;right:28px;z-index:2}
+.tw .story-info h3{font-size:clamp(30px,3.5vw,58px);margin:8px 0 10px;max-width:90%}
+.tw .story-info p{font-size:14px;margin:0;color:#fffd}
+.tw .story-open{position:absolute;right:26px;top:26px;border:1px solid #fff8;border-radius:50%;width:43px;height:43px;z-index:2;display:grid;place-items:center;font-size:25px;transition:background .3s,color .3s}
+.tw .story-card:hover .story-open{background:white;color:black}
+.tw .story-label{font-size:12px;letter-spacing:.03em;text-transform:uppercase}
+.tw .idea-note{font-size:12px;color:var(--tw-muted);margin:15px 0 0;line-height:1.5}
+.tw .browse-cta{text-align:center;margin:55px 0 0}
+.tw .pill{display:inline-block;border-radius:30px;background:var(--tw-ink);color:white;font-size:14px;padding:17px 30px;transition:background .25s,transform .25s}
+.tw .pill:hover{background:var(--tw-blue);transform:translateY(-2px)}
+.tw .pill.outline{background:transparent;color:var(--tw-ink);border:1px solid var(--tw-ink)}
+.tw .pill.outline:hover{background:var(--tw-ink);color:#fff}
+.tw .statement{padding:130px var(--tw-edge);text-align:center}
+.tw .statement h2{max-width:1000px;margin:30px auto;font-size:clamp(42px,6.8vw,112px)}
+.tw .statement p{color:var(--tw-muted);font-size:16px;line-height:1.6;max-width:480px;margin:30px auto}
+.tw .values{display:flex;justify-content:center;gap:clamp(20px,7vw,100px);margin-top:64px;flex-wrap:wrap}
+.tw .values button{font-size:16px;color:#aaa;border-bottom:2px solid transparent;padding:10px 0;transition:color .3s}
+.tw .values button.active{color:var(--tw-ink);border-color:var(--tw-blue)}
+.tw .panorama{margin:0 var(--tw-edge);height:76svh;min-height:360px;border-radius:30px;overflow:hidden;position:relative}
+.tw .panorama img{width:100%;height:115%;object-fit:cover;will-change:transform}
+.tw .panorama-text{position:absolute;inset:auto 5% 8%;color:#fff;font-size:clamp(40px,7vw,115px);max-width:650px;text-shadow:0 2px 20px #0004;margin:0}
+.tw .fan-section{padding:145px 0 110px;overflow:hidden;text-align:center}
+.tw .fan-section h2{font-size:clamp(50px,8.5vw,140px);margin:0 auto;max-width:1000px}
+.tw .fan-section h2 span{display:block}
+.tw .fan{position:relative;height:320px;max-width:1150px;margin:-5px auto 25px;perspective:1000px}
+.tw .fan-card{position:absolute;left:50%;top:45px;width:230px;height:180px;padding:5px;background:#fff;border-radius:17px;box-shadow:0 22px 35px #0002;transform-origin:50% 170%;transition:transform .7s cubic-bezier(.22,.8,.2,1),filter .5s;transform:translateX(calc(-50% + var(--x))) translateY(var(--y)) rotate(var(--r));z-index:var(--z)}
+.tw .fan-card img{height:100%;width:100%;object-fit:cover;border-radius:12px}
+.tw .fan-card.active{transform:translateX(calc(-50% + var(--x))) translateY(calc(var(--y) - 28px)) rotate(0) scale(1.1);z-index:10}
+.tw .fan-card:hover{filter:brightness(1.08)}
+.tw .fan-caption{min-height:80px;padding:0 20px}
+.tw .fan-caption h3{font-size:24px;margin:6px 0 12px;font-weight:400;letter-spacing:-.04em}
+.tw .fan-caption p{font-size:13px;color:var(--tw-muted);text-transform:uppercase;margin:0}
+.tw .fan-controls{display:flex;justify-content:center;gap:9px;margin-top:20px}
+.tw .fan-dot{padding:8px}
+.tw .fan-dot:after{display:block;content:'';height:7px;width:7px;border-radius:50%;background:#ccc;transition:background .3s,transform .3s}
+.tw .fan-dot.active:after{background:var(--tw-blue);transform:scale(1.4)}
+.tw .submit{padding:100px var(--tw-edge) 110px;border-top:1px solid var(--tw-line);display:grid;grid-template-columns:1.2fr 1fr;gap:8vw}
+.tw .submit h2{font-size:clamp(50px,7vw,110px);margin:22px 0 26px}
+.tw .submit p{max-width:450px;line-height:1.55;color:var(--tw-muted)}
+.tw .submit .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.tw .guidelines details{border-top:1px solid var(--tw-line);padding:22px 0}
+.tw .guidelines details:last-child{border-bottom:1px solid var(--tw-line)}
+.tw .guidelines summary{cursor:pointer;list-style:none;font-size:18px;display:flex;justify-content:space-between;gap:20px}
+
+.tw .guidelines details p{font-size:15px;max-width:100%;margin-bottom:0}
+.tw .guidelines summary::-webkit-details-marker{display:none}
+.tw .modal{border:0;padding:0;border-radius:24px;width:min(900px,calc(100% - 32px));max-height:90svh;background:#fff;color:var(--tw-ink);overflow:auto}
+.tw .modal::backdrop{background:#000b;backdrop-filter:blur(8px)}
+.tw .modal-image{width:100%;max-height:52svh;object-fit:cover}
+.tw .modal-body{padding:30px clamp(20px,4vw,45px) 38px}
+.tw .modal h2{font-size:clamp(35px,5vw,60px);margin:14px 0 20px}
+.tw .modal p{line-height:1.6;max-width:650px;color:#666}
+.tw .close-modal{position:absolute;right:15px;top:15px;border-radius:50%;width:44px;height:44px;background:#fff;color:black;font-size:28px;box-shadow:0 3px 12px #0002}
+.tw .modal .pill{margin-top:10px}
+@media(min-width:1700px){.tw .hero-title{font-size:11.9vw}
+.tw .collage{width:700px;height:560px}
+.tw .intro{max-width:1900px;margin:auto}}
+@media(max-width:1000px){.tw .intro{grid-template-columns:1.2fr 1fr;gap:30px;padding-top:100px}
+.tw .side-note{grid-column:1/-1;padding:0;max-width:320px;justify-self:end}
+.tw .portrait{height:500px}
+.tw .story-card{min-height:380px}
+.tw .fan-card{width:205px;height:165px}
+.tw .submit{gap:40px}}
+@media(max-width:650px){.tw{--tw-edge:20px}
+.tw .hero{height:165svh}
+.tw .hero-stage{min-height:540px}
+.tw .collage{width:94vw;height:78vw;top:42%;left:48%}
+.tw .hero-title{font-size:12.2vw;bottom:16%;gap:3px}
+.tw .title-gap{width:16%}
+.tw .hero-bottom{font-size:10px;bottom:6%;gap:30px;align-items:end}
+.tw .hero-bottom>span{max-width:175px;line-height:1.5}
+.tw .media-plus{width:26px;height:26px;font-size:21px}
+.tw .hero-caption{max-width:85%}
+.tw .hero-caption small{font-size:10px;line-height:1.5}
+.tw .intro{grid-template-columns:1fr;padding:80px 20px;gap:38px}
+.tw .intro-copy{font-size:29px}
+.tw .intro .color-line{margin-top:32px}
+.tw .portrait{height:500px;width:80%;max-height:68svh;justify-self:center}
+.tw .portrait .mini-sticker{width:100px;right:-30px}
+.tw .side-note{justify-self:start;max-width:75%}
+.tw .topics{padding:50px 20px 70px}
+.tw .topics>.eyebrow{font-size:11px}
+.tw .topic{padding:18px 0}
+.tw .topic-label{font-size:12vw}
+.tw .topic>img{height:130px;width:170px}
+.tw .reel{height:150svh}
+.tw .reel-track img{width:150px;height:110px}
+.tw .reel-track img:nth-child(3n){height:150px}
+.tw .reel-watermark{font-size:43vw}
+.tw .reel-corner{font-size:11px}
+.tw .reel-label{font-size:24px;max-width:80%}
+.tw .wall-section{padding:60px 20px}
+.tw .section-heading{display:block}
+.tw .section-heading h2{font-size:17vw}
+.tw .section-heading p{font-size:14px;margin-top:22px;max-width:310px}
+.tw .story-grid{grid-template-columns:1fr;gap:15px}
+.tw .story-card,.tw .story-card.wide{grid-column:auto;min-height:390px;border-radius:18px}
+.tw .story-card.wide{min-height:480px}
+.tw .story-info{left:22px;bottom:24px;right:22px}
+.tw .story-info h3{font-size:39px}
+.tw .story-open{right:20px;top:20px}
+.tw .statement{padding:70px 20px 80px}
+.tw .statement h2{font-size:12vw}
+.tw .values{gap:18px;margin-top:35px}
+.tw .values button{font-size:13px}
+.tw .panorama{height:60svh;min-height:400px;border-radius:20px}
+.tw .panorama img{object-position:65% center}
+.tw .panorama-text{font-size:13vw;bottom:8%}
+.tw .fan-section{padding:85px 0 70px}
+.tw .fan-section h2{font-size:13vw;max-width:90%}
+.tw .fan{height:270px;transform:scale(.7);width:650px;max-width:none;left:50%;margin-left:-325px;margin-top:-10px;margin-bottom:-25px}
+.tw .fan-card{width:190px;height:160px}
+.tw .fan-caption h3{font-size:23px}
+.tw .submit{padding:65px 20px;grid-template-columns:1fr;gap:38px}
+.tw .submit h2{font-size:14vw}
+.tw .modal-body{padding-top:25px}
+.tw .modal-image{height:260px}
+.tw .pill{font-size:13px;padding:15px 24px}}
+@media(prefers-reduced-motion:reduce){.tw .sticker,.tw .reveal{opacity:1}
+.tw .sticker{transform:rotate(var(--rot))}
+.tw .reveal{transform:none}
+.tw .hero{height:100svh}
+.tw .hero-stage{position:relative}
+.tw .reel{height:80svh}
+.tw .reel-stage{height:80svh;position:relative}
+.tw .reel-label{opacity:1;transform:none}
+.tw .hero-media img{animation:none}
+.tw .hero-title .char{opacity:1;transform:none}}
+/* ---------- PFA's faces, and the page's own ground ---------- */
+.tw{--tw-display:var(--display,Marcellus,Georgia,serif);--tw-body:var(--body,'Helvetica Neue',Helvetica,Arial,sans-serif);display:block;background:#fff;color:var(--tw-ink);font-family:var(--tw-body);overflow-x:clip}
+.tw .display{font-weight:400;letter-spacing:0;line-height:1}
+.tw button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.tw img{display:block;max-width:100%}
+.tw a{color:inherit;text-decoration:none}
+.tw button:focus-visible,.tw a:focus-visible,.tw summary:focus-visible{outline:3px solid var(--tw-blue);outline-offset:4px}
+.tw h2,.tw h3{text-transform:none}
+.tw .display,.tw h2.display,.tw h3.display{text-transform:uppercase}
+
+/* the stage sits under the site's menu and above its tab bar */
+.tw .hero-stage,.tw .reel-stage{top:var(--nav,81px);height:calc(100svh - var(--nav,81px) - var(--tabbar,0px))}
+.tw .hero-stage{min-height:520px}
+
+/* sizes for Marcellus: the hero's two words and the gap between them fit the width */
+.tw .hero-title{font-size:clamp(44px,9.2vw,180px)}
+.tw .title-gap{width:13%}
+.tw .hero-caption strong{font-size:clamp(28px,4.4vw,72px);line-height:1.02}
+.tw .intro-copy{letter-spacing:-.01em;line-height:1.18}
+.tw .topic-label{font-size:clamp(34px,6.4vw,112px);line-height:1.04;white-space:normal;overflow-wrap:anywhere}
+.tw .topic:hover .topic-label,.tw .topic:focus-visible .topic-label{letter-spacing:.01em}
+.tw .reel-watermark{font-size:min(25vw,34vh);letter-spacing:0;line-height:.9;text-align:center;white-space:normal}
+.tw .section-heading h2{font-size:clamp(44px,7.4vw,128px)}
+.tw .story-info h3{font-size:clamp(28px,3vw,50px);line-height:1.04}
+.tw .statement h2{font-size:clamp(36px,5.6vw,96px)}
+.tw .panorama-text{font-size:clamp(34px,5.6vw,96px);line-height:1.02}
+.tw .fan-section h2{font-size:clamp(40px,7vw,120px);line-height:1}
+.tw .submit h2{font-size:clamp(42px,5.8vw,96px);line-height:1}
+.tw .modal h2{font-size:clamp(30px,4.2vw,52px);line-height:1.04}
+.tw .fan-caption h3{font-family:var(--tw-display);letter-spacing:0}
+
+/* open and shut: a plus that turns, never a dash */
+
+/* touch targets a thumb can find */
+.tw .values button{min-height:44px}
+.tw .fan-dot{min-width:44px;min-height:44px;display:inline-grid;place-items:center}
+.tw .pill{min-height:48px;display:inline-flex;align-items:center}
+.tw .side-note a,.tw .idea-note a{display:inline-block;padding:4px 0}
+
+/* the close: a story starts here */
+.tw .tw-end{padding:90px var(--tw-edge) 70px;border-top:1px solid var(--tw-line)}
+.tw .tw-end p.display{margin:0 0 28px;font-size:clamp(46px,9.4vw,170px);line-height:1}
+.tw .tw-end .actions{display:flex;flex-wrap:wrap;gap:12px}
+
+@media(max-width:650px){
+  .tw .hero-title{font-size:9.6vw;bottom:15%}
+  .tw .title-gap{width:15%}
+  .tw .topic-label{font-size:9.4vw}
+  .tw .reel-watermark{font-size:min(30vw,26vh)}
+  .tw .section-heading h2{font-size:12.4vw}
+  .tw .story-info h3{font-size:9vw}
+  .tw .statement h2{font-size:10vw}
+  .tw .panorama-text{font-size:10vw}
+  .tw .fan-section h2{font-size:11vw}
+  .tw .submit h2{font-size:11.6vw}
+  .tw .tw-end{padding:60px 20px 50px}
+  .tw .tw-end p.display{font-size:13vw}
+}
+
+/* the site's own .hero, .reel and the like are other things: held to this page's */
+.tw .hero,.tw .reel{display:block;min-height:0;padding:0;margin:0;background:none;color:inherit}
+.tw .hero-stage,.tw .reel-stage{width:100%}
+
+/* no white gap waiting for the words: the first section starts close under the hero */
+.tw .intro{padding-top:96px}
+@media(max-width:650px){.tw .intro{padding-top:48px}}
+
+/* the chat button sits in the corner on a phone: the line that shares it moves up */
+@media(max-width:650px){.tw .reel-corner.end{bottom:calc(8% + 72px)}}
+
+/* every plus is drawn, two bars from the middle (owner, 28 Oct 2026: "+mark
+   isnt perfectly centered"), and turns to a cross when it closes */
+.tw .media-plus::before,.tw .media-plus::after,.tw .story-open::before,.tw .story-open::after{content:"";position:absolute;left:50%;top:50%;width:15px;height:1.5px;background:currentColor;transform:translate(-50%,-50%)}
+.tw .media-plus::after,.tw .story-open::after{transform:translate(-50%,-50%) rotate(90deg)}
+.tw .media-plus{color:var(--tw-ink)}
+.tw .story-open{display:block}
+.tw .guidelines summary{position:relative;padding-right:32px}
+.tw .guidelines summary::before,.tw .guidelines summary::after{content:"";position:absolute;right:4px;top:50%;width:15px;height:1.5px;background:currentColor;transition:transform .25s}
+.tw .guidelines summary::before{transform:translateY(-50%)}
+.tw .guidelines summary::after{transform:translateY(-50%) rotate(90deg)}
+.tw .guidelines details[open] summary::before{transform:translateY(-50%) rotate(45deg)}
+.tw .guidelines details[open] summary::after{transform:translateY(-50%) rotate(135deg)}
+/* the site's own Close, placed where the design puts its cross */
+.tw .modal .close-modal{position:absolute;right:15px;top:15px;z-index:2;width:auto;height:auto;border-radius:22px;background:#fff;box-shadow:0 3px 12px #0002;padding:0 16px}
+/* the hero clears the fixed menu like every page, and its stage sticks just under it */
+.tw .hero{padding-top:calc(var(--ann,0px) + var(--nav,69px));height:calc(195svh + var(--ann,0px) + var(--nav,69px))}
+@media(max-width:650px){.tw .hero{height:calc(165svh + var(--ann,0px) + var(--nav,69px))}}

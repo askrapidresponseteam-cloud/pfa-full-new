@@ -112,9 +112,9 @@
      through /api/digital-card) and Reset. Kept apart from the printed
      card's, whose layout is not the same. */
   var SIG = { caregiver: 'caregiverOnline', member: 'memberOnline' };
-  var RANGE = { x: 60, y: 30 };
+  var RANGE = { x: 860, y: 540 };
   var sigSaved = { caregiver: { x: 0, y: 0, s: 100 }, member: { x: 0, y: 0, s: 100 } };
-  var SIZE = { min: 60, max: 160 };
+  var SIZE = { min: 20, max: 300 };
   function sizeOf(v) { var n = Math.round(Number(v)); return Number.isFinite(n) && n > 0 ? Math.max(SIZE.min, Math.min(SIZE.max, n)) : 100; }
   var sigNow = { caregiver: null, member: null };
   fetch('/api/certificate-layout', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (l) {

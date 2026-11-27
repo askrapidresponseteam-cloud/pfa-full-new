@@ -276,7 +276,7 @@ test('the signature on a card online: its own place, set in the panel, saved, lo
   await L.writeCard(db, 'memberOnline', 14, -8, { email: 'a@b.c' }, Date.parse('2026-11-15T10:00:00Z'));
   const all = await L.readCards(db);
   assert.deepEqual([all.memberOnline.x, all.memberOnline.y, all.member.x, all.member.y], [14, -8, 0, 0], 'the printed card keeps its own');
-  assert.equal(L.checkCard({ card: 'caregiverOnline', x: 61, y: 0 }).ok, false);
+  assert.equal(L.checkCard({ card: 'caregiverOnline', x: 861, y: 0 }).ok, false);
   const route = read('lib/routes/digital-card.js');
   assert.match(route, /view\.kind === 'member' \? 'memberOnline' : 'caregiverOnline'/);
   assert.match(route, /view\.sig = \{ x: Number\(sig\.x\) \|\| 0, y: Number\(sig\.y\) \|\| 0, s: Number\(sig\.s\) \|\| 100 \};/);

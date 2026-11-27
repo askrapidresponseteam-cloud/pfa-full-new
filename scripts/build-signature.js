@@ -71,7 +71,7 @@ function designWith(html, ink, box) {
   const open = html.indexOf('<svg', at);
   const close = html.indexOf('</svg>', open);
   if (open < 0 || close < 0) throw new Error('build-signature: the design\'s signature has no picture');
-  const mine = `<svg viewBox="${box}" xmlns="http://www.w3.org/2000/svg" aria-label="Maneka Sanjay Gandhi signature"><path fill="${ink.fill}" d="${ink.d}"></path></svg>`;
+  const mine = `<svg viewBox="${box}" xmlns="http://www.w3.org/2000/svg" aria-label="Smt. Maneka Sanjay Gandhi signature"><path fill="${ink.fill}" d="${ink.d}"></path></svg>`;
   return html.slice(0, open) + mine + html.slice(close + '</svg>'.length);
 }
 
@@ -124,7 +124,7 @@ async function main() {
     await page.close();
   }
   await browser.close();
-  fs.writeFileSync(path.join(ROOT, SVG_OUT), vector(ink, box, 1512, 438, 'Maneka Sanjay Gandhi signature') + '\n');
+  fs.writeFileSync(path.join(ROOT, SVG_OUT), vector(ink, box, 1512, 438, 'Smt. Maneka Sanjay Gandhi signature') + '\n');
   console.log('wrote', SVG_OUT);
   fs.writeFileSync(DESIGN, designWith(fs.readFileSync(DESIGN, 'utf8'), ink, box));
   console.log('wrote the master\'s signature into', path.relative(ROOT, DESIGN));

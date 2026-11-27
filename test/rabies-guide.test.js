@@ -43,7 +43,7 @@ test('the page: a guide in Care Guides, in eleven parts, every part with the WHO
   for (const a of main.match(/<a [^>]*href="https:[^"]+"[^>]*>/g)) assert.match(a, /target="_blank" rel="noopener"/);
   assert.doesNotMatch(main, /[–—]/, 'no long dash');
   /* the figures, as WHO gives them */
-  for (const f of ['44,203', '99%', '40%', '70%', '15 minutes', '10 days', '2 to 3 months', '40 IU', '20 IU', 'RABIVAX-S', 'VaxiRab N', 'VERORAB', '60 to 80%', 'US$108', '28 September']) assert.ok(main.includes(f), f);
+  for (const f of ['44203', '99%', '40%', '70%', '15 minutes', '10 days', '2 to 3 months', '40 IU', '20 IU', 'RABIVAX-S', 'VaxiRab N', 'VERORAB', '60 to 80%', 'US$108', '28 September']) assert.ok(main.includes(f), f);
   /* no contact strip (owner, 22 Nov 2026: "remove this") */
   assert.doesNotMatch(main, /2081 8191|tel:/);
   /* the clinical detail under its +, never in the first view */

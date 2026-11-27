@@ -77,7 +77,7 @@ test('the card: the template\'s picture and words, all in Marcellus, laid out to
   assert.match(card, /var FACE = 'Marcellus, /);
   assert.match(card, /'\/fonts\/marcellus-latin\.woff2'/);
   assert.doesNotMatch(card, /italic|Georgia, serif'\);/i, 'no other face for the words');
-  for (const words of ['Happy Birthday', 'The world is kinder', 'because of you.', 'Wishing you joy, today and always.', 'Warm regards,', 'Maneka Sanjay Gandhi']) assert.ok(card.includes(`'${words}'`), words);
+  for (const words of ['Happy Birthday', 'The world is kinder', 'because of you.', 'Wishing you joy, today and always.', 'Warm regards,', 'Smt. Maneka Sanjay Gandhi']) assert.ok(card.includes(`'${words}'`), words);
   assert.match(card, /var y = TOP \+ \(BOTTOM - TOP - h\) \/ 2;/, 'the block centred in the space it has');
   assert.match(card, /if \(!fits\(ctx, l\[0\], l\[1\], base\)\) return null;/, 'every line inside the paper at its height');
   /* owner, 17 Nov 2026: "maneka sanjay gandhi is getting clipped by flower".

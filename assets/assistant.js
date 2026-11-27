@@ -235,7 +235,7 @@
   }
 
   /* ---- the shop, drawn in the chat (20 Nov 2026) ---- */
-  function rupees(n) { return '\u20b9' + Number(n || 0).toLocaleString('en-IN'); }
+  function rupees(n) { return '\u20b9' + String(Math.round(Number(n || 0))); }
   function img(src, alt, cls) {
     var i = el('img', cls);
     i.src = /^(?:https?:|\/)/.test(src) ? src : '/' + src;

@@ -175,7 +175,7 @@ function pageFor(u, all) {
   </ul>
   ${near.length ? `<h2>Units near ${esc(u.city)}</h2>
   <div class="u__near">${near.map(({ x, d }) => `<a href="/units/${esc(x.slug)}.html"><b>PFA ${esc(x.city)}</b><small>${esc(x.state)}, about ${Math.max(1, Math.round(d))} km away</small></a>`).join('')}</div>` : ''}
-  <details class="u__more"><summary>About People for Animals</summary><p>People for Animals is India's largest animal welfare organisation, founded by Maneka Sanjay Gandhi, with units, shelters and hospitals in some eighty cities. Each unit is run locally. <a href="/units.html">See every unit</a> or <a href="/donate.html">support the work</a>.</p></details>
+  <details class="u__more"><summary>About People for Animals</summary><p>People for Animals is India's largest animal welfare organisation, founded by Smt. Maneka Sanjay Gandhi, with units, shelters and hospitals in some eighty cities. Each unit is run locally. <a href="/units.html">See every unit</a> or <a href="/donate.html">support the work</a>.</p></details>
 </main>`;
   const html = `<!DOCTYPE html>
 <html lang="en">

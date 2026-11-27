@@ -55,6 +55,7 @@ const WAYS = {
   'legacy.html': ['leave a gift in my will', { flow: 'legacy' }],
   'csr.html': ['csr partnership for our company', { flow: 'csr' }],
   'wall.html': ['share my film on the wall', { flow: 'wallstory' }],
+  'the-wall.html': ['share my film on the wall', { flow: 'wallstory' }],
   'events.html': ['request an event in my area', { flow: 'event' }],
   'cinekind.html': ['nominate someone for cinekind', { flow: 'cinekind' }],
   'founder.html': ['who founded pfa', { link: 'founder.html' }],

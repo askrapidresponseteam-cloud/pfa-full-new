@@ -120,7 +120,7 @@
   function tile(r) {
     var c = contactOf(r.fields);
     var who = c.name || c.email || c.mobile || 'Someone';
-    var photos = r.attachments ? ' <span class="flag">' + (r.kind === 'PFA-CG' && r.attachments >= 2 ? 'photo + proof' : r.attachments + ' photo') + '</span>' : '';
+    var photos = r.attachments ? ' <span class="flag">' + (r.kind === 'PFA-CG' && r.attachments >= 2 ? 'photo + proof' : r.attachments + (r.attachments === 1 ? ' photo' : ' photos')) + '</span>' : '';
     return '<li class="st' + (r.unread ? ' is-unread' : '') + '" data-ref="' + esc(r.reference) + '" data-kind="' + esc(r.kind) + '">'
       + '<div class="st__top"><button class="rowopen" type="button" data-open-case="' + esc(r.reference) + '" aria-label="'
       + esc('Open ' + r.reference + ', ' + (r.kindLabel || r.kind) + ' from ' + who + (r.unread ? ', unread' : '')) + '">' + esc(r.reference) + '</button>'

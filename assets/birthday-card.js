@@ -125,7 +125,7 @@
   function plan(nameLines, nameSize) {
     var out = [['Happy Birthday', 54, 0]];
     nameLines.forEach(function (t, i) { out.push([t, nameSize, i ? 0 : 16]); });
-    out.push(['The world is kinder', 31, 26], ['because of you.', 31, 0], ['Wishing you joy, today and always.', 23, 18], ['Warm regards,', 21, 22], ['Maneka Sanjay Gandhi', 26, 4]);
+    out.push(['The world is kinder', 31, 26], ['because of you.', 31, 0], ['Wishing you joy, today and always.', 23, 18], ['Warm regards,', 21, 22], ['Smt. Maneka Sanjay Gandhi', 26, 4]);
     return out;
   }
   var LEAD = 1.16; /* line height, as a share of the size */

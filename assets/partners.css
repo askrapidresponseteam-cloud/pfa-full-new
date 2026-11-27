@@ -71,7 +71,7 @@
 /* ---------- the thanks, as a letter ---------- */
 .pg-thanks{margin-top:clamp(16px,3vw,40px);background:var(--pg-mist)}
 .pg-thanks__in{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:clamp(18px,2.4vw,32px) clamp(28px,5vw,80px);padding:clamp(40px,6vw,96px) var(--pg-pad)}
-.pg-thanks__to{grid-column:1 / -1;margin:0;font-family:var(--pg-display);font-weight:400;font-size:clamp(18px,1.6vw,22px);color:var(--pg-blue)}
+.pg-thanks__to{grid-column:1 / -1;margin:0;font-family:var(--pg-display);font-weight:400;font-size:clamp(18px,1.6vw,22px);color:#0b6a9c}
 .pg-letter{min-width:0}
 .pg-letter p{margin:0 0 .7em;max-width:30ch;font-family:var(--pg-display);font-size:clamp(26px,3.1vw,44px);line-height:1.22;overflow-wrap:anywhere}
 .pg-letter p:last-child{margin-bottom:0}
@@ -83,6 +83,9 @@
 .pg-thanks__about{margin:0;padding-top:16px;border-top:1px solid rgba(22,24,29,.14);font-size:14px;line-height:1.6;color:#2f3339}
 .pg-thanks__link{justify-self:start;font-size:15px;font-weight:600;color:var(--pg-ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
 .pg-thanks__link:hover{color:var(--pg-blue);opacity:1}
+.pg-thanks__letter{justify-self:start;display:inline-flex;align-items:center;min-height:48px;padding:0 22px;background:var(--pg-ink);color:#fff;font-size:15px;font-weight:700;text-decoration:none}
+.pg-thanks__letter:hover{background:var(--pg-blue);opacity:1}
+.pg-thanks__letter:focus-visible{outline:3px solid var(--pg-blue);outline-offset:3px}
 @media (max-width:860px){.pg-thanks__in{grid-template-columns:minmax(0,1fr)}}
 
 /* ---------- the gift: story beside the photographs ---------- */
@@ -131,6 +134,14 @@
 .pg-next__partner:hover{background:#fff;color:var(--pg-ink);opacity:1}
 .pg-next a:focus-visible{outline:3px solid var(--pg-saffron);outline-offset:3px}
 
+/* ---------- none on the site ---------- */
+.pg-none{display:grid;gap:18px;justify-items:start;padding:clamp(48px,8vw,120px) var(--pg-pad)}
+.pg-none p{margin:0;max-width:52ch;font-size:17px;line-height:1.65;color:#2f3339}
+.pg-none .pg-next__acts{display:flex;flex-wrap:wrap;gap:12px}
+.pg-none .pg-next__acts a{display:inline-flex;align-items:center;min-height:52px;padding:0 26px;font-size:15px;font-weight:700;text-decoration:none}
+.pg-none__partner{border:1px solid var(--pg-ink);color:var(--pg-ink)}
+.pg-none__partner:hover{background:var(--pg-ink);color:#fff;opacity:1}
+
 /* ---------- more than one partnership ---------- */
 .pg-index{padding:clamp(24px,3vw,40px) var(--pg-pad) 0}
 .pg-index ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
@@ -141,7 +152,7 @@
 .pg-index b{display:block;font-size:15px;color:var(--pg-ink)}
 
 /* ---------- a photograph, larger ---------- */
-.pg-box{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:rgba(10,12,15,.94)}
+.pg-box{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:#0a0c0f}
 .pg-box[hidden]{display:none}
 .pg-box img{max-width:min(100%,1400px);max-height:calc(100dvh - 120px);object-fit:contain}
 .pg-box p{margin:0;max-width:70ch;color:#fff;font-size:14px;line-height:1.5;text-align:center}

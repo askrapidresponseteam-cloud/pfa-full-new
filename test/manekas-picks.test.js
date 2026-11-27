@@ -77,7 +77,7 @@ test('each film links to the service it streams on, and the book to Amazon', () 
 test('each book shows its real cover, whole, from this site (owner, 10 Nov 2026)', () => {
   const imgs = [...doc.querySelectorAll('#book .mp-bk__cover img')];
   assert.deepEqual(imgs.map((i) => i.getAttribute('data-still')), ['media/picks/animals-raghu-rai-cover.jpg', 'media/picks/orange-dogs-cover.jpg', 'media/picks/tender-paws-cover.jpg']);
-  assert.deepEqual(imgs.map((i) => i.getAttribute('alt')), ['The cover of Animals by Raghu Rai and Maneka Gandhi', 'The cover of Orange Dogs by Deepak Virwani', 'The cover of Tender Paws by Balvant Singh']);
+  assert.deepEqual(imgs.map((i) => i.getAttribute('alt')), ['The cover of Animals by Raghu Rai and Smt. Maneka Gandhi', 'The cover of Orange Dogs by Deepak Virwani', 'The cover of Tender Paws by Balvant Singh']);
   assert.match(html, /\.mp-bk__cover\.has-cover img\{display:block;width:100%;height:auto;/, 'at its own shape: never cut or stretched');
   assert.match(html, /img\.addEventListener\('load', function \(\) \{ box\.classList\.add\('has-cover'\); \}\);/, 'shown only once it has arrived');
   const { BOOKS, coverFromAmazon } = require('../scripts/fetch-founder-films.js');

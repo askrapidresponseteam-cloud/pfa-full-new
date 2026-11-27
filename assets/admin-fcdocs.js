@@ -144,7 +144,7 @@
       var spec = L[k];
       return '<label class="ls-range"><span>' + esc(spec.label) + '</span><input type="range" name="L-' + k + '" min="' + spec.min + '" max="' + spec.max + '" step="0.5" value="' + esc(P[k]) + '"><output data-fc-out="' + k + '">' + esc(P[k]) + ' ' + esc(spec.unit) + '</output></label>';
     };
-    return '<label class="ls-check"><input type="checkbox" name="signed"' + (v.signed !== false ? ' checked' : '') + '><span>Maneka Sanjay Gandhi’s signature</span></label>'
+    return '<label class="ls-check"><input type="checkbox" name="signed"' + (v.signed !== false ? ' checked' : '') + '><span>Smt. Maneka Sanjay Gandhi’s signature</span></label>'
       + '<label class="ls-check"><input type="checkbox" name="sealed"' + (v.sealed !== false ? ' checked' : '') + '><span>PFA’s seal</span></label>'
       + '<div class="ls-group"><span class="ls-k">Letterhead</span>' + range('headSize') + range('headX') + range('headY') + '</div>'
       + '<div class="ls-group"><span class="ls-k">Signature</span>' + range('sigSize') + range('sigX') + range('sigY') + '</div>'

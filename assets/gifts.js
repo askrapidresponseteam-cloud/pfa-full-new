@@ -17,7 +17,7 @@
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v || ''));
     return m ? Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1] : '';
   }
-  function rupees(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+  function rupees(n) { return '₹' + String(Math.round(Number(n) || 0)); }
   function safe(url, picture) {
     var u = String(url || '');
     if (/^https:\/\//i.test(u)) return u;

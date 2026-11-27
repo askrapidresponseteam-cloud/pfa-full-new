@@ -29,7 +29,11 @@
   style.textContent = [
     '.ct-sig{margin:0}',
     '.ct-sig__body{display:grid;gap:14px;max-width:620px;padding:12px 0 4px}',
-    '.ct-sig__row{display:grid;grid-template-columns:110px minmax(0,1fr) 92px;align-items:center;gap:14px}',
+    '.ct-sig__row{display:grid;grid-template-columns:110px minmax(0,1fr) auto;align-items:center;gap:8px 14px}',
+    '.ct-sig__nudge{grid-column:2 / -1;display:flex;flex-wrap:wrap;gap:6px}',
+    '.ct-sig__nudge button{min-width:52px;min-height:44px;padding:0 10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:13px;cursor:pointer;touch-action:manipulation;user-select:none}',
+    '.ct-sig__nudge button:hover{border-color:var(--ink)}',
+    '.ct-sig__nudge button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}',
     '.ct-sig__row label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}',
     '.ct-sig__row input[type=range]{width:100%;margin:0;accent-color:var(--ink)}',
     '.ct-sig__num{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}',
@@ -40,16 +44,16 @@
     '.ct-sig__acts .ghost{min-height:40px}',
     '.ct-sig__acts .say{margin:0;font-size:12px;overflow-wrap:anywhere}',
     '.ct-sig__note{margin:0;font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}',
-    '@media (max-width:620px){.ct-sig__row{grid-template-columns:minmax(0,1fr) 92px}.ct-sig__row label{grid-column:1 / -1}}'
+    '@media (max-width:620px){.ct-sig__row{grid-template-columns:minmax(0,1fr) auto}.ct-sig__row label,.ct-sig__nudge{grid-column:1 / -1}}'
   ].join('');
   document.head.appendChild(style);
 
   function C() { return window.PFACertificate; }
-  function range() { var c = C(); return (c && c.SIG_RANGE) || { x: 100, y: 50 }; }
+  function range() { var c = C(); return (c && c.SIG_RANGE) || { x: 1120, y: 792 }; }
   function home() { var c = C(); var h = (c && c.SIG_DEFAULT) || { x: 26, y: 0 }; return { x: h.x, y: h.y, s: h.s || 100 }; }
   /* the signature's size (owner, 15 Nov 2026: "there should be option to
      adjust the size of the sign as well not just position"), in per cent */
-  var SIZE = { min: 60, max: 160 };
+  var SIZE = { min: 20, max: 300 };
   function sizeRow(id, data, value, extra) {
     return '<div class="ct-sig__row"><label for="' + id + 'R">Size</label>'
       + '<input id="' + id + 'R" type="range" min="' + SIZE.min + '" max="' + SIZE.max + '" step="1" value="' + value + '" ' + data + ' aria-label="Size">'
@@ -70,6 +74,58 @@
     try { at = new Date(l.updatedAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' }); } catch (e) { at = l.updatedAt; }
     return 'Saved by ' + (l.updatedBy || 'someone') + ', ' + at + '.';
   }
+
+  /* fine steps beside every slider, wherever a Signature position is drawn
+     (owner, 27 Nov 2026: "there should be more/unlimited adjustment in terms
+     of left/right, up down etc.. wherever this feature is"). The range is
+     now the whole page or card, so the slider moves far and fast; these
+     move it by 1 or 10, and repeat while held. They set the row's number
+     box and say so, as typing in it does, so each studio's own code moves
+     the signature and offers Save. */
+  var STEPS = {
+    x: [[-10, '\u2190 10', 'Left 10'], [-1, '\u2190 1', 'Left 1'], [1, '1 \u2192', 'Right 1'], [10, '10 \u2192', 'Right 10']],
+    y: [[-10, '\u2191 10', 'Up 10'], [-1, '\u2191 1', 'Up 1'], [1, '1 \u2193', 'Down 1'], [10, '10 \u2193', 'Down 10']],
+    s: [[-10, '-10%', 'Smaller by 10 per cent'], [-1, '-1%', 'Smaller by 1 per cent'], [1, '+1%', 'Larger by 1 per cent'], [10, '+10%', 'Larger by 10 per cent']]
+  };
+  function axisOf(num) { return num.getAttribute('data-sig') || num.getAttribute('data-axis') || ''; }
+  function addNudges(rootEl) {
+    Array.prototype.forEach.call((rootEl || document).querySelectorAll('.ct-sig__row'), function (row) {
+      if (row.querySelector('.ct-sig__nudge')) return;
+      var num = row.querySelector('input[type=number]');
+      var steps = num && STEPS[axisOf(num)];
+      if (!steps) return;
+      var box = document.createElement('div');
+      box.className = 'ct-sig__nudge';
+      box.innerHTML = steps.map(function (s) { return '<button type="button" data-nudge="' + s[0] + '" aria-label="' + s[2] + '">' + s[1] + '</button>'; }).join('');
+      row.appendChild(box);
+    });
+  }
+  function nudge(btn) {
+    var num = btn.closest('.ct-sig__row').querySelector('input[type=number]');
+    if (!num) return;
+    var lo = Number(num.min), hi = Number(num.max);
+    var v = (Number(num.value) || 0) + Number(btn.getAttribute('data-nudge'));
+    if (Number.isFinite(lo) && num.min !== '') v = Math.max(lo, v);
+    if (Number.isFinite(hi) && num.max !== '') v = Math.min(hi, v);
+    num.value = String(v);
+    num.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  var held = null;
+  function letGo() { if (held) { clearTimeout(held.t); clearInterval(held.i); held = null; } }
+  document.addEventListener('pointerdown', function (e) {
+    var b = e.target.closest && e.target.closest('[data-nudge]');
+    if (!b || e.button) return;
+    e.preventDefault();
+    letGo();
+    nudge(b);
+    held = { t: setTimeout(function () { if (held) held.i = setInterval(function () { nudge(b); }, 70); }, 380) };
+  });
+  ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(function (ev) { document.addEventListener(ev, letGo, true); });
+  document.addEventListener('keydown', function (e) {
+    var b = e.target.closest && e.target.closest('[data-nudge]');
+    if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); nudge(b); }
+  });
+  new MutationObserver(function () { addNudges(); }).observe(document.body || document.documentElement, { childList: true, subtree: true });
 
   /* the + Signature position, as the pane is drawn */
   function panel(l) {
@@ -176,7 +232,7 @@
     member: { mod: function () { return window.PFAMemberCard; }, name: 'membership card' }
   };
   var cardSaved = { caregiver: { x: 0, y: 0, s: 100 }, member: { x: 0, y: 0, s: 100 } };
-  function cardRange(card) { var m = CARDS[card].mod(); return (m && m.SIG_RANGE) || { x: 60, y: 30 }; }
+  function cardRange(card) { var m = CARDS[card].mod(); return (m && m.SIG_RANGE) || { x: 860, y: 540 }; }
   function cardRow(card, axis, label, max, value) {
     var id = 'cs' + card + axis;
     return '<div class="ct-sig__row"><label for="' + id + 'R">' + label + '</label>'

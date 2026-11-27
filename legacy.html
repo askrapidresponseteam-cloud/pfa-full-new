@@ -395,7 +395,7 @@ if (root.document && root.document.head) apply(read());
           <a href="csr.html" data-nav="csr.html">CSR partnerships</a>
           <a href="partners.html" data-nav="partners.html">Partners in giving</a>
           <span class="menu-sep" aria-hidden="true"></span>
-          <a href="wall.html" data-nav="wall.html">The Wall</a>
+          <a href="the-wall.html" data-nav="the-wall.html">The Wall</a>
           <a href="events.html" data-nav="events.html">Events and podcasts</a>
           <a href="cinekind.html" data-nav="cinekind.html">CineKind</a>
         </div>
@@ -424,7 +424,7 @@ if (root.document && root.document.head) apply(read());
   <a class="pfa-tab" href="shop.html" data-tab="shop"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6 3.5 3.5 6.3l1.9 4 2-.9v11.1h9.2V9.4l2 .9 1.9-4-5.1-2.8c-.5 1.5-1.8 2.4-3.4 2.4s-2.9-.9-3.4-2.4Z"/></svg><span class="pfa-tab__badge" aria-hidden="true"></span><span class="pfa-tab__label">Shop</span></a>
   <button class="pfa-tab pfa-tab--menu" type="button" data-tab="menu" aria-controls="mnav" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="pfa-tab__label">Menu</span></button>
 </nav>
-<script src="assets/chrome.js?v=d4c4390f19"></script>
+<script src="assets/chrome.js?v=a68a8c80db"></script>
 <script src="assets/field-rules.js"></script>
 <script src="assets/field-validate.js"></script>
 
@@ -469,7 +469,7 @@ if (root.document && root.document.head) apply(read());
             <output id="pctOut" for="pct">10 per cent</output>
             <input type="range" id="pct" min="1" max="100" step="1" value="10">
           </div>
-          <div class="field" data-show="sum" hidden><label for="sum">Amount in rupees</label><input id="sum" inputmode="numeric" placeholder="5,00,000"></div>
+          <div class="field" data-show="sum" hidden><label for="sum">Amount in rupees</label><input id="sum" inputmode="numeric" placeholder="500000"></div>
           <div class="field" data-show="asset" hidden><label for="asset">The asset</label><input id="asset" placeholder="my flat at 12 Park Street, Kolkata"></div>
           <div class="field" data-show="memory" hidden><label for="memory">In memory of</label><input id="memory" placeholder="my mother, Kamala Rao"></div>
         </div>
@@ -586,7 +586,7 @@ if (root.document && root.document.head) apply(read());
         <li><a href="caregiver-card.html">Colony caregiver card</a></li>
         <li><a href="campus.html">PFA Campus</a></li>
         <li><a href="internship.html">Remote internship</a></li>
-        <li><a href="wall.html">The Wall</a></li>
+        <li><a href="the-wall.html">The Wall</a></li>
         <li><a href="events.html">Events and podcasts</a></li>
         <li><a href="cinekind.html">CineKind</a></li>
       </ul>
@@ -681,7 +681,7 @@ if (root.document && root.document.head) apply(read());
     $('#pctOut').textContent = pct + ' per cent';
     var what = '';
     if (g === 'share') what = mark(words(pct) + ' per cent (' + pct + '%) of the residue of my estate');
-    else if (g === 'sum') { var n = String($('#sum').value || '').replace(/[^0-9]/g, ''); what = 'the sum of ' + mark(n ? '₹' + Number(n).toLocaleString('en-IN') : '₹ ______'); }
+    else if (g === 'sum') { var n = String($('#sum').value || '').replace(/[^0-9]/g, ''); what = 'the sum of ' + mark(n ? '₹' + String(Math.round(Number(n))) : '₹ ______'); }
     else if (g === 'asset') what = mark($('#asset').value.trim() || '[the asset, described]');
     else if (g === 'memory') what = mark('[the gift]');
     var memory = g === 'memory' ? ' in memory of ' + mark($('#memory').value.trim() || '[name]') : '';

@@ -229,13 +229,22 @@
       + '<div class="qz__acts"><button class="btn" type="button" data-qz="back">Back to my dashboard</button></div>');
   }
 
+  /* leaving by a link on the screen steps the history back over the entry
+     the quiz added, so the browser's Back after it goes where it should
+     (end to end test, 27 Nov 2026: one Back was swallowed) */
+  var stepping = false;
   function back(fromHistory) {
     stopClock(); guard(false);
     st.attempt = null;
-    if (!fromHistory) { try { if (root.history.state && root.history.state.pfaQuiz) root.history.replaceState(null, ''); } catch (_) {} }
+    if (!fromHistory) {
+      var mine = false;
+      try { mine = Boolean(root.history.state && root.history.state.pfaQuiz); } catch (_) {}
+      if (mine) { stepping = true; root.history.back(); return; }
+    }
     H.reload();
   }
   root.addEventListener('popstate', function () {
+    if (stepping) { stepping = false; H.reload(); return; }
     if (!box || box.hidden) return;
     if (st.attempt && !root.confirm('Leave the quiz for now? The clock keeps running.')) {
       try { root.history.pushState({ pfaQuiz: 1 }, ''); } catch (_) {}
