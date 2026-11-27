@@ -79,20 +79,41 @@ test('the page: four facts with the amount, three without, the row closing up an
   };
   const hidden = P.publicOf(Object.assign({}, P.ROSIES, { amount: '2664.92', showAmount: false }));
   let d = await run(hidden);
-  let facts = [...d.querySelectorAll('.pg-facts li span')].map((s) => s.textContent);
+  let facts = [...d.querySelectorAll('.pg-facts > div > dt')].map((s) => s.textContent);
+  assert.equal(d.querySelector('.pg-facts').getAttribute('data-n'), '3');
   assert.deepEqual(facts, ['The gift', 'Where it works', 'Arrived']);
   assert.doesNotMatch(d.querySelector('[data-partners]').textContent, /amount|hidden|not shown|undisclosed/i);
   assert.equal(d.querySelector('.pg-count'), null, 'no count until there is one');
   const shown = P.publicOf(Object.assign({}, P.ROSIES, { amount: '2664.92', showAmount: true, timeline: P.ROSIES.timeline.concat([{ id: 't-w1', date: '2026-11-27', title: 'First days', count: 9 }]) }));
   d = await run(shown);
-  facts = [...d.querySelectorAll('.pg-facts li')].map((li) => li.textContent);
+  facts = [...d.querySelectorAll('.pg-facts > div')].map((li) => li.textContent);
+  assert.equal(d.querySelector('.pg-facts').getAttribute('data-n'), '4');
   assert.equal(facts.length, 4);
   assert.match(facts[3], /Given\s*US\$2664\.92/);
   assert.match(d.querySelector('.pg-count').textContent, /9animals carried to care so far, with Rosie’s Heroes’ gift/);
-  assert.equal(d.querySelector('.pg-lock__donor').getAttribute('src'), 'media/partners/rosies-heroes/logo.webp');
+  assert.equal(d.querySelector('.pg-with__donor').getAttribute('src'), 'media/partners/rosies-heroes/logo.webp');
   assert.ok(d.querySelector('h1.pg-title'));
-  /* the row of facts is a grid that fills its width, three or four */
-  assert.match(read('assets/partners.css'), /\.pg-facts\{[^}]*grid-template-columns:repeat\(auto-fit,minmax\(min\(100%,200px\),1fr\)\)/);
+  /* the logos stand on the page, never in a box over the photograph */
+  assert.equal(d.querySelector('.pg-open__photo .pg-with'), null);
+  /* the row of facts is as many columns as there are facts, so it closes up */
+  const css = read('assets/partners.css');
+  assert.match(css, /\.pg-facts\{[^}]*grid-template-columns:repeat\(var\(--n,3\),minmax\(0,1fr\)\)/);
+  assert.match(css, /\.pg-facts\[data-n="3"\]\{--n:3\}/);
+  assert.match(css, /\.pg-facts\[data-n="4"\]\{--n:4\}/);
+  /* the livery is drawn once, and not at all for anyone who asks for less motion */
+  assert.match(css, /@media \(prefers-reduced-motion:no-preference\)\{\s*\.pg-wave path\{animation:/);
+});
+
+test('the page without script carries the first partnership, written by the page\'s own render', () => {
+  const B = require('../scripts/build-partners');
+  const page = read('partners.html');
+  assert.equal(B.build(page), page, 'partners.html is out of date: run node scripts/build-partners.js');
+  const { render } = require('../assets/partners.js');
+  assert.ok(page.includes(render(P.publicOf(P.ROSIES), true, B.AS_OF)));
+  const d = new JSDOM(page).window.document;
+  assert.equal(d.querySelectorAll('h1.pg-title').length, 1);
+  assert.ok(d.querySelector('.pg-open svg.pg-wave'));
+  assert.doesNotMatch(d.querySelector('[data-partners]').textContent, /amount|hidden|not shown|undisclosed/i);
 });
 
 test('wired in: the routes, the panel section with its switch, the menu and footer, the rules, no long dashes', () => {

@@ -234,11 +234,12 @@ test('an attempt on the old bank is marked as it was', () => {
 
 /* ---- sitting it ------------------------------------------------------------- */
 
-test('the quiz opens with the internship; the browser never sees an answer while it is open', async () => {
+test('the quiz is open from the day they are in; the browser never sees an answer while it is open', async () => {
   const { br } = await intern();
-  const early = await br.go('quiz', 'POST', { action: 'start' });
-  assert.equal(early.status, 409);
-  assert.match(early.json.message, /opens when your internship starts, on Mon 9 Nov/);
+  /* owner, 27 Nov 2026: "why am i not able to start the quiz right away" */
+  const early = await br.go('me', 'GET');
+  assert.equal(early.json.batch.week < 1, true, 'the batch has not started yet');
+  assert.equal(early.json.quiz.canStart, true);
 
   NOW = at('2026-11-09T05:00:00.000Z');
   const me = await br.go('me', 'GET');

@@ -1,3 +1,15 @@
+## v1.646
+
+- **Partners in giving, redrawn in the ambulance's own livery: logos on white, the wave across the page.** Owner, 27 Nov 2026: "the white bg logo thing looks yuck to the core.. plan and do the page better. it has to be world class".
+  - The logos no longer sit in a white box over the photograph. The page opens with the words on the left, on white, and the photograph filling the right: "A gift from" Rosie's Heroes' logo "to" PFA's, standing on the page as they do on the ambulance's doors, then the headline and one line on what was given.
+  - Across the foot of the opening, the ambulance's own red wave over a sky-blue one, with its saffron line, drawn in once as the page opens (still, for anyone whose device asks for less motion). On a phone the photograph comes first and the wave runs along its foot.
+  - The facts are a quiet row with thin rules between them, as many columns as there are facts, so with the amount hidden the row is three wide and nothing is said. The thanks are a letter "To Rosie's Heroes" on a pale sky panel, with the people beside it. The photographs sit beside the story, one large and two smaller. The timeline has its dates large down the side and a saffron line; a day still to come is dashed and marked Coming up. The page closes on a dark band: "Yours can be next", Give to PFA and Partner with PFA.
+  - A browser without script, and search engines, see the same page: scripts/build-partners.js writes the first partnership into partners.html with the page's own render, and a test fails if the two ever differ.
+- **Interns can take the quiz the day they are in, and every quiz screen has a way back.** Owner, 27 Nov 2026: "why am i not able to start the quiz right away,.. why is it asking to wait till 30 Nov", then "why no back button. there should be a easy way to navigate within modules as well".
+  - The quiz no longer waits for the batch's first Monday. It also no longer showed Start and then refused: the button and the server now agree. Before the start, the dashboard says "You can read every week, and take the quiz, now."
+  - Every quiz screen opens with "My dashboard" at the top. The browser's own Back goes to the dashboard instead of off the site; during an attempt it asks first, since the clock keeps running.
+  - Under each week's tasks, the previous and next week, by name, so an intern moves through the weeks without going back up to the row of weeks.
+
 ## v1.645
 
 - **Interns can sign in again: the sign-in cookie is one Firebase passes on.** Owner, 27 Nov 2026: "why is remote internship not working. pls fix immediately ... on clicking sign in - nothing works".

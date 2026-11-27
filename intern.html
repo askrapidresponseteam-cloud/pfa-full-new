@@ -177,6 +177,16 @@ input,button,textarea,select{font-family:inherit;font-size:inherit;color:inherit
 .wk[data-done="1"] b::after{content:" \00b7  done";font-weight:400}
 
 .wkhead{display:grid;gap:6px}
+.wkpager{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.wkpager:empty{display:none}
+.wkpager__b{display:grid;gap:3px;justify-items:start;min-width:0;padding:12px 14px;border:1px solid var(--line);background:#fff;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.wkpager__b:hover{border-color:#111}
+.wkpager__b:focus-visible{outline:2px solid #111;outline-offset:2px}
+.wkpager__b small{font-size:12px;color:rgba(17,17,17,.65)}
+.wkpager__b span{font-size:14px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
+.wkpager__b--next{grid-column:2;justify-items:end;text-align:right}
+.qz__back{margin:0}
+.qz__back .linkish{font-size:14px}
 .wkhead h2{margin:0;font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(24px,3vw,36px);line-height:1.05}
 .wkhead p{margin:0;font-size:14px;line-height:1.55;color:rgba(17,17,17,.75)}
 
@@ -692,6 +702,7 @@ if (root.document && root.document.head) apply(read());
       <nav class="weeks" id="dbWeeks" aria-label="Weeks"></nav>
       <div class="wkhead"><h2 id="dbWkTitle"></h2><p id="dbWkSum"></p></div>
       <div class="tasks" id="dbTasks"></div>
+      <nav class="wkpager" id="dbPager" aria-label="Previous and next week"></nav>
 
       <details class="tile fold" id="dbEls" hidden>
         <summary id="dbElsH">Choose your electives</summary>
@@ -998,7 +1009,7 @@ if (root.document && root.document.head) apply(read());
     if (b.week < 1) {
       $('#dbWeekH').textContent = 'Starts';
       $('#dbWeekT').textContent = 'Week 1';
-      $('#dbWeekDue').textContent = 'Your internship starts on ' + when(b.weeks[0].from + 'T00:00:00+05:30').replace(/,.*$/, '') + '. You can read every week now.';
+      $('#dbWeekDue').textContent = 'Your internship starts on ' + when(b.weeks[0].from + 'T00:00:00+05:30').replace(/,.*$/, '') + (data.quiz && data.quiz.canStart ? '. You can read every week, and take the quiz, now.' : '. You can read every week now.');
     } else if (b.week > n) {
       $('#dbWeekH').textContent = 'The internship';
       $('#dbWeekT').textContent = 'Ended';
@@ -1059,6 +1070,19 @@ if (root.document && root.document.head) apply(read());
       html += '<div class="tile"><p class="tile__p">Choose your ' + b.electivesRequired + ' electives below to see them here.</p></div>';
     }
     $('#dbTasks').innerHTML = html || '<div class="tile"><p class="tile__p">Nothing is due this week.</p></div>';
+    /* move a week either way from the foot of the list (owner, 27 Nov 2026:
+       "there should be a easy way to navigate within modules as well") */
+    var prev = b.weeks[week - 2], next = b.weeks[week];
+    $('#dbPager').innerHTML = (prev ? '<button class="wkpager__b" type="button" data-wk="' + prev.n + '"><small>\u2039 Week ' + prev.n + '</small><span>' + esc(prev.title) + '</span></button>' : '<span></span>')
+      + (next ? '<button class="wkpager__b wkpager__b--next" type="button" data-wk="' + next.n + '"><small>Week ' + next.n + ' \u203a</small><span>' + esc(next.title) + '</span></button>' : '');
+  }
+  function goWeek(n, scroll) {
+    week = n;
+    Array.prototype.forEach.call(document.querySelectorAll('#dbWeeks [data-wk]'), function (x) { x.setAttribute('aria-pressed', String(Number(x.getAttribute('data-wk')) === week)); });
+    drawWeek();
+    var on = $('#dbWeeks [aria-pressed="true"]');
+    if (on) { try { $('#dbWeeks').scrollLeft = on.offsetLeft - 8; } catch (_) {} }
+    if (scroll) { try { $('#dbWeeks').scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (_) {} }
   }
 
   /* week 1's law task is passed by the quiz (assets/intern-quiz.js) */
@@ -1106,9 +1130,11 @@ if (root.document && root.document.head) apply(read());
   $('#dbWeeks').addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-wk]');
     if (!b) return;
-    week = Number(b.getAttribute('data-wk'));
-    Array.prototype.forEach.call(document.querySelectorAll('#dbWeeks [data-wk]'), function (x) { x.setAttribute('aria-pressed', String(Number(x.getAttribute('data-wk')) === week)); });
-    drawWeek();
+    goWeek(Number(b.getAttribute('data-wk')), false);
+  });
+  $('#dbPager').addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-wk]');
+    if (b) goWeek(Number(b.getAttribute('data-wk')), true);
   });
 
   function readFile(file) {

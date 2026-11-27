@@ -65,11 +65,17 @@
 
   /* ---- the quiz screen ------------------------------------------------------ */
 
+  /* a way back on every quiz screen (owner, 27 Nov 2026: "why no back
+     button"), and the browser's own Back goes to the dashboard rather than
+     off the site. While an attempt is open it asks first, as Leave for now
+     does, since the clock keeps running. */
   function frame(html) {
     H.view('#ipQuiz');
     var t = document.getElementById('ipTitle');
     if (t) t.textContent = 'The quiz.';
-    box.innerHTML = html + (html.indexOf('data-qz-say') === -1 ? '<p class="say" data-qz-say role="status" aria-live="polite"></p>' : '');
+    try { if (!(root.history.state && root.history.state.pfaQuiz)) root.history.pushState({ pfaQuiz: 1 }, ''); } catch (_) {}
+    var top = '<p class="qz__back"><button class="linkish" type="button" data-qz="' + (st.attempt ? 'leave' : 'back') + '">\u2039 My dashboard</button></p>';
+    box.innerHTML = top + html + (html.indexOf('data-qz-say') === -1 ? '<p class="say" data-qz-say role="status" aria-live="polite"></p>' : '');
     try { box.scrollIntoView({ block: 'start' }); } catch (_) {}
   }
 
@@ -223,11 +229,20 @@
       + '<div class="qz__acts"><button class="btn" type="button" data-qz="back">Back to my dashboard</button></div>');
   }
 
-  function back() {
+  function back(fromHistory) {
     stopClock(); guard(false);
     st.attempt = null;
+    if (!fromHistory) { try { if (root.history.state && root.history.state.pfaQuiz) root.history.replaceState(null, ''); } catch (_) {} }
     H.reload();
   }
+  root.addEventListener('popstate', function () {
+    if (!box || box.hidden) return;
+    if (st.attempt && !root.confirm('Leave the quiz for now? The clock keeps running.')) {
+      try { root.history.pushState({ pfaQuiz: 1 }, ''); } catch (_) {}
+      return;
+    }
+    back(true);
+  });
 
   /* ---- clicks and keys ------------------------------------------------------- */
 
@@ -245,8 +260,7 @@
     else if (what === 'back') back();
     else if (what === 'leave') {
       if (b.getAttribute('data-sure') === '1') return back();
-      b.setAttribute('data-sure', '1');
-      b.textContent = 'Leave: the clock keeps running';
+      Array.prototype.forEach.call(box.querySelectorAll('[data-qz="leave"]'), function (x) { x.setAttribute('data-sure', '1'); x.textContent = 'Leave: the clock keeps running'; });
     }
   });
   document.addEventListener('change', function (e) {
