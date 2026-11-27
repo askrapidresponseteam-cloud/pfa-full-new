@@ -566,6 +566,79 @@
     /* monthly giving, while the panel has it on (donate#monthly) */
     /* the site's own paragraphs, once the page has them (assets/assistant-answers.json) */
     function siteDocs() { try { return typeof o.docs === 'function' ? o.docs() : o.docs || null; } catch (_) { return null; } }
+    /* Every public page by its own names, from the build (scripts/build-
+       answer-index.js, owner 27 Nov 2026: "the chatbot always needs to get
+       updated whenever something small or big gets added to the site").
+       Until the list arrives, the titles of the site's paragraphs stand in. */
+    function sitePages() {
+      var got = null;
+      try { got = typeof o.pages === 'function' ? o.pages() : o.pages || null; } catch (_) { got = null; }
+      if (got && got.length) return got;
+      var seen = {}, list = [];
+      (siteDocs() || []).forEach(function (d) {
+        var u = String(d.url || '').replace(/^\//, '').split('#')[0];
+        if (!u || seen[u] || u === 'index.html') return;
+        seen[u] = 1;
+        list.push({ u: u, t: String(d.title || ''), l: '', d: '' });
+      });
+      return list;
+    }
+    /* a page named in a word or a few ("partner", "rabies", "cinekind",
+       "the pet parent series"): every word the visitor typed is one of the
+       page's own, in its title or the name the menu gives it, as written,
+       singular or plural, or the start of a longer one ("partner",
+       "partnerships"). The best first, then up to two close ones. */
+    var PG_FILL = /^(the|and|for|with|pfa|people|animal|animals|page|pages|site|website|about|your|our|of|in|on|a|an|to|is|me|my|please|plz|pls|show|open|link)$/;
+    function namedPages(text) {
+      var want = N.tokens(N.normalise(text)).filter(function (w) { return w.length > 2 && !PG_FILL.test(w); });
+      if (!want.length || want.length > 4) return null;
+      var said = want.join(' ');
+      var found = [];
+      sitePages().forEach(function (pg, i) {
+        var tw = N.tokens(N.normalise(pg.t)).filter(function (w) { return w.length > 2 && !PG_FILL.test(w); });
+        var lw = N.tokens(N.normalise(pg.l || '')).filter(function (w) { return w.length > 2 && !PG_FILL.test(w); });
+        var all = tw.concat(lw);
+        var inLabel = 0, sum = 0;
+        var every = want.every(function (w) {
+          var q = 0;
+          all.forEach(function (x) {
+            var k = x === w || x === w + 's' || w === x + 's' || x === w + 'es' || w === x + 'es' ? 2
+              : (w.length > 4 && x.indexOf(w) === 0) || (x.length > 4 && w.indexOf(x) === 0 && w.length - x.length <= 3) || (w.length > 5 && sameName(w, x)) ? 1 : 0;
+            if (k > q) q = k;
+          });
+          if (q && lw.some(function (x) { return x === w || x === w + 's' || w === x + 's'; })) inLabel += 1;
+          sum += q;
+          return q > 0;
+        });
+        if (!every) return;
+        var head = N.tokens(N.normalise(String(pg.t).split(/\s*:\s*/)[0])).filter(function (w) { return w.length > 2 && !PG_FILL.test(w); }).join(' ');
+        var exact = said === lw.join(' ') || said === head || said + 's' === head || said === head + 's';
+        var extra = tw.filter(function (x) { return want.indexOf(x) < 0; }).length;
+        found.push({ pg: pg, i: i, score: sum * 10 + (inLabel === want.length ? 6 : 0) + (pg.l ? 2 : 0) + (exact ? 20 : 0) - Math.min(extra, 8) });
+      });
+      if (!found.length) return null;
+      found.sort(function (a, b) { return b.score - a.score || a.i - b.i; });
+      var top = found[0];
+      return { top: top.pg, also: found.slice(1).filter(function (f) { return f.score >= top.score / 2; }).slice(0, 2).map(function (f) { return f.pg; }) };
+    }
+    function namedSay(hit, go) {
+      var pg = hit.top;
+      var own = null;
+      Object.keys(PAGES).forEach(function (k) { if (!own && PAGES[k].href === pg.u) own = PAGES[k]; });
+      var name = own ? L(own.title, lang()) : (pg.l || String(pg.t).split(/\s*:\s*/)[0]);
+      var text = own ? L(own.say, lang()) : (pg.d || name);
+      /* each link says which page it opens; a second page with the same
+         short name is told apart by its full title */
+      var links = [{ label: lang() === 'hi' ? name + ' खोलें' : 'Open ' + name, href: pg.u }].concat(hit.also.map(function (x) {
+        var short = x.l || String(x.t).split(/\s*:\s*/)[0];
+        return { label: short === name ? String(x.t) : short, href: x.u };
+      }));
+      var chips = [];
+      if (go && FLOWS[go]) chips.push(chip(go, lang()));
+      chips.push({ label: t('menuChip', lang()), value: '#menu' });
+      S.phase = 'menu'; S.flow = ''; S.answered = S.deskQuestion || '';
+      return out([msg(text, { links: links, chips: chips })]);
+    }
     function taughtNow() { try { return (typeof o.taught === 'function' ? o.taught() : o.taught) || []; } catch (_) { return []; } }
     function herePage() { try { return typeof o.page === 'function' ? o.page() : o.page || ''; } catch (_) { return ''; } }
 
@@ -2040,6 +2113,14 @@
       /* a question with a straight answer gets it, in one line */
       var fact = factOf(s, top && top.id);
       if (fact) { var said1 = answer(fact); S.answered = s; return said1; }
+      /* a page named in a word or a few, before anything else guesses at
+         it ("partner" was taken for a name, 27 Nov 2026); a task asked for
+         ("donate", "report", "volunteer") still starts its form */
+      var doingNow = { report: 1, donate: 1, member: 1, volunteer: 1, internship: 1, track: 1, receipt: 1, verify: 1, shop: 1, newunit: 1, desk: 1, greet: 1, thanks: 1, nearby: 1 };
+      if ((!top || !doingNow[top.id]) && !ASKING.test(s) && !N.referenceOf(s) && !/^(i|we|my|mera|meri|mujhe)\b/.test(N.normalise(s))) {
+        var hitPg = namedPages(s);
+        if (hitPg) return namedSay(hitPg, top && INTENT_TO[top.id]);
+      }
       /* a unit's town or state, said on its own or with "pfa", "unit",
          "contact" (22 Nov 2026: "pfa pune", "ahmedabad", "unit in gujarat"):
          the units there, not a search */

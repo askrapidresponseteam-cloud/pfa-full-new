@@ -1,3 +1,11 @@
+## v1.651
+
+- **The chat knows every page on the site by its own names, kept up to date by the build itself.** Owner, 27 Nov 2026: "the chatbot always needs to get updated whenever something small or big gets added to the site..", after "partner" was answered "I could not find Partner on the site".
+  - Every build now writes a directory of every public page into the chat's index: its title, the name the menu or footer gives it, and its description. A word or a few that name a page ("partner", "rabies", "cinekind", "pfa live", "seasonal") are answered with that page and up to two close ones, before the chat guesses the word is a person's name. A page added to the site is known to the chat the same day, with nothing written for it by hand.
+  - Tasks still start their forms ("donate", "report cruelty", "remote internship"), a town still finds its units ("pfa pune"), and a name the site does not carry is still asked about.
+  - "Rabies" now opens the rabies page rather than the Academy, and "CineKind" the CineKind page rather than the newsroom. Each link says which page it opens.
+  - A new test asks the chat for every public page by its menu name, its title and the one word that names it, through the same search the browser uses, and fails the build if any page cannot be reached.
+
 ## v1.650
 
 - **The internship quiz: no limit on attempts, and no wait between them.** Owner, 27 Nov 2026: "dont need limit for attempts. and one should be able to start anytime pls.. no unnecessary wait time".

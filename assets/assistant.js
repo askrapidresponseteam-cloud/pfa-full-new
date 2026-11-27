@@ -789,7 +789,8 @@
   /* the site's paragraphs, read as soon as the chat opens, so a question
      the site answers is answered before a task is guessed from one word
      (22 Nov 2026) */
-  var docsKept = null;
+  var docsKept = null, pagesKept = null;
+  function pagesNow() { docsNow(); return pagesKept; }
   /* the page the chat is open on, as the site names its pages */
   function pageNow() { var p = String(location.pathname || '/').replace(/^\//, ''); return p ? (/\.html$/.test(p) ? p : p.replace(/\/$/, '') + '.html') : 'index.html'; }
   function docsNow() {
@@ -810,6 +811,8 @@
   function siteText() {
     if (!siteDocs) {
       siteDocs = fetch('/assets/assistant-answers.json', { headers: { Accept: 'application/json' } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (ix) {
+        /* every public page by its names, built with the site (scripts/build-answer-index.js) */
+        pagesKept = ix && Array.isArray(ix.pages) ? ix.pages : null;
         return ((ix && ix.passages) || []).map(function (p) { return { title: p.t, url: p.u, heading: p.h, text: p.x }; });
       }).catch(function () { siteDocs = null; return []; });
     }
@@ -858,7 +861,7 @@
     var kept = load();
     var lang = (doc.documentElement.getAttribute('lang') || '').indexOf('hi') === 0 ? 'hi' : 'en';
     if (kept && kept.state) {
-      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, page: pageNow, taught: taughtNow }); docsNow(); taughtNow();
+      session = FL.createSession({ state: kept.state, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, pages: pagesNow, page: pageNow, taught: taughtNow }); docsNow(); taughtNow();
       log = kept.log || [];
       log.forEach(function (x, i) { draw(x.who === 'me' ? { text: x.text, cid: x.cid, n: x.n, st: x.st === 'sending' ? 'failed' : x.st } : x.m, x.who, i === log.length - 1); });
       /* a payment page opened and came back, or the tab was reloaded mid-send:
@@ -870,7 +873,7 @@
       if (kept.state.phase === 'live') { if (kept.state.live && kept.state.live.id) poll(); else show(session.tap('#endlive'), null); }
       logEl.scrollTop = logEl.scrollHeight;
     } else {
-      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, page: pageNow, taught: taughtNow }); docsNow(); taughtNow();
+      session = FL.createSession({ lang: lang, monthly: monthly, live: liveOnline, bag: shopBag, docs: docsNow, pages: pagesNow, page: pageNow, taught: taughtNow }); docsNow(); taughtNow();
       show(session.start(), null);
     }
   }

@@ -89,12 +89,31 @@ function passages(html) {
   return out;
 }
 
+/* Every public page by its own names (owner, 27 Nov 2026: "the chatbot
+   always needs to get updated whenever something small or big gets added to
+   the site"): its title, the name the menu or the footer gives it, and its
+   description. Built from the pages at every build, so a page added to the
+   site is a page the chat can name the same day, with no entry written for
+   it by hand. test/assistant-every-page.test.js asks the chat for each one. */
+function labelsOf() {
+  const out = {};
+  const header = fs.readFileSync(path.join(ROOT, 'assets', 'chrome-header.html'), 'utf8');
+  for (const m of header.matchAll(/\{\{CURRENT:([a-z0-9-]+\.html)\|([^}]+)\}\}/g)) out[m[1]] = out[m[1]] || plain(m[2].split('|')[0]);
+  const footer = fs.readFileSync(path.join(ROOT, 'assets', 'chrome-footer.html'), 'utf8');
+  for (const m of footer.matchAll(/<a href="([a-z0-9-]+\.html)">([^<]{2,60})<\/a>/g)) out[m[1]] = out[m[1]] || plain(m[2]);
+  return out;
+}
+
 function build() {
   const docs = [];
+  const pages = [];
+  const labels = labelsOf();
   for (const file of SEARCH.publicPages()) {
     const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
     if (/<meta name="robots" content="noindex/i.test(html)) continue;
-    const title = plain((/<title>([\s\S]*?)<\/title>/i.exec(html) || [])[1] || file).replace(/\s*\|\s*People for Animals\s*$/i, '');
+    const title = plain((/<title>([\s\S]*?)<\/title>/i.exec(html) || [])[1] || file).replace(/\s*[|\u00b7]\s*People for Animals\s*$/i, '');
+    const desc = plain((/<meta name="description" content="([^"]*)"/i.exec(html) || [])[1] || '');
+    if (file !== 'index.html') pages.push({ u: file, t: title, l: labels[file] || '', d: desc });
     const seen = new Set();
     for (const p of passages(html)) {
       if (seen.has(p.x)) continue;
@@ -103,7 +122,7 @@ function build() {
     }
   }
   for (const d of fromData()) docs.push(d);
-  return { generatedFrom: 'the public pages and the data they are drawn from (scripts/build-answer-index.js)', passages: docs };
+  return { generatedFrom: 'the public pages and the data they are drawn from (scripts/build-answer-index.js)', pages, passages: docs };
 }
 
 /* What some pages draw in the browser from their data, and the membership
