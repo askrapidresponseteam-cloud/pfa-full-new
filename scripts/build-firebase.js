@@ -97,7 +97,7 @@ const PANEL_ASSETS = [
   /* and its district borders (21 Nov 2026): the panel's alone, not the public site's (.vercelignore) */
   'assets/vendor/india-districts/india-districts.json', 'assets/vendor/india-districts/SOURCE.txt', 'assets/vendor/india-districts/LICENSE.txt',
   /* the viewer draws a PDF sent with a case with the site's own pdf.js (11 Nov 2026) */
-  'assets/vendor/pdfjs/pdf.min.js', 'assets/vendor/pdfjs/pdf.worker.min.js', 'assets/vendor/pdfjs/wasm/jbig2.wasm', 'assets/vendor/pdfjs/wasm/openjpeg.wasm', 'assets/vendor/pdfjs/wasm/qcms_bg.wasm', 'assets/vendor/pdfjs/LICENSE', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-live-chat.js', 'assets/admin-taxid.js',
+  'assets/vendor/pdfjs/pdf.min.js', 'assets/vendor/pdfjs/pdf.worker.min.js', 'assets/vendor/pdfjs/wasm/jbig2.wasm', 'assets/vendor/pdfjs/wasm/openjpeg.wasm', 'assets/vendor/pdfjs/wasm/qcms_bg.wasm', 'assets/vendor/pdfjs/LICENSE', 'assets/admin-analytics.js', 'assets/admin-reports.js', 'assets/admin-replies.js', 'assets/admin-wall.js', 'assets/admin-conversations.js', 'assets/admin-live-chat.js', 'assets/admin-taxid.js',
   'fonts/cinzel-latin-500.woff2',
   'fonts/cinzel-latin-600.woff2',
   'fonts/dm-sans-latin-400.woff2',
@@ -343,6 +343,9 @@ function buildSite(opts) {
     }
   }
   const files = copySite(DIST, SITE);
+  /* every page's stylesheets and scripts stamped with the files as they ship,
+     so a browser never pairs a new page with an old style (scripts/stamp-assets.js) */
+  require('./stamp-assets.js').stampTree(SITE);
   const pages = fs.readdirSync(SITE).filter((f) => f.endsWith('.html')).length;
   if (!fs.existsSync(path.join(SITE, 'index.html'))) {
     console.error('\nREFUSING TO BUILD: the website has no index.html');

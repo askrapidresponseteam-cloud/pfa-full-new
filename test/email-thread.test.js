@@ -406,7 +406,12 @@ test('two submissions from the same person: each reply lands on the one it answe
 
   /* no headers at all and a stranger's address: the reference in the subject is not enough */
   const stranger = { from: 'someone@example.net', to: [SITE_MAILBOX], subject: `Re: ${a.json.reference}: Help desk query from Asha Rao`, messageId: '<x1@example.net>', text: 'Hello' };
-  assert.equal((await arrives(stranger)).json.reason, 'NO_THREAD');
+  /* (28 Nov 2026) it is not filed on the submission; it is kept as a new
+     conversation in the panel, where it can be answered from info@ */
+  const s1 = (await arrives(stranger)).json;
+  assert.equal(s1.reference, undefined, 'never filed on the submission it names');
+  assert.match(String(s1.conversation), /^MC-/);
+  assert.equal(messagesOf(a.json.reference).filter((m) => m.type === 'reply').length, 0);
 
   /* no headers, but from the inbox itself: filed, and marked as matched by the subject */
   const bare = { from: INBOX, to: [PERSON_A, SITE_MAILBOX], subject: `Re: ${a.json.reference}: Help desk query from Asha Rao`, messageId: '<x2@mail.sansad.in>', text: 'A vet is at Defence Colony.' };
@@ -416,7 +421,7 @@ test('two submissions from the same person: each reply lands on the one it answe
   assert.equal(filed.json.how, 'subject');
 
   /* unrelated mail to the mailbox is left alone */
-  assert.equal((await arrives({ from: 'news@example.com', to: [SITE_MAILBOX], subject: 'Weekly newsletter', messageId: '<n@example.com>', text: 'Hi' })).json.reason, 'NO_THREAD');
+  assert.equal((await arrives({ from: 'news@example.com', to: [SITE_MAILBOX], subject: 'Weekly newsletter', messageId: '<n@example.com>', text: 'Hi', headers: { 'List-Unsubscribe': '<mailto:out@example.com>' } })).json.reason, 'NO_THREAD');
   assert.equal(records().length, 2);
 });
 

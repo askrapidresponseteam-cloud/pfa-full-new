@@ -1,3 +1,22 @@
+## v1.654
+
+- **Every email to info@ is kept and answered, back and forth, all through info@.** Owner, 28 Nov 2026: "ensure every revert/reply of email is properly sent and received from info@ for all queries and responses.. back and forth".
+  - What was missing: a reply to a form's email was already filed on the form, but a reply to anything else the site sends (a card posted, an intern's start link, a letter, a birthday card, a shop shipment, a membership card) and any new email someone wrote to info@ was only counted as "not about a submission" and left in the mailbox. Nobody in the panel saw it and nobody was told.
+  - Now every email the site sends from info@ is written down by its Message-ID (the id a mail program quotes when someone presses Reply), with which email it was and whom it went to (lib/mail-conversations.js). A reply naming it is known for what it answers.
+  - Such a reply, and a new email from a person, becomes a conversation in the admin panel (Overview, Conversations, under Replies): who wrote, what it answers, every message in order, Waiting until someone answers.
+  - It is carried on as the standing rules say: an answer to an email about money goes to pfadcmho@gmail.com and ozairhusain@gmail.com only (and is shown only to those who may see Payments); anything about the internship stays in the panel; a reply to any other site email goes to gandhim@exmpls.sansad.in. A new email nobody asked for waits in the panel, so gandhim's inbox does not fill with what any address sends to info@ (it is still in the info@ mailbox as before).
+  - Answering: from the panel (Send answer), or by pressing Reply on the relayed email. Either way the answer goes to the person from info@, never from a personal mailbox, threaded under their last message with the same "Re:" subject, and their next reply comes back to the same conversation. As many rounds as it takes. Close it when done; it opens again by itself if they write back.
+  - Left alone, as before: newsletters and mailing lists, automatic replies (an out-of-office on a site email is kept on its conversation but asks for nothing), no-reply senders, and staff copying info@ on their own mail. The same email arriving twice is filed once.
+  - An answer typed in the panel is not marked as automatic mail (Auto-Submitted), so mail programs treat it as a person's email; the same now holds for the Old site members messages.
+  - test/mail-conversations.test.js sends every email in the wording test to a person and replies to each one (from info@, Reply reaches info@, kept, knows what it answers, right inbox), then runs the whole loop: person, gandhim by email, person, panel, closed, reopened; a new email answered and answered back; money kept to the payments pair; what is left alone.
+
+## v1.653
+
+- **Every page's styles and scripts go live stamped, so no button is ever drawn black on black.** Owner, 27 Nov 2026: "buttons cannot be black like this, anywhere. fix", of The Wall's "Share your video" showing as an empty black box.
+  - The cause: pages are served fresh, but a page's own stylesheet could be kept by the browser for an hour and then served stale for a day. The new page asked for PFA's square buttons; the browser still held the old the-wall.css, which had no rule for them, so the button's words took the page's ink, on ink. Only the site's shared stylesheet and script, and the chat's files, carried a stamp.
+  - Now scripts/stamp-assets.js stamps every stylesheet and script on every page with the file exactly as it ships (?v= its fingerprint), on the copy that goes live, at every build. A deploy can never pair a new page with an old style again. test/asset-stamps.test.js fails the build if a page's file goes out unstamped.
+  - Every button and link on every public page was then checked in a browser at 1440 and 390 wide for words that do not stand out from their own background: none.
+
 ## v1.652
 
 - **/partners is the owner's second thank-you design: the founder, the team, no logo panel, no arrows.** Owner, 27 Nov 2026: partners.html, "bg behind logo is shit..", "never have this kinda arrows", "contrast is fucked".

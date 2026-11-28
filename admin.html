@@ -1615,8 +1615,9 @@ window.addEventListener('unhandledrejection', function (event) {
       if (me && me.role === 'super') out.push('<section class="mailbox" id="testData" aria-live="polite" hidden></section>');
       if (can('submissions')) out.push('<section class="mailbox" id="mailbox" aria-live="polite"><h2>Email</h2><p class="state">Checking\u2026</p></section>');
       if (can('submissions')) out.push('<section class="mailbox" id="replies" aria-live="polite"><h2>Replies</h2><p class="state">Checking\u2026</p></section>');
+      if (can('submissions')) out.push('<section class="mailbox" id="conversations"><h2>Conversations</h2><p class="state">Checking\u2026</p></section>');
       node.innerHTML = out.join('');
-      if (can('submissions')) { mailbox(); replies(); }
+      if (can('submissions')) { mailbox(); replies(); if (window.PFAConversations) window.PFAConversations.load(); }
       if (me && me.role === 'super') { testData(testSaid); testSaid = ''; }
       offerKinds(m.byKind);
       var pip = $('#pipWaiting');
@@ -1966,8 +1967,9 @@ window.addEventListener('unhandledrejection', function (event) {
         say(note, 'Reading\u2026');
         api('/api/inbound-mail', { method: 'POST', body: {} }).then(function (s) {
           if (s.error) { say(note, s.error, 'bad'); button.disabled = false; return; }
+          if (window.PFAConversations) window.PFAConversations.load();
           replies({
-            text: s.fetched + ' new ' + (s.fetched === 1 ? 'email' : 'emails') + ', ' + s.filed + ' filed on a submission' + (s.unmatched ? ', ' + s.unmatched + ' not about a submission' : '')
+            text: s.fetched + ' new ' + (s.fetched === 1 ? 'email' : 'emails') + ', ' + s.filed + ' filed (on a form, or under Conversations)' + (s.unmatched ? ', ' + s.unmatched + ' left in the mailbox (newsletters, automatic notices, staff copies)' : '')
               + (s.waiting ? ', ' + s.waiting + ' to be read again' : '') + (s.parked ? ', ' + s.parked + ' set aside after repeated failures' : '') + '.',
             tone: s.parked ? 'bad' : 'good'
           });
@@ -6286,6 +6288,7 @@ window.addEventListener('unhandledrejection', function (event) {
 <script src="assets/admin-reports.js"></script>
 <script src="assets/admin-replies.js"></script>
 <script src="assets/admin-wall.js"></script>
+<script src="assets/admin-conversations.js"></script>
 <script src="assets/admin-mednotes.js"></script>
 <script src="assets/admin-letters.js"></script>
 <script src="assets/admin-live-chat.js"></script>
